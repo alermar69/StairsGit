@@ -1,0 +1,9 @@
+<option value="прозрачное">прозрачное</option>
+<option value="оптивайт">оптивайт</option>
+<option value="тонированное">тонированное в массе</option>
+<option value="матовое">матовое</option>
+<option value="с пленкой">с пленкой</option>
+<option value="триплекс">триплекс прозрачный сырой</option>
+<option value="триплекс каленый">триплекс прозрачный закаленный</option>
+<option value="триплекс цветной">триплекс цветной сырой</option>
+<option value="триплекс цветной каленый">триплекс цветной закаленный</option>

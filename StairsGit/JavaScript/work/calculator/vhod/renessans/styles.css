@@ -1,0 +1,104 @@
+
+.tab_2, .tab_3, .tab_4, .tab_6, .tab_7, .tab_8, .form_table {
+width: 70%;
+border: 1px solid gray;
+border-collapse: collapse;
+}
+
+
+
+.tab_2 th, .tab_3 th, .tab_4 th, .tab_6 th, .tab_7 th, .tab_8 th {
+border: 1px solid gray;
+padding:5px;
+}
+
+.tab_2 td, .tab_3 td, .tab_4 td, .tab_6 td, .tab_7 td, .tab_8 td {
+border: 1px solid gray;
+padding:5px;
+text-align: center;
+}
+
+.form_table td, .form_table th {
+border: 1px solid gray;
+padding:5px;
+//text-align: center;
+}
+.form_table select, .tab_2 select {
+border: none;
+-webkit-appearance: none;
+font-size:0.9em;
+}
+
+.form_table input {
+border: none;
+font-size:0.9em;
+width: 100px;
+}
+
+.tab_2 input {
+border: none;
+font-size:0.9em;
+width: 100px;
+font-family: Arial, Helvetica, sans-serif;
+}
+
+
+
+body {
+font-size:1.2em;
+}
+
+h1 {
+	margin:0; 
+	padding:0;
+	font-size:1.5em;
+	margin-bottom:15px;
+	padding-bottom:5px;
+	padding-top:14px;
+	text-align:center;	
+}
+
+h2 {
+font-size:1.3em;
+text-align: center;
+padding-top:15px;
+padding-bottom:5px;
+}
+
+h3 {
+font-size:1.2em;
+}
+
+h4, h5, h6
+{
+	font-size:110%;
+	margin: 0.5em 0;
+}
+li, p
+{
+	font-size:1.1em;
+}
+
+
+
+
+
+.yellow {
+background-color: yellow;
+font-size: 1.2em;
+
+}
+
+
+.bold {
+font-weight: bold;
+}
+
+.left{
+	text-align: left!important;
+}
+
+#paramsTable select{
+	width: 100px;
+	-webkit-appearance: menulist;
+}

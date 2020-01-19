@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Калькулятор винтовых лестниц</title>
+<link href="styles.css" type="text/css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="container">
+
+	<h1>Калькулятор винтовых лестниц</h1>
+
+	<h2>Параметры</h3>
+
+	<table class="form_table" id="paramsTable"><tbody>
+		
+		
+		<tr><td>Общая высота лестницы, мм:</td>
+			<td>
+				<input id="staircaseHeight" value = "3000" type='number'>
+			</td>
+		</tr>
+		
+		<tr><td>Кол-во подъемов:</td>
+			<td>
+				<input id="stepAmt" value = "15" type='number'>
+			</td>
+		</tr>
+		<tr><td>Диаметр лестницы:</td>
+			<td>
+				<select id='diam'>
+					<option value='1200'>1200</option>
+					<option value='1400'>1400</option>
+					<option value='1600'>1600</option>
+				</select>
+			</td>
+		</tr>
+		<tr><td>Площадка:</td>
+			<td>
+				<select id='pltType'>
+					<option value='tri'>треугольная</option>
+					<option value='rect'>прямоугольная</option>					
+				</select>
+			</td>
+		</tr>
+		
+		<tr><td>Ступени:</td>
+			<td>
+				<select id='treadType'>
+					<option value='timber'>береза</option>
+					<option value='steel'>рифленая сталь</option>
+				</select>
+			</td>
+		</tr>
+		
+		<tr><td>Кол-во дополнительных креплений к стене:</td>
+			<td>
+				<select id='midFixAmt'>
+					<option value='0'>нет</option>
+					<option value='1'>1</option>
+					<option value='2'>2</option>
+					<option value='3'>3</option>
+				</select>
+			</td>
+		</tr>
+
+		
+		<tr><td>Процент ВП, %:</td>
+			<td>
+				<input id="vpPart" value = "50" type='number'>
+			</td>
+		</tr>
+		
+		</tbody>
+	</table>
+	
+
+	<h2>Результат расчета: </h2>
+	
+	<div id='result'></div>
+	
+	<h2>Дополнительные функции</h2>
+	<button id="printTable">Рассчитать базовые цены моделей для сайта</button>
+	<button id="startTest">Тест</button>
+	<div id='result_all'></div>
+
+
+</div>
+
+
+<script type="text/javascript" src="jquery.1.6.4.js"></script>
+<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript" src="testing.js"></script>
+
+</body></html>
