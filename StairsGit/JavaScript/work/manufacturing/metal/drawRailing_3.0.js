@@ -1376,7 +1376,7 @@ function calcHandrailPoints(par, parRacks){
 		if (racks.length == 2){
 			parRacks.angMarsh = angle(topPoint1, topPoint2);
 			}
-	
+		
 		//заднее ограждение забега
 		if (par.isRearPRailing){
 			parRacks = {};

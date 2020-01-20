@@ -126,9 +126,11 @@ class Menu{
 		var layer = this.getLayer(layerName);
 		if (layer) {
 			layer.value = state;
-			var obj = view.scene.getObjectByLayerName(layer.layerName);
-			if (obj) {
-				obj.visible = layer.value;
+			// var obj = view.scene.getObjectByLayerName(layer.layerName);
+			var objects = view.scene.getObjectsByLayerName(layer.layerName);
+			if (objects && objects.length > 0) {
+				// obj.visible = layer.value;
+				objects.setVisible(layer.value);
 			}
 			var el = $('.new-menu-wrapper [data-element_id=' + layer.id + ']');
 			if (el) {
@@ -201,7 +203,8 @@ class Menu{
 			title: par.title,
 			callback: par.callback,
 			value: !!par.state,
-			type: 'checkbox'
+			type: 'checkbox',
+			variableName: par.variableName
 		};
 
 		var elementAdded = false;
@@ -247,7 +250,8 @@ class Menu{
 			callback: par.callback,
 			value: par.options[0],
 			options: par.options,
-			type: 'select'
+			type: 'select',
+			variableName: par.variableName
 		};
 
 		var elementAdded = false;
@@ -310,7 +314,8 @@ class Menu{
 			id: this.getID(),
 			title: par.title,
 			type: 'group',
-			elements: []
+			elements: [],
+			variableName: par.variableName
 		};
 
 		if (par.group && par.group.elements) {
@@ -332,10 +337,10 @@ class Menu{
 			return '<div class="menu-item" data-menu_delimeter><span>' + element.title + '</span></div>';
 		}
 		if (element.type == 'checkbox' || element.type == 'layer') {
-			return '<div class="menu-item menu-item__clickable"><span>' + element.title + '</span><input data-menu_checkbox data-element_id=' + element.id + ' type="checkbox" ' + (element.value ? 'checked' : '') + '></div>';
+			return '<div class="menu-item menu-item__clickable"><span>' + element.title + '</span><input data-menu_checkbox data-element_id=' + element.id + ' data-element_variable="' + (element.variableName || "") + '" type="checkbox" ' + (element.value ? 'checked' : '') + '></div>';
 		}
 		if (element.type == 'select' && element.options) {
-			var selectHTML = '<div class="menu-item"><span>' + element.title + '</span><select data-menu_select data-element_id=' + element.id + '>';
+			var selectHTML = '<div class="menu-item"><span>' + element.title + '</span><select data-menu_select data-element_id=' + element.id + ' data-element_variable="' + (element.variableName || "") + '">';
 			element.options.forEach(function(option){
 				selectHTML += '<option value="' + option + '" ' + (element.value == option ? 'selected' : '') + '>' + option + '</option>'
 			});

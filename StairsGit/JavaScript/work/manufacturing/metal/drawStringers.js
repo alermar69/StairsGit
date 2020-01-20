@@ -465,7 +465,11 @@ function drawStringer(par){
 			drawStringerHoles(stringerHolesParams);
 
 			//рисуем отверстия для обшивки каркаса гипсокартоном
-			drawStringerBotHoles(par);
+			stringerHolesParams.keyPoints = par.keyPoints;
+			stringerHolesParams.pointsShape = par.pointsShape;
+			stringerHolesParams.marshParams = par.marshParams;
+			stringerHolesParams.divideP2 = divideP2;
+			drawStringerBotHoles(stringerHolesParams);
 		
 			//добавляем отверстия под ограждения
 			var holes = par.railingHoles.filter(function(p){
@@ -1146,7 +1150,7 @@ function calcStringerPar(par){
 		if (par.marshId == 3) {
 			if (params.stairModel != "П-образная трехмаршевая" && params.inStringerElongationTurn1 == "да") 
 				par.longStringerTop = true;
-			if (params.stairModel == "П-образная трехмаршевая" && params.inStringerElongationTurn2 == "да") 
+			if (params.inStringerElongationTurn2 == "да") 
 				par.longStringerTop = true;
 			}
 	}

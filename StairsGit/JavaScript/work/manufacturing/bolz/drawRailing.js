@@ -35,6 +35,11 @@ function calcRacksBolzs(par) {
 			else {
 				rack.noDraw = true;
 				rack.dxToMarshNext = marshPar.b + 20;
+				if (params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && par.stairAmt == 1) {
+					rack = newPoint_xy(rack, par.b, par.h);
+					rack.noDraw = true;
+					rack.dxToMarshNext = 20;
+				}
 			}
 		}
 	}

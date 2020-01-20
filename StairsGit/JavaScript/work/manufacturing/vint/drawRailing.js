@@ -47,10 +47,10 @@ function drawSpiralRailing(par) {
 		var startBanisterLength = railingHeight + stepHeight;
 		banisterHoleDist[0] = stairParams.stepHeight - params.treadThickness - 31 + 2;
 
-		if (botFloorType == "черновой") {
-			startBanisterLength += params.botFloorsDist;
-			banisterHoleDist[0] += params.botFloorsDist;
-		}
+		//if (botFloorType == "черновой") {
+		//	startBanisterLength += params.botFloorsDist;
+		//	banisterHoleDist[0] += params.botFloorsDist;
+		//}
 		stairParams.startBanisterLength = startBanisterLength;
 
 		var banisterPositionRad = params.staircaseDiam / 2 + 0.1;
@@ -82,7 +82,7 @@ function drawSpiralRailing(par) {
 			text: "Первая балясина"
 		}
 		
-		if (params.botFloorType == 'черновой') balParams.length += params.botFloorsDist;
+		//if (params.botFloorType == 'черновой') balParams.length += params.botFloorsDist;
 
 		//сохраняем размеры для спецификации
 		stairParams.banisterHoleDist = banisterHoleDist;
@@ -99,7 +99,7 @@ function drawSpiralRailing(par) {
 
 			//первая балясина
 			balParams.holeDst = banisterHoleDist[0];
-			if (params.botFloorType == 'черновой') balParams.holeDst += params.botFloorsDist;
+			//if (params.botFloorType == 'черновой') balParams.holeDst += params.botFloorsDist;
 			balParams.angleShift = 2;
 			if (regShimAmt > 0) balParams.angleShift = 2;
 			if (par.stairType == "metal") balParams.angleShift = -2;
@@ -110,7 +110,7 @@ function drawSpiralRailing(par) {
 			startBanister.rotation.y = -banistrPositionAngle - Math.PI / 2;
 			startBanister.position.x = banisterPositionRad * Math.cos(banistrPositionAngle);
 			startBanister.position.y = 0;
-			if (params.botFloorType == "черновой") startBanister.position.y = -params.botFloorsDist;
+			//if (params.botFloorType == "черновой") startBanister.position.y = -params.botFloorsDist;
 			startBanister.position.z = banisterPositionRad * Math.sin(banistrPositionAngle);
 			startBanister.castShadow = true;
 			//railing.push(startBanister);

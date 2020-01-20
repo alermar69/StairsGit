@@ -1684,6 +1684,22 @@ function drawStringerBotHoles(par, typeDop) {
 			arrBot.reverse();
 			arrTop.reverse();
 			var points = arrBot.concat(arrTop);
+
+			//если есть разделение тетивы, добавляем эту точку
+			if (par.divideP2) {
+				var points1 = [];
+				var flag = true;
+				for (var i = 0; i < points.length; i++) {
+					if (par.divideP2.x < points[i].x && flag) {
+						var pt = copyPoint(par.divideP2);
+						pt.isDivide = true;
+						points1.push(pt);
+						flag = false;
+					}
+					points1.push(points[i]);
+				}
+				points = points1;
+			}
 		}
 		
 		var offsetSide = 50;
@@ -1700,11 +1716,13 @@ function drawStringerBotHoles(par, typeDop) {
 					var centers = [];
 
 					var pt = polar(p1, ang, offsetSide);
+					if (p1.isDivide) pt = polar(pt, ang, 100);
 					var center1 = polar(pt, ang + Math.PI / 2, offsetBot);
 					if (p1.division) center1.division = p1.division;
 					centers.push(center1);
 
 					var pt = polar(p2, ang, -offsetSide);
+					if (p2.isDivide) pt = polar(pt, ang, -200);
 					var center2 = polar(pt, ang + Math.PI / 2, offsetBot);
 					if (p2.division) center2.division = p2.division;
 					centers.push(center2);

@@ -2088,7 +2088,12 @@ function drawPolylineRigel(par) {
 					description: "Крепление ригелей",
 					group: "Ограждения"
 				}
-				var pos = itercection(p1, polar(p1, ang, 100), {x: rack.x, y: 0}, newPoint_xy({x: rack.x, y: 0}, 0, 100));
+				var pos = itercection(p1, polar(p1, ang, 100), { x: rack.x, y: 0 }, newPoint_xy({ x: rack.x, y: 0 }, 0, 100));
+				//если на следующем марше поворотная стойка, удлиняем ригели до неё
+				if (rack.dxToMarshNext) {
+					var pos = itercection(p1, polar(p1, ang, 100), { x: rack.x + rack.dxToMarshNext - 40 / 2, y: 0 }, newPoint_xy({ x: rack.x + rack.dxToMarshNext - 40 / 2, y: 0 }, 0, 100)); // 40 - профиль стойки
+					//pos = polar(pos, ang, rack.dxToMarshNext);
+				}
 				var screw = drawScrew(screwPar).mesh;
 				screw.rotation.x = Math.PI / 2;
 				screw.position.x = pos.x;

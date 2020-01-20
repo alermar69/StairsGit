@@ -178,6 +178,7 @@ function calcRailingRacks(par) {
 
 		railingParams.marshLast = marshLast;
 
+
 		if (marshParams.topTurn !== 'пол') {
 			var topLast = {
 				x: marshParams.len + turnParams.turnLengthTop - rackSize / 2,//turnParams.turnLengthTop - rackSize / 2,
@@ -1269,6 +1270,7 @@ function drawRailingSection_4(par) {
 				rackPar.y -= marshLast.deltaY;
 			}
 			if (hasMarsh) racks.push(rackPar);
+			if (!hasMarsh && par.marshId == 1) racks.push(rackPar);
 			if (hasTopRack) {
 				//последний столб
 				var rackPar = copyPoint(topLast);

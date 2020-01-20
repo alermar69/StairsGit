@@ -7,7 +7,7 @@ function drawForgeFrame2(par) {
 	var pos = { x: 0, y: 0 };
 	var railingPositionZ = -par.legProf;
 	var rackProfile = par.legProf;
-	var height = par.height - 20;
+	var height = par.height - 20;	
 
 	var svgMarshId = par.svgMarshId || 0;
 	var svgPoleId = par.svgPoleId || 0;
@@ -55,6 +55,7 @@ function drawForgeFrame2(par) {
 		isBanister: true,
 	}
 
+	if (par.firstRackDelta) rackPar.len -= par.firstRackDelta;
 	var firstRackPosition = newPoint_xy(basePoint, 0, -150);
 	rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, firstRackPosition.x, firstRackPosition.y);
 	//4 максимально возможное кол-во секций марша
@@ -63,6 +64,10 @@ function drawForgeFrame2(par) {
 	rack.position.x = firstRackPosition.x;
 	rack.position.y = firstRackPosition.y;
 	rack.position.z = railingPositionZ;
+	if (par.firstRackDelta) {
+		rack.position.y += par.firstRackDelta;
+		rackPar.len += par.firstRackDelta;
+	}
 	mesh.add(rack);
 
 	var shortLegsAmt = Math.round((sectionLength - rackProfile) / 800) - 1;

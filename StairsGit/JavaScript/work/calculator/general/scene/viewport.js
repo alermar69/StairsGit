@@ -11,6 +11,9 @@ var allSpecsShowed = false;
 var cameraState = '';
 
 $(function () {
+	selectMaterial = new THREE.MeshLambertMaterial({ color: 0xFF00FF });
+
+	// window.optionalDrawing = new OptionalDrawing();
 
 	//заменяем библиотеку триангуляции
 	THREE.Triangulation.setLibrary('earcut');
@@ -568,6 +571,7 @@ function addObjects(viewportId, objectsArr, layerName) {
 
 		//добавляем ребра
 		if (layerName != "measure" && layerName != "dimensions") {
+			// addWareframe(this);
 			addWareframe(this, this);
 		}
 
@@ -956,7 +960,7 @@ function createMenu(){
 
 
 		var group = menu.addGroup({title: 'Настройки'});
-
+		
 		menu.addSelect({group: group, title: 'Камеры', variableName: 'cameraPosId', options: ['3d', 'справа', 'слева', 'спереди', 'сзади', 'сверху', 'снизу', 'orto_0', 'orto_1', 'orto_3', 'orto_4'], callback: function(menuElement){
 			if (['справа', 'слева', 'спереди', 'сзади', 'сверху', 'снизу'].includes(menuElement.value)) {
 				menu.perspective = false; // При изменении значения всё равно вызовется switchCamera ( обработчик perspective ниже )
@@ -971,6 +975,26 @@ function createMenu(){
 
 		menu.addCheckbox({state: true, group: group, variableName: 'perspective', title: 'Перспектива', callback: function(menuElement){
 			switchCamera(menu.cameraPosId);
+		}});
+
+		menu.addCheckbox({state: false, group: group, variableName: 'transparentAll', title: 'Прозрачное всё', callback: function(menuElement){
+			view.scene.traverse(function(node){
+				if (menuElement.value) {
+					if (node.material && node.material.transparentDefaultState == undefined && node.material.opacityDefaultState == undefined) {
+						node.material.transparentDefaultState = !!node.material.transparent;
+						node.material.opacityDefaultState = node.material.opacity;
+
+						node.material.transparent = true;
+						node.material.opacity = 0.3;
+					}
+				}else{
+					if (node.material) {
+						node.material.transparent = node.material.transparentDefaultState || false;
+						node.material.opacity = node.material.opacityDefaultState || 1;
+						node.material.transparentDefaultState = node.material.opacityDefaultState = undefined;
+					}
+				}
+			});
 		}});
 
 		menu.addCheckbox({state: true, group: group, title: 'Прозр. Стены', callback: function(menuElement){

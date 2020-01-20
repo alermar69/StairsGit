@@ -287,7 +287,8 @@ if(params.stairModel == "П-образная трехмаршевая" && par.ma
 			center1.hasAngle = center2.hasAngle = false;
 			pointsHoleBot.push(center1);
 			pointsHoleBot.push(center2);
-		
+
+
 			center1 = newPoint_xy(pt2, 30, 25);
 			center2 = newPoint_xy(center1, 0.0, 60.0);
 			center1.hasAngle = center2.hasAngle = false;
