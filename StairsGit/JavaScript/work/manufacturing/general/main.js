@@ -81,14 +81,18 @@ $(function () {
 	});
 	
 	//пересчитываем лестницу
-    recalculate();
+	if (window.loadedData) {
+		setLoadedData(window.loadedData, true);
+	}else{
+		recalculate();
+	}
 
 });
 
 function recalculate(){
 	return new Promise(function(resolve, reject){
 		try {
-			$('.loader-block').show({duration: 0, done: function(){
+			$('#loaderBlock').show({done: function(){
 				shapesList = []; //Очищаем
 				if (window.location.href.includes('/timber_stock')) {
 					setStockParams();
@@ -105,9 +109,12 @@ function recalculate(){
 
 				setHiddenLayers(); //скрываем слои в режиме тестирования
 				drawBanister();
-				calculateSpec();	
+				if (!menu.simpleMode) {
+					calculateSpec();	
+					if(!testingMode) checkSpec();
+				}
+
 				drawSceneDimensions();
-				if(!testingMode) checkSpec();
 				
 				/* непонятные функции
 				crateWorksList();
@@ -120,12 +127,13 @@ function recalculate(){
 					drawConcrete('vl_1');
 				}
 				
-				if(params.calcType == "vhod"){			
+				if(params.calcType == "vhod" && !menu.simpleMode){			
 					if(params.staircaseType == 'Готовая') {
 						$("#dpcWidth").val("140");
 						calcSpec_vl();
 					}
 				}
+				resolve();
 			}});
 		} catch (error) {
 			prepareFatalErrorNotify(error);
@@ -138,5 +146,8 @@ function staircaseLoaded(){
 	setTimeout(function(){
 		//Создаем после построения лестницы
 		createCamCurve();
+		if (window.menu) {
+			menu.update();
+		}
 	}, 0);
 }

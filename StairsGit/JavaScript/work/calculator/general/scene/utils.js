@@ -54,7 +54,8 @@ $(function(){
 	/**
 	 * Метод позволяет поворачивать uv на конкретной плоскости объекта
 	 */
-	THREE.Geometry.prototype.rotateUV = function(angle, faceMaterialIndex = 0){
+	THREE.Geometry.prototype.rotateUV = function(angle, faceMaterialIndex){
+		if (!faceMaterialIndex) faceMaterialIndex = 0;
 		for (var i = 0; i < this.faces.length; i++) {
 			var face = this.faces[i];
 			if (face.materialIndex == faceMaterialIndex) {

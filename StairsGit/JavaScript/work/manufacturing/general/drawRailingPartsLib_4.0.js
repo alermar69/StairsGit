@@ -490,6 +490,7 @@ function drawRack3d_4(par) {
  * Отрисовывает закладную стойки
  */
 function drawRackFlan(profSize){
+	if (menu.simpleMode) return new THREE.Object3D();
 	var geometry = new THREE.BoxGeometry( profSize / 2, 80, 2 );
 	var flan = new THREE.Mesh( geometry, params.materials.metal );
 
@@ -535,6 +536,8 @@ function drawRackFlan(profSize){
  *- par.type - тип заглушки: plastic || inox || timber
  */
 function drawPlug(par){
+	if(menu.simpleMode) return new THREE.Object3D();
+
 	par.material = params.materials.metal;
 	if(par.type == "inox") par.material = params.materials.inox;
 	if(par.type == "timber") par.material = params.materials.handrail;
@@ -612,6 +615,7 @@ function drawPlug(par){
  * @param {number} plugDiam - диаметр заглушки
  */
 function drawTimberPlug(plugDiam){
+	if(menu.simpleMode) return new THREE.Object3D();
 	var par = {
 		width: plugDiam,
 		description: "Заглушка деревянная",
@@ -679,6 +683,7 @@ function drawTimberPlug(plugDiam){
 */
 
 function drawRigelHolder(par) {
+	if (menu.simpleMode) return new THREE.Object3D();
 	var size = par.size + 5;
 	var geometry = new THREE.CylinderGeometry(size / 2, size / 2, 25, 32);
 	var holder = new THREE.Mesh( geometry, params.materials.inox );
@@ -730,6 +735,7 @@ function drawRigelHolder(par) {
  * @param {*} material
  */
 function drawRackPlug(material){
+	if (menu.simpleMode) return new THREE.Object3D();
 	var geometry = new THREE.BoxGeometry( 40, 2, 40 );
 	var mesh = new THREE.Mesh( geometry, material );
 
@@ -2506,9 +2512,11 @@ function drawPlatformRailingFlan(par) {
 
 	var partName = "steelCover_model";
 	var name = "Декоративная крышка основания стойки (черн.)";
-	if (params.banisterMaterial == "40х40 нерж." || params.banisterMaterial == "40х40 нерж+дуб"){
-		partName = "stainlessCover_model";
-		name = "Декоративная крышка основания стойки (нерж.)";
+	if (params.banisterMaterial == "40х40 нерж." || params.banisterMaterial == "40х40 нерж+дуб") {
+		if (params.railingModel_bal !== "Кованые балясины") {
+			partName = "stainlessCover_model";
+			name = "Декоративная крышка основания стойки (нерж.)";
+		}
 	}
 
 	var coverParams = {
@@ -2544,6 +2552,8 @@ function drawPlatformRailingFlan(par) {
 
 function drawGlassRutel(par){
 	var mesh = new THREE.Object3D();
+	if(menu.simpleMode) return mesh;
+
 	par = par || {};
 	var len = par.len || 125;
 	var diam = par.size || 14;
@@ -2647,6 +2657,7 @@ function drawRutelShims(diam){
 
 function drawRackCover(par){
 	par.mesh = new THREE.Object3D();
+	if(menu.simpleMode) return par.mesh;
 
 	par.mesh.specId = par.id;
 

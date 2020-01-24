@@ -8,7 +8,6 @@ var treadsObj;
 
 drawStaircase = function (viewportId, isVisible) {
 	//удаляем старую лестницу
-	
 	for(var layer in layers){
 		removeObjects(viewportId, layer);
 	}
@@ -28,7 +27,7 @@ drawStaircase = function (viewportId, isVisible) {
 		frame2Flans: [],
 		frame3Flans: [],
 		frame6Flans: [],
-		};
+	};
 
 	var model = {
 		objects: [],
@@ -36,10 +35,10 @@ drawStaircase = function (viewportId, isVisible) {
 			var objInfo = {
 				obj: obj,
 				layer: layer,
-				}
+			}
 			this.objects.push(objInfo);
-			},
-		};
+		},
+	};
 	
 	//обнуляем счетчики спецификации
 	partsAmt = {};
@@ -56,7 +55,7 @@ drawStaircase = function (viewportId, isVisible) {
 	if (params.model == "нет") {
 		params.model = "лт";
 		alert("ВНИМАНИЕ! Делаются только ограждения! Каркас и ступени отрисовываются просто для наглядности.")
-		}
+	}
 
 	/*направление поворота (глобальные переменные)*/
 
@@ -75,13 +74,12 @@ drawStaircase = function (viewportId, isVisible) {
 	}
 
 
-/*** СТУПЕНИ НА ВСЕ ЛЕСТНИЦЫ ***/
+	/*** СТУПЕНИ НА ВСЕ ЛЕСТНИЦЫ ***/
 	if (params.stairType == "лотки") params.treadThickness = 4;
 	
 	treadsObj = drawTreads()
 	model.add(treadsObj.treads, "treads");
 	model.add(treadsObj.risers, "risers");
-
 	params.calcType = calcTypeTemp;
 	params.model = modelTemp;
 
@@ -89,7 +87,7 @@ drawStaircase = function (viewportId, isVisible) {
 	staircasePartsParams.startTreadsParams = treadsObj.startTreadsParams;
 
 
-/*** ПЛИНТУС НА ВСЕ ЛЕСТНИЦЫ ***/
+	/*** ПЛИНТУС НА ВСЕ ЛЕСТНИЦЫ ***/
 
 	var skirtingPar = {
 		treadsObj: treadsObj,
@@ -99,7 +97,7 @@ drawStaircase = function (viewportId, isVisible) {
 	model.add(skirting, "treads");
 	
 	
-/*** РАМКИ ЗАБЕЖНЫХ РАМОК ***/
+	/*** РАМКИ ЗАБЕЖНЫХ РАМОК ***/
 
 	if(hasTreadFrames() && (treadsObj.wndPar || treadsObj.wndPar2)){
 		var framesObj = new THREE.Object3D();
@@ -153,14 +151,14 @@ drawStaircase = function (viewportId, isVisible) {
 			}
 		
 		model.add(framesObj, "angles");
-		}
+	}
 
-/*** КАРКАС НА ВСЕ ЛЕСТНИЦЫ ***/
+	/*** КАРКАС НА ВСЕ ЛЕСТНИЦЫ ***/
 
 	var carcasPar = {
 		dxfBasePoint: {x: 0, y: 2000},
 		treadsObj: treadsObj,
-		}
+	}
 
 	//if(treadsObj.wndPar) carcasPar.turnStepsParams = treadsObj.wndPar;
 	//if(treadsObj.wndPar2) carcasPar.turnStepsParams = treadsObj.wndPar2;
@@ -171,7 +169,7 @@ drawStaircase = function (viewportId, isVisible) {
 	
 	model.add(carcasObj.mesh, "carcas");
 	model.add(carcasObj.angles, "angles");
-
+	
 	//для консольных лестниц делаем ограждения как на mono
 	var calcTypeTemp = params.calcType;
 	var modelTemp = params.model;
@@ -180,17 +178,17 @@ drawStaircase = function (viewportId, isVisible) {
 		params.model = 'сварной';
 	}
 
-/***  ОГРАЖДЕНИЯ НА ВСЕ ЛЕСТНИЦЫ  ***/
+	/***  ОГРАЖДЕНИЯ НА ВСЕ ЛЕСТНИЦЫ  ***/
 	var railingPar = {
 		dxfBasePoint: {x: 15000, y: 2000},
 		treadsObj: treadsObj,
 		stringerParams: carcasPar.stringerParams,		
 	};
-
 	var railingObj = drawRailing(railingPar);
 	model.add(railingObj.mesh, "railing");
 	model.add(railingObj.forgedParts, "forge");
 	model.add(railingObj.handrails, "handrails");
+
 
 	params.calcType = calcTypeTemp;
 	params.model = modelTemp;
@@ -201,7 +199,7 @@ drawStaircase = function (viewportId, isVisible) {
 	var sideHandrailPar = {
 		treadsObj: treadsObj,
 		dxfBasePoint: {x: 25000, y: 2000},
-		}
+	}
 
 	var handrail = drawSideHandrail_all(sideHandrailPar).mesh;
 	model.add(handrail, "handrails");
@@ -229,9 +227,9 @@ drawStaircase = function (viewportId, isVisible) {
 		if(params.stairType == "лотки" && model.objects[i].layer == "treads") {
 			obj.position.y += 4;
 		}
-
+		
 		obj.layerName = model.objects[i].layer;
-
+		
 		//добавляем в сцену
 		addObjects(viewportId, obj, model.objects[i].layer);
 		
@@ -240,8 +238,6 @@ drawStaircase = function (viewportId, isVisible) {
 	//измерение размеров на модели
 	addMeasurement(viewportId);
 
-	setTimeout(function() {
-		if(typeof staircaseLoaded != 'undefined') staircaseLoaded();
-	}, 0);
+	if (typeof staircaseLoaded !== undefined) staircaseLoaded();
 
 } //end of drawStair

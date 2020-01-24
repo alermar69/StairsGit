@@ -62,13 +62,6 @@ function getAllInputsValues(params) {
 	
 	if(!params.floorThickness) params.floorThickness = 200;
 	if(!params.floorOffsetBot) params.floorOffsetBot = 0;
-
-	// params.materials = setMaterials();
-	// Обновляем состояние материалов
-	textureManager = getTextureMangerInstance()
-	if (textureManager) {
-		textureManager.updateMaterials();
-	}
 }
 
 
@@ -247,9 +240,11 @@ function getMarshParams(marshId) {
 
 	if (par.lastMarsh && params.platformTop == "нет" && par.stairAmt == 0 && par.botTurn == "забег") {
 		par.hasTopBalRailing = {
-			in: true,
-			out: true,
+			in: false,
+			out: false,
 		}
+		if (par.railingSide == "внутреннее" || par.railingSide == "две") par.hasTopBalRailing.in = true;
+		if (par.railingSide == "внешнее" || par.railingSide == "две") par.hasTopBalRailing.out = true;
 	}
 
 	//наличие пристенного поручня на внешней и внутренней стороне

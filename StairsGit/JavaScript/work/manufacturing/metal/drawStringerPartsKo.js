@@ -295,6 +295,17 @@ if(params.stairModel == "П-образная трехмаршевая" && par.ma
 			pointsHoleBot.push(center1);
 			pointsHoleBot.push(center2);
 
+			//отверстия под соединительный фланец
+			if (par.stringerDivisionBot) {
+				center1 = newPoint_xy(p0, 30, 25);
+				center2 = newPoint_xy(center1, 0.0, 60.0);
+				center1.hasAngle = center2.hasAngle = true;
+				center1.noBoltsInSide1 = center2.noBoltsInSide1 = true;
+				center1.rotated = center2.rotated = true;
+				par.pointsHoleTop.push(center1);
+				par.pointsHoleTop.push(center2);
+			}
+
 			// отверстия для уголков крепления щитов площадки
 			if (params.M > 750) {
 				var pv3 = newPoint_xy(pt3, 60, 0)

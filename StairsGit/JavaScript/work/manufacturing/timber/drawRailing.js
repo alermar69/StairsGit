@@ -1800,7 +1800,7 @@ function drawTimberNewell_4(par){
 	par.mesh = new THREE.Object3D();
 
 	//нижний участок
-	if(par.type == "квадратные" && !menu.banisters) botEndLen = par.len;
+	if(par.type == "квадратные" && !menu.meshBanisters) botEndLen = par.len;
 
 	var shape = new THREE.Shape();
 	//левая сторона
@@ -1841,6 +1841,10 @@ function drawTimberNewell_4(par){
 	screw.position.x = p0.x + 20;
 	screw.position.y = p0.y + 60 - 0.5;
 	screw.position.z = 20;
+	if (par.isNotched) {
+		screw.position.y += par.botNotch.y;
+		screw.position.x += 55;
+	}
 	if(!testingMode)	par.mesh.add(screw);
 
 	var plug = drawTimberPlug(25);
@@ -1848,6 +1852,10 @@ function drawTimberNewell_4(par){
 	plug.position.x = p0.x + 20;
 	plug.position.y = p0.y - 1 - 0.5;
 	plug.position.z = 20;
+	if (par.isNotched) {
+		plug.position.y += par.botNotch.y;
+		plug.position.x += 55;
+	}
 	if(!testingMode)	par.mesh.add(plug);
 
 	var screw = drawScrew(screwPar).mesh;
@@ -1855,6 +1863,7 @@ function drawTimberNewell_4(par){
 	screw.position.x = p0.x + maxSize - 20;
 	screw.position.y = p0.y + 60 - 0.5;
 	screw.position.z = maxSize - 20;
+	if (par.isNotched) screw.position.y += par.botNotch.y;
 	if(!testingMode)	par.mesh.add(screw);
 
 	var plug = drawTimberPlug(25);
@@ -1862,6 +1871,7 @@ function drawTimberNewell_4(par){
 	plug.position.x = p0.x + maxSize - 20;
 	plug.position.y = p0.y - 1 - 0.5;
 	plug.position.z = maxSize - 20;
+	if (par.isNotched) plug.position.y += par.botNotch.y;
 	if(!testingMode)	par.mesh.add(plug);
 
 	if(par.drawing) {
@@ -1876,9 +1886,9 @@ function drawTimberNewell_4(par){
 
 	var dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, botEndLen);
 
-	if(par.type == "точеные" || menu.banisters){
+	if(par.type == "точеные" || menu.meshBanisters){
 		//точеный участок
-		if(!menu.banisters){
+		if(!menu.meshBanisters){
 			dxfBasePoint = newPoint_xy(par.dxfBasePoint, maxSize / 2, botEndLen);
 			var points = drawLathePart(latheLen, minSize / 2, maxSize / 2, par.dxfArr, dxfBasePoint);
 			var geom = new THREE.LatheGeometry(points, 12, 2, 2 * Math.PI);
@@ -1891,7 +1901,7 @@ function drawTimberNewell_4(par){
 			par.mesh.add(lathePart);
 		}
 		//точеный участок
-		if(menu.banisters){
+		if(menu.meshBanisters){
 			var insetPar = {
 				type: "timberNewell",
 				name: params.timberRackModel,
@@ -2022,7 +2032,7 @@ function drawTimberBanister_4(par){
 		topEndLen = botEndLen;
 	}
 
-	if(par.type == "квадратные" && !menu.banisters) botEndLen = par.len;
+	if(par.type == "квадратные" && !menu.meshBanisters) botEndLen = par.len;
 
 	var extrudeOptions = {
 		amount: maxSize,
@@ -2040,11 +2050,11 @@ function drawTimberBanister_4(par){
 	var shape = new THREE.Shape();
 	var p0 = { x: 0, y: 0};
 	var p1 = newPoint_x1(p0, -botEndSize/2, par.botAng);
-	if(par.type == "точеные" || menu.banisters){
+	if(par.type == "точеные" || menu.meshBanisters){
 		var p2 = newPoint_xy(p0, -botEndSize/2, botEndLen);
 		var p3 = newPoint_xy(p2, botEndSize, 0);
 	}
-	if(par.type == "квадратные" && !menu.banisters){
+	if(par.type == "квадратные" && !menu.meshBanisters){
 		var p2 = newPoint_xy(p0, 0, par.len);
 		p2 = newPoint_x1(p2, -botEndSize/2, par.topAng);
 		var p3 = newPoint_x1(p2, botEndSize, par.topAng);
@@ -2074,9 +2084,9 @@ function drawTimberBanister_4(par){
 		if (!testingMode) par.mesh.add(botPart); //Во время тестирования скрываем
 		if (testingMode && par.botEnd == 'квадрат') par.mesh.add(botPart); //Квадраты оставляем
 
-	if(par.type == "точеные" || menu.banisters){
+	if(par.type == "точеные" || menu.meshBanisters){
 		//точеный участок
-		if(!menu.banisters){
+		if(!menu.meshBanisters){
 			var dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, p2.y - p0.y);
 			var points = drawLathePart(latheLen, minSize / 2, maxSize / 2, par.dxfArr, dxfBasePoint);
 			var geom = new THREE.LatheGeometry(points, 12, 2, 2 * Math.PI);
@@ -2089,7 +2099,7 @@ function drawTimberBanister_4(par){
 		}
 
 
-		if(menu.banisters && !testingMode){
+		if(menu.meshBanisters && !testingMode){
 			var insetPar = {
 				type: "timber",
 				name: params.timberBalModel,
@@ -2464,7 +2474,7 @@ function drawBanistersArr(par) {
 
 	if (railingModel == "Дерево с ковкой") {
 		drawBanisterFunction = drawForgedBanister_4;
-		if(menu.banisters) drawBanisterFunction = drawForgedBanister_5;
+		if(menu.meshBanisters) drawBanisterFunction = drawForgedBanister_5;
 	}
 
 	if ((!isInsetBanister(params.banister1) || !isInsetBanister(params.banister2)) && params.calcType == 'railing') {
@@ -2721,7 +2731,7 @@ function drawBanistersWndArr(par) {
 	var balType2 = null;
 	if (params.railingModel == "Дерево с ковкой") {
 		drawBanisterFunction = drawForgedBanister_4;
-		if(menu.banisters) drawBanisterFunction = drawForgedBanister_5;
+		if(menu.meshBanisters) drawBanisterFunction = drawForgedBanister_5;
 
 		balType1 = params.banister1;
 		balType2 = params.banister2;

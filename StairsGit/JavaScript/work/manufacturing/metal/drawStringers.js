@@ -1148,9 +1148,9 @@ function calcStringerPar(par){
 	if (par.key == "out"){
 		if (par.marshId == 2 && params.inStringerElongationTurn1 == "да") par.longStringerTop = true;
 		if (par.marshId == 3) {
-			if (params.stairModel != "П-образная трехмаршевая" && params.inStringerElongationTurn1 == "да") 
+			if (!(~params.stairModel.indexOf("П-образная")) && params.inStringerElongationTurn1 == "да")
 				par.longStringerTop = true;
-			if (params.inStringerElongationTurn2 == "да") 
+			if (~params.stairModel.indexOf("П-образная") && params.inStringerElongationTurn2 == "да")
 				par.longStringerTop = true;
 			}
 	}

@@ -3,6 +3,7 @@
 
 function drawFrames(par){
 	var frames = new THREE.Object3D;
+	// if(menu.simpleMode) return frames;
 
 	var isFrameHole = function(hole){
 		return (hole.hasAngle == undefined && hole.wndFrame == undefined);

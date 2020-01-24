@@ -22,7 +22,7 @@ $(function () {
 
 	var containerWidth = $('#WebGL-output').width();
 	var containerHeight = $('#WebGL-output').height();
-
+console.log(containerWidth, containerHeight)
 	view = {
 		height: containerHeight,
 		width: containerWidth,
@@ -961,6 +961,15 @@ function createMenu(){
 
 		var group = menu.addGroup({title: 'Настройки'});
 		
+		var simpleModeState = true;
+		if (window.location.href.includes("/manufacturing")) simpleModeState = false;
+		var simpleModeUrl = $.urlParam('simpleMode');
+		if (simpleModeUrl !== null) simpleModeState = simpleModeUrl == 1;
+
+		menu.addCheckbox({state: simpleModeState, group: group, variableName: 'simpleMode', title: 'Упрощённый режим', callback: function(){
+			recalculate();
+		}});
+
 		menu.addSelect({group: group, title: 'Камеры', variableName: 'cameraPosId', options: ['3d', 'справа', 'слева', 'спереди', 'сзади', 'сверху', 'снизу', 'orto_0', 'orto_1', 'orto_3', 'orto_4'], callback: function(menuElement){
 			if (['справа', 'слева', 'спереди', 'сзади', 'сверху', 'снизу'].includes(menuElement.value)) {
 				menu.perspective = false; // При изменении значения всё равно вызовется switchCamera ( обработчик perspective ниже )
@@ -977,21 +986,24 @@ function createMenu(){
 			switchCamera(menu.cameraPosId);
 		}});
 
-		menu.addCheckbox({state: false, group: group, variableName: 'transparentAll', title: 'Прозрачное всё', callback: function(menuElement){
-			view.scene.traverse(function(node){
-				if (menuElement.value) {
-					if (node.material && node.material.transparentDefaultState == undefined && node.material.opacityDefaultState == undefined) {
-						node.material.transparentDefaultState = !!node.material.transparent;
-						node.material.opacityDefaultState = node.material.opacity;
+		menu.addCheckbox({group: group, variableName: 'transparentAll', title: 'Прозрачное всё', callback: function(menuElement){
+			var state = menuElement.value;
+			$.each(params.materials, function(){
+				var mat = this;
+				if (state) {
+					if (mat && mat.transparentDefaultState == undefined && mat.opacityDefaultState == undefined) {
+						mat.transparentDefaultState = !!mat.transparent;
+						mat.opacityDefaultState = mat.opacity;
 
-						node.material.transparent = true;
-						node.material.opacity = 0.3;
+						mat.transparent = true;
+						mat.opacity = 0.3;
+						console.log(mat.opacity);
 					}
 				}else{
-					if (node.material) {
-						node.material.transparent = node.material.transparentDefaultState || false;
-						node.material.opacity = node.material.opacityDefaultState || 1;
-						node.material.transparentDefaultState = node.material.opacityDefaultState = undefined;
+					if (mat) {
+						mat.transparent = mat.transparentDefaultState || false;
+						mat.opacity = mat.opacityDefaultState || 1;
+						mat.transparentDefaultState = mat.opacityDefaultState = undefined;
 					}
 				}
 			});
@@ -999,7 +1011,7 @@ function createMenu(){
 
 		menu.addCheckbox({state: true, group: group, title: 'Прозр. Стены', callback: function(menuElement){
 			var layers = ["wall1", "wall2", "wall3", "wall4", "topFloor", "ceil", "beamTop"]
-			
+
 			view.scene.traverse(function(node){
 				if (node.material && layers.indexOf(node.layerName) != -1) {
 					node.material.transparent = menuElement.value;
@@ -1011,29 +1023,29 @@ function createMenu(){
 		menu.addCheckbox({group: group, title: 'Подсветка ступеней', callback: function(menuElement){
 			toggleTreadLights('step', menuElement.value);
 		}});
-		
+
 		menu.addCheckbox({group: group, title: 'Текстуры', callback: function(menuElement){
 			redrawView(menuElement.value);
 		}});
 
-		menu.addCheckbox({group: group, title: 'Балясины', variableName: 'lowPolyBanisters'});
+		menu.addCheckbox({state: true, group: group, title: 'Балясины детально', variableName: 'meshBanisters'});
 		menu.addCheckbox({group: group, title: 'Рёбра', variableName: 'wireframes'});
 		menu.addCheckbox({group: group, title: 'Фаски', variableName: 'bevels'});
 
 		menu.addCheckbox({group: group, title: 'Ночь', callback: function(menuElement){
 			toggleNightMode(menuElement.value);
 		}});
-		
+
 		menu.addCheckbox({state: true, group: group, title: 'Фон', callback: function(menuElement){
 			if(menuElement.value) view.renderer.setClearColor(new THREE.Color(0xEEEEEE));
 			else view.renderer.setClearColor(new THREE.Color(0xFFFFFF));
 		}});
-		
+
 		menu.addCheckbox({state: true, group: group, title: 'Ребра', callback: function(menuElement){
 			var objects = view.scene.getObjectsByLayerName("_wf");
 			objects.setVisible(menuElement.value);
 		}});
-		
+
 		menu.addCheckbox({group: group, variableName: 'realColors', title: 'Цвета', callback: function(menuElement){
 			var objects = view.scene.getObjectsByLayerName("_wf");
 			$.each(objects, function(){
@@ -1055,11 +1067,11 @@ function switchCamera(posId) {
 	if(posId == 'orto_4') pos = [5000, 2000, 3000]
 	if(posId == "справа") pos = [5000, 0, 0];
 	if(posId == "слева") pos = [-5000, 0, 0];
-	if(posId == "спереди") pos = [0, 0, 5000];			
+	if(posId == "спереди") pos = [0, 0, 5000];
 	if(posId == "сзади") pos = [0, 0, -5000];
 	if(posId == "сверху") pos = [0, 5000, 0];
 	if(posId == "снизу") pos = [0, -5000, 0];
-	
+
 	view.camera = new THREE.PerspectiveCamera(45, view.width / view.height,  100, 100000);
 
 	if(!menu.perspective) view.camera = new THREE.OrthographicCamera( view.width / - 0.25, view.width / 0.25, view.height / 0.25, view.height / - 0.25, -20000, 50000);
@@ -1162,7 +1174,7 @@ function addWareframe(obj, group) {
 	if (window.location.href.includes('/manufacturing')) {
 		materialColor = 0xffffff;
 	}
-	/*		
+	/*
 		var materialColor = 0xeeeeee;
 		var materialLineWidth = 3;
 		if (window.location.href.includes('/customers')) {
@@ -1387,7 +1399,7 @@ function drawTopFloorPlane(thickness, color, offsetY, isCeil) {
 		topFloor.add(mesh);
 	}
 
-	//проем с выступами			
+	//проем с выступами
 
 	for (var i = 0; i < floorHoleLedgeBaseEdges.length; i++) {
 

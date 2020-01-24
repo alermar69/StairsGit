@@ -428,7 +428,7 @@ function drawComplexStringer(par) {
 							}
 							platePar.stepPrev = par.stepPoints[i].x - par.stepPoints[i - 2].x;
 							var plate = drawTurn2TreadPlateCabriole(platePar).mesh;
-						}else {
+						} else {
 							if (par.topConnection) platePar.step -= par.stringerLedge;
 							if (!par.topConnection) platePar.step += params.M / 4 - params.flanThickness;
 							var plate = drawTurnPlate2(platePar).mesh;
@@ -653,7 +653,7 @@ function drawComplexStringer(par) {
 					platePar.pointStartSvg = copyPoint(par.stepPoints[0]);
 					if (par.isBigFloor) platePar.pointStartSvg = copyPoint(par.pointsShape[2]);// при большой разнице чистового и чернового пола
 					
-					if (i % 2) {
+					if (i % 2 && !menu.simpleMode) {
 						platePar.plateId += 1;
 						platePar.step = par.stepPoints[i + 1].x - par.stepPoints[i].x;
                         platePar.dxfBasePoint = newPoint_xy(platePar.dxfBasePoint,
@@ -670,13 +670,16 @@ function drawComplexStringer(par) {
 								//пластина второй забежной ступени(нижнего марша)
 								if (i == par.stepPoints.length - 2) {
 									platePar.turnSteps = par.turnSteps.params[2];
-									platePar.dStep = - params.M / 2 + params.flanThickness + (params.M / 2)  / 2;
+									platePar.dStep = - params.M / 2 + params.flanThickness + (params.M / 2) / 2;
 									platePar.backOffHoles = par.stringerLedge;
 									if (par.topConnection) {
 										platePar.backOffHoles = par.stringerLedge;
 										platePar.isTurn2Top = true;//наличие второго прямогуольного выреза для закрепления фланца
+									}									
+									if (!par.topConnection) {
+										platePar.step -= params.metalThickness;
+										platePar.backOffHoles = -params.M / 4 + params.flanThickness - params.metalThickness;
 									}
-									if (!par.topConnection) platePar.backOffHoles = -params.M / 4 + params.flanThickness;
 									if (par.topConnection) {
 										
 										var deltaLen = 8;//Сдвиг к стене, чтобы закрыть фланец.
@@ -810,7 +813,8 @@ function drawComplexStringer(par) {
                     columnPosition: columnPosition,
                     marshId: par.marshId,
 				}
-				platePar.pEnd = newPoint_x1(platePar.pEnd, -0.01, par.marshAngle)
+				ang = calcAngleX1(platePar.pStart, platePar.pEnd);
+				platePar.pEnd = newPoint_x1(platePar.pEnd, -0.01, ang)
                 if (par.marshMiddleFix !== "нет") platePar.isHolesColon = true;
                 platePar.pointCurrentSvg = copyPoint(par.pointsShape[0]);
 				platePar.pointStartSvg = copyPoint(par.pointsShape[1]);				
@@ -1237,7 +1241,7 @@ function drawComplexStringer(par) {
 								stairAngle1: par.marshAngle,
 								dxfArr: dxfPrimitivesArr,
 								dxfBasePoint: dxfBasePoint,
-								height: 215 - 20 - 5 - params.metalThickness * 2.5, //пластина рисуется на 20мм длиннее
+								height: 215 - 20 - 5, //пластина рисуется на 20мм длиннее
 								isBack: true,
 						}
 						platePar.pointCurrentSvg = newPoint_xy(par.pointsShape[pointId - 1], params.stringerThickness, 0);
@@ -1247,7 +1251,7 @@ function drawComplexStringer(par) {
 							var plate = drawFrontPlate(platePar).mesh; //функция в drawCarcasParts.js
 							plate.rotation.y = -Math.PI / 2;
 							plate.position.x += sidePlate2.position.x + par.pointsShape[pointId - 1].x;
-							plate.position.y += sidePlate2.position.y + par.pointsShape[pointId - 1].y - 5 - params.metalThickness;
+							plate.position.y += sidePlate2.position.y + par.pointsShape[pointId - 1].y;
 							plate.position.z += sidePlate2.position.z + params.metalThickness;
 						
 							par.mesh2.add(plate)

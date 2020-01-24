@@ -288,6 +288,7 @@ function drawMarshRailing(par, marshId) {
 	//внутренняя сторона
 	var hasRailing = false;
 	if (marshParams.hasRailing.in) hasRailing = true;
+	if (marshParams.hasTopBalRailing.in) hasRailing = true;
 	if (marshParams.hasTopPltRailing && params.platformTop == "площадка") {
 		if (marshParams.hasTopPltRailing.in) hasRailing = true;
 		if (marshParams.hasTopBalRailing.in) hasRailing = true;
@@ -296,7 +297,7 @@ function drawMarshRailing(par, marshId) {
 	if (params.stairModel == "Прямая с промежуточной площадкой") {
 		if (getMarshParams(3).hasTopPltRailing && getMarshParams(3).hasTopPltRailing.in) hasRailing = true;
 	}
-
+	debugger;
 	if (marshId != "topPlt" && hasRailing) {
 
 		//смещаем dxfBasePoint на длину нижнего участка
@@ -488,6 +489,7 @@ function drawMarshRailing(par, marshId) {
 		if (params.platformTop == 'увеличенная' && params.stairModel !== 'Прямая' && params.turnSide == "правое") {
 			section.position.x -= params.platformWidth_3 - params.M;
 		}
+		if (params.calcType == "mono") section.position.x -= params.M / 2;
 
 		//костыли
 		if (params.model == "лт") section.position.x += 5;
@@ -2442,19 +2444,19 @@ function drawRailingSectionForge2(par) {
         //первая стойка
         pos.x = parRacks.topFirst.x;
         pos.y = parRacks.topFirst.y - 90;
-        rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
-        if (params.calcType == 'mono') {
-            rackPar.monoType = parRacks.topFirst.type;
-        }
-        rackPar.drawing = { marshId: par.marshId, poleId: 2, group: 'forged_railing', elemType: 'rack', pos: copyPoint(pos), len: rackPar.len, key: par.key };
-        var rack = drawForgedFramePart2(rackPar).mesh;
-        rack.position.x = pos.x;
-        rack.position.y = pos.y;
-        rack.position.z = railingPositionZ;
-        section.add(rack)
+		rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
+		if (params.calcType == 'mono') {
+			rackPar.monoType = parRacks.topFirst.type;
+		}
+		rackPar.drawing = { marshId: par.marshId, poleId: 2, group: 'forged_railing', elemType: 'rack', pos: copyPoint(pos), len: rackPar.len, key: par.key };
+		var rack = drawForgedFramePart2(rackPar).mesh;
+		rack.position.x = pos.x;
+		rack.position.y = pos.y;
+		rack.position.z = railingPositionZ;
+		section.add(rack)
 
-        //базовая точка для поручня
-        topPoint3 = newPoint_xy(pos, -20, rackPar.len2 + 20 / Math.cos(parRacks.angTop))
+		//базовая точка для поручня
+		topPoint3 = newPoint_xy(pos, -20, rackPar.len2 + 20 / Math.cos(parRacks.angTop))
 
 
         //последняя стойка
@@ -2472,7 +2474,8 @@ function drawRailingSectionForge2(par) {
         section.add(rack)
 
         //базовая точка для поручня
-        topPoint4 = newPoint_xy(pos, 20, rackPar.len + 20 / Math.cos(parRacks.angTop))
+		topPoint4 = newPoint_xy(pos, 20, rackPar.len + 20 / Math.cos(parRacks.angTop))
+
 
         //верхняя перемычка
         polePar.len = parRacks.topLen + rackPar.topCutLen;
@@ -2561,7 +2564,7 @@ function drawRailingSectionForge2(par) {
             topPoint2 = {
                 x: parRacks.marshFirst.x + 20,
                 y: parRacks.marshFirst.y - 90 + rackPar.len + 20 / Math.cos(parRacks.angMarsh),
-            }
+			}
         }
 
 
@@ -2575,7 +2578,7 @@ function drawRailingSectionForge2(par) {
             topPoint3 = {
                 x: parRacks.marshLast.x + 20 - 0.01, //TURN RACK
                 y: parRacks.marshLast.y - 90 + rackPar.len + 20 / Math.cos(angMarsh),
-            }
+			}
             if (marshPar.lastMarsh) topPoint3.y += calcLastRackDeltaY();
             if (par.key == 'out') {//костыль чтобы компенсировать отличие parRacks.angMarsh от реального угла
                 if (params.model == "ко") {
@@ -2592,20 +2595,22 @@ function drawRailingSectionForge2(par) {
         parRacks.marshLen = distance(topPoint2, topPoint3)
 
         //делаем чтобы угол секции соответствовал углу марша
-        if (par.key == 'in') {
+		if (par.key == 'in' || (par.key == 'out' && par.botTurn == "пол")) {
             parRacks.angMarsh = marshPar.ang;
-            var pt = itercection(topPoint2, polar(topPoint2, parRacks.angMarsh, 100), topPoint3, polar(topPoint3, Math.PI / 2, 100));
-            parRacks.marshLen = distance(topPoint2, pt);
-            parRacks.lastRackDeltaLength = pt.y - topPoint3.y; //изменение длины последней стойки марша из-за изменения угла секции
-            topPoint3 = copyPoint(pt);
-        }
+            var pt = itercection(topPoint3, polar(topPoint3, parRacks.angMarsh, 100), topPoint2, polar(topPoint2, Math.PI / 2, 100));
+            parRacks.marshLen = distance(topPoint3, pt);
+            parRacks.firstRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
+            if (par.key == 'in') parRacks.lastRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
+            topPoint2 = copyPoint(pt);
+		}
 
         rackPar.angTop = parRacks.angMarsh;
 
         //первая стойка
         if (!parRacks.botFirst) {
             pos.x = parRacks.marshFirst.x;
-            pos.y = parRacks.marshFirst.y - 90;
+			pos.y = parRacks.marshFirst.y - 90;
+			if (parRacks.firstRackDeltaLength) rackPar.len += parRacks.firstRackDeltaLength;
             rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
             if (params.calcType == 'mono') {
                 rackPar.monoType = parRacks.marshFirst.type;
@@ -2712,7 +2717,7 @@ function drawRailingSectionForge2(par) {
             pos.x = parRacks.marshLast.x;
             pos.y = parRacks.marshLast.y - 90;
             if (marshPar.lastMarsh) rackPar.len += calcLastRackDeltaY();
-            if (parRacks.lastRackDeltaLength) rackPar.len += parRacks.lastRackDeltaLength;
+            if (parRacks.lastRackDeltaLength) rackPar.len -= parRacks.lastRackDeltaLength;
             rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
             if (params.calcType == 'mono') {
                 rackPar.monoType = parRacks.marshLast.type;
@@ -2739,7 +2744,7 @@ function drawRailingSectionForge2(par) {
                 //рассчитываем длину
 								var deltaY = (pos.x - parRacks.marshFirst.x) * Math.tan(parRacks.angMarsh) - (pos.y + 90 - parRacks.marshFirst.y);
 								
-								shortRackPar.len = 150 + deltaY + dyRackTop + rackAddLen;
+				shortRackPar.len = 150 + deltaY + dyRackTop + rackAddLen;				
 								// if (marshPar.h / marshPar.b > 220 / 200) shortRackPar.len += 50;
                 if (params.calcType == 'mono') {
                     shortRackPar.monoType = par.racks[i].type;
@@ -2823,8 +2828,10 @@ function drawRailingSectionForge2(par) {
             dxfBasePoint: par.dxfBasePoint,
             material: params.materials.metal,
             drawing: { marshId: par.marshId, poleId: 1, key: par.key },
-				}
-        var balArr = drawForgedBanistersArr(balParams);
+		}
+		if (parRacks.firstRackDeltaLength) balParams.balLen += parRacks.firstRackDeltaLength;
+		var balArr = drawForgedBanistersArr(balParams);
+		if (parRacks.firstRackDeltaLength) balArr.position.y += parRacks.firstRackDeltaLength;
 				balArr.position.z = railingPositionZ;
         forgedParts.add(balArr);
 
@@ -4525,11 +4532,10 @@ function calcLastRackDeltaY(unit, marshId) {
         }
         if (params.model == "ко") {
             var dyLastRack = 50;
-            if (params.topAnglePosition == "вертикальная рамка") dyLastRack = 100;
         }
     }
     if (params.calcType == 'mono') {
-        dyLastRack = (marshParams.a - 50 - 95) * Math.tan(marshParams.ang);
+        dyLastRack = (marshParams.a - 100) * Math.tan(marshParams.ang);
     }
 
     if (params.stairModel == 'Прямая горка' && params.calcType == 'vhod') dyLastRack = 0;

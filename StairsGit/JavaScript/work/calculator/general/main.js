@@ -119,20 +119,20 @@ $(function () {
 		makeDrawings();
 	});
 		
-	
 	//пересчитываем лестницу
-	recalculate();
+	if (window.loadedData) {
+		setLoadedData(window.loadedData, true);
+	}else{
+		recalculate();
+	}
 });
 
 function recalculate(){
+	rt1 = performance.now();
 	return new Promise(function(resolve, reject){
-		$('.loader-block').show({done: function(){
+		$('#loaderBlock').show({done: function(){
 			try {
 				shapesList = []; //Очищаем
-				if($("#calcType").val() == "timber_stock"){
-					setStockParams()
-				}
-				getAllInputsValues(params);
 				changeAllForms();
 
 				drawStaircase('vl_1', true);
@@ -147,10 +147,12 @@ function recalculate(){
 				}
 
 				//данные для производства
-				createMaterialsList(); // обнуляем список материалов
-				crateWorksList();
-				calcWorks(partsAmt, "staircase");
-				calcWorks(partsAmt_bal, "banister");
+				if (!menu.simpleMode) {
+					createMaterialsList(); // обнуляем список материалов
+					crateWorksList();
+					calcWorks(partsAmt, "staircase");
+					calcWorks(partsAmt_bal, "banister");
+				}
 
 				drawSceneDimensions();
 				
@@ -184,9 +186,8 @@ function recalculate(){
 					printWorks2();
 					formatNumbers();
 					printDescr();
-
-					resolve();
 				}
+				resolve();
 			}catch (error) {
 				prepareFatalErrorNotify(error);
 				reject();
@@ -196,12 +197,14 @@ function recalculate(){
 }
 
 function staircaseLoaded(){
-	$('.loader-block').hide();
-	setTimeout(function(){
-		//Создаем после построения лестницы
-		createCamCurve();
-		if (window.menu) {
-			window.menu.update();
-		}
-	}, 0);
+	$('#loaderBlock').hide();
+
+	var rt2 = performance.now();
+	console.log('recalculate time: ' + (rt2 - rt1) / 1000)
+	
+	//Создаем после построения лестницы
+	createCamCurve();
+	if (window.menu) {
+		window.menu.update();
+	}
 }

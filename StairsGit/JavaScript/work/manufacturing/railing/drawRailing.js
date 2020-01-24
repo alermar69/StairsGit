@@ -610,7 +610,9 @@ if(par.railingType == "стекло рут." || par.railingType == "стекло
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["sumArea"] += area;
 		specObj[partName]["area"] += area;
+		
 		}
+	mesh.specId = partName + name;
 
 	} //конец цикла построения стекол
 	
@@ -728,6 +730,38 @@ if(par.railingType == "поручень" || ((par.railingType == "стекло �
 		}
 		else{
 			par.railingParams.glassHolderAmt += handrailParams.holderAmt;
+		}
+	}
+
+	//вертикальные поручни
+	if (params.startVertHandrail == 'есть' && p3) {
+		// в начале секции
+		var handrail = new THREE.Object3D();
+		handrailParams.length = distance(p1, p6);
+		handrailParams.angle = Math.PI / 2;
+		var handrailMesh = drawHandrail_4(handrailParams).mesh; //функция в файле drawSideHandrail.js
+		handrail.add(handrailMesh);
+		handrail.position.x = 0;
+		handrail.position.y = -offsetBot;//par.sectHeight - handrailParams.profHeight / Math.cos(angle) + handrailParams.profHeight / Math.cos(angle) - handrailSlotDist;
+		handrail.position.z = handrailParams.wallOffset + glassThickness / 2;
+		
+		handrail.rotation.z = handrailParams.angle;
+		par.mesh.add(handrail);
+
+		// в конце секции
+		if (par.sectID !== 3) {
+			var handrail = new THREE.Object3D();
+			handrailParams.length = distance(p3, p4);
+			handrailParams.angle = Math.PI / 2;
+			var handrailMesh = drawHandrail_4(handrailParams).mesh; //функция в файле drawSideHandrail.js
+			handrail.add(handrailMesh);
+			handrail.position.x = p3.x + handrailParams.profHeight;
+			handrail.position.y =
+				p3.y; //par.sectHeight - handrailParams.profHeight / Math.cos(angle) + handrailParams.profHeight / Math.cos(angle) - handrailSlotDist;
+			handrail.position.z = handrailParams.wallOffset + glassThickness / 2;
+
+			handrail.rotation.z = handrailParams.angle;
+			par.mesh.add(handrail);
 		}
 	}
 } //конец поручня

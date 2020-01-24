@@ -164,7 +164,7 @@ function createBuildingTask(){
 
 		var docHeader = "<!DOCTYPE html><html><head><title></title><link rel='stylesheet' type='text/css' href='templates/theme.css'></head><body><div class='documentDiv'><h1 style='text-align: center;' contenteditable>" + title + "</h1>";
 		var docFooter = "</body></html>"
-		var printControls = `<button class='noPrint' onclick='this.style.display="none";window.print()'>Печать</button>`;
+		var printControls = "<button class='noPrint' onclick='this.style.display=\"none\";window.print()'>Печать</button>";
 
 		var mywindow = window.open('', '_blank');
 		mywindow.document.write(printControls);
@@ -935,7 +935,9 @@ function fontLoadedCallback(){
 }
 
 function changeAllForms() {
-	
+	if($("#calcType").val() == "timber_stock"){
+		setStockParams();
+	}
 	var calcType = $("#calcType").val();
 	getAllInputsValues(params);
 	changeFormsGeneral();
@@ -960,12 +962,10 @@ function changeAllForms() {
 		changeFormRailing();
 	}
 	
-	if($("#calcType").val() == "timber_stock"){
-		setStockParams();
+	textureManager = getTextureMangerInstance()
+	if (textureManager) {
+		textureManager.updateMaterials();
 	}
-	
-	
-	
 }
 function configDinamicInputs() {
 	

@@ -12,7 +12,6 @@ function drawCarcas(par){
 
 
 	// Каркас нижнего марша
-
 	par.stringerParams[1] = drawMarshStringers(par, 1);	
 	par.mesh.add(par.stringerParams[1].mesh);
 	par.angles.add(par.stringerParams[1].angles);
@@ -226,7 +225,7 @@ function drawCarcas(par){
 		flansGroup.position.z = par.treadsObj.lastMarshEnd.z;
 		par.angles.add(flansGroup);	
 		
-		}
+	}
 
 	
 	return par;
@@ -348,7 +347,6 @@ function drawMiddleStringers(par, marshId){
 // Вывод каркаса одного марша
 
 function drawMarshStringers(par, marshId){
-
 	var mesh = new THREE.Object3D();
 	var angles = new THREE.Object3D();
 
@@ -374,7 +372,7 @@ function drawMarshStringers(par, marshId){
 	//позиция косоуров по Z
 	var posZIn = (params.M / 2 - stringerParams.stringerSideOffset) * turnFactor;
 	if (turnFactor == 1) posZIn -= params.stringerThickness;
-
+	
 	var posZOut = - (params.M / 2 - stringerParams.stringerSideOffset - calcStringerMoove(marshId).stringerOutMoove) * turnFactor;
 	if (turnFactor == -1) posZOut -= params.stringerThickness - 0.01
 	
@@ -474,7 +472,7 @@ function drawMarshStringers(par, marshId){
 
 	}
 
-//внешний косоур/тетива
+		//внешний косоур/тетива
 		stringerParams.wndFramesHoles = par.wndFramesHoles;
 
 		if (params.calcType !== 'bolz') par.dxfBasePoint.x += stringerParams.lenX;
@@ -505,7 +503,7 @@ function drawMarshStringers(par, marshId){
 			side: sideOut,
 		}
 
-		// Отрисовка фланцев 
+		// Отрисовка фланцев
 		var flans = drawStringerFlans_all(franPar);
 		if (params.model == "лт") flans.position.x -= 5;
 		flans.position.z = -(params.M / 2 - stringerParams.stringerSideOffset - params.stringerThickness)
@@ -1176,7 +1174,8 @@ function calcWndParams(){
 }
 
 function drawStringerHoles(par, typeDop){
-
+	if(menu.simpleMode) return;
+	
 	var pointsHole = par.pointsHole;
 	var stringerShape = par.stringerShape;
 	if (typeDop == "top") {

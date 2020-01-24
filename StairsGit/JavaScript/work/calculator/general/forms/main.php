@@ -54,7 +54,7 @@
 		
 		//визуализация
 		echo
-			'<div class="loader-block">
+			'<div class="loader-block" id="loaderBlock">
 				<div class="transition-loader">
 					<div class="transition-loader-inner">
 						<label></label>
@@ -491,6 +491,50 @@
 	};
 
 	
+	/**
+	 * Загрузка параметров
+	*/
+	if (isset($_GET['orderName'])) {
+		
+		require_once($_SERVER['DOCUMENT_ROOT'].'/orders/db_conn.php');
+	
+		$mysql = @new mysqli("127.0.0.1", $db_settings['user'], $db_settings['password'], $db_settings['db']);
+		$mysql->set_charset("utf8");
+
+		$allOk = true;
+
+		//проверим не возникло ли ошибки
+		if ($mysql->connect_error) {
+			echo "<script>alert('При подключении к базе данных произошла ошибка, загрузить не был загружен');</script>";
+			$allOk = false;
+		}
+
+		if ($allOk) {
+			$orderName = mb_strtoupper($_GET["orderName"], 'UTF-8');
+			$query = "SELECT * FROM `calcs` WHERE UPPER(`order_name`)= '{$orderName}'";
+		
+			$n = false;
+		
+			if($result = $mysql->query($query)){
+				$n = $result->num_rows;
+				if($n){
+					$row = $result->fetch_assoc();
+				}else{
+					echo "<script>alert('Заказ не найден');</script>";
+					$allOk = false;
+				}
+			}else{
+				echo "<script>alert('Заказ не найден');</script>";
+				$allOk = false;
+			}
+
+			if ($allOk && $row) {
+				echo '<script>';
+				echo 'var loadedData = ' . json_encode($row) . ';';
+				echo '</script>';
+			}
+		}
+	}
 ?>
 
 <style>

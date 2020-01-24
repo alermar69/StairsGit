@@ -1171,17 +1171,21 @@ makeDrawing = function(viewportId, viewType, callback, dimensionParams){
 */
 addDrawingsImage = function(dimensionParams){
 	var imgData = view.renderer.context.canvas.toDataURL();
+	var width = "100%";
 	var height = "100%";
 	if (dimensionParams.imageWidth) width = dimensionParams.imageWidth;
 	if (dimensionParams.imaegHeight) height = dimensionParams.imaegHeight;
-	var elem = '<img';
+	var elem = '<img ';
+/*	
 	//Ориентируемся на ширину
 	if (dimensionParams.imageWidth) {
 		elem += ` width='${width}' `;
 	}
+	
 	if (!dimensionParams.imageWidth) {
 		elem += ` height='${height}' `;
 	}
+*/	
 	elem += `src="${imgData}" alt="">`;
 	$('#geomDrawings').append(elem);
 }

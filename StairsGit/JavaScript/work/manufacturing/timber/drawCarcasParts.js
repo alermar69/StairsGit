@@ -72,34 +72,35 @@ function drawComplexStringer(par){
 			group: "Каркас",
 			hasShim: true
 		}
-	
+
+		var bolt = new THREE.Object3D();
 		var screw = drawScrew(screwPar).mesh;
-		screw.position.x = par.keyPoints.topPoint.x - 20 + 0.5;
-		screw.position.y = par.keyPoints.topPoint.y - 50;
-		screw.position.z = posZ;
-		screw.rotation.z = Math.PI / 2;
-		if(!testingMode)	par.mesh1.add(screw);
+		bolt.add(screw);
 
 		var plug = drawTimberPlug(25);
-		plug.rotation.z = Math.PI / 2
-		plug.position.x = par.keyPoints.topPoint.x - 20 + 60 + 2;
-		plug.position.y = par.keyPoints.topPoint.y - 50;
-		plug.position.z = posZ;
-		if(!testingMode)	par.mesh1.add(plug);
+		plug.position.y = - screwPar.len / 2 - 2
+		bolt.add(plug);
 		
+		bolt.position.x = par.keyPoints.topPoint.x
+		bolt.position.y = par.keyPoints.topPoint.y + 20;
+		bolt.position.z = posZ;
+		bolt.rotation.z = Math.PI / 2;
+		if(!testingMode)	par.mesh1.add(bolt);
+
+		//----------------------------------------
+		var bolt = new THREE.Object3D();
 		var screw = drawScrew(screwPar).mesh;
-		screw.position.x = par.keyPoints.topPoint.x - 20 + 0.5;
-		screw.position.y = par.keyPoints.topPoint.y - 200;
-		screw.position.z = posZ;
-		screw.rotation.z = Math.PI / 2;
-		if(!testingMode)	par.mesh1.add(screw);
+		bolt.add(screw);		
 
 		var plug = drawTimberPlug(25);
-		plug.rotation.z = Math.PI / 2
-		plug.position.x = par.keyPoints.topPoint.x - 20 + 60 + 2;
-		plug.position.y = par.keyPoints.topPoint.y - 200;
-		plug.position.z = posZ;
-		if(!testingMode)	par.mesh1.add(plug);
+		plug.position.y = - screwPar.len / 2 - 2;
+		bolt.add(plug);
+		
+		bolt.position.x = par.keyPoints.topPoint.x
+		bolt.position.y = par.keyPoints.topPoint.y + 20 + 200;
+		bolt.position.z = posZ;
+		bolt.rotation.z = Math.PI / 2;
+		if (!testingMode) par.mesh1.add(bolt);
 	}
 
 	if (par.side == 'in' && !getMarshParams(par.marshId).lastMarsh) {

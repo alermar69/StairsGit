@@ -647,6 +647,10 @@ function calcColumnLogicParams(par){
 		par.top1Visible = true;
 		par.top2Visible = false;
 	}
+	if (params.platformTopColumn != 'нет' && marshParams.lastMarsh && marshParams.topTurn == 'площадка') {
+		par.top1Visible = true;
+		par.top2Visible = true;
+	}
 	return par;
 }
 
@@ -713,7 +717,7 @@ function calcColumnParams(par, stringerParams){
 	var topLengthDelta = 0;// Фикс положения стойки для трубы
 	if (params.model == 'труба') midLengthDelta = botLengthDelta = topLengthDelta = params.profileHeight -  params.sidePlateOverlay;
 	if (marshParams.botTurn == 'площадка' && params.model == 'труба') botLengthDelta = params.profileHeight - 7;
-	if (marshParams.topTurn == 'площадка' && params.model == 'труба') topLengthDelta = params.profileHeight - 7;
+	//if (marshParams.topTurn == 'площадка' && params.model == 'труба') topLengthDelta = params.profileHeight - 7;
 	if (params.stairModel == 'П-образная с площадкой' || params.stairModel == 'П-образная трехмаршевая') {
 		// if (marshParams.botTurn == 'площадка' && params.model == 'труба') botLengthDelta = params.profileHeight - 7;
 		// if (marshParams.topTurn == 'площадка' && params.model == 'труба') topLengthDelta = params.profileHeight - 7;
@@ -1184,6 +1188,7 @@ function drawHorPlates(par) {
 	//разбиваем общую длину на несколько подложек
 	var count = 1;
 	count = Math.floor(par.height / 300);
+	if (count == 0) count = 1;
 	par.height = ((par.height - gapPlates * (count - 1)) / count);
 
 
@@ -6367,7 +6372,7 @@ function drawPlatformFrames(par) {
 	var jumperPlatformParams = {
 		isHoleCenter: true,
 		width: params.profileWidth,
-		height: framePlatformParams.thickness,
+		height: framePlatformParams.thickness - 4,
 		dxfBasePoint: par.dxfBasePoint, //базовая точка для вставки контуров в dxf файл
 		isDraw: true,
 	};
@@ -6412,25 +6417,26 @@ function drawPlatformFrames(par) {
 
 		var x = par.treadsObj.unitsPos.turn1.x + turnPar.topMarshOffsetX + (turnPar.turnLengthTop - turnPar.topMarshOffsetX) / 2;
 		if (params.stairModel == "П-образная с площадкой") x += turnPar.topMarshOffsetX / 2;
-		var y = par.treadsObj.unitsPos.turn1.y - params.treadThickness - jumperPlatformParams.height;
+		var y = par.treadsObj.unitsPos.turn1.y - params.treadThickness - jumperPlatformParams.height - 2;
 		var z = jumperPlatformParams.width / 2;
 
+		var frameWidthIn = framePlatformParams.widthIn + 2;
 		jump.position.y = y;
 		jump.position.x = x;
-		jump.position.x += (framePlatformParams.width) / 2 - framePlatformParams.widthIn - params.flanThickness;
+		jump.position.x += (framePlatformParams.width) / 2 - frameWidthIn - params.flanThickness;
 		jump.position.z = z;
 		jump.rotation.y = Math.PI / 2;
 		if (!par.topConnection && params.stairModel == 'П-образная с площадкой') {
 			jump.rotation.y = 0;//Math.PI;
 			jump.position.x = x - jumperPlatformParams.width - 2 + params.treadPlateThickness;
 			if (testingMode) jump.position.x += 0.01;
-			jump.position.z = -(framePlatformParams.height / 2 - framePlatformParams.widthIn) * turnFactor;
+			jump.position.z = -(framePlatformParams.height / 2 - frameWidthIn) * turnFactor;
 			if (turnFactor == -1) jump.position.z -= params.flanThickness;
 		}
 		if (!par.topConnection && params.stairModel !== 'П-образная с площадкой') {
 			jump.rotation.y = 0;
 			jump.position.x = x - jumperPlatformParams.width / 2;
-			jump.position.z = -(framePlatformParams.height / 2 - framePlatformParams.widthIn) * turnFactor;
+			jump.position.z = -(framePlatformParams.height / 2 - frameWidthIn) * turnFactor;
 		}
 
 		par.flans.add(jump);
@@ -6440,7 +6446,7 @@ function drawPlatformFrames(par) {
 
 		jump.position.y = y;
 		jump.position.x = x;
-		jump.position.x += -(framePlatformParams.width) / 2 + framePlatformParams.widthIn;
+		jump.position.x += -(framePlatformParams.width) / 2 + frameWidthIn;
 		jump.position.z = z;
 		jump.rotation.y = Math.PI / 2;
 
@@ -6460,7 +6466,7 @@ function drawPlatformFrames(par) {
 			jump.position.x += -jumperPlatformParams.width / 2 ;
 			if (testingMode && turnFactor == 1) jump.position.x += 0.01;
 		}
-		jump.position.z = (framePlatformParams.height / 2 - framePlatformParams.widthIn) * turnFactor;
+		jump.position.z = (framePlatformParams.height / 2 - frameWidthIn) * turnFactor;
 		// jump.position.z += -params.flanThickness * (1 + turnFactor) * 0.5;
 		if (turnFactor == -1) {
 			jump.position.x += 0.01;
@@ -6509,7 +6515,7 @@ function drawPlatformFrames(par) {
 
 		if (params.stairModel == "П-образная с площадкой") {
             var x = par.treadsObj.unitsPos.marsh3.x + turnPar.turnLengthTop / 2;
-			var y = par.treadsObj.unitsPos.marsh3.y - params.treadThickness - jumperPlatformParams.height;
+			var y = par.treadsObj.unitsPos.marsh3.y - params.treadThickness - jumperPlatformParams.height - 2;
 			var z = par.treadsObj.unitsPos.marsh3.z - params.flanThickness;
 
 			jump.position.y = y;
@@ -6517,13 +6523,13 @@ function drawPlatformFrames(par) {
 			jump.position.z = z;
 			jump.position.x += -jumperPlatformParams.width;
 			if (par.botConnection) jump.position.x -= params.treadPlateThickness;
-			jump.position.z += (framePlatformParams.height) / 2 - framePlatformParams.widthIn;
+			jump.position.z += (framePlatformParams.height) / 2 - frameWidthIn;
 			if (testingMode) jump.position.x += 0.01
 			if (par.botConnection) {
 				jump.position.x = x;
 				jump.position.z = z;
 				jump.position.z -= jumperPlatformParams.width / 2 - params.flanThickness;
-				jump.position.x += (framePlatformParams.width) / 2 - framePlatformParams.widthIn;
+				jump.position.x += (framePlatformParams.width) / 2 - frameWidthIn;
 				jump.rotation.y = -Math.PI / 2;
 			}
 			par.flans.add(jump);
@@ -6535,7 +6541,7 @@ function drawPlatformFrames(par) {
 			jump.position.x = x;
 			jump.position.z = z;
 			jump.position.x += -jumperPlatformParams.width;
-			jump.position.z += -(framePlatformParams.height) / 2 + framePlatformParams.widthIn + params.flanThickness;
+			jump.position.z += -(framePlatformParams.height) / 2 + frameWidthIn + params.flanThickness;
 			if (testingMode) jump.position.x += 0.01
 			
 			par.flans.add(jump);
@@ -6547,28 +6553,28 @@ function drawPlatformFrames(par) {
 			jump.position.x = x;
 			jump.position.z = z;
 			jump.position.z += jumperPlatformParams.width / 2 + params.flanThickness;
-            jump.position.x -= (framePlatformParams.width) / 2 - framePlatformParams.widthIn;
+			jump.position.x -= (framePlatformParams.width) / 2 - frameWidthIn;
 			jump.rotation.y = Math.PI / 2;
 
 			par.flans.add(jump);
 		}
 		if (params.stairModel == "П-образная трехмаршевая") {
 			var x = par.treadsObj.unitsPos.turn2.x;
-			var y = par.treadsObj.unitsPos.turn2.y - params.treadThickness - jumperPlatformParams.height;
+			var y = par.treadsObj.unitsPos.turn2.y - params.treadThickness - jumperPlatformParams.height - 2;
 			var z = par.treadsObj.unitsPos.marsh3.z;
 
 			jump.position.y = y;
 			jump.position.x = x;
 			jump.position.z = z;
 			jump.position.x += -jumperPlatformParams.width / 2;
-			jump.position.z += (framePlatformParams.width / 2 - framePlatformParams.widthIn - params.flanThickness) * turnFactor;
+			jump.position.z += (framePlatformParams.width / 2 - frameWidthIn - params.flanThickness) * turnFactor;
 			jump.position.z += -params.flanThickness * (1 - turnFactor) * 0.5;
 			
 			if (par.botConnection) {
 				jump.position.x = x;
 				jump.position.z = z;
 				jump.position.z -= jumperPlatformParams.width / 2;
-				jump.position.x += (framePlatformParams.height) / 2 - framePlatformParams.widthIn;
+				jump.position.x += (framePlatformParams.height) / 2 - frameWidthIn;
 				jump.rotation.y = -Math.PI / 2;
 			}
 			
@@ -6581,7 +6587,7 @@ function drawPlatformFrames(par) {
 			jump.position.x = x;
 			jump.position.z = z;
 			jump.position.x += -jumperPlatformParams.width / 2;
-			jump.position.z += (-framePlatformParams.width / 2 + framePlatformParams.widthIn) * turnFactor;
+			jump.position.z += (-framePlatformParams.width / 2 + frameWidthIn) * turnFactor;
 			jump.position.z += -params.flanThickness * (1 - turnFactor) * 0.5;
 
 			par.flans.add(jump);
@@ -6593,7 +6599,7 @@ function drawPlatformFrames(par) {
 			jump.position.x = x;
 			jump.position.z = z;
 			jump.position.z += jumperPlatformParams.width / 2;
-			jump.position.x -= (framePlatformParams.height) / 2 - framePlatformParams.widthIn;
+			jump.position.x -= (framePlatformParams.height) / 2 - frameWidthIn;
 			jump.rotation.y = Math.PI / 2;
 
 			par.flans.add(jump);

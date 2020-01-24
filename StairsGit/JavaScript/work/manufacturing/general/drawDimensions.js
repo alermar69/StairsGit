@@ -47,6 +47,7 @@ function drawCustomDimensions(viewportId){
 function drawDimension3D_2(par){
 	
 	par.mesh = new THREE.Object3D();
+	par.mesh.setLayer('dimensions');
 	if(!fontGlob) return par;
 	
 	var color = new THREE.Color( 0x000000 );
@@ -410,6 +411,7 @@ if(par.basePlane == "xz"){
 		par.mesh.traverse(function(node){
 			if (node.material && !window.location.href.includes("/customers")) {
 				node.material.depthTest = false;
+				node.setLayer('dimensions');
 			}
 		});
 	}

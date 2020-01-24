@@ -315,7 +315,7 @@ function drawTimberStockStringer(par){
 	var stringerShape = new THREE.Shape();
 
 	var zeroPoint = {x:0,y: -params.treadThickness};
-	var stringerHeight = 250;
+	var stringerHeight = 250;	
 
 	//рассчитываем параметры косоура по номеру марша и стороне
 	calcStringerPar(par);
@@ -336,6 +336,9 @@ function drawTimberStockStringer(par){
 	par.stairAngle = stairAngle
 
 	par.slotsOffset = 20;
+
+	var stringerWidth = 228;
+	stringerHeight = stringerWidth / Math.cos(stairAngle);
 
 	var botLine = [];
 	var topLine = [];

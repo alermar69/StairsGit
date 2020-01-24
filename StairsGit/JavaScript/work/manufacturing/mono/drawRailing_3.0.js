@@ -2163,6 +2163,69 @@ function calculateRacks(par){
         }
 	}
 
+	//стойки заднего ограждения верхней площадки
+	if (par.marshId == 'topPlt' && par.key == "rear") {
+		var isRearPlatform = true;
+		var parRacks = {};
+		parRacks.angMarsh = 0;
+		parRacks.marshLen = params.M;
+		parRacks.angBot = 0;
+		parRacks.angTop = 0;
+		var offsetXFirst = 60;
+		var offsetXLast = 60;
+
+		var meterHandrailPar = {
+			prof: params.handrailProf,
+			sideSlots: params.handrailSlots,
+			handrailType: params.handrail,
+			metalPaint: params.metalPaint_railing,
+			timberPaint: params.timberPaint_perila,
+		}
+		meterHandrailPar = calcHandrailMeterParams(meterHandrailPar);
+
+		var offsetXFirst = 80 + 1; //1 - толщина заглушки поручня
+		var offsetXLast = 80 + 1;
+		if (params.topPltRailing_3) offsetXFirst += (meterHandrailPar.profZ - rackProfile) / 2;
+		if (params.topPltRailing_4) offsetXLast += (meterHandrailPar.profZ - rackProfile) / 2;
+
+
+		//начальная стойка площадки
+		parRacks.marshFirst = {
+			x: offsetXFirst,
+			y: 0,
+			len: rackLen + 50,
+			holderAng: parRacks.angMarsh,
+			type: 'last'
+		};
+
+		//конечная стойка площадки
+		parRacks.marshLast = {
+			x: parRacks.marshLen - offsetXLast,
+			y: 0,
+			len: rackLen + 50,
+			holderAng: parRacks.angMarsh,
+			type: 'last'
+		};
+
+
+		//средние стойки площадки
+		if (parRacks.marshLen > 1000) {
+			var count = Math.floor((parRacks.marshLen - offsetXFirst - offsetXLast) / 1000);
+			var lenSection = (parRacks.marshLen - offsetXFirst - offsetXLast) / (count + 1);
+			var racksRearPlatform = [];
+			for (var j = 1; j <= count; j++) {
+				var rackRearPlatform = {
+					x: offsetXFirst + lenSection * j,
+					y: 0,
+					len: rackLen + 50,
+					holderAng: parRacks.angMarsh,
+					type: 'last'
+				};
+				racksRearPlatform.push(rackRearPlatform);
+			}
+		}
+	}
+
 	if (parRacks.marshLast.noDraw) {
 		if (params.railingModel !== "Кованые балясины") {
 			parRacks.marshLast.dxToMarshNext = 10;

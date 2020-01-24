@@ -195,7 +195,51 @@ function drawBolt(par) {
 	headType
 	*/
 
-    par.mesh = new THREE.Object3D();
+	par.mesh = new THREE.Object3D();
+	//сохраняем данные для спецификации
+	par.partName = "bolt";
+	
+	if (par.diam != 10) par.partName += "M" + par.diam;
+	if (par.headType == 'шпилька') par.partName = 'stud';
+	if (typeof specObj != 'undefined' && par.partName) {
+		if (!specObj[par.partName]) {
+			specObj[par.partName] = {
+				types: {},
+				amt: 0,
+				name: "Болт",
+				metalPaint: (params.paintedBolts == "есть"),
+				timberPaint: false,
+				division: "stock_1",
+				workUnitName: "amt",
+				group: "Метизы",
+						}
+						if (par.partName == 'stud') {
+							specObj[par.partName].name = "Шпилька";
+							if (par.diam == 10 && (par.len == 100 || par.len == 140)) {
+								specObj[par.partName].name += " сантехническая"
+							}
+							if (par.diam == 14 && (par.len == 125 || par.len == 150)) {
+								specObj[par.partName].name += " рутеля"
+							}
+						}
+		}
+		var headName = "шестигр. гол.";
+		if (par.headType == "потай") headName = "потай внутр. шестигр."
+		if (par.headType == "пол. гол. крест") headName = par.headType;
+		if (par.headType == "внутр. шестигр. плоск. гол.") headName = par.headType;
+				var name = "М" + par.diam + "х" + par.len + " " + headName;
+				if (par.headType == "меб.") name = "мебельный М" + par.diam + "х" + par.len;
+				if (par.partName == 'stud') {
+					name = "М" + par.diam + " L=" + par.len;
+					if (par.diam == 10 && (par.len == 100 || par.len == 140)) {
+						name = "М" + par.diam + "х" + par.len;
+					}
+				}
+		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
+		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
+		specObj[par.partName]["amt"] += 1;
+	}
+	if (menu.simpleMode) return par;
     if (!par.headType) {
         par.headType = "потай";
         if (par.len == 40 || params.boltHead == "hexagon") par.headType = "шестигр.";
@@ -352,48 +396,6 @@ function drawBolt(par) {
 			cap.position.y = par.len / 2 - 7;
 			par.mesh.add(cap);
 		}
-    //сохраняем данные для спецификации
-		par.partName = "bolt"
-		if (par.diam != 10) par.partName += "M" + par.diam;
-		if (par.headType == 'шпилька') par.partName = 'stud';
-    if (typeof specObj != 'undefined' && par.partName) {
-        if (!specObj[par.partName]) {
-            specObj[par.partName] = {
-                types: {},
-                amt: 0,
-                name: "Болт",
-                metalPaint: (params.paintedBolts == "есть"),
-                timberPaint: false,
-                division: "stock_1",
-                workUnitName: "amt",
-                group: "Метизы",
-						}
-						if (par.partName == 'stud') {
-							specObj[par.partName].name = "Шпилька";
-							if (par.diam == 10 && (par.len == 100 || par.len == 140)) {
-								specObj[par.partName].name += " сантехническая"
-							}
-							if (par.diam == 14 && (par.len == 125 || par.len == 150)) {
-								specObj[par.partName].name += " рутеля"
-							}
-						}
-        }
-        var headName = "шестигр. гол.";
-        if (par.headType == "потай") headName = "потай внутр. шестигр."
-        if (par.headType == "пол. гол. крест") headName = par.headType;
-        if (par.headType == "внутр. шестигр. плоск. гол.") headName = par.headType;
-				var name = "М" + par.diam + "х" + par.len + " " + headName;
-				if (par.headType == "меб.") name = "мебельный М" + par.diam + "х" + par.len;
-				if (par.partName == 'stud') {
-					name = "М" + par.diam + " L=" + par.len;
-					if (par.diam == 10 && (par.len == 100 || par.len == 140)) {
-						name = "М" + par.diam + "х" + par.len;
-					}
-				}
-        if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
-        if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
-        specObj[par.partName]["amt"] += 1;
-    }
 
 	//Назначаем артикул тут, тк шайба и гайка получат свой во время отрисовки.
 	par.mesh.specId = par.partName + name;
@@ -402,6 +404,8 @@ function drawBolt(par) {
 }
 
 function drawPlasticCap(diam){
+	if (menu.simpleMode) return new THREE.Object3D();
+
 	var extrudeOptions = {
 		amount: 8,
 		bevelEnabled: false,
@@ -512,7 +516,7 @@ function drawCrossPath(par){
 */
 function drawNut(par){
 	par.mesh = new THREE.Object3D();
-
+	if (menu.simpleMode) return par;
 	par.nutHeight = par.diam * 0.8;
 	if(par.isLong) {
 		par.nutHeight = par.diam * 2.5;
@@ -765,6 +769,48 @@ function drawAngleSupport(par, parDop) {
 		color = 0x008040;
 	}
 
+	/* болты */
+	var partName = "treadAngle";
+	if (angleModel == "У4-70х70х100" || angleModel == "У4-60х60х100" || angleModel == "У5-60х60х100") partName = "carcasAngle";
+
+	//болты в грани 1
+	if (!par.noBoltsInSide1) par.noBoltsInSide1 = false;	//болты есть
+	if (angleModel == "У4-70х70х100" || angleModel == "У5-60х60х100") par.noBoltsInSide1 = true;
+	
+	if (angleModel == "У4-70х70х100" && params.calcType == 'vhod' && params.staircaseType == 'Готовая' && params.platformRearStringer !== "нет" && params.platformTop !== 'нет') {
+		par.noBoltsInSide1 = false;
+	}
+
+	//болты в грани 2
+	if (!par.noBoltsInSide2) par.noBoltsInSide2 = false; //болты есть
+	if (angleModel != "У4-70х70х100" && angleModel != "У4-60х60х100" && angleModel != "У5-60х60х100")
+		par.noBoltsInSide2 = true;
+
+	//сохраняем данные для спецификации
+
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				name: "Уголок ступени",
+				metalPaint: true,
+				timberPaint: false,
+				division: "stock_2",
+				workUnitName: "amt", //единица измерения
+				group: "Каркас",
+			}
+		}
+		if (partName == "carcasAngle") specObj[partName].name = "Уголок каркаса";
+
+		var name = angleModel;
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+	}
+
+	if(menu.simpleMode) return new THREE.Object3D();
+
 	var metalMaterial = new THREE.MeshLambertMaterial({ color: color, wireframe: false });
 	if (!menu.realColors) metalMaterial = params.materials.metal;
 
@@ -943,23 +989,7 @@ function drawAngleSupport(par, parDop) {
 		}
 	}
 
-	/* болты */
-	var partName = "treadAngle";
-	if (angleModel == "У4-70х70х100" || angleModel == "У4-60х60х100" || angleModel == "У5-60х60х100") partName = "carcasAngle";
-
-	//болты в грани 1
-	if (!par.noBoltsInSide1) par.noBoltsInSide1 = false;	//болты есть
-	if (angleModel == "У4-70х70х100" || angleModel == "У5-60х60х100") par.noBoltsInSide1 = true;
 	
-	if (angleModel == "У4-70х70х100" && params.calcType == 'vhod' && params.staircaseType == 'Готовая' && params.platformRearStringer !== "нет" && params.platformTop !== 'нет') {
-		par.noBoltsInSide1 = false;
-	}
-
-	//болты в грани 2
-	if (!par.noBoltsInSide2) par.noBoltsInSide2 = false; //болты есть
-	if (angleModel != "У4-70х70х100" && angleModel != "У4-60х60х100" && angleModel != "У5-60х60х100")
-		par.noBoltsInSide2 = true;
-
 	if (partParams.holeDiam1 == 7 && partName == 'treadAngle') {
 		
 		var screwId = "screw_6x32";
@@ -1051,30 +1081,6 @@ function drawAngleSupport(par, parDop) {
 			}
 		}
 	}
-
-
-	//сохраняем данные для спецификации
-
-	if (typeof specObj != 'undefined') {
-		if (!specObj[partName]) {
-			specObj[partName] = {
-				types: {},
-				amt: 0,
-				name: "Уголок ступени",
-				metalPaint: true,
-				timberPaint: false,
-				division: "stock_2",
-				workUnitName: "amt", //единица измерения
-				group: "Каркас",
-			}
-		}
-		if (partName == "carcasAngle") specObj[partName].name = "Уголок каркаса";
-
-		var name = angleModel;
-		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
-		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
-		specObj[partName]["amt"] += 1;
-	}
 	
 	complexObject1.specId = partName + angleModel;
 
@@ -1144,6 +1150,7 @@ function setObjectVisible(obj){
  */
 function drawVint(par){
 	par.mesh = new THREE.Object3D();
+	if (menu.simpleMode) return par;
 	par.mesh.specId = par.id + "_model";
 
 	par.len = 10;
@@ -1234,6 +1241,7 @@ function drawVint(par){
  */
 function drawScrew(par){
 	par.mesh = new THREE.Object3D();
+	if (menu.simpleMode) return par;
 	var screwParams = getScrewParams(par.id);
 	par.mesh.specId = screwParams.id + "_model";
 	if (screwParams.id == 'screw_10x100') {
@@ -1322,6 +1330,8 @@ function drawScrew(par){
  * par.group - Группа пецификации
  */
 function drawNagel(par){
+	if (menu.simpleMode) return new THREE.Object3D();
+
 	var diam = 8;
 	var len = 40;
 	var name = "Шкант id не найден";
@@ -1379,6 +1389,7 @@ function drawNagel(par){
  */
 function drawDowel(par){
 	par.mesh = new THREE.Object3D();
+	if (menu.simpleMode) return par;
 	par.mesh.specId = par.id;
 
 	//Формируем список со всей фурнитурой, чтобы достать от туда имя
@@ -1604,6 +1615,7 @@ function getScrewParams(screwId){
 
 function drawSilicone(par){
 	par.mesh = new THREE.Object3D();
+	if (menu.simpleMode) return par;
 	par.mesh.specId = "silicone_model";
 	
 	var siliconeMaterial = new THREE.MeshLambertMaterial({ color: "#808080" });
@@ -1790,6 +1802,7 @@ function drawFixPart(par) {
 	var nutParams = {diam: par.diam}
 
 	par.mesh = new THREE.Object3D();
+	if (menu.simpleMode) return par;
 	var fixPart = new THREE.Object3D();
 	if (turnFactor == -1) fixPart.rotation.x = Math.PI;
 
@@ -2349,7 +2362,7 @@ function getFixPart(marshId, wall = 'wall') {
 */
 function drawRivet(par) {
     par.mesh = new THREE.Object3D();
-
+	if (menu.simpleMode) return par;
     //головка заклепки
     par.shimThk = par.diam * 0.2;
     par.radIn = par.diam / 2 + 0.5;

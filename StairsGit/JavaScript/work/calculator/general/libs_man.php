@@ -1,5 +1,5 @@
 <!--чтение данных из форм-->
-<script type="text/javascript" src="/calculator/general/inputsReading_2.0.js"></script>
+<script type="text/javascript" src="/calculator/general/inputsReading_2.0.js?23012020"></script>
 
 <!--общие библитотеки-->
 <script async="" src="/calculator/general/FileSaver.min.js" /></script>
@@ -13,9 +13,9 @@
 <!--графика-->
 
 <!-- <script type="text/javascript" src="/calculator/general/viewports_3.0.js"></script> -->
-<script type="text/javascript" src="/calculator/general/scene/utils.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/viewport.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/menu.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/utils.js?23012020"></script>
+<script type="text/javascript" src="/calculator/general/scene/viewport.js?23012020"></script>
+<script type="text/javascript" src="/calculator/general/scene/menu.js?23012020"></script>
 <script type="text/javascript" src="/calculator/general/scene/scene.js"></script>
 
 <script type="text/javascript" src="/calculator/general/three_libs/three.js"></script>

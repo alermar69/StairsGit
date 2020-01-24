@@ -9,7 +9,7 @@ function drawCarcasAngles(holes, side){
 		var anglePar = {
 			p1: copyPoint(holes[i]),
 			p2: copyPoint(holes[i+1]),
-			}
+		}
 		//дополнительные параметры, передаваемые в координате базового отверстия
 		anglePar.p1.pos = holes[i].pos;
 		anglePar.p1.hasAngle = holes[i].hasAngle;
@@ -26,14 +26,14 @@ function drawCarcasAngles(holes, side){
 		if(params.model == "лт" && !hasTreadFrames()) {
 			drawAngle = true;
 			if(anglePar.p1.hasAngle === false) drawAngle = false;
-			}
+		}
 		
 		if(drawAngle){
 			getAngleModel(anglePar);
 			var carcasAnglePar = {
 				model: anglePar.model,
 				side: side,
-				pos: holes[i].pos,
+				pos: anglePar.p1.pos,
 			}
 			
 			//нет болтов в грани 1
@@ -46,27 +46,51 @@ function drawCarcasAngles(holes, side){
 			if (anglePar.p1.noBoltsInSide2_1) carcasAnglePar.noBoltsInSide2_1 = true;
 			if (anglePar.p1.noBoltsInSide2_2) carcasAnglePar.noBoltsInSide2_2 = true;
 			
-			var angle = drawCarcasAngle(carcasAnglePar);
-			angle.rotation.z = anglePar.rot;
+			var position = {
+				x: anglePar.p1.x,
+				y: anglePar.p1.y,
+				z: 0
+			}
 			
-			angle.position.x = anglePar.p1.x;
-			angle.position.y = anglePar.p1.y;
+			var rotation = {
+				x: 0,y:0,z:anglePar.rot
+			}
+			
 			//уголок крепления к нижнему маршу
 			if(anglePar.p1.rotated && anglePar.model == "У4-60х60х100"){
-				angle.rotation.z += Math.PI;
-				angle.position.y += 60;
-				}
+				rotation.z += Math.PI;
+				position.y += 60;
+			}
+			
 			//смещаем уголок на толщину фланца
 			if(anglePar.p1.isMiddleFlanHole){
-				angle.position.z = params.stringerThickness + 0.01;
-				if(side == "right") angle.position.z = -params.stringerThickness - 0.01;
-				}
-			mesh.add(angle)
-			i++; //пропускаем следующее отверстие
+				position.z = params.stringerThickness + 0.01;
+				if(side == "right") position.z = -params.stringerThickness - 0.01;
 			}
-		}
+			
+			// optionalDrawing.addToQueue({
+			// 	drawingFunction: drawCarcasAngle,
+			// 	par: carcasAnglePar,
+			// 	position: position,
+			// 	rotation: rotation,
+			// 	parent: mesh
+			// }, 'angles');
+			var angle = drawCarcasAngle(carcasAnglePar);
+			angle.rotation.x = rotation.x;
+			angle.rotation.y = rotation.y;
+			angle.rotation.z = rotation.z;
 
-    return mesh;    
+			angle.position.x = position.x;
+			angle.position.y = position.y;
+			angle.position.z = position.z;
+			
+			mesh.add(angle);
+			
+			i++; //пропускаем следующее отверстие
+		}
+	}
+
+	return mesh;    
 
 } //end of drawCarcasAngles
 
@@ -112,6 +136,9 @@ function drawCarcasAngle(par){
 	var mesh = new THREE.Object3D();
 	
 	var angle = drawAngleSupport(par);
+
+	if(menu.simpleMode) return mesh;
+
 	if(par.model == "У2-40х40х230" ||
 		par.model == "У2-40х40х200" ||
 		par.model == "У2-40х40х160" ||
@@ -1813,8 +1840,10 @@ function calcFlanHoles(par){
 	if(params.stringerType != "ломаная"){
 		//точка пересечения линии среза и линии, параллельной задней линии тетивы с отступом sideOffset
 		var p1 = newPoint_xy(par.divideP2, -sideOffset, 0);
-		var center3 = newPoint_y(p1, holeDist/2, marshPar.ang);
-		var center4 = newPoint_y(p1, -holeDist/2, marshPar.ang);	
+		var center3 = itercection(center1, center2, p1, polar(p1, marshPar.ang, 100));
+		var center4 = itercection(center7, center8, p1, polar(p1, marshPar.ang, 100));
+		//var center3 = newPoint_y(p1, holeDist/2, marshPar.ang);
+		//var center4 = newPoint_y(p1, -holeDist/2, marshPar.ang);	
 		}
 
 	center3.pos = "topRight";
@@ -1952,7 +1981,9 @@ function drawBridge_2(par) {
 		dxfBasePoint: par.dxfBasePoint,
 		shape: shape,
 		}
-	var noZenkHoles = addHolesToShape(holesPar).noZenkHoles;
+	if (!menu.simpleMode) {
+		var noZenkHoles = addHolesToShape(holesPar).noZenkHoles;
+	}
 	
 	
 
@@ -2525,6 +2556,14 @@ function drawColumn2(par) {
 	var textBasePoint = newPoint_xy(par.dxfBasePoint, -70, -100)
 	addText(text, textHeight, par.dxfArr, textBasePoint);
 
+	//отрисовываем закладную стойки
+	var rackFlan = drawColumnInnerFlan(par.profWidth);
+	rackFlan.position.y -= holeDst / 2;
+	rackFlan.position.x -= par.profWidth / 2;
+	rackFlan.position.z = -(par.profHeight / 2 - 4) * turnFactor;
+	if (par.key == "in") rackFlan.position.z = (par.profHeight / 2 - 2) * turnFactor;
+	if (!testingMode) par.mesh.add(rackFlan);
+
 	if(par.profWidth == 100 && par.profHeight == 50){
 		var plugParams = {
 			id: "plasticPlug_100_50",
@@ -2620,6 +2659,41 @@ function drawColumn2(par) {
 
 	return par;
 }//end of drawColumn2
+
+/**
+ * Отрисовывает закладную колонны
+ */
+function drawColumnInnerFlan(profSize) {
+	var geometry = new THREE.BoxGeometry(profSize / 2, 80, 2);
+	var flan = new THREE.Mesh(geometry, params.materials.metal);
+
+	var partName = "banisterInnerFlange";
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				name: "Закладная колонн",
+				metalPaint: true,
+				timberPaint: false,
+				isModelData: true,
+				division: "stock2",
+				workUnitName: "amt",
+				group: "Каркас",
+				purposes: ["Закладная колонн"]
+			}
+		}
+
+		var name = 0;
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+	}
+
+	flan.specId = partName;
+	flan.setLayer("metis");
+	return flan;
+}
 
 
 /**
@@ -3057,6 +3131,8 @@ function drawBrace(par) {
 */
 
 function drawRailingHoles(par) {
+	if(menu.simpleMode) return;
+
 	//функция добавляет отверстия для крепления ограждений и отмечается зенковка этих отверстий
 
 	var trashShape = new THREE.Shape();
