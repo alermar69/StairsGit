@@ -10,6 +10,7 @@
 		ignorOptions: ["Прямая двухмаршевая"], - не добавлять некоторые варианты значений (не обязательный)
 	
 */
+var configAmt = 2;
 
 function Configurator(){
 	this.configs = []; //все конфигурации
@@ -127,7 +128,7 @@ function doBoltTest(bd){
 	if($("#testingMode").val() == "дерево1" || $("#testingMode").val() == "дерево2") testName = $("#testingMode").val();
 
 	setHiddenLayers();
-	recalculate();
+	//recalculate();
 
 	var url = document.location.href;
 	var link = url.substring(0, url.indexOf('?')) + "?orderName=" + $("#orderName").val();
@@ -183,28 +184,19 @@ function queueFindIntersects(onFinish) {
 }
 
 function queueConfigurationTest(onFinish) {
-	
+
 	//первый этап тестирования
 	var testingMode = $("#testingMode").val();
 	var bd = 0;
 	if(testingMode == "болты Ф12" || testingMode ==  "болты Ф12 + Ф14") bd = 12;	
 	if(testingMode == "болты Ф14") bd = 14;
-	doBoltTest(bd);
-	queueFindIntersects(function(count1) {			
-		//второй этап тестирования только если тест двойной и первый тест не провален
-		if (count1 == 0 && testingMode ==  "болты Ф12 + Ф14") { 
-			doBoltTest(14);
-			queueFindIntersects(function (count2) {
-				if (onFinish) {
-					onFinish();
-				}
-			});
-		}
-		else {
+	doBoltTest(bd)
+	recalculate().finally(function(){
+		queueFindIntersects(function(count1) {			
 			if (onFinish) {
 				onFinish();
-			}
-		}
+			}			
+		});
 	});
 }
 	
@@ -408,7 +400,7 @@ function testConfigs_synth(){
 
 	
 
-	var configAmt = params.configAmt;
+//	var configAmt = params.configAmt;
 	if(configAmt > configurator.configs.length) configAmt = configurator.configs.length;
 	$("#configAmt").val(configAmt);
 	var testType = getTestType();

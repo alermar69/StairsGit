@@ -129,13 +129,21 @@
 			<input id="M" type="number" value="900">
 		</td></tr>
 
-		<tr><td>Тип тетив:</td> <td> 
+		<tr style="display:none"><td>Тип тетив:</td> <td> 
 			<select id="stringerType" size="1" >
 				<option value="пилообразная" selected >пилообразная</option>
 				<option value="ломаная">ломаная</option>
 				<option value="прямая">прямая</option>
 			</select>
 		</td></tr>
+		
+		<tr><td>Модель тетивы:</td> <td> 
+			<select id="stringerModel" size="1" >
+				<option value="лист">лист</option>
+				<option value="короб">короб</option>
+			</select>
+		</td></tr>
+
 
 		<tr><td>Подступенки:</td> <td> 
 			<select id="riserType" size="1" >

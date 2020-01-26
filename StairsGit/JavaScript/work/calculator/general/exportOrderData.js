@@ -1,6 +1,12 @@
 ﻿$(function () {
 
 	$("#makeAccepted").click(function(){
+		//привязка заказа невозможна в упрощенном режиме отрисовки
+		if(menu.simpleMode){
+			alert("ВНИМЕНИЕ! Не удалось привязать заказ. Отключите упрощенный режим отрисовки модели!")
+			return;
+		}
+		
 		//из раздела /dev/ добавляем в тестовую базу
 		var testDb = false;
 		var url = document.location.href;

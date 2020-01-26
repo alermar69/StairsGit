@@ -616,7 +616,7 @@ function drawBalSection(par) {
 					dxfBasePoint: newPoint_xy(p1, balDist[1] * i, 0),
 				}
 				//var bal = drawForgedBanister_4(balPar).mesh;
-				if (!menu.lowPolyBanisters)
+				if (!menu.meshBanisters)
 					var bal = drawForgedBanister_4(balPar).mesh;
 				else
 					var bal = drawForgedBanister_5(balPar).mesh;

@@ -3296,7 +3296,7 @@ function drawForgedBanistersArr(par) {
 	
 	var drawBanisterFunction = drawForgedBanister_4;
 
-	if(!menu.banisters){
+	if(!menu.meshBanisters){
 		drawBanisterFunction = drawForgedBanister_4;
 	}else{
 		drawBanisterFunction = drawForgedBanister_5;

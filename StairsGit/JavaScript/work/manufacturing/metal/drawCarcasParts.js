@@ -2068,7 +2068,7 @@ function drawBridge_2(par) {
 		
 		//длинные болты
 
-		if(drawLongBolts){
+		if(drawLongBolts && noZenkHoles){
 			var boltPar = {
 				diam: 10,
 				len: 30,

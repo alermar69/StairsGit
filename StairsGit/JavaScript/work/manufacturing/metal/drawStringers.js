@@ -310,7 +310,7 @@ function drawStringer(par){
 	var radIn = 10;
 	var radOut = 10;
 	if(params.model == "лт") radIn = 5;
-	
+
 	//создаем шейп
 	var shapePar = {
 		points: par.pointsShape,
@@ -562,7 +562,7 @@ function drawStringer(par){
 	par.dxfBasePoint.x += par.b * par.stairAmt + 2000;
 	if (par.topEndLength !== undefined) par.dxfBasePoint.x += par.topEndLength;
 */
-	
+debugger		
 	par.mesh = new THREE.Object3D();	
 	
 	var stringerExtrudeOptions = {

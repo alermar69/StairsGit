@@ -440,7 +440,7 @@ if(params.stairModel == "П-образная трехмаршевая"){
 
 //смещение внешнего косоура
 if(params.model != "ко" && params.calcType != "console") $(".stringerMoove").hide();
-if(params.calcType == "console"){
+if(params.calcType == "console" && params.stringerModel == "лист"){
 	if(params.stringerMoove_1 < 50) $("#stringerMoove_1").val(50);
 	if(params.stringerMoove_2 < 50) $("#stringerMoove_2").val(50);
 	if(params.stringerMoove_3 < 50) $("#stringerMoove_3").val(50);

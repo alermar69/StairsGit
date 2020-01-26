@@ -36,8 +36,8 @@
 	
 	<!-- синтетические -->
 	<div class='synthConfigs div-grey'>	
-		№ <input id="configId" type="number" value="0"> <button id="setConfig">Применить</button>
-		Кол-во конфигураций: <input id="configAmt" type="number" value="2"> 
+		№ <input id="configId" type="number" value="0"> <button id="setConfig">Применить</button><br>
+		Кол-во конфигураций: <input id="configAmt" type="number" value="20"> 
 		
 		<!-- последние -->
 		<div class='lastConfigs'>

@@ -333,7 +333,7 @@ if (isForge) isMetalPaint = true;
 if (isLattice) isMetalPaint = true;
 if (isRacks){
 	if(params.banisterMaterial == "40х40 черн.") isMetalPaint = true;
-	if(params.rigelMaterial == "20х20 черн.") isMetalPaint = true;
+	if(params.rigelMaterial == "20х20 черн." && isRigels) isMetalPaint = true;
 	}
 
 if(params.handrail =="40х20 черн." ||
@@ -359,8 +359,6 @@ if(params.handrail =="сосна" ||
 	params.handrail =="омега-образный дуб" ||
 	params.handrail =="40х60 дуб" ||
 	params.handrail =="40х60 дуб с пазом") isTimberPaint = true;
-
-
 
 
 

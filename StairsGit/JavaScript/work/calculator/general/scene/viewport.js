@@ -153,9 +153,9 @@ function addMeasurement(viewportId) {
 	sphereHelper.visible = false;
 
 	var nowStart = true;
-	var newdiv1 = $("<div id='popuup_div' align='left' style='position:absolute;z-index:1000;width:130px;height:88px;background-color:white;text-align:left;padding-left:9px;color:#000000;font: 16px Verdana, Arial, Helvetica, sans-serif;display:none;'></div>");
+	var newdiv1 = $("<div id='popuup_div'></div>");
 	$("body").append(newdiv1);
-	var newdiv2 = $("<div id='popuup2_div' align='left' style='position:absolute;z-index:1000;width:330px;height:28px;background-color:white;text-align:left;padding-left:9px;color:#000000;font: 18px Verdana, Arial, Helvetica, sans-serif;display:none;'></div>");
+	var newdiv2 = $("<div id='popuup2_div'></div>");
 	$("body").append(newdiv2);
 
 	var canvas = view.renderer.domElement;
@@ -402,7 +402,7 @@ function findIntersects(scene, viewportId, onFinish) {
 		if (co > 0) {
 			$('#popuup2_div').stop(true, true).css({
 				left: canvasPosition.left + 30,
-				top: canvasPosition.top + 80 + canvas.height
+				top: canvasPosition.top + canvas.height - 30,
 			}).show();
 			lblInters.innerHTML = 'Проверено объектов ' + (objslength - co) + ' из ' + objslength;
 
@@ -414,7 +414,7 @@ function findIntersects(scene, viewportId, onFinish) {
 
 			$('#popuup2_div').stop(true, true).css({
 				left: canvasPosition.left + 30,
-				top: canvasPosition.top + 80 + canvas.height
+				top: canvasPosition.top + canvas.height - 30,
 			}).show();
 			lblInters.innerHTML = 'Найдено пересечений, всего: ' + counts;
 

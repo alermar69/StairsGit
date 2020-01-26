@@ -60,6 +60,7 @@ $(function(){
 	
 	//тест группы конфигураций	
 	$("#test_set").click(function() {
+		configAmt = $("#configAmt").val();
 		
 		var generatorMode = $("#configGeneratorMode").val();
 		if(generatorMode == "синтетические"){

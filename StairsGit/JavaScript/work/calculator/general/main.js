@@ -36,7 +36,6 @@ var calculatedSpec = {};//Сюда попадает итоговая специ�
 
 $(function () {
 	getAllInputsValues(params);
-
 	//добавляем видовые экраны на страницу
 	addViewport('WebGL-output', 'vl_1');//параметры outputDivId, viewportId
 

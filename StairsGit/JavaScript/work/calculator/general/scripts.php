@@ -68,7 +68,7 @@ $scripts = [
 	],
 	[
 		'url' => '/manufacturing/metal/testing.js',
-		'only_for' => ['metal', 'bolz', 'console', 'console'],
+		'only_for' => ['metal', 'bolz', 'console', 'console', 'vhod'],
 	],
 	[
 		'url' => '/manufacturing/metal/calcSpec.js',
@@ -248,6 +248,11 @@ $scripts = [
 		'url' => '/manufacturing/vint/calcSpec.js',
 		'only_for' => ['vint'],
 	],
+		[
+		'url' => '/manufacturing/vint/testing.js',
+		'only_for' => ['vint'],
+	],
+	
 	//geometry
 	[
 		'url' => '/calculator/geometry/drawStaircase.js',

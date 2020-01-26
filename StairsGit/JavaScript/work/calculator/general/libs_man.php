@@ -41,9 +41,6 @@
 <script type="text/javascript" src="/manufacturing/general/drawCarcasParts.js"></script>
 <script type="text/javascript" src="/manufacturing/general/sideHandrail.js"></script>
 <script type="text/javascript" src="/manufacturing/general/drawSkirting.js"></script>
-<script type="text/javascript" src="/manufacturing/general/testing/testingLib.js"></script>
-<script type="text/javascript" src="/manufacturing/general/testing/testingActions.js"></script>
-
 
 <script type="text/javascript" src="/calculator/general/drawPrimitives.js"></script>
 <script type="text/javascript" src="/manufacturing/general/drawRailingPartsLib_4.0.js"></script>

@@ -150,12 +150,12 @@ function drawStringerConsoleFlan(par) {
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var flan = new THREE.Mesh(geom, params.materials.metal);
 
-	mesh.add(flan);
+	if(params.stringerModel == "лист") mesh.add(flan);
 
 
 	/* болты */
 
-	if (typeof anglesHasBolts != "undefined" && anglesHasBolts) { //глобальная переменная
+	if (typeof anglesHasBolts != "undefined" && anglesHasBolts && params.stringerModel == "лист") { //глобальная переменная
 		var side = "right";
 		//if (par.side) side = par.side;
 		if (params.stairModel == "Прямая") {
