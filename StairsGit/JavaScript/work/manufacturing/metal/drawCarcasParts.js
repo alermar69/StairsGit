@@ -1840,8 +1840,8 @@ function calcFlanHoles(par){
 	if(params.stringerType != "ломаная"){
 		//точка пересечения линии среза и линии, параллельной задней линии тетивы с отступом sideOffset
 		var p1 = newPoint_xy(par.divideP2, -sideOffset, 0);
-		var center3 = itercection(center1, center2, p1, polar(p1, marshPar.ang, 100));
-		var center4 = itercection(center7, center8, p1, polar(p1, marshPar.ang, 100));
+		var center3 = itercection(center1, polar(center1, 0, 100), p1, polar(p1, marshPar.ang, 100));
+		var center4 = itercection(center8, polar(center8, 0, 100), p1, polar(p1, marshPar.ang, 100));
 		//var center3 = newPoint_y(p1, holeDist/2, marshPar.ang);
 		//var center4 = newPoint_y(p1, -holeDist/2, marshPar.ang);	
 		}

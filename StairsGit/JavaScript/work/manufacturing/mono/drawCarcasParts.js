@@ -1720,14 +1720,7 @@ function calcColumnsPosition(par, stringerParams){
 			т.е. в нашем случае width - (dxPlatform + stringerLedge) / Math.cos(ang)
 			это отступ от начала платформы до середины поворота
 		*/ 
-		if (params.model == 'труба' && marshParams.topTurn == 'забег') {
-			columnPosition.top1 = newPoint_xy(startPoint, 220 / Math.cos(ang) + 10, 0);//Зазор фланца от края
-			if (!stringerParams.isKinkTop) {
-				startPoint = par.pointsShape[par.pointsShape.length - 1];
-				var ang1 = calcAngleX1(par.pointsShape[0],  startPoint);
-				columnPosition.top1 = polar(startPoint, ang1, -(220 + 10) / 2);
-			}
-		}
+		
 		if (params.stairModel == 'П-образная с площадкой' && !par.topConnection) {
 			var stringerThickness = params.stringerThickness;
 			//columnPosition.top1 = newPoint_xy(startPoint, width - (dxPlatform + stringerLedge) + params.metalThickness / 2 + params.stringerThickness / 2, 0);
@@ -1741,6 +1734,14 @@ function calcColumnsPosition(par, stringerParams){
 		}
 		if (!par.topConnection && params.stairModel !== 'П-образная с площадкой') {
 			columnPosition.top1 = newPoint_xy(startPoint, (width / 2) / Math.cos(ang), 0);
+		}
+		if (params.model == 'труба' && marshParams.topTurn == 'забег') {
+			columnPosition.top1 = newPoint_xy(startPoint, 220 / Math.cos(ang) + 10, 0);//Зазор фланца от края
+			if (!stringerParams.isKinkTop) {
+				startPoint = par.pointsShape[par.pointsShape.length - 1];
+				var ang1 = calcAngleX1(par.pointsShape[0], startPoint);
+				columnPosition.top1 = polar(startPoint, ang1, -(220 + 10) / 2);
+			}
 		}
 	}
 	// top2
