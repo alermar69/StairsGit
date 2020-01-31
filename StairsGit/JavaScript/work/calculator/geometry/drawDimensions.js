@@ -1125,7 +1125,7 @@ makeDrawings = function(callback, dimensionParams){
 				var campos = [-5000, 3000, 5000];
 
 				view.camera = new THREE.PerspectiveCamera(45, view.width / view.height,  100, 100000);
-				view.camera.position.set(...campos);
+				view.camera.position.set(campos[0], campos[1], campos[2]);
 				view.orbitControls = new THREE.OrbitControls(view.camera, view.renderer.domElement);
 
 				if(callback) callback();
@@ -1186,7 +1186,7 @@ addDrawingsImage = function(dimensionParams){
 		elem += ` height='${height}' `;
 	}
 */	
-	elem += `src="${imgData}" alt="">`;
+	elem += 'src="' + imgData + '" alt="">';
 	$('#geomDrawings').append(elem);
 }
 
@@ -1301,9 +1301,9 @@ function compareDimensions(){
 	var resultText = "<b>Результаты проверки: " + result + "</b><br>";
 
 	if (params.stairModel != 'Прямая') {
-		resultText += `Длинна проема: ${params.floorHoleLength} < Размер марша: ${window.thirdMarshSize}<br>`;
+		resultText += 'Длинна проема: ' + params.floorHoleLength + ' < Размер марша: ' + window.thirdMarshSize + '<br>';
 		if (params.stairModel == 'П-образная трехмаршевая') {
-			resultText += `Ширина проема: ${params.floorHoleWidth} < Размер марша: ${window.secondMarshSize}<br>`;
+			resultText += 'Ширина проема: ' + params.floorHoleWidth + ' < Размер марша: ' + window.secondMarshSize + '<br>';
 		}
 	}
 

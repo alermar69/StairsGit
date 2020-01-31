@@ -61,7 +61,7 @@ function drawRectFlan2(par) {
 
 	par.shape = drawShapeByPoints2(shapePar).shape;
 
-	if (par.pathHoles) par.shape.holes.push(...par.pathHoles);
+	if (par.pathHoles) par.shape.holes.concat(par.pathHoles);
 
 	if (par.roundHoleCenters) {
 		var holesPar = {
@@ -2179,7 +2179,8 @@ function drawStudF(par) {
 }
 
 /*параметры крепления к стенам, нижнему и верхнему перекрытию*/
-function getFixPart(marshId, wall = 'wall') {
+function getFixPart(marshId, wall) {
+	if (!wall) wall = 'wall';
 	//наличие креплений к стене
 	var fixPar = {
 		fixType: 'нет',

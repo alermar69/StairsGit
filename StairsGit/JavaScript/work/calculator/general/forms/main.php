@@ -119,12 +119,6 @@
 	
 	//формы	
 	$tabs = [
-		'menu' => [
-			'name' => 'Меню',
-			'url' => '/calculator/general/forms/menu_form.php',
-			'class' => 'noPrint',
-			'group' => 'form',
-		],
 		'price' => [
 				'name' => 'Цены',
 				'url' => '/calculator/general/price_tab.php',
@@ -175,6 +169,15 @@
 				'group' => 'form',
 			],
 	];
+
+	if ($template != 'customers') {
+		$tabs = array_merge(["menu"=>[
+			'name' => 'Меню',
+			'url' => '/calculator/general/forms/menu_form.php',
+			'class' => 'noPrint',
+			'group' => 'form',
+		]],  $tabs);
+	}
 	
 	if($calc_type == 'bolz'){
 		$tabs['carcas']['url']  = "/calculator/bolz/forms/carcas_form.php";
