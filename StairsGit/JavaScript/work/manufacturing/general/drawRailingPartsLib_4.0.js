@@ -2020,6 +2020,8 @@ function drawHandrailHolder(par) {
 	if (typeof testingMode == "undefined") testingMode = false;
 	var rackModel = params.banisterMaterial;
 	if (specObj.unit == "banister") rackModel = params.banisterMaterial_bal;
+	var railingModel = params.railingModel;
+	if (par.railingModel) railingModel = par.railingModel;
 
 	var botPartLen = 53;
 	var topPartLen = 17;
@@ -2091,7 +2093,7 @@ function drawHandrailHolder(par) {
 		addLine(trashShape, dxfPrimitivesArr, p1, p2, par.dxfBasePoint);
 	}
 
-	var flan = drawHolderFlan().mesh;
+	var flan = drawHolderFlan({ railingModel: railingModel}).mesh;
 
 	flan.rotation.x = -Math.PI / 2;
 	flan.rotation.y = -par.angTop;
@@ -2113,7 +2115,7 @@ function drawHandrailHolder(par) {
 	}
 
 	//гайка М8
-	if(!par.isHor && rackModel == "40х40 черн." && !testingMode && params.railingModel != "Кованые балясины"){
+	if (!par.isHor && rackModel == "40х40 черн." && !testingMode && railingModel != "Кованые балясины"){
 		//параметры гайки
 		var nutParams = {
 			diam: 8,
@@ -2125,7 +2127,7 @@ function drawHandrailHolder(par) {
 		nut.position.y = -10;
 		if(!testingMode) par.mesh.add(nut)
 	}
-	if (params.railingModel == "Кованые балясины") {
+	if (railingModel == "Кованые балясины") {
 		//параметры гайки
 		var nutParams = {
 			diam: 6,
@@ -2287,6 +2289,7 @@ function drawHolderFlan(par){
 
 	var vintId = "vint_M6x10";
 	if (params.railingModel == "Кованые балясины") vintId = "vint_M6x70";
+	if (par.railingModel == "Кованые балясины") vintId = "vint_M6x70";
 	var vintPar = {
 		id: vintId,
 		description: "Крепление лодочки к штырю",
@@ -3853,6 +3856,7 @@ function drawHandrail_4(par) {
 		//if (par.side == 'out') zOffset = par.wallOffset;
 		var zOffset = par.wallOffset;
 		if (par.side == 'in') zOffset = -par.wallOffset;
+		
 
 		if (par.startPlug) {
 			var plugBasePoint = polar(p1, par.poleAngle + Math.PI / 2, -handrailPar.profY / 2);

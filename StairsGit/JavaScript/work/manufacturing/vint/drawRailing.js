@@ -671,7 +671,15 @@ function drawSpiralRailing(par) {
 					bolt.position.y = handrailPoints[pos].y;
 					bolt.position.z = handrailPoints[pos].z;
 					bolt.rotation.x = Math.PI / 2;
-					if(!testingMode) mesh.add(bolt);
+					if (!testingMode) mesh.add(bolt);
+
+					
+					var plug = drawTimberPlug(25);
+					plug.position.x = handrailPoints[pos].x;
+					plug.position.y = handrailPoints[pos].y;
+					plug.position.z = handrailPoints[pos].z;
+					plug.rotation.x = Math.PI / 2;
+					if (!testingMode) mesh.add(plug);
 				}
 			}
 		}

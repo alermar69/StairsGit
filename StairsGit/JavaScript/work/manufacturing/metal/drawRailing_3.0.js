@@ -1,6 +1,7 @@
 /** частные функции для единой функции отрисовки ограждений */
 
-function calcHandrailPoints(par, parRacks){
+function calcHandrailPoints(par, parRacks) {
+	//var marshLastPoints = getLastPointsMarsh(treadsObj);
 	var handrailPoints = [];
 	
 			var meterHandrailPar = {
@@ -45,6 +46,24 @@ function calcHandrailPoints(par, parRacks){
 					var p2 = polar(marshFirst, parRacks.angMarsh, -50);
 					var botHandrailAng = angle(botFirst, p2);
 					var p1 = polar(botFirst, botHandrailAng, -50);
+
+					var extraLen = 80;
+					if (par.firstRackPos) extraLen = par.firstRackPos;
+					if (params.model == "ко") extraLen += params.sideOverHang;
+					if (par.botConnection) {
+						if (params.rackBottom == "сверху с крышкой") extraLen -= 80;
+						if (meterHandrailPar.handrailModel == "round")
+							extraLen += par.rackProfile / 2;
+						if (meterHandrailPar.handrailModel != "round")
+							extraLen += par.rackProfile / 2 - meterHandrailPar.profZ / 2;
+
+						var p1 = polar(botFirst, botHandrailAng, 0);
+						var pt = newPoint_xy(botFirst, -extraLen + 7.5, 0)
+						var p4 = itercection(p1, polar(p1, 0, 100), pt, polar(pt, Math.PI / 2, 100));
+						handrailPoints.push(p4);
+					}
+					if (!p4) p1 = polar(p1, botHandrailAng, -extraLen);
+					
 					}
 				if(params.stairModel == "Прямая с промежуточной площадкой" && par.marshId != "topPlt"){
 					var extraLen = 80;
@@ -69,16 +88,23 @@ function calcHandrailPoints(par, parRacks){
 				if(!par.isRearPRailing && meterHandrailPar.handrailModel == "round"){
 					extraLen += 50;
 					}
-				if(par.isPlatform && par.botConnection){
+				if (par.botConnection && (par.isPlatform || par.isRearPRailing)){
 					if(params.model == "ко") extraLen += params.sideOverHang;
 					if (params.rackBottom == "сверху с крышкой") extraLen -= 80;
 					if(meterHandrailPar.handrailModel == "round")
 						extraLen -= par.rackProfile / 2;
 					if(meterHandrailPar.handrailModel != "round")
 						extraLen += par.rackProfile / 2 - meterHandrailPar.profZ / 2;
+
+					if (par.isRearPRailing) {
+						var p1 = polar(marshFirst, parRacks.angMarsh, 0);
+						var pt = newPoint_xy(marshFirst, -extraLen + 7.5, 0)
+						var p4 = itercection(p1, polar(p1, 0, 100), pt, polar(pt, Math.PI / 2, 100));
+						handrailPoints.push(p4);
+					}
 					}
 	
-				var p1 = polar(marshFirst, parRacks.angMarsh, -extraLen);
+				if(!p4) var p1 = polar(marshFirst, parRacks.angMarsh, -extraLen);
 				handrailPoints.push(p1);
 				}
 	
@@ -108,10 +134,30 @@ function calcHandrailPoints(par, parRacks){
 					var p2 = newPoint_xy(topLast, extraLen, 0);
 					}
 				if (par.topEnd == "забег"){
-					var p1 = polar(topFirst, parRacks.angMarsh, 50);
+					var p1 = polar(topFirst, parRacks.angMarsh, 0);
 					var topHandrailAng = angle(p1, topLast);
 					var p2 = polar(topLast, topHandrailAng, 50)
+					
+					//продлеваем поручень до конца площадки
+					var extraLen = 80;
+					if (par.lastMarsh) extraLen = 90;
+					if (par.lastRackPos) extraLen = par.lastRackPos;
+					if (params.model == "ко") extraLen += params.sideOverHang + params.stringerThickness;
+					if (par.topConnection) {
+						if (params.rackBottom == "сверху с крышкой") extraLen -= 80;
+						if (meterHandrailPar.handrailModel == "round")
+							extraLen += par.rackProfile / 2;
+						if (meterHandrailPar.handrailModel != "round")
+							extraLen += par.rackProfile / 2 + meterHandrailPar.profZ / 2;
+						
+						var p2 = polar(topLast, topHandrailAng, 0)
+						var pt = newPoint_xy(topLast, extraLen + 45, 0)
+						var p3 = itercection(p2, polar(p2, 0, 100), pt, polar(pt, Math.PI / 2, 100));
 					}
+					if(!p3) p2 = polar(topLast, topHandrailAng, extraLen);
+				}
+
+				
 				if(params.stairModel == "Прямая горка"){
 					var p2 = itercection(marsh2Last, polar(marsh2Last, -parRacks.angMarsh, 100), topLast, polar(topLast, 0, -100));
 					if (params.railingModel == 'Ригели') {
@@ -122,6 +168,7 @@ function calcHandrailPoints(par, parRacks){
 				}
 				handrailPoints.push(p1);
 				handrailPoints.push(p2);
+				if (p3) handrailPoints.push(p3);
 			}
 	
 			if (par.topEnd == "нет" || par.isRearPRailing){
@@ -138,16 +185,22 @@ function calcHandrailPoints(par, parRacks){
 						extraLen += par.rackProfile / 2;
 					if(meterHandrailPar.handrailModel != "round")
 						extraLen += par.rackProfile / 2 - meterHandrailPar.profZ / 2;
-					if(par.isRearPRailing) extraLen += meterHandrailPar.profZ;
+					if (par.isRearPRailing) {
+						extraLen += meterHandrailPar.profZ;
+						var p1 = polar(marshLast, parRacks.angMarsh, 0);
+						var pt = newPoint_xy(marshLast, extraLen + 50, 0)
+						var p3 = itercection(p1, polar(p1, 0, 100), pt, polar(pt, Math.PI / 2, 100));
+					}
 	
 					}
-				var p1 = polar(marshLast, parRacks.angMarsh, extraLen);
+				if(!p3) var p1 = polar(marshLast, parRacks.angMarsh, extraLen);
 
 				//если на следующем марше поворотная стойка, удиняем поручень до неё
 				if (parRacks.marshLast.noDraw && parRacks.marshLast.dxToMarshNext) {
 					p1 = newPoint_x1(marshLast, parRacks.marshLast.dxToMarshNext + (parRacks.marshLast.x - marshLast.x) + 10 - par.rackProfile, parRacks.angMarsh);
 				}
 				handrailPoints.push(p1);
+				if(p3)handrailPoints.push(p3);
 			}
 			
 			return handrailPoints;

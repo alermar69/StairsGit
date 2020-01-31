@@ -297,7 +297,7 @@ function drawMarshRailing(par, marshId) {
 	if (params.stairModel == "Прямая с промежуточной площадкой") {
 		if (getMarshParams(3).hasTopPltRailing && getMarshParams(3).hasTopPltRailing.in) hasRailing = true;
 	}
-	debugger;
+
 	if (marshId != "topPlt" && hasRailing) {
 
 		//смещаем dxfBasePoint на длину нижнего участка
@@ -412,6 +412,9 @@ function drawMarshRailing(par, marshId) {
 				var topPlt = sectionPar.stringerParams["topPlt"];
 			sectionPar.stringerParams["topPlt"] = sectionPar.stringerParams[2];
 			var racks = sectionPar.stringerParams["topPlt"].elmIns.rear.racks;
+			if (params.railingModel == 'Дерево с ковкой' || params.railingModel == 'Деревянные балясины') {
+				sectionPar.marshId = 2;
+			}
 
 			//при правом повороте отзеркаливаем отверстия под средние стойки площадки
 			if (turnFactor == 1 && racks.length > 2) {
@@ -433,7 +436,7 @@ function drawMarshRailing(par, marshId) {
 		if (turnFactor == -1 && params.railingModel !== "Самонесущее стекло") section.position.x += sectionPar.rackProfile;
 		section.position.z = -(params.M / 2 - sideOffset) * turnFactor;
 		section.position.z += (params.M * 2 + params.marshDist) * (1 + turnFactor) * 0.5;
-		if (params.model == "ко") {
+		if (params.model == "ко" && params.rackBottom == 'боковое') {
 			section.position.z -= params.sideOverHang;
 			section.position.y -= 40;
 		}
@@ -1094,13 +1097,16 @@ function drawRailingSectionNewel2(par) {
 
 		for (var i = 0; i < racks.length - 1; i++) {
 			//выравниваем стекло на площадке
-			if (par.topTurn == "площадка" && par.key == "out" && Math.abs(racks[i].y - racks[i + 1].y) < 0.01 && i > 1) {
-				// 20 зазор стекла от площадки
-				if (racks[i].y - racks[i - 1].y > 0.01) pltDeltaY = -20 + par.rackProfile + params.flanThickness + params.treadThickness + glassDist;
-			}
-			//выравниваем стекло на площадке
-			if (par.botTurn == "площадка" && par.key == "out" && racks[i].y - racks[i + 1].y < 0.01) {
-				pltDeltaY = -20 + par.rackProfile + params.flanThickness + params.treadThickness + glassDist;
+			if (params.calcType !== 'mono') {
+				if (par.topTurn == "площадка" && par.key == "out" && Math.abs(racks[i].y - racks[i + 1].y) < 0.01 &&i > 1) {
+					// 20 зазор стекла от площадки
+					if (racks[i].y - racks[i - 1].y > 0.01)
+						pltDeltaY = -20 + par.rackProfile + params.flanThickness + params.treadThickness + glassDist;
+				}
+				//выравниваем стекло на площадке
+				if (par.botTurn == "площадка" && par.key == "out" && racks[i].y - racks[i + 1].y < 0.01) {
+					pltDeltaY = -20 + par.rackProfile + params.flanThickness + params.treadThickness + glassDist;
+				}
 			}
 
 			glassParams.p1 = copyPoint(racks[i]);
@@ -1163,7 +1169,7 @@ function drawRailingSectionNewel2(par) {
 			sectText: par.text,
 			marshId: par.marshId,
 			key: par.key,
-			topPoint: parRacks.marshLast,
+			topPoint: parRacks.marshLast
 		}
 
 		//удлиннение поручня последнего марша
@@ -1595,8 +1601,19 @@ function drawPolylineHandrail(par) {
 				plug.position.z = 50 - meterHandrailPar.profZ / 2 - 1;
 				if (key == 'in') plug.position.z = meterHandrailPar.profZ / 2 - 50 + 1;
 
+				
+
 				if (turnFactor == -1 && key == 'in') plug.position.z = 50 - meterHandrailPar.profZ / 2 - 1;
 				if (turnFactor == -1 && key == 'out') plug.position.z = meterHandrailPar.profZ / 2 - 50 + 1;
+				if (params.stairModel == "Прямая") {
+					plug.position.z = 50 - meterHandrailPar.profZ / 2 - 1;
+					if (key == 'out') plug.position.z = meterHandrailPar.profZ / 2 - 50 + 1;
+
+
+
+					if (turnFactor == -1 && key == 'out') plug.position.z = 50 - meterHandrailPar.profZ / 2 - 1;
+					if (turnFactor == -1 && key == 'in') plug.position.z = meterHandrailPar.profZ / 2 - 50 + 1;
+				}
 
 				plug.rotation.x = Math.PI / 2;
 
@@ -2191,7 +2208,7 @@ function drawRailingSectionForge2(par) {
     var forgedParts = new THREE.Object3D();
     var handrails = new THREE.Object3D();
     var marshPar = getMarshParams(par.marshId);
-    var sectionLen = 0; //параметр для спецификации
+	var sectionLen = 0; //параметр для спецификации
 
     //параметры для рабочего чертежа
     section.drawing = {
@@ -2554,11 +2571,12 @@ function drawRailingSectionForge2(par) {
 
         //если стойки сверху, тогда сдвигаем вверх нижнюю перемычку, чтобы не было пересечения перемычки со ступенями
         var dyRackTop = 60 * Math.tan(parRacks.angMarsh);
-        if (params.rackBottom == "сверху с крышкой") dyRackTop = 40 * Math.tan(parRacks.angMarsh);
-				var turnRacksParams = setTurnRacksParams(par.marshId, par.key);//параметры поворотной стойки
-				var rackAddLen = 0;//Увелечение стойки для поворота
-				if (turnRacksParams.rackLenAdd) rackAddLen = turnRacksParams.rackLenAdd;
-				rackPar.len += rackAddLen;
+		if (params.rackBottom == "сверху с крышкой") dyRackTop = 40 * Math.tan(parRacks.angMarsh);
+		var turnRacksParams = setTurnRacksParams(par.marshId, par.key);//параметры поворотной стойки
+		var rackAddLen = 0;//Увелечение стойки для поворота
+		if (turnRacksParams.rackLenAdd) rackAddLen = turnRacksParams.rackLenAdd;
+		//rackPar.len += rackAddLen;
+				
         //если нет нижнего участка
         if (!topPoint2) {
             topPoint2 = {
@@ -2589,7 +2607,7 @@ function drawRailingSectionForge2(par) {
                     topPoint3.y += 0.1;
                 }
             }
-        }
+		}       
 
         parRacks.angMarsh = angle(topPoint2, topPoint3)
         parRacks.marshLen = distance(topPoint2, topPoint3)
@@ -2599,7 +2617,7 @@ function drawRailingSectionForge2(par) {
             parRacks.angMarsh = marshPar.ang;
             var pt = itercection(topPoint3, polar(topPoint3, parRacks.angMarsh, 100), topPoint2, polar(topPoint2, Math.PI / 2, 100));
             parRacks.marshLen = distance(topPoint3, pt);
-            parRacks.firstRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
+			parRacks.firstRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
             if (par.key == 'in') parRacks.lastRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
             topPoint2 = copyPoint(pt);
 		}
@@ -2821,15 +2839,17 @@ function drawRailingSectionForge2(par) {
 
         //балясины
         var balParams = {
-            p1: newPoint_xy(parRacks.marshFirst, 0, rackAddLen),
-            p2: newPoint_xy(parRacks.marshLast, 0, rackAddLen),
+            //p1: newPoint_xy(parRacks.marshFirst, 0, rackAddLen),
+            //p2: newPoint_xy(parRacks.marshLast, 0, rackAddLen),
+            p1: copyPoint(parRacks.marshFirst),
+            p2: copyPoint(parRacks.marshLast),
             ang: parRacks.angMarsh,
             balLen: balLen - dyRackTop,
             dxfBasePoint: par.dxfBasePoint,
             material: params.materials.metal,
             drawing: { marshId: par.marshId, poleId: 1, key: par.key },
 		}
-		if (parRacks.firstRackDeltaLength) balParams.balLen += parRacks.firstRackDeltaLength;
+		if (parRacks.firstRackDeltaLength) balParams.balLen += parRacks.firstRackDeltaLength - rackAddLen;
 		var balArr = drawForgedBanistersArr(balParams);
 		if (parRacks.firstRackDeltaLength) balArr.position.y += parRacks.firstRackDeltaLength;
 				balArr.position.z = railingPositionZ;
@@ -3116,39 +3136,61 @@ function drawRailingSectionForge2(par) {
         if (topPoint1) {
             //продлеваем поручень до конца площадки
             var extraLen = 80 - 20;
-            if (params.model == "ко") extraLen += params.sideOverHang;
-            if (par.botConnection) {
+			if (params.model == "ко") extraLen += params.sideOverHang;			
+			if (par.botConnection) {
+				if (params.calcType == 'mono') extraLen = 175;
                 if (params.rackBottom == "сверху с крышкой") extraLen -= 80;
                 if (meterHandrailPar.handrailModel == "round")
                     extraLen += rackProfile / 2;
                 if (meterHandrailPar.handrailModel != "round")
-                    extraLen += rackProfile / 2 - meterHandrailPar.profZ / 2;
+					extraLen += rackProfile / 2 - meterHandrailPar.profZ / 2;
 
+				//topPoint1 = polar(topPoint1, parRacks.angBot, 20);
+				var pt = newPoint_xy(parRacks.botFirst, 0, 930)
+				topPoint1 = itercection(topPoint1, topPoint2, pt, polar(pt, 0, 100));
+				var pt = newPoint_xy(parRacks.botFirst, -extraLen, 0)
+                var topPoint7 = itercection(topPoint1, polar(topPoint1, 0, 100), pt, polar(pt, Math.PI / 2, 100));
+                handrailPoints.push(topPoint7);
             }
             //if (!topPoint0) topPoint1 = polar(topPoint1, parRacks.angBot, -extraLen);
             //if (!topPoint0 && !par.botConnection) topPoint1 = polar(topPoint1, parRacks.angBot, -extraLen);
             if (!topPoint0 && !par.botConnection) topPoint1 = polar(topPoint1, parRacks.angBot, -extraLen);
-            //if(par.botConnection) topPoint1 = polar(topPoint1, parRacks.angBot, -extraLen);
             handrailPoints.push(topPoint1);
         }
 
         //корректируем вторую точку если нет нижнего поворота
         if (!topPoint1) {
             var extraLen = 80 + rackPar.topCutLen / 2;
-            if (par.isPlatform && par.botConnection) {
+			if (par.isPlatform && par.botConnection) {
                 extraLen = 80 + rackPar.topCutLen / 2;
                 if (params.model == "ко") extraLen += params.sideOverHang;
                 if (params.rackBottom == "сверху с крышкой") extraLen -= 80;
                 if (meterHandrailPar.handrailModel == "round")
                     extraLen -= rackProfile / 2;
                 if (meterHandrailPar.handrailModel != "round")
-                    extraLen += rackProfile / 2 - meterHandrailPar.profZ / 2;
-            }
+					extraLen += rackProfile / 2 - meterHandrailPar.profZ / 2;
+			}
+			if (par.isRearPRailing && par.botConnection) {
+				if (params.calcType == 'mono') extraLen = 175;
+				if (params.model == "ко") extraLen += params.sideOverHang;
+				if (params.rackBottom == "сверху с крышкой") extraLen -= 80;
+				if (meterHandrailPar.handrailModel == "round")
+					extraLen -= rackProfile / 2;
+				if (meterHandrailPar.handrailModel != "round")
+					extraLen += rackProfile / 2 - meterHandrailPar.profZ / 2;
+
+				//topPoint2 = polar(topPoint2, parRacks.angMarsh, 20);
+				var pt = newPoint_xy(parRacks.marshFirst, 0, 930)
+				topPoint2 = itercection(topPoint2, topPoint3, pt, polar(pt, 0, 100));
+				var pt = newPoint_xy(parRacks.marshFirst, -extraLen, 0)
+				var topPoint8 = itercection(topPoint2, polar(topPoint2, 0, 100), pt, polar(pt, Math.PI / 2, 100));
+				handrailPoints.push(topPoint8);
+			}
             if (par.marshId == 'topPlt' && par.key == 'rear') {
                 extraLen = 70 + params.stringerThickness + 40 / 2 - meterHandrailPar.profZ / 2;//40 - ширина стойки, 70 - расстояние от центра стойки до края тетивы
                 if (params.model == "ко") extraLen += params.sideOverHang;
             }
-            topPoint2 = polar(topPoint2, parRacks.angMarsh, -extraLen);
+			if (!topPoint8) topPoint2 = polar(topPoint2, parRacks.angMarsh, -extraLen);
         }
         if (topPoint2) handrailPoints.push(topPoint2);
 
@@ -3186,19 +3228,27 @@ function drawRailingSectionForge2(par) {
             //продлеваем поручень до конца площадки
             var extraLen = 80 - rackProfile / 2;
             if (params.model == "ко") extraLen += params.sideOverHang;
-            if (params.calcType == 'mono') extraLen = 80;
+            if (params.calcType == 'mono') extraLen = 90;
 
-            if (par.topConnection) {
+			if (par.topConnection) {
                 if (params.rackBottom == "сверху с крышкой") extraLen -= 80;
                 if (meterHandrailPar.handrailModel == "round")
                     extraLen += rackProfile / 2;
                 if (meterHandrailPar.handrailModel != "round")
-                    extraLen += rackProfile / 2 + meterHandrailPar.profZ / 2;
+					extraLen += rackProfile / 2 + meterHandrailPar.profZ / 2;
+
+				
+				//topPoint4 = polar(topPoint4, parRacks.angTop, -20);
+				var pt = newPoint_xy(parRacks.topLast, 0, 930)
+				topPoint4 = itercection(topPoint4, polar(topPoint4, parRacks.angTop, 100), pt, polar(pt, 0, 100));
+				var pt = newPoint_xy(parRacks.topLast, extraLen + meterHandrailPar.profY * Math.tan(parRacks.angTop / 2), 0)
+				var topPoint6 = itercection(topPoint4, polar(topPoint4, 0, 100), pt, polar(pt, Math.PI / 2, 100));
             }
 
-            if (!topPoint5) topPoint4 = polar(topPoint4, parRacks.angTop, extraLen);
+			if (!topPoint5 && !topPoint6) topPoint4 = polar(topPoint4, parRacks.angTop, extraLen);
 
             handrailPoints.push(topPoint4);
+			if (topPoint6) handrailPoints.push(topPoint6);
         }
 
         //последняя точка второго марша на прямой горке
@@ -3549,6 +3599,19 @@ function drawForgedFramePart2(par) {
 				if(par.railingSide === "left") rackFlan.position.z = sideLenLast / 2 + par.poleProfileY + 5
 				rackFlan.position.y = p3.y + par.poleProfileY;
 				if(!testingMode) par.mesh.add(rackFlan);
+			}
+			if (!par.isFirstFlan && par.monoType !== 'last') {
+				var plugParams = {
+					id: "plasticPlug_40_40",
+					width: par.poleProfileY,
+					height: par.poleProfileY,
+					description: "Заглушка низа стойки",
+					group: "Ограждения"
+				}
+				var rackBotPlug = drawPlug(plugParams);
+				rackBotPlug.position.z += par.poleProfileY / 2;
+				rackBotPlug.position.y = p3.y;
+				if (!testingMode) par.mesh.add(rackBotPlug);
 			}
 		}
 
@@ -4723,4 +4786,60 @@ function getBalType(balId, unitPos){
 }
 
 
-		
+function getLastPointsMarsh(treadsObj) {
+	// нижние точки
+	var botPoints = {}
+	botPoints[1] = { "in": 0, "out": 0 };
+	botPoints[2] = { "in": 0, "out": 0 };
+	botPoints[3] = { "in": 0, "out": 0 };
+
+	var marshId = 1;
+	var marshPar = getMarshParams(marshId);
+	var turnParams = calcTurnParams(marshId);
+
+	if (marshPar.botTurn != "пол") {
+		botPoints[marshId].out = - turnParams.turnLengthBot;
+	}
+	var marshId = 2;
+	var marshPar = getMarshParams(marshId);
+	var turnParams = calcTurnParams(marshId);
+
+	if (marshPar.botTurn != "пол") {
+		botPoints[marshId].out = - turnParams.turnLengthBot;
+	}
+	var marshId = 3;
+	var marshPar = getMarshParams(marshId);
+	var turnParams = calcTurnParams(marshId);
+
+	if (marshPar.botTurn != "пол") {
+		botPoints[marshId].out = - turnParams.turnLengthBot;
+	}
+	//верхние точки
+	var topPoints = {}
+	topPoints[1] = { "in": 0, "out": 0 };
+	topPoints[2] = { "in": 0, "out": 0 };
+	topPoints[3] = { "in": 0, "out": 0 };
+
+	var marshId = 1;
+	var marshPar = getMarshParams(marshId);
+	var turnParams = calcTurnParams(marshId);
+
+	if (marshPar.topTurn != "пол") {
+		topPoints[marshId].out = treadsObj.unitsPos.turn1.x + turnParams.turnLengthTop;
+	}
+	var marshId = 2;
+	var marshPar = getMarshParams(marshId);
+	var turnParams = calcTurnParams(marshId);
+
+	if (marshPar.topTurn != "пол") {
+		topPoints[marshId].out = treadsObj.unitsPos.turn2.x + turnParams.turnLengthTop;
+	}
+	var marshId = 3;
+	var marshPar = getMarshParams(marshId);
+	var turnParams = calcTurnParams(marshId);
+
+	if (marshPar.topTurn != "пол") {
+		topPoints[marshId].out = treadsObj.unitsPos.marsh3.x + turnParams.turnLengthTop;
+	}
+	return { botPoints: botPoints, topPoints: topPoints};
+}		

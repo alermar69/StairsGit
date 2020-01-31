@@ -82,13 +82,26 @@ function calcRailingRacks(par) {
 			// 	x: marshParams.len + rackSize / 2 + turnParams.topMarshOffsetX + params.nose - 50 - 0.05,
 			// 	y: marshParams.height + 0.05,
 			// };
-		}
+		}		
 
 		if (marshParams.topTurn == 'пол') {
 			marshLast.x += marshParams.a / 2;
 			marshLast.y += marshParams.h;
 		}
 		railingParams.marshLast = marshLast;
+
+		if (params.stairModel == 'П-образная с площадкой' && par.marshId == 2) {
+			var marshFirst = {
+				x: rackSize / 2,
+				y: 0.05,
+			};
+			var marshLast = {
+				x: params.M * 2 + params.marshDist  - rackSize / 2,
+				y: 0.05,
+			};
+			railingParams.marshFirst = marshFirst;
+			railingParams.marshLast = marshLast;
+		}
 
 		/** Резные столбы */
 		if (marshParams.botTurn == 'пол') {
@@ -361,7 +374,7 @@ function drawRailingSection_4_pltP(par){
 		var balArr = drawBanistersArr(balParams);
 		balArr.position.y = 0;
 		if(params.timberBalBotEnd == "круг") {
-			balArr.position.y = 100;
+			//balArr.position.y = 100;
 		}
 		balArr.position.y += wndDeltaY;
 		balArr.position.z = posZ;
@@ -1540,7 +1553,7 @@ function drawRailingSection_4(par) {
 
 					balParams.lenX = marshPoints[i].lenX;
 
-					balParams.stairAmt = Math.floor(balParams.lenX / marshPar.b);
+					balParams.stairAmt = Math.floor(Math.round(balParams.lenX) / marshPar.b);
 
 					var pos = { x: 0, y: 0.05 };
 					if (i > 0 && marshPoints[i - 1].stairNumber) {

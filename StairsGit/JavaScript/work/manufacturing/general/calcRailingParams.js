@@ -28,7 +28,7 @@ function setRailingParams(par) {
 	}
 
 	//стыковка с задним ограждением площадки/забега на П-образной
-	if (params.stairModel == "П-образная с площадкой" || params.stairModel == "П-образная с забегом") {
+	if (params.stairModel == "П-образная с площадкой") {
 		if (par.prevMarshId == "1" && params.backRailing_1 == "нет") {
 			par.topConnection = false;
 		}
@@ -40,6 +40,21 @@ function setRailingParams(par) {
 			par.topConnection = true;
 		}
 		if (par.marshId == "3" && params.backRailing_1 == "есть") {
+			par.botConnection = true;
+		}
+	}
+	if (params.stairModel == "П-образная с забегом") {
+		if (par.prevMarshId == "1" && params.backRailing_2 == "нет") {
+			par.topConnection = false;
+		}
+		if (par.prevMarshId == "3" && params.backRailing_2 == "нет") {
+			par.botConnection = false;
+		}
+
+		if (par.marshId == "1" && params.backRailing_2 == "есть") {
+			par.topConnection = true;
+		}
+		if (par.marshId == "3" && params.backRailing_2 == "есть") {
 			par.botConnection = true;
 		}
 	}

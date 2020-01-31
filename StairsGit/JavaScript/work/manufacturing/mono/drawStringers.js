@@ -40,10 +40,28 @@ function drawComplexStringer(par) {
 	par.key = "in";
 	if (turnFactor == -1) par.key = "out";
 	par = drawStringerMk(par);
-	var geom = new THREE.ExtrudeGeometry(par.stringerShape, extrudeOptions);
-	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var sidePlate1 = new THREE.Mesh(geom, params.materials.metal);
-	if (par.key == "out") var pointsShape = par.pointsShape;
+	if (par.pDivideBot) {
+		var sidePlate1 = new THREE.Object3D();
+
+		var geom = new THREE.ExtrudeGeometry(par.stringerShapeBot, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var botPlate = new THREE.Mesh(geom, params.materials.metal);
+		sidePlate1.add(botPlate);
+
+		var geom = new THREE.ExtrudeGeometry(par.stringerShapeTop, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var topPlate = new THREE.Mesh(geom, params.materials.metal);
+		sidePlate1.add(topPlate);
+
+		if (par.key == "out") var pointsShape = par.pointsShape;
+	}
+	else {
+		var geom = new THREE.ExtrudeGeometry(par.stringerShape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var sidePlate1 = new THREE.Mesh(geom, params.materials.metal);
+		if (par.key == "out") var pointsShape = par.pointsShape;
+	}
+	
 	
 	var dxfBasePoint1 = copyPoint(par.dxfBasePoint);
 
@@ -54,10 +72,28 @@ function drawComplexStringer(par) {
 	par.key = "out";
 	if (turnFactor == -1) par.key = "in";
 	par = drawStringerMk(par);
-	var geom = new THREE.ExtrudeGeometry(par.stringerShape, extrudeOptions);
-	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var sidePlate2 = new THREE.Mesh(geom, params.materials.metal);
-	if (par.key == "out") var pointsShape = par.pointsShape;
+	if (par.pDivideBot) {
+		var sidePlate2 = new THREE.Object3D();
+
+		var geom = new THREE.ExtrudeGeometry(par.stringerShapeBot, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var botPlate = new THREE.Mesh(geom, params.materials.metal);
+		sidePlate2.add(botPlate);
+
+		var geom = new THREE.ExtrudeGeometry(par.stringerShapeTop, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var topPlate = new THREE.Mesh(geom, params.materials.metal);
+		sidePlate2.add(topPlate);
+
+		if (par.key == "out") var pointsShape = par.pointsShape;
+	}
+	else {
+		var geom = new THREE.ExtrudeGeometry(par.stringerShape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var sidePlate2 = new THREE.Mesh(geom, params.materials.metal);
+		if (par.key == "out") var pointsShape = par.pointsShape;
+	}
+	
 
 	sidePlate1.position.x = sidePlate2.position.x = par.a - par.b;
 	sidePlate1.position.y = sidePlate2.position.y = 0;
@@ -392,7 +428,8 @@ function drawComplexStringer(par) {
 						platePar.frontOff = 30;
 						if (params.stairModel == "П-образная с площадкой" || par.topConnection) {
 							if (par.topConnection) {
-								platePar.step -= par.stringerLedge;
+								if (par.stringerLedge1) platePar.step -= par.stringerLedge1;
+								else platePar.step -= par.stringerLedge;
                             }
                             var stepPlate = par.stepPoints[i - 1].x - par.stepPoints[i - 2].x
                             platePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -(stepPlate + 150) * i - 1000);
@@ -815,25 +852,47 @@ function drawComplexStringer(par) {
 				}
 				ang = calcAngleX1(platePar.pStart, platePar.pEnd);
 				platePar.pEnd = newPoint_x1(platePar.pEnd, -0.01, ang)
-                if (par.marshMiddleFix !== "нет") platePar.isHolesColon = true;
-                platePar.pointCurrentSvg = copyPoint(par.pointsShape[0]);
-				platePar.pointStartSvg = copyPoint(par.pointsShape[1]);				
-				if (par.isBigFloor) platePar.pointStartSvg = copyPoint(par.pointsShape[2]);// при большой разнице чистового и чернового пола
+				if (par.marshMiddleFix !== "нет") platePar.isHolesColon = true;
+				platePar.pointCurrentSvg = copyPoint(par.pointsShape[0]);
+				platePar.pointStartSvg = copyPoint(par.pointsShape[1]);
+				if (par.isBigFloor)
+					platePar.pointStartSvg = copyPoint(par.pointsShape[2]); // при большой разнице чистового и чернового пола
 
-                var isDrawBackPlate = true;
-                if (platePar.pStart.x + 5 > platePar.pEnd.x) isDrawBackPlate = false;
-                if (par.botEnd == "пол" && par.topEnd == "забег" && par.stairAmt <= 2) isDrawBackPlate = false;
-				if (par.marshId == 2 && params.stairAmt2 == 0 && par.topEnd == "забег" && par.botEnd == "площадка") isDrawBackPlate = false;
-                if (isDrawBackPlate) {
-                    var plate = drawBackPlate(platePar).mesh;
-                    plate.position.x = sidePlate2.position.x + par.pointsShape[0].x;
-                    plate.position.y = sidePlate2.position.y + par.pointsShape[0].y;
-                    par.mesh2.add(plate);
-                    platePar.dxfBasePoint.x += distance(platePar.pEnd, platePar.pStart) + 100;
+				if (par.pDivideBot) {					
+					platePar.pEnd = newPoint_x1(par.pDivideBot, -0.01, ang)
+					var plate1 = drawBackPlate(platePar).mesh;
+					plate1.position.x = sidePlate2.position.x + par.pointsShape[0].x;
+					plate1.position.y = sidePlate2.position.y + par.pointsShape[0].y;
+					par.mesh2.add(plate1);
+					platePar.dxfBasePoint.y += 300;
 
+					platePar.pStart = par.pDivideBot;
+					platePar.pEnd = newPoint_x1(par.pointsShape[par.pointsShape.length - 1], -0.01, ang)
+					var plate2 = drawBackPlate(platePar).mesh;
+					plate2.position.x = sidePlate2.position.x + par.pDivideBot.x;
+					plate2.position.y = sidePlate2.position.y + par.pDivideBot.y;
+					par.mesh2.add(plate2);
+
+					platePar.dxfBasePoint.x += distance(platePar.pEnd, platePar.pStart) + 100;
+				}
+				else {				
+					var isDrawBackPlate = true;
+					if (platePar.pStart.x + 5 > platePar.pEnd.x) isDrawBackPlate = false;
+					if (par.botEnd == "пол" && par.topEnd == "забег" && par.stairAmt <= 2) isDrawBackPlate = false;
+					if (par.marshId == 2 && params.stairAmt2 == 0 && par.topEnd == "забег" && par.botEnd == "площадка")
+						isDrawBackPlate = false;
+					if (isDrawBackPlate) {
+						var plate = drawBackPlate(platePar).mesh;
+						plate.position.x = sidePlate2.position.x + par.pointsShape[0].x;
+						plate.position.y = sidePlate2.position.y + par.pointsShape[0].y;
+						par.mesh2.add(plate);
+						platePar.dxfBasePoint.x += distance(platePar.pEnd, platePar.pStart) + 100;
+
+					}
 				}
 
-	            // Пластина, при большой разнице чистового и чернового пола
+
+				// Пластина, при большой разнице чистового и чернового пола
 				if (par.botEnd == "пол") {
 					if (par.pointsShape[0].x == par.pointsShape[1].x && par.pointsShape[0].y > par.pointsShape[1].y) {
 						platePar.isHolesColon = false;

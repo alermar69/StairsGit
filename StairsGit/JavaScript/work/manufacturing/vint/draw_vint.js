@@ -1165,7 +1165,8 @@ function drawStaircase(viewportId, isVisible) {
 			offsetZ = 95 / 2
 		}
 		if (params.railingModel_bal == "Самонесущее стекло") {
-			offsetZ = 95;
+			if (turnFactor == 1) offsetZ = - 95 / 2;
+			if (turnFactor == -1) offsetZ = 95;
 		}
 
 		translateObject(railingSection, offsetX, 150 + stepHeight * (stairAmt + 1) + regShimAmt * regShimThk, offsetZ);

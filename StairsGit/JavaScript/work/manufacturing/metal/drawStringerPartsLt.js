@@ -1558,6 +1558,8 @@ function drawBotStepLt_wndOut(par) {
 			if (params.railingModel != "Самонесущее стекло") {
 				// отверстия под стойку ближе к углу лестницы
 				center1 = newPoint_xy(par.keyPoints[par.key].botEnd, 80, par.rackTopHoleY);
+				//if (par.prevMarshPar.hasRailing.out || (params.stairModel == "П-образная с забегом" && par.marshId == 3 && params.backRailing_2 == "есть"))
+				//	center1 = newPoint_xy(center1, 100, 0);
 				par.railingHoles.push(center1);
 
 				// отверстия под стойку ближе к маршу
@@ -3991,6 +3993,8 @@ function drawTopStepLt_wndOut(par) {
 			if (params.railingModel != "Самонесущее стекло") {
 				// отверстия под стойку 2 (ближнюю к углу)
 				center1 = newPoint_xy(p5, -80 + params.stringerThickness, par.rackTopHoleY);
+				//if (par.nextMarshPar.hasRailing.out || (params.stairModel == "П-образная с забегом" && par.marshId == 1 && params.backRailing_2 == "есть"))
+				//	center1 = newPoint_xy(center1, -100, 0);
 
 				//если отверстия стойки и второй забежной рамки или уголка крепления второй забежной ступени пересекаются, сдвигаем отверстие стойки
 				if (Math.abs(center1.x - centerHoleWnd1.x) < 15)

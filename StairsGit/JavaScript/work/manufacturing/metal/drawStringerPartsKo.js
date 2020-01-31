@@ -1728,9 +1728,16 @@ function drawTopStepKo_pltG(par){
 		var dividePosX = pltPar.partLen * (i + 1) - nose1;
 		
 		center1 = newPoint_xy(p2, dividePosX - par.marshFramesParams.holeDist / 2, par.stepHoleY);
-		//не допускаем пересечения рамок
-		if(center1.x - pointsHoleTop[pointsHoleTop.length-1].x < par.marshFramesParams.sideHolePosX * 2 + 5){
-			center1.x = pointsHoleTop[pointsHoleTop.length-1].x + par.marshFramesParams.sideHolePosX * 2 + 5
+		//не допускаем пересечения рамок				
+		if (i == 0) {
+			if (center1.x - par.pointsHole[par.pointsHole.length - 1].x < par.marshFramesParams.sideHolePosX * 2 + 5) {
+				center1.x = par.pointsHole[par.pointsHole.length - 1].x + par.marshFramesParams.sideHolePosX * 2 + 5
+			}
+		}
+		else {
+			if (center1.x - pointsHoleTop[pointsHoleTop.length - 1].x < par.marshFramesParams.sideHolePosX * 2 + 5) {
+				center1.x = pointsHoleTop[pointsHoleTop.length - 1].x + par.marshFramesParams.sideHolePosX * 2 + 5
+			}
 		}
 		center2 = newPoint_xy(center1, par.marshFramesParams.holeDist, 0);
 

@@ -1534,7 +1534,8 @@ function calcColumnPosHoles(par) {
 						colHole2.backZenk = colHole1.backZenk = false;
 					}
 					colHole2.hasAngle = colHole1.hasAngle = false;
-                    if ((k == 1 || k == 2) && par.botEnd == "platformG" && (stringerPar.stringerDivision || stringerPar.stringerDivisionBot))
+                    //if ((k == 1 || k == 2) && par.botEnd == "platformG" && (stringerPar.stringerDivision || stringerPar.stringerDivisionBot))
+                    if ((k == 1 || k == 2) && par.botEnd == "platformG" && stringerPar.stringerDivisionBot)
 						colHole2.place = colHole1.place = "bot";		// в массти для отверстий в нижней части тетивы (pointsHoleBot) должны попасть только отвертия для 1 и 2 колонн
 					columnsHoles.push(colHole1);
 					columnsHoles.push(colHole2);

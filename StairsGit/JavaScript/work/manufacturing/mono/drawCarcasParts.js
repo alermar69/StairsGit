@@ -716,7 +716,7 @@ function calcColumnParams(par, stringerParams){
 	var botLengthDelta = 0;
 	var topLengthDelta = 0;// Фикс положения стойки для трубы
 	if (params.model == 'труба') midLengthDelta = botLengthDelta = topLengthDelta = params.profileHeight -  params.sidePlateOverlay;
-	if (marshParams.botTurn == 'площадка' && params.model == 'труба') botLengthDelta = params.profileHeight - 7;
+	//if (marshParams.botTurn == 'площадка' && params.model == 'труба') botLengthDelta = params.profileHeight - 7;
 	//if (marshParams.topTurn == 'площадка' && params.model == 'труба') topLengthDelta = params.profileHeight - 7;
 	if (params.stairModel == 'П-образная с площадкой' || params.stairModel == 'П-образная трехмаршевая') {
 		// if (marshParams.botTurn == 'площадка' && params.model == 'труба') botLengthDelta = params.profileHeight - 7;
@@ -2378,17 +2378,19 @@ function drawTreadPlateHoles(par) {
 
 	//второй прямогуольный вырез в пластине второй забежной ступени для закрепления фланца
 	if (par.isTurn2Top) {
-		var pt = newPoint_xy(p0, 0, 20);
+		var pt = newPoint_xy(p0, 0, par.step - 20);
+		if (par.dStep) pt.y += par.dStep;
 		var len = 100;
-		if ((center1.y - pt.y) < 120) len = center1.y - pt.y - 20;
+		//if ((center1.y - pt.y) < 120) len = center1.y - pt.y - 20;
+		if ((pt.y - center2.y) < 120) len = pt.y - center2.y - 20;
 
 		if (len > 50) {
 			var pH1 = itercection(pt, polar(pt, 0, 100), pH1, polar(pH1, Math.PI / 2, 100));
 			var pH2 = itercection(pt, polar(pt, 0, 100), pH4, polar(pH4, Math.PI / 2, 100));
-			var pH3 = newPoint_xy(pH2, 0, len);
-			var pH4 = newPoint_xy(pH1, 0, len);
+			var pH3 = newPoint_xy(pH2, 0, -len);
+			var pH4 = newPoint_xy(pH1, 0, -len);
 
-			var arr = [pH1, pH4, pH3, pH2];
+			var arr = [pH1, pH2, pH3, pH4];
 			if (turnFactor == -1)
 				arr = mirrowPointsMiddleX(arr);
 
@@ -6368,6 +6370,8 @@ function drawPlatformFrames(par) {
 		widthIn: 30,
 		thickness: 60,
 		dxfBasePoint: par.dxfBasePoint,
+		topConnection: par.topConnection,
+		botConnection: par.botConnection,
 	}
 
 	var jumperPlatformParams = {
@@ -6661,6 +6665,26 @@ function drawFramePlatform(framePlatformParams) {
 	addLine(hole, dxfPrimitivesArr, p4, p1, dxfBasePoint);
 
 	shape.holes.push(hole);
+
+	//отверстия под крепления к площадке
+	var hole1 = new THREE.Path();
+	var hole2 = new THREE.Path();
+
+	var pt = newPoint_xy(p0, width / 2, plateWidth / 2);
+	if (framePlatformParams.topConnection) pt = newPoint_xy(p0, width / 2, height - plateWidth / 2);
+	
+	var center1 = newPoint_xy(pt, - 100, 0);
+	var center2 = newPoint_xy(pt, 100, 0);
+
+	if (framePlatformParams.botConnection) {
+		pt = newPoint_xy(p0, width - plateWidth / 2, height / 2);
+		var center1 = newPoint_xy(pt, 0, - 100);
+		var center2 = newPoint_xy(pt, 0, 100);
+	}
+	addCircle(hole1, dxfPrimitivesArr, center1, framePlatformParams.firstBoultRaduis, dxfBasePoint);
+	addCircle(hole2, dxfPrimitivesArr, center2, framePlatformParams.firstBoultRaduis, dxfBasePoint);
+	shape.holes.push(hole1);
+	shape.holes.push(hole2);
 
 	framePlatformParams.shape = shape;
 
@@ -6966,7 +6990,7 @@ function drawPolylinePole(par) {
 				poleAngle: poleAngle,
 				angStart: startAngle,
 				angEnd: endAngle,
-				material: params.materials.tread,
+				material: params.materials.metal,
 				partName: "stringerPart",
 				roundHoles: [],
 				sectText: par.marshId + " марш (деталь:" + i + ")"

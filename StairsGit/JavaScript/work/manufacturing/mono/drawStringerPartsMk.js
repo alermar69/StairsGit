@@ -103,7 +103,45 @@ function drawStringerMk(par) {
 		}
 		if (par.key == "in") shapePar.drawing.in = true;
 
-		par.stringerShape = drawShapeByPoints2(shapePar).shape;
+		// если длина косоура больше 4 метров делаем разделение косоура
+		if (distance(par.pointsShape[0], par.pointsShape[par.pointsShape.length - 1]) > 4000 && params.model == "сварной") {
+			var index = 0;
+			for (var i = 0; i < par.pointsShape.length; i++) {
+				if (par.botUnitEnd == par.pointsShape[i]) {
+					index = i + Math.floor(par.stairAmt / 2) * 2;
+					var pt1 = copyPoint(par.pointsShape[index])
+					break;
+				}
+			}
+			var pt2 = itercection(pt1,
+				polar(pt1, par.marshAngle + Math.PI / 2, 100),
+				par.pointsShape[0],
+				par.pointsShape[par.pointsShape.length - 1]);
+
+			var trashShape = new THREE.Shape();
+			var layer = "comments";
+			addLine(trashShape, dxfPrimitivesArr, pt1, pt2, par.dxfBasePoint, layer);
+
+			var botPoints = par.pointsShape.slice(0, index + 1);
+			botPoints.push(pt2);
+			var topPoints = par.pointsShape.slice(index);
+			topPoints.unshift(pt2)
+
+			shapePar.points = botPoints;
+			par.stringerShapeBot = drawShapeByPoints2(shapePar).shape;
+
+			shapePar.points = topPoints;
+			par.stringerShapeTop = drawShapeByPoints2(shapePar).shape;
+
+			par.pDivideBot = pt2;
+			par.pDivideTop = pt1;
+
+		}
+		else {
+			par.stringerShape = drawShapeByPoints2(shapePar).shape;
+		}		
+
+		
 
 		//рисуем отверстия
 		drawStringerHoles(par);
@@ -694,7 +732,8 @@ function drawTopStepMk_floor(par) {
  */
 function drawTopStepMk_pltG(par) {
 
-	if (par.stringerLedge1) par.stringerLedge = par.stringerLedge1;
+	//var stringerLedge = par.stringerLedge;
+	//if (par.stringerLedge1) stringerLedge = par.stringerLedge1;
 
 	var dy = params.sidePlateOverlay - 7;
 	var h_1 = par.stringerWidth; // высота задней кромки

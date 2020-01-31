@@ -669,6 +669,7 @@ function drawBalSection(par) {
 					angTop: 0,
 					dxfBasePoint: newPoint_xy(par.dxfBasePoint, pos.x, pos.y + 150),
 					isForge: true,
+					railingModel: railingModel
 				}
 				var holder = drawHandrailHolder(holderParams).mesh;
 				holder.position.x = pos.x + offsetLeft;

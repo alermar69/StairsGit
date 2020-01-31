@@ -2030,7 +2030,7 @@ function calculateRacks(par){
 		};
 		if (par.botEnd == "забег") {
 			parRacks.botFirst.len -= 20; //удлинняем стойку чтобы стык поручня не попадал на кронштейн
-			parRacks.botFirst.x = -params.M + 100;
+			parRacks.botFirst.x = -params.M + 180;
 			parRacks.botFirst.y -= par.h;
 			//смещенная точка перелома поручня
 			var handrailTurnPoint = polar(parRacks.marshFirst, marshPar.ang, -par.handrailTurnOffset)
@@ -2273,7 +2273,7 @@ function calculateRacks(par){
 
 
 //Считает позиции поручня исходя из заданных переменных
-function calcHandrailPoints(par, parRacks){
+function calcHandrailPoints(par, parRacks) {
 
 	var handrailPoints = [];
 	var pointOffset = 80; //отступ торца поручня от базовой точки стойки
@@ -2289,10 +2289,11 @@ function calcHandrailPoints(par, parRacks){
 	//нижние точки
 	if(parRacks.botFirst){
 		if(par.botEnd == "площадка"){
-			pointOffset = 200; //180 отступ от края + 20 отступ от центра этой стойки
+			//pointOffset = 200; //180 отступ от края + 20 отступ от центра этой стойки
+			pointOffset = 180; //160 отступ от края + 20 отступ от центра этой стойки
 			var p1 = polar(botFirst, parRacks.botFirst.holderAng, -pointOffset); //todo: сделать стык с поручнем нижнего марша
 		}
-		if(par.botEnd == "забег"){
+		if (par.botEnd == "забег") {
 			var p1 = polar(botFirst, parRacks.botFirst.holderAng, -pointOffset);
 		}
 		var p2 = itercection(p1, botFirst, marshFirst, polar(marshFirst, parRacks.marshFirst.holderAng, 100))
@@ -2307,7 +2308,7 @@ function calcHandrailPoints(par, parRacks){
 	//верхние точки
 	if(parRacks.topLast){
 		if(par.topEnd == "площадка"){
-			pointOffset = 160; //100 отступ от края + 40 профиль стойки следующего марша + 20 отступ от центра этой стойки
+			pointOffset = 150; //100 отступ от края + 40 профиль стойки следующего марша + 20 отступ от центра этой стойки
 			var p1 = polar(topLast, parRacks.topLast.holderAng, pointOffset); //todo: сделать стык с поручнем верхнего марша
 		}
 		if(par.topEnd == "забег"){

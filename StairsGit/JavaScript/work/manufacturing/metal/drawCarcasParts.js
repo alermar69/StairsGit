@@ -904,7 +904,7 @@ function drawTopPltStringer(par) {
 	//if (params.stairType == "рифленая сталь" || params.stairType == "рифленый алюминий" || params.stairType == "лотки")
 	//	shiftHoleY -= 50;
 	var shiftHoleY = -params.treadThickness - 5 - 20; //позиция верхнего отверстия уголка каркаса относительно верха тетивы
-	if (hasTreadFrames()) shiftHoleY -= framePar.profHeight + 5;
+	if (hasTreadFrames() && (params.stairType == "рифленая сталь" || params.stairType == "лотки")) shiftHoleY -= framePar.profHeight + 5;
 
 	if (params.model == "ко") shiftHoleY = -par.stringerWidthPlatform + 25 + 60;
 	//if(params.model == "ко") shiftHoleY = -95;
