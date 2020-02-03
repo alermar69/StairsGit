@@ -742,7 +742,7 @@ function drawShapeSvg(par) {
 	par.borderFrame.height = par.borderFrame.topRigth.y - par.borderFrame.botLeft.y;
 
 
-    if (shape.drawing.group == "stringers") par.basePointOffY = b.height;
+	if (shape.drawing.group == "stringers" && !shape.drawing.isDivide) par.basePointOffY = b.height;
 
     par.rect = b;
 

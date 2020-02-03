@@ -867,6 +867,8 @@ function drawComplexStringer(par) {
 					platePar.dxfBasePoint.y += 300;
 
 					platePar.pStart = par.pDivideBot;
+					platePar.pointCurrentSvg = copyPoint(par.pDivideBot);
+					//platePar.pointStartSvg = copyPoint(par.pDivideBot);
 					platePar.pEnd = newPoint_x1(par.pointsShape[par.pointsShape.length - 1], -0.01, ang)
 					var plate2 = drawBackPlate(platePar).mesh;
 					plate2.position.x = sidePlate2.position.x + par.pDivideBot.x;

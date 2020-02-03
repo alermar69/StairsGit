@@ -127,9 +127,47 @@ function drawStringerMk(par) {
 			var topPoints = par.pointsShape.slice(index);
 			topPoints.unshift(pt2)
 
+			shapePar.drawing.isDivide = true;
 			shapePar.points = botPoints;
 			par.stringerShapeBot = drawShapeByPoints2(shapePar).shape;
 
+
+			var shapePar = {
+				points: par.pointsShape,
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: par.dxfBasePoint,
+			}
+			shapePar.drawing = {
+				name: "Косоур марша",
+				group: "stringers",
+				//baseLine: {
+				//	p1: pt1,
+				//	p2: pt2
+				//},
+				//mirrow: (marshParams.side[par.key] == 'left'),
+				key: par.key,
+				marshId: par.marshId,
+			}
+			if (par.key == "in") shapePar.drawing.in = true;
+			//shapePar.drawing.basePoint = newPoint_xy(pt2, -par.stringerBasePoint.x, -par.stringerBasePoint.y),
+			shapePar.drawing.basePoint = newPoint_xy(pt1, -par.pointsShape[2].x, -par.pointsShape[2].y),
+			//shapePar.drawing.basePoint = newPoint_xy(par.pointsShape[0], -pt1.x, - pt1.y),
+
+			//shapePar.drawing.baseLine ={p1: pt1, p2:pt2 };
+			//shapePar.drawing.pointStartSvg = copyPoint(pt2);
+			//shapePar.drawing.pointCurrentSvg = copyPoint(pt2);
+			//shapePar.drawing = {
+			//	name: "Косоур марша",
+			//	group: "stringers",
+			//	//baseLine: {
+			//	//	p1: par.keyPoints.botPoint,
+			//	//	p2: par.keyPoints.topPoint
+			//	//},
+			//	//mirrow: (marshParams.side[par.key] == 'left'),
+			//	key: par.key,
+			//	marshId: par.marshId,
+			//}
+			//if (par.key == "in") shapePar.drawing.in = true;
 			shapePar.points = topPoints;
 			par.stringerShapeTop = drawShapeByPoints2(shapePar).shape;
 

@@ -1156,6 +1156,7 @@ function drawStaircase(viewportId, isVisible) {
 		var railingSection = drawBalSection(balSectionParams); //функция в файле drawBalSect_man_4.0.js
 		railingSection.rotation.y = sectionTyrnAngle;
 		
+		
 		var offsetX = 40 / 2;
 		var offsetZ = 40 / 2;
 
@@ -1165,8 +1166,10 @@ function drawStaircase(viewportId, isVisible) {
 			offsetZ = 95 / 2
 		}
 		if (params.railingModel_bal == "Самонесущее стекло") {
+			railingSection.rotation.y = sectionTyrnAngle;
 			if (turnFactor == 1) offsetZ = - 95 / 2;
 			if (turnFactor == -1) offsetZ = 95;
+			offsetZ = 50 / 2;
 		}
 
 		translateObject(railingSection, offsetX, 150 + stepHeight * (stairAmt + 1) + regShimAmt * regShimThk, offsetZ);
