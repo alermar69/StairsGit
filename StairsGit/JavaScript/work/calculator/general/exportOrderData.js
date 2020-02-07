@@ -214,14 +214,38 @@ function getExportData_com(checkSumm){
 //краткое описание лестницы
 
 	var description = "";
+	
+	//покраска металла
+	var metalPaintName = "Покраска " + params.metalPaint;
+	var hasColorComment = false;
+	$("#colorsFormTable tr[data-mat='metal']").each(function(){
+		if($(this).find("select.Color").val() == "см.комментарий") hasColorComment = true;
+	})
+	if(params.calcType == "vint" && params.carcasColor == "см.комментарий") hasColorComment = true;
+	if(hasColorComment) metalPaintName += " (нестандартынй цвет)"
+	metalPaintName += ". ";
+	
+	//покраска дерева
+	var timberPaintName = params.timberPaint;
+	var hasColorComment = false;
+	$("#colorsFormTable tr[data-mat='timber']").each(function(){
+		if($(this).find("select.Color").val() == "см.комментарий") hasColorComment = true;
+	})
+	if(params.calcType == "vint" && params.carcasColor == "см.комментарий") hasColorComment = true;
+	if(hasColorComment) timberPaintName += " (нестандартынй цвет)"
 
-	if(params.calcType == "metal" || params.calcType == "mono"){
+	
+	
+	var calcTypes = ['metal', 'mono', 'bolz', 'console'];
+	if(calcTypes.indexOf(params.calcType) != -1){
 		if(staircaseHasUnit().carcas){
 			if(params.calcType == "metal") {
 				if(params.model == "лт") description = "ЛТ";
 				if(params.model == "ко") description = "КО";
 				}
 			if(params.calcType == "mono") description = "МК";
+			if(params.calcType == "bolz") description = "Больцевая";
+			if(params.calcType == "console") description = "Консольная";
 			
 			if(params.stairModel == "Прямая") description += "-1";
 			if(params.stairModel == "Г-образная с площадкой") description += "-2";
@@ -237,7 +261,7 @@ function getExportData_com(checkSumm){
 				if(params.model == "труба") description += " на проф. трубе";
 				}
 				
-			description += " " + calcTotalStepAmt() + " подъемов. Покраска " + params.metalPaint + ". ";
+			description += " " + calcTotalStepAmt() + " подъемов. " + metalPaintName;
 			
 			};
 		};
@@ -249,7 +273,7 @@ function getExportData_com(checkSumm){
 		
 	if(params.calcType == "vhod"){
 		description = "Входная " + params.staircaseType + " " + params.stairModel + " " + calcTotalStepAmt() + " подъемов. " + 		
-			"Верхняя площадка: " + params.platformTop + ". Покраска " + params.metalPaint + ". ";
+			"Верхняя площадка: " + params.platformTop + ". " + metalPaintName;
 		};
 		
 	if(params.calcType == "fire_2"){
@@ -275,7 +299,7 @@ function getExportData_com(checkSumm){
 		//покраска деревянных ступеней
 
 		if(staircaseHasUnit().treads && calcTreadParams().isTimberPaint) 
-			description += ", покраска " + params.timberPaint + " " + params.surfaceType + ".";
+			description += ", покраска " + timberPaintName + " " + params.surfaceType + ".";
 			
 		if(staircaseHasUnit().skirting) description += " Есть плинтус.";
 
@@ -291,7 +315,7 @@ function getExportData_com(checkSumm){
 		//покраска деревянных ступеней
 
 		if(staircaseHasUnit().treads && calcTreadParams().isTimberPaint) 
-			description += ", покраска " + params.timberPaint + " " + params.surfaceType + ".";
+			description += ", покраска " + timberPaintName + " " + params.surfaceType + ".";
 			
 		if(staircaseHasUnit().skirting) description += " Есть плинтус.";
 
@@ -304,10 +328,10 @@ function getExportData_com(checkSumm){
 		description = params.model + " Ф" + params.staircaseDiam;
 		if(params.platformType == "triangle") description += ", площадка треугольная,"
 		if(params.platformType == "square") description += ", площадка прямоугольная,"
-		description += " " + params.stepAmt + " подъемов. Покраска " + params.metalPaint + "." + 
+		description += " " + params.stepAmt + " подъемов. " + metalPaintName + 
 			" Ступени " + params.treadMaterial;
 		if(params.treadMaterial != "рифленая сталь" && params.treadMaterial != "лотки под плитку")
-			description += ", покраска " + params.timberPaint + ".";
+			description += ", покраска " + timberPaintName + ".";
 		description += " Ограждения " + params.railingModel + " " + params.rackType + ", поручень " + params.handrailMaterial;
 		
 		}

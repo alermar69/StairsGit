@@ -219,7 +219,7 @@ function getPriceBlockText(par){
 		var treadsDescr = "";
 		if(params.stairType != "массив") treadsDescr += params.stairType;
 		if(params.stairType == "массив") treadsDescr += params.treadsMaterial;
-		if(params.calcType == "vint") treadsDescr = params.treadMaterial;
+		if(params.calcType == "vint") treadsDescr = params.treadsMaterial;
 		if(params.riserType == "есть") treadsDescr += " с подступенками";
 		if(params.timberPaint == "нет" || params.timberPaint == "не указано") treadsDescr += " без покраски";
 		else treadsDescr += " покраска " + params.timberPaint;

@@ -61,7 +61,7 @@ function drawRectFlan2(par) {
 
 	par.shape = drawShapeByPoints2(shapePar).shape;
 
-	if (par.pathHoles) par.shape.holes.concat(par.pathHoles);
+	if (par.pathHoles) par.shape.holes.push(...par.pathHoles);
 
 	if (par.roundHoleCenters) {
 		var holesPar = {
@@ -198,6 +198,10 @@ function drawBolt(par) {
 	par.mesh = new THREE.Object3D();
 	//сохраняем данные для спецификации
 	par.partName = "bolt";
+	if (!par.headType) {
+        par.headType = "потай";
+        if (par.len == 40 || params.boltHead == "hexagon") par.headType = "шестигр.";
+    }
 	
 	if (par.diam != 10) par.partName += "M" + par.diam;
 	if (par.headType == 'шпилька') par.partName = 'stud';
@@ -240,10 +244,7 @@ function drawBolt(par) {
 		specObj[par.partName]["amt"] += 1;
 	}
 	if (menu.simpleMode) return par;
-    if (!par.headType) {
-        par.headType = "потай";
-        if (par.len == 40 || params.boltHead == "hexagon") par.headType = "шестигр.";
-    }
+
 
     var headHeight = 4;
 
@@ -2179,8 +2180,7 @@ function drawStudF(par) {
 }
 
 /*параметры крепления к стенам, нижнему и верхнему перекрытию*/
-function getFixPart(marshId, wall) {
-	if (!wall) wall = 'wall';
+function getFixPart(marshId, wall = 'wall') {
 	//наличие креплений к стене
 	var fixPar = {
 		fixType: 'нет',

@@ -1,23 +1,23 @@
 <?php
 
 	//выцепляем модуль и представление из url
-	
+
 	$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-	
+
 	//модуль
 	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry'];
 	$calc_type = '';
 	foreach($calc_types as $item){
 		if (strpos($url,'/'.$item) !== false) $calc_type = $item;
 	};
-	
+
 	//представление
 	$templates = ['calculator', 'manufacturing', 'installation', 'customers'];
 	$template = '';
 	foreach($templates as $item){
 		if (strpos($url,'/'.$item) !== false) $template = $item;
 	};
-	
+
 	//верхняя часть страницы
 	$title = "Лестница на металлокаркасе";
 	if($calc_type == 'bolz') $title = "Лестница на больцах";
@@ -30,28 +30,28 @@
 	if($calc_type == 'vhod') $title = "Входная лестница";
 	if($calc_type == 'vint') $title = "Винтовая лестница";
 	if($calc_type == 'geometry') $title = "Расчет геометрии лестницы";
-	
+
 	//тип расчета и версия
 	echo '
 		<div id="calcInfo" style="display: none">
 			<input id="calcType" type="text" value="' . $calc_type . '">
 			<input id="calcVersion" type="text" value="4.2" >
-		</div>		
+		</div>
 		';
 	if($template != 'customers') echo '<h1 id="mainTitle" contenteditable="true">' . $title . '</h1>';
-	
+
 	//форма параметров заказа
 	if($template == 'customers') {
 		echo '<div class="d-none">';
 		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/orderForm.php";
 		echo '</div>';
 	};
-	
+
 	if($template != 'customers') {
-	
+
 		//Форма параметров заказа
 		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/orderForm.php";
-		
+
 		//визуализация
 		echo
 			'<div class="loader-block" id="loaderBlock">
@@ -68,56 +68,56 @@
 			</div>
 			<div id="visualisation" class="printBlock">
 				<h2 class="raschet" onclick="recalculate();">Общий вид:</h2>
-				<div id="Stats-output" style="display: none;"></div>				
+				<div id="Stats-output" style="display: none;"></div>
 				<div id="WebGL-output"><canvas>Для отображения содержимого откройте страницу в Гугл Хром</canvas></div>
 			</div>';
-		
+
 		//кнопки под визуализацией
 		if($template == 'calculator') {
 			echo
 				'<div class="noPrint mainButtons">
-					<button id="sendMessageModalShow">Отправить КП</button>					
+					<button id="sendMessageModalShow">Отправить КП</button>
 					<button id="cloneCanvas">Дублировать</button>
 					<button id="loadSavedCams">Загрузить виды</button>
 					<button id="resaveCam">Сохранить виды</button>
-					<button onclick="saveCanvasImg(0)">Сохранить png</button>					
+					<button onclick="saveCanvasImg(0)">Сохранить png</button>
 					<button id="print">Печать</button>
 				</div>
 				<div id="images"></div>';
-			
+
 			//параметры геометрии
-			echo 
+			echo
 				'<div class="printBlock">
-					<h2>Геометрия</h2>	
+					<h2>Геометрия</h2>
 					<div id="geomDescr"></div>
 				</div>
 				';
 		};
-		
+
 		if($template == 'manufacturing') {
 			echo
 			'<div class="noPrint mainButtons">
-				<button id="cloneCanvas">Дублировать</button>				
-				<button onclick="saveCanvasImg(0)">Сохранить png</button>				
+				<button id="cloneCanvas">Дублировать</button>
+				<button onclick="saveCanvasImg(0)">Сохранить png</button>
 				<button id="print">Печать</button>
 			</div>
 			<div id="images"></div>';
 		};
-		
+
 		if($template == 'installation') {
 			echo
-				'<div class="noPrint">					
+				'<div class="noPrint">
 					<button id="createBuildingTask">Стр. задание</button>
 					<button id="toggleAll">Развернуть</button>
 				</div>';
 		};
-		
-		
+
+
 	};
-	
+
 	//Содержимое вкладок
-	
-	//формы	
+
+	//формы
 	$tabs = [
 		'price' => [
 				'name' => 'Цены',
@@ -178,7 +178,7 @@
 			'group' => 'form',
 		]],  $tabs);
 	}
-	
+
 	if($calc_type == 'bolz'){
 		$tabs['carcas']['url']  = "/calculator/bolz/forms/carcas_form.php";
 	};
@@ -208,7 +208,7 @@
 		$tabs['carcas']['url']  = "/calculator/vint/forms/vint_form.php";
 		$tabs['railing'] = false;
 	};
-	
+
 	if($calc_type == 'geometry'){
 		$tabs['price'] = false;
 		$tabs['carcas']['url']  = "/calculator/geometry/forms/carcas_form.php";
@@ -222,7 +222,7 @@
 	if($template != 'manufacturing' && $template != 'calculator'){
 		$tabs['geom']['class'] = 'd-none';
 	};
-	
+
 	//файлы заказа и типовые чертежи
 	if($template != 'customers'){
 		$tabs['files'] = [
@@ -232,7 +232,7 @@
 				'group' => 'data',
 			];
 	};
-	
+
 	//svg и dxf чертежи
 	if($template == 'manufacturing'){
 		$tabs['drawings'] = [
@@ -242,7 +242,7 @@
 				'group' => 'data',
 			];
 	};
-	
+
 	if($template != 'customers'){
 		$tabs['drawings2'] = [
 				'name' => 'Эскизы',
@@ -250,7 +250,7 @@
 				'group' => 'data',
 			];
 	};
-	
+
 	//описание лестницы
 	if($template == 'calculator'){
 		$tabs['descr'] = [
@@ -259,22 +259,22 @@
 				'group' => 'data',
 			];
 	};
-	
+
 	if($calc_type == 'vint'){
 		$tabs['geom_params'] = [
 				'name' => 'Параметры',
 				'url' => '/calculator/vint/content/geom_params.php',
 				'group' => 'data',
 			];
-		
+
 	};
-	
-	
+
+
 	//цены
 	if($template != 'calculator'){
 		$tabs['price'] = false;
 	};
-	
+
 	//себестоимость
 	$tabs['cost'] = [
 			'name' => 'Себестоимость',
@@ -283,7 +283,7 @@
 			'group' => 'data',
 		];
 	if($template == 'calculator') $tabs['cost']['class'] = 'noPrint';
-	
+
 	//тесты
 	if($template == 'calculator' || $template == 'manufacturing'){
 		$tabs['testing'] = [
@@ -293,7 +293,7 @@
 				'group' => 'form',
 			];
 	};
-	
+
 	//спецификация
 	if($template == 'manufacturing'){
 		$tabs['spec'] = [
@@ -303,7 +303,7 @@
 				'group' => 'data',
 			];
 	};
-	
+
 	//данные для производства
 
 	$tabs['production'] = [
@@ -312,27 +312,27 @@
 			//'class' => 'noPrint',
 			'group' => 'data',
 		];
-	
+
 	if($template == 'customers' || $template == 'calculator') $tabs['production']['class'] = 'd-none';
 
 	//параметры обстановки
-	
+
 	$tabs['dimensions'] = [
 		'name' => 'Размеры',
 		'url' => '/calculator/general/forms/dimensionsForm.php',
 		'class' => 'noPrint',
 		'group' => 'form',
 	];
-	
+
 	$tabs['textures'] = [
 		'name' => 'Текстуры',
 		'url' => '/calculator/general/textures/form.php',
 		'class' => 'noPrint',
 		'group' => 'form',
 	];
-	
+
 	if($calc_type == 'railing'){
-		
+
 		//Форма ввода параметров бетонных лестниц
 		$tabs['stairs_geom'] = [
 			'name' => 'Бетон',
@@ -340,14 +340,14 @@
 			'class' => 'noPrint',
 			'group' => 'form',
 		];
-		
+
 		//форма параметров ограждений
 		$tabs['railing_geom'] = [
 			'name' => 'Ограждения',
 			'url' => '/calculator/railing/forms/railing_geom.php',
 			'group' => 'form',
 		];
-		
+
 		//рутели
 		$tabs['rutelMoove'] = [
 			'name' => 'Рутели',
@@ -355,35 +355,35 @@
 			'class' => 'noPrint',
 			'group' => 'form',
 		];
-		
+
 		//себестоимость
 		$tabs['cost']['url'] = '/calculator/railing/forms/cost.php';
 	}
-	
+
 	if($template == 'customers'){
 		$tabs['dimensions']['class'] = 'd-none';
 		$tabs['textures']['class'] = 'd-none';
 		$tabs['floor_form']['class'] = 'd-none';
 		$tabs['walls']['class'] = 'd-none';
 	};
-	
+
 
 	//формируем вкладки для вывода на страницу
 	$form_nav = '<nav><div class="nav nav-pills" id="nav-tab" role="tablist">';
 	$form_body = '<div class="tab-content mainForm" id="nav-tabContent">';
-	
+
 	if($template == 'customers') $form_body = '<div class="tab-content" id="nav-tabContent">';
-		
+
 	$data_body = '';
 	//$data_nav = '<nav class="topMenu navbar fixed-top navbar-expand-lg navbar-light bg-light nav-pills noPrint">
-	
+
 	$data_nav = '<nav class="topMenu navbar fixed-top navbar-expand-md navbar-light bg-light noPrint">
 		<div>
 			<div class="row">
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
-		
+
 		<div id="priceItemsSelectWrap"></div>
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 		<span class="nav-item dropdown">
@@ -398,7 +398,7 @@
 				<a class="dropdown-item" href="#" id="montLink" target="_blank">Монтаж</a>
 				<a class="dropdown-item" href="#" id="docLink" target="_blank">Договор</a>
 			</div>
-		</span>		
+		</span>
 		<span class="nav-item dropdown">
 			<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Действия</a>
 			<div class="dropdown-menu">
@@ -419,18 +419,18 @@
 		</span>
 		<a class="nav-item nav-link" id="nav-visualisation" href="#visualisation">Модель</a>
 		';
-	
-	
+
+
 	$isFirst = true; //первая вкладка
 
 	foreach($tabs as $key=>$val){
 		if($val){
 			$class = "";
 			if($val['class']) $class = $val['class'];
-			
+
 			if($val['group'] == 'form'){
 				if($isFirst) $class .= " active"; //первая вкладка активная
-				$form_nav .= '<a class="nav-item nav-link ' . $class . '" id="nav-' . $key . '-tab" data-toggle="tab" href="#nav-' . $key . '" role="tab" aria-controls="nav-' . $key . '" aria-selected="true">' .	
+				$form_nav .= '<a class="nav-item nav-link ' . $class . '" id="nav-' . $key . '-tab" data-toggle="tab" href="#nav-' . $key . '" role="tab" aria-controls="nav-' . $key . '" aria-selected="true">' .
 						$val['name'] . '</a>';
 				$form_body .= '<div class="tab-pane fade show ' . $class . ' printBlock" id="nav-' . $key . '" role="tabpanel" aria-labelledby="nav-' . $key . '-tab">';
 				//получаем содержимое файла формы с учетом вложенных include
@@ -438,47 +438,47 @@
 				include $_SERVER['DOCUMENT_ROOT'].$val['url'];
 				$form_body .= ob_get_contents();
 				ob_end_clean();
-				
+
 				$form_body .= '</div>';
-				
+
 				$isFirst = false;
 			};
 			if($val['group'] == 'data'){
 				$data_nav .= '<a class="nav-item nav-link ' . $class . '" id="nav-' . $key . '" href="#' . $key . '-sect">' . $val['name']. '</a>';
-				
+
 				if($key != "price") $class .= " printBlock";
-				
+
 				$data_body .= '<div id="' . $key . '-sect" class="' . $class . '">';
 				ob_start();
 				include $_SERVER['DOCUMENT_ROOT'].$val['url'];
 				$data_body .= ob_get_contents();
 				ob_end_clean();
-				
+
 				$data_body .= '</div>';
 			};
-			
-			
+
+
 		};
 	};
-	
+
 	$form_nav .= '</div></nav>';
 	$form_body .= '</div>';
 	//$data_nav .= '</nav>';
 	$data_nav .= '</div></div></div></nav>';
-	
-	
+
+
 	//вывод на страницу
 	if($template != 'customers'){
 		echo $data_nav . $data_body;
-		echo 
+		echo
 			'<div class="panelWrap">
 				<div class="panelResizer d-none"></div>
-				<div class="panelHeader">				
+				<div class="panelHeader">
 					<button class="btn btn-primary recalculate d-none">
 						<i class="fa fa-refresh"></i>
 						Обновить
 					</button>
-					
+
 					<div id="panelToggle" class="btn btn-secondary btn-lg">
 						<i class="fa fa-chevron-circle-left"></i>
 					</div>
@@ -488,19 +488,19 @@
 				'</div>
 			</div>';
 	};
-	
+
 	if($template == 'customers'){
 		echo "<br/>" . $form_nav . $form_body;
 	};
 
-	
+
 	/**
 	 * Загрузка параметров
 	*/
 	if (isset($_GET['orderName'])) {
-		
+
 		require_once($_SERVER['DOCUMENT_ROOT'].'/orders/db_conn.php');
-	
+
 		$mysql = @new mysqli("127.0.0.1", $db_settings['user'], $db_settings['password'], $db_settings['db']);
 		$mysql->set_charset("utf8");
 
@@ -515,9 +515,9 @@
 		if ($allOk) {
 			$orderName = mb_strtoupper($_GET["orderName"], 'UTF-8');
 			$query = "SELECT * FROM `calcs` WHERE UPPER(`order_name`)= '{$orderName}'";
-		
+
 			$n = false;
-		
+
 			if($result = $mysql->query($query)){
 				$n = $result->num_rows;
 				if($n){
@@ -541,7 +541,7 @@
 ?>
 
 <style>
-	
+
 .panelWrap{
 	position: fixed;
 	top: 5px;
@@ -549,8 +549,8 @@
 	height: 0;
 	z-index: 1030;
 	float: right;
-	display:inline-block;	
-    height: 98vh;    
+	display:inline-block;
+    height: 98vh;
 	padding: 10px;
     border-radius: 5px;
 	/*overflow: hidden;*/
@@ -578,8 +578,8 @@
 }
 
 
-.mainForm{	
-	width: 100%;	
+.mainForm{
+	width: 100%;
 	height: 75%;
 	overflow: scroll;
 	min-height: 200px;
@@ -593,7 +593,7 @@
 	width: 300px;
 	border: 1px solid rgba(0,0,0,0.3);
 	border-radius: 5px;
-	overflow: auto; 
+	overflow: auto;
 	height: 80vh; */
 }
 
@@ -677,12 +677,12 @@
 }
 
 .print .panelHeader{
-	display: none;	
+	display: none;
 }
 
 
 .print nav{
-	display: none;	
+	display: none;
 }
 
 .print .panelBody{

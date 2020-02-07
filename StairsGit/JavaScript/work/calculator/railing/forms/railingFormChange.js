@@ -347,7 +347,8 @@ var isTimberPaint = false;
 if(isTimber) isTimberPaint = true;
 if (isRacks && params.banisterMaterial == "40х40 нерж+дуб") isTimberPaint = true;
 
-if(params.handrail =="сосна" ||
+if(params.handrail =="массив" ||
+	params.handrail =="сосна" ||
 	params.handrail =="береза" ||
 	params.handrail =="лиственница" ||
 	params.handrail =="дуб паркет." ||
@@ -360,7 +361,7 @@ if(params.handrail =="сосна" ||
 	params.handrail =="40х60 дуб" ||
 	params.handrail =="40х60 дуб с пазом") isTimberPaint = true;
 
-
+console.log(params.handrail, isTimberPaint)
 
 //покраска деталей ограждений
 $(".railingMetalPaint_tr").hide();
