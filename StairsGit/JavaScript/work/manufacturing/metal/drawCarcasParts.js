@@ -904,7 +904,7 @@ function drawTopPltStringer(par) {
 	//if (params.stairType == "рифленая сталь" || params.stairType == "рифленый алюминий" || params.stairType == "лотки")
 	//	shiftHoleY -= 50;
 	var shiftHoleY = -params.treadThickness - 5 - 20; //позиция верхнего отверстия уголка каркаса относительно верха тетивы
-	if (hasTreadFrames() && (params.stairType == "рифленая сталь" || params.stairType == "лотки")) shiftHoleY -= framePar.profHeight + 5;
+	if (hasTreadFrames() && (params.stairType == "рифленая сталь" || params.stairType == "лотки" || params.stairType == "дпк")) shiftHoleY -= framePar.profHeight + 5;
 
 	if (params.model == "ко") shiftHoleY = -par.stringerWidthPlatform + 25 + 60;
 	//if(params.model == "ко") shiftHoleY = -95;
@@ -2259,7 +2259,7 @@ function drawTopFixFlans(par){
 	var botLedge = params.treadThickness + parFrames.profHeight; //выступ фланца ниже верхней плоскости ступени, 40 - высота рамки
 	if (params.platformTop == "площадка") botLedge += 20;
 	if (params.stairType == "рифленая сталь" || params.stairType == "лотки")
-		botLedge = params.treadThickness + 50; //выступ фланца ниже верхней плоскости ступени, 50 - высота рамки
+		botLedge = params.treadThickness + 60; //выступ фланца ниже верхней плоскости ступени, 50 - высота рамки
 	if (params.topAnglePosition == "под ступенью") botLedge += 100;
 	if (params.topAnglePosition == "над ступенью") botLedge = -10;
 	if (params.calcType == 'vhod' && params.staircaseType == "Готовая") botLedge = 181;

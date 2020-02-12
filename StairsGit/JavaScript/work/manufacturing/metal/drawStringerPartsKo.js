@@ -120,7 +120,9 @@ function drawBotStepKo_pltG(par){
 
 var botEndLen = params.sideOverHang - params.nose;
 if(params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && params.stairAmt2 == 0) 
-	botEndLen += params.marshDist - 5;
+		botEndLen += params.marshDist - 5;
+
+if (par.prevMarshPar.stairAmt == 0 && par.prevMarshPar.botTurn == "пол") par.stringerWidthPlatform -= params.treadThickness;
 	
 	/*ТОЧКИ КОНТУРА*/
 	
@@ -130,6 +132,7 @@ if(params.stairModel == "П-образная трехмаршевая" && par.ma
 	
 	// задняя линия
 	var p1 = newPoint_xy(p0, 0, par.stringerWidthPlatform); // высота первого подъема
+	
 
 	// выступ косоура под площадкой
 	var p2 = newPoint_xy(p1, botEndLen + params.nose, 0);
@@ -1423,7 +1426,9 @@ function drawTopStepKo_floor(par){
 /**
  * последний подъем если сверху площадка (Г-образная лестница либо верхняя площадка)
  */
-function drawTopStepKo_pltG(par){
+function drawTopStepKo_pltG(par) {
+
+	var nextStringerDivisionBot = calcStringerPar({ marshId: par.marshPar.nextMarshId, key: "out" }).stringerDivisionBot
 	
 	var anglePosX = 30 + params.stringerThickness + 0.01;
 	if (par.marshId == 3 || params.stairModel == "Прямая") anglePosX = 30;
@@ -1652,9 +1657,11 @@ function drawTopStepKo_pltG(par){
 	center2 = newPoint_xy(center1, 0.0, 60.0);
 	center1.hasAngle = center2.hasAngle = true;	
 	if (par.key == "in" && !par.stringerLast) {
-		center1.noZenk = center2.noZenk = true;
-		center1.noBoltsInSide2 = center2.noBoltsInSide2 = true;
+		if (nextStringerDivisionBot) {
+			center1.noZenk = center2.noZenk = true;
+			center1.noBoltsInSide2 = center2.noBoltsInSide2 = true;
 		}
+	}
 	//верхняя площадка
 	if(par.stringerLast && params.platformRearStringer == "нет"){
 		center1.x -= 5;
@@ -2473,6 +2480,8 @@ function drawTopStepKo_wndOut(par){
 function drawStringerKo_0Bot_PltG(par){
 	var key = par.key;
 
+	var stringerDivisionBot = calcStringerPar({ marshId: par.marshPar.nextMarshId }).stringerDivisionBotstringerDivisionBot;
+
 
 	/*ТОЧКИ КОНТУРА*/
 	
@@ -2485,8 +2494,16 @@ function drawStringerKo_0Bot_PltG(par){
 	// проступь
 	var p2 = polar(p1, 0.0, params.M - par.stringerSideOffset + 5 - 0.01);
 	var p3 = polar(p0, 0.0, params.M - par.stringerSideOffset + 5 - 0.01);
+	if (key == 'in' && !stringerDivisionBot) {
+		p2.x -= params.stringerThickness;
+		p3.x -= params.stringerThickness;
+	}
+	if (params.riserType == "есть") {
+		p2.x -= params.riserThickness;
+		p3.x -= params.riserThickness;
+	}
 
-	p1.filletRad = p2.filletRad = 0; //верхний угол косоура не скругляется
+	p1.filletRad = p2.filletRad = p3.filletRad = p0.filletRad = 0; //верхний угол косоура не скругляется
 	par.pointsShape.push(p0);
 	par.pointsShape.push(p1);
 	par.pointsShape.push(p2);
@@ -2525,7 +2542,8 @@ function drawStringerKo_0Bot_PltG(par){
 	par.pointsHole.push(center2);
 
 	// отверстия под крепежный уголок
-	center1 = newPoint_xy(p2, -30.0 - params.stringerThickness, -95 - 20.0);
+	center1 = newPoint_xy(p2, -30.0, -95 + params.treadThickness);
+	if (key == 'out') center1.x -= params.stringerThickness;
 	center2 = newPoint_xy(center1, 0, -60);
 	center1.hasAngle = center2.hasAngle = true;
 	par.pointsHole.push(center2);
@@ -2533,7 +2551,8 @@ function drawStringerKo_0Bot_PltG(par){
 
 	// отверстия под крепежный уголок для крепления верхнего марша
 	if (key == "in"){
-		center1 = newPoint_xy(p1, par.stringerSideOffset + 5 + params.stringerThickness + 30, -95 - 20.0);
+		center1 = newPoint_xy(p1, par.stringerSideOffset + 5 + params.stringerThickness + 30, -95 + params.treadThickness);
+		if (params.riserType == "есть") center1.x -= params.riserThickness;
 		center2 = newPoint_xy(center1, 0, -60);
 		par.pointsHole.push(center1);
 		par.pointsHole.push(center2);
@@ -2557,6 +2576,7 @@ function drawStringerKo_0Bot_PltG(par){
 	center1 = newPoint_xy(p0, 105, 35.0);
 	if (params.bottomAngleType === "регулируемая опора") center1 = newPoint_xy(p0, par.stringerSideOffset + 105, 50.0);
 	if (params.stringerType == "ломаная") center1 = newPoint_xy(p0, params.b1, 50.0);
+	if (params.riserType == "есть") center1.x -= params.riserThickness;
 	center2 = newPoint_xy(center1, 60.0, 0.0);
 	center1.hasAngle = center2.hasAngle = true;
 	center1.pos = center2.pos = "botFloor";

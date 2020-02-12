@@ -24,6 +24,9 @@ function calcRacksBolzs(par) {
 
 	//последняя стойка
 	var rack = { x: offsetX + par.b * (par.stairAmt - 1), y: par.h * par.stairAmt }
+	if (marshPar.topTurn == 'пол') {
+		rack.x += calcLastRackDeltaY() / Math.tan(marshPar.ang);
+	}
 	if (params.stairModel == "П-образная с площадкой" && par.marshId == 1) {
 		rack = newPoint_xy(rack, par.b, par.h);
 	}

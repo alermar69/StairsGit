@@ -11,6 +11,7 @@ function drawComplexStringer(par) {
 	par.treadPlates = new THREE.Object3D();
 
 	var marshParams = getMarshParams(par.marshId);
+	var turnPar = calcTurnParams(par.marshId); //расчитуем параметры поворота
 
 	if (params.model == "труба") params.stringerThickness = params.profileWidth + params.metalThickness * 2;
 	
@@ -139,6 +140,8 @@ function drawComplexStringer(par) {
 			var line = parallel(pt1, pt2, params.sidePlateOverlay);
 			var pv1 = newPoint_xy(pt1, 0, - offset);
 			var pv2 = itercection(pv1, polar(pv1, 0, 100), line.p1, line.p2);
+
+			var line_1_2 = parallel(par.pointsShape[par.pointsShape.length - 1], par.pointsShape[par.pointsShape.length - 2], - params.profileHeight + params.sidePlateOverlay);
 			pt1 = newPoint_xy(pv2, params.profileHeight / Math.sin(ang), 0);
 
 			//при большой разнице чистового и чернового пола
@@ -217,9 +220,9 @@ function drawComplexStringer(par) {
 			var pt4 = par.pointsShape[par.pointsShape.length - 3];
 			pt4 = newPoint_xy(pt4, offset, - params.profileHeight + params.sidePlateOverlay);
 
-            var line_1_2 = parallel(par.pointsShape[0], pt2, - params.profileHeight + params.sidePlateOverlay);
+			var line_1_2 = parallel(par.pointsShape[0], pt2, - params.profileHeight + params.sidePlateOverlay);
 			var line_2_3 = parallel(pt2, pt3, - params.profileHeight + params.sidePlateOverlay);
-            pt2 = itercection(line_1_2.p1, line_1_2.p2, line_2_3.p1, line_2_3.p2);
+			pt2 = itercection(line_1_2.p1, line_1_2.p2, line_2_3.p1, line_2_3.p2);
 			var pt3 = itercection(line_2_3.p1, line_2_3.p2, pt4, polar(pt4, 0, 100));
 		}
 		//if (par.topEnd == "забег" && (par.stairAmt <= 2 && par.botEnd == "пол")) {
@@ -444,7 +447,13 @@ function drawComplexStringer(par) {
 					if (params.model == "труба") {
 						platePar.isTopNot = true;
 						platePar.step = 136;
-					    platePar.isPlatform = true;
+						platePar.isPlatform = true;
+						if (params.stairModel == "П-образная с площадкой" && par.marshId == 1) {
+							var step = turnPar.turnLengthTop / 2 - (params.platformLength_1 - 300) / 2 - params.nose;
+							if (step < platePar.step) {
+								platePar.step = step - 10;
+							}
+						}
 					}
 				}
 
@@ -463,6 +472,7 @@ function drawComplexStringer(par) {
 								platePar.angleIn1 = calcAngleX1(par.pointsShape[0],par.pointsShape[par.pointsShape.length - 1]);
 								platePar.isNotKinkTop = true;
 							}
+							if (par.offsetTopWndHoleY3) platePar.offsetTopWndHoleY3 = par.offsetTopWndHoleY3;
 							platePar.stepPrev = par.stepPoints[i].x - par.stepPoints[i - 2].x;
 							var plate = drawTurn2TreadPlateCabriole(platePar).mesh;
 						} else {
@@ -476,8 +486,8 @@ function drawComplexStringer(par) {
 						platePar.turnSteps = par.turnSteps.params[1];
 						platePar.hasTrapHole = true;
 						if (params.model == "труба") {
+							platePar.angleIn1 = calcAngleX1(par.pointsShape[0], par.pointsShape[par.pointsShape.length - 2]);
 							if (par.stairAmt <= 1) {
-								platePar.angleIn1 = calcAngleX1(par.pointsShape[par.pointsShape.length - 1], par.pointsShape[par.pointsShape.length - 2]);
 								if (par.isBotPipeHor) platePar.isBotPipeHor = par.isBotPipeHor;
 							}
 							if (par.stairAmt == 0) platePar.stairAmt = 0;	
@@ -1340,7 +1350,7 @@ function drawComplexStringer(par) {
 				par.flans.add(flan);
 
 				//верхний фланец-заглушка
-				dxfBasePoint.y -= dxfStep;
+				//dxfBasePoint.y -= dxfStep;
 				var flanPar = {
 					marshId: par.marshId,
 					type: "topStub", 

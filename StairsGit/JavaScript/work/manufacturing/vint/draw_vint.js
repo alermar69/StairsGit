@@ -493,12 +493,14 @@ function drawStaircase(viewportId, isVisible) {
 		nut.position.y = posY0 + posY - nutParams.nutHeight / 2;
 		if (i == 0) nut.position.y = posY0;
 		model.add(nut, "shims");
+		var nutPos = nut.position.y + nutParams.nutHeight;
 		
 		//средние стяжные гайки
 		if(i > 0){
 			nutParams.isLong = false;
 			var nut = drawNut(nutParams).mesh;
-			nut.position.y = posY0 + Math.floor(posY / maxRise) * maxRise + 8 + 0.01; //8 - костыль
+			//nut.position.y = posY0 + Math.floor(posY / maxRise) * maxRise + 8 + 0.01; //8 - костыль
+			nut.position.y = nutPos + 0.5; //8 - костыль
 			model.add(nut, "shims")
 		}
 		

@@ -3320,6 +3320,8 @@ function drawMonoFlan(par) {
 		flanPar.roundHoleCenters = flanCentralHoles(par.pointsShape[par.pointsShape.length - 2].y - par.pointsShape[par.pointsShape.length - 1].y, 10);
 		mooveFlanHoles(flanPar);
 
+		flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -flanPar.height);
+
 		//добавляем  вырез в виде треугольника 10х10
 		var center = { x: flanPar. width / 2, y: flanPar.roundHoleCenters[1].y };
 		flanPar.pathHoles = [];
@@ -3327,13 +3329,14 @@ function drawMonoFlan(par) {
 		var p1 = { x: center.x, y: center.y + 10 / Math.sqrt(3) };
 		var p2 = polar(p1, -Math.PI / 3, 10);
 		var p3 = polar(p2, Math.PI, 10);
-		addLine(hole, dxfPrimitivesArr, p1, p2, dxfBasePoint);
-		addLine(hole, dxfPrimitivesArr, p2, p3, dxfBasePoint);
-		addLine(hole, dxfPrimitivesArr, p3, p1, dxfBasePoint);
+		addLine(hole, dxfPrimitivesArr, p1, p2, flanPar.dxfBasePoint);
+		addLine(hole, dxfPrimitivesArr, p2, p3, flanPar.dxfBasePoint);
+		addLine(hole, dxfPrimitivesArr, p3, p1, flanPar.dxfBasePoint);
 		flanPar.pathHoles.push(hole);
 
 
-		flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, flanPar.width + 100);
+		
+		
 		var boltBulgeTemp = boltBulge;
 		boltBulge = 14;
 		flanPar.dzBolt = -6;
@@ -4186,7 +4189,7 @@ function drawTurn1TreadPlateCabriole(par) {
 		//var p4 = itercection(p0, polar(p0, 0, 100), pt2, pt3);
 
 		var pt1 = newPoint_xy(p1, 0, -marshPar.h);
-		var pt2 = polar(pt1, -(Math.PI / 2 - angle1), params.sidePlateWidth - params.sidePlateOverlay - 5);
+		var pt2 = polar(pt1, -(Math.PI / 2 - angle1), params.sidePlateWidth - params.sidePlateOverlay - 8);
 		var pt3 = polar(pt2, angle1, 100);
 
 		var p3 = itercection(p2, polar(p2, Math.PI / 2, 100), pt2, pt3);
@@ -4302,7 +4305,7 @@ function drawTurn1TreadPlateCabriole(par) {
 		//var p3 = itercection(p2, polar(p2, Math.PI * 3 / 2, 100), pt2, pt3);
 		//var p4 = itercection(p0, polar(p0, 0, 100), pt2, pt3);
 		var pt1 = newPoint_xy(p1, 0, -marshPar.h);
-		var pt2 = polar(pt1, -(Math.PI / 2 - angle1), params.sidePlateWidth - params.sidePlateOverlay - 5);
+		var pt2 = polar(pt1, -(Math.PI / 2 - angle1), params.sidePlateWidth - params.sidePlateOverlay - 8);
 		var pt3 = polar(pt2, angle1, 100);
 
 		var p3 = itercection(p2, polar(p2, Math.PI / 2, 100), pt2, pt3);
@@ -5018,13 +5021,16 @@ function drawTurn2TreadPlateCabriole(par) {
 	    var shape = drawShapeByPoints2(shapePar).shape;
 		
 		//сдвигаем 3 отверстие чтобы болт не пересекался с трубой
-		var pn1 = newPoint_xy(p1, 0, -par.h);
-		var pn1 = polar(pt1, -(Math.PI / 2 - par.angleIn1), params.sidePlateWidth - params.sidePlateOverlay);
-		var line = parallel(pn1, polar(pn1, par.angleIn1, 100), params.sidePlateOverlay - params.sidePlateWidth);
-		var pn2 = itercection(center3, polar(center3, Math.PI / 2, 100), line.p1, line.p2);
-		if ((center3.y - 10) < pn2.y) {
-			center3.y += pn2.y - (center3.y - 10);
+		if (par.offsetTopWndHoleY3) {
+			center3.y += par.offsetTopWndHoleY3;
 		}
+		//var pn1 = newPoint_xy(p1, 0, -par.h);
+		//var pn1 = polar(pt1, -(Math.PI / 2 - par.angleIn1), params.sidePlateWidth - params.sidePlateOverlay);
+		//var line = parallel(pn1, polar(pn1, par.angleIn1, 100), params.sidePlateOverlay - params.sidePlateWidth);
+		//var pn2 = itercection(center3, polar(center3, Math.PI / 2, 100), line.p1, line.p2);
+		//if ((center3.y - 10) < pn2.y) {
+		//	center3.y += pn2.y - (center3.y - 10);
+		//}
 		//определяем наличие 3-го отверстия
 		var pn3 = itercection(center3, polar(center3, Math.PI / 2, 100), p4, pn);
 		var isHole3 = false;
@@ -6407,7 +6413,7 @@ function drawPlatformFrames(par) {
 
 		var framePlatform = new THREE.Mesh(geom, params.materials.metal2);
 		framePlatform.position.x = par.treadsObj.unitsPos.turn1.x + turnPar.topMarshOffsetX + (turnPar.turnLengthTop - turnPar.topMarshOffsetX) / 2 - framePlatformParams.width / 2;
-		if (params.stairModel == "П-образная с площадкой") framePlatform.position.x += turnPar.topMarshOffsetX / 2;
+		if (params.stairModel == "П-образная с площадкой") framePlatform.position.x -= turnPar.topMarshOffsetX / 2;
 		framePlatform.position.y = par.treadsObj.unitsPos.turn1.y - params.treadThickness;
 		framePlatform.position.z =  - framePlatformParams.height / 2;
 		if (testingMode) framePlatform.position.y += 0.01;
@@ -6421,7 +6427,7 @@ function drawPlatformFrames(par) {
 		var jump = drawJumperPlatform(jumperPlatformParams).mesh;
 
 		var x = par.treadsObj.unitsPos.turn1.x + turnPar.topMarshOffsetX + (turnPar.turnLengthTop - turnPar.topMarshOffsetX) / 2;
-		if (params.stairModel == "П-образная с площадкой") x += turnPar.topMarshOffsetX / 2;
+		if (params.stairModel == "П-образная с площадкой") x -= turnPar.topMarshOffsetX / 2;
 		var y = par.treadsObj.unitsPos.turn1.y - params.treadThickness - jumperPlatformParams.height - 2;
 		var z = jumperPlatformParams.width / 2;
 
@@ -6433,7 +6439,7 @@ function drawPlatformFrames(par) {
 		jump.rotation.y = Math.PI / 2;
 		if (!par.topConnection && params.stairModel == 'П-образная с площадкой') {
 			jump.rotation.y = 0;//Math.PI;
-			jump.position.x = x - jumperPlatformParams.width - 2 + params.treadPlateThickness;
+			jump.position.x = x - jumperPlatformParams.width / 2 - 2 + params.treadPlateThickness;
 			if (testingMode) jump.position.x += 0.01;
 			jump.position.z = -(framePlatformParams.height / 2 - frameWidthIn) * turnFactor;
 			if (turnFactor == -1) jump.position.z -= params.flanThickness;
@@ -6468,7 +6474,7 @@ function drawPlatformFrames(par) {
 			jump.position.x -= 0.005;
 		}
 		if (params.stairModel == "П-образная с площадкой") {
-			jump.position.x += -jumperPlatformParams.width / 2 ;
+			//jump.position.x += -jumperPlatformParams.width / 2 ;
 			if (testingMode && turnFactor == 1) jump.position.x += 0.01;
 		}
 		jump.position.z = (framePlatformParams.height / 2 - frameWidthIn) * turnFactor;
@@ -6501,8 +6507,8 @@ function drawPlatformFrames(par) {
 		var framePlatform = new THREE.Mesh(geom, params.materials.metal2);
 		if (params.stairModel == "П-образная с площадкой") {
 			//framePlatform.position.x = par.treadsObj.unitsPos.marsh3.x - turnPar.topStepDelta + turnPar.topMarshOffsetX + turnPar.turnLengthTop / 2 - framePlatformParams.width / 2;
-            framePlatform.position.x = par.treadsObj.unitsPos.marsh3.x + turnPar.turnLengthTop / 2 - framePlatformParams.width / 2;
-			framePlatform.position.y = par.treadsObj.unitsPos.marsh3.y - params.treadThickness;
+			framePlatform.position.x = par.treadsObj.unitsPos.turn1.x + turnPar.turnLengthTop / 2 - framePlatformParams.width / 2;
+			framePlatform.position.y = par.treadsObj.unitsPos.turn1.y - params.treadThickness;
 			framePlatform.position.z = par.treadsObj.unitsPos.marsh3.z - framePlatformParams.height / 2;
 		}
 		if (params.stairModel == "П-образная трехмаршевая") {
@@ -6519,8 +6525,8 @@ function drawPlatformFrames(par) {
 		var jump = drawJumperPlatform(jumperPlatformParams).mesh;
 
 		if (params.stairModel == "П-образная с площадкой") {
-            var x = par.treadsObj.unitsPos.marsh3.x + turnPar.turnLengthTop / 2;
-			var y = par.treadsObj.unitsPos.marsh3.y - params.treadThickness - jumperPlatformParams.height - 2;
+			var x = par.treadsObj.unitsPos.turn1.x + turnPar.turnLengthTop / 2;
+			var y = par.treadsObj.unitsPos.turn1.y - params.treadThickness - jumperPlatformParams.height - 2;
 			var z = par.treadsObj.unitsPos.marsh3.z - params.flanThickness;
 
 			jump.position.y = y;
@@ -6545,7 +6551,7 @@ function drawPlatformFrames(par) {
 			jump.position.y = y;
 			jump.position.x = x;
 			jump.position.z = z;
-			jump.position.x += -jumperPlatformParams.width;
+			jump.position.x += -jumperPlatformParams.width +jumperPlatformParams.width / 2;
 			jump.position.z += -(framePlatformParams.height) / 2 + frameWidthIn + params.flanThickness;
 			if (testingMode) jump.position.x += 0.01
 			

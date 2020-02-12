@@ -98,7 +98,7 @@ function calcHandrailPoints(par, parRacks) {
 
 					if (par.isRearPRailing) {
 						var p1 = polar(marshFirst, parRacks.angMarsh, 0);
-						var pt = newPoint_xy(marshFirst, -extraLen + 7.5, 0)
+						var pt = newPoint_xy(marshFirst, -extraLen + 7.5 + 0.2, 0)
 						var p4 = itercection(p1, polar(p1, 0, 100), pt, polar(pt, Math.PI / 2, 100));
 						handrailPoints.push(p4);
 					}
@@ -1404,7 +1404,7 @@ function calcHandrailPoints(par, parRacks) {
 		}
 
 		if (params.calcType == 'bolz') {
-			parRacks.marshLast.len = parRacks.marshFirst.len;
+			parRacks.marshLast.len = parRacks.marshFirst.len + dyLastRack;
 			if (marshPar.topTurn == 'забег' && params.stairModel == "П-образная с забегом" && params.marshDist !== 0) {
 				parRacks.marshLast.len -= marshPar.h_topWnd * 2;
 			}

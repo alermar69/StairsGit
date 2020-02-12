@@ -1570,6 +1570,7 @@ function drawBotStepLt_wndOut(par) {
 					var deltaY = par.h * 3;
 					var handrailAngle = Math.atan(deltaY / deltaX);
 					center1 = newPoint_y(center1, par.h, handrailAngle)
+					center1 = polar(center1, handrailAngle, 10)
 					par.railingHoles.push(center1);
 				}
 				else {
@@ -2522,6 +2523,7 @@ console.log(par.marshId, par.pointsShape[par.pointsShape.length-1])
 				if (params.calcType == 'vhod' && params.platformTop == 'увеличенная' && par.stringerLast) {
 					//center1.isPltPFrame = center2.isPltPFrame = true;
 					center1.noBoltsIn = center2.noBoltsIn = true;
+					if (par.isMiddleStringer) center1.noBolts = center2.noBolts = true;
 					//if (turnFactor == 1) center1.noBoltsOut = center2.noBoltsOut = true;
 				}
 			}
@@ -2581,8 +2583,13 @@ console.log(par.marshId, par.pointsShape[par.pointsShape.length-1])
 			var shiftHoleY = par.carcasAnglePosY;
 			if (par.marshPar.lastMarsh) {
 				shiftHoleY = -params.treadThickness - 5 - 20;
-				if (hasTreadFrames() && (params.stairType == "рифленая сталь" || params.stairType == "лотки"))
+				if (hasTreadFrames() &&
+				(params.stairType == "рифленая сталь" ||
+					params.stairType == "лотки" ||
+					params.stairType == "дпк")) {
 					shiftHoleY -= par.platformFramesParams.profHeight + 5
+					if (par.isMiddleStringer) shiftHoleY += params.treadThickness + 5;
+				}
 			}
 			center1 = newPoint_xy(topLineP1, -30.0, shiftHoleY);
 			center2 = newPoint_xy(center1, 0.0, -par.holeDistU4);
@@ -2591,7 +2598,7 @@ console.log(par.marshId, par.pointsShape[par.pointsShape.length-1])
 				center1.pos = center2.pos = "topFloor";
 				center1.x -= 5; // 5 - из-за того что ширина уголка становиться 70, тогда (70-60)/2 = 5
 				center2.x -= 5;
-				if (!(params.stairType == "рифленая сталь" || params.stairType == "лотки")) {
+				if (!(params.stairType == "рифленая сталь" || params.stairType == "лотки" | params.stairType == "дпк")) {
 					center1.y -= 60; //60 - высота рамки
 					center2.y -= 60; //60 - высота рамки
 				}
@@ -3582,6 +3589,7 @@ function drawTopStepLt_wndIn(par) {
 		var topLineP3 = newPoint_xy(topLineP1, extraLen.x, extraLen.y); //верхний правый угол
 		var topLineP2 = newPoint_xy(topLineP3, -100, 0);
 		var topLineP4 = newPoint_xy(topLineP3, 0, -120);
+		var topLineP1 = newPoint_xy(topLineP1, 50, 0);
 		}
 
 

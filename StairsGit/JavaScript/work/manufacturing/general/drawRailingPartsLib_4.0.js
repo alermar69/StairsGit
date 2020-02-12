@@ -233,10 +233,12 @@ function drawRack3d_4(par) {
 			bolt.position.x = 0;
 			bolt.position.y = 0;
 			bolt.position.z = 2 + 5
+			if (testingMode) bolt.position.z += 1 
 
 			if (par.railingSide == "left") {
 				bolt.rotation.x = -Math.PI / 2;
 				bolt.position.z = profSize - 2 - 5
+				if (testingMode) bolt.position.z -= 1
 			}
 		}
 

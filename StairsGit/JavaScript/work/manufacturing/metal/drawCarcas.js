@@ -1435,7 +1435,7 @@ function calcColumnPosHoles(par) {
 			holePos[2].y += 20;
 		}
 		if (params.model == "ко" && marshParams.topTurn == "площадка" && holePos[3]) {
-			holePos[3].x -= 20;
+			//holePos[3].x -= 20;
 		}
 		if (params.stringerType == "ломаная") {
 			if (par.botEnd !== "winder") holePos[2] = newPoint_xy(basePoints[2], - marshParams.b / 2, -offsetY);

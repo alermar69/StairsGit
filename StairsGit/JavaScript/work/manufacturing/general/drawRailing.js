@@ -1180,6 +1180,9 @@ function drawRailingSectionNewel2(par) {
 			handrailParams.extraLengthStart += 90;
 			handrailParams.extraLengthEnd += 90;
 		}
+		if (params.calcType == 'bolz' && marshPar.lastMarsh) {
+			handrailParams.extraLengthEnd -= calcLastRackDeltaY() / Math.sin(marshPar.ang);
+		}
 		handrailParams = drawPolylineHandrail(handrailParams);
 
 		var handrail = handrailParams.mesh;
@@ -2787,7 +2790,8 @@ function drawRailingSectionForge2(par) {
 				polePar.len = parRacks.marshLen;
 				if (splitSection) {
 					if(par.key == 'out') polePar.startFlan = true;
-					polePar.endFlan = true;
+					if (par.topTurn != 'пол' || (par.marshLast && marshPar.hasTopPltRailing[par.key]))
+						polePar.endFlan = true;
 				}
 
 				if (parRacks.marshLast.noDraw) polePar.endFlan = true;
@@ -2824,8 +2828,9 @@ function drawRailingSectionForge2(par) {
         pos.y = parRacks.marshFirst.y - 90 + botPoleOffset + dyRackTop + rackAddLen;
 				polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
 				if (splitSection) {
-					if(par.key == 'out') polePar.startFlan = true;
-					polePar.endFlan = true;
+					if (par.key == 'out') polePar.startFlan = true;
+					if (par.topTurn != 'пол' || (par.marshLast && marshPar.hasTopPltRailing[par.key]))
+						polePar.endFlan = true;
 				}
 				if (parRacks.marshLast.noDraw) polePar.endFlan = true;
 
@@ -3438,6 +3443,8 @@ function drawForgedFramePart2(par) {
 				if (params.stairModel != "П-образная с площадкой" && params.stairModel != "П-образная с забегом") {
 					botLen += params.treadThickness + bottomHoleOffset + banisterAngleOffset + prevMarshPar.h;
 					if (marshPar.botTurn == "забег") botLen += marshPar.h * 2;
+					if (params.stairModel == "П-образная трехмаршевая" && par.marshId == 3 && params.stairAmt2 == 0 && params.turnType_1 !== "забег")
+						botLen -= prevMarshPar.h;
 				}
 				//П-образный поворот
 				if (params.stairModel == "П-образная с площадкой" || params.stairModel == "П-образная с забегом") {
@@ -4612,6 +4619,10 @@ function calcLastRackDeltaY(unit, marshId) {
 
 	if (params.rackBottom == "сверху с крышкой") dyLastRack = 0;
 	if (params.calcType == 'vhod' && params.staircaseType == "Готовая") dyLastRack = 0;
+	if (params.calcType == 'bolz') {
+		if (params.railingModel == "Стекло на стойках")
+			dyLastRack = 40 * Math.tan(marshParams.ang);
+	}
 
     return dyLastRack;
 }

@@ -207,20 +207,28 @@ function drawScirtingSection(par) {
 		skirtingParams.step = par.wndPar.params[2].stepWidthX - 0.15// - params.riserThickness * 2;
 		skirtingParams.isNotVerticalPlank = true; //нет вертикальной планки
 		//подрезамем плинтус если на нижнем марше тоже есть плинтус
+		var deltaStep = 0;
+		if (params.rackBottom == 'сверху с крышкой' && (marshPar.hasRailing.out || prevMarshPar.hasRailing.out)) {
+			if (params.railingModel == "Деревянные балясины" ||
+				params.railingModel == "Стекло" ||
+				params.railingModel == "Дерево с ковкой") {
+				deltaStep = 95;
+			} else {
+				deltaStep = 40;
+			}
+		}
 		if (prevMarshPar.hasSkirting.out) {
 			if (!(params.stairModel == "П-образная с забегом" && par.marshId == 3))
-				skirtingParams.step -= params.riserThickness;
+				deltaStep = params.riserThickness;
 		}
+		skirtingParams.step -= deltaStep;
 
 		var basePoint = {
 			x: -turnPar.turnLengthBot,
 			y: -marshPar.h,
 		}
 		//сдвигаем плинтус если на нижнем марше тоже есть плинтус
-		if (prevMarshPar.hasSkirting.out) {
-			if (!(params.stairModel == "П-образная с забегом" && par.marshId == 3))
-				basePoint.x += params.riserThickness + 0.1;
-		}
+		if (deltaStep) basePoint.x += deltaStep + 0.1;
 		if (marshPar.stairAmt == 0 && !marshPar.lastMarsh) basePoint.x -= ((params.marshDist - 57) + (params.nose - 40));
 
 		skirtingParams.dxfBasePoint = newPoint_xy(dxfBasePoint0, basePoint.x, basePoint.y);
@@ -410,6 +418,10 @@ function drawScirtingSection(par) {
 			skirtingParams.nose = 0;
 		}
 		skirtingParams.step = turnPar.topStepDelta - skirtingParams.nose;
+		if (par.side == "out" && marshPar.botTurn == "забег") {
+			if (marshPar.stairAmt == 0 && marshPar.lastMarsh)
+				basePoint.x += 45 - (100 - params.lastWinderTreadWidth);
+		}
 		skirtingParams.dxfBasePoint = newPoint_xy(dxfBasePoint0, basePoint.x, basePoint.y);
 
 		skirtingParams = drawSkirting2(skirtingParams);

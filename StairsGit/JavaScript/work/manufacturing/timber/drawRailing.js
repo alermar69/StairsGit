@@ -121,12 +121,13 @@ function calcRailingRacks(par) {
 				x: -turnParams.turnLengthBot + rackSize / 2,
 				y: 0.03,
 			};
-			if (marshParams.botTurn == 'забег' && marshParams.lastMarsh) botFirst.x += params.nose;
+			//if (marshParams.botTurn == 'забег' && marshParams.lastMarsh) botFirst.x += params.nose;
+			if (marshParams.botTurn == 'забег' && marshParams.lastMarsh) botFirst.x -= calcTurnParams(marshParams.prevMarshId).topMarshOffsetZ - 5;
 			if (marshParams.botTurn == 'площадка') botFirst.x -= calcTurnParams(marshParams.prevMarshId).topMarshOffsetZ;
 			if (marshParams.botTurn == 'забег') botFirst.y -= marshParams.h;
 			if (params.stairModel == 'П-образная с забегом') botFirst.x -= calcTurnParams(marshParams.prevMarshId).topMarshOffsetZ;
-			if (marshParams.botTurn == 'забег' && params.calcType == 'mono') botFirst.x -= params.nose + calcTurnParams(marshParams.prevMarshId).topMarshOffsetZ;
-			if (marshParams.botTurn == 'забег' && marshParams.stairAmt == 0) botFirst.x -= params.marshDist;
+			//if (marshParams.botTurn == 'забег' && params.calcType == 'mono') botFirst.x -= params.nose + calcTurnParams(marshParams.prevMarshId).topMarshOffsetZ;
+			if (marshParams.botTurn == 'забег' && marshParams.stairAmt == 0 && !marshParams.lastMarsh) botFirst.x -= params.marshDist;
 
 			railingParams.botFirst = botFirst;
 		}
@@ -317,12 +318,13 @@ function drawRailingSection_4_pltP(par){
 		var marshLastRailingPoint = stringerParams.keyPoints.marshLastRailingPoint;
 		*/
 		//костыль чтобы убрать критическую ошибку
-		var marshFirstRailingPoint = {x:-params.M, y:-params.h3*2}
-		var marshLastRailingPoint = {x:params.M, y:params.h3}
+		var marshFirstRailingPoint = { x: -params.M, y:-params.h3*2}
+		var marshLastRailingPoint = { x: params.M - 7.5, y:params.h3}
 	}
 
 	{
 		var handrailLength_X = marshLastRailingPoint.x - marshFirstRailingPoint.x;
+		if (params.stairModel == 'П-образная с забегом') handrailLength_X -= rackSize;
 		var handrailAngle = angle(marshFirstRailingPoint, marshLastRailingPoint);
 		var handrailLength = handrailLength_X / Math.cos(handrailAngle);
 		if (params.stairModel == 'П-образная с забегом') {
@@ -350,7 +352,8 @@ function drawRailingSection_4_pltP(par){
 		handrail.position.y = basePoint.y;
 		handrail.position.z = posZ - handrailParams.wallOffset;
 		if (params.stairModel == 'П-образная с забегом') {
-			handrail.position.y += 100;
+			handrail.position.y += par.h;
+			handrail.position.x += rackSize / 2;
 			par.b = params.b3
 		}
 		section.add(handrail);
@@ -843,7 +846,7 @@ function drawRailingSection_4(par) {
 					handrailEndPoint = polar(handrailEndPoint, handrailAngle, len)
 				}
 
-				var lenX = handrailEndPoint.x - handrailStartPoint.x;
+				var lenX = handrailEndPoint.x - handrailStartPoint.x - 0.05;
 				var len = lenX / Math.cos(handrailAngle);
 
 				var splitObj = { lenX: lenX, len: len, rackBasePoint: rackBasePoint, basePoint: handrailBasePoint, startPos: handrailStartPoint, endPos: handrailEndPoint };
@@ -2398,7 +2401,7 @@ function drawNewells(par){
 
 		var rack = drawTimberNewell_4(newellParams).mesh;
 		rack.position.x = par.racks[i].x - newellParams.rackSize / 2;
-		rack.position.y = par.racks[i].y + 0.01;
+		rack.position.y = par.racks[i].y + 0.02;
 
 		rack.position.z = - newellParams.rackSize / 2 - 0.01;
 		par.mesh.add(rack);
