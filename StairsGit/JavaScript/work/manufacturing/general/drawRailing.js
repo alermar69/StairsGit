@@ -936,6 +936,7 @@ function drawRailingSectionNewel2(par) {
 				rackParams.showHoles = false;
 				rackParams.isBotFlan = false;
 				rackParams.isBolz = true;
+				if (marshPar.lastMarsh && i == racks.length - 1) rackParams.len -= 4; //4 - толщина шайбы
 			}
 			if (params.banisterMaterial != "40х40 черн.") rackParams.material = params.materials.inox;
 
@@ -956,6 +957,26 @@ function drawRailingSectionNewel2(par) {
 				rack.position.y = racks[i].y;
 				rack.position.z = railingPositionZ;
 				section.add(rack);
+
+				// на больцах, на последней стойки, из-за смещения стойки добавляем шайбы как на больцах
+				if (params.calcType === 'bolz' && par.key === "in") {
+					if (marshPar.lastMarsh && i == racks.length - 1) {
+						var bolzPar = {
+							marshId: par.marshId,
+							dxfBasePoint: par.dxfBasePoint,
+							h: par.h,
+							bolzProfile: rackProfile,
+							isRack: true,
+						}
+
+						var bolz = drawBolz(bolzPar).mesh;
+						bolz.position.x = -rackProfile / 2;
+						bolz.position.y = -90 - bolzPar.shimThk;
+						rack.add(bolz);
+
+						rack.position.y += bolzPar.shimThk;
+					}
+				}
 			}
 		} //конец стоек
 	}
@@ -1179,9 +1200,6 @@ function drawRailingSectionNewel2(par) {
 		if (params.calcType === 'vhod' && params.staircaseType == "Готовая" && par.key == 'rear') {
 			handrailParams.extraLengthStart += 90;
 			handrailParams.extraLengthEnd += 90;
-		}
-		if (params.calcType == 'bolz' && marshPar.lastMarsh) {
-			handrailParams.extraLengthEnd -= calcLastRackDeltaY() / Math.sin(marshPar.ang);
 		}
 		handrailParams = drawPolylineHandrail(handrailParams);
 
@@ -4620,8 +4638,7 @@ function calcLastRackDeltaY(unit, marshId) {
 	if (params.rackBottom == "сверху с крышкой") dyLastRack = 0;
 	if (params.calcType == 'vhod' && params.staircaseType == "Готовая") dyLastRack = 0;
 	if (params.calcType == 'bolz') {
-		if (params.railingModel == "Стекло на стойках")
-			dyLastRack = 40 * Math.tan(marshParams.ang);
+			dyLastRack = (marshParams.a - 40 - 20) * Math.tan(marshParams.ang);
 	}
 
     return dyLastRack;

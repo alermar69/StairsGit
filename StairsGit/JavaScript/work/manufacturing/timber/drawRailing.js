@@ -328,7 +328,7 @@ function drawRailingSection_4_pltP(par){
 		var handrailAngle = angle(marshFirstRailingPoint, marshLastRailingPoint);
 		var handrailLength = handrailLength_X / Math.cos(handrailAngle);
 		if (params.stairModel == 'П-образная с забегом') {
-			wndDeltaY = 100 / Math.sin(handrailAngle) - par.h * 2;
+			wndDeltaY = 100 / Math.sin(handrailAngle) - par.h + 4;
 		}
 		var handrailParams = {
 			model: params.handrail,
@@ -345,8 +345,8 @@ function drawRailingSection_4_pltP(par){
 			marshId: par.marshId,
 			hasFixings: true
 		}
-		var basePoint = newPoint_xy(marshFirstRailingPoint, 0, handrailPosY);
 
+		var basePoint = newPoint_xy(marshFirstRailingPoint, 0, handrailPosY);
 		var handrail = drawHandrail_4(handrailParams).mesh;
 		handrail.position.x = basePoint.x;
 		handrail.position.y = basePoint.y;
@@ -364,22 +364,25 @@ function drawRailingSection_4_pltP(par){
 			basePoint: marshFirstRailingPoint,
 			lenX: handrailLength_X,
 			ang: handrailAngle,
-			balLen: handrailPosY - wndDeltaY,
+			balLen: handrailPosY,// - wndDeltaY,
 			balStep: par.b / params.timberBalStep,
 			dxfBasePoint: stringerParams.dxfBasePoint,
 			marshId: par.marshId,
-			side: "out"
+			side: "out",
+			isPRear: true, 
+			handrailPosition: newPoint_xy(handrail.position, 0, -par.h),
+			h: par.h,
 		}
 		if (par.stringerType == 'тетива') {
 			balParams.stringerType = par.stringerType;
 		}
 
 		var balArr = drawBanistersArr(balParams);
-		balArr.position.y = 0;
+		balArr.position.y = par.h;
 		if(params.timberBalBotEnd == "круг") {
 			//balArr.position.y = 100;
 		}
-		balArr.position.y += wndDeltaY;
+		//balArr.position.y += wndDeltaY;
 		balArr.position.z = posZ;
 		section.add(balArr);
 	}
@@ -2502,103 +2505,95 @@ function drawBanistersArr(par) {
 		drawBanisterFunction = drawBanisterFunctionWrapper;
 	}
 
-	if(par.stringerType != "косоур"){
-		var balAmt = Math.round((par.lenX + balSize) / par.balStep) - 1;
-		balDist = (par.lenX + balSize) / (balAmt + 1);
-		var pos = newPoint_x1(par.basePoint, balDist - balSize / 2, par.ang);
+	if (!par.isPRear) {
+		if (par.stringerType != "косоур") {
+			var balAmt = Math.round((par.lenX + balSize) / par.balStep) - 1;
+			balDist = (par.lenX + balSize) / (balAmt + 1);
+			var pos = newPoint_x1(par.basePoint, balDist - balSize / 2, par.ang);
 
-		for (i = 0; i < balAmt; i++) {
-			var balType = getBalType(i, par.unit); //функция в файле manufacturing/general/drawRailing.js
-			var basePoint = newPoint_x1(pos, balDist * i, par.ang);
+			for (i = 0; i < balAmt; i++) {
+				var balType = getBalType(i, par.unit); //функция в файле manufacturing/general/drawRailing.js
+				var basePoint = newPoint_x1(pos, balDist * i, par.ang);
 
-		var balPar = {
-				len: par.balLen,
-				botAng: par.ang,
-				topAng: par.ang,
-				type: balType,
-				dxfBasePoint: par.dxfBasePoint,
-				material: params.materials.metal2,
-				unit: par.unit,
-				drawing: {group: "timber_railing", type: "banister", pos: basePoint, marshId: par.marshId, key: par.side}
-			}
-			// if(par.unit == "balustrade") balPar.len += 10;//Поправляем высоту для баллюстрады
-			balPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, basePoint.x, basePoint.y)
+				var balPar = {
+					len: par.balLen,
+					botAng: par.ang,
+					topAng: par.ang,
+					type: balType,
+					dxfBasePoint: par.dxfBasePoint,
+					material: params.materials.metal2,
+					unit: par.unit,
+					drawing: {
+						group: "timber_railing",
+						type: "banister",
+						pos: basePoint,
+						marshId: par.marshId,
+						key: par.side
+					}
+				}
+				// if(par.unit == "balustrade") balPar.len += 10;//Поправляем высоту для баллюстрады
+				balPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, basePoint.x, basePoint.y)
 
-			if(par.stringerType == "тетива" && timberBalBotEnd == "квадрат") balPar.len -= (20 + 0.025) / Math.cos(balPar.botAng);
-			// if(par.unit !== "balustrade" && timberBalTopEnd == "квадрат" && par.stringerType !== "тетива") balPar.len -= 10.01;
+				if (par.stringerType == "тетива" && timberBalBotEnd == "квадрат")
+					balPar.len -= (20 + 0.025) / Math.cos(balPar.botAng);
+				// if(par.unit !== "balustrade" && timberBalTopEnd == "квадрат" && par.stringerType !== "тетива") balPar.len -= 10.01;
 
-			var banister = drawBanisterFunction(balPar).mesh;
+				var banister = drawBanisterFunction(balPar).mesh;
 
-			banister.position.x = basePoint.x;
-			banister.position.y = basePoint.y;
-			if(par.stringerType == "тетива" && timberBalBotEnd == "квадрат") banister.position.y += 10 / Math.cos(balPar.botAng) + 0.02;
-			banister.position.z = 0;
-			if (!(testingMode && railingModel == "Дерево с ковкой")) {
-				obj3D.add(banister);
+				banister.position.x = basePoint.x;
+				banister.position.y = basePoint.y;
+				if (par.stringerType == "тетива" && timberBalBotEnd == "квадрат")
+					banister.position.y += 10 / Math.cos(balPar.botAng) + 0.02;
+				banister.position.z = 0;
+				if (!(testingMode && railingModel == "Дерево с ковкой")) {
+					obj3D.add(banister);
+				}
 			}
 		}
-	}
 
-	if(par.stringerType == "косоур"){
+		if (par.stringerType == "косоур") {
 
-		balDist = par.b / params.timberBalStep;
-		//позиция балясин на лестнице на косоурах
-		var balPar_kos = calcBalPos(par.marshId);
+			balDist = par.b / params.timberBalStep;
+			//позиция балясин на лестнице на косоурах
+			var balPar_kos = calcBalPos(par.marshId);
 
-		//задаем позицию первой балясины
-		var basePoint = newPoint_xy(par.basePoint, balPar_kos.deltaX1, params.treadThickness);
+			//задаем позицию первой балясины
+			var basePoint = newPoint_xy(par.basePoint, balPar_kos.deltaX1, params.treadThickness);
 
-		//цикл отрисовки балясин по всем ступеням марша
-		var balId = 0; //номер балясины в массиве
-		for (i = 0; i < par.stairAmt; i++) {
+			//цикл отрисовки балясин по всем ступеням марша
+			var balId = 0; //номер балясины в массиве
+			for (i = 0; i < par.stairAmt; i++) {
 
-			var balPar = {
-				len: par.balLen,
-				botAng: 0,
-				topAng: par.ang,
-				type: getBalType(balId, par.unit), //функция в файле manufacturing/general/drawRailing.js,
-				dxfBasePoint: par.dxfBasePoint,
-				material: params.materials.metal2,
-			}
-
-			//первая балясина на ступени
-			if(i != 0) basePoint = newPoint_xy(basePoint, balDist, par.h);
-			if(params.timberBalStep == 2){
-				if(i == 0) balPar.len -= 0; //начинаем со второй балясины
-				if(i != 0) balPar.len -= balPar_kos.deltaLen2;
+				var balPar = {
+					len: par.balLen,
+					botAng: 0,
+					topAng: par.ang,
+					type: getBalType(balId, par.unit), //функция в файле manufacturing/general/drawRailing.js,
+					dxfBasePoint: par.dxfBasePoint,
+					material: params.materials.metal2,
 				}
-			if(params.timberBalStep == 1.5){
-				if(i%2 == 0) balPar.len -= balPar_kos.deltaLen1;
-				if(i%2 != 0) balPar.len -= balPar_kos.deltaLen2;
-			}
+
+				//первая балясина на ступени
+				if (i != 0) basePoint = newPoint_xy(basePoint, balDist, par.h);
+				if (params.timberBalStep == 2) {
+					if (i == 0) balPar.len -= 0; //начинаем со второй балясины
+					if (i != 0) balPar.len -= balPar_kos.deltaLen2;
+				}
+				if (params.timberBalStep == 1.5) {
+					if (i % 2 == 0) balPar.len -= balPar_kos.deltaLen1;
+					if (i % 2 != 0) balPar.len -= balPar_kos.deltaLen2;
+				}
 
 
-			balPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, basePoint.x, basePoint.y)
-			balPar.drawing = {group: "timber_railing", type: "banister", pos: newPoint_xy(basePoint, svgDelta.x, svgDelta.y), marshId: par.marshId, key: par.side};
+				balPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, basePoint.x, basePoint.y)
+				balPar.drawing = {
+					group: "timber_railing",
+					type: "banister",
+					pos: newPoint_xy(basePoint, svgDelta.x, svgDelta.y),
+					marshId: par.marshId,
+					key: par.side
+				};
 
-			var banister = drawBanisterFunction(balPar).mesh;
-			banister.position.x = basePoint.x;
-			banister.position.y = basePoint.y;
-			banister.position.z = 0;
-			if (!(testingMode && params.railingModel == "Дерево с ковкой")) {
-				obj3D.add(banister);
-			}
-			balId += 1;
-
-			//вторая балясина на ступени
-			var isSecondBal = false;
-			if(params.timberBalStep == 1.5 && i%2) isSecondBal = true; //2 балясины на нечетных ступенях
-			if(params.timberBalStep == 2) isSecondBal = true; //2 балясины на нечетных ступенях
-			// if(i == 0 && params.calcType == "timber") isSecondBal = false; //на первой ступени всегда одна ступень
-			if(i == 0) isSecondBal = false; //на первой ступени всегда одна ступень
-
-			if(isSecondBal){
-				balPar.type = getBalType(balId, par.unit);
-
-				balPar.len = par.balLen;
-				basePoint = newPoint_xy(basePoint, balDist, 0);
-				balPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, basePoint.x, basePoint.y);
-				balPar.drawing = {group: "timber_railing", type: "banister", pos: newPoint_xy(basePoint, svgDelta.x, svgDelta.y), marshId: par.marshId, key: par.side}
 				var banister = drawBanisterFunction(balPar).mesh;
 				banister.position.x = basePoint.x;
 				banister.position.y = basePoint.y;
@@ -2607,17 +2602,46 @@ function drawBanistersArr(par) {
 					obj3D.add(banister);
 				}
 				balId += 1;
+
+				//вторая балясина на ступени
+				var isSecondBal = false;
+				if (params.timberBalStep == 1.5 && i % 2) isSecondBal = true; //2 балясины на нечетных ступенях
+				if (params.timberBalStep == 2) isSecondBal = true; //2 балясины на нечетных ступенях
+				// if(i == 0 && params.calcType == "timber") isSecondBal = false; //на первой ступени всегда одна ступень
+				if (i == 0) isSecondBal = false; //на первой ступени всегда одна ступень
+
+				if (isSecondBal) {
+					balPar.type = getBalType(balId, par.unit);
+
+					balPar.len = par.balLen;
+					basePoint = newPoint_xy(basePoint, balDist, 0);
+					balPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, basePoint.x, basePoint.y);
+					balPar.drawing = {
+						group: "timber_railing",
+						type: "banister",
+						pos: newPoint_xy(basePoint, svgDelta.x, svgDelta.y),
+						marshId: par.marshId,
+						key: par.side
+					}
+					var banister = drawBanisterFunction(balPar).mesh;
+					banister.position.x = basePoint.x;
+					banister.position.y = basePoint.y;
+					banister.position.z = 0;
+					if (!(testingMode && params.railingModel == "Дерево с ковкой")) {
+						obj3D.add(banister);
+					}
+					balId += 1;
 				}
 
 			}
 
 			//дополнительная балясина если сверху площадка
 			var isExtraBanister = false;
-			if(par.extraBanisterTop){
-				if(params.timberBalStep == 2) isExtraBanister = true;
-				if(params.timberBalStep == 1.5 && par.stairAmt % 2 == 1)isExtraBanister = true;
-				}
-			if(isExtraBanister){
+			if (par.extraBanisterTop) {
+				if (params.timberBalStep == 2) isExtraBanister = true;
+				if (params.timberBalStep == 1.5 && par.stairAmt % 2 == 1) isExtraBanister = true;
+			}
+			if (isExtraBanister) {
 				var balPar = {
 					len: par.balLen,
 					botAng: 0,
@@ -2627,16 +2651,22 @@ function drawBanistersArr(par) {
 					material: params.materials.metal2,
 				}
 
-				if(i != 0) basePoint = newPoint_xy(basePoint, balDist, par.h);
-				if(params.timberBalStep == 2){
+				if (i != 0) basePoint = newPoint_xy(basePoint, balDist, par.h);
+				if (params.timberBalStep == 2) {
 					balPar.len -= balPar_kos.deltaLen2;
-					}
-				if(params.timberBalStep == 1.5){
+				}
+				if (params.timberBalStep == 1.5) {
 					balPar.len -= balPar_kos.deltaLen2;
-					}
+				}
 
 				balPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, basePoint.x, basePoint.y)
-				balPar.drawing = {group: "timber_railing", type: "banister", pos: newPoint_xy(basePoint, svgDelta.x, svgDelta.y), marshId: par.marshId, key: par.side}
+				balPar.drawing = {
+					group: "timber_railing",
+					type: "banister",
+					pos: newPoint_xy(basePoint, svgDelta.x, svgDelta.y),
+					marshId: par.marshId,
+					key: par.side
+				}
 				var banister = drawBanisterFunction(balPar).mesh;
 				banister.position.x = basePoint.x;
 				banister.position.y = basePoint.y;
@@ -2648,7 +2678,7 @@ function drawBanistersArr(par) {
 			}
 
 			//дополнительная балясина если снизу площадка
-			if(par.extraBanisterBot && params.timberBalStep == 2){
+			if (par.extraBanisterBot && params.timberBalStep == 2) {
 				balId = -1;
 				var balPar = {
 					len: par.balLen - balPar_kos.deltaLen2,
@@ -2661,7 +2691,13 @@ function drawBanistersArr(par) {
 
 				basePoint = newPoint_xy(par.basePoint, balPar_kos.deltaX2, params.treadThickness);
 				balPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, basePoint.x, basePoint.y)
-				balPar.drawing = {group: "timber_railing", type: "banister", pos: newPoint_xy(basePoint, svgDelta.x, svgDelta.y), marshId: par.marshId, key: par.side}
+				balPar.drawing = {
+					group: "timber_railing",
+					type: "banister",
+					pos: newPoint_xy(basePoint, svgDelta.x, svgDelta.y),
+					marshId: par.marshId,
+					key: par.side
+				}
 				var banister = drawBanisterFunction(balPar).mesh;
 				banister.position.x = basePoint.x;
 				banister.position.y = basePoint.y;
@@ -2671,6 +2707,44 @@ function drawBanistersArr(par) {
 				}
 			}
 		}
+	}
+
+	//балясины заднего ограждения забега
+	if (par.isPRear) {
+		var balAmt = Math.round((par.lenX + balSize) / par.balStep) - 1;
+		balDist = (par.lenX + balSize) / (balAmt + 1);
+		var pos = newPoint_xy(par.basePoint, balDist - balSize / 2, 0);
+
+		var dh = 0;
+		for (i = 0; i < balAmt; i++) {
+			var balType = getBalType(i, par.unit); //функция в файле manufacturing/general/drawRailing.js
+			if (i % 2 == 1) dh += par.h;
+			var basePoint = newPoint_xy(pos, balDist * i, dh);
+
+			var balPar = {
+				len: par.balLen,
+				botAng: par.ang,
+				topAng: par.ang,
+				type: balType,
+				dxfBasePoint: par.dxfBasePoint,
+				material: params.materials.metal2,
+				unit: par.unit,
+				drawing: { group: "timber_railing", type: "banister", pos: basePoint, marshId: par.marshId, key: par.side }
+			}
+			var pt = itercection(basePoint, polar(basePoint, Math.PI / 2, 100), par.handrailPosition, polar(par.handrailPosition, par.ang, 100))
+			balPar.len = distance(basePoint, pt)
+			balPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, basePoint.x, basePoint.y)
+
+			var banister = drawBanisterFunction(balPar).mesh;
+
+			banister.position.x = basePoint.x;
+			banister.position.y = basePoint.y;
+			banister.position.z = 0;
+			if (!(testingMode && railingModel == "Дерево с ковкой")) {
+				obj3D.add(banister);
+			}
+		}
+	}
 
 	//подбалясинная доска снизу
 	if(par.stringerType == "тетива" && params.timberBalBotEnd == "квадрат"){
