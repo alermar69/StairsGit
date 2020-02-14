@@ -31,6 +31,19 @@ $(function() {
 		drawTopFloor();
 	});
 
+	$('#dxfOpening').change(function(){
+		if ($(this).val() == 'нет') {
+			$('.dxfOpeningFileInput').hide();
+		}else{
+			$('.dxfOpeningFileInput').show();
+		}
+	});
+
+	$('#dxfFile').change(function(){
+		changeAllForms();
+		drawTopFloor();
+	});
+
 //обработчик изменения инпутов выступов стен
 	$('#wallLedgesTable').delegate('select, input', 'change', function(){
 

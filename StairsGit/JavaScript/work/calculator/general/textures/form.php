@@ -48,8 +48,13 @@
 			<td><input id="mapScaleCeil" type="number" value="1"></td>
 		</tr>
 		<tr>
-			<td>Цвет контура без текстур</td>
-			<td><input id="wireframeColor" type="color" value="#000000"></td>
+			<td>Цвет ребер</td>
+			<td>
+				<select id='wireframeColor'>
+					<option value="#FFFFFF">белый</option>
+					<option value="#000000">черный</option>					
+				</select>
+			</td>
 		</tr>
 	</tbody></table>
 

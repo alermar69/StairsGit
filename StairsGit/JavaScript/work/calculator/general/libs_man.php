@@ -17,6 +17,8 @@
 <script type="text/javascript" src="/calculator/general/scene/viewport.js?23012020"></script>
 <script type="text/javascript" src="/calculator/general/scene/menu.js?23012020"></script>
 <script type="text/javascript" src="/calculator/general/scene/scene.js"></script>
+<script type="text/javascript" src="/calculator/general/dxf_tools/dxf_tools.js"></script>
+<script type="text/javascript" src="/calculator/general/dxf_tools/dxf-parser.js"></script>
 
 <script type="text/javascript" src="/calculator/general/three_libs/three.js"></script>
 <script type="text/javascript" src="/calculator/general/three_libs/stats.js"></script>

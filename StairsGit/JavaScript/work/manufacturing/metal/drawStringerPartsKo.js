@@ -2010,7 +2010,9 @@ function drawTopStepKo_pltP(par){
 		center1 = newPoint_xy(po1, dX, 0);
 		//не допускаем пересечения рамок
 		var minDist = 45 * 2 + 5 + params.stringerThickness + 15;
-		if(center1.x - frame1Hole.x < minDist) center1.x = frame1Hole.x + minDist;
+		if (center1.x - frame1Hole.x < minDist) center1.x = frame1Hole.x + minDist;
+		if (pltPar.partsAmt == 2) 
+			center1 = newPoint_xy(p2, platformLen / 2 - params.nose / 2 - frameHoleDist / 2, par.stepHoleY);
 		center2 = newPoint_xy(center1, frameHoleDist, 0);		
 		pointsHoleTop.push(center1);
 		pointsHoleTop.push(center2);

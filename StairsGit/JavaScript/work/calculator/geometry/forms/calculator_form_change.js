@@ -71,6 +71,7 @@ $(function () {
 			$('#b1').val(b);
 			
 			calculateGeom();
+			recalculate();
 		}
 		
 		//вписание лестницы в проем по ширине для П-образной

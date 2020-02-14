@@ -80,6 +80,10 @@ $(function () {
 		drawSceneDimensions();
 	});
 	
+	$('#makeDrawings').click(function(){
+		makeDrawings();
+	});
+	
 	//пересчитываем лестницу
 	if (window.loadedData) {
 		setLoadedData(window.loadedData, true);

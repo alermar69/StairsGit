@@ -90,3 +90,26 @@ $(function(){
 		return objects;
 	};
 });
+
+function drawTextureText(text, size){
+	var canvasText = document.createElement('canvas');
+	var contextCanvasText = canvasText.getContext('2d');
+	contextCanvasText.font = "Bold 140pt Arial";
+	contextCanvasText.fillStyle = "rgba(0,0,0,1)";
+	contextCanvasText.fillText(text, 0, 140);
+	
+	// canvas contents will be used for a texture
+	var textTexture = new THREE.Texture(canvasText) 
+	textTexture.needsUpdate = true;
+		
+	var materialText = new THREE.MeshBasicMaterial( {map: textTexture, side:THREE.DoubleSide, depthTest: false } );
+	materialText.transparent = true;
+	
+	var mesh = new THREE.Mesh(
+		new THREE.PlaneGeometry(size, size),
+		materialText
+	);
+
+	mesh.noWireFrames = true;
+	return mesh;
+}

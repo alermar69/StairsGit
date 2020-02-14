@@ -47,6 +47,10 @@
 		echo '</div>';
 	};
 
+	if ($template == 'calculator') {
+		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/master/main.php";
+	}
+	
 	if($template != 'customers') {
 
 		//Форма параметров заказа
@@ -76,6 +80,7 @@
 		if($template == 'calculator') {
 			echo
 				'<div class="noPrint mainButtons">
+					<button id="open_master_modal">Конфигуратор проёма</button>
 					<button id="sendMessageModalShow">Отправить КП</button>
 					<button id="cloneCanvas">Дублировать</button>
 					<button id="loadSavedCams">Загрузить виды</button>

@@ -1,3 +1,14 @@
+<label for="dxfOpening">Импорт контура проёма из dxf</label>
+<select name="dxfOpening" id="dxfOpening">
+	<option value="нет" selected>нет</option>
+	<option value="да">да</option>
+</select><br>
+
+<div class='dxfOpeningFileInput' style='display:none;'>
+	<label for="dxfFile">Файл контура проёма</label>
+	<input type="file" name="dxfFile" id="dxfFile"><br>
+</div>
+
 <label for="floorHoleWidth">Ширина</label>
 <input type="number" id="floorHoleWidth" value="2000" step="100"><br>
 <label for="floorHoleLength">Длина</label>

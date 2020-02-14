@@ -99,6 +99,9 @@ console.log(containerWidth, containerHeight)
 			view.scene.traverse(function (node) {
 				if (node instanceof THREE.LineSegments) {
 					node.visible = true;
+					if (node.layerName && node.layerName.indexOf('_wf') !== -1 && menu[node.layerName.replace('_wf', '')] !== undefined) {
+						node.visible = menu[node.layerName.replace('_wf', '')];
+					}
 				}
 			})
 		}
@@ -153,9 +156,9 @@ function addMeasurement(viewportId) {
 	sphereHelper.visible = false;
 
 	var nowStart = true;
-	var newdiv1 = $("<div id='popuup_div'></div>");
+	var newdiv1 = $("<div id='popuup_div' align='left' style='position:absolute;z-index:10;width:130px;height:88px;background-color:white;text-align:left;padding-left:9px;color:#000000;font: 16px Verdana, Arial, Helvetica, sans-serif;display:none;'></div>");
 	$("body").append(newdiv1);
-	var newdiv2 = $("<div id='popuup2_div'></div>");
+	var newdiv2 = $("<div id='popuup2_div' align='left' style='position:absolute;z-index:10;width:330px;height:28px;background-color:white;text-align:left;padding-left:9px;color:#000000;font: 18px Verdana, Arial, Helvetica, sans-serif;display:none;'></div>");
 	$("body").append(newdiv2);
 
 	var canvas = view.renderer.domElement;
@@ -800,6 +803,7 @@ function addLedges(viewportId, wall, n) {
 	});
 	//var boxNew = [];
 	var complexWall = new THREE.Object3D();
+
 	//если есть выступы для этой стены
 	if (wallLedgeWidths.length) {
 		//
@@ -891,15 +895,61 @@ function addLedges(viewportId, wall, n) {
 		wall.material = params.materials.wall;
 		wall.geometry.computeVertexNormals();
 	}
-	wall.layerName = 'wall' + n;
+	// wall.layerName = 'wall' + n;
 	wall.rotation.y = n == 3 ? 1.5 * Math.PI : n == 4 ? 0.5 * Math.PI : n == 2 ? Math.PI : 0;
+
+	// Текст на стене сбоку
+	var wallDepth = $('#wallThickness_' + n).val() * 1.0;
+	var text = drawTextureText(n, 700);
+	
+	text.position.x = wall.position.x;
+	text.position.y = wall.position.y;
+	text.position.z = wall.position.z;
+	if (n == 1 || n == 2) {
+		text.position.z += (wallDepth / 2 + 0.1) * (n == 2 ? -1 : 1);
+	}else{
+		text.position.x += (wallDepth / 2 + 0.1) * (n == 3 ? -1 : 1);
+	}
+	text.rotation.x = wall.rotation.x;
+	text.rotation.y = wall.rotation.y;
+	text.rotation.z = wall.rotation.z;
+	complexWall.add(text);
+
+	// Текст на стене сверху
+	var text = drawTextureText(n, 200);
+	
+	text.position.x = wall.position.x;
+	text.position.y = wall.position.y + ($('#wallHeight_' + n).val() * 1.0) / 2 + 0.1;
+	text.position.z = wall.position.z;
+
+	text.rotation.x = wall.rotation.x;
+	text.rotation.y = wall.rotation.y;
+	text.rotation.z = wall.rotation.z;
+
+	if (n == 1 || n == 2) {
+		var factor = (n == 1 ? -1 : 1);
+		text.rotation.z += Math.PI / 2 * factor;
+		text.rotation.x += Math.PI / 2 * factor;
+
+		text.position.z += wallDepth / 2;
+	}else{
+		var factor = (n == 3 ? -1 : 1);
+		text.rotation.x += Math.PI / 2 * factor;
+		text.rotation.y += Math.PI / 2 * factor;
+		text.position.x -= wallDepth / 2;
+	}
+	complexWall.add(text);
 
 
 	complexWall.add(wall);
 
 	wall.userData.isWall = true;
 
-	addObjects(viewportId, complexWall, wall.layerName);
+	complexWall.setLayer('wall' + n);
+
+	addObjects(viewportId, complexWall, complexWall.layerName);
+	// Обновляем состояние для объекта
+	menu['wall' + n] = menu['wall' + n];
 }
 
 function addViewport() {
@@ -949,10 +999,10 @@ function createMenu(){
 		menu.addLayer({group: group, layerName: 'wall4', title: 'Стена 4'});
 		menu.addCheckbox({state: true, group: group, variableName: 'wallall', title: 'Все стены', callback: function(menuElement){
 			// menu.wall1 = menu.wall2 = menu.wall3 = menu.wall4 = menuElement.value;
-			menu.setLayerState('wall1', menuElement.value);
-			menu.setLayerState('wall2', menuElement.value);
-			menu.setLayerState('wall3', menuElement.value);
-			menu.setLayerState('wall4', menuElement.value);
+			menu.wall1 = menuElement.value;
+			menu.wall2 = menuElement.value;
+			menu.wall3 = menuElement.value;
+			menu.wall4 = menuElement.value;
 		}});
 		menu.addLayer({group: group, layerName: 'floorBottom', title: 'Нижнее'});
 		menu.addLayer({group: group, layerName: 'topFloor', title: 'Верхнее'});
@@ -1366,8 +1416,7 @@ function drawTopFloorPlane(thickness, color, offsetY, isCeil) {
 	var topFloor = new THREE.Object3D();
 
 	//проем без выступов
-
-	if (floorHoleLedgeBaseEdges.length == 0) {
+	if ($('#dxfOpening').val() == 'нет' && floorHoleLedgeBaseEdges.length == 0) {
 		floorShape = new THREE.Shape();
 		floorShape.moveTo(p0_X, p0_Y);
 		floorShape.lineTo(p0_X, p0_Y + floorLength);
@@ -1397,126 +1446,212 @@ function drawTopFloorPlane(thickness, color, offsetY, isCeil) {
 		if (!isCeil) mesh.userData.isTopFloor = true
 		else mesh.userData.isCeil = true;
 		topFloor.add(mesh);
+
+		addFloorObjectsToScene();
 	}
 
 	//проем с выступами
-
-	for (var i = 0; i < floorHoleLedgeBaseEdges.length; i++) {
-
-		var floorHoleLedgeBaseEdge = $("#floorHoleLedgeBaseEdge" + i).val();
-		var floorHoleLedgeLength = $("#floorHoleLedgeLength" + i).val() * 1;
-		var floorHoleLedgeWidth = $("#floorHoleLedgeWidth" + i).val() * 1;
-		var floorHoleLedgePosition = $("#floorHoleLedgePosition" + i).val() * 1;
-		var floorHoleLedgeType = (floorHoleLedgeWidth >= 0 ? "выступ" : "вырез");
-		floorHoleLedgeWidth = Math.abs(floorHoleLedgeWidth);
-
-
-
-		/*внешний контур*/
-		floorShape = new THREE.Shape();
-		floorShape.moveTo(p0_X, p0_Y);
-		floorShape.lineTo(p0_X, p0_Y + floorLength);
-		floorShape.lineTo(p0_X + floorWidth, p0_Y + floorLength);
-		floorShape.lineTo(p0_X + floorWidth, p0_Y);
-		floorShape.lineTo(p0_X, p0_Y);
-		/*контур проема*/
-		var hole = new THREE.Path();
-		hole.moveTo(0, 0);
-		//если выступ на грани №1
-		if (floorHoleLedgeBaseEdge == "1") {
-			if (floorHoleLedgePosition) hole.lineTo(-floorHoleLedgePosition, 0);
-			if (floorHoleLedgeType == "выступ") {
-				hole.lineTo(-floorHoleLedgePosition, -floorHoleLedgeWidth);
-				hole.lineTo(-(floorHoleLedgePosition + floorHoleLedgeLength), -floorHoleLedgeWidth);
-				hole.lineTo(-(floorHoleLedgePosition + floorHoleLedgeLength), 0);
-			} else {
-				hole.lineTo(-floorHoleLedgePosition, floorHoleLedgeWidth);
-				hole.lineTo(-(floorHoleLedgePosition + floorHoleLedgeLength), floorHoleLedgeWidth);
-				hole.lineTo(-(floorHoleLedgePosition + floorHoleLedgeLength), 0);
+	if ($('#dxfOpening').val() == 'нет') {
+		for (var i = 0; i < floorHoleLedgeBaseEdges.length; i++) {
+	
+			var floorHoleLedgeBaseEdge = $("#floorHoleLedgeBaseEdge" + i).val();
+			var floorHoleLedgeLength = $("#floorHoleLedgeLength" + i).val() * 1;
+			var floorHoleLedgeWidth = $("#floorHoleLedgeWidth" + i).val() * 1;
+			var floorHoleLedgePosition = $("#floorHoleLedgePosition" + i).val() * 1;
+			var floorHoleLedgeType = (floorHoleLedgeWidth >= 0 ? "выступ" : "вырез");
+			floorHoleLedgeWidth = Math.abs(floorHoleLedgeWidth);
+	
+	
+	
+			/*внешний контур*/
+			floorShape = new THREE.Shape();
+			floorShape.moveTo(p0_X, p0_Y);
+			floorShape.lineTo(p0_X, p0_Y + floorLength);
+			floorShape.lineTo(p0_X + floorWidth, p0_Y + floorLength);
+			floorShape.lineTo(p0_X + floorWidth, p0_Y);
+			floorShape.lineTo(p0_X, p0_Y);
+			/*контур проема*/
+			var hole = new THREE.Path();
+			hole.moveTo(0, 0);
+			//если выступ на грани №1
+			if (floorHoleLedgeBaseEdge == "1") {
+				if (floorHoleLedgePosition) hole.lineTo(-floorHoleLedgePosition, 0);
+				if (floorHoleLedgeType == "выступ") {
+					hole.lineTo(-floorHoleLedgePosition, -floorHoleLedgeWidth);
+					hole.lineTo(-(floorHoleLedgePosition + floorHoleLedgeLength), -floorHoleLedgeWidth);
+					hole.lineTo(-(floorHoleLedgePosition + floorHoleLedgeLength), 0);
+				} else {
+					hole.lineTo(-floorHoleLedgePosition, floorHoleLedgeWidth);
+					hole.lineTo(-(floorHoleLedgePosition + floorHoleLedgeLength), floorHoleLedgeWidth);
+					hole.lineTo(-(floorHoleLedgePosition + floorHoleLedgeLength), 0);
+				}
 			}
-		}
-		hole.lineTo(-floorHoleLength, 0);
-		//если выступ на грани №4
-		if (floorHoleLedgeBaseEdge == "4") {
-			if (floorHoleLedgePosition) hole.lineTo(-floorHoleLength, -floorHoleLedgePosition);
-			if (floorHoleLedgeType == "выступ") {
-				hole.lineTo(-(floorHoleLength - floorHoleLedgeWidth), -floorHoleLedgePosition);
-				hole.lineTo(-(floorHoleLength - floorHoleLedgeWidth), -(floorHoleLedgePosition + floorHoleLedgeLength));
-				hole.lineTo(-floorHoleLength, -(floorHoleLedgePosition + floorHoleLedgeLength));
-			} else {
-				hole.lineTo(-(floorHoleLength + floorHoleLedgeWidth), -floorHoleLedgePosition);
-				hole.lineTo(-(floorHoleLength + floorHoleLedgeWidth), -(floorHoleLedgePosition + floorHoleLedgeLength));
-				hole.lineTo(-floorHoleLength, -(floorHoleLedgePosition + floorHoleLedgeLength));
+			hole.lineTo(-floorHoleLength, 0);
+			//если выступ на грани №4
+			if (floorHoleLedgeBaseEdge == "4") {
+				if (floorHoleLedgePosition) hole.lineTo(-floorHoleLength, -floorHoleLedgePosition);
+				if (floorHoleLedgeType == "выступ") {
+					hole.lineTo(-(floorHoleLength - floorHoleLedgeWidth), -floorHoleLedgePosition);
+					hole.lineTo(-(floorHoleLength - floorHoleLedgeWidth), -(floorHoleLedgePosition + floorHoleLedgeLength));
+					hole.lineTo(-floorHoleLength, -(floorHoleLedgePosition + floorHoleLedgeLength));
+				} else {
+					hole.lineTo(-(floorHoleLength + floorHoleLedgeWidth), -floorHoleLedgePosition);
+					hole.lineTo(-(floorHoleLength + floorHoleLedgeWidth), -(floorHoleLedgePosition + floorHoleLedgeLength));
+					hole.lineTo(-floorHoleLength, -(floorHoleLedgePosition + floorHoleLedgeLength));
+				}
 			}
-		}
-		hole.lineTo(-floorHoleLength, -floorHoleWidth);
-
-		//если выступ на грани №2
-		if (floorHoleLedgeBaseEdge == "2") {
-			if (floorHoleLedgePosition) hole.lineTo(-floorHoleLength + floorHoleLedgePosition, -floorHoleWidth);
-			if (floorHoleLedgeType == "выступ") {
-				hole.lineTo(-floorHoleLength + floorHoleLedgePosition, -floorHoleWidth + floorHoleLedgeWidth);
-				hole.lineTo(-floorHoleLength + floorHoleLedgePosition + floorHoleLedgeLength, -floorHoleWidth + floorHoleLedgeWidth);
-				hole.lineTo(-floorHoleLength + floorHoleLedgePosition + floorHoleLedgeLength, -floorHoleWidth);
-			} else {
-				hole.lineTo(-floorHoleLength + floorHoleLedgePosition, -floorHoleWidth - floorHoleLedgeWidth);
-				hole.lineTo(-floorHoleLength + floorHoleLedgePosition + floorHoleLedgeLength, -floorHoleWidth - floorHoleLedgeWidth);
-				hole.lineTo(-floorHoleLength + floorHoleLedgePosition + floorHoleLedgeLength, -floorHoleWidth);
+			hole.lineTo(-floorHoleLength, -floorHoleWidth);
+	
+			//если выступ на грани №2
+			if (floorHoleLedgeBaseEdge == "2") {
+				if (floorHoleLedgePosition) hole.lineTo(-floorHoleLength + floorHoleLedgePosition, -floorHoleWidth);
+				if (floorHoleLedgeType == "выступ") {
+					hole.lineTo(-floorHoleLength + floorHoleLedgePosition, -floorHoleWidth + floorHoleLedgeWidth);
+					hole.lineTo(-floorHoleLength + floorHoleLedgePosition + floorHoleLedgeLength, -floorHoleWidth + floorHoleLedgeWidth);
+					hole.lineTo(-floorHoleLength + floorHoleLedgePosition + floorHoleLedgeLength, -floorHoleWidth);
+				} else {
+					hole.lineTo(-floorHoleLength + floorHoleLedgePosition, -floorHoleWidth - floorHoleLedgeWidth);
+					hole.lineTo(-floorHoleLength + floorHoleLedgePosition + floorHoleLedgeLength, -floorHoleWidth - floorHoleLedgeWidth);
+					hole.lineTo(-floorHoleLength + floorHoleLedgePosition + floorHoleLedgeLength, -floorHoleWidth);
+				}
+	
 			}
-
-		}
-		hole.lineTo(0, -floorHoleWidth);
-		//если выступ на грани №3
-		if (floorHoleLedgeBaseEdge == "3") {
-			if (floorHoleLedgePosition) hole.lineTo(0, -(floorHoleWidth - floorHoleLedgePosition));
-			if (floorHoleLedgeType == "выступ") {
-				hole.lineTo(-floorHoleLedgeWidth, -(floorHoleWidth - floorHoleLedgePosition));
-				hole.lineTo(-floorHoleLedgeWidth, -(floorHoleWidth - floorHoleLedgePosition - floorHoleLedgeLength));
-				hole.lineTo(0, -(floorHoleWidth - floorHoleLedgePosition - floorHoleLedgeLength));
-			} else {
-				hole.lineTo(floorHoleLedgeWidth, -(floorHoleWidth - floorHoleLedgePosition));
-				hole.lineTo(floorHoleLedgeWidth, (floorHoleLedgePosition - floorHoleLedgeLength));
-				hole.lineTo(0, (floorHoleLedgePosition - floorHoleLedgeLength));
+			hole.lineTo(0, -floorHoleWidth);
+			//если выступ на грани №3
+			if (floorHoleLedgeBaseEdge == "3") {
+				if (floorHoleLedgePosition) hole.lineTo(0, -(floorHoleWidth - floorHoleLedgePosition));
+				if (floorHoleLedgeType == "выступ") {
+					hole.lineTo(-floorHoleLedgeWidth, -(floorHoleWidth - floorHoleLedgePosition));
+					hole.lineTo(-floorHoleLedgeWidth, -(floorHoleWidth - floorHoleLedgePosition - floorHoleLedgeLength));
+					hole.lineTo(0, -(floorHoleWidth - floorHoleLedgePosition - floorHoleLedgeLength));
+				} else {
+					hole.lineTo(floorHoleLedgeWidth, -(floorHoleWidth - floorHoleLedgePosition));
+					hole.lineTo(floorHoleLedgeWidth, (floorHoleLedgePosition - floorHoleLedgeLength));
+					hole.lineTo(0, (floorHoleLedgePosition - floorHoleLedgeLength));
+				}
 			}
+			hole.lineTo(0, 0);
+	
+			floorShape.holes.push(hole);
+	
+			var floorExtrudeOptions = {
+				amount: thickness,
+				bevelEnabled: false,
+				curveSegments: 12,
+				steps: 1
+			};
+	
+			var geom = new THREE.ExtrudeGeometry(floorShape, floorExtrudeOptions);
+			geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+			floor = new THREE.Mesh(geom, mat);
+			if (!isCeil) floor.userData.isTopFloor = true
+			else floor.userData.isCeil = true;
+			topFloor.add(floor);
 		}
-		hole.lineTo(0, 0);
 
-		floorShape.holes.push(hole);
-
-		var floorExtrudeOptions = {
-			amount: thickness,
-			bevelEnabled: false,
-			curveSegments: 12,
-			steps: 1
-		};
-
-		var geom = new THREE.ExtrudeGeometry(floorShape, floorExtrudeOptions);
-		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-		floor = new THREE.Mesh(geom, mat);
-		if (!isCeil) floor.userData.isTopFloor = true
-		else floor.userData.isCeil = true;
-		topFloor.add(floor);
+		addFloorObjectsToScene()
 	}
 
+	if ($('#dxfOpening').val() == 'да') {
+		var floorHoleFile = $('#dxfFile').prop('files') ? $('#dxfFile').prop('files')[0] : false;
+		if (floorHoleFile) {
+			floorHoleFile.text().then(function(content){
+				floorShape = new THREE.Shape();
+				floorShape.moveTo(p0_X, p0_Y);
+				floorShape.lineTo(p0_X, p0_Y + floorLength);
+				floorShape.lineTo(p0_X + floorWidth, p0_Y + floorLength);
+				floorShape.lineTo(p0_X + floorWidth, p0_Y);
+				floorShape.lineTo(p0_X, p0_Y);
+				
+				/*контур проема*/
+				var parser = new DxfParser();
+				var dxf = parser.parseSync(content);
+				var hole = dxfToPath(dxf);
+				if (hole) {
+					if (!window.service_data) window.service_data = {}
+					window.service_data.openingPath = hole.toJSON();
+					console.log(hole.toJSON())
+					floorShape.holes.push(hole);
+				}else{
+					alert('Проблема при построении проема!')
+				}
+	
+				var floorExtrudeOptions = {
+					amount: thickness,
+					bevelEnabled: false,
+					curveSegments: 12,
+					steps: 1
+				};
+		
+				var geom = new THREE.ExtrudeGeometry(floorShape, floorExtrudeOptions);
+				geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+				var mesh = new THREE.Mesh(geom, mat);
+				if (!isCeil) mesh.userData.isTopFloor = true
+				else mesh.userData.isCeil = true;
+				topFloor.add(mesh);
 
-	topFloor.layerName = "topFloor";
+				addFloorObjectsToScene();
+			});
+		}else{
+			if (window.service_data && window.service_data.openingPath) {
+				floorShape = new THREE.Shape();
+				floorShape.moveTo(p0_X, p0_Y);
+				floorShape.lineTo(p0_X, p0_Y + floorLength);
+				floorShape.lineTo(p0_X + floorWidth, p0_Y + floorLength);
+				floorShape.lineTo(p0_X + floorWidth, p0_Y);
+				floorShape.lineTo(p0_X, p0_Y);
+				
+				var hole = new THREE.Path().fromJSON(window.service_data.openingPath);
+				if (hole) {
+					floorShape.holes.push(hole);
+				}else{
+					alert('Проблема при построении проема из сохраненного контура!')
+				}
+	
+				var floorExtrudeOptions = {
+					amount: thickness,
+					bevelEnabled: false,
+					curveSegments: 12,
+					steps: 1
+				};
+		
+				var geom = new THREE.ExtrudeGeometry(floorShape, floorExtrudeOptions);
+				geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+				var mesh = new THREE.Mesh(geom, mat);
+				if (!isCeil) mesh.userData.isTopFloor = true
+				else mesh.userData.isCeil = true;
+				topFloor.add(mesh);
 
-	topFloor.rotation.x = -0.5 * Math.PI;
-	topFloor.position.x = 0;
-	topFloor.position.y = params.staircaseHeight - floorThickness - offsetY;
-	topFloor.position.z = 0 //params.topThreadsPosition;
-	if (params.turnSide == "левое") topFloor.position.z -= params.floorHoleWidth;
+				addFloorObjectsToScene();
+			}
+		}
+	}
 
+	// Я сознательно вынес этот код в функцию, тк часть построения потолка асинхронна добавлять в сцену потолок необходимо после
+	function addFloorObjectsToScene(){
+		topFloor.layerName = "topFloor";
 
+		topFloor.rotation.x = -0.5 * Math.PI;
+		topFloor.position.x = 0;
+		topFloor.position.y = params.staircaseHeight - floorThickness - offsetY;
+		topFloor.position.z = 0 //params.topThreadsPosition;
+		if (params.turnSide == "левое") topFloor.position.z -= params.floorHoleWidth;
+	
+		addObjects('vl_1', topFloor, 'topFloor');
+	
+		menu.topFloor = isVisible;
+		menu.beamTop = isVisible;
+	}
 
+}
 
+async function readFileSync(file) {
+	var text = ''
+	await file.text().then(function(content){
+		text = content;
+	});
 
-	addObjects('vl_1', topFloor, 'topFloor');
-
-	menu.topFloor = isVisible;
-	menu.beamTop = isVisible;
-
-	// if (gui.__controllers[0].object.textures) updateTextures();
+	return text;
 }
 
 //функция возвращает объекты, имеюдие свойство с заданным значением
