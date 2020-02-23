@@ -1913,6 +1913,7 @@ function drawFixPart(par) {
 	if (par.fixPart == 'саморезы') {
 		//саморез
 		par.dopParams.name = "Саморез";
+		par.id = "screw_"+ par.diam + "x" + par.len;
 		
 		//дюбель
 		if (par.fixType !== 'дерево') {

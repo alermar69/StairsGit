@@ -317,7 +317,7 @@ function drawDimensions(par){
 		"stroke-width": 1,
 	})
 	rect.setClass("other");
-	par.set.push(rect);
+	if(!par.isNotFrame) par.set.push(rect);
 	//базовые точки размеров
 	var p1 = {x: b.x, y: -b.y}
 	var p2 = newPoint_xy(p1, b.width, 0)
@@ -710,7 +710,7 @@ function makeSvgFromShape(shape, draw, isRotate){
 		var pt2 = newPoint_xy(shape.curves[1].v2, 0, 0);//40);
 
 		var line = new THREE.LineCurve(pt1, pt2);
-		curvesArr.push(line);
+		//curvesArr.push(line);
 	}
 
 	//добавлем отверстия

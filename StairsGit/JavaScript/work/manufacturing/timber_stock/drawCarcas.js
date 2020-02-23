@@ -247,6 +247,7 @@ function drawMarshStringers(par, marshId){
 		dxfBasePoint: dxfBasePointIn,
 		drawFunction: drawStrightStringer,
 		pos: pos, //позиционирование происходит внутри drawComplexStringer
+		addY: par.addY, //Необходимо для отрисовки столбов вместе с каркасом
 	};
 
 	drawComplexStringer(stringerParams2);
@@ -507,6 +508,35 @@ function drawTimberStockStringer(par){
 				stringerHoles.push(center2);
 			}
 		}
+	}
+
+	//если на марше больше 10 ступеней, добавляем под серединой марша опорную колонну
+	// и вырез в тетиве под колонну
+	if (marshPar.stairAmt > 10) {
+		var index = marshPar.stairAmt;
+		if(par.botEnd == 'забег') index += 3;
+		if(par.botEnd == 'площадка') index += 2;
+		var pt = topLine[index];
+
+		var arr = [];
+		var botPoint1 = botLine[0];
+		if (marshPar.botTurn != 'пол') botPoint1 = marshBotPoint; 
+		for (var k = 0; k < botLine.length; k++) {
+			arr.push(botLine[k])
+			if (botLine[k].x == botPoint1.x && botLine[k].y == botPoint1.y) {
+				var pt1 = itercection(botPoint1, polar(botPoint1, marshPar.ang, 100), pt, polar(pt, Math.PI / 2, 100))
+				arr.push(pt1)
+				var pt2 = newPoint_xy(pt1, 0, 95 * Math.tan(marshPar.ang))
+				arr.push(pt2)
+				var pt3 = itercection(botPoint1, polar(botPoint1, marshPar.ang, 100), pt2, polar(pt2, 0, 100))
+				arr.push(pt3)
+			}
+		}
+		botLine = arr;
+
+		var middleColumn = newPoint_xy(pt, params.rackSize / 2 + 0.02, 0);
+		middleColumn.deltaY = pt.y - pt2.y + params.treadThickness;
+		par.columns.push(middleColumn);
 	}
 	
 	var partsAmt = splitPoints.length + 1;

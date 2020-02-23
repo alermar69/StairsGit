@@ -29,7 +29,8 @@ function drawBolzs(par) {
 	if (marshPar.topTurn !== 'пол') countBolz += 1;
 
 	for (var i = 0; i < countBolz; i++) {
-
+		bolzPar.isMiddle = false;
+		if (marshPar.botTurn == 'забег' && i == 0) bolzPar.isMiddle = true;
 		var bolz = drawBolz(bolzPar).mesh;
 		bolz.position.y = par.h * i;
 		bolz.position.x = par.b * i + offsetX;
@@ -44,6 +45,7 @@ function drawBolzs(par) {
 	}
 
 	if (marshPar.botTurn == 'забег') {
+		bolzPar.isMiddle = true;
 		var bolz = drawBolz(bolzPar).mesh;
 		bolz.position.y = - marshPar.h;
 		bolz.position.x = offsetX;
@@ -55,6 +57,7 @@ function drawBolzs(par) {
 		par.mesh.add(bolz);
 	}
 	if (marshPar.topTurn == 'забег') {
+		bolzPar.isMiddle = true;
 		var bolz = drawBolz(bolzPar).mesh;
 		bolz.position.y = par.h * marshPar.stairAmt + marshPar.h_topWnd;
 		bolz.position.x = par.b * marshPar.stairAmt + offsetX;
@@ -137,7 +140,7 @@ function drawBolz(par) {
 		var shimPar = {
 			width: par.bolzProfile + sideOffset * 2,
 			len: par.bolzProfile + sideOffset * 2,
-			thk: par.shimThk,
+			thk: par.shimThk - 0.01,
 			material: params.materials.metal,
 		}
 
@@ -190,7 +193,7 @@ function drawBolz(par) {
 		var shimPar = {
 			width: par.bolzProfile + sideOffset * 2,
 			len: par.bolzProfile + sideOffset * 2,
-			thk: par.shimThk,
+			thk: par.shimThk - 0.01,
 			material: params.materials.metal,
 		}
 		//шайба сверху
@@ -220,7 +223,7 @@ function drawBolz(par) {
 		nut.position.x = par.bolzProfile / 2;
 		nut.position.y = -params.treadThickness - nutParams.nutHeight - par.shimThk;
 		nut.position.z = par.bolzProfile / 2;
-		par.mesh.add(nut);
+		if(!testingMode) par.mesh.add(nut);
 	}
 
 	return par;

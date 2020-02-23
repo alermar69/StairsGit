@@ -399,7 +399,8 @@ par.frameParams = {
 		dxfArr: dxfPrimitivesArr,
 		dxfBasePoint: par.dxfBasePoint,
 		markPoints: true, //пометить точки в dxf для отладки
-		};
+	};
+
 		
 	//параметры для рабочего чертежа
 	shapePar.drawing = {
@@ -409,6 +410,7 @@ par.frameParams = {
 			p1: shapePar.points[0], 
 			p2: shapePar.points[3],
 		},
+		mirrow: true,
 	}
 	
 	if(par.frameId == 3) {
@@ -655,8 +657,28 @@ par.frameParams = {
 		par.wndFramesHoles.topMarsh.out[par.frameId].push(...flanParams.roundHoleCenters);
 	}
 
+	//определяем размеры рамки для спецификации
+	var dimX = Math.round(outLine.front.len);
+	var dimY = Math.round(outLine.sideOut.len);
+	if (par.frameId == 3) {
+		var tempPoints = [];
+		tempPoints = outLine.points.concat();
+		tempPoints = rotatePoints(tempPoints, -calcAngleX1(tempPoints[1], tempPoints[2]), tempPoints[1]);
+		tempPoints = moovePoints(tempPoints, { x: 1000, y: 1000 });
+		if (turnFactor == 1) {
+			dimX = Math.round(Math.abs(tempPoints[3].x - tempPoints[1].x));
+			dimY = Math.round(Math.abs(tempPoints[0].y - tempPoints[1].y));
+		}
+		if (turnFactor == -1) {
+			dimX = Math.round(Math.abs(tempPoints[0].x - tempPoints[2].x));
+			dimY = Math.round(Math.abs(tempPoints[1].y - tempPoints[3].y));
+		}
+	}
+
 
 	//передний
+	var frontLen = outLine.front.len;
+	if (par.frameId == 3) frontLen = outLine.rear.len;
 
 	flanDxfBasePoint.y -= flanDxfDist;
 
@@ -687,7 +709,8 @@ par.frameParams = {
 
 	flanDxfBasePoint.y -= flanDxfDist;
 
-	if (params.model == "лт") {
+	//if (params.model == "лт") {
+	if (true) {
 		if (par.frameId == 3) {
 			if (turnFactor == -1) {
 				outLine.rear.len += thk.side * 2;
@@ -735,8 +758,8 @@ par.frameParams = {
 				group: "Каркас",
 				}
 			}
-		var name = Math.round(outLine.front.len) + "x" + Math.round(outLine.sideOut.len);
-		var area = outLine.front.len * outLine.sideOut.len / 1000000 
+		var name = dimX + "x" + dimY;
+		var area = dimX * dimY / 1000000 
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
@@ -899,9 +922,14 @@ function drawWndFrame2(par){
 		name: "Рамка 2 забежной ступени",
 		group: "wndFrames",
 		baseLine: {
-			p1: shapePar.points[0], 
-			p2: shapePar.points[1],
+			p1: shapePar.points[4], 
+			p2: shapePar.points[5],
 		},
+		mirrow: true,
+	}
+	if (turnFactor == 1) {
+		shapePar.drawing.baseLine.p1 = shapePar.points[0]
+		shapePar.drawing.baseLine.p2 = shapePar.points[1]
 	}
 
 	if (params.stairType != "рифленая сталь" && params.stairType != "лотки")
@@ -1027,6 +1055,23 @@ function drawWndFrame2(par){
 		par.mesh.add(mesh);
 	}
 
+	//определяем размеры рамки для спецификации
+	var tempPoints = [];
+	tempPoints = outLine.points.concat();
+	if (turnFactor == 1) {
+		tempPoints = rotatePoints(tempPoints, -calcAngleX1(tempPoints[0], tempPoints[1]), tempPoints[0]);
+		tempPoints = moovePoints(tempPoints, { x: 1000, y: 1000 });
+		var dimX = Math.round(Math.abs(tempPoints[2].x - tempPoints[5].x));
+		var dimY = Math.round(Math.abs(tempPoints[3].y - tempPoints[0].y));
+	}
+	if (turnFactor == -1) {
+		tempPoints = rotatePoints(tempPoints, -calcAngleX1(tempPoints[4], tempPoints[5]), tempPoints[4]);
+		tempPoints = moovePoints(tempPoints, { x: 1000, y: 1000 });
+		var dimX = Math.round(Math.abs(tempPoints[0].x - tempPoints[3].x));
+		var dimY = Math.round(Math.abs(tempPoints[2].y - tempPoints[4].y));
+	}
+
+
 	//фланцы
 
 	var flanDxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -200);
@@ -1125,7 +1170,8 @@ function drawWndFrame2(par){
 		
 	//боковой маленький на задней стороне внутреннего угла рамки
 
-	if(params.model == "лт"){
+	//if(params.model == "лт"){
+	if(true){
 		flanDxfBasePoint.y -= flanDxfDist;
 
 		outLine.sideIn.len += thk.side;
@@ -1136,12 +1182,12 @@ function drawWndFrame2(par){
 			type: "no_holes",
 			frameId: 2,
 			dxfBasePoint: flanDxfBasePoint,
-			}
+		}
+		if (params.model == "ко") flanParams.line = outLine.sideOut2;
 		if(params.stairType == "рифленая сталь" || params.stairType == "лотки") flanParams.flanHeight = 50;
 		
 		flanParams = drawWndTreadFlan(flanParams);
 		var sideInFlan = flanParams.mesh;
-
 		par.mesh.add(sideInFlan);
 	}
 	
@@ -1190,8 +1236,8 @@ function drawWndFrame2(par){
 				group: "Каркас",
 				}
 			}
-		var name = Math.round(outLine.front2.len) + "x" + Math.round(outLine.sideOut.len);
-		var area = outLine.front2.len * outLine.sideOut.len / 1000000
+		var name = dimX + "x" + dimY;
+		var area = dimX * dimY / 1000000
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;

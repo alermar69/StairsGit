@@ -1405,7 +1405,24 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 		var newPoint = polar(zeroPoint, (ang + rotAng), dist);
 	
 		return newPoint;
-	} //end of rotatePoint
+} //end of rotatePoint
+
+//функция повороачивает массив точек как единое целое вокруг начала координат
+function rotatePoints(points, rotAng, p0) {
+	var newPoints = [];
+	var zeroPoint = { x: 0, y: 0, }
+	if (p0) zeroPoint = copyPoint(p0);
+	for (var i = 0; i < points.length; i++) {
+		//рассчитываем полярные координаты точки
+		var ang = calcAngleX1(zeroPoint, points[i]);
+		if (!ang) ang = 0;
+		var dist = distance(zeroPoint, points[i]);
+		//рассчитываем координаты новой точки с учетом угла поворота
+		var newPoint = polar(zeroPoint, (ang + rotAng), dist);
+		newPoints.push(newPoint);
+	}
+	return newPoints;
+} //end of rotatePoints
 	
 	//функция смещает массив точек как единое целое на заданное расстояние по х и у
 	function moovePoints(points, mooveDist){

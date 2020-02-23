@@ -346,14 +346,24 @@ function drawStrightStringer(par){
 		if(par.column){
 			var notchPar = {
 				points: botLine,
-				notchCenterX:  (Math.floor(stairAmt / 2) + 1) * a + params.rackSize / 2 - 40 + (params.riserType == 'есть' ? params.riserThickness : 0), //40 подогнано
+				//notchCenterX:  (Math.floor(stairAmt / 2) + 1) * a + params.rackSize / 2 - 40 + (params.riserType == 'есть' ? params.riserThickness : 0), //40 подогнано
+				notchCenterX:  (Math.floor(stairAmt / 2)) * b + marshPar.nose + params.rackSize / 2 + (params.riserType == 'есть' ? params.riserThickness : 0), //40 подогнано
 				isBotLine: true,
 			}
 			botLine = addNotch(notchPar).points;
 			var columnPos = copyPoint(notchPar.notchCenterPoint);
 			// columnPos.treadYOffset = h + params.treadThickness;
 			columnPos.treadYOffset = ((Math.floor(stairAmt / 2) + 1) * h + h) - columnPos.y;//+ params.treadThickness;
-			if (par.slots) par.columnsPoints.push(columnPos);
+			//if (par.slots) par.columnsPoints.push(columnPos);
+
+			var index = marshPar.stairAmt;
+			var pt = topLine[index];
+			var pt1 = itercection(botLineP10, polar(botLineP10, marshPar.ang, 100), pt, polar(pt, Math.PI / 2, 100))
+			var pt2 = newPoint_xy(pt1, 0, params.rackSize * Math.tan(marshPar.ang))
+
+			var middleColumn = newPoint_xy(pt, params.rackSize / 2 + 0.02, 0);
+			middleColumn.deltaY = pt.y - pt2.y + params.treadThickness;
+			if (par.slots) par.columnsPoints.push(middleColumn);
 
 			par.excerptDepth = 100;
 		}
@@ -562,6 +572,33 @@ function drawStrightStringer(par){
 
 		// par.keyPoints.rack2Pos = newPoint_xy(botLineP1, params.rackSize/2, 0);
 		// if(par.topEnd == "столб") par.keyPoints.rack2Pos.x -= newellSlotDepth;
+
+		if (par.slots) {
+			var columns = new THREE.Object3D();
+			for (var i = 0; i < par.columnsPoints.length; i++) {
+				var column = par.columnsPoints[i];
+
+				var columnParams = {
+					len: column.y + par.addY - column.deltaY + params.treadThickness,
+					model: "косоур",
+					holeHeight: column.deltaY - 0.01,
+					hasHole: true,
+					rackSize: params.rackSize,
+					dxfBasePoint: par.dxfBasePoint
+				};
+
+				var columnMesh = drawOpColumn(columnParams).mesh;
+
+				columnMesh.position.x = column.x + 0.01;
+				columnMesh.position.y = column.y - columnParams.len - 0.01 - column.deltaY + params.treadThickness;
+				columnMesh.position.z = params.rackSize * turnFactor;
+				if (turnFactor == -1) columnMesh.position.z += 15;
+				columnMesh.rotation.y = Math.PI;
+				columns.add(columnMesh);
+			}
+			par.meshes.push(columns);
+		}
+
 	} //конец косоура
 
 	if (par.type == "тетива") {
@@ -892,6 +929,8 @@ function drawStrightStringer(par){
 	}
 	// if(par.topEnd == "столб") {
 	// }
+
+	
 	par.endHeightTop = distance(topLineP21, botLineP2);
 	if (par.type == 'косоур') par.endHeightTop = distance(botLineP1, botLineP2);
 	if (par.type == "косоур" && stairAmt == 1) par.endHeightTop = distance(topLineP0, topLineP1);
@@ -3392,6 +3431,7 @@ function calcStringerPar(par){
 		// if(par.side == "in") par.column = params.isColumn2;
 		if(par.side == "out") par.column = params.isColumn4;
 	}
+	if (getMarshParams(marshId).stairAmt > 10) par.column = true;
 
 	par.slotsOffset = 20;
 

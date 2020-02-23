@@ -346,7 +346,17 @@ function drawStringer(par){
 		drawStringerHoles(par);
 
 		//рисуем отверстия для обшивки каркаса гипсокартоном
-		drawStringerBotHoles(par);
+		var stringerHolesParams = {
+			dxfBasePoint: par.dxfBasePoint,
+			elmIns: par.elmIns,
+			stringerShape: par.stringerShape,
+			topPoint: par.keyPoints.topPoint,
+			botPoint: par.keyPoints.botPoint,
+			pointsShape: par.pointsShape,
+			marshParams: par.marshParams,
+
+		}
+		drawStringerBotHoles(stringerHolesParams);
 
 		//добавляем отверстия под ограждения
 		var railingHolesPar = {
@@ -403,6 +413,7 @@ function drawStringer(par){
 			points = par.pointsShape.filter(function(p){return shapeHasPoint(p, i, divideP1, previousDivideP1, divides.length)});
 
 			if (params.stringerType == 'пилообразная' || params.stringerType == 'прямая') {
+				//if (i > 0) points.unshift(polar(previousDivideP2, par.marshParams.ang, 10), polar(previousDivideP1, Math.PI / 2, 10));
 				if (i > 0) points.unshift(previousDivideP2, previousDivideP1);
 			}
 			if (params.stringerType == 'ломаная') {
@@ -441,6 +452,7 @@ function drawStringer(par){
 				}
 				previousDivideP1 = divideP1;
 				previousDivideP2 = divideP2;
+
 				previousDivideP1.filletRad = previousDivideP2.filletRad = 0;
 			}
 
@@ -465,10 +477,20 @@ function drawStringer(par){
 			drawStringerHoles(stringerHolesParams);
 
 			//рисуем отверстия для обшивки каркаса гипсокартоном
-			stringerHolesParams.keyPoints = par.keyPoints;
-			stringerHolesParams.pointsShape = par.pointsShape;
+			//stringerHolesParams.keyPoints = par.keyPoints;
+			stringerHolesParams.topPoint = divideP1;
+			stringerHolesParams.botPoint = par.keyPoints.botPoint;
+			stringerHolesParams.isDivideBot = true;
+			if (i > 0) {
+				stringerHolesParams.isDivideBot = false;
+				stringerHolesParams.isDivideTop = true;
+				stringerHolesParams.topPoint = par.keyPoints.topPoint;
+				stringerHolesParams.botPoint = divideP2;
+			}
+			//stringerHolesParams.pointsShape = par.pointsShape;
+			stringerHolesParams.pointsShape = points;
 			stringerHolesParams.marshParams = par.marshParams;
-			stringerHolesParams.divideP2 = divideP2;
+			//stringerHolesParams.divideP2 = divideP2;
 			drawStringerBotHoles(stringerHolesParams);
 
 			//добавляем отверстия под ограждения
@@ -510,7 +532,17 @@ function drawStringer(par){
 		drawStringerHoles(par, "top");
 
 		//рисуем отверстия для обшивки каркаса гипсокартоном
-		drawStringerBotHoles(par, "top");
+		var stringerHolesParams = {
+			dxfBasePoint: par.dxfBasePoint,
+			elmIns: par.elmIns,
+			stringerShape: par.stringerShape,
+			topPoint: par.keyPoints.topPoint,
+			botPoint: par.keyPoints.botPoint,
+			pointsShape: par.pointsShape,
+			marshParams: par.marshParams,
+
+		}
+		drawStringerBotHoles(stringerHolesParams, "top");
 
 		//добавляем отверстия под ограждения
 		var railingHolesPar = {
@@ -545,7 +577,17 @@ function drawStringer(par){
 		drawStringerHoles(par, "bot");
 
 		//рисуем отверстия для обшивки каркаса гипсокартоном
-		drawStringerBotHoles(par, "bot");
+		var stringerHolesParams = {
+			dxfBasePoint: par.dxfBasePoint,
+			elmIns: par.elmIns,
+			stringerShape: par.stringerShape,
+			topPoint: par.keyPoints.topPoint,
+			botPoint: par.keyPoints.botPoint,
+			pointsShape: par.pointsShape,
+			marshParams: par.marshParams,
+
+		}
+		drawStringerBotHoles(stringerHolesParams, "bot");
 
 		//добавляем отверстия под ограждения
 		var railingHolesPar = {

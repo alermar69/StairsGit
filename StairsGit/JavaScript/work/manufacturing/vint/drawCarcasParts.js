@@ -1026,7 +1026,8 @@ function drawVintPlatform(par) {
 		}
 
 		//боковая пластина
-		dxfBasePoint = newPoint_xy(par.dxfBasePoint, 2500, 500)
+		//dxfBasePoint = newPoint_xy(par.dxfBasePoint, 2500, 500)
+		dxfBasePoint.y += 500
 		var length = topPlateParams.edgeLength2;
 		var sideWidth = width;// - 6;//6 - толщина площадки
 		if (params.railingModel_bal == "Самонесущее стекло") sideWidth += 80;
@@ -1082,7 +1083,8 @@ function drawVintPlatform(par) {
 
 		//задняя пластина напротив передней
 
-		var dxfBasePoint = newPoint_xy(par.dxfBasePoint, 2500, 1000)
+		//var dxfBasePoint = newPoint_xy(par.dxfBasePoint, 2500, 1000)
+		dxfBasePoint.y += 500
 		var length = topPlateParams.rearEdgeLength1;
 		//добавляем зазор от боковых пластин
 		length += -extrudeOptions.amount * 2;
@@ -1136,7 +1138,8 @@ function drawVintPlatform(par) {
 
 		//задняя пластина напротив боковой
 
-		var dxfBasePoint = newPoint_xy(par.dxfBasePoint, 2500, 1500)
+		//var dxfBasePoint = newPoint_xy(par.dxfBasePoint, 2500, 1500)
+		dxfBasePoint.y += 500
 		var length = topPlateParams.rearEdgeLength2
 		//добавляем зазор от боковых пластин
 		length += -extrudeOptions.amount;
@@ -1196,6 +1199,7 @@ function drawVintPlatform(par) {
 			
 			// Дополнительное ребро
 			for (var i = 1; i <= addPlateAmt; i++) {
+				dxfBasePoint.y += 500
 				var length = topPlateParams.rearEdgeLength1 - extrudeOptions.amount * 2 - 0.02;
 				var shape = new THREE.Shape();
 				var p0 = {

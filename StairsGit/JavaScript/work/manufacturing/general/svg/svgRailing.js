@@ -1470,6 +1470,7 @@ function drawPoleSVG(par){
 	var dimPar = {
 		obj: obj,
 		draw: draw,
+		isNotFrame: true,
 	}
 	var dimSet = drawDimensions(dimPar).set;
 	dimSet.setClass("dimensions");

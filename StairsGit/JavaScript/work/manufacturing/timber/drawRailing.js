@@ -114,8 +114,15 @@ function calcRailingRacks(par) {
 				railingParams.marshLast.x += params.lastNewellMooveX * 1;
 			}
 		}
+		if (marshParams.topTurn !== 'пол' && marshParams.lastMarsh) {
+
+		}
 	}
-	if (side == 'out') {
+
+	var isTopPlt = false;
+	if (marshParams.topTurn !== 'пол' && marshParams.lastMarsh) isTopPlt = true;
+
+	if (side == 'out' || isTopPlt) {
 		if (marshParams.botTurn !== 'пол') {
 			var botFirst = {
 				x: -turnParams.turnLengthBot + rackSize / 2,
@@ -192,15 +199,13 @@ function calcRailingRacks(par) {
 
 		railingParams.marshLast = marshLast;
 
+		var topLast = {
+			x: marshParams.len + turnParams.turnLengthTop - rackSize / 2,//turnParams.turnLengthTop - rackSize / 2,
+			y: marshParams.height + marshParams.h + 0.03,
+		};
+		if (marshParams.topTurn == 'забег') topLast.y += marshParams.h_topWnd;
+		railingParams.topLast = topLast;
 
-		if (marshParams.topTurn !== 'пол') {
-			var topLast = {
-				x: marshParams.len + turnParams.turnLengthTop - rackSize / 2,//turnParams.turnLengthTop - rackSize / 2,
-				y: marshParams.height + marshParams.h + 0.03,
-			};
-			if (marshParams.topTurn == 'забег') topLast.y += marshParams.h_topWnd;
-			railingParams.topLast = topLast;
-		}
 
 		/** Резные столбы */
 		if (marshParams.botTurn == 'пол') {
@@ -214,6 +219,7 @@ function calcRailingRacks(par) {
 			}
 		}
 	}
+
 	return railingParams;
 }
 
@@ -2031,7 +2037,10 @@ function drawTimberBanister_4(par){
 	par.topEnd = balPar.topEnd;
 	par.type = balPar.type;
 
-	if(!par.size) par.size = 50;
+	if (!par.size) {
+		par.size = 50;
+		if (balPar.type == "квадратные") par.size = 40;
+	}
 	if(!par.botAng) par.botAng = 0;
 	if(!par.topAng) par.topAng = 0;
 	if(par.botEnd == "круг") par.botAng = 0;

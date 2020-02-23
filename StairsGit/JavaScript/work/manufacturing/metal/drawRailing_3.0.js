@@ -500,7 +500,7 @@ function calcHandrailPoints(par, parRacks) {
 					}
 	
 		//параметры заднего ограждения забега П-образной лестницы
-		if(par.isRearPWnd){
+		if (par.isRearPWnd || par.isRearPRailing){
 					var glassPos = newPoint_xy(par.keyPoints.botLineP0, -stringerSideOffset + glassDist - railingZOffset - params.stringerThickness, 0);
 			marshAngle = angle(par.racks[1], par.racks[par.racks.length - 1]);
 	
@@ -787,7 +787,8 @@ function calcHandrailPoints(par, parRacks) {
 	
 		if(par.topEnd != "нет"){
 	
-					glassPos = newPoint_x1(marshStart, marshSectLen, marshAngle)
+			glassPos = newPoint_x1(marshStart, marshSectLen, marshAngle)
+			if (params.startTreadAmt > 0 && par.marshId == 1) glassPos = newPoint_x1(glassPos, params.startTreadAmt * par.b + 20, marshAngle);	
 					//if (par.botEnd == "забег" && par.stairAmt == 0) glassPos = copyPoint(marshStart);
 				glassPos = newPoint_xy(glassPos, glassDist, 0);
 			var extraLenX = stringerSideOffset - glassDist;
@@ -914,6 +915,8 @@ function calcHandrailPoints(par, parRacks) {
 		}
 	
 		//сохраняем массив точек в отдельную переменную
+		if (par.isRearPRailing)
+			handrailPoints = [handrailPoints[1], handrailPoints[2]];
 		var handrailPoints0 = handrailPoints;
 		
 		//поручни

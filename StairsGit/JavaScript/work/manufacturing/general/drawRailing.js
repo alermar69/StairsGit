@@ -281,7 +281,7 @@ function drawMarshRailing(par, marshId) {
 		mooveY = 0;
 	}
 	if (params.calcType === 'bolz') {
-		mooveY = 90;
+		mooveY = 90 + 0.01;
 		sideOffset = (params.M - calcTreadLen()) / 2 + 40 + 10; // 40 - профиль больца
 	}
 
@@ -783,6 +783,11 @@ function drawMarshRailing_timber(par) {
 		railingSectionParams.topEnd = 'нет';
 		railingSectionParams.botEnd = 'нет';
 	}
+	if (marshParams.lastMarsh && marshParams.topTurn !== 'пол') {
+		railingSectionParams.topEnd = 'нет';
+		if (par.key == 'in' && marshParams.hasTopPltRailing.in) railingSectionParams.topEnd = marshParams.topTurn;
+		if (par.key == 'out' && marshParams.hasTopPltRailing.out) railingSectionParams.topEnd = marshParams.topTurn;
+	}
 
 	var railingSection = drawRailingSection_4(railingSectionParams).mesh;
 	section.add(railingSection);
@@ -893,6 +898,7 @@ function drawRailingSectionNewel2(par) {
 
 			//задаем длину стоек
 			var rackLength = 950;
+			if(params.calcType == 'bolz') rackLength = 800;
 			par.rackLength = rackLength;
 			var rackProfile = 40;
 
@@ -1021,6 +1027,12 @@ function drawRailingSectionNewel2(par) {
 		if (isNaN(rigelMooveY)) rigelMooveY = 0;
 		var rigelDist = (rackLength - 50 - rigelMooveY) / (rigelAmt + 1);
 
+		if (params.calcType == 'bolz' && marshPar.topTurn == 'забег' && par.key == 'in') {
+			if (rigelAmt == 2) rigelDist -= 40;
+			if (rigelAmt == 3) rigelMooveY = 50;
+			if (rigelAmt == 4) rigelMooveY = -120;
+		}
+
 
 		//формируем массив базовых точек для ригелей
 		if (params.calcType === 'metal' || params.calcType === 'vhod' || params.calcType === 'bolz') {
@@ -1114,6 +1126,7 @@ function drawRailingSectionNewel2(par) {
 		//номинальная длина стойки
 		var nominalLen = rackLength;
 		if (params.calcType === 'mono') nominalLen = 800;
+		if (params.calcType == 'bolz') nominalLen = 750;
 		var pltDeltaY = 0;//Нужна для корректировки положения стоек на площадках
 
 		for (var i = 0; i < racks.length - 1; i++) {
@@ -1146,14 +1159,16 @@ function drawRailingSectionNewel2(par) {
 			//уменьшаем высоту стекла чтобы оно не касалось ступеней
 			if (params.rackBottom == "сверху с крышкой" && (glassParams.p1.y !== glassParams.p2.y)) {
 				var dy = par.h - (par.b / 2 - (par.a - par.b) - glassDist) * Math.tan(parRacks.angMarsh);
+				if(params.calcType == 'bolz') dy = -50;
 				glassParams.glassHeight = rackLength - dy - 100;
 				glassParams.p1.y += dy - 70;
 				glassParams.p2.y += dy - 70;
 			}
 
-			if (params.calcType === 'mono') {
+			if (params.calcType === 'mono' || params.calcType === 'bolz') {		
 				glassParams.glassHeight = 700;
 			}
+			
 
 			var glassParams = drawGlassNewell(glassParams);
 			var glass = glassParams.mesh;
@@ -3723,14 +3738,14 @@ function drawForgedFramePart2(par) {
 							}
 						}
 
-						par.mesh.add(bolt)
+						if (par.isTurnRack && !testingMode) par.mesh.add(bolt)
 
 						var bolt2 = drawBolt(boltPar).mesh;
 						bolt2.rotation.x = bolt.rotation.x;
 						bolt2.position.x = 0;
 						bolt2.position.y = 90 - holeDist;
 						bolt2.position.z = bolt.position.z;
-						par.mesh.add(bolt2)
+						if (par.isTurnRack && !testingMode) par.mesh.add(bolt2)
 					}
 				}
 
@@ -4386,6 +4401,15 @@ function drawGlassNewell(par) {
 		glassShape.holes.push(laserHoleShape);
 		
 	}
+
+	if (!glassShape.drawing) glassShape.drawing = {};
+	glassShape.drawing.group = 'glass';
+	glassShape.drawing.keyPoints = { topP1: pg2, topP2: pg4, botP1: pg3, botP2: pg1 };
+	//if (p11) {
+	//	shape.drawing.keyPoints.botP2 = p11;
+	//	shape.drawing.keyPoints.botP3 = p12;
+	//}
+	shapesList.push(glassShape);
 
 	var geom = new THREE.ExtrudeGeometry(glassShape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));

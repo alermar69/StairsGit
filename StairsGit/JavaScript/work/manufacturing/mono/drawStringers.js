@@ -868,7 +868,12 @@ function drawComplexStringer(par) {
 				if (par.isBigFloor)
 					platePar.pointStartSvg = copyPoint(par.pointsShape[2]); // при большой разнице чистового и чернового пола
 
-				if (par.pDivideBot) {					
+				if (par.pDivideBot) {
+					//точки полной пластины, для правильного расчета отверстий под колонны
+					platePar.pStartFull = par.pointsShape[0]
+					platePar.pEndFull = par.pointsShape[par.pointsShape.length - 1]
+					platePar.pDivide = par.pDivideBot
+
 					platePar.pEnd = newPoint_x1(par.pDivideBot, -0.01, ang)
 					var plate1 = drawBackPlate(platePar).mesh;
 					plate1.position.x = sidePlate2.position.x + par.pointsShape[0].x;
@@ -886,6 +891,10 @@ function drawComplexStringer(par) {
 					par.mesh2.add(plate2);
 
 					platePar.dxfBasePoint.x += distance(platePar.pEnd, platePar.pStart) + 100;
+
+					platePar.pStartFull = false
+					platePar.pEndFull = false
+					platePar.pDivide = false
 				}
 				else {				
 					var isDrawBackPlate = true;

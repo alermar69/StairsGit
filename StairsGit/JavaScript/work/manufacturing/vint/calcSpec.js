@@ -260,7 +260,7 @@ function floorsMountingItemsAdd(){}; //пустая функция для нав
 	
 	//проставка
 	if(params.fixPart2 != "не указано" && params.fixPart2 != "нет" && 
-		params.fixSpacer2 != "не указано" && params.fixSpacer2 != "нет"){
+		params.fixSpacer2 != "не указано" && params.fixSpacer2 != "нет" && params.fixSpacer2 != "комментарий"){
 			item = {
 				id: "fixSpacer2",
 				amt: 2,

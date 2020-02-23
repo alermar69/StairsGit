@@ -1560,6 +1560,7 @@ function drawBackPlate(par) {
 	//отверстия под фланец колонны
 	if (par.isHolesColon) {
 		var pcenter = newPoint_xy(p0, width / 2, 0);
+		if (par.pDivide) pcenter = newPoint_xy(p0, distance(par.pEndFull, par.pStartFull) / 2, 0);
 		drawHolesColumn(par, pcenter, ang);
 	}
 
@@ -1779,13 +1780,22 @@ function drawHolesColumn(par, pcenter, ang) {
 	var center2 = newPoint_xy(pcenter, -dx, dy);
 	var center3 = newPoint_xy(pcenter, dx, -dy);
 	var center4 = newPoint_xy(pcenter, dx, dy);
+	var centers = [center1, center2, center3, center4];
 
-	center1.rad = center2.rad = center3.rad = center4.rad = 6.5;
+	if (par.pDivide) {
+		var arr = [center1, center2, center3, center4];
+		var centers = []
+		for (var i = 0; i < arr.length; i++) {
+			if (par.pStart == par.pStartFull && arr[i].x < par.pDivide.x / Math.cos(ang)) centers.push(arr[i])
+			if (par.pEnd == par.pEndFull && arr[i].x > par.pDivide.x / Math.cos(ang)) centers.push(arr[i])
+		}
+	}
+
 	par.pointsHole = [];
-	par.pointsHole.push(center1);
-	par.pointsHole.push(center2);
-	par.pointsHole.push(center3);
-	par.pointsHole.push(center4);
+	for (var i = 0; i < centers.length; i++) {
+		centers[i].rad = 6.5;
+		par.pointsHole.push(centers[i]);
+	}
 
 	drawStringerHoles(par);
 }

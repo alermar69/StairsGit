@@ -619,7 +619,7 @@ function checkSpec(callback){
 			if(params.turnType_1 == "площадка") calcTreadAmt += Math.ceil((params.M + 17) / 600);
 			if(params.turnType_2 == "площадка") calcTreadAmt += Math.ceil((params.M + 17) / 600);
 		}
-		if(params.topAnglePosition == "вертикальная рамка" && params.platformTop == "нет") calcTreadAmt += 1;
+		if ((params.topAnglePosition == "вертикальная рамка" || params.calcType == "timber_stock") && params.platformTop == "нет") calcTreadAmt += 1;
 		//ступенька верхнего узла
 		if(params.calcType == "timber") calcTreadAmt += 1;
 		

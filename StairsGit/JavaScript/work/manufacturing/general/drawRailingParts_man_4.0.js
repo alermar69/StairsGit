@@ -3254,7 +3254,7 @@ function drawForgedBanister_5(par) {
 			}
 		}
 		
-		var name = par.type;
+		var name = par.type + " L=" + Math.round(par.len);
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		if(par.type == params.banister1) specObj[partName]["amt1"] += 1;

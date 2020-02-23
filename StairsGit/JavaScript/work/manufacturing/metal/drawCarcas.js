@@ -873,7 +873,7 @@ function drawPlatformStringers(par){
 	if (params.model == "ко") {
 		var stringerOffset = 75 + calcStringerMoove(2).stringerOutMoove;
 		if (params.sideOverHang < 75) stringerOffset = params.sideOverHang + calcStringerMoove(2).stringerOutMoove;
-		rearStringer.position.z += stringerOffset * turnFactor;
+		rearStringer.position.z += (stringerOffset - 0.01) * turnFactor;
 	}
 	if(turnFactor == -1) rearStringer.position.z -= params.stringerThickness;
 	
@@ -1668,14 +1668,14 @@ function drawStringerBotHoles(par, typeDop) {
 			for (var i = 0; i < par.pointsShape.length; i++) {
 				if (flagBot) {
 					arrBot.push(par.pointsShape[i]);
-					if (par.keyPoints.botPoint.x == par.pointsShape[i].x && par.keyPoints.botPoint.y == par.pointsShape[i].y)
+					if (par.botPoint.x == par.pointsShape[i].x && par.botPoint.y == par.pointsShape[i].y)
 						flagBot = false;
 				}
 
 				if (flagTop) arrTop.push(par.pointsShape[i]);
 
 				if (!flagBot && !flagTop) {
-					if (par.keyPoints.topPoint.x == par.pointsShape[i].x && par.keyPoints.topPoint.y == par.pointsShape[i].y)
+					if (par.topPoint.x == par.pointsShape[i].x && par.topPoint.y == par.pointsShape[i].y)
 						flagTop = true;
 				}
 
@@ -1716,13 +1716,13 @@ function drawStringerBotHoles(par, typeDop) {
 					var centers = [];
 
 					var pt = polar(p1, ang, offsetSide);
-					if (p1.isDivide) pt = polar(pt, ang, 100);
+					if (p1.isDivide || par.isDivideTop) pt = polar(pt, ang, 50);
 					var center1 = polar(pt, ang + Math.PI / 2, offsetBot);
 					if (p1.division) center1.division = p1.division;
 					centers.push(center1);
 
 					var pt = polar(p2, ang, -offsetSide);
-					if (p2.isDivide) pt = polar(pt, ang, -200);
+					if (p2.isDivide || par.isDivideBot) pt = polar(pt, ang, -150);
 					var center2 = polar(pt, ang + Math.PI / 2, offsetBot);
 					if (p2.division) center2.division = p2.division;
 					centers.push(center2);

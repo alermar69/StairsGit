@@ -567,7 +567,7 @@ function drawBalSection(par) {
 			//рамка
 			var frameParams = {
 				length: sectLen,
-				height: rackLength + 15, // 15 чтобы поручень оделся на сварную секцию
+				height: rackLength, 
 				shortLegLength: 100,
 				legProf: 40,
 				botProf: 20,
@@ -584,6 +584,7 @@ function drawBalSection(par) {
 				svgPoleId: svgPoleId,
 			}
 
+			if (params.handrailFixType_bal == "паз") frameParams.height += 15; // 15 чтобы поручень оделся на сварную секцию
 			if (params.handrailFixType_bal == "кронштейны") frameParams.height -= 40;
 
 

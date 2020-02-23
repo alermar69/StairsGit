@@ -258,6 +258,7 @@ function drawScirtingSection(par) {
 		//skirtingParams.step = par.wndPar.params[3].stepWidthHi - params.nose - 0.01// - params.riserThickness * 2;
 		skirtingParams.nose = 21.824 / Math.cos(par.wndPar.params[3].edgeAngle) + 0.01;
 		if (params.calcType == 'timber') skirtingParams.nose = params.nose / Math.cos(par.wndPar.params[3].edgeAngle) + 0.01;
+		if (params.calcType == 'timber_stock') skirtingParams.nose = 40 / Math.cos(par.wndPar.params[3].edgeAngle) + 0.01;
 		skirtingParams.step = par.wndPar.params[3].stepWidthHi - skirtingParams.nose // - params.riserThickness * 2;
 		//if (marshPar.stairAmt == 0) skirting.step += 45;
 
@@ -266,7 +267,7 @@ function drawScirtingSection(par) {
 			x: params.nose - par.wndPar.params[3].stepWidthHi + skirtingParams.nose - 0.01,
 			y: -marshPar.h,
 		}
-		if (marshPar.stairAmt == 0 && marshPar.lastMarsh)
+		if (marshPar.stairAmt == 0 && marshPar.lastMarsh && params.lastWinderTreadWidth)
 			basePoint.x += 45 - (100 - params.lastWinderTreadWidth);
 		if (marshPar.stairAmt == 0 && !marshPar.lastMarsh) basePoint.x -= (params.nose - 20);
 		skirtingParams.dxfBasePoint = newPoint_xy(dxfBasePoint0, basePoint.x, basePoint.y);

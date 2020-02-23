@@ -2156,6 +2156,7 @@ function setStairAngles(par) {
 	
 	par.holeDistU2_200 = 150;     // расстояние между отверстиями для уголка У2-200
 	par.stepHoleX1 = par.angleHolePosX + params.nose;
+	if (params.calcType == 'bolz') par.stepHoleX1 += 20 - params.nose;
 	
 } //end of setStairAngles
 
