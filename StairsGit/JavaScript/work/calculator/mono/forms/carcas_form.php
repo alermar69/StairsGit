@@ -10,6 +10,7 @@
 				<select id="model" size="1" onchange="">
 					<option value="сварной" >сварной короб</option>
 					<option value="труба" >проф. труба</option>
+					<option value="гнутый" >гнутый</option>
 				</select>
 			</td></tr>
 
@@ -90,6 +91,17 @@
 
 			<tr><td>Внешняя ширина маршей:</td> <td> 
 				<input id="M" type="number" value="900">
+			</td></tr>
+
+			<tr style="display: none;"><td>Размер поворота:</td> <td> 
+				<input id="sizeTurn" type="number" value="1200">
+			</td></tr>
+
+			<tr style="display: none;"><td>Кол-во ступеней на 90 градусов:</td> <td> 
+				<input id="countWndTread" type="number" value="5">
+			</td></tr>
+			<tr style="display: none;"><td>Размер семента поворота:</td> <td> 
+				<input id="maxSizeSegment" type="number" value="5">
 			</td></tr>
 
 			<tr style="display: none"><td>Подступенки:</td> <td> 

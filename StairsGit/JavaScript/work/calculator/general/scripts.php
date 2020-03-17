@@ -7,7 +7,7 @@
 	$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 	
 	//модуль
-	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry'];
+	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'curve'];
 	$calc_type = '';
 	foreach($calc_types as $item){
 		if (strpos($url,'/'.$item) !== false) $calc_type = $item;
@@ -128,6 +128,15 @@ $scripts = [
 	],
 	[
 		'url' => '/manufacturing/mono/calcSpec.js',
+		'only_for' => ['mono'],
+	],
+	[
+		'url' => '/manufacturing/curve/drawCarcasParts.js',
+		'only_for' => ['mono'],
+	],
+	//mono
+	[
+		'url' => '/manufacturing/curve/drawCarcasParts.js',
 		'only_for' => ['mono'],
 	],
 	//console

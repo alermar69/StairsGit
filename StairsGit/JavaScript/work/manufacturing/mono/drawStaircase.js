@@ -9,7 +9,6 @@ var turnFactor = 1;
 var treadsObj;
 
 drawStaircase = function (viewportId, isVisible) {
-	
 	if(params.model == "труба") {
 		boltDiam = 8;
 		boltLen = 16;
@@ -51,8 +50,6 @@ drawStaircase = function (viewportId, isVisible) {
 
 	if (params.model == "труба") params.treadPlateThickness = 2;
 
-
-
     /*направление поворота (глобальные переменные)*/
 
 	if (params.turnSide == "правое") turnFactor = 1;
@@ -65,55 +62,56 @@ drawStaircase = function (viewportId, isVisible) {
 	treadsObj = drawTreads();
 	model.add(treadsObj.treads, "treads");
 
-
+	
 /*** КАРКАС НА ВСЕ ЛЕСТНИЦЫ ***/
 
-	var stringerParams = {
-		dxfBasePoint: newPoint_xy(dxfBasePoint, 0, -5000),
-		treadsObj: treadsObj,
-	};
-
-	drawCarcas(stringerParams);
-
-	model.add(stringerParams.carcas, "carcas");
-	model.add(stringerParams.carcas1, "carcas1");
-	model.add(stringerParams.flans, "flans");
-	model.add(stringerParams.treadPlates, "treadPlates");
-
-	// рамка под площадкой для лестницы на профиле
-	if (params.model == "труба") {
-		var framePlatformParams = {
-			dxfBasePoint: dxfBasePoint,
+		var stringerParams = {
+			dxfBasePoint: newPoint_xy(dxfBasePoint, 0, -5000),
 			treadsObj: treadsObj,
+		};
+
+		drawCarcas(stringerParams);
+
+		model.add(stringerParams.carcas, "carcas");
+		model.add(stringerParams.carcas1, "carcas1");
+		model.add(stringerParams.flans, "flans");
+		model.add(stringerParams.treadPlates, "treadPlates");
+
+		if (params.calcType !== 'curve') {
+		// рамка под площадкой для лестницы на профиле
+		if (params.model == "труба") {
+			var framePlatformParams = {
+				dxfBasePoint: dxfBasePoint,
+				treadsObj: treadsObj,
 			};
 
-		drawPlatformFrames(framePlatformParams);
-		model.add(framePlatformParams.flans, "flans");
-		model.add(framePlatformParams.platformFrames, "treadPlates");
+			drawPlatformFrames(framePlatformParams);
+			model.add(framePlatformParams.flans, "flans");
+			model.add(framePlatformParams.platformFrames, "treadPlates");
 
 		}
 
 /***  ограждения на все лестницы  ***/
-	var railingPar = {
-		dxfBasePoint: {x: 0, y: 15000},
-		treadsObj: treadsObj,
-	};
+		var railingPar = {
+			dxfBasePoint: { x: 0, y: 15000 },
+			treadsObj: treadsObj,
+		};
 
-	var railingObj = drawRailing(railingPar);
-	model.add(railingObj.mesh, "railing");
-	model.add(railingObj.forgedParts, "forge");
-	model.add(railingObj.handrails, "handrails");
-	
-	/*** ПРИСТЕННЫЙ ПОРУЧЕНЬ НА ВСЕ ЛЕСТНИЦЫ ***/
-	
-	var sideHandrailPar = {
-		treadsObj: treadsObj,
-		dxfBasePoint: {x: 25000, y: 15000},
+		var railingObj = drawRailing(railingPar);
+		model.add(railingObj.mesh, "railing");
+		model.add(railingObj.forgedParts, "forge");
+		model.add(railingObj.handrails, "handrails");
+
+		/*** ПРИСТЕННЫЙ ПОРУЧЕНЬ НА ВСЕ ЛЕСТНИЦЫ ***/
+
+		var sideHandrailPar = {
+			treadsObj: treadsObj,
+			dxfBasePoint: { x: 25000, y: 15000 },
 		}
 
-	var handrail = drawSideHandrail_all(sideHandrailPar).mesh;
-	model.add(handrail, "handrails");
-
+		var handrail = drawSideHandrail_all(sideHandrailPar).mesh;
+		model.add(handrail, "handrails");
+	}
 
 	//сдвигаем и поворачиваем лестницу чтобы верхний марш был вдоль оси Х
 	var moove = calcStaircaseMoove(treadsObj.lastMarshEnd);	

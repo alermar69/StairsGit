@@ -16,7 +16,19 @@ function drawCarcas(par) {
 		dxfBasePoint: par.dxfBasePoint,
 		turnSteps: par.treadsObj.wndPar,
 		unitsPosObject: par.treadsObj.unitsPos,
+		turn1PointsCurve: { out: 0, in: 0 },
+		turn2PointsCurve: { out: 0, in: 0 },
 	};
+
+	var curvePar = {
+		marshId: 1,
+		key: 'in',
+		turnPointsCurve: stringerParams1.turn1PointsCurve,
+	};
+	calcTurnCurvePoints(curvePar);
+
+	curvePar.key = 'out'
+	calcTurnCurvePoints(curvePar);
 
 	drawComplexStringer(stringerParams1);
 
@@ -27,16 +39,34 @@ function drawCarcas(par) {
 
 
 	//второй марш
+	//var isMarsh2 = false;
+	//if (params.calcType !== 'curve' && params.stairModel == "П-образная с забегом") isMarsh2 = true;
+	//if (params.stairModel == "П-образная трехмаршевая") {
+	//	isMarsh2 = true;
+	//	if (params.calcType == 'curve' && params.stairAmt2 == 0) isMarsh2 = false;
+	//}
 	if (params.stairModel == "П-образная с забегом" || params.stairModel == "П-образная трехмаршевая") {
 		var stringerParams2 = {
 			marshId: 2,
 			dxfBasePoint: par.dxfBasePoint,
 			turnSteps: par.treadsObj.wndPar,
 			unitsPosObject: par.treadsObj.unitsPos,
+			turn1PointsCurve: stringerParams1.turn1PointsCurve,
+			turn2PointsCurve: stringerParams1.turn2PointsCurve,
 			};
 		if (!par.treadsObj.wndPar && par.treadsObj.wndPar2) stringerParams2.turnSteps = par.treadsObj.wndPar2;
 		if (stringerParams1.offsetTopWndHoleY3)
 			stringerParams2.offsetTopWndHoleY3 = stringerParams1.offsetTopWndHoleY3
+
+		var curvePar = {
+			marshId: 2,
+			key: 'in',
+			turnPointsCurve: stringerParams2.turn2PointsCurve,
+		};
+		calcTurnCurvePoints(curvePar);
+
+		curvePar.key = 'out'
+		calcTurnCurvePoints(curvePar);
 
 		drawComplexStringer(stringerParams2);
 		var pos = par.treadsObj.unitsPos.marsh2;
@@ -206,6 +236,8 @@ function drawCarcas(par) {
 			turnSteps: par.treadsObj.wndPar,
 			unitsPos: par.treadsObj.unitsPos.marsh3,
 			unitsPosObject: par.treadsObj.unitsPos,
+			turn1PointsCurve: stringerParams1.turn1PointsCurve,
+			turn2PointsCurve: stringerParams1.turn2PointsCurve,
 			};
 
 		if (!par.treadsObj.wndPar && par.treadsObj.wndPar2) stringerParams3.turnSteps = par.treadsObj.wndPar2;
@@ -236,6 +268,47 @@ function drawCarcas(par) {
 		par.flans.add(stringerParams3.flans);
 		par.treadPlates.add(stringerParams3.treadPlates);
 	}
+
+
+	if (params.calcType == 'curve') {
+		if(stringerParams2){
+			var parTurn = {
+				marshId: 1,
+				dxfBasePoint: par.dxfBasePoint,
+				turnPointsCurve: stringerParams2.turn1PointsCurve,
+			}
+
+			drawTurnStringerCurve(parTurn);
+			parTurn.mesh1.position.x = stringerParams1.mesh1.position.x
+			parTurn.mesh1.position.z = stringerParams1.mesh1.position.z
+			parTurn.mesh1.position.y = stringerParams1.mesh1.position.y
+			parTurn.mesh1.rotation.y = stringerParams1.mesh1.rotation.y
+			par.carcas.add(parTurn.mesh1);
+		}
+		
+		
+		var parTurn = {
+			marshId: 1,
+			dxfBasePoint: par.dxfBasePoint,
+			turnPointsCurve: stringerParams3.turn1PointsCurve,
+		}
+		
+		var stringerParams = stringerParams1;
+		if(stringerParams2) {
+			stringerParams = stringerParams2;
+			parTurn.marshId = 2;
+			parTurn.turnPointsCurve = stringerParams2.turn2PointsCurve;
+		}
+
+		drawTurnStringerCurve(parTurn);
+		parTurn.mesh1.position.x = stringerParams.mesh1.position.x
+		parTurn.mesh1.position.z = stringerParams.mesh1.position.z
+		parTurn.mesh1.position.y = stringerParams.mesh1.position.y
+		parTurn.mesh1.rotation.y = stringerParams.mesh1.rotation.y
+		par.carcas.add(parTurn.mesh1);
+	}
+
+
 
 	return par;
 }

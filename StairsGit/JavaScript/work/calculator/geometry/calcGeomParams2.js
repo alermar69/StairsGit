@@ -672,6 +672,7 @@ function setModelDimensions(par) {
 		if(par.model == "ко" && par.turnTypeName == "забег") deltaBottom = 72 - params.nose;
 		if(par.model == "mono" && par.turnTypeName == "площадка") deltaBottom = -params.nose;
 		if(par.model == "mono" && par.turnTypeName == "забег") deltaBottom = -5;
+		if (par.model == "curve" && par.turnTypeName == "забег") deltaBottom = (params.sizeTurn - params.M);
 		if(par.model == "timber") {
 			if(params.model == "тетивы" && par.turnTypeName == "площадка") deltaBottom = -50;
 			if(params.model == "тетивы" && par.turnTypeName == "забег") deltaBottom = -25; //было -30
@@ -696,7 +697,9 @@ function setModelDimensions(par) {
 		if(par.model == "ко" && par.turnTypeName == "площадка") deltaTop = 25;
 		if(par.model == "ко" && par.turnTypeName == "забег") deltaTop = 25;
 		if(par.model == "mono" && par.turnTypeName == "площадка") deltaTop = 45;
-		if(par.model == "mono" && par.turnTypeName == "забег") deltaTop = 45;
+		if (par.model == "mono" && par.turnTypeName == "забег") deltaTop = 45;
+		if (par.model == "curve" && par.turnTypeName == "забег") deltaTop = (params.sizeTurn - params.M);
+
 		if(par.model == "timber") {
 			if(params.model == "тетивы" && par.turnTypeName == "площадка") deltaTop = -10;
 			if(params.model == "тетивы" && par.turnTypeName == "забег") deltaTop = 10; //было -10
@@ -735,7 +738,8 @@ function setModelDimensions(par) {
 		if(par.model == "ко" && par.turnTypeName == "площадка") deltaBottom = 0;
 		if(par.model == "ко" && par.turnTypeName == "забег") deltaBottom = 72 - params.nose;
 		if(par.model == "mono" && par.turnTypeName == "площадка") deltaBottom = 0;
-		if(par.model == "mono" && par.turnTypeName == "забег") deltaBottom = -5;
+		if (par.model == "mono" && par.turnTypeName == "забег") deltaBottom = -5;
+		if (par.model == "curve" && par.turnTypeName == "забег") deltaBottom = (params.sizeTurn - params.M);
 		if(par.model == "timber") {
 			if(params.model == "тетивы" && par.turnTypeName == "площадка") deltaBottom = -20;
 			if(params.model == "тетивы" && par.turnTypeName == "забег") deltaBottom = -25;
@@ -760,7 +764,8 @@ function setModelDimensions(par) {
 		if(par.model == "ко" && par.turnTypeName == "площадка") deltaTop = params.nose; //15
 		if(par.model == "ко" && par.turnTypeName == "забег") deltaTop = 25;
 		if(par.model == "mono" && par.turnTypeName == "площадка") deltaTop = 50; //45
-		if(par.model == "mono" && par.turnTypeName == "забег") deltaTop = 45;
+		if (par.model == "mono" && par.turnTypeName == "забег") deltaTop = 45;
+		if (par.model == "curve" && par.turnTypeName == "забег") deltaTop = (params.sizeTurn - params.M);
 		if(par.model == "timber") {
 			if(params.model == "тетивы" && par.turnTypeName == "площадка") deltaTop = 0;
 			if(params.model == "тетивы" && par.turnTypeName == "забег") deltaTop = 10;

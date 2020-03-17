@@ -20,7 +20,8 @@ function calcTurnParams(botMarshId){
 	if(params.stairModel == "П-образная с площадкой" || params.stairModel == "П-образная с забегом") modelParams.turnType = "P_turn";
 	if (params.calcType == "bolz") modelParams.model = "bolz";
 	if (params.calcType == "console") modelParams.model = "mono";
-	
+	if (params.calcType == "curve") modelParams.model = "curve";
+
 	modelParams = setModelDimensions(modelParams); //функция в файле calcGeomParams.js
 
 	var par = {};
@@ -168,7 +169,20 @@ function calcTurnEndPoint(pos, rotY, botMarshId, plusMarshDist, turnId){
 			endPoint.z += (params.M/2 + turnParams.topMarshOffsetX)  * turnFactor;
 			}
 
-		if(turnType == "забег") endPoint.y += getMarshParams(botMarshId).h_topWnd * 2;
+		if (turnType == "забег") {
+			
+			if (params.calcType == "curve") {
+				endPoint.y += getMarshParams(botMarshId).h_topWnd * (params.countWndTread - 1);
+				//if (params.stairModel == "П-образная с забегом" ||
+				//	(params.stairModel == "П-образная трехмаршевая" && params.stairAmt2 == 0)) {
+				//	endPoint.rot = (rotY + Math.PI) * turnFactor;
+				//	endPoint.y += getMarshParams(botMarshId).h_topWnd * params.countWndTread;
+				//	endPoint.x = pos.x;
+				//	endPoint.z = (pos.z + params.M + turnParams.topMarshOffsetX * 2) * turnFactor;
+				//}
+			}
+			else endPoint.y += getMarshParams(botMarshId).h_topWnd * 2;
+		}
 
 		if(params.stairModel == "П-образная с площадкой" && botMarshId == 1){
 			var endPoint = {

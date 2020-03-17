@@ -1,6 +1,6 @@
 
 function changeFormCarcas(){
-
+	
 //жестко привязываем ширину ступени к проступи
 params.nose = 50;
 $("#nose").val(50);
@@ -8,7 +8,22 @@ $("#nose").val(50);
 $("#a1").val(params.b1 + params.nose);
 $("#a2").val(params.b2 + params.nose);
 $("#a3").val(params.b3 + params.nose);
-var stairModel = params.stairModel;
+	var stairModel = params.stairModel;
+
+	$("#calcType").val('mono')
+	// Установка параметров для гнутого монокосоура
+	if (params.model == "гнутый") {
+		//$("#stairModel").val("Г-образная с забегом");
+		$("#stairModel [value='Прямая']").hide();
+		$("#stairModel [value='Г-образная с площадкой']").hide();
+		$("#stairModel [value='П-образная с площадкой']").hide();
+		$('#sizeTurn').closest("tr").show();
+		$('#countWndTread').closest("tr").show();
+		$('#maxSizeSegment').closest("tr").show();
+
+		//$("#sizeTurn").val(params.M + 300);
+		$("#calcType").val('curve')
+	}
 
 // установка зазора между маршами если есть ограждение на П-образных
 if(params.stairModel == "П-образная с площадкой" || params.stairModel == "П-образная с забегом"){

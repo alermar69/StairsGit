@@ -79,6 +79,10 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 		if(LineBP1.y == LineBP2.y) result.y = LineBP1.y;
 		
 		return result;
+}
+
+	function itercectionLines(line1, line2) {
+		return itercection(line1.p1, line1.p2, line2.p1, line2.p2);
 	}
 	
 	function newPoint_xy(basePoint, deltaX, deltaY){
@@ -1395,35 +1399,37 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 	
 	
 	//функция рассчитывает координаты точки после поворота вокруг начала координат
-	function rotatePoint(point, rotAng){
-		var zeroPoint = {x:0, y:0,}
+	function rotatePoint(point, rotAng, p0){
+		var zeroPoint = { x: 0, y: 0, }
+		if (p0) zeroPoint = copyPoint(p0);
 		//рассчитываем полярные координаты точки
 		var ang = angle(zeroPoint, point);
-		var dist = distance(zeroPoint, point);
-	
-		//рассчитываем координаты новой точки с учетом угла поворота
-		var newPoint = polar(zeroPoint, (ang + rotAng), dist);
-	
-		return newPoint;
-} //end of rotatePoint
-
-//функция повороачивает массив точек как единое целое вокруг начала координат
-function rotatePoints(points, rotAng, p0) {
-	var newPoints = [];
-	var zeroPoint = { x: 0, y: 0, }
-	if (p0) zeroPoint = copyPoint(p0);
-	for (var i = 0; i < points.length; i++) {
-		//рассчитываем полярные координаты точки
-		var ang = calcAngleX1(zeroPoint, points[i]);
 		if (!ang) ang = 0;
-		var dist = distance(zeroPoint, points[i]);
+		var dist = distance(zeroPoint, point);
+		
 		//рассчитываем координаты новой точки с учетом угла поворота
 		var newPoint = polar(zeroPoint, (ang + rotAng), dist);
-		newPoints.push(newPoint);
-	}
-	return newPoints;
-} //end of rotatePoints
-	
+		
+		return newPoint;
+	} //end of rotatePoint
+
+	//функция повороачивает массив точек как единое целое вокруг начала координат
+	function rotatePoints(points, rotAng, p0) {
+		var newPoints = [];
+		var zeroPoint = { x: 0, y: 0, }
+		if (p0) zeroPoint = copyPoint(p0);
+		for (var i = 0; i < points.length; i++) {
+			//рассчитываем полярные координаты точки
+			var ang = calcAngleX1(zeroPoint, points[i]);
+			if (!ang) ang = 0;
+			var dist = distance(zeroPoint, points[i]);
+			//рассчитываем координаты новой точки с учетом угла поворота
+			var newPoint = polar(zeroPoint, (ang + rotAng), dist);
+			newPoints.push(newPoint);
+		}
+		return newPoints;
+	} //end of rotatePoints
+		
 	//функция смещает массив точек как единое целое на заданное расстояние по х и у
 	function moovePoints(points, mooveDist){
 		var newPoints = [];

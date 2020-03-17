@@ -80,6 +80,7 @@ function itercection(LineAP1, LineAP2, LineBP1, LineBP2){
 	return result;
 }
 
+
 function newPoint_xy(basePoint, deltaX, deltaY){
 /*функция выдает массив координат точки, удаленной от базовой на заданное расстояние по
 оси х и у*/

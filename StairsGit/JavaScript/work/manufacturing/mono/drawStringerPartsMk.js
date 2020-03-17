@@ -30,150 +30,163 @@ function drawStringerMk(par) {
 	//	par.stringerWidth = 200.0;
 	//}
 
+	if (params.calcType == 'curve1') {
+		par.botEnd = "пол"
+		par.topEnd = "пол"
+		par.stairAmt -= 1
+	}
 
-
-
+	
 	par.stringerBasePoint = { x: 0, y: 0, }
 
-	if (par.botEnd == "пол") {
-		if (params.model == "труба") par.stringerBasePoint = newPoint_xy(par.stringerBasePoint, params.treadPlateThickness * 2, params.flanThickness);
-		if (params.model == "сварной") par.stringerBasePoint = newPoint_xy(par.stringerBasePoint, 0, params.flanThickness);
-	}
-
-	//низ марша
-	if (par.botEndPlatform !== "площадкаП") {
-		if (par.botEnd == "пол") drawBotStepMk_floor(par);
-		if (par.botEnd == "площадка") drawBotStepMk_pltG(par);
-		if (par.botEnd == "забег") drawBotStepMk_wnd(par);
-
-		//средние ступени
-
-		drawMiddleStepsMk(par.stairAmt, par);
-
-		//верх марша
-
-
-		if (par.topEnd == "пол") drawTopStepMk_floor(par);
-		if (par.topEnd == "площадка") drawTopStepMk_pltG(par);
-		if (par.topEnd == "забег") drawTopStepMk_wnd(par);
-	}
-
-	if (par.botEndPlatform == "площадкаП") drawPlatformStepMkN_pltP(par);
-
-
-	//var max = 0;
-	//var min = 0;
-	//for (var i = 0; i < par.pointsShape.length; i++) {
-	//	if (par.pointsShape[i].x > max) max = par.pointsShape[i].x;
-	//	if (par.pointsShape[i].x < min) min = par.pointsShape[i].x;
+	//if (par.isCurve) {
+	//	drawStepMk_Wnd(par);
 	//}
-	//par.dxfBasePoint.x += max - min + 1000;
 
+	if (par.botEnd == "пол") {
+			if (params.model == "труба")
+				par.stringerBasePoint = newPoint_xy(par.stringerBasePoint,
+					params.treadPlateThickness * 2,
+					params.flanThickness);
+			if (params.model == "сварной" || params.calcType == 'curve')
+				par.stringerBasePoint = newPoint_xy(par.stringerBasePoint, 0, params.flanThickness);
+		}
+
+		//низ марша
+		if (par.botEndPlatform !== "площадкаП") {
+			if (par.botEnd == "пол") drawBotStepMk_floor(par);
+			if (par.botEnd == "площадка") drawBotStepMk_pltG(par);
+			if (par.botEnd == "забег" && params.calcType !== 'curve') drawBotStepMk_wnd(par);
+			if (par.botEnd == "забег" && params.calcType == 'curve') drawBotStepMkCurve_Wnd(par);
+
+			//средние ступени
+
+			drawMiddleStepsMk(par.stairAmt, par);
+
+			//верх марша
+
+
+			if (par.topEnd == "пол") drawTopStepMk_floor(par);
+			if (par.topEnd == "площадка") drawTopStepMk_pltG(par);
+			if (par.topEnd == "забег" && params.calcType !== 'curve') drawTopStepMk_wnd(par);
+			if (par.topEnd == "забег" && params.calcType == 'curve') drawTopStepMkCurve_Wnd(par);
+		}
+
+		if (par.botEndPlatform == "площадкаП") drawPlatformStepMkN_pltP(par);
+
+
+		//var max = 0;
+		//var min = 0;
+		//for (var i = 0; i < par.pointsShape.length; i++) {
+		//	if (par.pointsShape[i].x > max) max = par.pointsShape[i].x;
+		//	if (par.pointsShape[i].x < min) min = par.pointsShape[i].x;
+		//}
+		//par.dxfBasePoint.x += max - min + 1000;
 
 	//создаем шейп
-	if (!par.addOverlayFlanEnd) {
-		if (par.pointsShapeDop) {
-			par.pointsShapeDop.reverse();
-			for (var i = 0; i < par.pointsShapeDop.length; i++) {
-				par.pointsShape.push(par.pointsShapeDop[i]);
-			}
-			par.pointsShapeDop = [];
-		}
-
-		var shapePar = {
-			points: par.pointsShape,
-			dxfArr: dxfPrimitivesArr,
-			dxfBasePoint: par.dxfBasePoint,
-			radIn: 0, //Радиус скругления внутренних углов
-			radOut: 0, //радиус скругления внешних углов
-			//markPoints: true,
-		}
-
-		//параметры для рабочего чертежа
-		shapePar.drawing = {
-			name: "Косоур марша",
-			group: "stringers",
-			//baseLine: {
-			//	p1: par.keyPoints.botPoint,
-			//	p2: par.keyPoints.topPoint
-			//},
-			//mirrow: (marshParams.side[par.key] == 'left'),
-			key: par.key,
-			marshId: par.marshId,
-		}
-		if (par.key == "in") shapePar.drawing.in = true;
-
-		// если длина косоура больше 4 метров делаем разделение косоура
-		if (distance(par.pointsShape[0], par.pointsShape[par.pointsShape.length - 1]) > 4000 && params.model == "сварной") {
-			var index = 0;
-			for (var i = 0; i < par.pointsShape.length; i++) {
-				if (par.botUnitEnd == par.pointsShape[i]) {
-					index = i + Math.floor(par.stairAmt / 2) * 2;
-					var pt1 = copyPoint(par.pointsShape[index])
-					break;
+		if (!par.addOverlayFlanEnd) {
+			if (par.pointsShapeDop) {
+				par.pointsShapeDop.reverse();
+				for (var i = 0; i < par.pointsShapeDop.length; i++) {
+					par.pointsShape.push(par.pointsShapeDop[i]);
 				}
+				par.pointsShapeDop = [];
 			}
-			var pt2 = itercection(pt1,
-				polar(pt1, par.marshAngle + Math.PI / 2, 100),
-				par.pointsShape[0],
-				par.pointsShape[par.pointsShape.length - 1]);
-
-			var trashShape = new THREE.Shape();
-			var layer = "comments";
-			addLine(trashShape, dxfPrimitivesArr, pt1, pt2, par.dxfBasePoint, layer);
-
-			var botPoints = par.pointsShape.slice(0, index + 1);
-			botPoints.push(pt2);
-			var topPoints = par.pointsShape.slice(index);
-			topPoints.unshift(pt2)
-
-			shapePar.drawing.isDivide = true;
-			shapePar.points = botPoints;
-			par.stringerShapeBot = drawShapeByPoints2(shapePar).shape;
-
 
 			var shapePar = {
 				points: par.pointsShape,
 				dxfArr: dxfPrimitivesArr,
 				dxfBasePoint: par.dxfBasePoint,
+				radIn: 0, //Радиус скругления внутренних углов
+				radOut: 0, //радиус скругления внешних углов
+				//markPoints: true,
 			}
+
+			//параметры для рабочего чертежа
 			shapePar.drawing = {
 				name: "Косоур марша",
 				group: "stringers",
+				//baseLine: {
+				//	p1: par.keyPoints.botPoint,
+				//	p2: par.keyPoints.topPoint
+				//},
+				//mirrow: (marshParams.side[par.key] == 'left'),
 				key: par.key,
 				marshId: par.marshId,
 			}
 			if (par.key == "in") shapePar.drawing.in = true;
-			shapePar.drawing.basePoint = newPoint_xy(pt1, -par.pointsShape[2].x, -par.pointsShape[2].y),
 
-			shapePar.points = topPoints;
-			par.stringerShapeTop = drawShapeByPoints2(shapePar).shape;
+			// если длина косоура больше 4 метров делаем разделение косоура
+			if (distance(par.pointsShape[0], par.pointsShape[par.pointsShape.length - 1]) > 4000 &&
+				params.model == "сварной") {
+				var index = 0;
+				for (var i = 0; i < par.pointsShape.length; i++) {
+					if (par.botUnitEnd == par.pointsShape[i]) {
+						index = i + Math.floor(par.stairAmt / 2) * 2;
+						var pt1 = copyPoint(par.pointsShape[index])
+						break;
+					}
+				}
+				var pt2 = itercection(pt1,
+					polar(pt1, par.marshAngle + Math.PI / 2, 100),
+					par.pointsShape[0],
+					par.pointsShape[par.pointsShape.length - 1]);
 
-			par.pDivideBot = pt2;
-			par.pDivideTop = pt1;
+				var trashShape = new THREE.Shape();
+				var layer = "comments";
+				addLine(trashShape, dxfPrimitivesArr, pt1, pt2, par.dxfBasePoint, layer);
 
+				var botPoints = par.pointsShape.slice(0, index + 1);
+				botPoints.push(pt2);
+				var topPoints = par.pointsShape.slice(index);
+				topPoints.unshift(pt2)
+
+				shapePar.drawing.isDivide = true;
+				shapePar.points = botPoints;
+				par.stringerShapeBot = drawShapeByPoints2(shapePar).shape;
+
+
+				var shapePar = {
+					points: par.pointsShape,
+					dxfArr: dxfPrimitivesArr,
+					dxfBasePoint: par.dxfBasePoint,
+				}
+				shapePar.drawing = {
+					name: "Косоур марша",
+					group: "stringers",
+					key: par.key,
+					marshId: par.marshId,
+				}
+				if (par.key == "in") shapePar.drawing.in = true;
+				shapePar.drawing.basePoint = newPoint_xy(pt1, -par.pointsShape[2].x, -par.pointsShape[2].y),
+					shapePar.points = topPoints;
+				par.stringerShapeTop = drawShapeByPoints2(shapePar).shape;
+
+				par.pDivideBot = pt2;
+				par.pDivideTop = pt1;
+
+			}
+			else {
+				par.stringerShape = drawShapeByPoints2(shapePar).shape;
+			}
+
+
+			//рисуем отверстия
+			drawStringerHoles(par);
 		}
-		else {
-			par.stringerShape = drawShapeByPoints2(shapePar).shape;
-		}		
 
-		
-
-		//рисуем отверстия
-		drawStringerHoles(par);
-	}
-
-	par.p2 = par.midUnitEnd;
-	par.pstart = par.botUnitStart;
-	par.p0 = par.stringerBasePoint;
+		par.p2 = par.midUnitEnd;
+		par.pstart = par.botUnitStart;
+		par.p0 = par.stringerBasePoint;
 
 
-	var max = 0;
-	var min = 0;
-	for (var i = 0; i < par.pointsShape.length; i++) {
-		if (par.pointsShape[i].x > max) max = par.pointsShape[i].x;
-		if (par.pointsShape[i].x < min) min = par.pointsShape[i].x;
-	}
+		var max = 0;
+		var min = 0;
+		for (var i = 0; i < par.pointsShape.length; i++) {
+			if (par.pointsShape[i].x > max) max = par.pointsShape[i].x;
+			if (par.pointsShape[i].x < min) min = par.pointsShape[i].x;
+		}
+	
 	par.dxfBasePoint.x += max - min + 1000;
 
 	return par;
@@ -181,8 +194,123 @@ function drawStringerMk(par) {
 
 
 /**
+ * полная тетива забега (гнутого) 
+ */
+function calcTurnCurvePoints(par) {
+	var marshPar = getMarshParams(par.marshId);
+
+	var points = [];
+
+	var p0 = { x: 0, y: 0 };
+
+	/*ТОЧКИ КОНТУРА*/
+
+	var lengths = calcLengthsWndTreads().lengths;
+
+	var p2 = copyPoint(p0);
+
+	for (var i = 0; i < lengths.length; i++) {
+		// подъем ступени
+		if (i == 0) var p1 = newPoint_xy(p2, 0.0, marshPar.h);
+		if (i !== 0) var p1 = newPoint_xy(p2, 0.0, marshPar.h_topWnd);
+
+		// проступь
+		var p2 = newPoint_xy(p1, lengths[i][par.key], 0.0);
+
+		points.push(p1);
+		points.push(p2);
+	}
+
+	par.turnPointsCurve[par.key] = calcPointsShapesWnd(points);
+	par.turnPointsCurve.turnAngelCurve = calcAngleX1(points[1], points[points.length - 3]);
+	return par;
+}
+ 
+function drawBotStepMkCurve_Wnd(par) {
+
+	par.turnPointsCurve = par.turn1PointsCurve;
+	if (par.marshId == 3 && ~params.stairModel.indexOf("П-образная"))
+		par.turnPointsCurve = par.turn2PointsCurve;
+	
+	//точки полной тетивы забега
+	var pointsDivide = par.turnPointsCurve[par.key];	
+
+	//точки прямой тетивы забега для верхнего марша из полной тетивы забега
+	var pointsDiv = pointsDivide.pointsTop.concat();
+
+
+	/*ТОЧКИ КОНТУРА*/
+	var p0 = { x: 0, y: -params.treadThickness - 8 };
+	var pt0 = copyPoint(pointsDiv[pointsDiv.length - 1])
+
+	//сдвигаем точки прямой тетивы забега так чтобы верхняя точка была за базовую({x:0, y:0}) 
+	for (var i = 0; i < pointsDiv.length; i++) {
+		pointsDiv[i] = newPoint_xy(pointsDiv[i], - pt0.x, -pt0.y + p0.y);
+	}
+
+	var p20 = newPoint_xy(p0, (par.stringerWidth / Math.sin(par.marshAngle)), 0.0); // первая точка на нижней линии марша
+	var p21 = polar(p20, par.marshAngle, 100.0); // вторая точка на нижней линии
+
+	if (!par.turnPointsCurve.endTurnY) {
+		var bottomLineP1 = itercection(p20, p21, pointsDiv[0], polar(pointsDiv[0], Math.PI / 2, 100));
+
+		// запоминаем расстояние по Y задней линии гнутой тетивы,
+		//чтобы координата нижней точки задней линии гнутой тетивы была одинаковая на внешней и внутренней
+		par.turnPointsCurve.endTurnY = pointsDiv[0].y - bottomLineP1.y;
+	}
+
+	if (par.turnPointsCurve.endTurnY)
+		var bottomLineP1 = newPoint_xy(pointsDiv[0], 0, -par.turnPointsCurve.endTurnY);
+
+	par.pointsShape.push(bottomLineP1);
+	for (var i = 0; i < pointsDiv.length; i++) {
+		par.pointsShape.push(pointsDiv[i]);
+	}
+
+	//базовые точки для стыковки с другими частями косоура
+	par.botUnitEnd = p0;
+	par.midUnitEnd = par.botUnitEnd;
+
+	par.botUnitStart = bottomLineP1;
+	
+}
+function drawTopStepMkCurve_Wnd(par) {
+
+	par.turnPointsCurve = par.turn1PointsCurve;
+	if (par.marshId == 2) par.turnPointsCurve = par.turn2PointsCurve;
+
+	//точки полной тетивы забега
+	var pointsDivide = par.turnPointsCurve[par.key];
+	
+	//запоминаем точку вставки для гнутой тетивы
+	par.turnPointsCurve.pointInsertTurn = newPoint_xy(par.midUnitEnd, pointsDivide.pointsTurn[0].x + params.nose, 0)
+
+	/*ТОЧКИ КОНТУРА*/
+	var p1 = copyPoint(par.midUnitEnd);
+
+	//точки прямой тетивы забега для нижнего марша из полной тетивы забега
+	var pointsDiv = pointsDivide.pointsBot.concat();
+
+	//сдвигаем точки прямой тетивы забега в верхнюю точку марша
+	pointsDiv = moovePoints(pointsDiv, p1);
+
+	for (var i = 0; i < pointsDiv.length; i++) {
+		par.pointsShape.push(pointsDiv[i]);
+	}
+	var pLast = pointsDiv[pointsDiv.length - 1];
+	var topLineP1 = itercectionBackLineMarsh(p1, pLast, Math.PI / 2, par)
+	par.pointsShape.push(topLineP1);
+
+	// запоминаем расстояние по Y передней линии гнутой тетивы, 
+	//чтобы координата нижней точки передней линии гнутой тетивы была одинаковая на внешней и внутренней
+	pointsDivide.startTurnY = par.pointsShape[par.pointsShape.length - 2].y - topLineP1.y;
+
+}
+
+/**
  * Нижние узлы
  */
+
 
 /**
  * первый подъем если внизу перекрытие
@@ -2036,19 +2164,24 @@ function itercectionBackLineMarsh(pTop, pBot, angBot, par) {
 
 
 function drawStringerHoles(par) {
+	var shape = par.stringerShape;
 	for (var i = 0; i < par.pointsHole.length; i++) {
 		var center = par.pointsHole[i];
+		if (par.pDivideBot) {
+			if (center.x < par.pDivideBot.x) shape = par.stringerShapeBot
+			else shape = par.stringerShapeTop
+		}
 
 		if (center.polygon) {
 			if (!center.rad) center.rad = par.rectHoleSize / 2;
-			addPolygonHole(par.stringerShape, dxfPrimitivesArr, center, center.rad, center.rad, par.dxfBasePoint);
+			addPolygonHole(shape, dxfPrimitivesArr, center, center.rad, center.rad, par.dxfBasePoint);
 		}
 
 		if (!center.polygon) {
 			if (!center.rad) center.rad = 7.5;
 			var hole1 = new THREE.Path();
 			addCircle(hole1, dxfPrimitivesArr, center, center.rad, par.dxfBasePoint);
-			par.stringerShape.holes.push(hole1);
+			shape.holes.push(hole1);
 		}
 	}
 }

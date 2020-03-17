@@ -8,6 +8,7 @@ function drawTreads() {
     //выбор функции отрисовки забежных ступеней
     var drawWndTreads = drawWndTreadsMetal;
     if (params.calcType == "mono") drawWndTreads = drawWndTreadsMono;
+    if (params.calcType == "curve") drawWndTreads = drawWndTreadsCurve;
     if (params.calcType == "timber") drawWndTreads = drawWndTreadsTimber;
     if (params.calcType == "timber_stock") drawWndTreads = drawWndTreadsTimber_stock;
     if (params.calcType == "geometry") {
@@ -209,7 +210,13 @@ function drawTreads() {
         }
 
         //второй поворот
-        if (params.stairModel == "П-образная трехмаршевая" || params.stairModel == "П-образная с забегом") {
+  //      var isTurn2 = false;
+		//if (params.calcType !== 'curve' && params.stairModel == "П-образная с забегом") isTurn2 = true;
+  //      if (params.stairModel == "П-образная трехмаршевая") {
+	 //       isTurn2 = true;
+		//	if (params.calcType == 'curve' && params.stairAmt2 == 0) isTurn2 = false;
+  //      }
+		if (params.stairModel == "П-образная с забегом" || params.stairModel == "П-образная трехмаршевая") {
             var marshPar2 = getMarshParams(marshId);
             var turnType2 = marshPar2.topTurn;
 
@@ -2406,6 +2413,116 @@ function drawWndTreadsMono(par) {
 
 } //end of drawWndTreadsMono
 
+function drawWndTreadsCurve(par) {
+    /*функция отрисовывает блок забежных ступеней для лестниц монокосоур
+
+    Исходные данные:
+        botMarshId - id нижнего марша
+        dxfBasePoint: dxfBasePoint, - базовая точка вставки контуров ступеней
+
+    Возвращаемое значение:
+    объект  turnSteps = {
+        treads: treads; - мэши ступеней в виде единого 3D объекта
+        params: treadParams; - массив параметров каждой ступени
+
+    */
+
+	var hasTurnRack = false;
+	if (params.railingModel == "Деревянные балясины" || params.railingModel == "Дерево с ковкой" || params.railingModel == 'Стекло') {
+		if (params.stairModel == 'Г-образная с забегом' || params.stairModel == 'Г-образная с площадкой') {
+			hasTurnRack = getMarshParams(1).hasRailing.in || getMarshParams(3).hasRailing.in;
+		}
+		if (params.stairModel == 'П-образная трехмаршевая' && par.botMarshId == 1) {
+			hasTurnRack = getMarshParams(1).hasRailing.in || getMarshParams(2).hasRailing.in;
+		}
+		if (params.stairModel == 'П-образная трехмаршевая' && par.botMarshId == 2) {
+			hasTurnRack = getMarshParams(2).hasRailing.in || getMarshParams(3).hasRailing.in;
+		}
+		if (params.stairModel == 'П-образная с забегом' && par.turnId == 1) {
+			hasTurnRack = getMarshParams(1).hasRailing.in;
+		}
+		if (params.stairModel == 'П-образная с забегом' && par.turnId == 2) {
+			hasTurnRack = getMarshParams(3).hasRailing.in;
+		}
+	}
+
+	var rackSize = 95;
+
+	if (params.calcType == "mono") par.type = "mono";
+
+	//константы
+	var stepWidthLow = 40 + 5 + 5; //40мм размер стойки, по 5мм свес
+
+
+	//параметры марша
+	var marshPar = getMarshParams(par.botMarshId);
+
+	par.h = marshPar.h_topWnd;
+
+	var treadParams = [];
+	var treads = new THREE.Object3D();
+	var risers = new THREE.Object3D();
+
+	var pointsWndTreads = calcPointsWndTreads().pointsTreads;
+
+	for (var i = 0; i < pointsWndTreads.length; i++) {
+		var points = pointsWndTreads[i];
+		points = moovePoints(points, {x: - params.M / 2, y: 0})
+		//создаем шейп
+		var shapePar = {
+			points: points,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: par.dxfBasePoint,
+			markPoints: false, //пометить точки в dxf для отладки		
+		};
+
+		//параметры для рабочего чертежа
+		shapePar.drawing = {
+			name: "Забежная ступень " + i,
+			group: "wndTreads",
+			baseLine: {
+				p1: shapePar.points[0],
+				p2: shapePar.points[shapePar.points.length - 1],
+			},
+		}
+
+		var shape = drawShapeByPoints2(shapePar).shape;
+
+		var extrudeOptions = {
+			amount: params.treadThickness,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var mesh = new THREE.Mesh(geom, params.materials.tread);
+		mesh.rotation.x = -Math.PI / 2*turnFactor;
+		mesh.rotation.z = -Math.PI / 2;
+		mesh.position.y = par.h * i + 0.02;
+		if(turnFactor == 1) mesh.position.y -= params.treadThickness;
+		mesh.userData.wndTreadParams = {
+			angle: 0,//par.edgeAngle,
+			treadId: i,
+		}
+		treads.add(mesh);
+
+		par.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 2000, 0);
+	}
+
+
+
+
+	/*добавляем к параметрам*/
+	par.treads = treads;
+	par.risers = risers;
+	par.params = treadParams;
+
+	return par;
+
+} //end of drawWndTreadsMono
+
 function drawWndTreadsTimber(par){
 
 	/*функция отрисовывает блок забежных ступеней для полностью деревянных
@@ -4241,3 +4358,4 @@ function calcNewellRiserLen(){
 	return len;
 
 }//end of calcNewellRiserLen
+

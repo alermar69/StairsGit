@@ -2313,7 +2313,13 @@ function drawRailingSectionForge2(par) {
 
         if (parRacks.botFirst) parRacks.botLast = parRacks.marshFirst;
         if (parRacks.topLast) parRacks.topFirst = parRacks.marshLast;
-		}
+	}
+	
+	if (params.calcType === 'bolz' && par.key === "in") {
+		par.racks = [];
+		calcRacksBolzs(par);
+		var parRacks = setRacksParams(par).parRacks; //функция в metal/drawRailing.js
+	}
 
     if (par.racks.length == 0) return section;
 
@@ -3657,7 +3663,7 @@ function drawForgedFramePart2(par) {
 
 		//стойки лт и ко
 
-		if (params.calcType == 'metal' || params.calcType == 'vhod' || par.isBanister) {
+		if (params.calcType == 'metal' || params.calcType == 'vhod' || par.isBanister || params.calcType == 'bolz') {
 			var p3 = newPoint_xy(p0, par.poleProfileY / 2, 0);
 			var p4 = newPoint_xy(p3, -par.poleProfileY, 0);
 			points.push(p3, p4);
