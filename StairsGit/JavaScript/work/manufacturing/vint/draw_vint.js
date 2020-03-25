@@ -200,6 +200,7 @@ function drawStaircase(viewportId, isVisible) {
 
 	var startAngle = Math.PI - staircaseAngle;
 	startAngle = startAngle * turnFactor
+	var edgeAngle = treadAngle - 2 * Math.asin(treadLowRad / (params.staircaseDiam / 2));
 	if (turnFactor == -1) {
 		var edgeAngle = treadAngle - 2 * Math.asin(treadLowRad / (params.staircaseDiam / 2));
 		startAngle = startAngle - edgeAngle;
@@ -214,12 +215,13 @@ function drawStaircase(viewportId, isVisible) {
 	stairParams.stairCaseAngle = staircaseAngle;
 
 	/*ступени*/
+	var treadParams = {}
 
 	addVintTreads();
 
 	function addVintTreads() {
 
-		var treadParams = {
+		treadParams = {
 			//staircaseDiam: staircaseDiam,
 			treadAngle: treadAngle,
 			treadLowRad: treadLowRad,
@@ -228,18 +230,26 @@ function drawStaircase(viewportId, isVisible) {
 			type: "timber",
 			material: params.materials.tread,
 			dxfArr: dxfPrimitivesArr,
+			turnFactor: turnFactor,
+		}
+		if (params.model == "Спиральная (косоур)") {
+			treadParams.isMonoSpiral = true;
+			treadParams.columnDiam = params.staircaseDiam - params.M * 2;
 		}
 		if (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") {
 			treadParams.type = "metal";
 		// 	treadParams.material = params.materials.metal;
 		}
-		var divides = calcDivides(stepHeight);		
+
+		var divides = [];
+		if (!treadParams.isMonoSpiral) divides = calcDivides(stepHeight);
+		
 
 		//отрисовывамем винтовую ступень
 		var posY = stepHeight;
 		for (var i = 0; i < stairAmt; i++) {
 
-			if (stairType != "metal" && i < regShimAmt) posY += regShimThk;
+			if (stairType != "metal" && i < regShimAmt && !treadParams.isMonoSpiral) posY += regShimThk;
 
 			//определяем наличие разделения тетив под ступенью
 			treadParams.isDivide = false;
@@ -259,273 +269,272 @@ function drawStaircase(viewportId, isVisible) {
 			//treads.push(tread);
 			model.add(tread, "treads");
 
-
 			posY += stepHeight;
-			if (stairType == "metal" && i < regShimAmt) posY += regShimThk;
+			if (stairType == "metal" && i < regShimAmt && !treadParams.isMonoSpiral) posY += regShimThk;
 
 			//контура остальных ступеней кроме первой добавляем в мусорный масси
 			treadParams.dxfArr = dxfPrimitivesArr0;
 		}
 
 	}
+
+
 	/*бобышки*/
+	if (params.model !== "Спиральная (косоур)") {
+		function addVintSpacers() {}; //пустая функция для навигации
 
-	function addVintSpacers() {}; //пустая функция для навигации
+		var radiusTop = columnDiam / 2;
+		var radiusBottom = radiusTop;
+		var radialSegments = 36;
+		var heightSegments = 1;
+		var openEnded = false;
+		var botFlanThk = 8;
+		var middleFlanThk = 4;
 
-	var radiusTop = columnDiam / 2;
-	var radiusBottom = radiusTop;
-	var radialSegments = 36;
-	var heightSegments = 1;
-	var openEnded = false;
-	var botFlanThk = 8;
-	var middleFlanThk = 4;
-
-	var cylParams = {
-		diam: columnDiam,
-		holeDiam: columnDiam - 8,
-		height: 0,
-		material: params.materials.metal,
-		partName: "drum"
-	}
-
-
-
-	//первая бобышка
-	var posY0 = botFlanThk;
-	if (botFloorType == "черновой") posY0 -= params.botFloorsDist;
-
-	var spacerHeight0 = stepHeight - params.treadThickness - posY0;
-	if (stairType == "metal") spacerHeight0 = stepHeight - posY0 + 4; // 4 - подогнано
-
-	var spacerPar = {
-		height: spacerHeight0,
-		holeDiam: 50,
-	}
-	var spacerObj = drawDrum(spacerPar)
-	spacerObj.tubeMesh.position.y = spacerObj.shimMesh.position.y = posY0;
-
-	model.add(spacerObj.tubeMesh, "carcas");
-	model.add(spacerObj.shimMesh, "shims");
-
-
-	//остальные бобышки
-	//cylParams.holeDiam = 26;
-	var spacerHeight = stepHeight - params.treadThickness;
-	if (stairType == "metal") spacerHeight = stepHeight;
-
-	//var geom = new THREE.CylinderGeometry( radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded) 
-	//var geomHolderDrum = new THREE.CylinderGeometry( radiusTop, radiusBottom, height-8, radialSegments, heightSegments, openEnded) 
-
-	var posY = stepHeight;
-	if (stairType == "metal") posY += botFlanThk / 2;
-	//if (stairType == "metal") posY = spacerHeight0 + 8
-	
-	for (var i = 1; i < stairAmt + 1; i++) {
-		//регулировочная шайба
-		if (i <= regShimAmt) {
-			posY += regShimThk;
+		var cylParams = {
+			diam: columnDiam,
+			holeDiam: columnDiam - 8,
+			height: 0,
+			material: params.materials.metal,
+			partName: "drum"
 		}
+
+
+		//первая бобышка
+		var posY0 = botFlanThk;
+		if (botFloorType == "черновой") posY0 -= params.botFloorsDist;
+
+		var spacerHeight0 = stepHeight - params.treadThickness - posY0;
+		if (stairType == "metal") spacerHeight0 = stepHeight - posY0 + 4; // 4 - подогнано
 
 		var spacerPar = {
-			height: spacerHeight,
-			holeDiam: 26,
+			height: spacerHeight0,
+			holeDiam: 50,
 		}
-		//бобышка, примыкающая к кронштейну
-		var isMidHolderSpacer = false;
-		if (params.treadsMaterial != "рифленая сталь" && 
-			params.treadsMaterial != "лотки под плитку" &&
-			midHoldersParams.pos.indexOf(i + 1) != -1
-			) isMidHolderSpacer = true;
-		if ((params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") &&
-			midHoldersParams.pos.indexOf(i) != -1) isMidHolderSpacer = true;
-
-		if (isMidHolderSpacer) spacerPar.height -= 8;
-		// if (isMidHolderSpacer) 
-		//if(i == stairAmt && (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку")) spacerPar.height -= 4;
-		//последняя бобышка на рифленке без крышки - вмето нее фланец
-		if (i == stairAmt && stairType == "metal") spacerPar.noShim = true;
-		
 		var spacerObj = drawDrum(spacerPar)
-		spacerObj.tubeMesh.position.y = spacerObj.shimMesh.position.y = posY;
-		if ((params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") &&
-			midHoldersParams.pos.indexOf(i) != -1) {
-			spacerObj.tubeMesh.position.y = spacerObj.shimMesh.position.y = posY + 8;
-			}
+		spacerObj.tubeMesh.position.y = spacerObj.shimMesh.position.y = posY0;
+
 		model.add(spacerObj.tubeMesh, "carcas");
 		model.add(spacerObj.shimMesh, "shims");
 
-		posY += stepHeight;
-	}
 
+		//остальные бобышки
+		//cylParams.holeDiam = 26;
+		var spacerHeight = stepHeight - params.treadThickness;
+		if (stairType == "metal") spacerHeight = stepHeight;
 
-	//нижний фланец
+		//var geom = new THREE.CylinderGeometry( radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded) 
+		//var geomHolderDrum = new THREE.CylinderGeometry( radiusTop, radiusBottom, height-8, radialSegments, heightSegments, openEnded) 
 
-	var flanParams = {
-		material: metalMaterial1,
-		dxfArr: dxfPrimitivesArr,
-		dxfBasePoint: {
-			x: -1000,
-			y: 0,
-		},
-		partName: "botFlan",
-	}
+		var posY = stepHeight;
+		if (stairType == "metal") posY += botFlanThk / 2;
+		//if (stairType == "metal") posY = spacerHeight0 + 8
 
-	//отрисовываем нижний фланец
-	flanParams = drawRoundFlan(flanParams)
+		for (var i = 1; i < stairAmt + 1; i++) {
+			//регулировочная шайба
+			if (i <= regShimAmt) {
+				posY += regShimThk;
+			}
 
-	var botFlan = flanParams.mesh;
-	if (botFloorType == "черновой") botFlan.position.y -= params.botFloorsDist;
-	//carcas.push(botFlan);
-	model.add(botFlan, "shims");
-	
-	//крышка нижнего фланца
-	if(params.botFlanCover == "есть"){
-		var flanCover = drawBotFlanCover();
-		flanCover.position.y = 0;
-		model.add(flanCover, "treads");
-	}
+			var spacerPar = {
+				height: spacerHeight,
+				holeDiam: 26,
+			}
+			//бобышка, примыкающая к кронштейну
+			var isMidHolderSpacer = false;
+			if (params.treadsMaterial != "рифленая сталь" &&
+				params.treadsMaterial != "лотки под плитку" &&
+				midHoldersParams.pos.indexOf(i + 1) != -1
+			) isMidHolderSpacer = true;
+			if ((params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") &&
+				midHoldersParams.pos.indexOf(i) != -1) isMidHolderSpacer = true;
 
+			if (isMidHolderSpacer) spacerPar.height -= 8;
+			// if (isMidHolderSpacer) 
+			//if(i == stairAmt && (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку")) spacerPar.height -= 4;
+			//последняя бобышка на рифленке без крышки - вмето нее фланец
+			if (i == stairAmt && stairType == "metal") spacerPar.noShim = true;
 
-	//верхний фланец с 4 отверстиями
+			var spacerObj = drawDrum(spacerPar)
+			spacerObj.tubeMesh.position.y = spacerObj.shimMesh.position.y = posY;
+			if ((params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") &&
+				midHoldersParams.pos.indexOf(i) != -1) {
+				spacerObj.tubeMesh.position.y = spacerObj.shimMesh.position.y = posY + 8;
+			}
+			model.add(spacerObj.tubeMesh, "carcas");
+			model.add(spacerObj.shimMesh, "shims");
 
-	var flanParams = {
-		material: metalMaterial1,
-		dxfArr: dxfPrimitivesArr,
-		dxfBasePoint: {
-			x: -1000,
-			y: -300,
-		},
-		partName: "topFlan",
-	}
-
-	//отрисовываем верхний фланец
-	flanParams = drawRoundFlan(flanParams)
-
-	var topFlan = flanParams.mesh;
-	topFlan.position.y = stepHeight * (stairAmt + 1) + regShimAmt * regShimThk + 4 + 0.05;
-	var sectionTyrnAngle = (platformAngle / 2 - platformExtraAngle + Math.PI) * turnFactor;
-	if (params.platformType == "square") sectionTyrnAngle = Math.PI / 2 * turnFactor + Math.PI;
-	topFlan.rotation.z = sectionTyrnAngle + Math.PI / 4;
-	//carcas.push(topFlan);
-	model.add(topFlan, "shims");
-
-
-	//регулировочные шайбы
-	var cylParams = {
-		diam: columnDiam,
-		holeDiam: 26,
-		height: regShimThk,
-		material: shimMaterial,
-		partName: "regShim"
-	}
-
-	//var geom = new THREE.CylinderGeometry( radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded) 
-
-	for (var i = 0; i < regShimAmt; i++) {
-		//var regShim = new THREE.Mesh(geom, shimMaterial);
-		var regShim = drawCylinder_2(cylParams).mesh;
-		regShim.position.x = 0;
-		regShim.position.y = (stepHeight + regShimThk) * (i + 1) - params.treadThickness - regShimThk;
-		if (stairType == "metal") regShim.position.y += params.treadThickness + 4;
-		if (midHoldersParams.pos.indexOf(i + 1) != -1 && stairType != "metal") {
-			regShim.position.y -= 8;
+			posY += stepHeight;
 		}
-		model.add(regShim, "shims");
-	}
 
 
-	//параметры гайки
-	var nutParams = {
-		diam: 20,
-		isLong: true,
-	}
+		//нижний фланец
+
+		var flanParams = {
+			material: metalMaterial1,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: {
+				x: -1000,
+				y: 0,
+			},
+			partName: "botFlan",
+		}
+
+		//отрисовываем нижний фланец
+		flanParams = drawRoundFlan(flanParams)
+
+		var botFlan = flanParams.mesh;
+		if (botFloorType == "черновой") botFlan.position.y -= params.botFloorsDist;
+		//carcas.push(botFlan);
+		model.add(botFlan, "shims");
+
+		//крышка нижнего фланца
+		if (params.botFlanCover == "есть") {
+			var flanCover = drawBotFlanCover();
+			flanCover.position.y = 0;
+			model.add(flanCover, "treads");
+		}
 
 
-	//центральный стержень
-	var maxRise = stepHeight + regShimThk;
-	var maxLen = 2000;
-	var endDist = 5;
-	var extraLen = 70;
-	//общая длина всех стержней
-	var fullLen = params.staircaseHeight + 100 + params.stepAmt * regShimThk;
-	if(params.platformPosition == "ниже") fullLen -= maxRise;
-	//корректируем длину нижнего куска при установке на черновой пола
-	if(params.botFloorType == "черновой") fullLen += params.botFloorsDist;
+		//верхний фланец с 4 отверстиями
 
-	var rodAmt = Math.ceil(fullLen / maxLen); //число кусков стержня
-	var rodLen0 = fullLen / rodAmt; //номинальная длина куска
-	var rodsLen = [];
+		var flanParams = {
+			material: metalMaterial1,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: {
+				x: -1000,
+				y: -300,
+			},
+			partName: "topFlan",
+		}
 
-	//считаем длины кусков так, чтобы стык стержней попадал внутрь бобышки
-	var rodStepAmt = Math.round(rodLen0 / maxRise); 
-	var prevRodsSumLen = 0;
-	for (var i = 0; i < rodAmt-1; i++) {
-		var connectionHeight = maxRise * rodStepAmt * (i+1) - posY0// + params.regShimAmt * regShimThk;
-		var rodLen = connectionHeight - prevRodsSumLen + extraLen;		
+		//отрисовываем верхний фланец
+		flanParams = drawRoundFlan(flanParams)
+
+		var topFlan = flanParams.mesh;
+		topFlan.position.y = stepHeight * (stairAmt + 1) + regShimAmt * regShimThk + 4 + 0.05;
+		var sectionTyrnAngle = (platformAngle / 2 - platformExtraAngle + Math.PI) * turnFactor;
+		if (params.platformType == "square") sectionTyrnAngle = Math.PI / 2 * turnFactor + Math.PI;
+		topFlan.rotation.z = sectionTyrnAngle + Math.PI / 4;
+		//carcas.push(topFlan);
+		model.add(topFlan, "shims");
+
+
+		//регулировочные шайбы
+		var cylParams = {
+			diam: columnDiam,
+			holeDiam: 26,
+			height: regShimThk,
+			material: shimMaterial,
+			partName: "regShim"
+		}
+
+		//var geom = new THREE.CylinderGeometry( radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded) 
+
+		for (var i = 0; i < regShimAmt; i++) {
+			//var regShim = new THREE.Mesh(geom, shimMaterial);
+			var regShim = drawCylinder_2(cylParams).mesh;
+			regShim.position.x = 0;
+			regShim.position.y = (stepHeight + regShimThk) * (i + 1) - params.treadThickness - regShimThk;
+			if (stairType == "metal") regShim.position.y += params.treadThickness + 4;
+			if (midHoldersParams.pos.indexOf(i + 1) != -1 && stairType != "metal") {
+				regShim.position.y -= 8;
+			}
+			model.add(regShim, "shims");
+		}
+
+
+		//параметры гайки
+		var nutParams = {
+			diam: 20,
+			isLong: true,
+		}
+
+
+		//центральный стержень
+		var maxRise = stepHeight + regShimThk;
+		var maxLen = 2000;
+		var endDist = 5;
+		var extraLen = 70;
+		//общая длина всех стержней
+		var fullLen = params.staircaseHeight + 100 + params.stepAmt * regShimThk;
+		if (params.platformPosition == "ниже") fullLen -= maxRise;
+		//корректируем длину нижнего куска при установке на черновой пола
+		if (params.botFloorType == "черновой") fullLen += params.botFloorsDist;
+
+		var rodAmt = Math.ceil(fullLen / maxLen); //число кусков стержня
+		var rodLen0 = fullLen / rodAmt; //номинальная длина куска
+		var rodsLen = [];
+
+		//считаем длины кусков так, чтобы стык стержней попадал внутрь бобышки
+		var rodStepAmt = Math.round(rodLen0 / maxRise);
+		var prevRodsSumLen = 0;
+		for (var i = 0; i < rodAmt - 1; i++) {
+			var connectionHeight = maxRise * rodStepAmt * (i + 1) - posY0 // + params.regShimAmt * regShimThk;
+			var rodLen = connectionHeight - prevRodsSumLen + extraLen;
+			rodsLen.push(rodLen);
+			prevRodsSumLen += rodLen;
+		}
+
+		//последний (верхний) кусок
+		rodLen = fullLen - prevRodsSumLen;
+		//if(params.platformPosition == "ниже") rodLen -= maxRise;
 		rodsLen.push(rodLen);
-		prevRodsSumLen += rodLen;
-		}
-	
-	//последний (верхний) кусок
-	rodLen = fullLen - prevRodsSumLen;
-	//if(params.platformPosition == "ниже") rodLen -= maxRise;
-	rodsLen.push(rodLen);
 
-	
-	
-	var posY = 0;
-	for (var i = 0; i < rodAmt; i++) {
-		var rodPar = {
-			len: rodsLen[i] - endDist,
-			pos: i,
-			isLast: false,
-		}
-		
-		if(i == rodAmt-1) rodPar.isLast = true;
-		
-		var rod = drawRod(rodPar).mesh;
-		rod.position.y = posY0 + posY + endDist;
-		model.add(rod, "rod");
 
-		//удлинненная гайка на стыке
+		var posY = 0;
+		for (var i = 0; i < rodAmt; i++) {
+			var rodPar = {
+				len: rodsLen[i] - endDist,
+				pos: i,
+				isLast: false,
+			}
+
+			if (i == rodAmt - 1) rodPar.isLast = true;
+
+			var rod = drawRod(rodPar).mesh;
+			rod.position.y = posY0 + posY + endDist;
+			model.add(rod, "rod");
+
+			//удлинненная гайка на стыке
+			nutParams.isLong = true;
+			var nut = drawNut(nutParams).mesh;
+			nut.position.y = posY0 + posY - nutParams.nutHeight / 2;
+			if (i == 0) nut.position.y = posY0;
+			model.add(nut, "shims");
+			var nutPos = nut.position.y + nutParams.nutHeight;
+
+			//средние стяжные гайки
+			if (i > 0) {
+				nutParams.isLong = false;
+				var nut = drawNut(nutParams).mesh;
+				//nut.position.y = posY0 + Math.floor(posY / maxRise) * maxRise + 8 + 0.01; //8 - костыль
+				nut.position.y = nutPos + 0.5; //8 - костыль
+				model.add(nut, "shims")
+			}
+
+
+			posY += rodsLen[i];
+
+		}
+
+
+		//верхняя удлиненная гайка
+
 		nutParams.isLong = true;
 		var nut = drawNut(nutParams).mesh;
-		nut.position.y = posY0 + posY - nutParams.nutHeight / 2;
-		if (i == 0) nut.position.y = posY0;
+		nut.position.y = stepHeight * params.stepAmt + params.regShimAmt * regShimThk + 8 + 4 + 0.5;
+		if (params.platformPosition == "ниже") nut.position.y -= stepHeight;
+		console.log(nut.position.y, posY0)
 		model.add(nut, "shims");
-		var nutPos = nut.position.y + nutParams.nutHeight;
-		
-		//средние стяжные гайки
-		if(i > 0){
-			nutParams.isLong = false;
-			var nut = drawNut(nutParams).mesh;
-			//nut.position.y = posY0 + Math.floor(posY / maxRise) * maxRise + 8 + 0.01; //8 - костыль
-			nut.position.y = nutPos + 0.5; //8 - костыль
-			model.add(nut, "shims")
-		}
-		
+		var nutTopPos = nut.position.y + nutParams.nutHeight;
 
-		posY += rodsLen[i];
-
+		//верхняя контргайка
+		nutParams.isLong = false;
+		var nut = drawNut(nutParams).mesh;
+		nut.position.y = nutTopPos + 0.5;
+		model.add(nut, "shims");
 	}
-
-
-
-	//верхняя удлиненная гайка
-	
-	nutParams.isLong = true;
-	var nut = drawNut(nutParams).mesh;
-	nut.position.y = stepHeight * params.stepAmt + params.regShimAmt * regShimThk + 8 + 4 + 0.5;
-	if(params.platformPosition == "ниже") nut.position.y -= stepHeight;
-	console.log(nut.position.y, posY0)
-	model.add(nut, "shims");
-	var nutTopPos = nut.position.y + nutParams.nutHeight;
-
-	//верхняя контргайка
-	nutParams.isLong = false;
-	var nut = drawNut(nutParams).mesh;
-	nut.position.y = nutTopPos + 0.5;
-	model.add(nut, "shims");
 
 	/*спиральные тетивы*/
 
@@ -553,6 +562,11 @@ function drawStaircase(viewportId, isVisible) {
 			turnFactor: turnFactor,
 			material: stringerMaterial,
 		}
+		if (params.model == "Спиральная (косоур)") {
+			stringerParams.rad = params.staircaseDiam / 2 - params.M / 2 + 75;
+			stringerParams.stripeWidth = 400;
+			var treadExtraAngle = Math.asin(treadLowRad / (stringerParams.rad));
+		}
 		
 		var dxfStringerPar = {
 			angle: stairParams.treadAngle,
@@ -576,17 +590,26 @@ function drawStaircase(viewportId, isVisible) {
 		}
 		//model.add(stringer, "stringers2");
 
-		stringerParams = drawSpiralStripe(stringerParams);
+		var drawSpiralStringer = drawSpiralStripe;
+		if (params.model == "Спиральная (косоур)")
+			drawSpiralStringer = drawSpiralStripeMono;
+
+		stringerParams = drawSpiralStringer(stringerParams);
 		var stringer = stringerParams.mesh;
 		stringer.rotation.x = -Math.PI / 2;
 		stringer.rotation.z = startAngle - treadExtraAngle // + edgeAngle
 		if (params.model == "Спиральная") stringer.rotation.z = startAngle;
-		if (turnFactor == -1) stringer.rotation.z += treadAngle;
+		if (turnFactor == -1) stringer.rotation.z += treadExtraAngle * 2 + edgeAngle;
+
+		if (params.model == "Спиральная (косоур)") {
+			stringer.rotation.z = startAngle - (stepAngle - treadExtraAngle) * turnFactor	
+			if (turnFactor == 1) stringer.rotation.z += edgeAngle;
+		}
 
 		stringer.position.x = 0;
 		//stringers.push(stringer);
 		model.add(stringer, "stringers");
-		
+
 		var floorAngle = drawAngleSupport("У4-70х70х100");
 		floorAngle.rotation.y = stairParams.stairCaseAngle + Math.PI / 2;
 		if (params.turnFactor == 1) {
@@ -924,27 +947,109 @@ function drawStaircase(viewportId, isVisible) {
 	}
 
 	//внутренняя спиральная тетива*/
-	if (params.model == "Спиральная") {
+	if (params.model == "Спиральная" || params.model == "Спиральная (косоур)") {
 		var stringerParams = {
 			rad: params.staircaseDiam / 2 - params.M - 1,
 			height: stepHeight * (stairAmt + stringerExtraStep),
-			stripeWidth: 500,
+			stripeWidth: 300,
 			angle: (stairAmt + stringerExtraStep) * stepAngle,
 			botHeight: stepHeight,
 			topHeight: 500 - stepHeight * stringerExtraStep,
 			turnFactor: turnFactor,
 			material: stringerMaterial,
 		}
+		if (params.model == "Спиральная (косоур)") {
+			stringerParams.rad = params.staircaseDiam / 2 - params.M / 2 - 75;
+			stringerParams.stripeWidth = 400;
+			var treadExtraAngleIn = Math.asin(treadLowRad / (stringerParams.rad));
+			stringerParams.deltaAng = treadExtraAngle - treadExtraAngleIn;		
+		}
 
-		stringerParams = drawSpiralStripe(stringerParams);
+		var drawSpiralStringer = drawSpiralStripe;
+		if (params.model == "Спиральная (косоур)")
+			drawSpiralStringer = drawSpiralStripeMono;
+
+		stringerParams = drawSpiralStringer(stringerParams);
 		var stringer = stringerParams.mesh;
 		stringer.rotation.x = -Math.PI / 2;
 		stringer.rotation.z = startAngle - treadExtraAngle // + edgeAngle
 		if (params.model == "Спиральная") stringer.rotation.z = startAngle;
-		if (turnFactor == -1) stringer.rotation.z += treadAngle;
+		if (turnFactor == -1) stringer.rotation.z += treadExtraAngle * 2 + edgeAngle;
+
+		if (params.model == "Спиральная (косоур)") {
+			stringer.rotation.z = startAngle - (stepAngle - treadExtraAngle) * turnFactor	
+			if (turnFactor == 1) stringer.rotation.z += edgeAngle;
+		}
+		
 		stringer.position.x = 0;
 		//stringers.push(stringer);
 		model.add(stringer, "stringers");
+	}
+	
+	if (params.model == "Спиральная (косоур)") {
+		//задняя пластина
+		stringerParams = drawTurnBackCurve(stringerParams);
+		var stringer = stringerParams.mesh;
+		stringer.rotation.x = -Math.PI / 2;
+		stringer.rotation.z = startAngle - (stepAngle - treadExtraAngle - stringerParams.startCutAngle) * turnFactor;	
+		if (turnFactor == 1) stringer.rotation.z += edgeAngle;
+		
+		stringer.position.x = 0;
+		model.add(stringer, "stringers");
+
+		//отрисовывамем подложки под ступень и переднии пластины для монокосоура
+		var posY = stepHeight;
+		for (var i = 0; i < stairAmt; i++) {
+
+			//Подложка
+			var plateParams = {
+				points: treadParams.pointsTreadPlate,
+				pointsHoles: treadParams.pointsTreadPlateHoles,
+				turnFactor: turnFactor,
+				dxfBasePoint: { x: 4000, y: -3000, },
+				dxfArr: dxfPrimitivesArr,
+			};
+			plateParams = drawTreadPlate(plateParams);
+			var plate = plateParams.mesh;
+			plate.rotation.y = stepAngle * i * turnFactor + startAngle;
+			plate.position.y = posY - params.treadThickness;
+			model.add(plate, "stringers2");
+
+			//Передняя пластина
+			var frontPlateParams = {
+				points: treadParams.pointsFrontPlate,
+				height: stepHeight,
+				width: 150,
+				turnFactor: turnFactor,
+				dxfBasePoint: { x: 4000, y: -4000, },
+				dxfArr: dxfPrimitivesArr,
+			};
+			
+			if(i == 0){
+				frontPlateParams.height -= params.treadThickness;
+				frontPlateParams = drawFrontPlate(frontPlateParams);
+				var plate = frontPlateParams.mesh;
+				plate.rotation.y = stepAngle * i * turnFactor + startAngle - stepAngle * turnFactor;
+				plate.position.y = posY - params.treadThickness - frontPlateParams.height;
+				plate.castShadow = true;
+				model.add(plate, "stringers2");
+				
+				frontPlateParams.height += params.treadThickness;
+			}
+			
+			frontPlateParams = drawFrontPlate(frontPlateParams);
+			var plate = frontPlateParams.mesh;
+			plate.rotation.y = stepAngle * i * turnFactor + startAngle;
+			plate.position.y = posY - params.treadThickness;
+			plate.castShadow = true;
+			model.add(plate, "stringers2");
+			posY += stepHeight;
+			
+			//контура остальных подложек и пластин кроме первой добавляем в мусорный масси
+			plateParams.dxfArr = dxfPrimitivesArr0;
+			frontPlateParams.dxfArr = dxfPrimitivesArr0;
+		}
+
 	}
 	
 	/*площадка*/

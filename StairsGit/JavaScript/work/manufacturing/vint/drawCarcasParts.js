@@ -370,14 +370,16 @@ function drawVintTreadShape(par) {
 
 
 	//сохраняем значения в массив параметров
-	stairParams.treadAngle = treadAngle;
-	stairParams.treadEdgeAngle = edgeAngle;
-	
+	if (!par.isMonoSpiral) {
+		stairParams.treadAngle = treadAngle;
+		stairParams.treadEdgeAngle = edgeAngle;
+	}
+
 	//рассчитываем координаты базовых точек
 	var basePoints = calcVintTreadPoints(par.treadAngle)
 
 	//деревянная ступень
-	if (type == "timber") {
+	if (type == "timber" && !par.isMonoSpiral) {
 		/*рассчитываем координаты точек*/
 		var p0 = basePoints[0]
 		var p1 = basePoints[1]
@@ -478,7 +480,7 @@ function drawVintTreadShape(par) {
 
 	/*металлическая ступень*/
 
-	if (type == "metal") {
+	if (type == "metal" && !par.isMonoSpiral) {
 
 		var deltaAng = Math.PI / 6; //половина угла, на который уменьшается дуга ступени, прилегающая к бобышке
 		var radIn = columnRad + 0.1; //радиус внутренней дуги, примыкающей к бобышке
@@ -525,6 +527,117 @@ function drawVintTreadShape(par) {
 		var sizeA = edgeLength;
 		var sizeB = distance(p3, p4);
 
+	}
+
+	/*ступень для монокосоура*/
+	if (par.isMonoSpiral) {
+		var radIn = columnRad + 0.1;
+		var center = basePoints[0];
+
+		var points = itercectionLineCircle(basePoints[1], basePoints[4], center, radIn);
+		var pt1 = points[1]
+		if (points[0].x > center.x) pt1 = points[0];
+
+		var points = itercectionLineCircle(basePoints[2], basePoints[3], center, radIn);
+		var pt2 = points[1]
+		if (points[0].x > center.x) pt2 = points[0];
+
+
+		var p0 = basePoints[0]
+		var p1 = pt1
+		var p2 = pt2
+		var p3 = basePoints[3]
+		var p4 = basePoints[4]
+
+		var dxfBasePoint = {
+			x: 0,
+			y: 0,
+		}
+
+		/*вычерчиваем конутр ступени*/
+
+		var treadShape = new THREE.Shape();
+		//addLine(treadShape, par.dxfArr, p1, p11, dxfBasePoint);
+		addArc2(treadShape, par.dxfArr, p0, radIn, calcAngleX1(p0, p2), calcAngleX1(p0, p1), false, dxfBasePoint);
+		addLine(treadShape, par.dxfArr, p2, p3, dxfBasePoint);
+		addArc2(treadShape, par.dxfArr, p0, stairRad, calcAngleX1(p0, p3), calcAngleX1(p0, p4), true, dxfBasePoint);
+		addLine(treadShape, par.dxfArr, p4, p1, dxfBasePoint);
+
+
+	/*рассчитываем и запоминаем точки контуров подложек и передней пластины*/
+		//точки контура подложки
+		var widthPlate = params.M / 2;
+		var radPlate = staircaseDiam / 2 - params.M / 2;
+		var radOutPlate = radPlate + widthPlate / 2;
+		var radInPlate = radPlate - widthPlate / 2;
+
+		var pc1 = p1;
+		var pc2 = p2;
+		var pc3 = p3;
+		var pc4 = p4;
+		if (par.turnFactor == 1) {
+			pc1 = p2;
+			pc2 = p1;
+			pc3 = p4;
+			pc4 = p3;
+		}
+
+		var line = parallel(pc2, pc3, 50 * par.turnFactor);
+
+		var points = itercectionLineCircle(pc1, pc4, center, radInPlate);
+		var pt1 = points[1]
+		if (points[0].x > center.x) pt1 = points[0];
+
+		var points = itercectionLineCircle(line.p1, line.p2, center, radInPlate);
+		var pt2 = points[1]
+		if (points[0].x > center.x) pt2 = points[0];
+
+		var points = itercectionLineCircle(line.p1, line.p2, center, radOutPlate);
+		var pt3 = points[1]
+		if (points[0].x > center.x) pt3 = points[0];
+
+		var points = itercectionLineCircle(pc1, pc4, center, radOutPlate);
+		var pt4 = points[1]
+		if (points[0].x > center.x) pt4 = points[0];
+
+		par.pointsTreadPlate = [pt1, pt2, pt3, pt4];	
+
+		//точки для построения отверстий в подложке
+		var widthStringer = 150 - 4 * 2;
+		var radPlate = staircaseDiam / 2 - params.M / 2;
+		var radOutPlate = radPlate + widthStringer / 2;
+		var radInPlate = radPlate - widthStringer / 2;
+
+		var line = parallel(pc2, pc3, 90 * par.turnFactor);
+
+		var points = itercectionLineCircle(pc1, pc4, center, radInPlate);
+		var pt1 = points[1]
+		if (points[0].x > center.x) pt1 = points[0];
+
+		var points = itercectionLineCircle(line.p1, line.p2, center, radInPlate);
+		var pt2 = points[1]
+		if (points[0].x > center.x) pt2 = points[0];
+
+		var points = itercectionLineCircle(line.p1, line.p2, center, radOutPlate);
+		var pt3 = points[1]
+		if (points[0].x > center.x) pt3 = points[0];
+
+		var points = itercectionLineCircle(pc1, pc4, center, radOutPlate);
+		var pt4 = points[1]
+		if (points[0].x > center.x) pt4 = points[0];
+
+		par.pointsTreadPlateHoles = [pt1, pt2, pt3, pt4];		
+		
+		//точки контура передней пластины монокосоура
+		var points = itercectionLineCircle(pc1, pc4, center, radPlate - widthStringer / 2);
+		var pt1 = points[1]
+		if (points[0].x > center.x) pt1 = points[0];
+
+		var points = itercectionLineCircle(pc1, pc4, center, radPlate + widthStringer / 2);
+		var pt2 = points[1]
+		if (points[0].x > center.x) pt2 = points[0];
+		
+		par.pointsFrontPlate = [pt1, pt2];
 	}
 	/*отверстия под стойки*
 
@@ -608,6 +721,7 @@ function drawVintTreadShape(par) {
 
 } //end of drawVintTreadShape
 
+
 function drawVintTread(par) {
 
 	par.mesh = new THREE.Object3D();
@@ -620,6 +734,7 @@ function drawVintTread(par) {
 		curveSegments: 12,
 		steps: 1
 	};
+
 
 	topPlateParams = drawVintTreadShape(par);
 	var shape = topPlateParams.shape;
@@ -3412,6 +3527,63 @@ function drawSpiralStripe(par) {
 
 } //end of drawSpiralStripe
 
+function drawSpiralStripeMono(par) {
+	var drawSpiralStripeMono = function (u, v, target) {
+
+		var angle = u * par.angle;
+		var rad = par.rad;
+		var height = par.height;
+		var width = par.stripeWidth;
+		var deltaBot = par.stripeWidth - par.botHeight;
+
+		var x = rad * Math.cos(angle);
+		var y = rad * Math.sin(angle) * par.turnFactor;
+		var z = v * width + height * u - deltaBot;
+
+		//срезаем снизу по горизонтали
+		if (z < 0) z = 0;
+
+		//срезаем сверху по горизонтали
+		//if (z > height + par.topHeight - deltaBot) z = height + par.topHeight - deltaBot;
+
+		//вырезы
+		var rise = stairParams.stepHeight
+		var stepAngle = params.stepAngle / 180 * Math.PI;
+		var ang = 0;
+		if (par.deltaAng) ang += par.deltaAng;
+		for (var i = 0; i < stairParams.stairAmt; i++) {
+			if (angle >= stepAngle * i && angle <= stepAngle * (i + 1) - ang) {
+				if (z > (rise * (i + 1) - params.treadThickness - 4)) {
+					z = rise * (i + 1) - params.treadThickness - 4
+				};
+			}			
+		}
+
+		//срезаем сверху по горизонтали
+		if (z > (rise * (stairParams.stairAmt + 1) - params.treadThickness - 4 + 20)) {
+			z = rise * (stairParams.stairAmt + 1) - params.treadThickness - 4 + 20
+		};
+
+
+
+		target.set(x, y, z);
+		//return new THREE.Vector3(x, y, z);
+	}
+
+	var geom = new THREE.ParametricGeometry(drawSpiralStripeMono, 220, 220, false);
+
+	var mesh = new THREE.Mesh(geom, par.material)
+
+	//рассчитываем угол срезанного участка
+	var startCutAngle = (par.stripeWidth - par.botHeight) / par.height * par.angle;
+
+	par.mesh = mesh;
+	par.startCutAngle = startCutAngle;
+	return par;
+
+} //end of drawSpiralStripe
+
+
 /** функция отрисовывает крышку нижнего фланца
 */
 
@@ -3979,4 +4151,254 @@ function connectingFlan(par) {
 
 function itercectionLines(line1, line2) {
 	return itercection(line1.p1, line1.p2, line2.p1, line2.p2);
+}
+
+
+
+/**
+	Функция отрисовки параметрической задней пластины на забеге на гнутом коробе
+*/
+function drawTurnBackCurve(par) {
+
+	var drawTurnBackCurve = function (u, v, target) {
+
+		//var angle = -Math.PI / 2;
+		//var angle = u * par.angle;
+		var angle = par.angle// * turnFactor;
+		var radOut = params.staircaseDiam / 2 - params.M / 2 + 75// - params.metalThickness;
+		var radIn = params.staircaseDiam / 2 - params.M / 2 - 75// + params.metalThickness;
+		var height = par.height;
+
+		var x = radOut * u * Math.cos(v * angle)// * turnFactor;
+		var y = radOut * u * Math.sin(v * angle) * par.turnFactor;
+		var z = height * v;
+
+		if (x * x + y * y < radIn * radIn) {
+			x = radIn * Math.cos(v * angle)// * turnFactor;
+			y = radIn * Math.sin(v * angle) * par.turnFactor;
+		}
+
+		//срезаем сверху по горизонтали
+		if (v * angle >= angle - par.startCutAngle) {
+			x = par.topPoint.x;
+			y = par.topPoint.y;
+			z = par.topPoint.z;
+		}
+		else{
+			par.topPoint.x = x;
+			par.topPoint.y = y;
+			par.topPoint.z = z;
+		}
+
+		target.set(x, y, z);
+	}
+	
+	par.topPoint = {x: 0, y: 0, z: 0}
+
+	var geom = new THREE.ParametricGeometry(drawTurnBackCurve, 120, 120, false);
+
+	var stringerMaterial = new THREE.MeshLambertMaterial({
+		color: 0x363636,
+		wireframe: false
+	});
+	stringerMaterial.side = THREE.DoubleSide;
+
+	var mesh = new THREE.Mesh(geom, stringerMaterial)
+
+	par.mesh = mesh;
+	return par;
+
+} //end of drawTurnBackCurve
+
+/** функция отрисовки подложки первой забежной ступени для лестницы на сварном коробе
+*@params points - точки контура, рассчитанные при расчете ступеней в функции drawVintTreadShape
+*@params dxfArr
+*@params dxfBasePoint
+*/
+function drawTreadPlate(par) {
+
+	par.mesh = new THREE.Object3D();
+	par.thk = 4;
+
+	//создаем шейп
+	var shapePar = {
+		points: par.points,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+	}
+
+	var shape = drawShapeByPoints2(shapePar).shape;
+
+	//прямоугольный вырез в центре детали------------------------------
+
+	var holesPar = {
+		points: par.pointsHoles,
+		dx: -40,
+		dy: -40 * par.turnFactor,
+	}
+
+	var arr = moovePointsPathToIn(holesPar).points//.reverse();
+	if (par.turnFactor == -1) arr.reverse();
+	//if (turnFactor == -1)
+	//arr = mirrowPointsMiddleX(arr);
+
+	var holeParams = {
+		vertexes: arr,
+		cornerRad: 10.0,
+		dxfPrimitivesArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint
+	}
+
+	shape.holes.push(topCoverCentralHole(holeParams));
+
+	//отверстия для болтов--------------------------------------------------------
+	var holesPar = {
+		points: par.pointsHoles,
+		dx: -20,
+		dy: -20 * par.turnFactor,
+	}
+
+	par.holesBolt = moovePointsPathToIn(holesPar).points;
+	//if (turnFactor == -1)
+	//par.holesBolt = mirrowPointsMiddleX(par.holesBolt);
+	for (var j = 0; j < par.holesBolt.length; j++) {
+		addRoundHole(shape, par.dxfArr, par.holesBolt[j], 6.5, par.dxfBasePoint);
+	}
+
+	//отверстия для шурупов крепления ступени-----------------------------------------
+	var holesPar = {
+		points: par.points,
+		dx: -20,
+		dy: -20 * par.turnFactor,
+	}
+
+	par.holes = moovePointsPathToIn(holesPar).points;
+	//if (turnFactor == -1)
+	//par.holes = mirrowPointsMiddleX(par.holes);
+	par.holeRad = 5;
+
+	//Отмечаем тип зенковки, для свг
+	par.holes.forEach(function (element) { element.holeData = { zenk: 'no' } });
+
+	for (var j = 0; j < par.holes.length; j++) {
+		addRoundHole(shape, par.dxfArr, par.holes[j], par.holeRad, par.dxfBasePoint);
+	}
+
+
+	var extrudeOptions = {
+		amount: par.thk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var topPlate = new THREE.Mesh(geom, params.materials.metal);
+	topPlate.rotation.x = -0.5 * Math.PI;
+	topPlate.position.y = -par.thk;
+	par.mesh.add(topPlate);
+
+	return par;
+}
+
+/** функция отрисовывает прямоугольные вертикальные пластины для сварного косоура
+*@params points - точки контура, рассчитанные при расчете ступеней в функции drawVintTreadShape
+*@params dxfArr
+*@params dxfBasePoint
+*/
+function drawFrontPlate(par) {
+
+	par.mesh = new THREE.Object3D();
+	par.thk = 4;
+
+	var p1 = copyPoint(par.points[0]);
+	var p4 = copyPoint(par.points[1]);
+	var p2 = newPoint_xy(p1, 0, par.thk * par.turnFactor);
+	var p3 = newPoint_xy(p4, 0, par.thk * par.turnFactor);
+
+	var points = [p1, p2, p3, p4]
+
+	//создаем шейп
+	var shapePar = {
+		points: points,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: { x: 4000, y: 0, },
+	}
+
+	var shape = drawShapeByPoints2(shapePar).shape;
+
+	var extrudeOptions = {
+		amount: par.height,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var topPlate = new THREE.Mesh(geom, params.materials.metal);
+	topPlate.rotation.x = -0.5 * Math.PI;
+	topPlate.position.y = -par.thk;
+	par.mesh.add(topPlate);
+
+	return par;
+}
+
+/**
+	Функция сдвигает точки контура внутрь
+*/
+function moovePointsPathToIn(par) {
+
+	var p1 = copyPoint(par.points[0]);
+	var p2 = copyPoint(par.points[1]);
+	var p3 = copyPoint(par.points[2]);
+	var p4 = copyPoint(par.points[3]);
+
+	var lineO = parallel(p1, p2, -par.dx);
+	var lineI = parallel(p3, p4, par.dx);
+	var lineF = parallel(p2, p3, -par.dy);
+	if (p2.x == p3.x) lineF = parallel(p2, p3, par.dy);
+	var lineB = parallel(p1, p4, par.dy);
+
+	var pt1 = itercectionLines(lineO, lineF);
+	var pt2 = itercectionLines(lineO, lineB);
+	var pt3 = itercectionLines(lineI, lineB);
+	var pt4 = itercectionLines(lineI, lineF);
+
+	par.points = [pt1, pt2, pt3, pt4];
+
+	return par;
+}
+
+/*функция отрисовки центрального отверстия в верхней горизонтальной пластине сварного косоура
+*/
+function topCoverCentralHole(holeParams) {
+
+	var vertexes = holeParams.vertexes;
+	var cornerRad = holeParams.cornerRad;
+	var path = new THREE.Path();
+	var dxfPrimitivesArr = holeParams.dxfPrimitivesArr;
+	var dxfBasePoint = holeParams.dxfBasePoint;
+	var clockwise = true;
+
+	var pH1 = copyPoint(vertexes[0]);
+	var pH2 = copyPoint(vertexes[1]);
+	var pH3 = copyPoint(vertexes[2]);
+	var pH4 = copyPoint(vertexes[3]);
+
+	var fil1 = calcFilletParams1(pH4, pH1, pH2, cornerRad, clockwise);
+	var fil2 = calcFilletParams1(pH1, pH2, pH3, cornerRad, clockwise);
+	var fil3 = calcFilletParams1(pH2, pH3, pH4, cornerRad, clockwise);
+	var fil4 = calcFilletParams1(pH3, pH4, pH1, cornerRad, clockwise);
+	addArc2(path, dxfPrimitivesArr, fil1.center, cornerRad, fil1.angstart, fil1.angend, !clockwise, dxfBasePoint);
+	addLine(path, dxfPrimitivesArr, fil1.start, fil4.end, dxfBasePoint);
+	addArc2(path, dxfPrimitivesArr, fil4.center, cornerRad, fil4.angstart, fil4.angend, !clockwise, dxfBasePoint);
+	addLine(path, dxfPrimitivesArr, fil4.start, fil3.end, dxfBasePoint);
+	addArc2(path, dxfPrimitivesArr, fil3.center, cornerRad, fil3.angstart, fil3.angend, !clockwise, dxfBasePoint);
+	addLine(path, dxfPrimitivesArr, fil3.start, fil2.end, dxfBasePoint);
+	addArc2(path, dxfPrimitivesArr, fil2.center, cornerRad, fil2.angstart, fil2.angend, !clockwise, dxfBasePoint);
+	addLine(path, dxfPrimitivesArr, fil2.start, fil1.end, dxfBasePoint);
+
+	return path;
 }

@@ -8,6 +8,7 @@
 					<option value="Винтовая">Винтовая</option>
 					<option value="Винтовая с тетивой">Винтовая с тетивой</option>
 					<option value="Спиральная">Спиральная</option>	
+					<option value="Спиральная (косоур)">Спиральная (косоур)</option>	
 					</select>
 				</td>
 			</tr>

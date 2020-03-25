@@ -1,4 +1,412 @@
 
+function drawSpiralTreads() {
+	var treads  = new THREE.Object3D();
+
+	var treadLowRad = 75;
+	var treadAngle = calcTriangleParams().treadAngle;
+	var stepHeight = Math.floor((params.staircaseHeight - 20) / params.stepAmt);
+	//var stepHeight = params.h1;
+	var stairAmt = params.stepAmt - 1;
+
+	
+	var stepAngle = params.stepAngle / 180 * Math.PI;
+
+	var staircaseAngle = (stairAmt - 1) * stepAngle	
+
+	var startAngle = Math.PI - staircaseAngle;
+	startAngle = startAngle * turnFactor
+	if (turnFactor == -1) {
+		var edgeAngle = treadAngle - 2 * Math.asin(treadLowRad / (params.staircaseDiam / 2));
+		startAngle = startAngle - edgeAngle;
+	}
+
+	var treadParams = {
+		//staircaseDiam: staircaseDiam,
+		treadAngle: treadAngle,
+		treadLowRad: treadLowRad,
+		columnDiam: params.staircaseDiam - params.M * 2,
+		holeDiam: 0,
+		type: "timber",
+		material: params.materials.tread,
+		dxfArr: dxfPrimitivesArr,
+		isMonoSpiral: true,
+	}
+	if (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") {
+		treadParams.type = "metal";
+		// 	treadParams.material = params.materials.metal;
+	}
+	//var divides = calcDivides(stepHeight);
+
+	//отрисовывамем винтовую ступень
+	var posY = stepHeight;
+	for (var i = 0; i < stairAmt; i++) {
+
+		treadParams = drawVintTread(treadParams);
+		var tread = treadParams.mesh;
+		tread.rotation.y = stepAngle * i * turnFactor + startAngle;
+		tread.position.x = 0;
+		tread.position.y = posY;
+		tread.position.z = 0;
+		tread.castShadow = true;
+		treads.add(tread);
+		//model.add(tread, "treads");
+
+		posY += stepHeight;
+
+		//контура остальных ступеней кроме первой добавляем в мусорный масси
+		treadParams.dxfArr = dxfPrimitivesArr0;
+	}
+	return treads
+}
+
+//function drawVintTread(par) {
+
+//	par.mesh = new THREE.Object3D();
+//	par.thk = params.treadThickness;
+
+//	//верхняя пластина
+//	var extrudeOptions = {
+//		amount: par.thk,
+//		bevelEnabled: false,
+//		curveSegments: 12,
+//		steps: 1
+//	};
+
+//	//var drawVintTreadShap = drawVintTreadShape;
+//	//if (params.model == "Спиральная (косоур)") drawVintTreadShap = drawVintTreadShape1;
+
+//	topPlateParams = drawVintTreadShape(par);
+//	var shape = topPlateParams.shape;
+//	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+//	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+//	var topPlate = new THREE.Mesh(geom, par.material);
+//	topPlate.rotation.x = -0.5 * Math.PI;
+//	topPlate.position.y = -par.thk;
+//	par.mesh.add(topPlate);
+//	//par.mesh.specId = topPlateParams.articul;
+
+//	//передние пластины
+
+//	//if (par.type == "metal") {
+//	//	var frontPlateParams = {
+//	//		length: topPlateParams.edgeLength,
+//	//		thk: 4,
+//	//		dxfArr: par.dxfArr,
+//	//		dxfBasePoint: {
+//	//			x: 2000,
+//	//			y: 0,
+//	//		},
+//	//		material: par.material,
+//	//	}
+
+//	//	//первая пластина
+//	//	frontPlateParams = drawMetalTreadFrontPlate(frontPlateParams)
+//	//	var frontPlate = frontPlateParams.mesh;
+//	//	frontPlate.position.y = -par.thk - frontPlateParams.widthHi - 0.05;
+//	//	frontPlate.position.z = -par.p1.y - frontPlateParams.thk;
+//	//	frontPlate.position.x = par.p1.x;
+//	//	frontPlate.rotation.y = par.ang1;
+//	//	par.mesh.add(frontPlate);
+
+//	//	//вторая пластина
+//	//	frontPlateParams.dxfArr = [];
+//	//	frontPlateParams = drawMetalTreadFrontPlate(frontPlateParams)
+//	//	var frontPlate = frontPlateParams.mesh;
+//	//	frontPlate.position.y = -par.thk - frontPlateParams.widthHi - 0.05;
+//	//	frontPlate.position.z = -par.p2.y // - frontPlateParams.thk;
+//	//	frontPlate.position.x = par.p2.x;
+//	//	frontPlate.rotation.y = par.ang2;
+//	//	par.mesh.add(frontPlate);
+//	//}
+
+//	return par;
+//}
+
+//function drawVintTreadShape(par) {
+
+//	/*чертеж ступени с обозначением параметров здесь:
+//	http://6692035.ru/drawings/vint/vintTread.pdf
+//	*/
+
+//	//локальные переменные
+//	var staircaseDiam = params.staircaseDiam;
+//	var treadAngle = par.treadAngle;
+//	var treadLowRad = par.treadLowRad;
+//	var columnRad = par.columnDiam / 2 + 0.05; //учитываем зазор для тестирования
+//	var holeDiam = par.holeDiam;
+//	var type = par.type;
+//	var stairRad = staircaseDiam / 2;
+//	//var overlayAngle = calcTriangleParams().treadOverlayAngle;
+
+//	//угол между ребрами ступени
+//	var extraAngle = calcTriangleParams().extraAngle;
+//	var edgeLength = stairRad * Math.cos(extraAngle);
+//	var edgeAngle = treadAngle - 2 * extraAngle;
+
+
+//	////сохраняем значения в массив параметров
+//	//stairParams.treadAngle = treadAngle;
+//	//stairParams.treadEdgeAngle = edgeAngle;
+
+//	//рассчитываем координаты базовых точек
+//	//var basePoints = calcVintTreadPoints(par.treadAngle)
+
+//	////деревянная ступень
+//	//if (type == "timber" && params.stairModel !== "Спиральная") {
+//	//	/*рассчитываем координаты точек*/
+//	//	var p0 = basePoints[0]
+//	//	var p1 = basePoints[1]
+//	//	var p2 = basePoints[2]
+//	//	var p3 = basePoints[3]
+//	//	var p4 = basePoints[4]
+
+//	//	var dxfBasePoint = {
+//	//		x: 0,
+//	//		y: 0,
+//	//	}
+
+//	//	/*вычерчиваем конутр ступени*
+
+//	//	var treadShape = new THREE.Shape();
+//	//		addArc(treadShape, par.dxfArr, p0, treadLowRad, 1.5*Math.PI, (Math.PI/2 + edgeAngle), dxfBasePoint);
+//	//		addLine(treadShape, par.dxfArr, p2, p3, dxfBasePoint);
+//	//		addArc(treadShape, par.dxfArr, p0, stairRad, (treadAngle - extraAngle), -extraAngle, dxfBasePoint);
+//	//		addLine(treadShape, par.dxfArr, p4, p1, dxfBasePoint);
+//	//	*/
+
+//	//	var filletRad = 10;
+//	//	//скругление верхнего угла
+//	//	var filletPar = {
+//	//		line_p1: copyPoint(p2),
+//	//		line_p2: copyPoint(p3),
+//	//		arcCenter: copyPoint(p0),
+//	//		arcRad: stairRad,
+//	//		filletRad: filletRad,
+//	//		topAngle: true,
+//	//	}
+
+//	//	filletPar = calcArcFillet(filletPar);
+//	//	var filletPar1 = filletPar.filletPar[0];
+
+//	//	//скругление нижнего угла
+//	//	var filletPar = {
+//	//		line_p1: copyPoint(p1),
+//	//		line_p2: copyPoint(p4),
+//	//		arcCenter: copyPoint(p0),
+//	//		arcRad: stairRad,
+//	//		filletRad: filletRad,
+//	//		topAngle: false,
+//	//	}
+
+//	//	filletPar = calcArcFillet(filletPar);
+//	//	var filletPar2 = filletPar.filletPar[0];
+
+//	//	/*вычерчиваем конутр ступени*/
+
+//	//	var treadShape = new THREE.Shape();
+//	//	//малая дуга
+//	//	addArc(treadShape, par.dxfArr, p0, treadLowRad, 1.5 * Math.PI, (Math.PI / 2 + edgeAngle), dxfBasePoint);
+//	//	//верхняя линия
+//	//	addLine(treadShape, par.dxfArr, p2, filletPar1.start, dxfBasePoint);
+//	//	//дуга скругления верхнего угла
+//	//	addArc(treadShape, par.dxfArr, filletPar1.center, filletRad, filletPar1.angStart, filletPar1.angEnd, dxfBasePoint);
+//	//	//большая дуга
+//	//	addArc(treadShape, par.dxfArr, p0, stairRad, filletPar1.angEnd, filletPar2.angStart, dxfBasePoint);
+//	//	//дуга скругления нижнего угла
+//	//	addArc(treadShape, par.dxfArr, filletPar2.center, filletRad, filletPar2.angStart, filletPar2.angEnd, dxfBasePoint);
+//	//	addLine(treadShape, par.dxfArr, filletPar2.end, p1, dxfBasePoint);
+
+//	//	/*отверстие*/
+//	//	var hole = new THREE.Path();
+//	//	addCircle(hole, par.dxfArr, p0, holeDiam / 2, dxfBasePoint)
+//	//	treadShape.holes.push(hole);
+
+
+
+//	//	//Направление волокон
+//	//	var trashShape = new THREE.Shape();
+//	//	var pt1 = newPoint_xy(p0, 200, 0)
+//	//	var pt11 = newPoint_xy(pt1, 40, 10)
+//	//	var pt12 = newPoint_xy(pt1, 40, -10)
+//	//	addLine(trashShape, par.dxfArr, pt1, pt11, dxfBasePoint);
+//	//	addLine(trashShape, par.dxfArr, pt1, pt12, dxfBasePoint);
+//	//	var pt2 = newPoint_xy(pt1, 400, 0)
+//	//	var pt21 = newPoint_xy(pt2, -40, 10)
+//	//	var pt22 = newPoint_xy(pt2, -40, -10)
+//	//	addLine(trashShape, par.dxfArr, pt2, pt21, dxfBasePoint);
+//	//	addLine(trashShape, par.dxfArr, pt2, pt22, dxfBasePoint);
+//	//	addLine(trashShape, par.dxfArr, pt1, pt2, dxfBasePoint);
+
+//	//	var text = "Направление волокон"
+//	//	var textHeight = 20;
+//	//	var textBasePoint = newPoint_xy(dxfBasePoint, 210, 30);
+//	//	addText(text, textHeight, par.dxfArr, textBasePoint);
+
+//	//	var sizeA = edgeLength + treadLowRad;
+//	//	var sizeB = distance(p3, p4);
+//	//	//сохраняем параметры для спецификации
+//	//	staircasePartsParams.treadWidth = distance(p3, p4)
+//	//	staircasePartsParams.treadLength = edgeLength + treadLowRad;
+//	//	staircasePartsParams.treadArea = ((p3.y - p2.y) / 2 + (p2.y - p1.y)) * (edgeLength + treadLowRad) / 1000000;
+//	//	staircasePartsParams.treadPaintedArea = staircasePartsParams.treadArea * 2 + (edgeLength * 2 + staircasePartsParams.treadWidth + treadLowRad * Math.PI) * params.treadThickness / 1000000;
+//	//}
+
+//	/*металлическая ступень*/
+
+//	if (type == "metal" || params.stairModel == "Спиральная" ) {
+
+//		var deltaAng = Math.PI / 6; //половина угла, на который уменьшается дуга ступени, прилегающая к бобышке
+//		var radIn = columnRad + 0.1; //радиус внутренней дуги, примыкающей к бобышке
+//		/*рассчитываем координаты точек*/
+//		var p0 = {
+//			x: 0,
+//			y: 0
+//		}
+//		var p11 = polar(p0, -Math.PI / 2 + deltaAng, radIn); //точка на дуге
+//		var p1 = polar(p11, -Math.PI / 2, 5);
+//		var p21 = polar(p0, edgeAngle + Math.PI / 2 - deltaAng, radIn) //точка на дуге
+//		var p2 = polar(p21, Math.PI / 2 + edgeAngle, 5);
+//		var p3 = {
+//			x: stairRad * Math.cos(treadAngle - extraAngle),
+//			y: stairRad * Math.sin(treadAngle - extraAngle)
+//		}
+//		var p4 = {
+//			x: edgeLength,
+//			y: -treadLowRad
+//		}
+
+//		var dxfBasePoint = {
+//			x: 0,
+//			y: 0,
+//		}
+
+//		/*вычерчиваем конутр ступени*/
+
+//		var treadShape = new THREE.Shape();
+//		addLine(treadShape, par.dxfArr, p1, p11, dxfBasePoint);
+//		addArc2(treadShape, par.dxfArr, p0, radIn, (Math.PI / 2 + edgeAngle - deltaAng), -Math.PI / 2 + deltaAng, false, dxfBasePoint);
+//		addLine(treadShape, par.dxfArr, p21, p2, dxfBasePoint);
+//		addLine(treadShape, par.dxfArr, p2, p3, dxfBasePoint);
+//		addArc2(treadShape, par.dxfArr, p0, stairRad, (treadAngle - extraAngle), -extraAngle, true, dxfBasePoint);
+//		addLine(treadShape, par.dxfArr, p4, p1, dxfBasePoint);
+
+//		//параметры для передней пластины
+//		par.edgeLength = distance(p4, p1)
+//		par.p1 = p1;
+//		par.p2 = p2;
+//		par.ang1 = angle(p1, p4)
+//		par.ang2 = angle(p2, p3)
+
+//		var sizeA = edgeLength;
+//		var sizeB = distance(p3, p4);
+
+//	}
+//	/*отверстия под стойки*
+
+//	//отверстия под первую балясину
+//	var holesOffset = 22; //отступ отверстий от внешней кромки ступени
+//	var holeDst = 24; //расстояние между отверстиями в уголке
+//	var holePosRad = stairRad - holesOffset; //радиус расположения отверстий
+//	var dirAng = overlayAngle / 2 - extraAngle //угол направления на балясину
+//	var deltAng = holeDst / 2 / holePosRad; //дельта угла из-за того, что в уголке 2 отверстия
+
+//	var holeRad = 4;
+//	if (type == "timber") holeRad = 2;
+//	var center1 = polar(p0, dirAng + deltAng, holePosRad)
+//	var center2 = polar(p0, dirAng - deltAng, holePosRad)
+//	addRoundHole(treadShape, par.dxfArr, center1, holeRad, dxfBasePoint); //функция в файле drawPrimitives
+//	addRoundHole(treadShape, par.dxfArr, center2, holeRad, dxfBasePoint);
+
+//	//отверстия под остальные стойки
+//	var stepAngle = params.stepAngle / 180 * Math.PI;
+//	var balAngle = stepAngle / params.banisterPerStep; //угол между балясинами
+//	for (var i = 1; i < params.banisterPerStep + 1; i++) {
+//		dirAng = dirAng + balAngle;
+//		var center1 = polar(p0, dirAng + deltAng, holePosRad)
+//		var center2 = polar(p0, dirAng - deltAng, holePosRad)
+//		addRoundHole(treadShape, par.dxfArr, center1, holeRad, dxfBasePoint);
+//		addRoundHole(treadShape, par.dxfArr, center2, holeRad, dxfBasePoint);
+//	}
+//	*/
+
+//	//$.each(basePoints.balHoles, function () {
+//	//	addRoundHole(treadShape, par.dxfArr, this, this.rad, dxfBasePoint);
+//	//})
+
+
+//	//подпись
+//	var text = "Ступень (вид сверху) "
+//	if (params.turnFactor == -1) text = "Ступень (вид снизу) "
+//	text += (params.stepAmt - 1) + " шт."
+//	var textHeight = 30;
+//	var textBasePoint = newPoint_xy(dxfBasePoint, 20, -150);
+//	addText(text, textHeight, par.dxfArr, textBasePoint);
+
+//	par.shape = treadShape;
+
+//	//сохраняем данные для спецификации
+//	var partName = "vintTread";
+//	if (typeof specObj != 'undefined') {
+//		if (!specObj[partName]) {
+//			specObj[partName] = {
+//				types: {},
+//				amt: 0,
+//				area: 0,
+//				paintedArea: 0,
+//				name: "Ступень " + params.treadsMaterial,
+//				metalPaint: true,
+//				timberPaint: false,
+//				division: "metal",
+//				workUnitName: "area", //единица измерения
+//				group: "Каркас",
+//			}
+//			if (type == "timber") {
+//				specObj[partName].metalPaint = false;
+//				specObj[partName].timberPaint = true;
+//				specObj[partName].division = "timber";
+//			}
+//		}
+//		var area = sizeA * sizeB / 1000000;
+//		var name = Math.round(sizeA) + "x" + Math.round(sizeB);
+//		if (type == "timber") name += "x" + params.treadThickness;
+//		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+//		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+//		specObj[partName]["amt"] += 1;
+//		specObj[partName]["area"] += area;
+//		specObj[partName]["paintedArea"] += area * 2 + area * 0.1; //к-т 0,1 учитывает площадь торцев
+//	}
+
+//	par.articul = partName + name;
+
+//	return par;
+
+
+//} //end of drawVintTreadShape
+
+//function calcTriangleParams() {
+//	var par = {};
+//	var stairRad = params.staircaseDiam / 2
+//	var treadLowRad = 75;
+
+//	//нахлест ступеней
+//	par.treadOverlayLength = 60; //длина дуги нахлеста ступеней на внешнем радиусе
+//	par.treadOverlayAngle = par.treadOverlayLength / stairRad;
+
+//	//угол ступени
+//	par.treadAngle = params.stepAngle / 180 * Math.PI + par.treadOverlayAngle;
+
+//	////угол площадки
+//	//par.pltAngle = params.platformAngle / 180 * Math.PI;
+
+//	////угол между ребрами
+//	par.extraAngle = Math.asin(treadLowRad / stairRad);
+//	par.treadEdgeAngle = par.treadAngle - 2 * par.extraAngle;
+//	//par.pltEdgeAngle = par.pltAngle - 2 * par.extraAngle;
+
+//	return par;
+//}
+
+
 /**
 	Функция рассчитывает точки контуров забежных ступеней
 
@@ -497,6 +905,53 @@ function drawTurnBackCurve(par) {
 	return par;
 
 } //end of drawTurnBackCurve
+
+function drawSpiralStripe1(par) {
+
+	var drawSpiralStripe1 = function (u, v, target) {
+
+		var angle = u * par.angle;
+		var rad = par.rad;
+		var height = par.height;
+		var width = par.stripeWidth;
+		var deltaBot = par.stripeWidth - par.botHeight;
+
+		var x = rad * Math.cos(angle);
+		var y = rad * Math.sin(angle) * par.turnFactor;
+		var z = v * width + height * u - deltaBot;
+
+		//срезаем снизу по горизонтали
+		if (z < 0) z = 0;
+
+		//срезаем сверху по горизонтали
+		if (z > height + par.topHeight - deltaBot) z = height + par.topHeight - deltaBot;
+
+		//вырезы
+		var rise = par.stepHeight
+		var stepAngle = params.stepAngle / 180 * Math.PI;
+		for (var i = 0; i < par.stairAmt; i++) {
+			if (angle >= stepAngle * i && angle <= stepAngle * (i + 1)) {
+				if (z > rise * (i + 1)) z = rise * (i + 1);
+			}
+		}
+
+		target.set(x, y, z);
+		//return new THREE.Vector3(x, y, z);
+	}
+
+	var geom = new THREE.ParametricGeometry(drawSpiralStripe1, 120, 120, false);
+
+	var mesh = new THREE.Mesh(geom, par.material)
+
+	//рассчитываем угол срезанного участка
+	var startCutAngle = (par.stripeWidth - par.botHeight) / par.height * par.angle;
+
+	par.mesh = mesh;
+	par.startCutAngle = startCutAngle;
+	return par;
+
+} //end of drawSpiralStripe
+
 
 
 /**
@@ -1161,170 +1616,6 @@ function moovePointsPathToIn(par) {
 }
 
 
-/**
-	Округление числа до 6 знаков после запятой
-*/
-function round6(num) {
-	return Math.round(num * 1000000) / 1000000
-}
-
-/**
-	Округление координат точек до 6 знаков после запятой
-*/
-function roundPoints(points) {
-	for (var i = 0; i < points.length; i++) {
-		points[i].x = round6(points[i].x);
-		points[i].y = round6(points[i].y);
-	}
-	return points;
-}
-
-
-/**
-	функция возвращает координаты точек пересечения прямой с окружностью
-*/
-function itercectionLineCircle(p1, p2, center, rad) {
-
-	var x1, y1, x2, y2;//координаты точек пересечения
-	var x, a1, b1, c1, d; //вспомогательные переменные
-
-	var cntr = { x: round6(center.x), y: round6(center.y) } // координаты центра окружности
-	var r = round6(rad); // радиус окружности
-
-	var points = []; // точки пересечения
-
-	// определяем коэффициенты прямой ax+by+c=0 и y=kx+s
-	var ratios = ratiosStraight(p1, p2);
-	var a = ratios.a;
-	var b = ratios.b;
-	var c = ratios.c;
-	var k = ratios.k;
-	var s = ratios.s;
-
-	//прямая вертикальна
-	if (b == 0) {
-		x = round6(-c / a);
-		if ((cntr.x - r > x) || (cntr.x + r < x)) {
-			return points; // Окружность и прямая не пересекаются
-		} 
-		else {
-			if ((cntr.x - r == x) || (cntr.x + r == x)) {// Прямая касается окружности в точке
-				points.push({ x: x, y: cntr.y })
-				return points
-			} 
-			else { // Прямая пересекает окружность в 2-х точках
-				y1 = round6(cntr.y + Math.sqrt(r * r - Math.sqrt(cntr.x - x)));
-				y2 = round6(cntr.y - Math.sqrt(r * r - Math.sqrt(cntr.x - x)));
-				points.push({ x: x, y: y1 })
-				points.push({ x: x, y: y2 })
-				return points;
-			}
-		}
-	}
-
-	//прямая горизонтальная
-	if (a == 0) {
-		y = round6(-c / b);
-		if ((cntr.y - r > y) || (cntr.y + r < y)) {
-			return points; // Окружность и прямая не пересекаются
-		}
-		else {
-			if ((cntr.y - r == y) || (cntr.y + r == y)) {// Прямая касается окружности в точке
-				points.push({ x: cntr.x, y:y })
-				return points
-			}
-			else { // Прямая пересекает окружность в 2-х точках
-				x1 = round6(cntr.x + Math.sqrt(r * r - Math.sqrt(cntr.y - y)));
-				x2 = round6(cntr.x - Math.sqrt(r * r - Math.sqrt(cntr.y - y)));
-				points.push({ x: x1, y: y })
-				points.push({ x: x2, y: y })
-				return points;
-			}
-		}
-	}
-
-	//другие случаи
-
-	//и решим систему
-	//(x - x0)**2 + (y - y0)**2 = r**2 (окружность)
-	//y=kx+s {прямая}
-	//после приведения найдем коэффициенты уравнения a1x**2+b1x+c1=0
-	a1 = round6(1 + k * k);
-	b1 = round6(-2 * cntr.x + 2 * k * s - 2 * k * cntr.y);
-	c1 = round6(s * s + cntr.x * cntr.x - 2 * s * cntr.y + cntr.y * cntr.y - r * r);
-	d = round6(b1 * b1 - 4 * a1 * c1);
-
-	if (d < 0) return points; //Прямая и окружность не пересекаются
-	if (d == 0) { // Прямая касается окружности в точке
-		x1 = round6(-b1 / (2 * a1));
-		y1 = round6(k * x1 + s);
-		return points.push({ x: x1, y: y1 })
-	}
-
-	// Прямая пересекает окружность в 2-х точках
-	x1 = round6((-b1 + Math.sqrt(d)) / (2 * a1));
-	x2 = round6((-b1 - Math.sqrt(d)) / (2 * a1));
-	y1 = round6(k * x1 + s);
-	y2 = round6(k * x2 + s);
-	points.push({ x: x1, y: y1 })
-	points.push({ x: x2, y: y2 })
-	return points;
-
-}
-
-function itercectionLineCircle1(line, center, rad) {
-	return itercectionLineCircle(line.p1, line.p2, center, rad)
-}
-
-/**
-	функция возвращает коэффициенты прямой ax+by+c=0 и y=kx+s
-*/
-function ratiosStraight(p1, p2) {
-	// определяем коэффициенты прямой ax+by+c=0
-	a = round6(p1.y - p2.y);
-	b = round6(p2.x - p1.x);
-	c = round6(p1.x * p2.y - p2.x * p1.y);
-
-	//преобразуем уравнение ax+by+c=0 к виду y=kx+s
-	k = round6(-a / b); 
-	s = round6(-c / b);
-
-	var ratios = {
-		a: a,
-		b: b,
-		c: c,
-		k: k,
-		s: s,
-	}
-
-	return ratios;
-}
-
-/**
-	функция определяет угол между прямыми
-*/
-function angleLines(p1, p2, p3, p4) {
-	var ratios1 = ratiosStraight(p1, p2);
-	var ratios2 = ratiosStraight(p3, p4);
-
-	var a1 = ratios1.a;
-	var a2 = ratios2.a;
-	var b1 = ratios1.b;
-	var b2 = ratios2.b;
-
-	//var ang = Math.abs(Math.atan((ratios2.k - ratios1.k) / (1 + ratios1.k * ratios2.k)));
-	var ang = Math.abs(Math.atan((a1*b2 - a2*b1) / (a1*a2 + b1*b2)));
-	return ang;
-}
-
-function angleLines1(line1, line2) {
-	return angleLines(line1.p1, line1.p2, line2.p1, line2.p2);
-}
-
-function angleLineX(line) {
-	var lineX = { p1: { x: 0, y: 0 }, p2: { x: 100, y: 0 }}
-	return angleLines(line.p1, line.p2, lineX.p1, lineX.p2);
-}
 
 /**
 	функция перерассчитывает точки по Х так чтобы начальная точка по Х = 0

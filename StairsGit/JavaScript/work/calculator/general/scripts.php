@@ -134,11 +134,12 @@ $scripts = [
 		'url' => '/manufacturing/curve/drawCarcasParts.js',
 		'only_for' => ['mono'],
 	],
-	//mono
 	[
-		'url' => '/manufacturing/curve/drawCarcasParts.js',
+		'url' => '/manufacturing/vint/drawCarcasParts.js',
 		'only_for' => ['mono'],
 	],
+	//mono
+	
 	//console
 	[
 		'url' => '/manufacturing/console/drawCarcas.js',

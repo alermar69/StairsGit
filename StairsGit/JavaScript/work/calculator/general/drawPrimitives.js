@@ -1603,4 +1603,131 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 	}//end of addOvalHoleY
 	
 	
-	
+/**
+Округление числа до 6 знаков после запятой
+*/
+function round6(num) {
+	return Math.round(num * 1000000) / 1000000
+}
+
+/**
+	Округление координат точек до 6 знаков после запятой
+*/
+function roundPoints(points) {
+	for (var i = 0; i < points.length; i++) {
+		points[i].x = round6(points[i].x);
+		points[i].y = round6(points[i].y);
+	}
+	return points;
+}
+
+
+/**
+	функция возвращает координаты точек пересечения прямой с окружностью
+*/
+function itercectionLineCircle(p1, p2, center, rad) {
+
+	var r = round6(rad); // радиус окружности
+
+	var pt1 = newPoint_xy(p1, -center.x, - center.y);
+	var pt2 = newPoint_xy(p2, -center.x, - center.y);
+
+	var points = []; // точки пересечения
+
+	// определяем коэффициенты прямой ax+by+c=0 и y=kx+s
+	var ratios = ratiosStraight(pt1, pt2);
+	var a = ratios.a;
+	var b = ratios.b;
+	var c = ratios.c;
+
+	var x0 = -a * c / (a * a + b * b);
+	var y0 = -b * c / (a * a + b * b);
+	if (c * c > r * r * (a * a + b * b)) {
+		return points;
+	}
+	if (Math.abs(c * c - r * r * (a * a + b * b)) == 0) {
+		var pt = { x: x0, y: y0 };
+		var pt = newPoint_xy(pt, center.x, center.y);
+		pt.x = round6(pt.x);
+		pt.y = round6(pt.y);
+		points.push(pt)
+		return points;
+	}
+
+	var d = r * r - c * c / (a * a + b * b);
+	var mult = Math.sqrt(d / (a * a + b * b));
+	var ax, ay, bx, by;
+	ax = x0 + b * mult;
+	bx = x0 - b * mult;
+	ay = y0 - a * mult;
+	by = y0 + a * mult;
+
+	var pt = { x: ax, y: ay };
+	var pt = newPoint_xy(pt, center.x, center.y);
+	pt.x = round6(pt.x);
+	pt.y = round6(pt.y);
+	points.push(pt);
+
+	var pt = { x: bx, y: by };
+	var pt = newPoint_xy(pt, center.x, center.y);
+	pt.x = round6(pt.x);
+	pt.y = round6(pt.y);
+	points.push(pt);
+
+	return points;
+
+}
+
+function itercectionLineCircle1(line, center, rad) {
+	return itercectionLineCircle(line.p1, line.p2, center, rad)
+}
+
+/**
+	функция возвращает коэффициенты прямой ax+by+c=0 и y=kx+s
+*/
+function ratiosStraight(p1, p2) {
+	// определяем коэффициенты прямой ax+by+c=0
+	a = round6(p1.y - p2.y);
+	b = round6(p2.x - p1.x);
+	c = round6(p1.x * p2.y - p2.x * p1.y);
+
+	//преобразуем уравнение ax+by+c=0 к виду y=kx+s
+	k = round6(-a / b);
+	s = round6(-c / b);
+
+	var ratios = {
+		a: a,
+		b: b,
+		c: c,
+		k: k,
+		s: s,
+	}
+
+	return ratios;
+}
+
+/**
+	функция определяет угол между прямыми
+*/
+function angleLines(p1, p2, p3, p4) {
+	var ratios1 = ratiosStraight(p1, p2);
+	var ratios2 = ratiosStraight(p3, p4);
+
+	var a1 = ratios1.a;
+	var a2 = ratios2.a;
+	var b1 = ratios1.b;
+	var b2 = ratios2.b;
+
+	//var ang = Math.abs(Math.atan((ratios2.k - ratios1.k) / (1 + ratios1.k * ratios2.k)));
+	var ang = Math.abs(Math.atan((a1 * b2 - a2 * b1) / (a1 * a2 + b1 * b2)));
+	return ang;
+}
+
+function angleLines1(line1, line2) {
+	return angleLines(line1.p1, line1.p2, line2.p1, line2.p2);
+}
+
+function angleLineX(line) {
+	var lineX = { p1: { x: 0, y: 0 }, p2: { x: 100, y: 0 } }
+	return angleLines(line.p1, line.p2, lineX.p1, lineX.p2);
+}

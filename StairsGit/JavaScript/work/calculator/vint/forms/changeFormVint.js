@@ -21,9 +21,14 @@ function changeFormVint(){
 		$("#columnDiam").closest("tr").show();
 		if($("#railingSide").val() != "нет") $("#railingSide").val("внешнее");
 		}
-	if(params.model == "Спиральная"){
+	if (params.model == "Спиральная" || params.model == "Спиральная (косоур)"){
 		$("#M").closest("tr").show();
-		}
+	}
+	if (params.model == "Спиральная" || params.model == "Спиральная (косоур)") {
+		if (params.model == "Спиральная (косоур)") $("#staircaseDiam").val(2600);
+		var rad = $("#staircaseDiam").val() / 2;
+		if (rad  - params.M < 0) $("#M").val(rad - 100);
+	}
 
 
 

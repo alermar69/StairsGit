@@ -17,12 +17,36 @@ $("#a3").val(params.b3 + params.nose);
 		$("#stairModel [value='Прямая']").hide();
 		$("#stairModel [value='Г-образная с площадкой']").hide();
 		$("#stairModel [value='П-образная с площадкой']").hide();
+		$("#stairModel [value='Спиральная']").show();
 		$('#sizeTurn').closest("tr").show();
 		$('#countWndTread').closest("tr").show();
 		$('#maxSizeSegment').closest("tr").show();
-
+		$('#staircaseDiam').closest("tr").hide();
 		//$("#sizeTurn").val(params.M + 300);
 		$("#calcType").val('curve')
+	}
+
+	if (params.stairModel == "Спиральная") {
+		$('#stepAmt').closest("tr").show();
+		$('#staircaseDiam').closest("tr").show();
+		$('#stepAngle').closest("tr").show();
+		$('#sizeTurn').closest("tr").hide();
+		$('#countWndTread').closest("tr").hide();
+	}
+	if (params.stairModel !== "Спиральная") {
+		$('#stepAmt').closest("tr").hide();
+		$('#staircaseDiam').closest("tr").hide();
+		$('#stepAngle').closest("tr").hide();
+	}
+
+	if (params.model !== "гнутый") {
+		$("#stairModel [value='Прямая']").show();
+		$("#stairModel [value='Г-образная с площадкой']").show();
+		$("#stairModel [value='П-образная с площадкой']").show();
+		$("#stairModel [value='Спиральная']").hide();
+		$('#sizeTurn').closest("tr").hide();
+		$('#countWndTread').closest("tr").hide();
+		$('#maxSizeSegment').closest("tr").hide();
 	}
 
 // установка зазора между маршами если есть ограждение на П-образных
