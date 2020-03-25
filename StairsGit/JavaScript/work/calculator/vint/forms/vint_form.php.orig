@@ -1,7 +1,7 @@
 <div id="carcasFormWrap">
 	<h2 class="raschet">Характеристики лестницы</h2>
 	<div id="carcasForm" class="toggleDiv">
-
+<<<<<<< HEAD
 		<div id="carcasTableWrapper">
 			<table class="form_table">
 				<tbody>
@@ -11,7 +11,6 @@
 								<option value="Винтовая">Винтовая</option>
 								<option value="Винтовая с тетивой">Винтовая с тетивой</option>
 								<option value="Спиральная">Спиральная</option>
-								<option value="Спиральная (косоур)">Спиральная (косоур)</option>	
 							</select>
 						</td>
 					</tr>
@@ -193,6 +192,184 @@
 				</tbody>
 			</table>
 		</div>
+=======
+		<table class="form_table" ><tbody>
+			<tr>
+				<td>Модель:</td>
+				<td><select name="model" size="1" id="model" > 			
+					<option value="Винтовая">Винтовая</option>
+					<option value="Винтовая с тетивой">Винтовая с тетивой</option>
+					<option value="Спиральная">Спиральная</option>	
+					<option value="Спиральная (косоур)">Спиральная (косоур)</option>	
+					</select>
+				</td>
+			</tr>
+			
+			<tr>
+				<td>Материал ступеней:</td>
+				<td><select name="treadsMaterial" size="1" id="treadsMaterial" onchange="setTreadThk()"> 			
+					<option value="береза паркет.">береза паркет.</option>
+					<option value="дуб паркет.">дуб паркет.</option>
+					<option value="дуб ц/л">дуб ц/л</option>
+					<option value="рифленая сталь">рифленая сталь</option>	
+					<option value="лотки под плитку">лотки под плитку</option>
+					</select>
+				</td>
+			</tr>
+
+			<tr>
+				<td>Кол-во подъемов:</td>
+				<td><input name="stepAmt" type="number" id="stepAmt" value="15"/></td>
+			</tr>
+			<tr>
+				<td>Внешний диаметр лестницы, мм:</td>
+				<td><input name="staircaseDiam" type="number" id="staircaseDiam" value="1600"/></td>
+			</tr>
+			<tr>
+				<td>Ширина марша, мм:</td>
+				<td><input type="number" id="M" value="900"/></td>
+			</tr>
+			<tr>
+				<td>Диаметр столба, мм:</td>
+				<td><input name="columnDiam" type="number" id="columnDiam" value="127"/></td>
+			</tr>
+			
+			<tr>
+				<td>Угол на один подъем, град.:</td>
+				<td><input name="stepAngle" type="number" id="stepAngle" value="21"/></td>
+			</tr>
+			<tr>
+				<td>Верхняя площадка:</td>
+				<td>
+					<select size="1" id="platformType"> 			
+						<option value="triangle">Треугольная</option>
+						<option value="square">Прямоугольная</option>
+						<option value="нет">нет</option> 
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Угол площадки, град.:</td>
+				<td><input name="platformAngle" type="number" id="platformAngle" value="60"/></td>
+			</tr>
+			
+			</tr>
+				<tr>
+				<td>Выступ площадки по глубине, мм:</td>
+				<td><input type="number" id="platformLedge" value="50" step="50"/></td>
+			</tr>
+			
+			</tr>
+				<tr>
+				<td>Выступ площадки по ширине, мм:</td>
+				<td><input type="number" id="platformLedgeM" value="50" step="50"/></td>
+			</tr>
+			
+			</tr>
+				<tr>
+				<td>Длина ограждения площадки, мм:</td>
+				<td><input type="number" id="platformSectionLength" value="700" step="10"/></td>
+			</tr>
+			
+			<tr>
+				<td>Замыкание поручня на площадке:</td>
+				<td>
+					<select size="1" id="pltHandrailConnection"> 			
+						<option value="нет">нет</option> 
+						<option value="есть">есть</option>				
+					</select>
+				</td>
+			</tr>
+			
+			<tr>
+				<td>Направление подъема:</td>
+				<td><select size="1" id="turnFactor" > 			
+					<option value="1">левое</option>
+					<option value="-1" selected >правое</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Расположение площадки:</td>
+				<td><select name="platformPosition" size="1" id="platformPosition" > 			
+					<option value="вровень">Вровень с перекрытием</option>
+					<option value="ниже">Ниже перекрытия</option>
+					</select>
+				</td>
+			</tr>
+
+			
+			<tr class="metalPaint">
+				<td>Покраска металлических деталей:</td>
+				<td><select name="metalPaint" size="1" id="metalPaint"> 			
+					<!-- варианты покраски металла -->
+					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalPaint.php" ?>	
+					</select>
+				</td>
+			</tr>
+			
+			<tr class='metalPaint metalColor'>
+				<td>Цвет покраски металла:</td> 
+				<td> 
+					<select id="carcasColor" size="1" onchange="">
+						<!-- варианты цветов покраски металла -->
+						<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalColors.php" ?>
+					</select>
+			</td></tr>
+
+			<tr class="metalPaint">
+				<td>Комментарий к цвету металла:</td> 
+				<td><textarea id="comments_01" rows="1" cols="30" class="comments"></textarea></td>
+			</tr>
+			
+			
+			<tr class="timberPaint">
+				<td>Покраска деревянных деталей</td>
+				<td><select name="timberPaint" size="1" id="timberPaint" onchange=""> 			
+					<!-- варианты покраски дерева -->
+					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberPaint.php" ?>
+					</select>
+				</td>
+			</tr>
+			
+			<tr class="timberPaint"><td>Поверхность дерева:</td> <td> 
+				<select id="surfaceType" size="1" >
+					<!-- варианты покраски дерева -->
+					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/surfaceTypes.php" ?>		
+				</select>
+			</td></tr>
+			
+			<tr class="timberPaint"><td>Шпаклевка:</td> <td> 
+				<select id="fillerType" size="1" >
+					<!-- варианты покраски дерева -->
+					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fillerTypes.php" ?>		
+				</select>
+			</td></tr>
+			
+			
+		<tr class="timberPaint timberColor"><td>Морилка:</td> <td> 
+			<select id="timberColorNumber" size="1" onchange="">
+				<!-- варианты цветов морилки -->
+				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberColors.php" ?>
+			</select>
+		</td></tr>
+
+		<tr class="timberPaint">
+			<td>Комментарий к цвету покраски дерева</td> 
+			<td><textarea id="comments_02" rows="1" cols="30" class="comments"></textarea></td>
+		</tr>
+		
+		<tr><td>Подсветка ступеней:</td> <td> 
+			<select id="treadLigts" size="1">
+				<option value="нет">нет</option>
+				<option value="есть">есть</option>				
+			</select>
+		</td></tr>
+		
+		</tbody>
+		</table>
+
+>>>>>>> curve
 
 		<h4>Параметры ограждений лестницы.</h4>
 

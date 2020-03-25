@@ -2,7 +2,7 @@
 <button id="showCost" class="noPrint">Показать себестоимость</button>
 
 
-<div id="cost" style="display: none">
+<div id="cost" class="cost" style="display: none">
 	<h2 class="raschet" >Расчет себестоимости</h2>
 
 	<p>К-т на общую цену: <input id="railingPriceFactor" type="number" value="1"></p>

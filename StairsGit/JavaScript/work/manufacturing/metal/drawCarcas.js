@@ -1646,17 +1646,20 @@ function calcStringerMoove(marshId) {
 /** функция рисует отверстия по нижней кромке косоура для крепления профиля для обшивки лестницы гипсокартоном
 **/
 function drawStringerBotHoles(par, typeDop) {
-	if(par.marshParams.stairAmt < 1) return;
+
+	if(par.marshParams.stairAmt < 1 && par.marshParams.marshId != 2) return; 
 	
 	if (params.model == "ко" && params.stringerBotHoles == 'есть') {
 
 		//Определяем точки косоура по которым будут определяться отверстия
 		if (typeDop) {
-			if (typeDop == 'bot' && par.pointsShapeBot.length > 0) {
+			var points = [];
+			
+			if (typeDop == 'bot' && par.pointsShapeBot && par.pointsShapeBot.length > 0) {
 				var points = [par.pointsShapeBot[1], par.pointsShapeBot[0]];
 			}
 
-			if (typeDop == 'top' && par.pointsShapeTop.length > 0) {
+			if (typeDop == 'top' && par.pointsShapeTop && par.pointsShapeTop.length > 0) {
 				var points = [par.pointsShapeTop[0], par.pointsShapeTop[3]];
 			}
 		}

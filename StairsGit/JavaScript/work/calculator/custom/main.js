@@ -2,6 +2,7 @@ var params = {}; //глобальный массив значений инпут
 var staircasePrice = {};
 var partsAmt = {};
 var priceObj = {};
+
 $(function () {
 	
 	$("#addRow").click(function(){
@@ -18,7 +19,12 @@ $(function () {
 		recalculate();
 	})
 	
-	recalculate();
+	//пересчитываем лестницу
+	if (window.loadedData) {
+		setLoadedData(window.loadedData, true);
+	}else{
+		recalculate();
+	}
 });
 
 function recalculate(){

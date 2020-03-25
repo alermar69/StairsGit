@@ -40,6 +40,7 @@
 	</tbody>
 </table>
 <button id='setWallsPos' type="button" name="button">Стены по проему</button>
+<button id='mirrorWalls' type="button" name="button">Отзеркалить обстановку</button>
 
 <h3>Выступы и блоки</h3>
 
@@ -48,12 +49,14 @@
 <table class="form_table wallsParams" id='wallLedgesTable' data-counter="wallLedgeAmt">
 	<tbody>
 		<tr>
+			<th>ID</th>
 			<th>Тип</th>
 			<th>№ стены</th>
 			<th>Размеры</th>
 			<th>Позиция</th>
 			<th>Материал</th>
 			<th>Цвет</th>
+			<th>База</th>
 			<th></th>
 		</tr>
 	</tbody>
@@ -61,7 +64,6 @@
 
 <button id='addWallLedge'>Добавить выступ</button>
 <button id='redrawWalls'>Обновить</button>
-
 
 <!--Обработчик формы-->
 <script type="text/javascript" src="/calculator/walls/forms/walls_form_change.js"></script>

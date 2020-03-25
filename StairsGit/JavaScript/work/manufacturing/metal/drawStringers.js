@@ -155,6 +155,12 @@ function drawStringer(par){
 				}
 			}
 		}
+	
+		if(par.marshId == 2 && par.stairAmt == 0 && params.stairModel == "П-образная трехмаршевая"){
+			// на ко при 0 ступеней во втором марше добавляется две лишние точки
+			par.pointsShape.splice(0, 2);
+		}
+
 		par.wndFramesHoles = wndFramesHoles;
 	}
 

@@ -291,8 +291,7 @@ function getExportData_com(checkSumm){
 		var treadsName = params.stairType;
 		if(params.stairType == "массив") {
 			treadsName = params.treadsMaterial;
-			if(params.treadThickness > 40) treadsName += " " + params.treadThickness + "мм"
-			
+			if(params.treadThickness > 40) treadsName += " " + params.treadThickness + "мм"			
 		}
 		description += "Ступени " + treadsName;
 		if(params.riserType == "есть") description += " подступенки " + params.risersMaterial
@@ -302,7 +301,8 @@ function getExportData_com(checkSumm){
 			description += ", покраска " + timberPaintName + " " + params.surfaceType + ".";
 			
 		if(staircaseHasUnit().skirting) description += " Есть плинтус.";
-
+		
+		if(params.treadLigts == "есть") description += " Есть подсветка."
 
 		if(staircaseHasUnit().railing) description += " Ограждения " + params.railingModel;
 
@@ -357,7 +357,7 @@ function getExportData_com(checkSumm){
 			description += " " + type + " " + Math.round(types[type].len * 10) / 10 + " м.п. (" + types[type].amt + " секц.)";
 			}
 		}
-
+	
 			
 	if(staircaseHasUnit().banister) description += ", Балюстрада " + params.railingModel_bal + " " + calcBanisterLen() + "м.п. ";
 

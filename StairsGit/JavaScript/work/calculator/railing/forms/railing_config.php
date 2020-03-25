@@ -203,14 +203,14 @@
 				</select>
 			</td></tr>
 			
-			<tr class="timberPaint"><td>Поверхность дерева:</td> <td> 
+			<tr class="railingTimberPaint_tr"><td>Поверхность дерева:</td> <td> 
 				<select id="surfaceType" size="1" >
 					<!-- варианты покраски дерева -->
 					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/surfaceTypes.php" ?>		
 				</select>
 			</td></tr>
 			
-			<tr class="timberPaint"><td>Шпаклевка:</td> <td> 
+			<tr class="railingTimberPaint_tr"><td>Шпаклевка:</td> <td> 
 				<select id="fillerType" size="1" >
 					<!-- варианты покраски дерева -->
 					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fillerTypes.php" ?>		
@@ -234,7 +234,7 @@
 			</tbody> </table>
 
 
-			<div id="manufacturingParams">
+			<div id="rutelGlassParams">
 
 			<h4>Технологические параметры</h4>
 			<table class="form_table" ><tbody>

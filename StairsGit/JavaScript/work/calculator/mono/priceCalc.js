@@ -138,7 +138,8 @@ if(params.model == "сварной") stringerMeterPrice *= 1.1
 strigerPrice = stringerMeterPrice * stringerArea;
 stringerWeight = stringerArea * 62.4;
 
-if (params.stringerThickness > 150) strigerPrice = strigerPrice * 1.5;
+if (params.stringerThickness > 200) strigerPrice = strigerPrice * 1.5;
+if (params.stringerThickness > 300) strigerPrice = strigerPrice * 1.5; //всего 2,25
 
 
 if(params.model == "сварной"){

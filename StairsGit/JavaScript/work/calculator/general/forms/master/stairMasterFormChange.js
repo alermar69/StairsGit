@@ -1,14 +1,12 @@
+var lastSlide = 1;
+
 $(function(){
 	
-	$('.stair-master select').change(function(){
+	$('body').on('change', '.stair-master select', function(){
 		sceneFormChange();
 	});
 
-	$("#updateMaster").click(function(){
-		sceneFormChange();
-	});
-
-	$('.stair-master input').on('change', function(){
+	$('body').on('change', '.stair-master input', function(){
 		sceneFormChange();
 	})
 
@@ -20,19 +18,27 @@ $(function(){
 		setMasterState(true)
 	});
 
+	$('.toggleWallsMaster').click(function(){
+		menu.wallall = !menu.wallall;
+	});
+
 	$('#prevStep').click(function(){
 		var currentStep = $('.master-step:visible').data('step') * 1.0;
 		if (currentStep > 1) {
 			setStep(currentStep - 1);
+			lastSlide = currentStep - 1;
 		}
+	});
+
+	$('.recalculateMaster').click(function(){
+		recalculateMaster();
 	});
 
 	$('#nextStep').click(function(){
 		var currentStep = $('.master-step:visible').data('step') * 1.0;
 		if ($('.master-step[data-step="' + (currentStep + 1) + '"]').length > 0) {
 			setStep(currentStep + 1);
-		}else{
-			setMasterState(false);
+			lastSlide = currentStep + 1;
 		}
 	});
 
@@ -108,9 +114,32 @@ function setMasterState(state){
 			}
 		});
 
+		// Переносим нужные инпуты
+		$.each($('.move-input-master'), function(){
+			// master-input-copy
+			var el = $(this);
+			var id = el.data('id');
+			if (id && $('#' + id).length > 0) {
+				var new_id = el.data('new_id');
+				if (!new_id) {
+					new_id = id + 'Master';
+				}
+
+				var newInput = $('#'+id).clone();
+				newInput.attr('id', new_id);
+				newInput.data('id', id);
+				newInput.addClass('master-input').addClass('w-100');
+				el.html(newInput);
+			}else{
+				var parent = el.closest('.master-input-container')
+				$(parent).hide();
+			}
+		});
+
 		sceneFormChange();
 		resizeView();
-		setStep(1);
+		setStep(lastSlide);
+		recalculateMaster();
 	}else{
 		// Возвращаем всё на место
 		$('#master_modal').modal('hide');
@@ -166,8 +195,8 @@ function setOpeningType(openingType){
 		wall2Visible = $('#wallFVisible').is(':checked');
 		wall3Visible = $('#wallEVisible').is(':checked');
 		wall4Visible = $('#wallBVisible').is(':checked');
-		wall5Visible = $('#wallCVisible').is(':checked');
-		wall6Visible = $('#wallDVisible').is(':checked');
+		wall5Visible = $('#wallDVisible').is(':checked');
+		wall6Visible = $('#wallCVisible').is(':checked');
 	}else{
 		wall1Visible = wall2Visible = wall3Visible = wall4Visible = wall5Visible = wall6Visible = false;
 	}
@@ -406,7 +435,13 @@ function addLedgeWithParams(par){
                     '<option value="wallPaper_04">Обои 4</option>' +
                 '</select>' +
             '</td>' +
-            '<td><input id="wallLedgeColor' + par.index + '" type="color" value="#cccccc"></td>' +
+			'<td><input id="wallLedgeColor' + par.index + '" type="color" value="#cccccc"></td>' +
+			'<td>\
+				<select class="wallLedgeBase" id="wallLedgeBase' + par.index + '">\
+					<option value="left">Слева</option>\
+					<option value="right">Справа</option>\
+				</select>\
+			</td>' +
             '<td style="border-left: 0;">' +
                 '<div class="button-block"><span class="close-block"></span></div>' +
             '</td>' +
@@ -441,9 +476,9 @@ function setStep(step){
 	$('.master-step').hide();
 	$('.master-step[data-step="' + step + '"]').show();
 	if ($('.master-step[data-step]').length == step) {
-		$('#nextStep').html('Закрыть');
+		$('#nextStep').attr('disabled', true);
 	}else{
-		$('#nextStep').html('Далее');
+		$('#nextStep').attr('disabled', false);
 	}
 
 	if (step == 1) {
@@ -456,7 +491,7 @@ function setStep(step){
 function sceneFormChange(){
 
 	var turnSideBefore = $('#turnSide').val();
-
+	var currentStep = $('.master-step:visible').data('step') * 1.0;
 	var doubleMasterInputs = $('.master-input'); //Дубли реальных инпутов, для мастера
 	$.each(doubleMasterInputs, function(){
 		$('#' + $(this).data('id')).val($(this).val());
@@ -479,11 +514,19 @@ function sceneFormChange(){
 		$('#dxfOpening').val('нет');
 	}
 
-	setOpeningType(openingType);
+	if (currentStep < 2) {
+		setOpeningType(openingType);
+	}
 
 	if (turnSideBefore != $('#turnSide').val()) {
 		setTimeout(function(){
-			recalculate()
+			recalculateMaster();
 		}, 0);
 	}
+}
+
+function recalculateMaster(){
+	recalculate().finally(function(){
+		$('#priceBlockMaster #price').html(staircasePrice.finalPrice);
+	});
 }

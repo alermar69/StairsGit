@@ -22,8 +22,14 @@ $(function () {
 	
 	$("#production_data").hide();
 	
+	// //пересчитываем лестницу
+	// recalculate();
 	//пересчитываем лестницу
-	recalculate();
+	if (window.loadedData) {
+		setLoadedData(window.loadedData, true);
+	}else{
+		recalculate();
+	}
 	
 	//изменение формы
 	$('.form_table,.tabs').delegate('input,select,textarea', 'click', recalculate);

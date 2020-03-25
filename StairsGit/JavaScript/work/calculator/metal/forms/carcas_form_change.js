@@ -11,7 +11,14 @@ if(params.model == "нет"){
 	$("#model").val('ко');
 	$("#isCarcas").val('нет');
 	getAllInputsValues(params);
-	}
+}
+
+//особенности больцевых
+if(params.calcType == "bolz") {
+	$("#platformTop").val("нет")
+	$(".topPlt").hide()
+	$("#stairFrame").closest("tr").hide();
+}
 
 //заполнение параметров ступеней если они некорректно перенеслись из расчета геометрии
 
@@ -269,9 +276,14 @@ if(params.stairType == "дпк" || params.stairType == "лиственница �
 /*тип тетив*/
 var stringerType = document.getElementById('stringerType').options;
 var stringerCompatible = [];
-if (params.model == "лт") stringerCompatible = [1,2,3];
+if (params.model == "лт") {
+	stringerCompatible = [1,2,3];
+	if(params.stringerModel == "короб") stringerCompatible = [3];
+}
 if (params.model == "ко") stringerCompatible = [1,2];
 showOptions("stringerType", stringerCompatible);
+
+if (params.model == "ко") $("#stringerModel").val("лист")
 
 /*подступенки*/
 var riserType = document.getElementById('riserType').options;
@@ -385,7 +397,6 @@ setStairOption();
 
 /*тип верхнего крепления*/
 
-var topFixOptions = document.getElementById('topAnglePosition').options; 
 var topFixCompatible = [];
 if (params.model == "лт") {
 	topFixCompatible = [1, 2];
@@ -400,6 +411,9 @@ if (params.model == "лт") {
 }
 
 if (params.model == "ко") topFixCompatible = [1,3,4];
+if(params.calcType == "bolz" || params.calcType == "console") {
+	topFixCompatible = [1,2];
+}
 showOptions("topAnglePosition", topFixCompatible);
 
 $("#topPltConsolePos").closest("tr").hide();

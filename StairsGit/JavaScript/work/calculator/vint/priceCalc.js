@@ -63,13 +63,17 @@ if (treadsMaterial == "береза паркет." || treadsMaterial == "дуб 
 	if (timberPaint == "морилка+лак") timberPaintPrice += treadPaintPrice * stairAmt * 1.3;
 	*/
 	//площадка (platform)
-	var platformLength; //длина заготовки площадки
+	var platformLength = (staircaseDiam + params.platformLedge) * 0.7 / 1000 //длина заготовки площадки, приблизительная формула;
 	var platformWidth = 0.6 //ширина заготовки площадки
-
-	platformLength = staircaseDiam * 0.7/1000 //приблизительная формула
-
+	
+	if(params.platformType == "square") {
+		platformLength = (params.staircaseDiam + params.platformLedgeM) / 1000
+		platformWidth = (params.staircaseDiam + params.platformLedge) / 1000
+	}
+	
 	var platformMaterialPrice = platformLength * platformWidth * treadMeterPrice;
-	if(params.platformType == "square") platformMaterialPrice = platformMaterialPrice * 1.5;
+	
+	
 	var platformWorkPrice = 300;
 	var platformPaintPrice = 1500;
 	
@@ -143,7 +147,7 @@ if(params.botFlanCover == "есть") totalTreadsPrice += 2000;
 	
 /*бобышки (spacer)*/
 var totalSpacerPrice = 0;
-if(params.model != "Спиральная"){
+if(params.model != "Спиральная" && params.model != "Спиральная (косоур)"){
 	var tubePrice = 0.2*12.133/1000 * metalTonnPrice; //0.2м, 12,133 кг/м, 1000м/т
 	var sheetPrice = 0.13*0.13*0.024*7.8 * metalTonnPrice;//0.13x0.13м, 24мм, 7,8т/м3
 	var plasmaPrice = sheetPrice; //резка плазмой
@@ -155,7 +159,7 @@ if(params.model != "Спиральная"){
 	if (metalPaint == "порошок") metalPaintPrice += paintingPrice * (stairAmt + 1);
 	totalSpacerPrice = spacerPrice * (stairAmt + 1);
 	materials.pipe_127.amt += 0.2 * stairAmt;
-	}
+}
 	
 //Тетивы
 var stringerPrice = 0;
@@ -170,12 +174,17 @@ var stringerAreaOut = stringerLengthOut / 1000 * 0.3;
 if(params.model == "Винтовая с тетивой"){
 	stringerPrice = 60000;
 	if (metalPaint == "порошок") metalPaintPrice += stringerAreaIn * 300;
-	}
+}
 	
 if(params.model == "Спиральная"){
-	stringerPrice = 60000*3;
+	stringerPrice = 100000 + params.stepAmt * 3000;	
 	if (metalPaint == "порошок") metalPaintPrice += (stringerAreaIn + stringerAreaOut)* 300;
-	}
+}
+
+if(params.model == "Спиральная (косоур)"){
+	stringerPrice = 100000 + params.stepAmt * 5000;	
+	if (metalPaint == "порошок") metalPaintPrice += (stringerAreaIn + stringerAreaOut) * 1.5 * 300;
+}
 
 
 /*стойки ограждений (rack)*/
@@ -267,6 +276,12 @@ if (handrailMaterial == "Дуб") {
 var totalHandrailPrice = handrailMeterPrice * handrailLength + handrailWorkPrice;
 
 if(handrailMaterial == "Дуб") timberPrice += totalHandrailPrice;
+
+//завязка поручня с балюстрадой
+if(params.pltHandrailConnection == "есть") {	
+	if(handrailMaterial == "Дуб") totalHandrailPrice += 5000;
+	else totalHandrailPrice += 2000;
+}
 
 /*Ограждение балюстрады*/
 var balustradeMeterPrice = 0;

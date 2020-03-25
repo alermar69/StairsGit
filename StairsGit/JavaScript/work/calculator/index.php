@@ -53,22 +53,25 @@ $APPLICATION->SetTitle("");
 		<td><a href="/calculator/fire_2/" target="_blank">Открыть</a></td>
 		<td><a href="/manufacturing/fire_2/" target="_blank">Открыть</a></td>
 	</tr>
-	<tr>
-		<td class="left">Шкафы под лестницу</td>
-		<td><a href="/calculator/wardrobe/" target="_blank">Открыть</a></td>
-		<td><a href="/manufacturing/wardrobe/" target="_blank">Открыть</a></td>
-	</tr>
-	<tr>
-		<td class="left">Шкафы купе</td>
-		<td><a href="/calculator/coupe/" target="_blank">Открыть</a></td>
-		<td><a href="/manufacturing/coupe/" target="_blank">Открыть</a></td>
-	</tr>
+	
 	<tr>
 		<td class="left">Ограждения</td>
 		<td><a href="/calculator/railing/" target="_blank">Открыть</a></td>
 		<td><a href="/manufacturing/railing/" target="_blank">Открыть</a></td>
 	</tr>
+
+	<tr>
+		<td class="left">Нестандарт</td>
+		<td><a href="/calculator/custom/" target="_blank">Открыть</a></td>
+		<td></td>
+	</tr>
 	
+	<tr>
+		<td class="left">Столешницы, слэбы</td>
+		<td><a href="/calculator/slabs/" target="_blank">Открыть</a></td>
+		<td></td>
+	</tr>
+
 	<tr>
 		<td class="left">Полностью деревянные (архив)</td>
 		<td><a href="/calculator/timber/" target="_blank">Открыть</a></td>
@@ -76,27 +79,32 @@ $APPLICATION->SetTitle("");
 	</tr>
 	
 	<tr>
-		<td class="left">Комоды</td>
+		<td class="left">Модульные (архив)</td>
+		<td><a href="/calculator/module/" target="_blank">Открыть</a></td>
+		<td><a href="/manufacturing/module/" target="_blank">Открыть</a></td>
+	</tr>
+	<tr>
+		<td class="left">Шкафы под лестницу (архив)</td>
+		<td><a href="/calculator/wardrobe/" target="_blank">Открыть</a></td>
+		<td><a href="/manufacturing/wardrobe/" target="_blank">Открыть</a></td>
+	</tr>
+	<tr>
+		<td class="left">Шкафы купе (архив)</td>
+		<td><a href="/calculator/coupe/" target="_blank">Открыть</a></td>
+		<td><a href="/manufacturing/coupe/" target="_blank">Открыть</a></td>
+	</tr>
+	<tr>
+		<td class="left">Комоды (архив)</td>
 		<td><a href="/calculator/sideboard/" target="_blank">Открыть</a></td>
 		<td><a href="/manufacturing/sideboard/" target="_blank">Открыть</a></td>
 	</tr>
 	
 	<tr>
-		<td class="left">Столы</td>
+		<td class="left">Столы(архив)</td>
 		<td><a href="/calculator/table/" target="_blank">Открыть</a></td>
 		<td></td>
 	</tr>
-	<tr>
-		<td class="left">Нестандарт</td>
-		<td><a href="/calculator/custom/" target="_blank">Открыть</a></td>
-		<td></td>
-	</tr>
 
-	<tr>
-		<td class="left">Модульные (архив)</td>
-		<td><a href="/calculator/module/" target="_blank">Открыть</a></td>
-		<td><a href="/manufacturing/module/" target="_blank">Открыть</a></td>
-	</tr>
 	
 </tbody></table>
 

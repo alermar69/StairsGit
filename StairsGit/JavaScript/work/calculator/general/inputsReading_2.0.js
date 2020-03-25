@@ -105,10 +105,10 @@ function showOptions(selectId, compatibleOptions) {
 /**функция возвращает параметры марша по номеру марша
 */
 function getMarshParams(marshId) {
-
+	
 	if (marshId < 1) marshId = 1;
 	if (marshId > 3) marshId = 3;
-	var par = {};
+	var par = {marshId: marshId};
 	if (marshId == 1) {
 		par.a = params.a1 * 1.0;
 		par.b = params.b1;

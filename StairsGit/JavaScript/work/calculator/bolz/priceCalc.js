@@ -5,6 +5,8 @@ function calculateCarcasPrice(){
 
 //тетивы
 var stringerMeterPrice = 4000; //цена тетивы из листа за м2
+if(params.stringerModel == "короб") stringerMeterPrice = 10000;
+
 var stringerArea = getPartPropVal('stringer', 'area') + getPartPropVal('bridge', 'area') + getPartPropVal('pltStringer', 'area')
 
 strigerPrice = stringerMeterPrice * stringerArea;

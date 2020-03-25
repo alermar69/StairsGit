@@ -140,14 +140,14 @@ if(testingMode) frontEdgeRad = 0;
 
 	//сохраняем позицию лестницы для позиционирования шкафа
 	params.starcasePos = moove;
-	params.starcasePos.rot = moove.rot + params.stairCaseRotation / 180 * Math.PI;
+	params.starcasePos.rot = moove.rot;
 
 	for(var i=0; i<model.objects.length; i++){
 		var obj = model.objects[i].obj;
 		//позиционируем
-		obj.position.x += moove.x + params.staircasePosX;
-		obj.position.y += params.staircasePosY;
-		obj.position.z += moove.z + params.staircasePosZ + params.M / 2 * turnFactor;
+		obj.position.x += moove.x;// + params.staircasePosX;
+		obj.position.y += moove.y;//params.staircasePosY;
+		obj.position.z += moove.z;// + params.staircasePosZ + params.M / 2 * turnFactor;
 		obj.rotation.y = moove.rot;
 
 		//добавляем в сцену

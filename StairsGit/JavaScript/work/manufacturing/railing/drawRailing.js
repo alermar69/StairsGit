@@ -58,7 +58,7 @@ if(par.railingType == "Ригели" || par.railingType == "Cтекло на с�
 		rackPosArr.push(pos);
 		
 		//средние стойки
-		var middleRackAmt = Math.round(par.len/800) - 1;
+		var middleRackAmt = Math.round(par.len / params.maxLen) - 1;
 		if (middleRackAmt < 0) middleRackAmt = 0;
 		var rackDist = par.len / (middleRackAmt + 1);
 		pos = copyPoint(pos0)
@@ -249,7 +249,7 @@ if(par.railingType == "Решетка"){
 		rackPosArr.push(pos);
 		
 		//средние стойки
-		var middleRackAmt = Math.round(par.len/800) - 1;
+		var middleRackAmt = Math.round(par.len / 800) - 1;
 		if (middleRackAmt < 0) middleRackAmt = 0;
 		var rackDist = par.len / (middleRackAmt + 1);
 		pos = copyPoint(pos0)

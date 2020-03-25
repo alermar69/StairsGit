@@ -1,55 +1,134 @@
-<label for="dxfOpening">Импорт контура проёма из dxf</label>
-<select name="dxfOpening" id="dxfOpening">
-	<option value="нет" selected>нет</option>
-	<option value="да">да</option>
-</select><br>
+<div id="openingFormWrap">
+	<div id="openingForm">
+		<h4>Проем</h4>
+		<table class="form_table w-100">
+			<tbody>
+				<tr class="">
+					<td>Импорт контура проёма из dxf:</td>
+					<td>
+						<select name="dxfOpening" id="dxfOpening">
+							<option value="нет" selected>нет</option>
+							<option value="да">да</option>
+						</select>
+					</td>
+				</tr>
+				<tr class="dxfOpeningFileInput">
+					<td>Файл контура проёма:</td>
+					<td>
+						<input type="file" name="dxfFile" id="dxfFile">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Ширина:</td>
+					<td>
+						<input type="number" id="floorHoleWidth" value="2000" step="100">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Длина:</td>
+					<td>
+						<input type="number" id="floorHoleLength" value="2500" step="100">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Толщина перекрытия:</td>
+					<td>
+						<input type="number" id="floorThickness" value="300" step="50">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Высота от пола до пола чистовая, мм:</td>
+					<td>
+						<input type="number" id="staircaseHeight" value="3000" step="100">
+					</td>
+				</tr>
+			</tbody>
+		</table>
 
-<div class='dxfOpeningFileInput' style='display:none;'>
-	<label for="dxfFile">Файл контура проёма</label>
-	<input type="file" name="dxfFile" id="dxfFile"><br>
+		<h4>Ориентация лестницы</h4>
+		<table class="form_table w-100">
+			<tbody>
+				<tr class="">
+					<td>Базовая кромка:</td>
+					<td>
+						<select id="floorHoleBaseSide">
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3" selected>3</option>
+							<option value="4">4</option>
+						</select>
+					</td>
+				</tr>
+				<tr class="">
+					<td>Смещение лестницы от перекрытия:</td>
+					<td>
+						<input type="number" id="staircasePosX" value="0" step="100">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Смещение лестницы по высоте:</td>
+					<td>
+						<input type="number" id="staircasePosY" value="0" step="10">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Смещение лестницы от угла:</td>
+					<td>
+					<input type="number" id="staircasePosZ" value="10" step="10">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Угол поворота лестницы, гр.:</td>
+					<td>
+						<input type="number" id="stairCaseRotation" value="0" step="10">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h4>Прочее</h4>
+		<table class="form_table w-100">
+			<tbody>
+				<tr class="">
+					<td>Подъем пола нижнего этажа, мм:</td>
+					<td>
+						<input type="number" id="floorOffsetBot" value="0" step="100">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Подъем пола верхнего этажа, мм:</td>
+					<td>
+						<input type="number" id="floorOffsetTop" value="0" step="100">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Высота несущей балки:</td>
+					<td>
+						<input type="number" id="beamWidth" value="200" step="10">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Смещение балки по X:</td>
+					<td>
+						<input type="number" id="beamPosX" value="0" step="10">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Смещение балки по Y:</td>
+					<td>
+						<input type="number" id="beamPosY" value="0" step="10">
+					</td>
+				</tr>
+				<tr class="">
+					<td>Смещение балки по Z:</td>
+					<td>
+						<input type="number" id="beamPosZ" value="0" step="10">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </div>
-
-<label for="floorHoleWidth">Ширина</label>
-<input type="number" id="floorHoleWidth" value="2000" step="100"><br>
-<label for="floorHoleLength">Длина</label>
-<input type="number" id="floorHoleLength" value="2500" step="100"><br>
-<label for="floorThickness">Толщина перекрытия</label>
-<input type="number" id="floorThickness" value="300" step="50"><br>
-
-<label for="staircaseHeight">Высота от пола до пола чистовая, мм:</label>
-<input type="number" id="staircaseHeight" value="3000" step="100"><br>
-
-<label for="floorOffsetBot">Подъем пола нижнего этажа, мм:</label>
-<input type="number" id="floorOffsetBot" value="0" step="100"><br>
-
-<label for="floorOffsetTop">Подъем пола верхнего этажа, мм:</label>
-<input type="number" id="floorOffsetTop" value="0" step="100"><br>
-
-<label for="staircasePosX">Смещение лестницы по X</label>
-<input type="number" id="staircasePosX" value="0" step="100"><br>
-
-<label for="staircasePosX">Смещение лестницы по Y</label>
-<input type="number" id="staircasePosY" value="0" step="10"><br>
-
-<label for="staircasePosZ">Смещение лестницы по Z</label>
-<input type="number" id="staircasePosZ" value="10" step="10"><br>
-
-<label for="stairCaseRotation">Угол поворота лестницы, гр.</label>
-<input type="number" id="stairCaseRotation" value="0" step="10"><br>
-
-
-<label for="beamHeight">Высота несущей балки</label>
-<input type="number" id="beamWidth" value="200" step="10"><br>
-
-<label for="beamPosY">Смещение балки по X</label>
-<input type="number" id="beamPosX" value="0" step="10"><br>
-
-<label for="beamPosY">Смещение балки по Y</label>
-<input type="number" id="beamPosY" value="0" step="10"><br>
-
-<label for="beamPosY">Смещение балки по Z</label>
-<input type="number" id="beamPosZ" value="0" step="10"><br>
-
 
 <!--Тип верхних ступеней лестницы-->
 <select id="topThreadsType" size="1" onchange="" style="display: none;">

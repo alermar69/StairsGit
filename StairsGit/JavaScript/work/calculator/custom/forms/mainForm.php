@@ -18,10 +18,10 @@
 			<th>Цена ед.</th>
 			<th>Сумма</th>
 			<th class='noPrint'>Тип</th>
-			<th class='noPrint'>Себестоимость</th>
-			<th class='noPrint'>% металла</th>
-			<th class='noPrint'>% дерева</th>
-			<th class='noPrint'>% подрядчики</th>
+			<th class='noPrint cost'>Себестоимость</th>
+			<th class='noPrint cost'>% металла</th>
+			<th class='noPrint cost'>% дерева</th>
+			<th class='noPrint cost'>% подрядчики</th>
 			<th class='noPrint'></th>
 		</tr>
 	</thead>

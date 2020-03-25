@@ -7,6 +7,16 @@ $APPLICATION->SetTitle("Шаблон КП на столешницы и подо�
 
 
 <div class="noPrint">
+<<<<<<< HEAD
+	Шапка: 
+	<select size="1" id="headerType" class="form-control-sm">
+		<option value="style-t" selected >Стиль-Т</option>	
+		<option value="inside">Инсайд</option>	
+		<option value="нет">нет</option>	
+	</select>
+	<br/>
+=======
+>>>>>>> curve
 	<button class="btn btn-outline-dark" id="makeAccepted">Привязать к заказу</button>
 </div>
 
@@ -47,9 +57,12 @@ include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
 <!-- главная форма -->
 <?php include "forms/mainForm.php" ?>
 
+<<<<<<< HEAD
+=======
 <!-- О компании -->
 <?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/content/about.php" ?>
 
+>>>>>>> curve
 
 <!--себестоимость-->
 <?php include "forms/costForm.php" ?>

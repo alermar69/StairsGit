@@ -361,8 +361,6 @@ if(params.handrail =="массив" ||
 	params.handrail =="40х60 дуб" ||
 	params.handrail =="40х60 дуб с пазом") isTimberPaint = true;
 
-console.log(params.handrail, isTimberPaint)
-
 //покраска деталей ограждений
 $(".railingMetalPaint_tr").hide();
 $(".railingTimberPaint_tr").hide();
@@ -383,7 +381,6 @@ if(isHandrail) {
 	$("#resultPerila").show();
 	}
 
-if(!isRailing) $(".railing_tr").hide();
 
 	$(".railing_tr").show();
 	$("#resultPerila").show();
@@ -427,11 +424,11 @@ if(!isRailing) $(".railing_tr").hide();
 	
 	//технологические параметры стекла на рутелях
 	
-	$(".manufacturingParams").hide();
+	$("#rutelGlassParams").hide();
 	if(isRutel) {
 		console.log(isRutel)
-		$(".manufacturingParams").show();
-		}
+		$("#rutelGlassParams").show();
+	}
 
 	$(".timberRailing_tr").hide();
 	if (isTimber) $(".timberRailing_tr").show();
@@ -451,7 +448,8 @@ if(!isRailing) $(".railing_tr").hide();
 		$("#rackBottom").closest('tr').show();
 		}
 
-
+	//порода дерева поручня
+	if(params.handrail != "массив") $("#handrailsMaterial").closest("tr").hide();
 	
 	
 	

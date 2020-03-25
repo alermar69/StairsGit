@@ -5,8 +5,16 @@ $APPLICATION->SetTitle("Шаблон КП на нестандартные изд
 
 <link href="styles.css" type="text/css" rel="stylesheet" />
 
+<div class="noPrint">
+	<button class="btn btn-outline-dark" id="makeAccepted">Привязать к заказу</button>
+</div>
+
 <h1 id = "mainTitle">Коммерческое предложение</h1>
 
+<?
+//загрузка данных кп
+include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
+?>
 
 <!--служебные поля-->
 

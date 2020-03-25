@@ -152,5 +152,8 @@ addObjects(viewportId, metis, 'metis');
 //измерение размеров на модели
 	addMeasurement(viewportId);
 
+	setTimeout(function() {
+		if(typeof staircaseLoaded != 'undefined') staircaseLoaded();
+	}, 0);
 }//drawWardrobe;
 

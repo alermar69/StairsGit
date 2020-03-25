@@ -81,6 +81,9 @@ function calcStright() {
 	/*Получение данных из формы*/
 	var staircaseHeight = params.staircaseHeight;
 	var floorHoleLength = params.floorHoleLength;
+	if (params.floorHoleBaseSide == 1 || params.floorHoleBaseSide == 2) {
+		var floorHoleLength = params.floorHoleWidth;
+	}
 	var floorThickness = params.floorThickness;
 	var G_min = params.G_min;
 	var topFlan = params.topFlan;
@@ -163,7 +166,7 @@ function calcStright() {
 		if(!testingMode) alert("Габарит меньше допустимого!")
 	//ширина ступени
 	//a = Math.round((b + params.nose) * 10) / 10;
-	a = calcTreadWidth(b)
+	a = calcTreadWidth(b, 1)
 	
 	//выставляем значение инпутов для сохранения
 	setInputValue("stairAmt1", stairAmt);
@@ -203,6 +206,10 @@ function calcGeomParams(noAlerts) {
 	var staircaseHeight = params.staircaseHeight;
 	var floorHoleLength = params.floorHoleLength;
 	var floorHoleWidth = params.floorHoleWidth;
+	if (params.floorHoleBaseSide == 1 || params.floorHoleBaseSide == 2) {
+		var floorHoleLength = params.floorHoleWidth;
+		var floorHoleWidth = params.floorHoleLength;
+	}
 	var floorThickness = params.floorThickness;
 	var M = params.M;
 	var G_min = params.G_min;
@@ -425,9 +432,9 @@ function calcGeomParams(noAlerts) {
 	a2 = Math.round((b2 + params.nose) * 10) / 10;
 	a3 = Math.round((b3 + params.nose) * 10) / 10;
 	*/
-	a1 = calcTreadWidth(b1);
-	a2 = calcTreadWidth(b2);
-	a3 = calcTreadWidth(b3);
+	a1 = calcTreadWidth(b1, 1);
+	a2 = calcTreadWidth(b2, 2);
+	a3 = calcTreadWidth(b3, 3);
 
 	if(G < G_min)
 		if(!testingMode) alert("Габарит меньше допустимого!")
@@ -914,7 +921,7 @@ function calcG(par) {
 
 /** функция рассчтиывает ширину ступени по проступи
  */
-function calcTreadWidth(step) {
+function calcTreadWidth(step, marshId) {
 
 	var treadWidth = Math.round((step + params.nose) * 10) / 10;
 	if(params.stairType == "рифленая сталь" || params.stairType == "лотки"){
@@ -929,6 +936,18 @@ function calcTreadWidth(step) {
 		(params.calcType == "vhod" && params.staircaseType == "Готовая") ){
 		var deckAmt = Math.ceil((step - 10) / (params.dpcWidth + params.dpcDst));
 		treadWidth = (params.dpcWidth + params.dpcDst) * deckAmt - params.dpcDst;
+	}
+
+	if (params.stairType == 'пресснастил' && typeof marshId != 'undefined') {
+		var values = [];
+		var options = $('#a' + marshId + ' option');
+		$.each(options, function(){
+			values.push($(this).val() * 1.0);
+		});
+		
+		var treadWidth = values.reduce(function(prev, curr) {
+		  return (Math.abs(curr - treadWidth) < Math.abs(prev - treadWidth) ? curr : prev);
+		});
 	}
 
 	return treadWidth;

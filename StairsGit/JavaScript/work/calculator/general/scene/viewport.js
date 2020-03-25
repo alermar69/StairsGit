@@ -22,7 +22,7 @@ $(function () {
 
 	var containerWidth = $('#WebGL-output').width();
 	var containerHeight = $('#WebGL-output').height();
-console.log(containerWidth, containerHeight)
+
 	view = {
 		height: containerHeight,
 		width: containerWidth,
@@ -164,6 +164,23 @@ function addMeasurement(viewportId) {
 	var canvas = view.renderer.domElement;
 
 	function onDocumentMouseDown(evt) {
+
+		//Чистим правое меню
+		$('#additionalObjectContextMenu').hide();
+		if (window.rightClickObject) window.rightClickObject = null;
+
+		var raycaster = new THREE.Raycaster();
+		window.raycaster = raycaster;
+		var mouse = new THREE.Vector2();
+		var BB = canvas.getBoundingClientRect();
+		mouse.x = ((evt.clientX - BB.left) / canvas.clientWidth) * 2 - 1;
+		mouse.y = -((evt.clientY - BB.top) / canvas.clientHeight) * 2 + 1;
+
+		raycaster.setFromCamera(mouse, view.camera);
+		var intersects = raycaster.intersectObjects(view.scene.children, true);
+
+		if (typeof AdditionalObject == 'function' && intersects[0]) AdditionalObject.onClick(intersects[0].object, evt);
+
 		spStart.visible = false;
 		spEnd.visible = false;
 		sConnection.visible = false;
@@ -174,19 +191,6 @@ function addMeasurement(viewportId) {
 		$('#popuup_div').stop(true, true).hide();
 		$('#popuup2_div').stop(true, true).hide();
 		if ((!evt.ctrlKey && !evt.shiftKey && !params.customersDimensions) || evt.which !== 1) return;
-
-		var raycaster = new THREE.Raycaster();
-
-		var mouse = new THREE.Vector2();
-		var canvasPosition = $(canvas).position();
-		var BB = canvas.getBoundingClientRect();
-		mouse.x = ((evt.clientX - BB.left) / canvas.width) * 2 - 1;
-		mouse.y = -((evt.clientY - BB.top) / canvas.height) * 2 + 1;
-
-		// update the picking ray with the camera and mouse position
-		raycaster.setFromCamera(mouse, view.camera);
-		// calculate objects intersecting the picking ray var intersects =
-		var intersects = raycaster.intersectObjects(view.scene.children, true);
 
 		//выделение объекта
 		if (intersects[0]) var selectedObj = intersects[0].object;
@@ -246,17 +250,8 @@ function addMeasurement(viewportId) {
 
 	function onDocumentMouseMove(evt) {
 		try {
-			canvas.style.cursor = 'auto';
-			if (!evt.ctrlKey && !params.customersDimensions) return;
-
 			var raycaster = new THREE.Raycaster();
-
-			// var mouse = new THREE.Vector2();
-			// var canvasPosition = $(canvas).position();
-			// 	var BB = canvas.getBoundingClientRect();
-			// mouse.x = ((evt.clientX - BB.left) / canvas.width) * 2 - 1;
-			// mouse.y = -((evt.clientY - BB.top) / canvas.height) * 2 + 1;
-			// var mouse = setPickPosition(evt);
+			
 			var mouse = {};
 			const rect = canvas.getBoundingClientRect();
 			const pos = {
@@ -266,17 +261,19 @@ function addMeasurement(viewportId) {
 			mouse.x = (pos.x / canvas.clientWidth) * 2 - 1;
 			mouse.y = (pos.y / canvas.clientHeight) * -2 + 1; // note we flip Y
 
-			// update the picking ray with the camera and mouse position
 			raycaster.setFromCamera(mouse, view.camera);
-			// calculate objects intersecting the picking ray var intersects =
 			var intersects = raycaster.intersectObjects(view.scene.children, true);
-
 			if (intersects.length > 0) {
+
 				var intersect = intersects[0];
-				//var face = intersect.face;
 				var point = intersect.point;
 				var object = intersect.object;
 				var distance;
+
+				if (typeof AdditionalObject == 'function') AdditionalObject.onHover(object, evt);
+
+				canvas.style.cursor = 'auto';
+				if (!evt.ctrlKey && !params.customersDimensions) return;
 
 				if (object.layerName == "measure") return;
 				// to skip
@@ -721,8 +718,14 @@ function _addWalls(viewportId, turnFactor) {
 			var wallGeometry = new THREE.CubeGeometry(length, height, thickness);
 			var wall = new THREE.Mesh(wallGeometry, params.materials.wall);
 			wall.userData.isWall = true;
-			wall.position.set(positionX, height / 2, positionZ * turnFactor);
-			addLedges(viewportId, wall, i);
+			var wallMesh =  addLedges(wall, i);
+			wallMesh.position.set(positionX, height / 2, positionZ * turnFactor);
+			wallMesh.rotation.y = i == 3 ? 1.5 * Math.PI : i == 4 ? 0.5 * Math.PI : i == 2 ? Math.PI : 0;
+			if ($("#turnSide").val() == 'левое' && (i == 1 || i == 2)) wallMesh.rotation.y -= Math.PI;
+
+			addObjects(viewportId, wallMesh, wallMesh.layerName);
+			// Обновляем состояние для объекта
+			menu['wall' + i] = menu['wall' + i];
 		}
 	}
 }
@@ -795,98 +798,81 @@ function hideWalls() {
 	if (obj) obj.visible = false;
 }
 
-function addLedges(viewportId, wall, n) {
-
+function addLedges(wall, n){
 	//найдем выступы, для этой стены
 	var wallLedgeWidths = $('#wallLedgesTable [id^=wallLedgeBaseWall]').filter(function () {
 		return this.value == n;
 	});
-	//var boxNew = [];
 	var complexWall = new THREE.Object3D();
-
+	
 	//если есть выступы для этой стены
 	if (wallLedgeWidths.length) {
-		//
-		var x = wall.position.x,
-			y = wall.position.y,
-			z = wall.position.z,
-			w = wall.geometry.parameters.width,
-			h = wall.geometry.parameters.height,
-			d = wall.geometry.parameters.depth;
+		var x = wall.position.x;
+		var y = wall.position.y;
+		var z = wall.position.z;
+		var w = wall.geometry.parameters.width;
+		var h = wall.geometry.parameters.height;
+		var d = wall.geometry.parameters.depth;
 		var wallBSP = new ThreeBSP(wall);
+
 		wallLedgeWidths.each(function (_i, val) {
 			//узнаем Id текущих элементов
-			// var i = val.id.match(/^.*(\d+)$/)[1];
 			var i = val.id.slice(val.id.indexOf("Wall") + 4);
 			var wallLedgeWidth = $('#wallLedgeWidth' + i).val(),
 				wallLedgeType = $('#wallLedgeType' + i).val(),
-				wallLedgeBaseWall = $('#wallLedgeBaseWall' + i).val(),
 				wallLedgeHeight = $('#wallLedgeHeight' + i).val(),
 				wallLedgeDepth = $('#wallLedgeDepth' + i).val(),
 				wallLedgePosX = $('#wallLedgePosX' + i).val(),
 				wallLedgePosY = $('#wallLedgePosY' + i).val(),
 				wallLedgePosZ = $('#wallLedgePosZ' + i).val(),
+				wallLedgeRotY = $('#wallLedgeRotY' + i).val(),
+				wallLedgeRotZ = $('#wallLedgeRotZ' + i).val(),
+				wallLedgeBase = $('#wallLedgeBase' + i).val(),
 				geometry = new THREE.CubeGeometry(wallLedgeWidth, wallLedgeHeight, wallLedgeDepth),
 				ledge = new THREE.Mesh(geometry, params.materials.wall);
 
-			ledge.position.x = x - w / 2 + wallLedgeWidth / 2 + wallLedgePosX * 1;
-			ledge.position.y = y - h / 2 + wallLedgeHeight / 2 + wallLedgePosY * 1;
-			if (wallLedgeBaseWall == 2) {
-				ledge.position.x = x + w / 2 - wallLedgeWidth / 2 - wallLedgePosX * 1;
-			}
+			if (wallLedgeWidth > 0 && wallLedgeHeight > 0) {
+				ledge.position.x = x - w / 2 + wallLedgeWidth / 2 + wallLedgePosX * 1;
 
-			if (wallLedgeWidth > 0 && wallLedgeHeight > 0 && wallLedgeDepth > 0) {
-				if (wallLedgeType == "выступ") {
-					ledge.position.z = z + d / 2 + wallLedgeDepth / 2;
-					var mirrowZ = false;
-					if (wallLedgeBaseWall == 1 && $("#turnSide").val() == "левое") mirrowZ = true;
-					if (wallLedgeBaseWall == 2 && $("#turnSide").val() == "правое") mirrowZ = true;
+				if (wallLedgeBase == 'right') ledge.position.x = x + w / 2 - wallLedgeWidth / 2 - wallLedgePosX * 1;
 
-					if (mirrowZ) ledge.position.z = z - d / 2 - wallLedgeDepth / 2;
-
-
-					if (wallLedgeBaseWall == 4) {
-						ledge.position.x = x + d / 2 + wallLedgeDepth / 2;
-						ledge.position.z = z + w / 2 - wallLedgeWidth / 2 - wallLedgePosX * 1;
-						ledge.rotation.y = -Math.PI / 2;
-					}
-					if (wallLedgeBaseWall == 3) {
-						ledge.position.x = x - d / 2 - wallLedgeDepth / 2;
-						ledge.position.z = z - w / 2 + wallLedgeWidth / 2 + wallLedgePosX * 1;
-						ledge.rotation.y = -Math.PI / 2;
-					}
-					// var ledgeBSP = new ThreeBSP(ledge);
-					// wallBSP = wallBSP.union(ledgeBSP);
-					ledge.userData = {
-						id: i,
-						isLedge: true,
-					};
-
-					// var test = new THREE.Object3D();
-					// test.add(ledge);
-					// test.rotation.y = Math.PI / 2;
-					complexWall.add(ledge);
-					// complexWall.add(test);
+				ledge.position.y = y - h / 2 + wallLedgeHeight / 2 + wallLedgePosY * 1;
+				ledge.position.z = z + d / 2 + wallLedgeDepth / 2;
+				if (wallLedgeDepth < 0) {
+					ledge.position.z -= d;
 				}
-				if (wallLedgeType == "проем") {
+				
+				ledge.userData = {
+					id: i,
+					isLedge: true,
+				};
+
+				if (wallLedgeType == "выступ") complexWall.add(ledge);
+
+				if (wallLedgeType == "проем" && wallLedgeDepth > 0) {
 					ledge.position.z = z + d / 2 - wallLedgeDepth / 2;
-					if ($("#turnSide").val() == "левое") {
-						ledge.position.z = z - d / 2 + wallLedgeDepth / 2;
-					}
+
 					var ledgeBSP = new ThreeBSP(ledge);
 					wallBSP = wallBSP.subtract(ledgeBSP);
 				}
+	
 				if (wallLedgeType == "параллелепипед") {
-					var box = new THREE.Mesh(geometry, params.materials.wall);
-					box.position.x = wallLedgePosX * 1.0 + wallLedgeWidth / 2;
-					box.position.y = wallLedgePosY * 1.0 + wallLedgeHeight / 2;
-					box.position.z = wallLedgePosZ * 1.0 + wallLedgeDepth / 2;
-					// box.userData = {}
-					box.userData = {
-						id: _i,
-						isLedge: true,
+					ledge.position.y = wallLedgePosY * 1.0 + wallLedgeHeight / 2 - h / 2;
+					
+					ledge.position.x = wallLedgePosX * 1.0 + wallLedgeWidth / 2 + w / 2;
+					ledge.position.z = wallLedgePosZ * 1.0 + wallLedgeDepth / 2 + d / 2;
+
+					if ($('#turnSide').val() == 'левое') {
+						ledge.position.x = wallLedgePosX * -1.0 - wallLedgeWidth / 2 - w / 2;
+						ledge.position.z = wallLedgePosZ * -1.0 - wallLedgeDepth / 2;
 					}
-					complexWall.add(box);
+
+					ledge.rotation.y += THREE.Math.degToRad(wallLedgeRotY * 1.0);
+					ledge.rotation.z += THREE.Math.degToRad(wallLedgeRotZ * 1.0);
+
+					ledge.setLayer('block');
+
+					complexWall.add(ledge);
 				}
 			}
 		});
@@ -895,61 +881,194 @@ function addLedges(viewportId, wall, n) {
 		wall.material = params.materials.wall;
 		wall.geometry.computeVertexNormals();
 	}
-	// wall.layerName = 'wall' + n;
-	wall.rotation.y = n == 3 ? 1.5 * Math.PI : n == 4 ? 0.5 * Math.PI : n == 2 ? Math.PI : 0;
+
+	complexWall.add(wall);
 
 	// Текст на стене сбоку
 	var wallDepth = $('#wallThickness_' + n).val() * 1.0;
 	var text = drawTextureText(n, 700);
-	
+
 	text.position.x = wall.position.x;
 	text.position.y = wall.position.y;
 	text.position.z = wall.position.z;
-	if (n == 1 || n == 2) {
-		text.position.z += (wallDepth / 2 + 0.1) * (n == 2 ? -1 : 1);
-	}else{
-		text.position.x += (wallDepth / 2 + 0.1) * (n == 3 ? -1 : 1);
-	}
+	text.position.z += (wallDepth / 2 + 0.1) * (n == 2 ? -1 : 1);
+	
 	text.rotation.x = wall.rotation.x;
 	text.rotation.y = wall.rotation.y;
 	text.rotation.z = wall.rotation.z;
+
+	text.alwaysTransparent = true;
 	complexWall.add(text);
 
 	// Текст на стене сверху
 	var text = drawTextureText(n, 200);
-	
+
 	text.position.x = wall.position.x;
 	text.position.y = wall.position.y + ($('#wallHeight_' + n).val() * 1.0) / 2 + 0.1;
-	text.position.z = wall.position.z;
+	text.position.z = wall.position.z + wallDepth / 2;
 
-	text.rotation.x = wall.rotation.x;
+	text.rotation.x = wall.rotation.x + Math.PI / 2;
 	text.rotation.y = wall.rotation.y;
-	text.rotation.z = wall.rotation.z;
-
-	if (n == 1 || n == 2) {
-		var factor = (n == 1 ? -1 : 1);
-		text.rotation.z += Math.PI / 2 * factor;
-		text.rotation.x += Math.PI / 2 * factor;
-
-		text.position.z += wallDepth / 2;
-	}else{
-		var factor = (n == 3 ? -1 : 1);
-		text.rotation.x += Math.PI / 2 * factor;
-		text.rotation.y += Math.PI / 2 * factor;
-		text.position.x -= wallDepth / 2;
-	}
+	text.rotation.z = wall.rotation.z + Math.PI / 2;
+	text.alwaysTransparent = true;
 	complexWall.add(text);
-
-
-	complexWall.add(wall);
 
 	wall.userData.isWall = true;
 
 	complexWall.setLayer('wall' + n);
 
-	addObjects(viewportId, complexWall, complexWall.layerName);
-	// Обновляем состояние для объекта
-	menu['wall' + n] = menu['wall' + n];
+	return complexWall;
+}
+
+function mirrorWalls(){
+	var sortedValues = {
+		"1": {wallParams:{}, ledges: []},
+		"2": {wallParams:{}, ledges: []},
+		"3": {wallParams:{}, ledges: []},
+		"4": {wallParams:{}, ledges: []}
+	};
+	$.each($('.ledgeParRow'), function(){
+		var val = $(this).find('.wallLedgeBaseWall').val();
+		if (val !== 'нижнее') {
+			sortedValues[val].ledges.push($(this));
+		}
+	});
+
+	for (var i = 1; i <= 4; i++) {
+		sortedValues[i].wallParams.wallLength = $('#wallLength_' + i).val() * 1.0;
+		sortedValues[i].wallParams.wallHeight = $('#wallHeight_' + i).val() * 1.0;
+		sortedValues[i].wallParams.wallPositionX = $('#wallPositionX_' + i).val() * 1.0;
+		sortedValues[i].wallParams.wallPositionZ = $('#wallPositionZ_' + i).val() * 1.0;
+		sortedValues[i].wallParams.wallThickness = $('#wallThickness_' + i).val() * 1.0;
+	}
+
+
+	$.each(sortedValues, function(i){
+
+		var newIndex = 0;
+		if (i == 1) newIndex = 2;
+		if (i == 2) newIndex = 1;
+		if (i == 3) newIndex = 4;
+		if (i == 4) newIndex = 3;
+		
+		if(i == 3 || i == 4) {
+			var val = sortedValues[i].wallParams.wallPositionZ * -1 - (sortedValues[i].wallParams.wallLength - params.floorHoleWidth);
+
+			$('#wallPositionZ_' + i).val(val);
+		}
+		if(i == 1 || i == 2) {
+			var deltaZ = params.floorHoleWidth;
+
+			$('#wallLength_' + newIndex).val(sortedValues[i].wallParams.wallLength);
+			$('#wallHeight_' + newIndex).val(sortedValues[i].wallParams.wallHeight);
+			$('#wallThickness_' + newIndex).val(sortedValues[i].wallParams.wallThickness);
+			
+			$('#wallPositionX_' + newIndex).val(sortedValues[i].wallParams.wallPositionX * 1.0);
+			$('#wallPositionY_' + newIndex).val(sortedValues[i].wallParams.wallPositionY * 1.0);
+			$('#wallPositionZ_' + newIndex).val(sortedValues[i].wallParams.wallPositionZ * -1.0 + deltaZ);
+		}
+
+		$.each(this.ledges, function(){
+			if (i == 1 || i == 2) {
+				this.find('.wallLedgeBaseWall').val(newIndex);
+			}
+		});
+	})
+
+	if ($('#turnSide').val() == 'левое') {
+		$('#turnSide').val('правое');
+	}else{
+		$('#turnSide').val('левое');
+	}
+
+	recalculate().finally(function(){
+		alert('Обстановка отзеркалена, поворот лестницы изменен');
+	});
+}
+
+/**
+ * Функция добавляет сторонний объект в сцену
+ * @param {object} json 
+ * Пример json
+	{
+		className: 'Table',
+		meshParams: {
+			height: 600,
+			width: 1000,
+			length: 1500,
+			tableTopWidth: 40
+		},
+		position: {
+			x: 0,
+			y: 0,
+			z: 0
+		},
+		rotation: {
+			x: 0,
+			y: 0,
+			z: 0
+		}
+	}
+
+	{
+		className: 'Sofa',
+		meshParams: {
+			height: 600,
+			width: 1000,
+			depth: 600
+		},
+		position: {
+			x: 0,
+			y: 0,
+			z: 0
+		},
+		rotation: {
+			x: 0,
+			y: 0,
+			z: 0
+		}
+	}
+ */
+function addAdditionalObject(json){
+	// Валидируем параметры
+	if(!json.className) return;
+	var mesh = AdditionalObject.fromJson(json);
+	if (mesh) {
+		if (json.position) {
+			mesh.position.x = json.position.x || 0;
+			mesh.position.y = json.position.y || 0;
+			mesh.position.z = json.position.z || 0;
+		}
+		if (json.rotation) {
+			mesh.rotation.y = THREE.Math.degToRad(json.rotation) || 0;
+		}
+
+		addObjects('', mesh, 'externalObject');
+	}
+	return mesh;
+}
+
+function redrawAdditionalObjects(){
+	if (!window.service_data || !window.service_data.additional_objects) return;
+	var obj = view.scene.getObjectsByLayerName('additionalObject');
+
+	if (obj) {
+		for (var i = 0; i < obj.length; i++) {
+			view.scene.remove(obj[i]);
+		}
+	}
+
+	$('.additionalObjectRow').remove();
+
+	$.each(window.service_data.additional_objects, function(){
+		addAdditionalObjectTable(this);
+		addAdditionalObject(this);
+	})
+}
+
+function drawParMeshWrapper(par){
+	var par = eval(par.drawFunction + '()');
+	return par[par.mesh];
 }
 
 function addViewport() {
@@ -993,11 +1112,12 @@ function createMenu(){
 	if (window.menu) {
 		var group = menu.addGroup({title: 'Обстановка'});
 
+		menu.addLayer({group: group, layerName: 'block', title: 'Блоки'});
 		menu.addLayer({group: group, layerName: 'wall1', title: 'Стена 1'});
 		menu.addLayer({group: group, layerName: 'wall2', title: 'Стена 2'});
 		menu.addLayer({group: group, layerName: 'wall3', title: 'Стена 3'});
 		menu.addLayer({group: group, layerName: 'wall4', title: 'Стена 4'});
-		menu.addCheckbox({state: true, group: group, variableName: 'wallall', title: 'Все стены', callback: function(menuElement){
+		menu.addCheckbox({state: false, group: group, variableName: 'wallall', title: 'Все стены', callback: function(menuElement){
 			// menu.wall1 = menu.wall2 = menu.wall3 = menu.wall4 = menuElement.value;
 			menu.wall1 = menuElement.value;
 			menu.wall2 = menuElement.value;
@@ -1063,7 +1183,7 @@ function createMenu(){
 			var layers = ["wall1", "wall2", "wall3", "wall4", "topFloor", "ceil", "beamTop"]
 
 			view.scene.traverse(function(node){
-				if (node.material && layers.indexOf(node.layerName) != -1) {
+				if (node.material && layers.indexOf(node.layerName) != -1 && !node.alwaysTransparent) {
 					node.material.transparent = menuElement.value;
 					node.material.opacity = 0.3;
 				}
@@ -1142,6 +1262,28 @@ function render() {
 	view.orbitControls.update(delta);
 	view.renderer.setSize(view.width, view.height);
 
+	var camera = cameraAnimation();
+	
+	if (window.animations) {
+		animations.forEach(function(animation, i){
+			var timeStart = animation.timeStart;
+			var duration = animation.duration;
+			var currentTimestamp = new Date().getTime();
+
+			var progress  = (currentTimestamp - timeStart) / duration;
+			if (progress < 1) {
+				animation.context.animationProgress(animation.animationName, progress)
+			}else{
+				animation.context.animationProgress(animation.animationName, 1);
+				animations.splice(i, 1);
+			}
+		});
+	}
+	
+	view.renderer.render(view.scene, camera);
+}
+
+function cameraAnimation(){
 	var camera = view.camera;
 
 	if ((cameraState == 'Вращение' || cameraState == 'Подъем') && view.splineCamera) {
@@ -1180,7 +1322,7 @@ function render() {
 		}
 	}
 
-	view.renderer.render(view.scene, camera);
+	return camera;
 }
 
 /** функция возвращает стандартную камеру
@@ -1214,6 +1356,7 @@ function createRenderer() {
 function redrawView(showTextures) {
 	// Вызываем метод менеджера для изменения состояния
 	textureManager.setTexturesEnabled(showTextures);
+	redrawAdditionalObjects();
 }
 
 function addWareframe(obj, group) {
@@ -1377,15 +1520,44 @@ function drawTopFloor() {
 			color: 0xFF8000
 		});
 		var beamThk = 100;
-		var beamLength = params.floorHoleWidth + 200;
+		var beamSideOffset = 100; //выступ балки за край проема
+		
+		var beamLength = params.floorHoleWidth;
+		if(params.floorHoleBaseSide == 1 || params.floorHoleBaseSide == 2) beamLength = params.floorHoleLength;
+		
+		beamLength += beamSideOffset * 2;
+		
 		var geom = new THREE.BoxGeometry(100, params.beamWidth, beamLength);
 		var beam = new THREE.Mesh(geom, beamMaterial);
-
-		beam.position.x = beamThk / 2 + params.beamPosX + 0.01;
-		beam.position.y = params.staircaseHeight - params.beamWidth / 2 - params.beamPosY;
-		beam.position.z = params.floorHoleWidth / 2 + params.beamPosZ
-		if (params.turnSide == "левое") beam.position.z -= params.floorHoleWidth;
-
+		
+		if(params.floorHoleBaseSide == 1 || params.floorHoleBaseSide == 2){
+			beam.rotation.y = Math.PI / 2;
+			beam.position.x = -params.floorHoleLength / 2;
+			beam.position.y = params.staircaseHeight - params.beamWidth / 2 - params.beamPosY;
+			if(params.floorHoleBaseSide == 1){
+			beam.position.z = -beamThk / 2 - 0.01
+			if (params.turnSide == "левое") beam.position.z -= params.floorHoleWidth;
+			}
+			if(params.floorHoleBaseSide == 2){
+				beam.position.z = params.floorHoleWidth + beamThk / 2 + 0.01
+				if (params.turnSide == "левое") beam.position.z -= params.floorHoleWidth;
+			}
+		}
+		
+		if(params.floorHoleBaseSide == 3 || params.floorHoleBaseSide == 4){
+			
+			beam.position.y = params.staircaseHeight - params.beamWidth / 2 - params.beamPosY;
+			beam.position.z = params.floorHoleWidth / 2 + params.beamPosZ
+			if (params.turnSide == "левое") beam.position.z -= params.floorHoleWidth;
+			if(params.floorHoleBaseSide == 3 ){
+				beam.position.x = beamThk / 2 + params.beamPosX + 0.01;
+			}
+			if(params.floorHoleBaseSide == 4){
+				beam.position.x = -params.floorHoleLength - beamThk / 2 + params.beamPosX + 0.01;
+			}
+			
+		}
+		
 		beam.layerName = "beamTop";
 		beamObj.add(beam)
 

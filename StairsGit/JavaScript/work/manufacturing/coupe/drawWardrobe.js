@@ -35,15 +35,15 @@ function addWardrobe(viewportId, isVisible) {
 	dxfPrimitivesArr = [];
 
 //Материалы
-	var timberMaterial = new THREE.MeshLambertMaterial( { color: 0x804000, overdraw: 0.5} );
-	var timberMaterial2 = new THREE.MeshLambertMaterial( { color: 0xD29252, overdraw: 0.5} );	
-	var metalMaterial = new THREE.MeshLambertMaterial({color: 0x363636, wireframe: false});
-	var floorMaterial = new THREE.MeshLambertMaterial( {color: 0xBFBFBF});	
-	var stringerMaterial = new THREE.MeshLambertMaterial({color: 0x363636, wireframe: false});
+	var timberMaterial = params.materials.timber;//new THREE.MeshLambertMaterial( { color: 0x804000, overdraw: 0.5} );
+	var timberMaterial2 = params.materials.timber2;//new THREE.MeshLambertMaterial( { color: 0xD29252, overdraw: 0.5} );	
+	var metalMaterial = params.materials.metal;//new THREE.MeshLambertMaterial({color: 0x363636, wireframe: false});
+	// var floorMaterial = new THREE.MeshLambertMaterial( {color: 0xBFBFBF});	
+	// var stringerMaterial = new THREE.MeshLambertMaterial({color: 0x363636, wireframe: false});
 	
-	params.materials = {};
-	params.materials.timber = timberMaterial;	
-	params.materials.metal = metalMaterial;
+	// params.materials = {};
+	// params.materials.timber = timberMaterial;	
+	// params.materials.metal = metalMaterial;
 	
 //константы, локальные переменные
 	var thk = params.carcasThk_wr;

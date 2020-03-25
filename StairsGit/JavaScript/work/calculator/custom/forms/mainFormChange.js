@@ -25,10 +25,10 @@ function addRow(){
 				<option value='доставка'>доставка</option>\
 			</select>\
 		</td>\
-		<td class='noPrint'><input type='number' id='сost" + id + "' class='сost' value='100'></td>\
-		<td class='noPrint'><input type='number' id='metalPart" + id + "' class='metalPart' value='0'></td>\
-		<td class='noPrint'><input type='number' id='timberPart" + id + "' class='timberPart' value='0'></td>\
-		<td class='noPrint'><input type='number' id='partnersPart" + id + "' class='partnersPart' value='0'></td>\
+		<td class='noPrint cost'><input type='number' id='сost" + id + "' class='сost' value='100'></td>\
+		<td class='noPrint cost'><input type='number' id='metalPart" + id + "' class='metalPart' value='0'></td>\
+		<td class='noPrint cost'><input type='number' id='timberPart" + id + "' class='timberPart' value='0'></td>\
+		<td class='noPrint cost'><input type='number' id='partnersPart" + id + "' class='partnersPart' value='0'></td>\
 		<td class='removeRow noPrint'>X</td>\
 	</tr>";
 

@@ -136,6 +136,16 @@
 			</select>
 		</td></tr>
 
+		<tr>
+			<td>Модель тетив:</td>
+			<td>
+				<select id="stringerModel" size="1">
+					<option value="лист">лист</option>
+					<option value="короб">короб</option>
+				</select>
+			</td>
+		</tr>
+					
 		<tr><td>Подступенки:</td> <td> 
 			<select id="riserType" size="1" >
 				<option value="нет">нет</option>

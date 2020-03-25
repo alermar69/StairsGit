@@ -1,6 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Расчет пожарных лестниц v.1.0"); 
+include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
 ?> 
 
 <h1 id = "mainTitle">Коммерческое предложение на пожарные лестницы</h1>

@@ -31,6 +31,23 @@
 <script type="text/javascript" src="/calculator/general/three_libs/SVGRenderer.js"></script>
 <script type="text/javascript" src="/calculator/general/three_libs/Projector.js"></script>
 
+<script type="text/javascript" src="/calculator/general/scene/additionalObject.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/sofa.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/table.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/door.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/window.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/battery.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/chair.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/bedside.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/fridge.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/pipe.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/switch.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/socket.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/wardrobe.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/tv.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/lustre.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/wallLamp.js"></script>
+
 <!--другая библиотека polygon triangulation-->
 <script type="text/javascript" src="/calculator/general/three_libs/earcut.js"></script>
 <script type="text/javascript" src="/calculator/general/three_libs/triangulation.js"></script>
@@ -139,6 +156,11 @@
 
 <!--скрипт отпарвки отчета-->
 <script type="text/javascript" src="/bugs/sendReport2.js"></script>
+
+<!--строительное задание для заказчика-->
+<script type="text/javascript" src="/calculator/general/content/construction_task.js"></script>
+
+
 
 <!-- диалоговые окна -->
 

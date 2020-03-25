@@ -324,8 +324,12 @@ function drawRailingSection_4_pltP(par){
 		var marshLastRailingPoint = stringerParams.keyPoints.marshLastRailingPoint;
 		*/
 		//костыль чтобы убрать критическую ошибку
-		var marshFirstRailingPoint = { x: -params.M, y:-params.h3*2}
-		var marshLastRailingPoint = { x: params.M - 7.5, y:params.h3}
+		var marshFirstRailingPoint = {x: -params.M, y: -params.h3*2}
+		var marshLastRailingPoint = {x: params.M - 7.5, y: params.h3}
+		if(params.calcType.indexOf("timber") == -1){
+			marshFirstRailingPoint = {x: 0, y: -params.h3 * 2}
+			marshLastRailingPoint = {x: params.M * 2, y: params.h3}
+		}
 	}
 
 	{

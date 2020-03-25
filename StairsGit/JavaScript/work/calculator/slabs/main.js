@@ -28,6 +28,16 @@ $(function () {
 		recalculate();
 	})
 	
+<<<<<<< HEAD
+	$("#headerType").change(function(){
+		$(".header").hide();
+		$(".footerText").hide();
+		
+		$("." + $(this).val()).show()
+	})
+
+=======
+>>>>>>> curve
 	
 	//пересчитываем лестницу
 	if (window.loadedData) {

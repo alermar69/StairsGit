@@ -7,9 +7,7 @@
 	$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 	
 	//модуль
-
-	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'curve'];
-
+	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'curve'];
 	$calc_type = '';
 	foreach($calc_types as $item){
 		if (strpos($url,'/'.$item) !== false) $calc_type = $item;
@@ -304,23 +302,6 @@ $scripts = [
 			];
 	};
 
-	if($calc_type == 'wardrobe'){
-		$scripts[] = [
-			'url' => 'priceCalc.js',
-		];
-		$scripts[] = [
-			'url' => 'drawWardrobe.js',
-		];
-		$scripts[] = [
-			'url' => 'drawWardrobeParts.js',
-		];
-		$scripts[] = [
-			'url' => 'drawWardrobe.js',
-		];
-		$scripts[] = [
-			'url' => 'main.js',
-		];
-	};
 	
 	//вывод скриптов на страницу
 	foreach($scripts as $script){

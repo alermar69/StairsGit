@@ -62,6 +62,11 @@ $(function() {
 			$(this).closest("tr").find(".wallLedgePosZ").closest("div.line").show();
 		}
 
+		$(this).closest("tr").find(".wallLedgeRotY").closest(".ledgeRot").hide();
+		if(ledgeType == "параллелепипед"){
+			$(this).closest("tr").find(".wallLedgeRotY").closest(".ledgeRot").show();
+		}
+
 		//позиция по Y
 		$(this).closest("tr").find(".wallLedgePosY").closest("div.line").show();
 		if(baseWall == "нижнее"){
@@ -70,6 +75,8 @@ $(function() {
 		redrawWalls();
 	});
 	
+	$("#mirrorWalls").click(function(){mirrorWalls();})
+
 	//выставление стен по проему
 	$("#setWallsPos").click(function(){
 		//стена 1
@@ -123,6 +130,9 @@ function addTopFloorLedge(){
 function addWallLedge(){
 	 var text = '<tr class="ledgeParRow">' +
             '<td>' +
+            	'<span class="row_id" data-id="0">0</span>' +
+            '</td>' +
+            '<td>' +
             '<select id="wallLedgeType0" size="1" class="wallLedgeType">' +
             '<option value="проем">проем</option>' +
             '<option value="выступ" selected="">выступ</option>' +
@@ -146,7 +156,11 @@ function addWallLedge(){
             '<td style="border-right: 0;">' +
             	'<div class="line">X:<input type="number" id="wallLedgePosX0" value="100" step="100" class="wallLedgePosX"></div>' +
             	'<div class="line">Y:<input type="number" id="wallLedgePosY0" value="100" step="100" class="wallLedgePosY"></div>' + 
-	    	'<div class="line" style="display:none">Z:<input type="number" id="wallLedgePosZ0" value="0" step="100" class="wallLedgePosZ"></div>' + 
+				'<div class="line" style="display:none">Z:<input type="number" id="wallLedgePosZ0" value="0" step="100" class="wallLedgePosZ"></div>' + 
+				'<div class="line ledgeRot" style="display:none">'+
+					'Поворот Y:<input type="number" id="wallLedgeRotY0" value="0" step="1" class="wallLedgeRotY">' + 
+					'Поворот Z:<input type="number" id="wallLedgeRotZ0" value="0" step="1" class="wallLedgeRotZ">' + 
+				'</div>' +
 	    '</td>' + 
 		'<td>' +
 			'<select id="wallLedgeMat0">' +
@@ -161,6 +175,12 @@ function addWallLedge(){
 			'</select>' +
 		'</td>' +
 		'<td><input id="wallLedgeColor0" type="color" value="#cccccc"></td>\
+		<td>\
+			<select class="wallLedgeBase" id="wallLedgeBase0">\
+				<option value="left">Слева</option>\
+				<option value="right">Справа</option>\
+			</select>\
+		</td>\
 		<td>\
 			<button class="removeRow">Удалить</button>\
 		</td>\

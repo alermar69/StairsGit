@@ -1,7 +1,7 @@
 <br/>
 <button id="showCost" class="noPrint">Показать себестоимость</button>
 
-<div id="cost" style="display: none;">
+<div id="cost" class="cost" style="display: none">
 
 	<h2 class="raschet" onclick='recalculate()' >Расчет себестоимости</h2>
 

@@ -252,12 +252,12 @@ function drawWardrobe(par) {
 	var boxes = par.boxes;
 	
 	/*Материалы*/
-	var timberMaterial = new THREE.MeshLambertMaterial( { color: 0x804000, overdraw: 0.5} );
-	var timberMaterial2 = new THREE.MeshLambertMaterial( { color: 0xD29252, overdraw: 0.5} );
+	var timberMaterial = params.materials.timber;//new THREE.MeshLambertMaterial( { color: 0x804000, overdraw: 0.5} );
+	var timberMaterial2 = params.materials.timber2;//new THREE.MeshLambertMaterial( { color: 0xD29252, overdraw: 0.5} );
 	
-	var metalMaterial = new THREE.MeshLambertMaterial({color: 0x363636, wireframe: false});
-	var floorMaterial = new THREE.MeshLambertMaterial( {color: 0xBFBFBF});	
-	var stringerMaterial = new THREE.MeshLambertMaterial({color: 0x363636, wireframe: false});
+	var metalMaterial = params.materials.metal;//new THREE.MeshLambertMaterial({color: 0x363636, wireframe: false});
+	// var floorMaterial = new THREE.MeshLambertMaterial( {color: 0xBFBFBF});	
+	// var stringerMaterial = new THREE.MeshLambertMaterial({color: 0x363636, wireframe: false});
 	
 
 
@@ -936,7 +936,6 @@ function drawPlate(par){
 		material
 		}
 	*/
-console.log("ghgh") 
 	var p0 = {x: 0, y: 0}
 	var p1 = copyPoint(p0);
 	var p2 = newPoint_xy(p1, 0, par.height)

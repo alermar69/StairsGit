@@ -7,7 +7,6 @@
 */
 
 function draw3DDimensions(par){
-	var moove = par.moove;
 	var mesh = new THREE.Object3D();
 	var treadsObj = par.treadsObj;
 	var offset = 100;// отступ от объекта
@@ -1090,16 +1089,15 @@ function setDimensions(viewportId, viewType, callback, dimensionParams){
 	var moove = calcStaircaseMoove(treadsObj.lastMarshEnd);
 	var dimensionsPar = {
 		treadsObj: treadsObj,
-		moove: moove,
 		view: viewType,
 		additionalParams: dimensionParams
 	};
 
 	var dimMesh = draw3DDimensions(dimensionsPar).mesh;
 
-	dimMesh.position.x += moove.x + params.staircasePosX;
-	dimMesh.position.y += params.staircasePosY;
-	dimMesh.position.z += moove.z + params.staircasePosZ + params.M / 2 * turnFactor;
+	dimMesh.position.x += moove.x;
+	dimMesh.position.y += moove.y;
+	dimMesh.position.z += moove.z;
 	dimMesh.rotation.y = moove.rot;
 
 	addObjects(viewportId, dimMesh, 'dimensions');
@@ -1187,7 +1185,7 @@ addDrawingsImage = function(dimensionParams){
 	}
 */	
 	elem += `src="${imgData}" alt="">`;
-	$('#geomDrawings').append(elem);
+	$('#geomDrawings').append(elem + "<br><br>");
 }
 
 addTopFloorGeom = function(view){

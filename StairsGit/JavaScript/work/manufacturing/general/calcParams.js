@@ -245,23 +245,24 @@ function calcStaircaseMoove(lastMarshEnd){
 		x: lastMarshEnd.z,
 		y: lastMarshEnd.x,
 		}
-	var newPos = rotatePoint(pos, -lastMarshEnd.rot)
+	
+	var ang0 = -lastMarshEnd.rot
+	if(params.floorHoleBaseSide == 1) ang0 += Math.PI / 2
+	if(params.floorHoleBaseSide == 2) ang0 += -Math.PI / 2
+	if(params.floorHoleBaseSide == 4) ang0 += Math.PI
+
+	var newPos = rotatePoint(pos, ang0)
+
 	
 	var moove = {
 		x: -Math.round(newPos.y * 100000) / 100000 * turnFactor,
+		y: 0,
 		z: -Math.round(newPos.x * 100000) / 100000 * turnFactor,
-		rot: -lastMarshEnd.rot,
-		}
+		rot: ang0,
+	}
 	//коррекция для прямой лестницы
 	if(params.stairModel == "Прямая" || params.stairModel == "Прямая с промежуточной площадкой") moove.x = moove.x * turnFactor;
 
-	
-	//учитываем толщину верхнего узла на деревянных лестницах
-	/*
-	if(params.calcType == "timber"){
-		moove.x -= 40;
-		}
-	*/
 	
 	//удлиннение последней ступени при 0 ступеней в верхнем марше
 	var deltaLen = 0;
@@ -287,6 +288,78 @@ function calcStaircaseMoove(lastMarshEnd){
 	
 	moove.x -= 0.01;
 	
+	if (params.calcType == 'metal' || params.calcType == 'console') {
+		//если на верхней площадке есть заднее ограждение, сдвигаем лестницу по оси Х чтобы ограждение не пересекалось с верхним перекрытием
+		if (params.platformTop == "площадка" && params.topPltRailing_5) {
+			if (params.railingModel != "Самонесущее стекло") params.staircasePosX -= 40;//40-ширина стойки
+			else params.staircasePosX -= 20 + 12;//20 - зазор от стекла до торца марша, 12 - толщина стекла
+		}
+	}
+
+	if (params.calcType == 'mono') {
+		//если на верхней площадке есть заднее ограждение, сдвигаем лестницу по оси Х чтобы ограждение не пересекалось с верхним перекрытием
+		if (params.platformTop == "площадка" && params.topPltRailing_5) {
+			if (params.railingModel != "Самонесущее стекло") moove.x -= 40;//40-ширина стойки
+			else moove.x -= 14 + 12;//14 - зазор от стекла до торца марша, 12 - толщина стекла
+		}
+	}
+
+	//модифицируем смещение с учетом выбора базовой кромки
+	if(params.floorHoleBaseSide == 1){
+		if (turnFactor == 1) {
+			moove.x += -params.floorHoleLength + params.M / 2;
+		}else if(params.stairModel !== 'Прямая'){
+			moove.x -= params.M / 2;
+			moove.z -= params.floorHoleWidth;
+		}else{
+			moove.x -= params.M / 2;
+			moove.z += getMarshParams(1).len + lastMarshEnd.x + params.nose - params.floorHoleWidth;
+		}
+	}
+	if(params.floorHoleBaseSide == 2){
+		if (turnFactor == 1) {
+			moove.x += -params.M / 2;
+			moove.z += params.floorHoleWidth;
+		}else if(params.stairModel !== 'Прямая'){
+			moove.x += params.M / 2 - params.floorHoleLength;
+		}else{
+			moove.x -= params.floorHoleLength - params.M / 2;
+			moove.z -= getMarshParams(1).len + lastMarshEnd.x + params.nose;
+		}
+	}
+
+	if(params.floorHoleBaseSide == 3){
+		moove.z += params.M / 2 * turnFactor;
+	}
+
+	if(params.floorHoleBaseSide == 4){
+		if (turnFactor == 1) {
+			moove.x += -params.floorHoleLength;
+			moove.z += -params.M / 2 + params.floorHoleWidth;
+		}else{
+			moove.x += -params.floorHoleLength;
+			moove.z += params.M / 2 - params.floorHoleWidth;
+		}
+	}
+
+	// Считаем пользовательское смещение	
+	if (params.floorHoleBaseSide == 1 || params.floorHoleBaseSide == 2) {
+		var wallFactor = params.floorHoleBaseSide == 2 ? 1 : -1;
+		moove.z -= params.staircasePosX * wallFactor;
+		moove.x -= params.staircasePosZ * wallFactor * turnFactor;
+	}
+
+	if (params.floorHoleBaseSide == 3 || params.floorHoleBaseSide == 4) {
+		var wallFactor = params.floorHoleBaseSide == 4 ? 1 : -1;
+		moove.x += params.staircasePosX * wallFactor;
+		moove.z -= params.staircasePosZ * wallFactor * turnFactor;
+	}
+
+	moove.y += params.staircasePosY;
+	moove.rot += params.stairCaseRotation / 180 * Math.PI;
+
+	console.log(moove);
+
 	return moove;
 	
 } //end of calcStaircaseMoove

@@ -6,3 +6,5 @@
 <option value="лиственница ц/л">лиственница ц/л</option>
 <option value="дуб паркет.">дуб паркет.</option>
 <option value="дуб ц/л">дуб ц/л</option>
+<option value="дуб натур">дуб натур</option>
+<option value="карагач натур">карагач натур</option>

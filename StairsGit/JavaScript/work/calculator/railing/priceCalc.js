@@ -160,6 +160,12 @@ function calcGlassRailingPrice(){
 		"<b class='yellow'>Скидка: " + discountSum + " руб;</b><br/>" + 
 		"<b class='yellow'>Итого со скидкой: " + finalPrice + " руб;</b><br/>";	
 	$("#totalResult").html(text);
+
+	priceObj.total = {
+		price: totalPrice,
+		discount: discountSum,
+		discountPrice: finalPrice
+	};
 	
 	//подробная себестоимость
 	var text = 

@@ -3102,6 +3102,24 @@ function calcTimberParams(timberType){
 		treadsPanelName = "panelOakPremium_40";
 		riserPanelName = "panelOakPremium_20";
 		}
+		
+	if (timberType == "дуб ц/л") {
+		m3Price = 180000;
+		treadsPanelName = "panelOakPremium_40";
+		riserPanelName = "panelOakPremium_20";
+	}
+		
+	if (timberType == "дуб натур") {
+		m3Price = 80000;
+		treadsPanelName = "panelOakPremium_40";
+		riserPanelName = "panelOakPremium_20";
+	}
+	
+	if (timberType == "карагач натур") {
+		m3Price = 100000;
+		treadsPanelName = "panelOakPremium_40";
+		riserPanelName = "panelOakPremium_20";
+	}
 	
 	//формируем возвращаемый объект
 	var par = {
@@ -3155,7 +3173,7 @@ function calcGlassCost(type, thk){
 	//стекло 8мм
 	if (thk == 8){		
 		var m2Price = 1800;
-		if(type == "оптивайт") m2Price = 3645;
+		if(type == "оптивайт") m2Price = 3645 * 1.1; //к-т от 25.03.20
 		if(type == "тонированное") m2Price = 2850;
 		if(type == "матовое") m2Price = 2630;
 		if(type == "с пленкой") m2Price = 2800;
@@ -3167,7 +3185,7 @@ function calcGlassCost(type, thk){
 	//стекло 12мм
 	if (thk == 12){
 		var m2Price = 3200;
-		if(type == "оптивайт") m2Price = 7100;
+		if(type == "оптивайт") m2Price = 7100 * 1.1; //к-т от 25.03.20
 		if(type == "тонированное") m2Price = 6000;
 		if(type == "матовое") m2Price = 6000;
 		if(type == "с пленкой") m2Price = 4200;

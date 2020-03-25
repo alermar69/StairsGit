@@ -1,8 +1,8 @@
-<h1>Настройка Проёма</h1>
-<div class="row">
+<h2>Проем</h2>
+<div class="row floorHoleParams">
 	<div class="col-7">
 		<div class="row">
-			<div class="col-5">Выбор типа проёма</div>
+			<div class="col-5">Тип проема</div>
 			<div class="col-7">
 				<select class='w-100' id="openingType">
 					<option value="квадратный">Квадратный</option>
@@ -11,16 +11,11 @@
 				</select>
 			</div>
 		</div>
-		<div class="row">
+		<div class="row master-input-container">
 			<div class="col-5">
-				Поворот лестницы:
+				Направление:
 			</div>
-			<div class="col-7">
-				<select name="turnSide" id="turnSideMaster" class='master-input w-100' data-id='turnSide'>
-					<option value="правое">правое</option>
-					<option value="левое">левое</option>
-				</select>
-			</div>
+			<div class="col-7 move-input-master" data-id='turnSide'></div>
 		</div>
 		<div class="row dxfImportInput" style='display: none;'>
 			<div class="col-5">
@@ -30,17 +25,26 @@
 				<button class='btn btn-primary' id='dxfFileMaster'>Выбрать файл</button>
 			</div>
 		</div>
-		<table class='walls_table w-100'>
+		<div class="row master-input-container">
+			<div class="col-5">Высота от пола до пола:</div>
+			<div class="col-7 move-input-master" data-id='staircaseHeight'></div>
+		</div>
+		
+		<div class="row master-input-container">
+			<div class="col-5">Толщина перекрытия:</div>
+			<div class="col-7 move-input-master" data-id='floorThickness'></div>
+		</div>
+		<table class='walls_table w-100 tab_2'>
 			<tbody>
-				<tr><td>Стена</td><td>Размер</td><td>Наличие</td></tr>
+				<tr><th>Сторона</th><th>Размер</th><th>Стена</th></tr>
 				<tr class='aSize'>
 					<td>A</td>
-					<td><input id="aSize" class="master-input" data-id="floorHoleLength" value="4000" type="number"></td>
+					<td class='move-input-master' data-id='floorHoleLength' data-new_id='aSize'></td>
 					<td><input type="checkbox" checked id='wallAVisible'></td>
 				</tr>
 				<tr class='bSize'>
 					<td>B</td>
-					<td><input id="bSize" class="master-input" data-id="floorHoleWidth" value="4000" type="number"></td>
+					<td class='move-input-master' data-id='floorHoleWidth' data-new_id='bSize'></td>
 					<td><input type="checkbox" checked id='wallBVisible'></td>
 				</tr>
 				<tr>

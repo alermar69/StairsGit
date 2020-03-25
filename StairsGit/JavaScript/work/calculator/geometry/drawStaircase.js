@@ -177,9 +177,9 @@ drawStaircase = function (viewportId, isVisible) {
 		for(var i=0; i<model.objects.length; i++){
 			var obj = model.objects[i].obj;
 			//позиционируем
-			obj.position.x += moove.x + params.staircasePosX;
-			obj.position.y += params.staircasePosY;
-			obj.position.z += moove.z + params.staircasePosZ + params.M / 2 * turnFactor;
+			obj.position.x += moove.x;
+			obj.position.y += moove.y;
+			obj.position.z += moove.z;
 			obj.rotation.y = moove.rot;
 			//смещаем все ступени для лотков
 			if(params.stairType == "лотки" && model.objects[i].layer == "treads") {

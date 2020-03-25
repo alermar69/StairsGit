@@ -160,10 +160,23 @@ function calcPrice(){
 }
 
 function printCost(par){
+<<<<<<< HEAD
+	var vp = Math.round(staircasePrice.finalPrice - par.total);
+	var vpPart = Math.round(vp / staircasePrice.finalPrice * 100)
+	var dealerCost = Math.round(par.total * 1.3);
+	var dealerVp = Math.round(staircasePrice.finalPrice - dealerCost);
+	var dealerVpPart = Math.round(dealerVp / staircasePrice.finalPrice * 100)
+	var text = "<b>Общая себестоимость: " + par.total + " руб<br/>\
+		ВП: <span id='vpSum'>" + vp + "</span> руб (" + vpPart + "%)<br/><br/>\
+		Цена для дилера: " + dealerCost + " руб<br/>\
+		ВП дилера: <span id='vpSum'>" + dealerVp + "</span> руб (" + dealerVpPart + "%)\
+		</b>";
+=======
 	var vp = staircasePrice.finalPrice - par.total;
 	var vpPart = Math.round(vp / staircasePrice.finalPrice * 100)
 	var text = "<b>Общая себестоимость: " + par.total + " руб<br/>\
 		ВП: <span id='vpSum'>" + vp + "</span> руб (" + vpPart + "%)</b>";
+>>>>>>> curve
 	/*
 	var totalCost = 0;
 	$.each(par, function(key){

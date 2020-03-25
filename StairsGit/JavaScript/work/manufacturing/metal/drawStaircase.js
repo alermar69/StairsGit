@@ -208,20 +208,14 @@ drawStaircase = function (viewportId, isVisible) {
 
 	//сохраняем позицию лестницы для позиционирования шкафа
 	params.starcasePos = moove;
-	params.starcasePos.rot = moove.rot + params.stairCaseRotation / 180 * Math.PI;
-
-	//если на верхней площадке есть заднее ограждение, сдвигаем лестницу по оси Х чтобы ограждение не пересекалось с верхним перекрытием
-	if (params.platformTop == "площадка" && params.topPltRailing_5) {
-		if (params.railingModel != "Самонесущее стекло") params.staircasePosX -= 40;//40-ширина стойки
-		else params.staircasePosX -= 20 + 12;//20 - зазор от стекла до торца марша, 12 - толщина стекла
-	}
+	params.starcasePos.rot = moove.rot;
 
 	for(var i=0; i<model.objects.length; i++){
 		var obj = model.objects[i].obj;
 		//позиционируем
-		obj.position.x += moove.x + params.staircasePosX;
-		obj.position.y += params.staircasePosY;
-		obj.position.z += moove.z + params.staircasePosZ + params.M / 2 * turnFactor;
+		obj.position.x += moove.x;// + params.staircasePosX;
+		obj.position.y += moove.y;//params.staircasePosY;
+		obj.position.z += moove.z;// + params.staircasePosZ + params.M / 2 * turnFactor;
 		obj.rotation.y = moove.rot;
 		//смещаем все ступени для лотков
 		if(params.stairType == "лотки" && model.objects[i].layer == "treads") {

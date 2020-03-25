@@ -5,11 +5,12 @@
 	$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 
 	//модуль
-	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry'];
+	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe'];
 	$calc_type = '';
 	foreach($calc_types as $item){
 		if (strpos($url,'/'.$item) !== false) $calc_type = $item;
 	};
+
 
 	//представление
 	$templates = ['calculator', 'manufacturing', 'installation', 'customers'];
@@ -30,6 +31,7 @@
 	if($calc_type == 'vhod') $title = "Входная лестница";
 	if($calc_type == 'vint') $title = "Винтовая лестница";
 	if($calc_type == 'geometry') $title = "Расчет геометрии лестницы";
+	if($calc_type == 'wardrobe') $title = "Расчет шкафа";
 
 	//тип расчета и версия
 	echo '
@@ -47,10 +49,12 @@
 		echo '</div>';
 	};
 
-	if ($template == 'calculator') {
+	//пошаговый конфигуратор лестницы
+	$ignor_calc_types = ['railing', 'geometry', 'wardrobe'];
+	if ($template == 'calculator' && !in_array($calc_type, $ignor_calc_types)) {
 		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/master/main.php";
 	}
-	
+
 	if($template != 'customers') {
 
 		//Форма параметров заказа
@@ -77,22 +81,23 @@
 			</div>';
 
 		//кнопки под визуализацией
-		if($template == 'calculator') {
+		if($template == 'calculator' && $calc_type != 'wardrobe') {
 			echo
 				'<div class="noPrint mainButtons">
-					<button id="open_master_modal">Конфигуратор проёма</button>
-					<button id="sendMessageModalShow">Отправить КП</button>
-					<button id="cloneCanvas">Дублировать</button>
-					<button id="loadSavedCams">Загрузить виды</button>
-					<button id="resaveCam">Сохранить виды</button>
-					<button onclick="saveCanvasImg(0)">Сохранить png</button>
-					<button id="print">Печать</button>
+					<button id="open_master_modal" class="btn btn-outline-primary">Конфигуратор</button>
+					<button id="sendMessageModalShow" class="btn btn-outline-primary">Отправить КП</button>
+					<button id="print" class="btn btn-outline-primary">Печать</button>
+					<button id="cloneCanvas" class="btn btn-outline-secondary">Дублировать</button>
+					<button id="loadSavedCams" class="btn btn-outline-secondary">Загрузить виды</button>
+					<button id="resaveCam" class="btn btn-outline-secondary">Сохранить виды</button>
+					<button onclick="saveCanvasImg(0)" class="btn btn-outline-secondary">Сохранить png</button>
+					
 				</div>
 				<div id="images"></div>';
 
 			//параметры геометрии
 			echo
-				'<div class="printBlock">
+				'<div class="printBlock" id="geomDescrWrapper">
 					<h2>Геометрия</h2>
 					<div id="geomDescr"></div>
 				</div>
@@ -112,7 +117,7 @@
 		if($template == 'installation') {
 			echo
 				'<div class="noPrint">
-					<button id="createBuildingTask">Стр. задание</button>
+					<button id="createConstructionTask">Стр. задание</button>
 					<button id="toggleAll">Развернуть</button>
 				</div>';
 		};
@@ -372,6 +377,41 @@
 		$tabs['walls']['class'] = 'd-none';
 	};
 
+	$tabs['objects'] = [
+		'name' => 'Объекты',
+		'url' => '/calculator/general/forms/objects/form.php',
+		'class' => 'noPrint',
+		'group' => 'form',
+	];
+
+	if ($calc_type == 'wardrobe') {
+		$tabs['price'] = "/calculator/wardrobe/forms/price.php";
+		$tabs['carcas']  = false;//"/calculator/wardrobe/forms/main_form.php";
+		$tabs['railing'] = false;
+		$tabs['banister'] = false;
+		$tabs['assembling'] = false;
+		$tabs['comments'] = false;
+		$tabs['geom'] = false;
+		$tabs['testing'] = false;
+
+		$tabs = array_merge(
+			array_slice($tabs, 0, 1),
+			[
+				'wardrobe' => [
+					'name' => 'Шкаф',
+					'url' => '/calculator/wardrobe/forms/main_form.php',
+					'group' => 'form'
+				],
+				'wardrobe_content' => [
+					'name' => 'Полки',
+					'url' => '/calculator/wardrobe/forms/wrContent.php',
+					'group' => 'form'
+				]
+			],
+			array_slice($tabs, 1)
+		);
+	}
+
 
 	//формируем вкладки для вывода на страницу
 	$form_nav = '<nav><div class="nav nav-pills" id="nav-tab" role="tablist">';
@@ -407,7 +447,7 @@
 		<span class="nav-item dropdown">
 			<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Действия</a>
 			<div class="dropdown-menu">
-				<span class="dropdown-item" id="createBuildingTask">Стр. задание</span>
+				<span class="dropdown-item" id="createConstructionTask">Стр. задание</span>
 				<span class="dropdown-item"  id="toSvg">Снимок</span>
 				<span class="dropdown-item"  id="validate">Проверить</span>
 				<span class="dropdown-item"  id="compareModalShow">Сравнить с другим</span>';
@@ -499,50 +539,8 @@
 	};
 
 
-	/**
-	 * Загрузка параметров
-	*/
-	if (isset($_GET['orderName'])) {
-
-		require_once($_SERVER['DOCUMENT_ROOT'].'/orders/db_conn.php');
-
-		$mysql = @new mysqli("127.0.0.1", $db_settings['user'], $db_settings['password'], $db_settings['db']);
-		$mysql->set_charset("utf8");
-
-		$allOk = true;
-
-		//проверим не возникло ли ошибки
-		if ($mysql->connect_error) {
-			echo "<script>alert('При подключении к базе данных произошла ошибка, загрузить не был загружен');</script>";
-			$allOk = false;
-		}
-
-		if ($allOk) {
-			$orderName = mb_strtoupper($_GET["orderName"], 'UTF-8');
-			$query = "SELECT * FROM `calcs` WHERE UPPER(`order_name`)= '{$orderName}'";
-
-			$n = false;
-
-			if($result = $mysql->query($query)){
-				$n = $result->num_rows;
-				if($n){
-					$row = $result->fetch_assoc();
-				}else{
-					echo "<script>alert('Заказ не найден');</script>";
-					$allOk = false;
-				}
-			}else{
-				echo "<script>alert('Заказ не найден');</script>";
-				$allOk = false;
-			}
-
-			if ($allOk && $row) {
-				echo '<script>';
-				echo 'var loadedData = ' . json_encode($row) . ';';
-				echo '</script>';
-			}
-		}
-	}
+//загрузка данных кп
+include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
 ?>
 
 <style>

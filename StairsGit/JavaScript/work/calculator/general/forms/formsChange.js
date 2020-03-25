@@ -3,11 +3,17 @@ var showPaintingAlerts = true;
 $(function () {
 	//кнопка показать себестоимость
 	$("#showCost").click(function(){
-		showHideDiv('cost', 200);
-		showHideDiv('production_data', 200);
-		if($(this).text() == "Показать себестоимость") $(this).text("Скрыть себестоимость");
-		else $(this).text("Показать себестоимость");
-		});
+		if($(this).text() == "Показать себестоимость") {
+			$(this).text("Скрыть себестоимость");
+			$(".cost").slideDown();
+			$("#production_data").slideDown();
+		}
+		else {
+			$(this).text("Показать себестоимость");
+			$(".cost").slideUp();
+			$("#production_data").slideUp();
+		}
+	});
 		
 	//кнопка свернуть все блоки
 	$("#toggleAll").click(function(){
@@ -101,7 +107,7 @@ $(function () {
 		changeDimTextScale($(this).val() * 1.0);
 	});
 	
-	$('#createBuildingTask').click(function(){createBuildingTask()});
+	$('#createConstructionTask').click(function(){createConstructionTask()});
 	
 	//удаление строки в динамических таблицах
 	$(".form_table").delegate('.removeRow', 'click',  function(){
@@ -113,72 +119,20 @@ $(function () {
 		changeAllForms();
 	})
 	
-});
-
-function createBuildingTask(){
-	if (typeof makeDrawings == 'undefined') {
-		console.warn('файл drawDimensions не подключен!');
-		return;
-	}
-	var avaliableLayers = [
-		'treads','treads_wf',
-		'dimensions','dimensions_wf',
-		'carcas',
-		'carcas_wf',
-		'carcas1',
-		'carcas1_wf'
-	]
-	view.scene.traverse(function(node){
-		if (node.layerName) {
-			if (avaliableLayers.includes(node.layerName)) {
-				node.visible = true;
-			}else{
-				node.visible = false;
-			}
+	//вычисление формул для числовых инпутов
+	$("body").delegate("input[type='number']", "dblclick", function(){
+		var string = prompt("Введите формулу");
+		
+		//если содержит что-то кроме цифр и математических знаков, выдаем ошибку
+		if (string.search(/[^\d-+*/.()]/g) !== -1) {
+			alert("Не удалось вычислить результат")
+			return false;
 		}
-	});
-
-	makeDrawings(function(){
-		var drawings = $("#drawings")[0].outerHTML;
-
-		var title = "Строительное задание.";
-		if ($('#orderName').val()) title += " <h3 style='text-align: center'>Приложение к договору № " + $('#orderName').val() + "</h3>";
-
-		var text = drawings;
-		text += "<div contenteditable><br>1.Необходимо обеспечить возможность беспрепятственно пронести к месту установки и складировать элементы Изделия размером 3х1х0,5м.п.<br>\
-		<br>\
-		2.Обеспечить подвод электричества (220 В) для подключения оборудования или инструмента (мощность до 3 кВт) и освещения на место проведения Работ;<br>\
-		<br>\
-		3.Общестроительные работы в зоне установки Изделия должны быть завершены или приостановлены на время сборки и установки;<br>\
-		<br>\
-		4.Отсутствие скрытых коммуникаций, теплых полов, прочих инженерных систем в месте установки несущих элементов лестницы. Подрядчик не несет ответственности за повреждение скрытых коммуникаций.<br>\
-		<br>\
-		5. До начала монтажных работ необходимо демонтировать все ранее смонтированные и временные конструкции, которые создают помехи для проведения работ Подрядчиком (если эти Работы не включены в смету Подрядчика)<br>\
-		<br>\
-		6.Перекрытия и стены, к которым планируется закреплять несущие элементы лестницы, должны обладать достаточной прочностью, чтобы выдержать нагрузку от установки анкерных элементов и веса площадок или прочих лестничных элементов;<br>\
-		<br>\
-		7.На время установки каркаса лестницы, полы, потолки, стены; фасадные или архитектурные элементы, а также окна и двери, которые имеют финишную или чистовую отделку, должны быть укрыты соответствующим материалом для предотвращения их возможного повреждения при проведении Работ, в противном случае Подрядчик не несет ответственности за их повреждение.<br>\
-		<br>\
-		8. Заказчик не вправе привлекать для выполнения Работ, предусмотренных настоящим Договором, без согласования с Подрядчиком, иных лиц, если со стороны Подрядчика нет нарушений сроков и качества проводимых работ.\
-		</div>";
-
-		var docHeader = "<!DOCTYPE html><html><head><title></title><link rel='stylesheet' type='text/css' href='templates/theme.css'></head><body><div class='documentDiv'><h1 style='text-align: center;' contenteditable>" + title + "</h1>";
-		var docFooter = "</body></html>"
-		var printControls = "<button class='noPrint' onclick='this.style.display=\"none\";window.print()'>Печать</button>";
-
-		var mywindow = window.open('', '_blank');
-		mywindow.document.write(printControls);
-		mywindow.document.write(docHeader); 
-		mywindow.document.write(text); 
-		mywindow.document.write(docFooter);
-		mywindow.document.close();
-		mywindow.focus();
-		// mywindow.setTimeout(mywindow.print, 1000);
-	}, {hideTreadDimensions: true, imageWidth: "600px"});
-	setTimeout(function(){
-		$("#drawings").html('');
-	}, 0);
-}
+		
+		var result = eval(string);
+		$(this).val(result);
+	})
+});
 
 function changeFormsGeneral(){
 $("#formsTroubles").text("");
@@ -307,10 +261,11 @@ $("textarea").each(function(){
 		};
 	});
 
-//смещение лестницы по Z
-if($("#staircasePosZ").val() == 10 && $("#turnSide").val() == "левое"){
-	$("#staircasePosZ").val(-10);
+//смещение лестницы от угла (костыль для старых заказов)
+if($("#staircasePosZ").val() == -10 && $("#turnSide").val() == "левое"){
+	$("#staircasePosZ").val(10);
 	}
+
 
 //ограждение на первом марше с 0 или 1 ступенью
 if(params.calcType != "vhod"){
@@ -548,7 +503,7 @@ function configPaintingInputs(){
 		params.stairType == "дуб паркет." ||
 		params.stairType == "дуб ц/л"){
 			$("#stairType").val("массив")
-			$("#treadsMaterial").val(params.stairType);
+			$('tr[data-mat="timber"]').find(".Material").val(params.stairType);
 			getAllInputsValues(params);
 		}
 
@@ -993,6 +948,10 @@ function reindexId(tableId){
 	//перебираем все строки таблицы
 	$.each(group, function(i, val){
 		var self = i, input = $(val).find('td input,select,textarea');
+		if( $(val).find('.row_id').length > 0 ) {
+			$(val).find('.row_id').attr("data-id", self - 1);
+			$(val).find('.row_id').html(self - 1);
+		}
 		//перебираем элементы в строке
 		$.each(input, function(i, val){
 			var id = val.id.match(/^([^0-9]+)[0-9]+$/)[1];
