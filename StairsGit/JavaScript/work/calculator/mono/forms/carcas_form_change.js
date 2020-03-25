@@ -11,6 +11,7 @@ $("#a3").val(params.b3 + params.nose);
 	var stairModel = params.stairModel;
 
 	$("#calcType").val('mono')
+
 	// Установка параметров для гнутого монокосоура
 	if (params.model == "гнутый") {
 		//$("#stairModel").val("Г-образная с забегом");
@@ -24,19 +25,6 @@ $("#a3").val(params.b3 + params.nose);
 		$('#staircaseDiam').closest("tr").hide();
 		//$("#sizeTurn").val(params.M + 300);
 		$("#calcType").val('curve')
-	}
-
-	if (params.stairModel == "Спиральная") {
-		$('#stepAmt').closest("tr").show();
-		$('#staircaseDiam').closest("tr").show();
-		$('#stepAngle').closest("tr").show();
-		$('#sizeTurn').closest("tr").hide();
-		$('#countWndTread').closest("tr").hide();
-	}
-	if (params.stairModel !== "Спиральная") {
-		$('#stepAmt').closest("tr").hide();
-		$('#staircaseDiam').closest("tr").hide();
-		$('#stepAngle').closest("tr").hide();
 	}
 
 	if (params.model !== "гнутый") {

@@ -22,7 +22,6 @@
 					<option value="П-образная с площадкой" >П-образная с площадкой</option>
 					<option value="П-образная с забегом">П-образная с забегом</option>
 					<option value="П-образная трехмаршевая">П-образная трехмаршевая</option>
-					<option value="Спиральная" style="display: none;">Спиральная</option>
 				</select>
 			</td></tr>
 
@@ -93,16 +92,6 @@
 			<tr><td>Внешняя ширина маршей:</td> <td> 
 				<input id="M" type="number" value="900">
 			</td></tr>
-
-			<tr style="display: none;">
-				<td>Кол-во подъемов:</td>
-				<td><input name="stepAmt" type="number" id="stepAmt" value="15"/></td>
-			</tr>
-
-			<tr style="display: none;">
-				<td>Внешний диаметр лестницы, мм:</td>
-				<td><input name="staircaseDiam" type="number" id="staircaseDiam" value="2600"/></td>
-			</tr>
 
 			<tr style="display: none;">
 				<td>Угол на один подъем, град.:</td>
