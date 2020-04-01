@@ -158,6 +158,7 @@ function drawStaircase(viewportId, isVisible) {
 
 	//Угол ступени с учетом нахлеста ступеней
 	var treadAngle = calcTriangleParams().treadAngle;
+	var edgeAngle = treadAngle - 2 * Math.asin(treadLowRad / (params.staircaseDiam / 2));
 	
 	/*
 	var treadOverlayArcLength = 60; //длина дуги нахлеста ступеней на внешнем радиусе
@@ -193,18 +194,20 @@ function drawStaircase(viewportId, isVisible) {
 	//добавляем один шаг
 	staircaseAngle += stepAngle;
 	
-	if (params.platformType == "square") {
+	if (params.platformType == "square" || params.platformType == "нет") {
 		staircaseAngle = stairAmt * stepAngle
 		if (stairType == "metal") staircaseAngle -= Math.atan(18 / (params.staircaseDiam / 2 + 10));
+		if (params.platformType == "нет") staircaseAngle += -stepAngle + edgeAngle
+		
 	}
 
 	var startAngle = Math.PI - staircaseAngle;
 	startAngle = startAngle * turnFactor
-	var edgeAngle = treadAngle - 2 * Math.asin(treadLowRad / (params.staircaseDiam / 2));
+
 	if (turnFactor == -1) {
-		var edgeAngle = treadAngle - 2 * Math.asin(treadLowRad / (params.staircaseDiam / 2));
 		startAngle = startAngle - edgeAngle;
 	}
+	
 	/*
 	if (params.platformType == "triangle") {
 		// Коэф. ведет себя адекватно примерно в диапазоне 40-120
@@ -232,7 +235,7 @@ function drawStaircase(viewportId, isVisible) {
 			dxfArr: dxfPrimitivesArr,
 			turnFactor: turnFactor,
 		}
-		if (params.model == "Спиральная (косоур)") {
+		if (params.model.indexOf("Спиральная") != -1) {
 			treadParams.isMonoSpiral = true;
 			treadParams.columnDiam = params.staircaseDiam - params.M * 2;
 		}
@@ -280,7 +283,7 @@ function drawStaircase(viewportId, isVisible) {
 
 
 	/*бобышки*/
-	if (params.model !== "Спиральная (косоур)") {
+	if (params.model.indexOf("Спиральная") == -1) {
 		function addVintSpacers() {}; //пустая функция для навигации
 
 		var radiusTop = columnDiam / 2;
@@ -1150,7 +1153,7 @@ function drawStaircase(viewportId, isVisible) {
 		sect.rotation.y = rigels.rotation.y = handrail.rotation.y = -banistrPositionAngle0;
 
 		model.add(sect, "railing");
-		model.add(rigels, "rigels");
+		model.add(rigels, "railing");
 		model.add(handrail, "handrails");
 	}
 
@@ -1160,10 +1163,14 @@ function drawStaircase(viewportId, isVisible) {
 		railingParams.side = "in";
 		railingParams.banisterPerStep = 1;
 		railingParams = drawSpiralRailing(railingParams);
-		var railingSection = railingParams.mesh;
-		railingSection.rotation.y = -banistrPositionAngle0;
-		//railing.push(railingSection);
-		model.add(railingSection, "railing");
+		var sect = railingParams.mesh;
+		var rigels = railingParams.rigels;
+		var handrail = railingParams.handrail;
+		sect.rotation.y = rigels.rotation.y = handrail.rotation.y = -banistrPositionAngle0;
+
+		model.add(sect, "railing");
+		model.add(rigels, "railing");
+		model.add(handrail, "handrails");
 	}
 
 
@@ -1325,6 +1332,15 @@ function drawStaircase(viewportId, isVisible) {
 			moove.rot += Math.PI / 2;
 			moove.x = -(params.staircaseDiam / 2 + params.platformLedge);
 			moove.z = (params.staircaseDiam / 2 + params.platformLedgeM);
+		}
+	}
+	
+	if (params.platformType == "нет") {
+		moove.x = -75; //подогнано
+		moove.z = (params.staircaseDiam / 2);
+
+		if (params.turnFactor == -1) {
+			moove.rot += Math.PI / 2;
 		}
 	}
 

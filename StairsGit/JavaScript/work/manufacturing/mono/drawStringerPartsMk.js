@@ -48,7 +48,7 @@ function drawStringerMk(par) {
 				par.stringerBasePoint = newPoint_xy(par.stringerBasePoint,
 					params.treadPlateThickness * 2,
 					params.flanThickness);
-			if (params.model == "сварной" || params.calcType == 'curve')
+			if (params.model == "сварной" || params.model == 'гнутый')
 				par.stringerBasePoint = newPoint_xy(par.stringerBasePoint, 0, params.flanThickness);
 		}
 
@@ -56,8 +56,8 @@ function drawStringerMk(par) {
 		if (par.botEndPlatform !== "площадкаП") {
 			if (par.botEnd == "пол") drawBotStepMk_floor(par);
 			if (par.botEnd == "площадка") drawBotStepMk_pltG(par);
-			if (par.botEnd == "забег" && params.calcType !== 'curve') drawBotStepMk_wnd(par);
-			if (par.botEnd == "забег" && params.calcType == 'curve') drawBotStepMkCurve_Wnd(par);
+			if (par.botEnd == "забег" && params.model !== 'гнутый') drawBotStepMk_wnd(par);
+			if (par.botEnd == "забег" && params.model == 'гнутый') drawBotStepMkCurve_Wnd(par);
 
 			//средние ступени
 
@@ -68,8 +68,8 @@ function drawStringerMk(par) {
 
 			if (par.topEnd == "пол") drawTopStepMk_floor(par);
 			if (par.topEnd == "площадка") drawTopStepMk_pltG(par);
-			if (par.topEnd == "забег" && params.calcType !== 'curve') drawTopStepMk_wnd(par);
-			if (par.topEnd == "забег" && params.calcType == 'curve') drawTopStepMkCurve_Wnd(par);
+			if (par.topEnd == "забег" && params.model !== 'гнутый') drawTopStepMk_wnd(par);
+			if (par.topEnd == "забег" && params.model == 'гнутый') drawTopStepMkCurve_Wnd(par);
 		}
 
 		if (par.botEndPlatform == "площадкаП") drawPlatformStepMkN_pltP(par);
@@ -1297,8 +1297,10 @@ function drawTopStepMk_wnd(par) {
 			//var pt = itercection(center3, polar(center3, Math.PI / 2 - ang2, 100), line.p1, line.p2);
 			
 			if ((center3.y - 30) < pt.y) {
-				par.offsetTopWndHoleY3 = pt.y - (center3.y - 30);
-				center3.y += par.offsetTopWndHoleY3;
+				var offsetTopWndHoleY3 = pt.y - (center3.y - 30);
+				if (!par.offsetTopWndHoleY3) par.offsetTopWndHoleY3 = offsetTopWndHoleY3;
+				else par.offsetTopWndHoleY3Turn2 = offsetTopWndHoleY3;
+				center3.y += offsetTopWndHoleY3;
 			}
 
 

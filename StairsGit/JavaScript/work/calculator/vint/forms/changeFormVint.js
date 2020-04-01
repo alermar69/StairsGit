@@ -25,7 +25,6 @@ function changeFormVint(){
 		$("#M").closest("tr").show();
 	}
 	if (params.model == "Спиральная" || params.model == "Спиральная (косоур)") {
-		if (params.model == "Спиральная (косоур)") $("#staircaseDiam").val(2600);
 		var rad = $("#staircaseDiam").val() / 2;
 		if (rad  - params.M < 0) $("#M").val(rad - 100);
 	}
@@ -51,8 +50,14 @@ function changeFormVint(){
 	if(params.railingModel_bal == "нет") {
 		$("#platformSectionLength").val(0);
 		getAllInputsValues(params);
-		}
+	}
+	
+	if(params.platformType == "нет"){
+		$("#platformSectionLength").val(0);
+		$(".topPlt").hide();
+	}
 
+	
 	$(".balParams").hide();
 	$(".rackType").show();
 

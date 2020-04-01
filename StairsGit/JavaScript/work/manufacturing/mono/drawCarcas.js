@@ -40,10 +40,10 @@ function drawCarcas(par) {
 
 	//второй марш
 	//var isMarsh2 = false;
-	//if (params.calcType !== 'curve' && params.stairModel == "П-образная с забегом") isMarsh2 = true;
+	//if (params.model !== 'гнутый' && params.stairModel == "П-образная с забегом") isMarsh2 = true;
 	//if (params.stairModel == "П-образная трехмаршевая") {
 	//	isMarsh2 = true;
-	//	if (params.calcType == 'curve' && params.stairAmt2 == 0) isMarsh2 = false;
+	//	if (params.model == 'гнутый' && params.stairAmt2 == 0) isMarsh2 = false;
 	//}
 	if (params.stairModel == "П-образная с забегом" || params.stairModel == "П-образная трехмаршевая") {
 		var stringerParams2 = {
@@ -244,6 +244,8 @@ function drawCarcas(par) {
 		if (stringerParams2) {
 			if (stringerParams2.offsetTopWndHoleY3)
 				stringerParams3.offsetTopWndHoleY3 = stringerParams2.offsetTopWndHoleY3
+			if (stringerParams2.offsetTopWndHoleY3Turn2)
+				stringerParams3.offsetTopWndHoleY3 = stringerParams2.offsetTopWndHoleY3Turn2
 		}
 		else {
 			if (stringerParams1.offsetTopWndHoleY3)
@@ -270,7 +272,7 @@ function drawCarcas(par) {
 	}
 
 
-	if (params.calcType == 'curve') {
+	if (params.model == 'гнутый') {
 		if(stringerParams2){
 			var parTurn = {
 				marshId: 1,

@@ -202,7 +202,6 @@ function drawBolt(par) {
         par.headType = "потай";
         if (par.len == 40 || params.boltHead == "hexagon") par.headType = "шестигр.";
     }
-	
 	if (par.diam != 10) par.partName += "M" + par.diam;
 	if (par.headType == 'шпилька') par.partName = 'stud';
 	if (typeof specObj != 'undefined' && par.partName) {
@@ -2019,7 +2018,7 @@ function drawFixPart(par) {
 
 		//сохраняем данные для спецификации
 		par.partName = "fixSpacer"
-		par.partName += "_M" + par.diam + "-" + par.fixSpacer;
+		//par.partName += " Проставка ";
 		if (typeof specObj != 'undefined' && par.partName && par.fixSpacerLength) {
 			if (!specObj[par.partName]) {
 				specObj[par.partName] = {
@@ -2033,7 +2032,8 @@ function drawFixPart(par) {
 					group: "Крепление к обстановке",
 				}
 			}
-			var name = "М" + par.diam + "-" + par.spacerWidt + 'x' + par.spacerHeigth + 'x' + par.fixSpacerLength;
+			//var name = "М" + par.diam + "-" + par.spacerWidt + 'x' + par.spacerHeigth + 'x' + par.fixSpacerLength;
+			var name = " " + par.spacerWidt + 'x' + par.spacerHeigth + ' L=' + par.fixSpacerLength + 'мм';
 			if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
 			if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 			specObj[par.partName]["amt"] += 1;

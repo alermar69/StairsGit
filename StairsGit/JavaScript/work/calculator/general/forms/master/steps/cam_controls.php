@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <div class='cam_controls'>	
 	<button class='recalculateMaster btn btn-primary'>
 		<i class="fa fa-refresh"></i>
@@ -17,24 +16,4 @@
 			Стены
 		</button>
 	</div>
-=======
-<div class='cam_controls'>	
-	<button class='recalculateMaster btn btn-primary'>
-		<i class="fa fa-refresh"></i>
-		Обновить
-	</button>
-
-	<div id='priceBlockMaster'>
-		<button class='btn btn-primary wallSelect'>1</button>
-		<button class='btn btn-primary wallSelect'>2</button>
-		<button class='btn btn-primary wallSelect'>3</button>
-		<button class='btn btn-primary wallSelect'>4</button>
-		<button class='btn btn-primary wallSelect'>Сверху</button>
-		<button class='btn btn-primary wallSelect'>3D</button>
-		<button class='toggleWallsMaster btn btn-primary'>
-			<i class="fa fa-eye"></i>
-			Стены
-		</button>
-	</div>
->>>>>>> curve
 </div>

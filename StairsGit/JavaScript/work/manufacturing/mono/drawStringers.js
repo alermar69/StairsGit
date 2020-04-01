@@ -224,6 +224,7 @@ function drawComplexStringer(par) {
 			var pt3 = par.pointsShape[par.pointsShape.length - 2];
 			var pt4 = par.pointsShape[par.pointsShape.length - 3];
 			pt4 = newPoint_xy(pt4, offset, - params.profileHeight + params.sidePlateOverlay);
+			if (!par.topConnection) pt4.x -= 5 + params.metalThickness;
 
 			var line_1_2 = parallel(par.pointsShape[0], pt2, - params.profileHeight + params.sidePlateOverlay);
 			var line_2_3 = parallel(pt2, pt3, - params.profileHeight + params.sidePlateOverlay);
@@ -237,9 +238,11 @@ function drawComplexStringer(par) {
 			var pt3 = par.pointsShape[par.pointsShape.length - 2];
 			pt3 = newPoint_xy(pt3, offset, - params.profileHeight + params.sidePlateOverlay);
 			pt2 = itercection(pt1, polar(pt1, ang, 100), pt3, polar(pt3, 0, 100));
+			if (!par.topConnection) pt3.x -= 5 + params.metalThickness;
 		}
 
-		
+
+
 
 		stringerPoints.push(pt1, pt2);
 		if (pt3) stringerPoints.push(pt3);
@@ -375,7 +378,7 @@ function drawComplexStringer(par) {
 		//if (par.botEnd == "пол" && par.topEnd == "забег" && par.stairAmt == 1 && params.model == "сварной")
 		//	arr.unshift(arr[0]);
 
-		if (params.calcType == 'curve') {
+		if (params.model == 'гнутый') {
 			if (par.topEnd == "забег") {
 				arr.splice(arr.length - par.turn1PointsCurve['out'].pointsBot.length);
 			}
@@ -473,13 +476,13 @@ function drawComplexStringer(par) {
 					}
 				}
 
-				//if (par.topEnd == "забег" && i == par.stepPoints.length - 1 && params.calcType == 'curve')
+				//if (par.topEnd == "забег" && i == par.stepPoints.length - 1 && params.model == 'гнутый')
 				//	isPlate = false;
 
 				//подложка первой и  второй забежной ступени
-				if (par.topEnd == "забег" && i >= par.stepPoints.length - 4 && params.calcType !== 'curve') {
+				if (par.topEnd == "забег" && i >= par.stepPoints.length - 4 && params.model !== 'гнутый') {
 					//подложка второй забежной ступени
-					if (i == par.stepPoints.length - 2 && params.calcType !== 'curve') {
+					if (i == par.stepPoints.length - 2 && params.model !== 'гнутый') {
 						platePar.turnSteps = par.turnSteps.params[2];
 						if (params.model == "труба") {
 							if (par.stairAmt == 1)
@@ -492,6 +495,7 @@ function drawComplexStringer(par) {
 								platePar.isNotKinkTop = true;
 							}
 							if (par.offsetTopWndHoleY3) platePar.offsetTopWndHoleY3 = par.offsetTopWndHoleY3;
+							if (par.offsetTopWndHoleY3Turn2) platePar.offsetTopWndHoleY3 = par.offsetTopWndHoleY3Turn2;
 							platePar.stepPrev = par.stepPoints[i].x - par.stepPoints[i - 2].x;
 							var plate = drawTurn2TreadPlateCabriole(platePar).mesh;
 						} else {
@@ -501,7 +505,7 @@ function drawComplexStringer(par) {
 						}
 					}
 					//подложка первой забежной ступени
-					if (i == par.stepPoints.length - 4 && params.calcType !== 'curve') {
+					if (i == par.stepPoints.length - 4 && params.model !== 'гнутый') {
 						platePar.turnSteps = par.turnSteps.params[1];
 						platePar.hasTrapHole = true;
 						if (params.model == "труба") {
@@ -525,8 +529,8 @@ function drawComplexStringer(par) {
 				}
 				
 				//подложка третьей забежной ступени
-				if (par.botEnd == "забег" && i <= 3 && params.calcType !== 'curve') {
-					if (i == 3 && params.calcType !== 'curve') {
+				if (par.botEnd == "забег" && i <= 3 && params.model !== 'гнутый') {
+					if (i == 3 && params.model !== 'гнутый') {
 						platePar.turnSteps = par.turnSteps.params[1];
 						if (params.stairModel == "П-образная с забегом" && par.topEnd == "забег")
 							platePar.turnSteps = par.turnSteps.params[3];
@@ -617,7 +621,7 @@ function drawComplexStringer(par) {
 			}
 		} //конец цикла
 
-		if (params.calcType == 'curve' && par.marshId !== 3) {
+		if (params.model == 'гнутый' && par.marshId !== 3) {
 			var plates = drawTurnPlatesCurve(par).mesh
 			plates.position.x += sidePlate2.position.x + par.stepPoints[par.stepPoints.length - 1].x - params.nose;
 			plates.position.y += sidePlate2.position.y + par.stepPoints[par.stepPoints.length - 1].y + 0.005;
@@ -681,7 +685,7 @@ function drawComplexStringer(par) {
 							var pointCurrentSvgTmp1 = newPoint_xy(platePar.pointCurrentSvg, -params.stringerThickness, platePar.height + 150 + params.stringerThickness + params.metalThickness * 2);
 						    var pointStartSvgTmp1 = copyPoint(platePar.pointStartSvg);
 						}
-						if (par.topEnd == "забег" && par.botEnd == "забег" && i == par.stepPoints.length - 4 && params.calcType !== 'curve') {
+						if (par.topEnd == "забег" && par.botEnd == "забег" && i == par.stepPoints.length - 4 && params.model !== 'гнутый') {
 							platePar.isLong = false;
 						}
 						if (par.botEnd == "пол" && params.stairAmt1 < 3) {
@@ -697,9 +701,9 @@ function drawComplexStringer(par) {
 						
 						platePar.isFlan = false;
 						//вместо пластины делаем фланец соединения косоуров
-						if (par.botEnd !== "пол" && i == 1 && params.calcType !== 'curve') isDrawPlate = false;
+						if (par.botEnd !== "пол" && i == 1 && params.model !== 'гнутый') isDrawPlate = false;
 
-						if (params.calcType == 'curve') {
+						if (params.model == 'гнутый') {
 							//if (par.topEnd == "забег" && i >= par.stepPoints.length - 4) isDrawPlate = false;
 							//if (par.botEnd == "забег" && i <= 3) isDrawPlate = false;
 						}
@@ -716,7 +720,7 @@ function drawComplexStringer(par) {
 					}
 				}
 
-				if (params.calcType == 'curve' && par.marshId !== 3) {
+				if (params.model == 'гнутый' && par.marshId !== 3) {
 					var plates = drawFrontPlatesCurve(platePar).mesh; //функция в drawCarcasParts.js
 					//plates.rotation.y = -Math.PI / 2;
 					plates.position.x += sidePlate2.position.x + par.stepPoints[par.stepPoints.length - 1].x - params.nose;
@@ -766,7 +770,7 @@ function drawComplexStringer(par) {
 
 						if (par.topEnd == "забег" && i >= par.stepPoints.length - 4) {
 							//пластина второй забежной ступени(нижнего марша)
-							if (i == par.stepPoints.length - 2 && params.calcType !== 'curve') {
+							if (i == par.stepPoints.length - 2 && params.model !== 'гнутый') {
 								platePar.turnSteps = par.turnSteps.params[2];
 								platePar.dStep = - params.M / 2 + params.flanThickness + (params.M / 2) / 2;
 								platePar.backOffHoles = par.stringerLedge;
@@ -841,20 +845,20 @@ function drawComplexStringer(par) {
 								}
 							}
 							//пластина первой забежной ступени
-							if (i == par.stepPoints.length - 4 && params.calcType !== 'curve') {
+							if (i == par.stepPoints.length - 4 && params.model !== 'гнутый') {
 								platePar.hasTrapHole = true;
 								platePar.turnSteps = par.turnSteps.params[1];
 							}
 
-							if (params.calcType == 'curve') isPlate = false;
+							if (params.model == 'гнутый') isPlate = false;
 						}
 						//пластина второй забежной ступени(верхнего марша)
 						if (par.botEnd == "забег" && i == 1) {
-							if (params.calcType !== 'curve') {
+							if (params.model !== 'гнутый') {
 								platePar.turnSteps = par.turnSteps.params[2];
 								platePar.isTurn2 = true;
 							}
-							if (params.calcType == 'curve') isPlate = false;
+							if (params.model == 'гнутый') isPlate = false;
 						}
 
 						//пластина промежуточной площадки(верхнего марша)
@@ -994,7 +998,7 @@ function drawComplexStringer(par) {
 
 
                 // Пластина на прямой части каркаса если поворот снизу(снизу каркаса)
-				if (par.botEnd !== "пол" && params.calcType !== 'curve') {
+				if (par.botEnd !== "пол" && params.model !== 'гнутый') {
                     platePar.isHolesColon = false;
                     if (!(par.botEnd == "забег" || params.stairModel == "П-образная с площадкой"))
                         platePar.isHolesColonPlatform = holesColumnPlatform(par, true, false);
@@ -1021,7 +1025,7 @@ function drawComplexStringer(par) {
                 }
 
                 // Пластина на прямой части каркаса если поворот сверху(снизу каркаса)
-				if (par.topEnd !== "пол" && params.calcType !== 'curve') {
+				if (par.topEnd !== "пол" && params.model !== 'гнутый') {
                     var ang1 = calcAngleX1(par.pointsShape[0], par.pointsShape[par.pointsShape.length - 1]);
                     var ang2 = calcAngleX1(par.pointsShape[par.pointsShape.length - 1],
                         par.pointsShape[par.pointsShape.length - 2]);
@@ -1163,7 +1167,7 @@ function drawComplexStringer(par) {
 				}
 			}
 			//TODO глянуть на забегах
-			if (par.botEnd == "забег" && params.calcType !== 'curve'){
+			if (par.botEnd == "забег" && params.model !== 'гнутый'){
 				var flanPar = {
 						marshId: par.marshId,
 						type: "joinStub",
@@ -1211,7 +1215,7 @@ function drawComplexStringer(par) {
 				}
 			
 			//Верхние фланцы
-			if (par.topEnd !== "пол" && params.calcType !== 'curve') {
+			if (par.topEnd !== "пол" && params.model !== 'гнутый') {
 					dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.keyPoints.topPoint.x + 100, par.keyPoints.topPoint.y)
 
 					if (par.topConnection || params.stairModel == "П-образная с площадкой") {
@@ -1653,15 +1657,18 @@ function drawComplexStringer(par) {
 								//stringerWidth: params.stringerWidth + params.metalThickness * 2,
 								dxfArr: dxfPrimitivesArr,
 								dxfBasePoint: par.dxfBasePoint,
-								height: -par.pointsShape[pointId].y + par.pointsShape[pointId - 1].y - params.sidePlateOverlay - 20, //20 не пойму где прибавляется
+								//height: -par.pointsShape[pointId].y + par.pointsShape[pointId - 1].y - params.sidePlateOverlay - 20, //20 не пойму где прибавляется
+								height: par.pointsShape[pointId].y - par.pointsShape[pointId + 1].y - 20, //20 не пойму где прибавляется
 						}
 							platePar.pointCurrentSvg = copyPoint(par.stepPoints[i]);
 							platePar.pointStartSvg = copyPoint(par.stepPoints[0]);
 							
 							var plate = drawFrontPlate(platePar).mesh; //функция в drawCarcasParts.js
 							plate.rotation.y = -Math.PI / 2;
-							plate.position.x += sidePlate2.position.x + par.pointsShape[pointId - 1].x;
-							plate.position.y += sidePlate2.position.y + par.pointsShape[pointId - 1].y;
+							//plate.position.x += sidePlate2.position.x + par.pointsShape[pointId - 1].x;
+							//plate.position.y += sidePlate2.position.y + par.pointsShape[pointId - 1].y;
+							plate.position.x += sidePlate2.position.x + par.pointsShape[pointId].x;
+							plate.position.y += sidePlate2.position.y + par.pointsShape[pointId].y;
 							plate.position.z += sidePlate2.position.z + params.metalThickness;
 							
 							par.mesh2.add(plate)

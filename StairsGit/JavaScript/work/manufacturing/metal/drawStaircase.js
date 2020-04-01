@@ -5,6 +5,7 @@ var boltBulge = 8;
 var boltLen = 30;
 var turnFactor = 1;
 var treadsObj;
+var temp = {};
 
 drawStaircase = function (viewportId, isVisible) {
 	//удаляем старую лестницу

@@ -156,6 +156,12 @@ function calcRailingRacks(par) {
 					x: -marshParams.a / 2 + rackSize / 2,
 					y: 0.03,
 				}
+				if (side == 'in') {
+					marshFirst = {
+						x: -rackSize / 2 - calcTurnParams(marshParams.prevMarshId).topMarshOffsetZ,
+						y: marshParams.h + 0.05,
+					};
+				}
 				if (marshParams.stairAmt == 0 && (params.calcType == 'metal' || params.calcType == 'mono')) {
 					marshFirst = {
 						x: -rackSize / 2,

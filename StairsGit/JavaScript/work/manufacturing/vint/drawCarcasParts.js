@@ -1689,7 +1689,7 @@ function drawVintPlatformShape(par) {
 				var holeRad = 4;
 				var flanHoleDst = par.railingFlanHoleDst;
 				var polarDst = flanHoleDst / 2 / Math.sin(Math.PI / 4);
-				var sectionLength = params.platformSectionLength - 40 //edgeLength - 160 - 50 + 40;
+				var sectionLength = params.platformSectionLength// - 40 //edgeLength - 160 - 50 + 40;
 				var sectionTurnAngle = edgeAngle
 				//0.015 поправка по углу, подогнано нужно считать
 				var flanCenter = polar(p0, edgeAngle + 0.015, sectionLength)
@@ -2127,6 +2127,33 @@ function drawPlatformFrame(par) {
 			}
 		}
 	}
+
+	//болты крепления к перекрытию
+	//if (typeof isFixPats != "undefined" && isFixPats && par.isFixPart) { //глобальная переменная		
+	if (typeof isFixPats != "undefined" && isFixPats && !testingMode) { //глобальная переменная		
+		par.fixPar = getFixPart(0, 'topFloor'); // параметры крепления к стенам
+		if (par.fixPar.fixPart !== 'нет') {
+			var fix = drawFixPart(par.fixPar).mesh;
+			fix.rotation.x = -Math.PI / 2 * par.turnFactor;
+			fix.rotation.z = Math.PI;
+			fix.position.x = (params.staircaseDiam / 2 + params.platformLedgeM + 160) / 2 - flanParams.width / 2 + sizeB / 2 - 100;
+			fix.position.y = -par.thk - profHeight / 2;
+			if (par.turnFactor == 1) fix.position.y -= flanThk;
+			fix.position.z = -(params.staircaseDiam / 2 + params.platformLedge - profWidth) * par.turnFactor;
+			par.metalFrame.add(fix);
+
+			var fix = drawFixPart(par.fixPar).mesh;
+			fix.rotation.x = -Math.PI / 2 * par.turnFactor;
+			fix.rotation.z = Math.PI;
+			fix.position.x = (params.staircaseDiam / 2 + params.platformLedgeM + 160) / 2 - flanParams.width / 2 - sizeB / 2 + 100;
+			fix.position.y = -par.thk - profHeight / 2;
+			if (par.turnFactor == 1) fix.position.y -= flanThk;
+			fix.position.z = -(params.staircaseDiam / 2 + params.platformLedge - profWidth) * par.turnFactor;
+			par.metalFrame.add(fix);
+		}
+	}
+
+
 	//сохраняем данные для спецификации
 	var partName = "platformFrame";
 	if (typeof specObj != 'undefined') {

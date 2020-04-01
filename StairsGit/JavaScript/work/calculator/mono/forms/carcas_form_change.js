@@ -24,7 +24,7 @@ $("#a3").val(params.b3 + params.nose);
 		$('#maxSizeSegment').closest("tr").show();
 		$('#staircaseDiam').closest("tr").hide();
 		//$("#sizeTurn").val(params.M + 300);
-		$("#calcType").val('curve')
+		//$("#calcType").val('curve')
 	}
 
 	if (params.model !== "гнутый") {

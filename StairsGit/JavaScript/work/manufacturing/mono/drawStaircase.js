@@ -77,41 +77,39 @@ drawStaircase = function(viewportId, isVisible) {
 	model.add(stringerParams.flans, "flans");
 	model.add(stringerParams.treadPlates, "treadPlates");
 
-	if (params.calcType !== 'curve') {
-		// рамка под площадкой для лестницы на профиле
-		if (params.model == "труба") {
-			var framePlatformParams = {
-				dxfBasePoint: dxfBasePoint,
-				treadsObj: treadsObj,
-			};
-
-			drawPlatformFrames(framePlatformParams);
-			model.add(framePlatformParams.flans, "flans");
-			model.add(framePlatformParams.platformFrames, "treadPlates");
-
-		}
-
-/***  ограждения на все лестницы  ***/
-		var railingPar = {
-			dxfBasePoint: { x: 0, y: 15000 },
+	// рамка под площадкой для лестницы на профиле
+	if (params.model == "труба") {
+		var framePlatformParams = {
+			dxfBasePoint: dxfBasePoint,
 			treadsObj: treadsObj,
 		};
 
-		var railingObj = drawRailing(railingPar);
-		model.add(railingObj.mesh, "railing");
-		model.add(railingObj.forgedParts, "forge");
-		model.add(railingObj.handrails, "handrails");
+		drawPlatformFrames(framePlatformParams);
+		model.add(framePlatformParams.flans, "flans");
+		model.add(framePlatformParams.platformFrames, "treadPlates");
 
-		/*** ПРИСТЕННЫЙ ПОРУЧЕНЬ НА ВСЕ ЛЕСТНИЦЫ ***/
-
-		var sideHandrailPar = {
-			treadsObj: treadsObj,
-			dxfBasePoint: { x: 25000, y: 15000 },
-		}
-
-		var handrail = drawSideHandrail_all(sideHandrailPar).mesh;
-		model.add(handrail, "handrails");
 	}
+
+/***  ограждения на все лестницы  ***/
+	var railingPar = {
+		dxfBasePoint: { x: 0, y: 15000 },
+		treadsObj: treadsObj,
+	};
+
+	var railingObj = drawRailing(railingPar);
+	model.add(railingObj.mesh, "railing");
+	model.add(railingObj.forgedParts, "forge");
+	model.add(railingObj.handrails, "handrails");
+
+	/*** ПРИСТЕННЫЙ ПОРУЧЕНЬ НА ВСЕ ЛЕСТНИЦЫ ***/
+
+	var sideHandrailPar = {
+		treadsObj: treadsObj,
+		dxfBasePoint: { x: 25000, y: 15000 },
+	}
+
+	var handrail = drawSideHandrail_all(sideHandrailPar).mesh;
+	model.add(handrail, "handrails");
 
 	//сдвигаем и поворачиваем лестницу чтобы верхний марш был вдоль оси Х
 	var moove = calcStaircaseMoove(treadsObj.lastMarshEnd);

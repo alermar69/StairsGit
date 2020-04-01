@@ -231,17 +231,17 @@ function floorsMountingItemsAdd(){}; //пустая функция для нав
 	// if(params.isAssembling == "есть") addFixParts(fixParams);
 	
 	//проставка
-	if(params.fixPart1 != "не указано" && params.fixPart1 != "нет" && 
-		params.fixSpacer1 != "не указано" && params.fixSpacer1 != "нет"){
-			item = {
-				id: "fixSpacer1",
-				amt: 2,
-				discription: "Крепление к нижнему перекрытию",
-				unit: "bottomMountingItemsAdd",
-				itemGroup: "Крепление к перекрытиям",
-				};
-			if(item.amt > 0) partsList.addItem(item);					
-			}
+	//if(params.fixPart1 != "не указано" && params.fixPart1 != "нет" && 
+	//	params.fixSpacer1 != "не указано" && params.fixSpacer1 != "нет"){
+	//		item = {
+	//			id: "fixSpacer1",
+	//			amt: 2,
+	//			discription: "Крепление к нижнему перекрытию",
+	//			unit: "bottomMountingItemsAdd",
+	//			itemGroup: "Крепление к перекрытиям",
+	//			};
+	//		if(item.amt > 0) partsList.addItem(item);					
+	//		}
 			
 	
 	//крепление к верхнему перекрытию
@@ -259,17 +259,17 @@ function floorsMountingItemsAdd(){}; //пустая функция для нав
 	// if(params.isAssembling == "есть") addFixParts(fixParams);
 	
 	//проставка
-	if(params.fixPart2 != "не указано" && params.fixPart2 != "нет" && 
-		params.fixSpacer2 != "не указано" && params.fixSpacer2 != "нет" && params.fixSpacer2 != "комментарий"){
-			item = {
-				id: "fixSpacer2",
-				amt: 2,
-				discription: "Крепление к верхнему перекрытию",
-				unit: "topMountingItemsAdd",
-				itemGroup: "Крепление к перекрытиям",
-				};
-			if(item.amt > 0) partsList.addItem(item);					
-			}
+	//if(params.fixPart2 != "не указано" && params.fixPart2 != "нет" && 
+	//	params.fixSpacer2 != "не указано" && params.fixSpacer2 != "нет" && params.fixSpacer2 != "комментарий"){
+	//		item = {
+	//			id: "fixSpacer2",
+	//			amt: 2,
+	//			discription: "Крепление к верхнему перекрытию",
+	//			unit: "topMountingItemsAdd",
+	//			itemGroup: "Крепление к перекрытиям",
+	//			};
+	//		if(item.amt > 0) partsList.addItem(item);					
+	//		}
 	
 //крепление к стенам
 

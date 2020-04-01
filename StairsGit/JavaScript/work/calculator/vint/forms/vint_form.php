@@ -10,7 +10,7 @@
 						<td><select name="model" size="1" id="model">
 								<option value="Винтовая">Винтовая</option>
 								<option value="Винтовая с тетивой">Винтовая с тетивой</option>
-								<option value="Спиральная">Спиральная</option>
+								<option value="Спиральная">Спиральная (тетивы)</option>
 								<option value="Спиральная (косоур)">Спиральная (косоур)</option>	
 							</select>
 						</td>
@@ -59,30 +59,30 @@
 							</select>
 						</td>
 					</tr>
-					<tr>
+					<tr class="topPlt">
 						<td>Угол площадки, град.:</td>
 						<td><input name="platformAngle" type="number" id="platformAngle" value="60" /></td>
 					</tr>
 
 					</tr>
-					<tr>
+					<tr class="topPlt">
 						<td>Выступ площадки по глубине, мм:</td>
 						<td><input type="number" id="platformLedge" value="50" step="50" /></td>
 					</tr>
 
 					</tr>
-					<tr>
+					<tr class="topPlt">
 						<td>Выступ площадки по ширине, мм:</td>
 						<td><input type="number" id="platformLedgeM" value="50" step="50" /></td>
 					</tr>
 
 					</tr>
-					<tr>
+					<tr class="topPlt">
 						<td>Длина ограждения площадки, мм:</td>
 						<td><input type="number" id="platformSectionLength" value="700" step="10" /></td>
 					</tr>
 
-					<tr>
+					<tr class="topPlt">
 						<td>Замыкание поручня на площадке:</td>
 						<td>
 							<select size="1" id="pltHandrailConnection">

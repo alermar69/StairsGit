@@ -8,7 +8,7 @@ function drawTreads() {
     //выбор функции отрисовки забежных ступеней
     var drawWndTreads = drawWndTreadsMetal;
     if (params.calcType == "mono") drawWndTreads = drawWndTreadsMono;
-    if (params.calcType == "curve") drawWndTreads = drawWndTreadsCurve;
+    if (params.model == 'гнутый') drawWndTreads = drawWndTreadsCurve;
     if (params.calcType == "timber") drawWndTreads = drawWndTreadsTimber;
     if (params.calcType == "timber_stock") drawWndTreads = drawWndTreadsTimber_stock;
     if (params.calcType == "geometry") {
@@ -729,6 +729,7 @@ function drawMarshTreads2(par) {
 			}
 
 			if (params.model == "тетива+косоур") tread.position.z += (params.stringerThickness - params.stringerSlotsDepth) / 2 * turnFactor;
+			if (params.calcType == 'bolz') tread.position.z += (params.M - plateParams.len) / 2 * turnFactor;
 			/*if (params.model == "ко" && params.riserType == "есть" && par.marshId > 1){
 						tread.position.x -= params.riserThickness;
 						}
@@ -809,6 +810,32 @@ function drawMarshTreads2(par) {
 
 				par.risers.add(riser);
 			}
+
+			// подступенок, закрывающий верхний фланец монокосоура
+			if (params.calcType == "mono" && marshPar.topTurn == "пол" && i == par.stairAmt - 1) {
+				var riserPar = {
+					len: plateParams.len,
+					width: par.h - techDelta * 2,
+					thk: 18,
+					dxfArr: [],
+					dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.M + 200, 0),
+				};
+
+				//отрисовка
+				riserPar = drawRectRiser(riserPar);
+				riser = riserPar.mesh;
+
+				riser.rotation.y = Math.PI / 2// * turnFactor;
+				riser.rotation.x = Math.PI / 2;
+				riser.position.x = tread.position.x - plateParams.width + params.nose + 0.01 + par.b - riserPar.thk;
+				if (!drawRectTread) riser.position.x += plateParams.width;
+				riser.position.y = tread.position.y - (par.h + params.treadThickness) + techDelta * 1.5 + par.h + params.treadThickness;
+				riser.position.z = tread.position.z;
+
+				//par.risers.add(riser);
+				par.treads.add(riser);
+			}
+
 
 			if (addToDxf) {
 				var text = "Ступени " + par.marshId + " марша";
@@ -1887,9 +1914,13 @@ function drawWndTreadsMetal(par) {
 
 		treadWidth = params.M - params.stringerThickness * 2 - treadSideOffset * 2;
 	}
+
 	if (params.calcType == "bolz") {
 		stepWidthLow = 60;
+		treadWidth += params.stringerThickness;
+		if (getTreadParams().material != "metal") treadWidth += 5;
 	}
+
 	var treadZOffset = (params.M - treadWidth) / 2;
 
 	/*забежная ступень 1*/
@@ -1924,6 +1955,7 @@ function drawWndTreadsMetal(par) {
 	if (params.stairType == "лотки") tread1.position.y += params.treadThickness - 4 - 0.01;
 
 	tread1.position.z = -(treadParams[1].treadWidth) / 2 * turnFactor;
+	if (params.calcType == 'bolz') tread1.position.z += treadZOffset * turnFactor;
 
 	treads.add(tread1);
 
@@ -1998,8 +2030,8 @@ function drawWndTreadsMetal(par) {
 	}
 	if (params.calcType === 'bolz') {
 		treadParams[2] = {
-			treadWidthX: params.M - params.stringerThickness * 2 - treadSideOffset * 2 - 0.01,
-			treadWidthY: params.M - params.stringerThickness * 2 - treadSideOffset * 2 - 0.01,
+			treadWidthX: params.M -  params.stringerThickness - treadSideOffset- 0.01,
+			treadWidthY: params.M - params.stringerThickness - treadSideOffset- 0.01,
 			angleX: 30 * Math.PI / 180,
 			angleY: 32.9237 * Math.PI / 180,
 			outerOffsetX: 0,
@@ -2031,6 +2063,10 @@ function drawWndTreadsMetal(par) {
 	//лотки
 	if (params.stairType == "лотки") tread2.position.y += params.treadThickness - 4 - 0.01;
 	tread2.position.z = -(treadParams[1].treadWidth) / 2 * turnFactor;
+	if (params.calcType == 'bolz') {
+		tread2.position.x -= treadZOffset;
+		tread2.position.z += treadZOffset * turnFactor;
+	}
 	treads.add(tread2);
 
 	/*подступенок 2*/
@@ -2123,6 +2159,7 @@ function drawWndTreadsMetal(par) {
 	}
 
 	tread3.position.z -= 0.01 * turnFactor
+	if (params.calcType == 'bolz') tread3.position.x -= treadZOffset;
 	treads.add(tread3);
 
 	/*подступенок 3*/
@@ -3126,6 +3163,10 @@ function calcTreadLen() {
 	if (params.model == "лт") {
 		treadLen -= params.stringerThickness * 2;
 		if (treadPar.material != "metal") treadLen -= 10;
+		if (params.calcType == 'bolz') {
+			treadLen += params.stringerThickness;
+			if (treadPar.material != "metal") treadLen += 5;
+		}
 	}
 	if (params.model == "тетивы") {
 		treadLen -= params.stringerThickness * 2 - params.stringerSlotsDepth * 2;

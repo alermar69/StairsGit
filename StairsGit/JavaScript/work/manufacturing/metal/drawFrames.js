@@ -1188,6 +1188,7 @@ function drawWndFrame2(par){
 		
 		flanParams = drawWndTreadFlan(flanParams);
 		var sideInFlan = flanParams.mesh;
+		if (params.model == "ко") sideInFlan.position.x += 0.01;
 		par.mesh.add(sideInFlan);
 	}
 	

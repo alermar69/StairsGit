@@ -20,7 +20,7 @@ function calcTurnParams(botMarshId){
 	if(params.stairModel == "П-образная с площадкой" || params.stairModel == "П-образная с забегом") modelParams.turnType = "P_turn";
 	if (params.calcType == "bolz") modelParams.model = "bolz";
 	if (params.calcType == "console") modelParams.model = "mono";
-	if (params.calcType == "curve") modelParams.model = "curve";
+	if (params.model == 'гнутый') modelParams.model = "curve";
 
 	modelParams = setModelDimensions(modelParams); //функция в файле calcGeomParams.js
 
@@ -171,7 +171,7 @@ function calcTurnEndPoint(pos, rotY, botMarshId, plusMarshDist, turnId){
 
 		if (turnType == "забег") {
 			
-			if (params.calcType == "curve") {
+			if (params.model == 'гнутый') {
 				endPoint.y += getMarshParams(botMarshId).h_topWnd * (params.countWndTread - 1);
 				//if (params.stairModel == "П-образная с забегом" ||
 				//	(params.stairModel == "П-образная трехмаршевая" && params.stairAmt2 == 0)) {

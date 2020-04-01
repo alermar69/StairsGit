@@ -507,7 +507,9 @@ function drawMarshStringers(par, marshId){
 		var flans = drawStringerFlans_all(franPar);
 		if (params.model == "лт") flans.position.x -= 5;
 		flans.position.z = -(params.M / 2 - stringerParams.stringerSideOffset - params.stringerThickness)
-		if (turnFactor == 1) flans.position.z += calcStringerMoove(par.marshId).stringerOutMoove
+	if (turnFactor == 1) flans.position.z += calcStringerMoove(par.marshId).stringerOutMoove
+	if (params.calcType == 'bolz' && turnFactor == -1)
+		flans.position.z = (params.M / 2 - stringerParams.stringerSideOffset - params.stringerThickness * 2)
 		mesh.add(flans);
 
 
@@ -606,9 +608,11 @@ function drawMarshStringers(par, marshId){
 	//отрисовка больцев по внутренней стороне
 	if (params.calcType == 'bolz') {
 		var bolzs = drawBolzs(stringerParams).mesh;
-		bolzs.position.z = calcTreadLen() / 2 * turnFactor;
+		var treadLen = calcTreadLen();
+		bolzs.position.z = (treadLen / 2 + (params.M - treadLen) / 2) * turnFactor;
 		if (params.stairModel == "Прямая")
-			bolzs.position.z = -calcTreadLen() / 2 * turnFactor;
+			bolzs.position.z *= -1;
+			//bolzs.position.z = -calcTreadLen() / 2 * turnFactor;
 		mesh.add(bolzs);
 
 		//перемычки
@@ -1457,7 +1461,10 @@ function calcColumnPosHoles(par) {
 		if (params.stairModel == "П-образная с забегом" && par.isWndP) {
 			holePos[2] = newPoint_xy(basePoints[2], 0, marshParams.h - offsetY);
 			holePos[3] = newPoint_xy(basePoints[3], -(profSize.profWidth / 2 + 60 + 10 - params.stringerThickness), -offsetY);
-			if (params.model == "ко") holePos[2] = newPoint_xy(holePos[2], 0, 40);
+			if (params.model == "ко") {
+				holePos[2] = newPoint_xy(holePos[2], 0, 40);
+				holePos[3] = newPoint_xy(holePos[3], -20, 0);
+			}
 		}
 		// задняя тетива верхней площадки 
 		if (par.key == "rear" && par.isTopPlt) {

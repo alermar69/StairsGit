@@ -13,6 +13,7 @@
 							<select id="model" size="1" onchange="">
 								<option value="сварной">сварной короб</option>
 								<option value="труба">проф. труба</option>
+								<option value="гнутый" >гнутый</option>
 							</select>
 						</td>
 					</tr>
@@ -119,6 +120,18 @@
 						</td>
 					</tr>
 
+					<tr style="display: none;"><td>Размер поворота:</td> <td> 
+				<input id="sizeTurn" type="number" value="1200">
+			</td></tr>
+
+			<tr style="display: none;"><td>Кол-во ступеней на 90 градусов:</td> <td> 
+				<input id="countWndTread" type="number" value="5">
+			</td></tr>
+
+			<tr style="display: none;"><td>Размер семента поворота:</td> <td> 
+				<input id="maxSizeSegment" type="number" value="5">
+			</td></tr>
+
 					<tr style="display: none">
 						<td>Подступенки:</td>
 						<td>
@@ -188,173 +201,8 @@
 			</table>
 		</div>
 
-<<<<<<< HEAD
+
 		<div id='treadsTableWrapper'>
-=======
-			<table class="form_table" ><tbody>
-
-			<tr id="model_tr"><td>Каркас:</td> <td>
-				<select id="model" size="1" onchange="">
-					<option value="сварной" >сварной короб</option>
-					<option value="труба" >проф. труба</option>
-					<option value="гнутый" >гнутый</option>
-				</select>
-			</td></tr>
-
-			<tr><td>Геометрия лестницы:</td> <td> 
-				<select id="stairModel" size="1" onchange="changeAllForms()">
-					<option value="Прямая">Прямая</option>
-					<option value="Г-образная с площадкой">Г-образная с площадкой</option>
-					<option value="Г-образная с забегом">Г-образная с забегом</option>
-					<option value="П-образная с площадкой" >П-образная с площадкой</option>
-					<option value="П-образная с забегом">П-образная с забегом</option>
-					<option value="П-образная трехмаршевая">П-образная трехмаршевая</option>
-				</select>
-			</td></tr>
-
-
-
-			<tr class="pltP">
-				<td>Глубина промежуточной площадки:</td> 
-				<td><input id="platformLength_1" type="number" value="1000"></td>
-			</tr>
-
-
-			<tr id="middlePlatform_tr_3" style="display: none;">
-				<td>Ширина промежуточной площадки:</td>
-				<td><input id="platformWidth_1" type="number" value="2000"></td>
-			</tr>
-
-
-			<tr id="marshDist_tr"><td>Зазор между маршами в плане:</td> <td> 
-				<input id="marshDist" type="number" value="40"> 
-			</td></tr>
-
-			<tr class="P3marsh"><td>Нижний поворот:</td> <td> 
-				<select id="turnType_1" size="1" onchange="">
-					<option value="забег">забег</option>
-					<option value="площадка">площадка</option>
-				</select>
-			</td></tr>
-
-			<tr class="P3marsh"><td>Верхний поворот:</td> <td> 
-				<select id="turnType_2" size="1" onchange="">
-					<option value="забег">забег</option>
-					<option value="площадка">площадка</option>
-				</select>
-			</td></tr>
-
-			<tr><td>Направление поворота:</td> <td> 
-			<select id="turnSide" size="1" onchange="">
-				<option value="правое" selected >правое</option>
-				<option value="левое"   >левое</option>
-			</select>
-			</td></tr>
-
-			<tr><td>Верхняя площадка:</td> <td>
-				<select id="platformTop" size="1" onchange="changeAllForms()">
-					<option value="нет">нет</option>
-					<option value="площадка">есть</option>
-				</select>
-			</td></tr>
-
-			<tr><td>Ширина последней забежной ступени:</td> 
-				<td><input id="lastWinderTreadWidth" type="number" value="50"></td>
-			</tr>
-
-			<tr class="topPlt">
-				<td>Задняя тетива площадки:</td> <td>
-				<select id="platformRearStringer" size="1" onchange=""> 
-					<option value="нет">нет</option>
-					<option value="есть">есть</option>
-				</select>
-				</td>
-			</tr>
-
-			<tr class="topPlt">
-				<td>Глубина верхней площадки:</td> 
-				<td><input id="platformLength_3" type="number" value="1000"></td>
-			</tr>
-
-			<tr><td>Внешняя ширина маршей:</td> <td> 
-				<input id="M" type="number" value="900">
-			</td></tr>
-
-			<tr style="display: none;">
-				<td>Угол на один подъем, град.:</td>
-				<td><input name="stepAngle" type="number" id="stepAngle" value="21"/></td>
-			</tr>
-
-			<tr style="display: none;"><td>Размер поворота:</td> <td> 
-				<input id="sizeTurn" type="number" value="1200">
-			</td></tr>
-
-			<tr style="display: none;"><td>Кол-во ступеней на 90 градусов:</td> <td> 
-				<input id="countWndTread" type="number" value="5">
-			</td></tr>
-
-			<tr style="display: none;"><td>Размер семента поворота:</td> <td> 
-				<input id="maxSizeSegment" type="number" value="5">
-			</td></tr>
-
-			<tr style="display: none"><td>Подступенки:</td> <td> 
-				<select id="riserType" size="1" onchange="">
-					<option value="нет">нет</option>
-					<option value="есть">есть</option>		
-				</select>
-			</td></tr>	
-
-			<tr><td>Передний свес ступеней, мм:</td> <td> 
-				<input id="nose" type="number" value="50">
-			</td></tr>
-
-			<tr id="platformTop_tr_14"><td>Верхнее крепление:</td> <td> 
-				<select id="topAnglePosition" size="1" onchange="">
-					<option value="под ступенью">под ступенью</option>
-					<option value="над ступенью">над ступенью</option>		
-				</select>
-			</td></tr>
-
-			<tr id="carcasConfig_tr">
-				<td id="carcasConfig_img">
-					<img src="/images/calculator/carcasTypes/turn90/001.jpg" width="250px">
-				</td>
-				<td>
-					Тип каркаса: 
-					<select id="carcasConfig" size="1" onchange="">
-						<option value="001">Тип 1</option>
-						<option value="002">Тип 2</option>
-						<option value="003">Тип 3</option>
-						<option value="004">Тип 4</option>
-					</select>
-					<br/>
-					Колонны:
-					<br/>
-					<label><input type="checkbox" id="isColumn1">1<br/></label>
-					<label><input type="checkbox" id="isColumn2">2<br/></label>
-					<label><input type="checkbox" id="isColumn3">3<br/></label>
-					<label><input type="checkbox" id="isColumn4">4<br/></label>
-
-				</td>
-			</tr>
-
-			<tr id="stringerLedge1_tr">
-				<td>Выступание косоура 1 за площадку, мм:</td>
-				<td><input id="stringerLedge1" type="number" value="10"></td>
-			</tr>
-
-			<tr id="stringerLedge2_tr">
-				<td>Выступание косоура 2 за площадку, мм:</td>
-				<td><input id="stringerLedge2" type="number" value="10"></td>
-			</tr>
-
-			<tr id="stringerThickness_tr"><td>Толщина косоура:</td>
-				<td><input id="stringerThickness" type="number" value="150"></td>
-			</tr>
-				
-			</tbody> </table>
-
->>>>>>> curve
 			<h4>2. Параметры ступеней:</h4>
 			<table class="form_table">
 				<tbody>

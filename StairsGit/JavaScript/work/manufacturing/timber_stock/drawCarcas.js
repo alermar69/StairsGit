@@ -340,6 +340,7 @@ function drawTimberStockStringer(par){
 
 	var stringerWidth = 228;
 	stringerHeight = stringerWidth / Math.cos(stairAngle);
+	if (stairAngle == Math.PI / 2) stringerHeight = stringerWidth;
 
 	var botLine = [];
 	var topLine = [];

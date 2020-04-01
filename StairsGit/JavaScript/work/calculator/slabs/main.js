@@ -27,8 +27,7 @@ $(function () {
 		
 		recalculate();
 	})
-	
-<<<<<<< HEAD
+
 	$("#headerType").change(function(){
 		$(".header").hide();
 		$(".footerText").hide();
@@ -36,8 +35,6 @@ $(function () {
 		$("." + $(this).val()).show()
 	})
 
-=======
->>>>>>> curve
 	
 	//пересчитываем лестницу
 	if (window.loadedData) {

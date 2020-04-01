@@ -244,10 +244,11 @@ function drawSpiralRailing(par) {
 		var rackDistY = stepHeight * (stairAmt - topRackOffset) / (rackAmt - 1);
 		var banisterProfileSize = 40;
 		var longBanisterLength = railingHeight + 150;
-		//var banisterPositionRad = rad + banisterProfileSize / 2 + 2;
-		//      if (par.side == "in") banisterPositionRad = rad - banisterProfileSize / 2 - 2;
+		
+		var banisterPositionRad = rad + 0.1;
+		if (par.side == "in") banisterPositionRad = rad - banisterProfileSize - 0.1;
 
-		var banisterPositionRad = params.staircaseDiam / 2 + 0.1;
+		//var banisterPositionRad = params.staircaseDiam / 2 + 0.1;
 
 		var dxfBasePoint = { x: 0, y: 1000 }
 
@@ -261,12 +262,15 @@ function drawSpiralRailing(par) {
 			dxfBasePoint: dxfBasePoint,
 			dxfArr: dxfPrimitivesArr,
 			realHolder: true, //точно отрисовываем кронштейн поручня
-			//holderAng: stairParams.stairCaseAngle,
-			holderAng: (stairAmt + 1.5) * stepAngle,
 			sectText: '',
 			marshId: 1,
 			key: "out",
 		}
+
+		//угол верхнего кронштейна
+		var stepLen = Math.PI * par.rad * params.stepAngle / 180;		
+		rackParams.holderAng = -Math.atan(stairParams.stepHeight / stepLen)
+
 		var modelTemp = params.model;
 		params.model = 'лт';
 		for (var i = 0; i < rackAmt; i++) {
@@ -289,7 +293,7 @@ function drawSpiralRailing(par) {
 
 
 		//уголки для крепления ступеней
-		if (true) {
+		if (params.railingModel == "Частые стойки" || params.model != "Спиральная (косоур)") {
 			var angleGap = 0.1; //зазор чтобы проходили тесты
 			var angleParams = {
 				material: params.materials.metal2,
@@ -298,7 +302,8 @@ function drawSpiralRailing(par) {
 
 			var banisterBottomOverhang = 36; //выступ балясини ниже нижней поверхности ступени
 
-			var banisterPositionRad = params.staircaseDiam / 2 + 0.1;
+			var anglePositionRad = banisterPositionRad;
+			if (par.side == "in") anglePositionRad += banisterProfileSize
 			var banistrPositionAngle;
 
 			posY = stepHeight - params.treadThickness - banisterBottomOverhang;
@@ -316,9 +321,10 @@ function drawSpiralRailing(par) {
 
 				banistrPositionAngle = (-stepAngle * i * turnFactor);
 				angle.rotation.y = -banistrPositionAngle - Math.PI / 2;
-				angle.position.x = banisterPositionRad * Math.cos(banistrPositionAngle);
+				if (par.side == "in") angle.rotation.y = -banistrPositionAngle + Math.PI / 2;
+				angle.position.x = anglePositionRad * Math.cos(banistrPositionAngle);
 				angle.position.y = posY + shimDelta - 0.1 + 20 - angleParams.holeOffset;
-				angle.position.z = banisterPositionRad * Math.sin(banistrPositionAngle) + 0.1;
+				angle.position.z = anglePositionRad * Math.sin(banistrPositionAngle) + 0.1;
 				angle.castShadow = true;
 				railingSection.add(angle);
 				//--------------------------------------------
@@ -327,9 +333,10 @@ function drawSpiralRailing(par) {
 				var angle = angleParams.mesh;
 				banistrPositionAngle = (-stepAngle * (i + 1) * turnFactor + banistrPositionAngle0);
 				angle.rotation.y = -banistrPositionAngle - Math.PI / 2;
-				angle.position.x = (banisterPositionRad) * Math.cos(banistrPositionAngle);
+				if (par.side == "in") angle.rotation.y = -banistrPositionAngle + Math.PI / 2;
+				angle.position.x = (anglePositionRad) * Math.cos(banistrPositionAngle);
 				angle.position.y = posY + shimDelta - 0.1 + 20 - angleParams.holeOffset;
-				angle.position.z = banisterPositionRad * Math.sin(banistrPositionAngle);
+				angle.position.z = anglePositionRad * Math.sin(banistrPositionAngle);
 				angle.castShadow = true;
 				railingSection.add(angle);
 
@@ -340,9 +347,10 @@ function drawSpiralRailing(par) {
 				var angle = angleParams.mesh;
 				var banistrPositionAngle = -stepAngle * i * turnFactor - stepAngle / 2 * turnFactor;
 				angle.rotation.y = -banistrPositionAngle - Math.PI / 2;
-				angle.position.x = banisterPositionRad * Math.cos(banistrPositionAngle);
+				if (par.side == "in") angle.rotation.y = -banistrPositionAngle + Math.PI / 2;
+				angle.position.x = anglePositionRad * Math.cos(banistrPositionAngle);
 				angle.position.y = posY + shimDelta - 0.1 + 20 - angleParams.holeOffset;
-				angle.position.z = banisterPositionRad * Math.sin(banistrPositionAngle);
+				angle.position.z = anglePositionRad * Math.sin(banistrPositionAngle);
 				angle.castShadow = true;
 				railingSection.add(angle);
 

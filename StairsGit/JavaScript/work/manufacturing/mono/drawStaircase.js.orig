@@ -120,19 +120,7 @@ drawStaircase = function(viewportId, isVisible) {
 	params.starcasePos = moove;
 	params.starcasePos.rot = moove.rot;
 
-<<<<<<< HEAD
 	for(var i=0; i<model.objects.length; i++){
-=======
-
-	//если на верхней площадке есть заднее ограждение, сдвигаем лестницу по оси Х чтобы ограждение не пересекалось с верхним перекрытием
-	if (params.platformTop == "площадка" && params.topPltRailing_5) {
-		if (params.railingModel != "Самонесущее стекло") moove.x -= 40; //40-ширина стойки
-		else moove.x -= 14 + 12; //14 - зазор от стекла до торца марша, 12 - толщина стекла
-	}
-
-
-	for (var i = 0; i < model.objects.length; i++) {
->>>>>>> curve
 		var obj = model.objects[i].obj;
 		//позиционируем
 		obj.position.x += moove.x;// + params.staircasePosX;

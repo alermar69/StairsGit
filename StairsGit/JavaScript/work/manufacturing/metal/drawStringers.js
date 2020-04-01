@@ -115,7 +115,12 @@ function drawStringer(par){
 
 
 			if (par.botEnd == "floor") drawBotStepKo_floor(par);
-			if (par.botEnd == "platformG") drawBotStepKo_pltG(par);
+			if (par.botEnd == "platformG") {
+				if (params.stairModel == "П-образная трехмаршевая1" && par.marshId == 2 && params.stairAmt2 == 0)
+					drawBotStepKo_pltG_3marsh0(par);
+				else
+					drawBotStepKo_pltG(par);
+			}
 			if (par.botEnd == "platformP") drawBotStepKo_pltP(par);
 			if (par.botEnd == "winder" && par.key == "in") drawBotStepKo_wndIn(par);
 			if (par.botEnd == "winder" && par.key == "out") drawBotStepKo_wndOut(par);
@@ -158,7 +163,7 @@ function drawStringer(par){
 	
 		if(par.marshId == 2 && par.stairAmt == 0 && params.stairModel == "П-образная трехмаршевая"){
 			// на ко при 0 ступеней во втором марше добавляется две лишние точки
-			par.pointsShape.splice(0, 2);
+			//par.pointsShape.splice(0, 2);
 		}
 
 		par.wndFramesHoles = wndFramesHoles;

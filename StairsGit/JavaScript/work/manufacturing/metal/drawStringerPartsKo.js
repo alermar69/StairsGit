@@ -702,7 +702,7 @@ function drawBotStepKo_wndIn(par){
 	if (par.bottomTrimm){
 		// обрезка снизу
 		var htrim = par.h_prev - 135.0;
-		if (params.bottomAngleType === "регулируемая опора") htrim -= 35.0;
+		if (params.bottomAngleType === "регулируемая опора") htrim -= 35.0 - 1;
 		if (params.botFloorType === "черновой") htrim += params.botFloorsDist;
 		p1 = newPoint_xy(p1, 0.0, 120.0 - htrim);
 	}
@@ -945,12 +945,19 @@ function drawBotStepKo_wndOut(par){
 	
 	// отверстия под уголки каркаса
 	//верхний уголок
+	
 	var center1 = newPoint_xy(p2, 30, -25);
 	var center2 = newPoint_xy(center1, 0, -60);
 	center1.hasAngle = center2.hasAngle = true;
 	center1.rotated = center2.rotated = true;
-	par.pointsHole.push(center2);
-	par.pointsHole.push(center1);
+	//если на нижнем марше есть верхний уголок
+	if (!temp.notTopAngel) {
+		par.pointsHole.push(center2);
+		par.pointsHole.push(center1);
+	}
+	else {
+		temp.notTopAngel = false
+	}
 
 	//нижний уголок
 	var center3 = newPoint_xy(center2, 0, -45);
@@ -1329,6 +1336,7 @@ function drawTopStepKo_floor(par){
 	botLinePoints.push(topLineP2);
 	
 	//сохраняем точки контура
+	if (par.pointsShape[0].x > topLineP1.x) par.pointsShape.shift();
 	var curPos = par.pointsShape.length;
 	par.pointsShape.push(...topLedgePoints);
 	topLineP1.filletRad = 0; //верхний угол тетивы не скругляется
@@ -2350,11 +2358,22 @@ function drawTopStepKo_wndOut(par){
 
 	// отверстия под уголки каркаса
 	//верхний уголок
+
+	//если последняя проступь меньше 160 верхний уголок не делаем, чтобы рамка не пересекала уголок
+	var notTopAngel = false;
+	if (topLineP1.x - p4.x < 160) {
+		notTopAngel = true;
+		temp.notTopAngel = true
+	}
+
+	
 	var center1 = newPoint_xy(topLineP1, -38, -25);
 	var center2 = newPoint_xy(center1, 0, -60);
 	center1.hasAngle = center2.hasAngle = false;
-	par.pointsHole.push(center1);
-	par.pointsHole.push(center2);
+	if (!notTopAngel) {
+		par.pointsHole.push(center1);
+		par.pointsHole.push(center2);
+	}
 
 	//нижний уголок
 	var center3 = newPoint_xy(center2, 0, -45);
@@ -2461,7 +2480,10 @@ function drawTopStepKo_wndOut(par){
 	if (par.marshParams.wallFix.out) {
 		var fixPar = getFixPart(par.marshId);
 		//отверстие ближе к углу
-		center1 = newPoint_xy(topLineP1, -150, -150);
+		var line = parallel(p1, p3, -50)
+		var pt = newPoint_xy(topLineP1, -150, 0);
+		center1 = itercection(line.p1, line.p2, pt, polar(pt, Math.PI / 2, 100));
+		//center1 = newPoint_xy(topLineP1, -150, -150);
 		center1.rad = fixPar.diam / 2 + 1;
 		center1.hasAngle = false;
 		center1.noZenk = true;
@@ -2470,7 +2492,9 @@ function drawTopStepKo_wndOut(par){
 		//center1.noZenk = true;
 		par.pointsHole.push(center1);
 		//отверстие ближе к маршу
-		center1 = newPoint_xy(p2, 150, -150);
+		pt = newPoint_xy(p2, 150, 0);
+		center1 = itercection(line.p1, line.p2, pt, polar(pt, Math.PI / 2, 100));
+		//center1 = newPoint_xy(p2, 150, -150);
 		center1.rad = fixPar.diam / 2 + 1;
 		center1.hasAngle = false;
 		center1.noZenk = true;

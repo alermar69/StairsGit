@@ -282,7 +282,8 @@ function drawMarshRailing(par, marshId) {
 	}
 	if (params.calcType === 'bolz') {
 		mooveY = 90 + 0.01;
-		sideOffset = (params.M - calcTreadLen()) / 2 + 40 + 10; // 40 - профиль больца
+		//sideOffset = (params.M - calcTreadLen()) / 2 + 40 + 10; // 40 - профиль больца
+		sideOffset = 40 + 10; // 40 - профиль больца
 	}
 
 	//внутренняя сторона
@@ -952,6 +953,8 @@ function drawRailingSectionNewel2(par) {
 					rackParams.isTurnRack = racks[i].isTurnRack;
 					//rackParams.holeYTurnRack - расстояние по Y для дополнительного отверстия крепления на поворотной стойке
 					rackParams.holeYTurnRack = turnRacksParams.shiftYtoP0 + 20 + params.treadThickness / 2 + 60; // 20 - отступ до первого отверстия, 60 - расстояние между отверстиями
+					//if (params.stairType == "лотки" || params.stairType == "рифленая сталь")
+					//	rackParams.holeYTurnRack += 65;
 					if (marshPar.botTurn == "забег") rackParams.holeYTurnRack -= 4;
 					if (params.model == "ко") {
 						if (marshPar.botTurn == "забег") rackParams.holeYTurnRack -= marshPar.h - 4;
@@ -1051,8 +1054,8 @@ function drawRailingSectionNewel2(par) {
 				//	rigelBasePoints[rigelBasePoints.length - 1].y += calcLastRackDeltaY();
 				//	rigelBasePoints[rigelBasePoints.length - 1].ang = parRacks.angMarsh;
 				//}
-				if (par.lastMarsh && params.platformTop == "нет" && params.calcType !== 'bolz') {
-					rigelBasePoints[rigelBasePoints.length - 1].y += calcLastRackDeltaY();
+				if (par.lastMarsh && params.platformTop == "нет") {
+					if (params.calcType !== 'bolz') rigelBasePoints[rigelBasePoints.length - 1].y += calcLastRackDeltaY();
 					rigelBasePoints[rigelBasePoints.length - 1].ang = parRacks.angMarsh;
 				}
 				if (params.calcType == 'bolz') {
@@ -3708,50 +3711,53 @@ function drawForgedFramePart2(par) {
 						}
 						if (params.model == "ко") boltPar.headType = "шестигр.";
 
-						var bolt = drawBolt(boltPar).mesh;
-		                /*
-                        bolt.rotation.x = -Math.PI / 2;
-                        bolt.position.x = 0;
-                        bolt.position.y = 90;
-                        bolt.position.z = 2 + 4;
-                        if (par.railingSide == "left") {
-			                bolt.rotation.x = Math.PI / 2;
-			                bolt.position.z = 40 - boltLen / 2 + boltBulge;
-		                }
-			                */
+						if (par.isTurnRack && !testingMode) {
 
-						if (params.model == "лт") {
-							bolt.rotation.x = Math.PI / 2;
-							bolt.position.x = 0;
-							bolt.position.y = 90;
-							bolt.position.z = 2
-
-							if (par.railingSide == "left") {
-								bolt.rotation.x = -Math.PI / 2;
-								bolt.position.z = par.poleProfileY - 2
-							}
-						}
-
-						if (params.model == "ко") {
-							bolt.rotation.x = -Math.PI / 2;
-							bolt.position.x = 0;
-							bolt.position.y = 90;
-							bolt.position.z = 2 + 4 //boltLen / 2 + boltBulge - 4;
-
-							if (par.railingSide == "left") {
+							var bolt = drawBolt(boltPar).mesh;
+							/*
+					        bolt.rotation.x = -Math.PI / 2;
+					        bolt.position.x = 0;
+					        bolt.position.y = 90;
+					        bolt.position.z = 2 + 4;
+					        if (par.railingSide == "left") {
 								bolt.rotation.x = Math.PI / 2;
-								bolt.position.z = par.poleProfileY - 2 - 4 // - boltLen / 2 - boltBulge + 4;
+								bolt.position.z = 40 - boltLen / 2 + boltBulge;
 							}
+								*/
+
+							if (params.model == "лт") {
+								bolt.rotation.x = Math.PI / 2;
+								bolt.position.x = 0;
+								bolt.position.y = 90;
+								bolt.position.z = 2
+
+								if (par.railingSide == "left") {
+									bolt.rotation.x = -Math.PI / 2;
+									bolt.position.z = par.poleProfileY - 2
+								}
+							}
+
+							if (params.model == "ко") {
+								bolt.rotation.x = -Math.PI / 2;
+								bolt.position.x = 0;
+								bolt.position.y = 90;
+								bolt.position.z = 2 + 4 //boltLen / 2 + boltBulge - 4;
+
+								if (par.railingSide == "left") {
+									bolt.rotation.x = Math.PI / 2;
+									bolt.position.z = par.poleProfileY - 2 - 4 // - boltLen / 2 - boltBulge + 4;
+								}
+							}
+
+							par.mesh.add(bolt)
+
+							var bolt2 = drawBolt(boltPar).mesh;
+							bolt2.rotation.x = bolt.rotation.x;
+							bolt2.position.x = 0;
+							bolt2.position.y = 90 - holeDist;
+							bolt2.position.z = bolt.position.z;
+							par.mesh.add(bolt2)
 						}
-
-						if (par.isTurnRack && !testingMode) par.mesh.add(bolt)
-
-						var bolt2 = drawBolt(boltPar).mesh;
-						bolt2.rotation.x = bolt.rotation.x;
-						bolt2.position.x = 0;
-						bolt2.position.y = 90 - holeDist;
-						bolt2.position.z = bolt.position.z;
-						if (par.isTurnRack && !testingMode) par.mesh.add(bolt2)
 					}
 				}
 
@@ -4742,6 +4748,7 @@ function setTurnRacksParams(marshId, key) {
 				par.shiftYforShiftX -= (40) * Math.tan(marshPar.ang);
 				//par.shiftYtoP0 = marshPar.h + prevMarshPar.h;
 				par.shiftYtoP0 = prevMarshPar.h// + 65;
+				if (params.stairType == "лотки" || params.stairType == "рифленая сталь") par.shiftYtoP0 += 65
 				par.stringerShiftPoint.x = rackProfile / 2 + 40;
 				par.stringerShiftPoint.y = - par.shiftYtoP0;
 				par.rackLenAdd = par.shiftYtoP0 - par.shiftYforShiftX + 5;

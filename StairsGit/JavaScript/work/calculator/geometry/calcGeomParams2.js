@@ -693,8 +693,8 @@ function setModelDimensions(par) {
 			if(par.turnTypeName == "забег") deltaBottom = -params.nose; //было -30
 		}
 		if(par.model == "bolz") {
-			if(par.turnTypeName == "площадка") deltaBottom = -params.nose - 13; //13 - подогнано
-			if(par.turnTypeName == "забег") deltaBottom = -params.nose - 13; //было -30
+			if(par.turnTypeName == "площадка") deltaBottom = -params.nose// - 13; //13 - подогнано
+			if(par.turnTypeName == "забег") deltaBottom = -params.nose// - 13; //было -30
 		}
 
 		//поправка для первой ступени марша перед поворотом
@@ -723,9 +723,9 @@ function setModelDimensions(par) {
 			}
 		}
 		if(par.model == "bolz") {
-			if(par.turnTypeName == "площадка") deltaTop = -13; //подогнано
+			if(par.turnTypeName == "площадка") deltaTop = 0//-13; //подогнано
 			if(par.turnTypeName == "забег") {
-				deltaTop = -13; //было -30
+				deltaTop =0// -13; //было -30
 				if(params.riserType == "есть") deltaTop += params.riserThickness;
 			}
 		}
@@ -760,8 +760,8 @@ function setModelDimensions(par) {
 			if(par.turnTypeName == "забег") deltaBottom = -params.nose; //было -30
 		}
 		if (par.model == "bolz") {
-			if (par.turnTypeName == "площадка") deltaBottom = -params.nose - 13; //13 - подогнано
-			if (par.turnTypeName == "забег") deltaBottom = -params.nose - 13
+			if (par.turnTypeName == "площадка") deltaBottom = -params.nose// - 13; //13 - подогнано
+			if (par.turnTypeName == "забег") deltaBottom = -params.nose// - 13
 		}
 
 		//поправка при стыковке нижнего марша с площадкой(сверху)
@@ -786,9 +786,9 @@ function setModelDimensions(par) {
 			if(par.turnTypeName == "забег") deltaTop = params.nose; //было -30
 		}
 		if (par.model == "bolz") {
-			if (par.turnTypeName == "площадка") deltaTop = -13; //подогнано
+			if (par.turnTypeName == "площадка") deltaTop =0// -13; //подогнано
 			if (par.turnTypeName == "забег") {
-				deltaTop = -13; //было -30
+				deltaTop =0// -13; //было -30
 				if (params.riserType == "есть") deltaTop += params.riserThickness;
 			}
 		}

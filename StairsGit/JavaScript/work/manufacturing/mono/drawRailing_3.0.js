@@ -1395,6 +1395,7 @@ function drawRackMono(par){
 	var botLen = marshPar.h; //длина от верха ступени до низа стойки
 	if(par.type == 'middle') botLen += params.treadThickness + bottomHoleOffset + banisterAngleOffset;
 	if (par.type == 'last') botLen = params.treadThickness + rackProfile + banisterFlanThk;
+	if (par.type == 'platformRear') botLen = -5;
 	if(par.type == 'turnRackStart'){
 		//Г-образный поворот
 		if(params.stairModel != "П-образная с площадкой" && params.stairModel != "П-образная с забегом") {
@@ -1490,7 +1491,7 @@ function drawRackMono(par){
 		
 		//размер для спецификации
 		var sizeA = botLen + holeCenters[0].y;
-		if (par.type == 'middle') sizeA = distance(holeCenters[0], holeCenters[1])
+		//if (par.type == 'middle') sizeA = distance(holeCenters[0], holeCenters[1])
 	}
 	
 	//отверстия на поворотной стойке	
@@ -1943,6 +1944,9 @@ function calculateRacks(par){
 
 		var mooveX = 0;
 		if(marshPar.botTurn == "площадка") mooveX = 45;
+		//учитываем размер поворота для гнутых
+		if (params.model == 'гнутый') mooveX = params.M - params.sizeTurn
+			
 		parRacks.marshFirst.x += mooveX;
 		parRacks.marshFirst.len += mooveX * Math.tan(marshPar.ang);
 		parRacks.marshFirst.type = 'turnRackStart';
@@ -1981,6 +1985,8 @@ function calculateRacks(par){
 	if (marshPar.topTurn != "пол" && par.key == "in" && !marshPar.lastMarsh) {
 		//mooveX = marshPar.b;
 		if (params.stairModel == "П-образная с площадкой") mooveX -= 45;
+		//учитываем размер поворота для гнутых
+		if (params.model == 'гнутый') mooveX = -(params.M - params.sizeTurn)
 
 		//г-образный поворот
 		if (params.stairModel != "П-образная с площадкой" && params.stairModel != "П-образная с забегом") {
