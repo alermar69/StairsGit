@@ -416,43 +416,7 @@ function drawSpiralRailing(par) {
 			railingSection.add(glass);
 		}
 	}
-
-
-	//поручень
-
-	var handrailParams = {
-		poleType: "round",
-		poleSize: 50,
-		poleRad: banisterPositionRad,
-		posY: longBanisterLength,
-		model: par.model,
-		material: params.materials.handrail,
-		startOffset: 0.25,
-		endOffset: 0.25,
-		partName: "spiralHandrail",
-	}
-	if (par.model == "Частые стойки") {
-		handrailParams.poleRad += 10;
-		//handrailParams.posY += 20 / Math.cos((stairAmt + 1.5) * stepAngle) + 15;
-		handrailParams.posY += 20;
-	}
-	if (par.model != "Частые стойки") {
-		handrailParams.startOffset = 0.25;
-		handrailParams.endOffset = 0.1;
-	}
-	if (par.model == "Ригели" || par.model == "Стекло на стойках") {
-		handrailParams.posY += 50;
-		handrailParams.poleRad += 20;
-	}
-
-	if (handrailMaterial == "Нержавейка" || handrailMaterial == "Алюминий")
-		handrailParams.material = params.materials.metal;
-
-	handrail.add(drawVinPole(handrailParams));
-
-
-
-
+	
 	if (par.model == "Самонесущее стекло") {
 
 		//считаем длину ограждения
@@ -494,6 +458,44 @@ function drawSpiralRailing(par) {
 
 
 	}
+
+
+	//поручень
+
+	var handrailParams = {
+		poleType: "round",
+		poleSize: 50,
+		poleRad: banisterPositionRad,
+		posY: longBanisterLength,
+		model: par.model,
+		material: params.materials.handrail,
+		startOffset: 0.25,
+		endOffset: 0.25,
+		partName: "spiralHandrail",
+	}
+	if (par.model == "Частые стойки") {
+		handrailParams.poleRad += 10;
+		//handrailParams.posY += 20 / Math.cos((stairAmt + 1.5) * stepAngle) + 15;
+		handrailParams.posY += 20;
+	}
+	if (par.model != "Частые стойки") {
+		handrailParams.startOffset = 0.25;
+		handrailParams.endOffset = 0.1;
+	}
+	if (par.model == "Ригели" || par.model == "Стекло на стойках") {
+		handrailParams.posY += 50;
+		handrailParams.poleRad += 20;
+	}
+
+	if (handrailMaterial == "Нержавейка" || handrailMaterial == "Алюминий")
+		handrailParams.material = params.materials.metal;
+
+	handrail.add(drawVinPole(handrailParams));
+
+
+
+
+
 
 	function drawVinPole(par) {
 

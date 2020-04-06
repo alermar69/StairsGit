@@ -358,8 +358,6 @@ function calcStaircaseMoove(lastMarshEnd){
 	moove.y += params.staircasePosY;
 	moove.rot += params.stairCaseRotation / 180 * Math.PI;
 
-	console.log(moove);
-
 	return moove;
 	
 } //end of calcStaircaseMoove

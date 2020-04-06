@@ -282,94 +282,199 @@ function calcGeomParams(noAlerts) {
 	}
 	G = 0;
 	if(typeof stairAmt == 'undefined') stairAmt = stepAmt;
-	while(G < G_min) {
-		if(angleType == "расчетные") stepAmt -= 1;
-		if(topStairType == "вровень") stairAmt = stepAmt;
-		if(topStairType == "ниже") stairAmt = stepAmt - 1;
-		h = Math.round(staircaseHeight * 10 / stepAmt) / 10;
-		if(angleType == "задаются") {
-			h = params.h3;
-			//если в нижнем марше 0 ступеней то все подъемы одинаковые
-			if(stairAmt1 == 0 && stairModel != "П-образная трехмаршевая") {
-				stepAmt_3 = params.stairAmt3;
-				if(topStairType == "ниже") stepAmt_3 += 1;
-				h = staircaseHeight / (stepAmt_3 + turnType + 1);
-				/*
-				if(stairModel == "П-образная трехмаршевая") {
-					h = Math.round(staircaseHeight / stepAmt * 10) / 10;
+	var totalStep = 1;
+	if(stairModel == "П-образная трехмаршевая") totalStep = Math.ceil((floorHoleWidth - params.M * 2) / 150); // 150 - минимальная допустимая проступь
+	if(stairModel == "П-образная трехмаршевая" && totalStep <= 0) totalStep = 1; // 150 - минимальная допустимая проступь
+	if (params.stairModel == 'П-образная трехмаршевая' && params.gCalcType == 'второй марш') {
+		totalStep = 8;
+	}
+
+	// ширина проема - 2хМ / 150
+	var currentStep = 0;
+	var results = [];
+	while(currentStep < totalStep){
+		var _stairAmt2 = currentStep;
+
+		/*расчет проступи среднего марша*/
+		var _b2 = (floorHoleWidth - M * 2 - deltaBottom_2 - deltaTop_2 - params.wallDist * 2) / (_stairAmt2);
+		while(G < G_min) {
+			if(angleType == "расчетные") stepAmt -= 1;
+			if(topStairType == "вровень") stairAmt = stepAmt;
+			if(topStairType == "ниже") stairAmt = stepAmt - 1;
+			h = Math.round(staircaseHeight * 10 / stepAmt) / 10;
+			
+			if(angleType == "задаются") {
+				h = params.h3;
+				//если в нижнем марше 0 ступеней то все подъемы одинаковые
+				if(stairAmt1 == 0 && stairModel != "П-образная трехмаршевая") {
+					stepAmt_3 = params.stairAmt3;
+					if(topStairType == "ниже") stepAmt_3 += 1;
+					h = staircaseHeight / (stepAmt_3 + turnType + 1);
+					/*
+					if(stairModel == "П-образная трехмаршевая") {
+						h = Math.round(staircaseHeight / stepAmt * 10) / 10;
+					}
+					*/
+					if(h != params.h1 && !testingMode) alert("Если в нижнем марше 0 ступеней то высота всех ступеней должна быть одинаковой. Установлено значение подъема ступени в верхнем марше h1 = " + h + "мм")
 				}
-				*/
-				if(h != params.h1 && !testingMode) alert("Если в нижнем марше 0 ступеней то высота всех ступеней должна быть одинаковой. Установлено значение подъема ступени в верхнем марше h1 = " + h + "мм")
+			}
+			//расчет параметров верхнего марша
+			var topMarshParams = {
+				floorHoleLength: floorHoleLength,
+				turnLength: turnLength,
+				topStepDelta: topStepDelta,
+				deltaBottom: deltaBottom,
+				h: h,
+				turnType: turnType,
+				totalStairAmt: stairAmt,
+				slimHole: slimHole,
+				angleType: angleType,
+				model: model,
+				turnTypeName: turnTypeName
+			}
+			topMarshParams = calcTopMarshParams(topMarshParams);
+			if(!topMarshParams) return;
+			stairAmt3 = topMarshParams.stairAmt3
+			b = topMarshParams.b;
+			//рассчитываем кол-во подъемов в верхнем марше
+			if(topStairType == "вровень") stepAmt_3 = stairAmt3;
+			if(topStairType == "ниже") stepAmt_3 = stairAmt3 + 1;
+
+			if (params.stairModel == 'П-образная трехмаршевая' && params.gCalcType == "второй марш") _b2 = b;
+
+			//рассчитыаем габарит
+			parG = {
+				deltaTop: deltaTop,
+				turnLength: turnLength,
+				topStepDelta: topStepDelta,
+				b1: b,
+				h1: h,
+				b3: b,
+				h3: h,
+				h2: h,
+				b2: _b2,
+				stepAmt_3: stepAmt_3,
+				stairAmt2: _stairAmt2
+			}
+			G = calcG(parG);
+			//H2 = turnType * h + stepAmt_3 * h;
+			//G = Math.round(h / b * (floorHoleWidth - turnLength - deltaTop) + H2 - floorThickness);
+			//повторяем цикл если не выполняется формула шага
+			if((2 * h + b) < 600) G = 0;
+
+			if(angleType == "задаются") break;
+		} //end of while
+
+		if (params.stairModel == 'П-образная трехмаршевая' && params.gCalcType == "второй марш") _b2 = b;
+
+		results.push({
+			G: G,
+			b: b,
+			h: h,
+			b2: _b2,
+			h2: h,
+			stairAmt: stairAmt,
+			stairAmt1: stairAmt - currentStep - stairAmt3 - 2,
+			stairAmt2: _stairAmt2,
+			stairAmt3: stairAmt3,
+			total1: 2 * h + b,
+			total2: 2 * h + _b2,
+		});
+
+		//расчет параметров среднего марша
+		currentStep++;
+	}
+
+
+	if(stairModel == "П-образная трехмаршевая" && results.length > 0) {
+		var bestIndex = 0;
+		var bestDelta = 999999;
+		results.forEach(function(res, i){
+			if (Math.abs(1240 - (res.total1 + res.total2)) < bestDelta) {
+				bestIndex = i;
+				bestDelta = Math.abs(1240 - (res.total1 + res.total2));
+			}
+		});
+		
+		var stairsDelta = 1;
+		if (params.turnType_1 == "забег") stairsDelta += 2;
+		if (params.turnType_2 == "забег") stairsDelta += 2;
+		if(topStairType == "ниже") stairsDelta += 1;
+		console.log(results);
+		// var stepAmount = results[bestIndex].stairAmt - stairAmt3 - stairsDelta;
+		// var stairAmt1 = Math.floor(stepAmount / 2);
+		// var stairAmt2 = stepAmount - Math.floor(stepAmount / 2);
+		// console.log(results);
+
+		if (params.stairModel == 'П-образная трехмаршевая' && params.gCalcType == "второй марш"){
+			var stepAmount = stairAmt - stairAmt3 - stairsDelta;
+			var stairAmt2 = stepAmount;
+			var stairAmt1 = 0;
+		}else{
+			var stairAmt2 = results[bestIndex].stairAmt2;
+			var stairAmt1 = stairAmt - stairAmt2 - stairAmt3 - stairsDelta;
+			if(stairAmt1 < 0) {
+				stairAmt2 += stairAmt1;
+				stairAmt1 = 0;
+				if (stairAmt2 < 0) stairAmt2 = 0;
 			}
 		}
-		//расчет параметров верхнего марша
-		var topMarshParams = {
-			floorHoleLength: floorHoleLength,
-			turnLength: turnLength,
-			topStepDelta: topStepDelta,
-			deltaBottom: deltaBottom,
-			h: h,
-			turnType: turnType,
-			totalStairAmt: stairAmt,
-			slimHole: slimHole,
-			angleType: angleType,
-			model: model,
-			turnTypeName: turnTypeName,
-		}
-		topMarshParams = calcTopMarshParams(topMarshParams);
-		if(!topMarshParams) return;
-		stairAmt3 = topMarshParams.stairAmt3
-		b = topMarshParams.b;
-		//рассчитываем кол-во подъемов в верхнем марше
-		if(topStairType == "вровень") stepAmt_3 = stairAmt3;
-		if(topStairType == "ниже") stepAmt_3 = stairAmt3 + 1;
-		//рассчитыаем габарит
-		parG = {
-			deltaTop: deltaTop,
-			turnLength: turnLength,
-			topStepDelta: topStepDelta,
-			b1: b,
-			h1: h,
-			b3: b,
-			h3: h,
-			h2: h,
-			stepAmt_3: stepAmt_3,
-		}
-		G = calcG(parG);
-		//H2 = turnType * h + stepAmt_3 * h;
-		//G = Math.round(h / b * (floorHoleWidth - turnLength - deltaTop) + H2 - floorThickness);
-		//повторяем цикл если не выполняется формула шага
-		if((2 * h + b) < 600) G = 0;
-		if(angleType == "задаются") break;
-	} //end of while
-	//расчет параметров среднего марша
-	if(stairModel == "П-образная трехмаршевая") {
-		var stairAmt2 = params.stairAmt2;
-		var stepAmt_2 = stairAmt2 + 1;
-		h2 = params.h2;
+		
+		// if (params.threeMarshCalcType == 'второй') {
+		// 		var stairAmt2 = results[bestIndex].stairAmt2;
+		// 		var stairAmt1 = stairAmt - stairAmt2 - stairAmt3 - stairsDelta;
+		// 		if(stairAmt1 < 0) {
+		// 			stairAmt2 += stairAmt1;
+		// 			stairAmt1 = 0;
+		// 			if (stairAmt2 < 0) stairAmt2 = 0;
+		// 		}
+		// 	}
+		// }
+		// if (params.threeMarshCalcType == 'первый') {
+		// 	var stairAmt1 = results[bestIndex].stairAmt1;
+		// 	var stairAmt2 = stairAmt - stairAmt1 - stairAmt3 - stairsDelta;
+		// 	if(stairAmt2 < 0) {
+		// 		stairAmt1 += stairAmt2;
+		// 		stairAmt2 = 0;
+		// 		if (stairAmt1 < 0) stairAmt1 = 0;
+		// 	}
+		// }
+		// if (params.threeMarshCalcType == 'поровну' || params.threeMarshCalcType == undefined) {
+		
+		// }
 
-		if(angleType == "расчетные") h2 = h;
-		/*расчет проступи среднего марша*/
-		var b2 = (floorHoleWidth - M * 2 - deltaBottom_2 - deltaTop_2 - params.wallDist * 2) / (stairAmt2);
-		b2 = Math.round(b2 * 10) / 10;
-		h2 = Math.round(h2 * 10) / 10;
-		if((2 * h2 + b2) > 640)
-			if(!testingMode && !noAlerts) alert("В среднем марше 2h + b = " + (2 * h2 + b2) + " > 640. Рекомендуется увеличить кол-во ступеней или уменьшить подъем.")
-		if((2 * h2 + b2) < 600)
-			if(!testingMode && !noAlerts) alert("В среднем марше 2h + b = " + (2 * h2 + b2) + " < 600. Рекомендуется уменьшить кол-во ступеней или увеличить подъем.")
-	}
-	//расчет параметров нижнего марша
-	stairAmt1 = stairAmt - stairAmt3 - turnType - 1;
-	if(stairModel == "П-образная трехмаршевая") {
-		stairAmt1 = stairAmt - stairAmt2 - stairAmt3 - 2;
-		if(params.turnType_1 == "забег") stairAmt1 -= 2;
-		if(params.turnType_2 == "забег") stairAmt1 -= 2;
+		var h2 = h;
+		var b2 = results[bestIndex].b2;
+	}else{
+		stairAmt1 = stairAmt - stairAmt3 - turnType - 1;
 	}
 	stepAmt_1 = stairAmt1 + 1;
 	h1 = h;
 	h3 = h;
 	b1 = b;
 	b3 = b;
+	// if(stairModel == "П-образная трехмаршевая") {
+	// 	var stairAmt2 = params.stairAmt2;
+	// 	var stepAmt_2 = stairAmt2 + 1;
+	// 	h2 = params.h2;
+
+	// 	if(angleType == "расчетные") h2 = h;
+	// 	/*расчет проступи среднего марша*/
+	// 	var b2 = (floorHoleWidth - M * 2 - deltaBottom_2 - deltaTop_2 - params.wallDist * 2) / (stairAmt2);
+	// 	b2 = Math.round(b2 * 10) / 10;
+	// 	h2 = Math.round(h2 * 10) / 10;
+	// 	if((2 * h2 + b2) > 640)
+	// 		if(!testingMode && !noAlerts) alert("В среднем марше 2h + b = " + (2 * h2 + b2) + " > 640. Рекомендуется увеличить кол-во ступеней или уменьшить подъем.")
+	// 	if((2 * h2 + b2) < 600)
+	// 		if(!testingMode && !noAlerts) alert("В среднем марше 2h + b = " + (2 * h2 + b2) + " < 600. Рекомендуется уменьшить кол-во ступеней или увеличить подъем.")
+	// }
+	//расчет параметров нижнего марша
+	// if(stairModel == "П-образная трехмаршевая") {
+	// 	stairAmt1 = stairAmt - stairAmt2 - stairAmt3 - 2;
+	// 	if(params.turnType_1 == "забег") stairAmt1 -= 2;
+	// 	if(params.turnType_2 == "забег") stairAmt1 -= 2;
+	// }
+	
 	if(angleType == "задаются") {
 		stairAmt1 = params.stairAmt1;
 		h3 = h;
@@ -415,7 +520,9 @@ function calcGeomParams(noAlerts) {
 		b3: b,
 		h3: h,
 		h2: h,
+		b2: b2,
 		stepAmt_3: stepAmt_3,
+		stairAmt2: _stairAmt2
 	}
 	G = calcG(parG);
 	//H2 = turnType * h3 + stepAmt_3 * h3;
@@ -909,13 +1016,27 @@ function calcG(par) {
 		marsh1TopHeight = (par.stepAmt_3 + 5) * par.h3;
 	}
 	if(params.stairModel == "П-образная трехмаршевая") {
-		var turnRiseAmt1 = 0;
-		var turnRiseAmt2 = 0;
-		if(params.turnType_1 == "забег") turnRiseAmt1 = 2;
-		if(params.turnType_2 == "забег") turnRiseAmt2 = 2;
-		marsh1TopHeight = (turnRiseAmt2 + par.stepAmt_3) * par.h3 + (params.stairAmt2 + 1 + turnRiseAmt1) * par.h2;
+		if (params.gCalcType == 'второй марш') {
+			var turnRiseAmt = 0;
+			if(params.turnType_2 == "забег") turnRiseAmt = 2;
+			marsh1TopHeight = (turnRiseAmt + par.stepAmt_3) * par.h3;
+
+			floorHoleLimitSize = params.floorHoleWidth;
+		}else{
+			var turnRiseAmt1 = 0;
+			var turnRiseAmt2 = 0;
+			if(params.turnType_1 == "забег") turnRiseAmt1 = 2;
+			if(params.turnType_2 == "забег") turnRiseAmt2 = 2;
+			marsh1TopHeight = (turnRiseAmt2 + par.stepAmt_3) * par.h3 + (par.stairAmt2 + 1 + turnRiseAmt1) * par.h2;
+			
+			floorHoleLimitSize = params.floorHoleLength;
+		}
 	}
-	G = Math.round(par.h1 / par.b1 * (floorHoleLimitSize - turnLength - deltaTop) + marsh1TopHeight - params.floorThickness);
+	if (params.stairModel == "П-образная трехмаршевая" && params.gCalcType == 'второй марш') {
+		G = Math.round(par.h2 / par.b2 * (floorHoleLimitSize - turnLength - deltaTop) + marsh1TopHeight - params.floorThickness);
+	}else{
+		G = Math.round(par.h1 / par.b1 * (floorHoleLimitSize - turnLength - deltaTop) + marsh1TopHeight - params.floorThickness);
+	}
 	return G;
 }
 
@@ -1037,7 +1158,9 @@ function getGeomDescr(){
 			b3: params.b3,
 			h3: params.h3,
 			h2: params.h2,
+			b2: params.b2,
 			stepAmt_3: stepAmt_3,
+			stairAmt2: params.stairAmt2
 		}
 		G = calcG(parG);
 

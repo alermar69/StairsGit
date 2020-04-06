@@ -149,16 +149,6 @@
 						</td>
 					</tr>
 
-					<tr id="platformTop_tr_14">
-						<td>Верхнее крепление:</td>
-						<td>
-							<select id="topAnglePosition" size="1" onchange="">
-								<option value="под ступенью">под ступенью</option>
-								<option value="над ступенью">над ступенью</option>
-							</select>
-						</td>
-					</tr>
-
 					<tr id="carcasConfig_tr">
 						<td id="carcasConfig_img">
 							<img src="/images/calculator/carcasTypes/turn90/001.jpg" width="250px">
@@ -350,6 +340,16 @@
 								</select>
 							</td>
 						</tr>
+						
+						<tr>
+							<td>Накладка на перекрытие:</td>
+							<td>
+								<select id="lastRiser" size="1" onchange="">
+									<option value="нет">нет</option>
+									<option value="есть">есть</option>
+								</select>
+							</td>
+						</tr>
 
 						<tr>
 							<td>Подсветка ступеней:</td>
@@ -385,6 +385,16 @@
 			<table class="form_table">
 				<tbody>
 
+					<tr>
+						<td>Верхнее крепление:</td>
+						<td>
+							<select id="topAnglePosition" size="1" onchange="">
+								<option value="под ступенью">под ступенью</option>
+								<option value="над ступенью">над ступенью</option>
+							</select>
+						</td>
+					</tr>
+					
 					<tr>
 						<td>Позиция верхнего отверстия:</td>
 						<td><input id="topHolePos" type="number" value="100"></td>
@@ -475,6 +485,11 @@
 					<tr>
 						<td>Толщина ступеней:</td>
 						<td><input id="treadThickness" type="number" value="40"></td>
+					</tr>
+					
+					<tr class="d-none">
+						<td>Толщина подступенков:</td>
+						<td><input id="riserThickness" type="number" value="40"></td>
 					</tr>
 
 					<tr>

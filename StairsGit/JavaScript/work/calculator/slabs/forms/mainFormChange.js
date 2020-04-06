@@ -250,7 +250,24 @@ function addUnitParamsInputs($row){
 		classNames: 'resin',
 	};
 	props.push(prop);
-
+	
+	//тип фаски
+	var prop = {
+		id: "edgeModel",
+		values: [
+			"не указано",
+			"скругление R3",
+			"скругление R6",
+			"фаска 3х45гр",
+			"фаска 6х45гр",
+			"калевка R10",
+			"фигурная №1",
+			"фигурная №2",
+		],
+		name: "Ребра",
+		classNames: 'countertop',
+	};
+	props.push(prop);
 
 //подстолья
 

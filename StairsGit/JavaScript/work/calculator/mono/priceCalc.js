@@ -2,7 +2,6 @@ var costMarkup = 1.3; //07.05 было 1.25;
 
 function calculateCarcasPrice(){
 
-//params.model = "лт"//временная адаптация монокосоура
 var model = params.model;
 var stairModel = params.stairModel;
 var platformWidth_1 = params.platformWidth_1;

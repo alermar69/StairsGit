@@ -42,9 +42,39 @@
 		});
 		
 	});
+	
+	//ручные или автоматические данные для экспорта
+	$(".exportData_type").change(function(){
+		if($(this).val() == "вручную") {
+			$(this).closest("div").find(".manualValues").removeClass("d-none")
+			checkDeptSum()
+		}
+		else $(this).closest("div").find(".manualValues").addClass("d-none");
+	})
+	
+	//расчет суммы введенного вручную распределения по цехам
+	$("input.deptPart").change(function(){
+		checkDeptSum();
+	})
 
 });
 
+/** функция проверяем сумму вручную введенного распределения по цехам */
+function checkDeptSum(){
+	var totalSum = 0;
+	$("input.deptPart").each(function(){
+		totalSum += $(this).val() * 1.0;
+	})
+	
+	$("#totalDeptSum").text(totalSum);
+	if(totalSum != $("#price_data_prodSum").text()) {
+		$("#totalDeptSum").addClass("red")
+		return false;
+	}
+	
+	$("#totalDeptSum").removeClass("red")
+	return true;
+}
 
 
 /** функция создает объект с данными из КП для экспорта в базу заказов
@@ -372,6 +402,7 @@ function getExportData_com(checkSumm){
 
 description =  description.split("undefined").join("не указано");;
 
+if(params.product_descr_type == "вручную") description = $("#product_descr_manual").val()
 	
 //данные по цехам
 
@@ -379,6 +410,7 @@ description =  description.split("undefined").join("не указано");;
 		metal: 0,
 		timber: 0,
 		partners: 0,
+		assembling: price_data.main.assembling + price_data.main.delivery,
 		}
 	
 	if(params.calcType != "vint" && params.calcType != "custom"){
@@ -454,7 +486,7 @@ description =  description.split("undefined").join("не указано");;
 		dept_data.timber = staircasePrice.timber;
 		dept_data.partners = staircasePrice.partners;
 	}
-
+	
 	//проверка
 	var deptsSum = dept_data.metal + dept_data.timber + dept_data.partners;
 	if(Math.abs(deptsSum - price_data.main.production) > 1 && checkPrice){
@@ -472,6 +504,29 @@ description =  description.split("undefined").join("не указано");;
 		//не добавляем ошибки из папки разработчиков
 		if(url.indexOf("dev") == -1) sendBugReport(reportPar); //функция в файле sendReport.js
 		};
+	
+	//ручной ввод распределения по цехам
+		if(params.dept_data_type == "вручную"){
+			//исправляем некорректные значения
+			checkDeptSum();
+			var deptsSum = params.metalDeptPart + params.timberDeptPart + params.partnersDeptPart
+			if(Math.abs(deptsSum - price_data.main.production) > 1){
+				var errorText = "Введено неверное распределение сумм по цехам - сумма стоимости по цехам должна совпадать с общей стоимостью изделия: " + deptsSum + " != " + price_data.main.production + " Будет установлено расчетное распределение."
+				alert(errorText);
+				$("input.deptPart").each(function(){					
+					$(this).val(dept_data[$(this).attr('data-dept')])
+				})
+			}
+			else{
+				var dept_data = {
+					metal: params.metalDeptPart,
+					timber: params.timberDeptPart,
+					partners: params.partnersDeptPart,
+					assembling: price_data.main.assembling + price_data.main.delivery,
+				}
+				
+			}
+		}
 	
 	
 	// формируем объект с данными о трудоемкости без нулевых позиций для сохранения в базу
@@ -840,32 +895,51 @@ function getThisOfferInfo(callback){
 
 function printExportData(data, outputDivId){
 	
-	var text = "<b>Описание: </b>" + data.product_descr + "<br/><br/>";
-	
+	var text = 
+		"<b>Описание: </b>" + data.product_descr + "<br/>\
+		<b>Смета с учетом скидки:</b><br/>\
+		<table class='tab_2'><thead><tr>\
+			<th>Наименование</th>\
+			<th>Изделие</th>\
+			<th>Монтаж</th>\
+			<th>Всего</th>\
+			</tr></thead><tbody>";
+			
 	var price_data = data.price_data;
 	
 	for(var unit in price_data){
 		if(unit != "main"){
-			text += "<b>" + price_data[unit].name + "</b><br/>" + 
-				"Изделие: " + Math.round(price_data[unit].production) + "<br/>" + 
-				"Установка: " + Math.round(price_data[unit].assembling) + "<br/>" + 
-				"<b>Всего: " + Math.round(price_data[unit].production + price_data[unit].assembling) + "</b><br/><br/>"; 
+			text += "<tr>\
+					<td>" + price_data[unit].name + "</td>\
+					<td>" + Math.round(price_data[unit].production) + "</td>\
+					<td>" + Math.round(price_data[unit].assembling) + "</td>\
+					<td>" + Math.round(price_data[unit].production + price_data[unit].assembling) + "</td>\
+				</tr>";
 			}
 		};
 		
-	text += "<b>Всего по КП: </b><br/>" + 
-			"Изделие: " + Math.round(price_data.main.production) + "<br/>" + 
-			"Установка: " + Math.round(price_data.main.assembling) + "<br/>" + 
-			"Доставка: " + Math.round(price_data.main.delivery) + "<br/>" + 			
-			"<b>Всего: " + Math.round(price_data.main.total) + "</b><br/><br/>";
-	
+	text += 
+		"<tr>\
+			<td>Доставка: </td>\
+			<td>0</td>\
+			<td>" + Math.round(price_data.main.delivery) + "</td>\
+			<td>" + Math.round(price_data.main.delivery) + "</td>\
+		</tr>\
+		<tr class='bold'>\
+			<td>Итого: </td>\
+			<td id='price_data_prodSum'>" + Math.round(price_data.main.production) + "</td>\
+			<td>" + Math.round(price_data.main.assembling + price_data.main.delivery) + "</td>\
+			<td>" + Math.round(price_data.main.total) + "</td>\
+		</tr></tbody></table>";
+		
 	var dept_data = data.dept_data;
 	
 	text += "<br/><b>Данные по цехам: </b> </br>" + 
 		"Металл: " + Math.round(dept_data.metal) + "<br/>" + 
 		"Дерево: " + Math.round(dept_data.timber) + "<br/>" + 
 		"Подрядчики: " + Math.round(dept_data.partners) + "<br/>" + 
-		"<b>Всего: " + Math.round(dept_data.metal + dept_data.timber + dept_data.partners) + "</b><br/><br/>";
+		"Доставка, монтаж: " + Math.round(dept_data.assembling) + "<br/>" + 
+		"<b>Всего: " + Math.round(dept_data.metal + dept_data.timber + dept_data.partners + dept_data.assembling) + "</b><br/><br/>";
 		
 		
 	$("#" + outputDivId).html(text);

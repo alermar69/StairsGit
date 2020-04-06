@@ -9,14 +9,35 @@ class Door extends AdditionalObject {
 		this.color = new THREE.Color(0xFFFFFF);
 
 		this.material = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xFFFFFF) });
+		this.materialDoor = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xFFFFFF) });
+		if (this.par.doorsCount == 2) this.materialDoor2 = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xFFFFFF) });
 
 		if (this.par.texture && textureManager.texturesEnabled) {
 			var self = this;
 
-			textureManager.textureLoader.load(this.par.texture, function (map) {
+			textureManager.textureLoader.load(this.par.texture + 'other.jpg', function (map) {
 				self.material.map = map;
 				self.material.needsUpdate = true;
 			});
+
+			textureManager.textureLoader.load(this.par.texture + 'map.jpg', function (map) {
+				if (self.par.doorsCount == 1 && self.par.doorType == 'левая') {
+					map.wrapS = THREE.RepeatWrapping;
+					map.repeat.x = - 1;
+				}
+				self.materialDoor.map = map;
+				self.materialDoor.needsUpdate = true;
+			});
+
+			if (this.par.doorsCount == 2) {
+				textureManager.textureLoader.load(this.par.texture + 'map.jpg', function (map) {
+					map.wrapS = THREE.RepeatWrapping;
+					map.repeat.x = - 1;
+
+					self.materialDoor2.map = map;
+					self.materialDoor2.needsUpdate = true;
+				});
+			}
 		}
 		window.door = this;
 
@@ -70,7 +91,11 @@ class Door extends AdditionalObject {
 	drawDoor(leftDoor) {
 		var doorMesh = new THREE.Object3D();
 		var doorWidth = this.par.width;
-		if (this.par.doorsCount == 2) doorWidth = this.par.width / 2;
+		var materialDoor = this.materialDoor;
+		if (this.par.doorsCount == 2) {
+			doorWidth = this.par.width / 2;
+			if(leftDoor) materialDoor = this.materialDoor2;
+		}
 
 		var doorGeometry = new THREE.BoxGeometry(doorWidth, this.par.height, 40);
 
@@ -80,7 +105,7 @@ class Door extends AdditionalObject {
 			doorGeometry.translate(doorWidth / 2, 0, -20);
 		}
 
-		var door = new THREE.Mesh(doorGeometry, this.material);
+		var door = new THREE.Mesh(doorGeometry, materialDoor);
 		door.position.x = 0;
 		door.position.y = this.par.height / 2;
 		doorMesh.add(door);
@@ -270,18 +295,44 @@ class Door extends AdditionalObject {
 				{
 					key: 'texture',
 					title: 'Текстура',
-					default: '/calculator/images/textures/door/01.png',
+					default: '/calculator/images/textures/door/1/',
 					values: [
-						'/calculator/images/textures/door/01.png',
-						'/calculator/images/textures/door/02.png',
-						'/calculator/images/textures/door/1.1.jpg',
-						'/calculator/images/textures/door/1.2.jpg',
-						'/calculator/images/textures/door/1.3.jpg',
-						'/calculator/images/textures/door/1.4.jpg',
-						'/calculator/images/textures/door/2.1.jpg',
-						'/calculator/images/textures/door/2.2.jpg',
-						'/calculator/images/textures/door/2.3.jpg',
-						'/calculator/images/textures/door/2.4.jpg',
+						{
+							value: '/calculator/images/textures/door/1/',
+							preview: '/calculator/images/textures/door/1/map.jpg'
+						},
+						{
+							value: '/calculator/images/textures/door/2/',
+							preview: '/calculator/images/textures/door/2/map.jpg'
+						},
+						{
+							value: '/calculator/images/textures/door/3/',
+							preview: '/calculator/images/textures/door/3/map.jpg'
+						},
+						{
+							value: '/calculator/images/textures/door/4/',
+							preview: '/calculator/images/textures/door/4/map.jpg'
+						},
+						{
+							value: '/calculator/images/textures/door/5/',
+							preview: '/calculator/images/textures/door/5/map.jpg'
+						},
+						{
+							value: '/calculator/images/textures/door/6/',
+							preview: '/calculator/images/textures/door/6/map.jpg'
+						},
+						{
+							value: '/calculator/images/textures/door/7/',
+							preview: '/calculator/images/textures/door/7/map.jpg'
+						},
+						{
+							value: '/calculator/images/textures/door/8/',
+							preview: '/calculator/images/textures/door/8/map.jpg'
+						},
+						{
+							value: '/calculator/images/textures/door/9/',
+							preview: '/calculator/images/textures/door/9/map.jpg'
+						}
 					],
 					type: 'image'
 				}

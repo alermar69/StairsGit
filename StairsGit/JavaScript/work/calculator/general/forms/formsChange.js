@@ -49,13 +49,44 @@ $(function () {
 	})
 	
 	$("#cloneCanvas").click(function(){
-		var canvasId = cloneCanvas();
-		addSavedcamera(canvasId);
+		if(!window.previews) window.previews = [];
+
+		var canvas = $("#WebGL-output").find("canvas:first")[0];
+		canvas.toBlob(function(blob){
+			var id = getPreviewsId();
+			var imageData = canvas.toDataURL();
+			appendPreview(id, imageData, false);
+			var obj = {id: id, blob: blob};
+			window.previews.push(obj);
+		}, 'image/jpeg', 0.95);
 	});
 
-	$('#loadSavedCams').click(function(){
-		$('#images').html("");
-		loadSavedCameras();
+	$('body').on('click', '.previewImage .removeImg', function(){
+		var id = $(this).parents('.previewImage').data('id');
+		if (typeof id == 'number') {
+			var index = window.previews.findIndex(function(v){return v.id == id});
+			console.log(index);
+			window.previews.splice(index, 1);
+			$(this).closest("div").fadeOut("100", function () {
+				$(this).remove();
+			});
+		}
+	});
+
+	$('body').on('click', '.previewImage .setMain', function(){
+		var data_id = $(this).parents('.previewImage').data('id');
+		var htmlElement = this;
+		if (data_id !== undefined) {
+			$('.previewImage').css('border', 'none');
+			window.previews.forEach(function(item){
+				if (item.id == data_id) {
+					item.isMain = true;
+					$(htmlElement).parents('.previewImage').css('border', '3px solid black');
+				}else{
+					item.isMain = false;
+				}
+			});
+		}
 	});
 
 	//Обработчик удаления
@@ -133,6 +164,21 @@ $(function () {
 		$(this).val(result);
 	})
 });
+
+function appendPreview(id, url, isMain){
+	var text = "<div class='previewImage' data-id='" + id + "' style='" + (isMain ? 'border: 3px solid black;' : '') + "'>" +
+		'<button class="btn btn-danger removeImg noPrint">' +
+		'<i class="glyphicon glyphicon-trash"></i>' +
+		'<span>Удалить</span>' +
+		'</button>' +
+		'<button class="btn btn-success setMain noPrint" style="position: absolute; margin: 20px 120px;">' +
+		'<span>Сделать главной</span>' +
+		'</button>' +
+		"<img class='img' src=" + url + ">" +
+		"</div>";
+
+	$("#images").append(text);
+}
 
 function changeFormsGeneral(){
 $("#formsTroubles").text("");

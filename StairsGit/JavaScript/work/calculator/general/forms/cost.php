@@ -71,17 +71,53 @@
 		<p>Расчет еще не произведен</p>
 	</div>
 
-	<h3>Себестоимость шкафа</h3>
-	<div id="cost_wr" class="toggleDiv">
-		<p>Расчет еще не произведен</p>
-	</div>
-
 	<h3>Себестоимость доставки, сборки</h3>
 	<div id="cost_assembling" class="toggleDiv">
 		<p>Расчет еще не произведен</p>
 	</div>
 
-	<h3>Данные для экспорта при запуске в работу</h3>
+	<h2>Данные для экспорта при запуске в работу</h2>
+	<h3>Параметры:</h3>
+	<div>
+		Описание: 
+		<select id="product_descr_type" class="exportData_type">
+			<option value="авто">авто</option>
+			<option value="вручную">ввести вручную</option>
+		</select>
+		<br>
+		<div class="manualValues d-none">
+			<textarea id="product_descr_manual" style="min-width: 70%"></textarea>
+			<br>
+		</div>
+	</div>
+	<div>
+		Распределение по цехам: 
+		<select id="dept_data_type" class="exportData_type">
+			<option value="авто">авто</option>
+			<option value="вручную">ввести вручную</option>
+		</select>
+		<br>
+		
+		<div class="manualValues d-none">
+			<table class="tab_2" id="dept_data_manual"><thead>
+				<tr>
+					<th>Металл</th>
+					<th>Дерево</th>
+					<th>Подрядчики</th>
+					<th>Итого</th>
+				</tr>
+			<thead><tbody>
+				<tr>
+					<td><input type="number" class="deptPart" data-dept="metal" id="metalDeptPart" value="0"></td>
+					<td><input type="number" class="deptPart" data-dept="timber" id="timberDeptPart" value="0"></td>
+					<td><input type="number" class="deptPart" data-dept="partners" id="partnersDeptPart" value="0"></td>
+					<td><span id="totalDeptSum"></td>
+				</tr>
+			</tbody></table>
+		</div>
+	</div>
+	
+	<h3>Данные для экспорта:</h3>
 	<div id="exportData" class="toggleDiv"></div>
 	
 </div>

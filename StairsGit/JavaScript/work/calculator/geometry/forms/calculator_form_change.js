@@ -135,6 +135,8 @@ function changeGeometryForms(){
 	$("#geomModifyMarshId").closest("div").show();
 	if(mode == "setStaircaseWidth" || mode == "setStepHeight") $("#geomModifyMarshId").closest("div").hide();
 
+	$('#threeMarshsTr').hide();
+	if (params.stairModel == 'П-образная трехмаршевая') $('#threeMarshsTr').show();
 
 
 }

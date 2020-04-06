@@ -32,6 +32,15 @@
 				</td>
 			</tr>
 			
+			<tr id='threeMarshsTr'>
+				<td>Второй марш заходит под проем?</td>
+				<td>
+					<select id="gCalcType" size="1" onchange="">
+						<option value="первый марш">Нет</option>
+						<option value="второй марш">Да</option>
+					</select>
+				</td>
+			</tr>
 		</tbody>
 	</table>
 	

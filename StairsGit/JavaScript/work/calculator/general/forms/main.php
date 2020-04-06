@@ -111,6 +111,10 @@
 				<button onclick="saveCanvasImg(0)">Сохранить png</button>
 				<button id="print">Печать</button>
 			</div>
+			<div class="printBlock" id="geomDescrWrapper">
+				<h2>Геометрия</h2>
+				<div id="geomDescr"></div>
+			</div>
 			<div id="images"></div>';
 		};
 

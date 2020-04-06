@@ -1481,7 +1481,7 @@ function cloneCanvas() {
 		});
 	});
 
-	return id;
+	return {id: id, context: canvas};
 }
 
 var floor;

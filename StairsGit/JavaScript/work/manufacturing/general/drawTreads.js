@@ -626,6 +626,28 @@ function drawMarshTreads2(par) {
 					//если расчетная ширина отличается незначительно, делаем все ступени одинаковыми
 					if(plateParams.width - par.a < 3 && plateParams.width - par.a > 0) plateParams.width = par.a;
 				}
+				
+				if (params.calcType == "mono" && params.lastRiser == "есть" && marshPar.lastMarsh) {
+					var riserSideOffset = 20;
+					plateParams.width = par.a - params.riserThickness;
+					plateParams.dxfBasePoint = newPoint_xy(plateParams.dxfBasePoint, plateParams.width + 100, 0);
+					plateParams.dxfArr = dxfPrimitivesArr;
+					plateParams.notches = {
+						hasNothes: true,
+						botIn: { x: 0, y: 0 },
+						botOut: { x: 0, y: 0 },
+						topIn: { x: -params.riserThickness, y: riserSideOffset }, //отрицательный вырез это выступ
+						topOut: { x: -params.riserThickness, y: riserSideOffset },
+					}
+					
+					var tread = drawNotchedPlate(plateParams).mesh;
+					tread.rotation.x = Math.PI / 2;
+					tread.position.x = par.b * (par.stairAmt - 1);
+					tread.position.y = par.h * par.stairAmt - techDelta;
+					tread.position.z = - plateParams.len / 2;
+					drawRectTread = false;
+				}
+				
 			}
 
 			if (par.stairAmt == 1) {
@@ -671,6 +693,21 @@ function drawMarshTreads2(par) {
 				if (params.model == "лт" && params.topAnglePosition == "вертикальная рамка") {
 					plateParams.width = par.b + 40 - params.riserThickness;
 				}
+				
+				if (params.calcType == "mono" && params.lastRiser == "есть" && marshPar.lastMarsh) {
+					var riserSideOffset = 20;
+					plateParams.width = par.a - params.riserThickness;
+					plateParams.dxfBasePoint = newPoint_xy(plateParams.dxfBasePoint, plateParams.width + 100, 0);
+					plateParams.dxfArr = dxfPrimitivesArr;
+					plateParams.notches = {
+						hasNothes: true,
+						botIn: { x: 0, y: 0 },
+						botOut: { x: 0, y: 0 },
+						topIn: { x: -params.riserThickness, y: riserSideOffset }, //отрицательный вырез это выступ
+						topOut: { x: -params.riserThickness, y: riserSideOffset },
+					}
+				}
+
 				var tread = drawNotchedPlate(plateParams).mesh;
 				tread.rotation.x = Math.PI / 2;
 				tread.position.x = par.b * (par.stairAmt - 1);
@@ -811,32 +848,6 @@ function drawMarshTreads2(par) {
 				par.risers.add(riser);
 			}
 
-			// подступенок, закрывающий верхний фланец монокосоура
-			if (params.calcType == "mono" && marshPar.topTurn == "пол" && i == par.stairAmt - 1) {
-				var riserPar = {
-					len: plateParams.len,
-					width: par.h - techDelta * 2,
-					thk: 18,
-					dxfArr: [],
-					dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.M + 200, 0),
-				};
-
-				//отрисовка
-				riserPar = drawRectRiser(riserPar);
-				riser = riserPar.mesh;
-
-				riser.rotation.y = Math.PI / 2// * turnFactor;
-				riser.rotation.x = Math.PI / 2;
-				riser.position.x = tread.position.x - plateParams.width + params.nose + 0.01 + par.b - riserPar.thk;
-				if (!drawRectTread) riser.position.x += plateParams.width;
-				riser.position.y = tread.position.y - (par.h + params.treadThickness) + techDelta * 1.5 + par.h + params.treadThickness;
-				riser.position.z = tread.position.z;
-
-				//par.risers.add(riser);
-				par.treads.add(riser);
-			}
-
-
 			if (addToDxf) {
 				var text = "Ступени " + par.marshId + " марша";
 				var textHeight = 25;
@@ -856,13 +867,17 @@ function drawMarshTreads2(par) {
 		}
 	}
 
-	//последняя урезанная ступень
+	//накладка на перекрытие
 
-	//if (marshPar.lastMarsh && (params.topAnglePosition == "вертикальная рамка") && !params.calcType == "timber_stock") {
-	if (marshPar.lastMarsh && params.topAnglePosition == "вертикальная рамка") {
+	if (marshPar.lastMarsh && (params.topAnglePosition == "вертикальная рамка" || params.lastRiser == "есть")) {
 
 		//рассчитываем размеры поворота, зависящие от модели лестницы
 		var lastTreadWidth = setModelDimensions({ model: params.model, }).topStepDelta;
+		var riserThk = params.riserThickness;
+		var frameThk = 40;
+		if(params.calcType != "metal"){
+			frameThk = 0;
+		}
 
 		//ступень
 		var posX = par.endPos.x;
@@ -879,20 +894,26 @@ function drawMarshTreads2(par) {
 
 			var lastTread = drawPlate(plateParams).mesh;
 			lastTread.rotation.set(Math.PI * 0.5, 0, Math.PI * 0.5);
-			lastTread.position.x = par.endPos.x - par.b + params.riserThickness + 40; //40 - размер вертикальной рамки
+			lastTread.position.x = par.endPos.x - par.b + params.riserThickness + frameThk;
+			if(params.calcType == "mono") lastTread.position.x += par.a - params.riserThickness;
+				
 			if (par.stairAmt == 0) {
-				lastTread.position.x = par.endPos.x + params.riserThickness + 40;
+				lastTread.position.x = par.endPos.x + params.riserThickness + frameThk;
 				var marshPar = getMarshParams(par.marshId);
 				if (marshPar.botTurn == "забег") {
 					lastTread.position.x += params.lastWinderTreadWidth;
 					if (params.model == "ко") lastTread.position.x += -55 + params.nose;
 				}
+				if(params.calcType == "mono") lastTread.position.x -= params.riserThickness;
 			}
 			if (par.stairAmt == 1) {
 				lastTread.position.x = par.endPos.x + 80;
-				if (params.model == "ко")
+				if (params.model == "ко"){
 					lastTread.position.x = par.endPos.x + params.riserThickness + 90 - (50 - params.nose);
+				}
+				if(params.calcType == "mono") lastTread.position.x = par.endPos.x - par.b + par.a;
 			}
+			
 			lastTread.position.y = par.endPos.y;
 			lastTread.position.z = - plateParams.len / 2;
 			par.treads.add(lastTread);
@@ -910,14 +931,23 @@ function drawMarshTreads2(par) {
 			material: params.materials.riser,
 			partName: "riser",
 		};
-		if (params.calcType == "timber_stock") {
-			plateParams.width = par.h + 200;
-			plateParams.thk = params.treadThickness;
-			posX = par.endPos.x - par.b + params.treadThickness;
-			if (par.stairAmt < 2) {
-				posX = par.endPos.x + params.nose + plateParams.thk;
+		if(params.calcType != "metal"){
+			plateParams.width = par.h - params.treadThickness / 2;
+			if(params.calcType == "mono") {
+				if(typeof riserSideOffset == 'undefined') var riserSideOffset = 20;
+				plateParams.len -= riserSideOffset * 2;
+			}
+			
+			if (params.calcType == "timber_stock") {
+				plateParams.width = par.h + 200;
+				plateParams.thk = 40;
+				posX = par.endPos.x - par.b + params.treadThickness;
+				if (par.stairAmt < 2) {
+					posX = par.endPos.x + params.nose + plateParams.thk;
+				}
 			}
 		}
+		
 
 		var lastRiser = drawPlate(plateParams).mesh;
 		lastRiser.rotation.y = -Math.PI / 2;
@@ -925,8 +955,15 @@ function drawMarshTreads2(par) {
 		lastRiser.position.y = par.endPos.y - par.h - params.treadThickness;
 		if (params.calcType == "timber_stock") lastRiser.position.y = par.endPos.y - plateParams.width;
 		lastRiser.position.z = - plateParams.len / 2;
-
-		par.risers.add(lastRiser);
+		
+		if(params.calcType == "mono"){
+			lastRiser.position.x += 40;
+			lastRiser.position.y += params.treadThickness / 2;
+			par.treads.add(lastRiser);
+		}
+		else{
+			par.risers.add(lastRiser);
+		}
 
 		//подпись в dxf
 		var textHeight = 30;

@@ -17,7 +17,7 @@ $(function(){
 		window.service_data.additional_objects.splice(window.service_data.additional_objects.indexOf(item), 1);
 		redrawAdditionalObjects();
 	});
-	
+
 	//кнопка применить в модальном окне
 	$('#applyObjProps').click(function (e) {
 		var $form = $("#additionalObjectProperties")
@@ -42,7 +42,7 @@ $(function(){
 		}
 	});
 
-	
+
 	$('#redrawAdditionalObjects').click(function(){
 		redrawAdditionalObjects();
 	})
@@ -53,14 +53,14 @@ $(function(){
 		item.position.x = $(this).val();
 		redrawAdditionalObjects();
 	});
-	
+
 	$('body').on('change', '.additionalObjectPosY', function(){
 		var id = $(this).parents('.additionalObjectRow').data('object_id');
 		var item = getAdditionalObject(id);
 		item.position.y = $(this).val();
 		redrawAdditionalObjects();
 	});
-	
+
 	$('body').on('change', '.additionalObjectPosZ', function(){
 		var id = $(this).parents('.additionalObjectRow').data('object_id');
 		var item = getAdditionalObject(id);
@@ -160,7 +160,7 @@ function moveToPoint(id){
 		item.position.x = point.x;
 		item.position.y = point.y;
 		item.position.z = point.z;
-		
+
 		redrawAdditionalObjects();
 	}
 }
@@ -192,10 +192,10 @@ function setToHole(id){
 		if (wallLedgeBaseWall == 1) {
 			if(turnSide == 'правое' && wallLedgeBase == 'left' || turnSide == 'левое' && wallLedgeBase == 'right') pos.x = wallPositionX + wallLedgePosX;
 			if(turnSide == 'правое' && wallLedgeBase == 'right' || turnSide == 'левое' && wallLedgeBase == 'left') pos.x = wallPositionX + wallLength - wallLedgePosX - wallLedgeWidth;
-			
+
 			pos.z = wallPositionZ * turnFactor;
 			rot = 0;
-			
+
 			if(turnSide == 'левое') {
 				rot = 180;
 				pos.x += wallLedgeWidth;
@@ -204,7 +204,7 @@ function setToHole(id){
 		if(wallLedgeBaseWall == 2){
 			if(turnSide == 'правое' && wallLedgeBase == 'left' || turnSide == 'левое' && wallLedgeBase == 'right') pos.x = wallPositionX + wallLength - wallLedgePosX;
 			if(turnSide == 'правое' && wallLedgeBase == 'right' || turnSide == 'левое' && wallLedgeBase == 'left') pos.x = wallPositionX + wallLedgePosX + wallLedgeWidth;
-			
+
 			pos.z = wallPositionZ * turnFactor + wallLedgePosZ;
 			rot = 180;
 
@@ -214,9 +214,10 @@ function setToHole(id){
 			}
 		}
 		if(wallLedgeBaseWall == 3){
-			if(turnSide == 'правое' && wallLedgeBase == 'left' || turnSide == 'левое' && wallLedgeBase == 'right') pos.z = wallPositionZ + wallLedgePosX * turnFactor;
-			if(turnSide == 'правое' && wallLedgeBase == 'right' || turnSide == 'левое' && wallLedgeBase == 'left') pos.z = wallPositionZ + (wallLength - wallLedgePosX - wallLedgeWidth) * turnFactor;
-			if(turnSide == 'левое') pos.z -= wallLedgeWidth;
+			if(turnSide == 'правое' && wallLedgeBase == 'left') pos.z = wallPositionZ + wallLedgePosX * turnFactor;
+			if(turnSide == 'правое' && wallLedgeBase == 'right') pos.z = wallPositionZ + (wallLength - wallLedgePosX - wallLedgeWidth);
+			if(turnSide == 'левое' && wallLedgeBase == 'left') pos.z = -wallPositionZ - wallLength + wallLedgePosX;
+			if(turnSide == 'левое' && wallLedgeBase == 'right') pos.z = -wallPositionZ - wallLedgePosX -wallLedgeWidth;
 
 			pos.x = wallPositionX + wallLedgePosZ;
 			rot = 270;
@@ -241,7 +242,7 @@ function setToHole(id){
 		}
 
 		if (item.meshParams.wallThickness) item.meshParams.wallThickness = wallThickness;
-		
+
 		redrawAdditionalObjects();
 	}
 }
@@ -355,7 +356,7 @@ function additionalObjectModalShow(id){
 			text += this.title + ' <div class="meshParam meshParam_custom_parent imageSelector" name="' + this.key + '" type="custom_input">';
 			var key = this.key;
 			this.values.forEach(function(value){
-				text += '<image width="64px" height="64px" style="margin: 5px;" class="meshParam_custom ' + ((item.meshParams[key] == value.value) ? 'selected' : '') + '" data-value="' + value + '" src="' + value + '">';
+				text += '<image width="64px" height="64px" style="margin: 5px;" class="meshParam_custom ' + ((item.meshParams[key] == value.value) ? 'selected' : '') + '" data-value="' + value.value + '" src="' + value.preview + '">';
 			});
 			text += '</div>';
 		}
