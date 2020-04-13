@@ -81,6 +81,9 @@ function drawStaircase(viewportId, isVisible) {
 	var stairType = "timber";
 	if (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") stairType = "metal";
 
+	var isBolz = false;
+	if (params.model == "Винтовая" && params.railingModel == "Ригели") isBolz = true;
+
 	//параметры промежуточных креплений
 	midHoldersParams = {
 		pos: [],
@@ -261,6 +264,7 @@ function drawStaircase(viewportId, isVisible) {
 					treadParams.isDivide = true;
 				}
 			}
+			if (isBolz) treadParams.isDivide = false;
 
 			treadParams = drawVintTread(treadParams);
 			var tread = treadParams.mesh;
@@ -280,7 +284,6 @@ function drawStaircase(viewportId, isVisible) {
 		}
 
 	}
-
 
 	/*бобышки*/
 	if (params.model.indexOf("Спиральная") == -1) {
@@ -543,7 +546,7 @@ function drawStaircase(viewportId, isVisible) {
 
 	function addStringers() {}; //пустая фукнция для навигации
 
-	if (params.model != "Винтовая") {
+	if (params.model != "Винтовая" && params.model !== "Винтовая с больцами") {
 		var stringerMaterial = new THREE.MeshLambertMaterial({
 			color: 0x363636,
 			wireframe: false

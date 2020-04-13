@@ -284,6 +284,7 @@ function drawMarshRailing(par, marshId) {
 		mooveY = 90 + 0.01;
 		//sideOffset = (params.M - calcTreadLen()) / 2 + 40 + 10; // 40 - профиль больца
 		sideOffset = 40 + 10; // 40 - профиль больца
+		if (params.stairModel == "Прямая") sideOffset += params.M - calcTreadLen()
 	}
 
 	//внутренняя сторона
@@ -943,7 +944,8 @@ function drawRailingSectionNewel2(par) {
 				rackParams.showHoles = false;
 				rackParams.isBotFlan = false;
 				rackParams.isBolz = true;
-				if (marshPar.lastMarsh && i == racks.length - 1) rackParams.len -= 4; //4 - толщина шайбы
+				//if (marshPar.lastMarsh && i == racks.length - 1) rackParams.len -= 4; //4 - толщина шайбы
+				rackParams.len -= 4; //4 - толщина шайбы
 			}
 			if (params.banisterMaterial != "40х40 черн.") rackParams.material = params.materials.inox;
 
@@ -969,22 +971,23 @@ function drawRailingSectionNewel2(par) {
 
 				// на больцах, на последней стойки, из-за смещения стойки добавляем шайбы как на больцах
 				if (params.calcType === 'bolz' && par.key === "in") {
-					if (marshPar.lastMarsh && i == racks.length - 1) {
-						var bolzPar = {
-							marshId: par.marshId,
-							dxfBasePoint: par.dxfBasePoint,
-							h: par.h,
-							bolzProfile: rackProfile,
-							isRack: true,
-						}
+					//var bolzPar = {
+					//	marshId: par.marshId,
+					//	dxfBasePoint: par.dxfBasePoint,
+					//	h: par.h,
+					//	bolzProfile: rackProfile,
+					//	isRack: true,
+					//}
+					//if (marshPar.lastMarsh && i == racks.length - 1)
+					//	bolzPar.isRackWithoutBolz = true;
 
-						var bolz = drawBolz(bolzPar).mesh;
-						bolz.position.x = -rackProfile / 2;
-						bolz.position.y = -90 - bolzPar.shimThk;
-						rack.add(bolz);
+					//var bolz = drawBolz(bolzPar).mesh;
+					//bolz.position.x = -rackProfile / 2;
+					//bolz.position.y = -90 - bolzPar.shimThk;
+					//rack.add(bolz);
 
-						rack.position.y += bolzPar.shimThk;
-					}
+					rack.position.y += 4;
+					
 				}
 			}
 		} //конец стоек

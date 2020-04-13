@@ -10,6 +10,10 @@ function drawSpiralRailing(par) {
 	var treadExtraAngle = par.treadExtraAngle;
 	var regShimThk = 4
 
+	var stairType = "timber";
+	if (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") stairType = "metal";
+
+
 	var railingSection = new THREE.Object3D();
 	var handrail = new THREE.Object3D();
 	var rigels = new THREE.Object3D();
@@ -235,11 +239,17 @@ function drawSpiralRailing(par) {
 	/*стойки для ограждений с ригелями или стеклом на стойках*/
 
 	if (par.model == "Ригели" || par.model == "Стекло на стойках") {
+		var isBolz = false;
+		if (params.model !== "Винтовая с тетивой") isBolz = true;
+
+		//var banistrPositionAngle0 = treadExtraAngle - calcTriangleParams().treadOverlayAngle / 2 - par.startAngle;
+		//if (turnFactor == -1) banistrPositionAngle0 = banistrPositionAngle0 - stepAngle;
 
 		//считаем длину ограждения
 		par.railingLength = Math.sqrt((stepAngle * rad) * (stepAngle * rad) + stepHeight * stepHeight) * stairAmt;
 		var rackAmt = Math.ceil(par.railingLength / 900) + 1;
 		var topRackOffset = 0.3;
+		if (isBolz) topRackOffset = 0; 
 		var rackAngleDist = stepAngle * (stairAmt - topRackOffset) / (rackAmt - 1);
 		var rackDistY = stepHeight * (stairAmt - topRackOffset) / (rackAmt - 1);
 		var banisterProfileSize = 40;
@@ -247,6 +257,20 @@ function drawSpiralRailing(par) {
 		
 		var banisterPositionRad = rad + 0.1;
 		if (par.side == "in") banisterPositionRad = rad - banisterProfileSize - 0.1;
+		if (isBolz) banisterPositionRad -= banisterProfileSize + 5
+
+		if (isBolz) {
+			var stepRack = Math.ceil(stairAmt / rackAmt)
+			var rackDistY = stepHeight * stepRack;
+			var racksPos = [1];
+			for (var i = 0; i < rackAmt - 2; i++) {
+				var pos = stepRack * (i + 1);
+				if (stairAmt + 1 - pos > 1) racksPos.push(pos);
+			}
+			racksPos.push(stairAmt+1);
+
+			rackAmt = racksPos.length;
+		}
 
 		//var banisterPositionRad = params.staircaseDiam / 2 + 0.1;
 
@@ -267,6 +291,11 @@ function drawSpiralRailing(par) {
 			key: "out",
 		}
 
+		if (isBolz) {
+			rackParams.showPins = false;
+			rackParams.showHoles = false;
+		}
+
 		//угол верхнего кронштейна
 		var stepLen = Math.PI * par.rad * params.stepAngle / 180;		
 		rackParams.holderAng = -Math.atan(stairParams.stepHeight / stepLen)
@@ -274,16 +303,34 @@ function drawSpiralRailing(par) {
 		var modelTemp = params.model;
 		params.model = 'лт';
 		for (var i = 0; i < rackAmt; i++) {
-			if (i == 0) rackParams.len = longBanisterLength - 40;
-			if (i != 0) rackParams.len = longBanisterLength;
+			var dy = 0;
+			if (i == 0) {
+				dy = 40;
+				if (isBolz) dy = -10;
+			}
+			if (i != 0) dy = 0
+
+			if (isBolz) {
+				dy += stepHeight + 60 + 4;
+				if (par.stairType !== 'metal') {
+					var isShimDelta = params.regShimAmt * stepHeight > rackDistY * i - 40 + dy;
+					if (isShimDelta) dy -= 4;
+				}
+			}
+
+			rackParams.len = longBanisterLength - dy;
 
 			rackParams = drawRack3d_4(rackParams);
 
 			var rack = rackParams.mesh;
 			banistrPositionAngle = -rackAngleDist * i * turnFactor;
+			if (isBolz) {
+				banistrPositionAngle = -stepAngle * (racksPos[i] - 1) * turnFactor;
+			}
 			rack.position.x = banisterPositionRad * Math.cos(banistrPositionAngle);
-			rack.position.y = rackDistY * i + 50;
-			if (i == 0) rack.position.y += 40;
+			rack.position.y = rackDistY * i + 50 + dy;
+			if (isBolz) rack.position.y = stepHeight * (racksPos[i] - 1) + 50 + dy;
+			//if (i == 0) rack.position.y += 40;
 			rack.position.z = banisterPositionRad * Math.sin(banistrPositionAngle);
 			rack.rotation.y = Math.PI / 2 - banistrPositionAngle;
 			rack.castShadow = true;
@@ -291,9 +338,76 @@ function drawSpiralRailing(par) {
 		}
 		params.model = modelTemp;
 
+		/*больцы*/
+		if (isBolz) {
+			var bolzPar = {
+				marshId: 1,
+				dxfBasePoint: { x: 5000, y: 0, },
+				h: stepHeight,
+				bolzProfile: 40,
+				isRack: false,
+				isPlateTread: true,
+				lenPlateTread: 2 * rad * Math.sin(calcTriangleParams().treadAngle / 2) - 17.5,
+				angPlateTread: par.treadExtraAngle + calcTriangleParams().treadOverlayAngle / 2,
+			}
+
+			var rad = params.staircaseDiam / 2 - bolzPar.bolzProfile - 5;
+
+			//отрисовывамем больц
+			var posY = 0;
+			for (var i = 0; i < stairAmt + 1; i++) {
+				var mesh = new THREE.Object3D();
+				var mesh1 = new THREE.Object3D();
+
+				bolzPar.h = stepHeight;
+
+				var ang = -stepAngle * i * turnFactor;
+				if (stairType != "metal" && i <= params.regShimAmt) {
+					if (i !== params.regShimAmt) bolzPar.h += regShimThk;
+					if (i > 0) posY += regShimThk;
+				}
+
+				bolzPar.isFirst = false;
+				bolzPar.isRack = false;
+
+				if (i == 0) {
+					bolzPar.isFirst = true;
+				}
+
+				if (i == stairAmt) {
+					bolzPar.isPlateTread = false;
+				}
+
+				if (racksPos.indexOf(i+1) !== -1) {
+					bolzPar.isRack = true;
+				}
+
+				var bolz = drawBolz(bolzPar).mesh;
+				bolz.position.x = -20;
+				mesh1.add(bolz);
+
+				mesh1.position.x = rad * Math.cos(ang);
+				mesh1.position.z = rad * Math.sin(ang);
+				if (turnFactor == -1) {
+					mesh1.position.x += 40 * Math.cos(ang);
+					mesh1.position.z += 40 * Math.sin(ang);
+				}
+				mesh1.rotation.y = Math.PI / 2*turnFactor - ang;
+				mesh.add(mesh1);
+
+				mesh.position.y = posY;
+				mesh.castShadow = true;
+				railingSection.add(mesh);
+
+				posY += stepHeight;
+				if (stairType == "metal" && i < params.regShimAmt) posY += regShimThk;
+			}
+		}
+
 
 		//уголки для крепления ступеней
-		if (params.railingModel == "Частые стойки" || params.model != "Спиральная (косоур)") {
+		if (params.railingModel == "Частые стойки") {
+		//if (params.railingModel == "Частые стойки" || params.model != "Спиральная (косоур)") {
 			var angleGap = 0.1; //зазор чтобы проходили тесты
 			var angleParams = {
 				material: params.materials.metal2,

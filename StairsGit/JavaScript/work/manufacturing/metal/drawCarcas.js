@@ -374,7 +374,7 @@ function drawMarshStringers(par, marshId){
 	if (turnFactor == 1) posZIn -= params.stringerThickness;
 	
 	var posZOut = - (params.M / 2 - stringerParams.stringerSideOffset - calcStringerMoove(marshId).stringerOutMoove) * turnFactor;
-	if (turnFactor == -1) posZOut -= params.stringerThickness - 0.01
+	if (turnFactor == -1) posZOut -= params.stringerThickness  - 0.01
 	
 	var sideIn = "right";
 	var sideOut = "left";
@@ -388,6 +388,7 @@ function drawMarshStringers(par, marshId){
 		var temp = posZIn;
 		posZIn = posZOut;
 		posZOut = temp;
+		if (params.calcType == 'bolz') posZOut += (params.M - calcTreadLen()) * turnFactor;
 		
 		temp = sideIn;
 		sideIn = sideOut;
@@ -611,8 +612,7 @@ function drawMarshStringers(par, marshId){
 		var treadLen = calcTreadLen();
 		bolzs.position.z = (treadLen / 2 + (params.M - treadLen) / 2) * turnFactor;
 		if (params.stairModel == "Прямая")
-			bolzs.position.z *= -1;
-			//bolzs.position.z = -calcTreadLen() / 2 * turnFactor;
+			bolzs.position.z = (-treadLen / 2 + (params.M - treadLen) / 2) * turnFactor;
 		mesh.add(bolzs);
 
 		//перемычки

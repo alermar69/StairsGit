@@ -815,10 +815,10 @@ function drawTopStepMk_floor(par) {
 	var p1 = copyPoint(par.midUnitEnd);
 
 	// последняя проступь
-	var topStepWidth = par.b;
+	var topStepWidth = par.b - params.flanThickness;
 	if (params.model == "труба") topStepWidth -= params.treadPlateThickness;// * 2;
 	if (params.topAnglePosition == "под ступенью") {
-		topStepWidth -= params.flanThickness;
+		//topStepWidth -= params.flanThickness;
 		if (params.model == "труба") topStepWidth -= params.treadPlateThickness;
 	}
 

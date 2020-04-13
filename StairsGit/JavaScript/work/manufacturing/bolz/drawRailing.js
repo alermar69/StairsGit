@@ -1,4 +1,7 @@
 function calcRacksBolzs(par) {
+
+	if (!par.racks) par.racks = [];
+
 	//параметры марша
 	var marshPar = getMarshParams(par.marshId);
 	par.a = marshPar.a;

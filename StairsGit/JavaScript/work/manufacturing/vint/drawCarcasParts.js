@@ -666,10 +666,13 @@ function drawVintTreadShape(par) {
 		addRoundHole(treadShape, par.dxfArr, center2, holeRad, dxfBasePoint);
 	}
 	*/
-	
-	$.each(basePoints.balHoles, function(){
-        addRoundHole(treadShape, par.dxfArr, this, this.rad, dxfBasePoint);           
-    })
+
+	if (!(params.model == "Винтовая" && params.railingModel == "Ригели")) {
+		$.each(basePoints.balHoles,
+			function() {
+				addRoundHole(treadShape, par.dxfArr, this, this.rad, dxfBasePoint);
+			})
+	}
 
 
 	//подпись
@@ -3744,34 +3747,34 @@ function calcVintTreadPoints(treadAngle){
 	
 	points.balHoles = [];
 	
-	//отверстия под уголки балясины
-	
-	//отверстия под первую балясину
-	var holesOffset = 22; //отступ отверстий от внешней кромки ступени
-	var holeDst = 24; //расстояние между отверстиями в уголке
-	var holePosRad = stairRad - holesOffset; //радиус расположения отверстий
-	var dirAng = calcTriangleParams().treadOverlayAngle / 2 - extraAngle //угол направления на балясину
-	var deltAng = holeDst / 2 / holePosRad; //дельта угла из-за того, что в уголке 2 отверстия
+		//отверстия под уголки балясины
 
-	var holeRad = 2;
-	if (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") holeRad = 4;
-	var center1 = polar(points[0] , dirAng + deltAng, holePosRad)
-	var center2 = polar(points[0] , dirAng - deltAng, holePosRad)
-	center1.rad = center2.rad = holeRad;
-	points.balHoles.push(center1, center2)
+		//отверстия под первую балясину
+		var holesOffset = 22; //отступ отверстий от внешней кромки ступени
+		var holeDst = 24; //расстояние между отверстиями в уголке
+		var holePosRad = stairRad - holesOffset; //радиус расположения отверстий
+		var dirAng = calcTriangleParams().treadOverlayAngle / 2 - extraAngle //угол направления на балясину
+		var deltAng = holeDst / 2 / holePosRad; //дельта угла из-за того, что в уголке 2 отверстия
 
-	//отверстия под остальные стойки
-	var stepAngle = params.stepAngle / 180 * Math.PI;
-	var balAngle = stepAngle / params.banisterPerStep; //угол между балясинами
-	for (var i = 1; i < params.banisterPerStep + 1; i++) {
-		dirAng = dirAng + balAngle;
-		var center1 = polar(points[0] , dirAng + deltAng, holePosRad)
-		var center2 = polar(points[0] , dirAng - deltAng, holePosRad)
+		var holeRad = 2;
+		if (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") holeRad = 4;
+		var center1 = polar(points[0], dirAng + deltAng, holePosRad)
+		var center2 = polar(points[0], dirAng - deltAng, holePosRad)
 		center1.rad = center2.rad = holeRad;
 		points.balHoles.push(center1, center2)
-	}
+
+		//отверстия под остальные стойки
+		var stepAngle = params.stepAngle / 180 * Math.PI;
+		var balAngle = stepAngle / params.banisterPerStep; //угол между балясинами
+		for (var i = 1; i < params.banisterPerStep + 1; i++) {
+			dirAng = dirAng + balAngle;
+			var center1 = polar(points[0], dirAng + deltAng, holePosRad)
+			var center2 = polar(points[0], dirAng - deltAng, holePosRad)
+			center1.rad = center2.rad = holeRad;
+			points.balHoles.push(center1, center2)
+		}
 	
-	
+
 
 	return points;
 
@@ -4429,3 +4432,5 @@ function topCoverCentralHole(holeParams) {
 
 	return path;
 }
+
+

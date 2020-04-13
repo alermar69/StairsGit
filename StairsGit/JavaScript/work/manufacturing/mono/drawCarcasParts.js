@@ -1062,6 +1062,11 @@ function drawHorPlate(par) {
 		var center2 = newPoint_xy(p2, holeOffset, -holeOffset);
 		var center3 = newPoint_xy(p3, -holeOffset, -holeOffset);
 		var center4 = newPoint_xy(p4, -holeOffset, holeOffset);
+
+		if (par.isTopLast && params.lastRiser == "есть") {
+			center2.y -= params.riserThickness;
+			center3.y -= params.riserThickness;
+		}
 		
 		//Отмечаем тип зенковки, для свг
 		center1.holeData = {zenk: 'no'};
@@ -3288,7 +3293,7 @@ function drawMonoFlan(par) {
 			var flan = drawRectFlan2(flanPar).mesh;
 		}
 		if (params.topAnglePosition == "над ступенью") {
-			flanPar.heightBot = par.pointsShape[par.pointsShape.length - 2].y - par.pointsShape[par.pointsShape.length - 1].y - 2 * params.metalThickness - 5;
+			flanPar.heightBot = par.pointsShape[par.pointsShape.length - 2].y - par.pointsShape[par.pointsShape.length - 1].y - 1 * params.metalThickness - 5;
 			flanPar.widthBot = params.stringerThickness + 20;
 			var flan = drawFlanTop(flanPar).mesh;
 		}

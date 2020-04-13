@@ -11,8 +11,6 @@ function changeFormVint(){
 	if(params.model == "Винтовая"){
 		$("#columnDiam").closest("tr").show();
 		$("#railingSide").val("внешнее");
-		$("#railingModel").val("Частые стойки");
-		$("#railingModel option[value='Ригели']").hide();
 		$("#railingModel option[value='Стекло на стойках']").hide();
 		$("#railingModel option[value='Самонесущее стекло']").hide();
 		$("#rackType option[value='нержавейка+дуб']").hide();
@@ -20,7 +18,10 @@ function changeFormVint(){
 	if(params.model == "Винтовая с тетивой"){
 		$("#columnDiam").closest("tr").show();
 		if($("#railingSide").val() != "нет") $("#railingSide").val("внешнее");
-		}
+	}
+	if (params.model == "Винтовая" && params.railingModel == "Ригели") {
+		$("#treadThickness").val(60);
+	}
 	if (params.model == "Спиральная" || params.model == "Спиральная (косоур)"){
 		$("#M").closest("tr").show();
 	}

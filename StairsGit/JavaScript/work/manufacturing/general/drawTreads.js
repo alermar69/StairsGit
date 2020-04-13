@@ -93,7 +93,9 @@ function drawTreads() {
                 pltPar.len = params.middlePltLength + calcTurnParams(marshId).topStepDelta;
                 if (params.stairModel == 'Прямая горка') pltPar.len = params.middlePltLength - 5;
                 // pltPar.isP = true;
-            }
+			}
+
+
             //для деревянных из pltPar используются только параметры botMarshId и dxfBasePoint, размеры площадки считаются внутри
             pltPar = pltDrawFunction(pltPar);
 
@@ -441,6 +443,7 @@ function drawMarshTreads2(par) {
 
 	//параметры марша
 	var marshPar = getMarshParams(par.marshId);
+	var turnParams = calcTurnParams(marshPar.prevMarshId);
 
 	par.a = marshPar.a;
 	par.b = marshPar.b;
@@ -627,27 +630,49 @@ function drawMarshTreads2(par) {
 					if(plateParams.width - par.a < 3 && plateParams.width - par.a > 0) plateParams.width = par.a;
 				}
 				
-				if (params.calcType == "mono" && params.lastRiser == "есть" && marshPar.lastMarsh) {
-					var riserSideOffset = 20;
-					plateParams.width = par.a - params.riserThickness;
-					plateParams.dxfBasePoint = newPoint_xy(plateParams.dxfBasePoint, plateParams.width + 100, 0);
-					plateParams.dxfArr = dxfPrimitivesArr;
-					plateParams.notches = {
-						hasNothes: true,
-						botIn: { x: 0, y: 0 },
-						botOut: { x: 0, y: 0 },
-						topIn: { x: -params.riserThickness, y: riserSideOffset }, //отрицательный вырез это выступ
-						topOut: { x: -params.riserThickness, y: riserSideOffset },
+				if (params.calcType == "mono" && marshPar.lastMarsh) {
+					if (params.lastRiser !== "есть" && params.topAnglePosition == "над ступенью") {
+						var notchWidth = 280;
+						var depth = 10;
+						var riserSideOffset = (plateParams.len - notchWidth) / 2;
+						plateParams.width = par.a - depth;
+						plateParams.widthFull = par.a;
+						plateParams.notches = {
+							hasNothes: true,
+							botIn: { x: 0, y: 0 },
+							botOut: { x: 0, y: 0 },
+							topIn: { x: -depth, y: riserSideOffset }, //отрицательный вырез это выступ
+							topOut: { x: -depth, y: riserSideOffset },
+						}
+						drawRectTread = false;
+					}
+					if (params.lastRiser == "есть") {
+						var riserSideOffset = 20;
+						plateParams.width = par.a - params.riserThickness;
+						plateParams.widthFull = par.a;
+						plateParams.notches = {
+							hasNothes: true,
+							botIn: { x: 0, y: 0 },
+							botOut: { x: 0, y: 0 },
+							topIn: { x: -params.riserThickness, y: riserSideOffset }, //отрицательный вырез это выступ
+							topOut: { x: -params.riserThickness, y: riserSideOffset },
+						}
+						drawRectTread = false;
+					}
+					if (!drawRectTread) {
+						plateParams.dxfBasePoint = newPoint_xy(plateParams.dxfBasePoint, plateParams.width + 100, 0);
+						plateParams.dxfArr = dxfPrimitivesArr;
+
+						var tread = drawNotchedPlate(plateParams).mesh;
+						tread.rotation.x = Math.PI / 2;
+						tread.position.x = par.b * (par.stairAmt - 1);
+						tread.position.y = par.h * par.stairAmt - techDelta;
+						tread.position.z = - plateParams.len / 2;
 					}
 					
-					var tread = drawNotchedPlate(plateParams).mesh;
-					tread.rotation.x = Math.PI / 2;
-					tread.position.x = par.b * (par.stairAmt - 1);
-					tread.position.y = par.h * par.stairAmt - techDelta;
-					tread.position.z = - plateParams.len / 2;
-					drawRectTread = false;
 				}
 				
+
 			}
 
 			if (par.stairAmt == 1) {
@@ -693,20 +718,38 @@ function drawMarshTreads2(par) {
 				if (params.model == "лт" && params.topAnglePosition == "вертикальная рамка") {
 					plateParams.width = par.b + 40 - params.riserThickness;
 				}
-				
-				if (params.calcType == "mono" && params.lastRiser == "есть" && marshPar.lastMarsh) {
-					var riserSideOffset = 20;
-					plateParams.width = par.a - params.riserThickness;
+
+				if (params.calcType == "mono" && marshPar.lastMarsh) {
+					if (params.lastRiser !== "есть" && params.topAnglePosition == "над ступенью") {
+						var notchWidth = 280;
+						var depth = 10;
+						var riserSideOffset = (plateParams.len - notchWidth) / 2;
+						plateParams.width = par.a - depth;
+						plateParams.widthFull = par.a;
+						plateParams.notches = {
+							hasNothes: true,
+							botIn: { x: 0, y: 0 },
+							botOut: { x: 0, y: 0 },
+							topIn: { x: -depth, y: riserSideOffset }, //отрицательный вырез это выступ
+							topOut: { x: -depth, y: riserSideOffset },
+						}
+					}
+					if (params.lastRiser == "есть") {
+						var riserSideOffset = 20;
+						plateParams.width = par.a - params.riserThickness;
+						plateParams.widthFull = par.a;
+						plateParams.notches = {
+							hasNothes: true,
+							botIn: { x: 0, y: 0 },
+							botOut: { x: 0, y: 0 },
+							topIn: { x: -params.riserThickness, y: riserSideOffset }, //отрицательный вырез это выступ
+							topOut: { x: -params.riserThickness, y: riserSideOffset },
+						}
+					}
 					plateParams.dxfBasePoint = newPoint_xy(plateParams.dxfBasePoint, plateParams.width + 100, 0);
 					plateParams.dxfArr = dxfPrimitivesArr;
-					plateParams.notches = {
-						hasNothes: true,
-						botIn: { x: 0, y: 0 },
-						botOut: { x: 0, y: 0 },
-						topIn: { x: -params.riserThickness, y: riserSideOffset }, //отрицательный вырез это выступ
-						topOut: { x: -params.riserThickness, y: riserSideOffset },
-					}
 				}
+
 
 				var tread = drawNotchedPlate(plateParams).mesh;
 				tread.rotation.x = Math.PI / 2;
@@ -892,6 +935,9 @@ function drawMarshTreads2(par) {
 				partName: "tread",
 			};
 
+			if (par.stairAmt == 0 && marshPar.botTurn == "площадка")
+				plateParams.len += turnParams.topMarshOffsetX;
+
 			var lastTread = drawPlate(plateParams).mesh;
 			lastTread.rotation.set(Math.PI * 0.5, 0, Math.PI * 0.5);
 			lastTread.position.x = par.endPos.x - par.b + params.riserThickness + frameThk;
@@ -904,6 +950,10 @@ function drawMarshTreads2(par) {
 					lastTread.position.x += params.lastWinderTreadWidth;
 					if (params.model == "ко") lastTread.position.x += -55 + params.nose;
 				}
+				if (marshPar.botTurn == "площадка") {
+					lastTread.position.x -= turnParams.topMarshOffsetZ;
+					lastTread.position.z += turnParams.topMarshOffsetX / 2;
+				}
 				if(params.calcType == "mono") lastTread.position.x -= params.riserThickness;
 			}
 			if (par.stairAmt == 1) {
@@ -915,7 +965,7 @@ function drawMarshTreads2(par) {
 			}
 			
 			lastTread.position.y = par.endPos.y;
-			lastTread.position.z = - plateParams.len / 2;
+			lastTread.position.z += - plateParams.len / 2;
 			par.treads.add(lastTread);
 			posX = lastTread.position.x - 40;
 		}
@@ -930,7 +980,10 @@ function drawMarshTreads2(par) {
 			thk: params.riserThickness,
 			material: params.materials.riser,
 			partName: "riser",
+			holes: [],
 		};
+		if (par.stairAmt == 0 && marshPar.botTurn == "площадка")
+			plateParams.len += turnParams.topMarshOffsetX;
 		if(params.calcType != "metal"){
 			plateParams.width = par.h - params.treadThickness / 2;
 			if(params.calcType == "mono") {
@@ -947,14 +1000,28 @@ function drawMarshTreads2(par) {
 				}
 			}
 		}
-		
 
-		var lastRiser = drawPlate(plateParams).mesh;
+		var drawPlateRiser = drawPlate;
+		if (params.topAnglePosition == "над ступенью") {
+			drawPlateRiser = drawNotchRiser;
+			plateParams.notchWidth = 280;
+			plateParams.depth = 20;
+		}
+
+		var rad = 3;
+		var c1 = { center: { x: 50, y: plateParams.width - 40 }, rad: rad }
+		var c2 = { center: { x: plateParams.len - 50, y: plateParams.width - 40 }, rad: rad }
+		plateParams.holes.push(c1, c2);
+
+		var lastRiser = drawPlateRiser(plateParams).mesh;
 		lastRiser.rotation.y = -Math.PI / 2;
 		lastRiser.position.x = posX;
 		lastRiser.position.y = par.endPos.y - par.h - params.treadThickness;
 		if (params.calcType == "timber_stock") lastRiser.position.y = par.endPos.y - plateParams.width;
 		lastRiser.position.z = - plateParams.len / 2;
+		if (par.stairAmt == 0 && marshPar.botTurn == "площадка") {
+			lastRiser.position.z += turnParams.topMarshOffsetX / 2;
+		}
 		
 		if(params.calcType == "mono"){
 			lastRiser.position.x += 40;
@@ -970,6 +1037,16 @@ function drawMarshTreads2(par) {
 		var text = "Подступенок вертикальной рамки";
 		addText(text, textHeight, dxfPrimitivesArr, newPoint_xy(plateParams.dxfBasePoint, 0, -50));
 
+		//деревянные заглушки
+		for (var i = 0; i < plateParams.holes.length; i++) {
+			var plug = drawTimberPlug(rad * 2)
+			plug.position.y = plateParams.holes[i].center.y;
+			plug.position.x = plateParams.holes[i].center.x;
+			plug.position.z = plateParams.thk;
+			plug.rotation.x = Math.PI / 2;
+			lastRiser.add(plug);
+		}
+		
 
 	}
 
@@ -1028,12 +1105,46 @@ function drawPlatform2(par) {
 				if(i == 0) plateParams.holes = calcTimberStokPltHoles(plateParams.width, i == 0);
 				if(i == par.partsAmt - 1) plateParams.holes = calcTimberStokPltHoles(plateParams.width, i == 0);
 			}
-			var tread = drawPlate(plateParams).mesh;
-			tread.rotation.set(Math.PI * 0.5, 0, Math.PI * 0.5);
-			tread.position.x = (partLen + par.partsGap) * i + plateParams.width;
-			tread.position.y = 0.01;
-			tread.position.z = - calcTreadLen() / 2;
-			if (turnFactor == -1) tread.position.z = calcTreadLen() / 2 - plateParams.len;
+
+			var drawRectTread = true;
+			if (params.calcType == "mono") {
+				var marshParNext = getMarshParams(marshPar.nextMarshId);
+				if (marshParNext.lastMarsh && marshParNext.stairAmt == 0 && params.lastRiser == "есть") {
+					plateParams.riserSideOffset = 20;
+					plateParams.isBot = true;
+					if (i == par.partsAmt - 1) plateParams.isBot = false; 
+					if (params.lastRiser !== "есть" && params.topAnglePosition == "над ступенью") {
+						plateParams.depth = 10;
+						drawRectTread = false;
+					}
+					if (params.lastRiser == "есть") {
+						plateParams.depth = params.riserThickness;
+						drawRectTread = false;
+					}
+					if (!drawRectTread) {
+						plateParams.dxfBasePoint = newPoint_xy(plateParams.dxfBasePoint, plateParams.width + 100, 0);
+						plateParams.dxfArr = dxfPrimitivesArr;
+
+						var tread = drawNotchedPlatePlatform(plateParams).mesh;
+						tread.rotation.set(Math.PI * 0.5*turnFactor, 0, Math.PI * 0.5);
+						tread.position.x = (partLen + par.partsGap) * i + plateParams.width;
+						tread.position.y = 0.01;
+						tread.position.z = - calcTreadLen() / 2 * turnFactor;
+						if (turnFactor == -1) tread.position.y = -params.treadThickness;
+					}
+				}
+			}
+
+			if (drawRectTread) {
+				tread = drawPlate(plateParams).mesh;
+				tread.rotation.set(Math.PI * 0.5, 0, Math.PI * 0.5);
+				tread.position.x = (partLen + par.partsGap) * i + plateParams.width;
+				tread.position.y = 0.01;
+				tread.position.z = - calcTreadLen() / 2;
+				if (turnFactor == -1) tread.position.z = calcTreadLen() / 2 - plateParams.len;
+			}
+
+			
 			plateParams.dxfBasePoint.y += plateParams.width + 150;
 			
 			par.treads.add(tread);
@@ -1205,6 +1316,12 @@ function calcWndTread1Points(par){
 		var p2_n = newPoint_xy(p3_n, params.rackSize, 0);
 		var p1_n = newPoint_xy(p2_n, 0, -par.outNotch.y);
 	}
+	if (par.notchLastRiser) {
+		var p1_nlr = newPoint_xy(p1, 20, 0);
+		var p4_nlr = newPoint_xy(p4, -20, 0);
+		var p2_nlr = newPoint_xy(p1_nlr, 0, params.riserThickness);
+		var p3_nlr = newPoint_xy(p4_nlr, 0, params.riserThickness);
+	}
 	
 	var newellPosition = null;
 	var newellMod_1 = null;
@@ -1314,6 +1431,13 @@ function calcWndTread1Points(par){
 	if (p3_riserFix) points.push(p3_riserFix)
 	points.push(p3);
 	points.push(p4);
+
+	if (par.notchLastRiser) {
+		points.push(p4_nlr);
+		points.push(p3_nlr);
+		points.push(p2_nlr);
+		points.push(p1_nlr);
+	}
 
 	//учииываем направление поворота лестницы
 	for(var i=0; i<points.length; i++){
@@ -2459,7 +2583,10 @@ function drawWndTreadsMono(par) {
 		if (params.stairModel == "Г-образная с забегом") isLastTread = true;
 		if (params.stairModel != "Г-образная с забегом" && par.turnId == 2) isLastTread = true;
 		}
-	if (isLastTread) deltaLen = params.lastWinderTreadWidth - treadParams[3].stepWidthLow;
+	if (isLastTread) {
+		treadParams[3].notchLastRiser = true;
+		deltaLen = params.lastWinderTreadWidth - treadParams[3].stepWidthLow;
+	}
 
 	treadParams[3].stepWidthLow += deltaLen
 
@@ -3523,10 +3650,10 @@ function drawNotchedPlate(par){
 			}
 		
 		
-		var area = par.len * par.width / 1000000;
-		var paintedArea = area * 2 + (par.len + par.width) * 2 * par.thk / 1000000;
+		var area = par.len * par.widthFull / 1000000;
+		var paintedArea = area * 2 + (par.len + par.widthFull) * 2 * par.thk / 1000000;
 
-		var name = Math.round(par.len) + "x" + Math.round(par.width) + "x" + par.thk;
+		var name = Math.round(par.len) + "x" + Math.round(par.widthFull) + "x" + par.thk;
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
@@ -4437,3 +4564,255 @@ function calcNewellRiserLen(){
 
 }//end of calcNewellRiserLen
 
+function drawNotchRiser(par) {
+
+	//Необязательные параметры
+	if (!par.dxfArr) par.dxfArr = dxfPrimitivesArr;
+	if (!par.dxfBasePoint) {
+		par.dxfBasePoint = { x: 0, y: 0 },
+			par.dxfArr = [];
+	}
+	if (!par.material) par.material = params.materials.timber;
+	if (!par.layer) par.layer = "parts";
+
+
+	par.mesh = new THREE.Object3D();
+
+	var shape = new THREE.Shape();
+	var p1 = { x: 0, y: 0 }
+	var p2 = newPoint_xy(p1, 0, par.width);
+	var p3 = newPoint_xy(p1, par.len, par.width);
+	var p4 = newPoint_xy(p1, par.len, 0);
+
+	var points = [p1, p2, p3, p4];
+
+	//создаем шейп
+	var shapePar = {
+		points: points,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+	}
+
+	var shape = drawShapeByPoints2(shapePar).shape;
+
+	//отверстия
+	if (par.holes != undefined) {
+		for (var i = 0; i < par.holes.length; i++) {
+			addRoundHole(shape, par.dxfArr, par.holes[i].center, par.holes[i].rad, par.dxfBasePoint)
+		}
+	}
+
+	var extrudeOptions = {
+		amount: par.thk - par.depth,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var plate1 = new THREE.Mesh(geom, par.material);
+	plate1.position.z = par.depth;
+	par.mesh.add(plate1);
+
+	//-----------------------------------
+	var len = (par.len - par.notchWidth) / 2;
+	var p1 = { x: 0, y: 0 }
+	var p2 = newPoint_xy(p1, 0, par.width);
+	var p3 = newPoint_xy(p1, len, par.width);
+	var p4 = newPoint_xy(p1, len, 0);
+
+	var points = [p1, p2, p3, p4];
+
+	//создаем шейп
+	var shapePar = {
+		points: points,
+		dxfArr: [],
+		dxfBasePoint: par.dxfBasePoint,
+	}
+
+	var shape = drawShapeByPoints2(shapePar).shape;
+
+	////отверстия
+	//if (par.holes != undefined) {
+	//	for (var i = 0; i < par.holes.length; i++) {
+	//		addRoundHole(shape, par.dxfArr, par.holes[i].center, par.holes[i].rad, par.dxfBasePoint)
+	//	}
+	//}
+
+	var extrudeOptions = {
+		amount: par.depth,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var plate2 = new THREE.Mesh(geom, par.material);
+	par.mesh.add(plate2);
+
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var plate3 = new THREE.Mesh(geom, par.material);
+	plate3.position.x = len + par.notchWidth;
+	par.mesh.add(plate3);
+
+
+	var thk = par.thk;
+	par.partName = "riser"
+	if (typeof specObj != 'undefined' && par.partName) {
+		if (!specObj[par.partName]) {
+			specObj[par.partName] = {
+				types: {},
+				amt: 0,
+				name: "Подступенок с пазом",
+				area: 0,
+				paintedArea: 0,
+				metalPaint: false,
+				timberPaint: true,
+				division: "timber",
+				workUnitName: "amt",
+				group: "risers",
+			}
+
+		}
+		var area = par.len * par.width / 1000000;
+		var paintedArea = area * 2 + (par.len + par.width) * 2 * thk / 1000000;
+
+		var name = Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(thk);
+		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
+		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
+		specObj[par.partName]["amt"] += 1;
+		specObj[par.partName]["area"] += area;
+		specObj[par.partName]["paintedArea"] += paintedArea;
+	}
+
+	par.mesh.specId = par.partName + name;
+
+	return par;
+}
+
+/**
+ * функция возвращает пластину с вырезами по углам
+ * @param par
+ * @returns {*}
+ */
+function drawNotchedPlatePlatform(par) {
+
+    /*
+    par = {
+        len
+        width
+        thk
+        hasNothes: true,
+        notches: {
+            botIn: {x: 0, y:0},
+            botOut: {x: 0, y:0},
+            topIn: {x: 0, y:0},
+            topOut: {x: 0, y:0},
+			middle
+            }
+        dxfArr
+        dxfBasePoint
+        }
+    */
+
+	//пересчет внутренней/внешней стороны на правую/левую
+
+
+	var shape = new THREE.Shape();
+	var p1 = { x: 0, y: 0 }
+	var p2 = newPoint_xy(p1, 0, par.width);
+	if (!par.isBot) {
+		var p3 = newPoint_xy(p2, par.len - par.depth, 0);
+		var p4 = newPoint_xy(p3, 0, -par.width + par.riserSideOffset);
+		var p5 = newPoint_xy(p4, par.depth, 0);
+		var p6 = newPoint_xy(p1, par.len, 0);
+	}
+	else {
+		var p3 = newPoint_xy(p2, par.len, 0);
+		var p4 = newPoint_xy(p3, 0, -par.riserSideOffset);
+		var p5 = newPoint_xy(p4, -par.depth, 0);
+		var p6 = newPoint_xy(p1, par.len - par.depth, 0);
+	}
+	
+
+	var points = [p1, p2, p3, p4, p5, p6];
+
+	//создаем шейп
+	var shapePar = {
+		points: points,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+	}
+
+	var shape = drawShapeByPoints2(shapePar).shape;
+
+	//отверстия
+	if (par.holes != undefined) {
+		for (var i = 0; i < par.holes.length; i++) {
+			addRoundHole(shape, par.dxfArr, par.holes[i].center, par.holes[i].rad, par.dxfBasePoint)
+		}
+	}
+
+	var extrudeOptions = {
+		amount: par.thk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	par.mesh = new THREE.Mesh(geom, par.material);
+
+	//var extrudeOptions = {
+	//	amount: par.thk,
+	//	bevelEnabled: false,
+	//	curveSegments: 12,
+	//	steps: 1
+	//};
+
+	//var geometry = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	//geometry.rotateUV(Math.PI / 2);
+	//geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	//par.mesh = new THREE.Mesh(geometry, params.materials.tread);
+
+	//сохраняем данные для спецификации
+	var treadPar = getTreadParams(); //функция в файле calcSpecGeneral.js
+
+	var partName = "notchedTread";
+	if (typeof specObj != 'undefined' && params.stairType != "нет") {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				name: "Ступень с вырезами",
+				area: 0,
+				paintedArea: 0,
+				metalPaint: treadPar.metalPaint,
+				timberPaint: treadPar.timberPaint,
+				division: treadPar.division,
+				workUnitName: "amt",
+				group: "treads",
+			}
+		}
+
+
+		var area = par.len * par.width / 1000000;
+		var paintedArea = area * 2 + (par.len + par.width) * 2 * par.thk / 1000000;
+
+		var name = Math.round(par.len) + "x" + Math.round(par.width) + "x" + par.thk;
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		specObj[partName]["area"] += area;
+		specObj[partName]["paintedArea"] += paintedArea;
+	}
+	par.mesh.specId = partName + name;
+
+	return par;
+
+}//end of drawNotchedTread
