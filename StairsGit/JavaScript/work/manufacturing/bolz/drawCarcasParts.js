@@ -10,8 +10,8 @@ function drawBolzs(par) {
 	//var parRacks = { marshId: par.marshId, racks: [] }
 	var racks = calcRacksBolzs({ marshId: par.marshId }).racks;
 
-	var isRaling = marshPar.hasRailing.out;
-	if (params.stairModel == "Прямая") isRaling = marshPar.hasRailing.in;
+	var isRaling = marshPar.hasRailing.in;
+	//if (params.stairModel == "Прямая") isRaling = marshPar.hasRailing.in;
 
 
 	par.a = marshPar.a;
@@ -290,6 +290,7 @@ function drawBolz(par) {
 		shim.position.x = par.bolzProfile / 2;
 		shim.position.z = par.bolzProfile / 2;
 		shim.position.y = bolzPar.len + par.shimThk * 3 + params.treadThickness;
+		if (par.regShimThk) shim.position.y += par.regShimThk;
 		par.mesh.add(shim);
 
 		//шайба в стойке
@@ -302,7 +303,8 @@ function drawBolz(par) {
 		shim.rotation.x = Math.PI / 2;
 		shim.position.x = par.bolzProfile / 2;
 		shim.position.z = par.bolzProfile / 2;
-		shim.position.y = bolzPar.len + par.shimThk*3 + params.treadThickness + 5;
+		shim.position.y = bolzPar.len + par.shimThk * 3 + params.treadThickness + 5;
+		if (par.regShimThk) shim.position.y += par.regShimThk;
 		if (par.isFirst) shim.position.y += par.shimThk;
 		par.mesh.add(shim);
 
@@ -331,6 +333,7 @@ function drawBolz(par) {
 		if (par.isTurnLastBolz) stud.position.y -= par.h * 3;
 		if (par.isFirst) stud.position.y = studPar.len / 2 + par.shimThk + nutParams.nutHeight; 
 		if (par.isLast) stud.position.y = studPar.len + par.shimThk + nutParams.nutHeight; 
+		if (par.regShimThk) stud.position.y += par.regShimThk;
 		stud.position.z = par.bolzProfile / 2;
 		stud.position.x = par.bolzProfile / 2;
 		par.mesh.add(stud);
@@ -382,6 +385,48 @@ function drawBolz(par) {
 	}
 
 	if (par.isFirst) par.mesh.position.y -= par.shimThk;
+
+	if (par.regShimThk) {
+		if (par.regShimThk >= 2) {
+			var regShimThk = par.regShimThk;
+			var count2 = 0;
+			var count4 = 0;
+			if (regShimThk % 4 == 0) {
+				count4 = regShimThk / 4;
+			}
+			else {
+				count2 += 1;
+				regShimThk -= 2;
+				if (regShimThk >= 4) count4 = regShimThk / 4;
+			}
+
+			var posY = bolzPar.len + par.shimThk*2;
+			var shimPar = {
+				profile: 50,
+				thk: 2,
+				dxfBasePoint: par.dxfBasePoint,
+			}
+			for (var i = 0; i < count2; i++) {
+				var shim = drawShimBolz(shimPar).mesh;
+				shim.rotation.x = Math.PI / 2;
+				shim.position.x = par.bolzProfile / 2;
+				shim.position.y = posY + shimPar.thk;
+				shim.position.z = par.bolzProfile / 2;
+				par.mesh.add(shim);
+				posY += shimPar.thk;
+			}
+			for (var i = 0; i < count4; i++) {
+				shimPar.thk = 4;
+				var shim = drawShimBolz(shimPar).mesh;
+				shim.rotation.x = Math.PI / 2;
+				shim.position.x = par.bolzProfile / 2;
+				shim.position.y = posY + shimPar.thk;
+				shim.position.z = par.bolzProfile / 2;
+				par.mesh.add(shim);
+				posY += shimPar.thk;
+			}
+		}
+	}
 
 	return par;
 }//end of drawBolz
@@ -750,8 +795,8 @@ function drawPlateTreadBolz(par) {
 				group: "Каркас",
 			}
 		}
-		var name = 'без гайки ';
-		if (par.isRack) name = 'с гайкой '
+		var name = 'с гайкой ';
+		if (par.isRack) name = 'без гайки '
 		name += '4мм  ' + par.width +'xL=' + par.len;
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;

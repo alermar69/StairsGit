@@ -306,15 +306,14 @@ function drawSpiralRailing(par) {
 			var dy = 0;
 			if (i == 0) {
 				dy = 40;
-				if (isBolz) dy = -10;
+				if (isBolz) dy = -regShimThk * 2;
 			}
 			if (i != 0) dy = 0
 
 			if (isBolz) {
 				dy += stepHeight + 60 + 4;
-				if (par.stairType !== 'metal') {
-					var isShimDelta = params.regShimAmt * stepHeight > rackDistY * i - 40 + dy;
-					if (isShimDelta) dy -= 4;
+				if (stairType != "metal" && (racksPos[i] - 1) < params.regShimAmt) {
+					dy -= regShimThk * 2;
 				}
 			}
 
@@ -340,6 +339,7 @@ function drawSpiralRailing(par) {
 
 		/*больцы*/
 		if (isBolz) {
+			var triangleParams = calcTriangleParams();
 			var bolzPar = {
 				marshId: 1,
 				dxfBasePoint: { x: 5000, y: 0, },
@@ -347,8 +347,8 @@ function drawSpiralRailing(par) {
 				bolzProfile: 40,
 				isRack: false,
 				isPlateTread: true,
-				lenPlateTread: 2 * rad * Math.sin(calcTriangleParams().treadAngle / 2) - 17.5,
-				angPlateTread: par.treadExtraAngle + calcTriangleParams().treadOverlayAngle / 2,
+				lenPlateTread: 2 * rad * Math.sin(triangleParams.treadAngle / 2) - 17.5,
+				angPlateTread: (triangleParams.treadAngle - triangleParams.treadOverlayAngle) / 2,
 			}
 
 			var rad = params.staircaseDiam / 2 - bolzPar.bolzProfile - 5;
@@ -362,8 +362,11 @@ function drawSpiralRailing(par) {
 				bolzPar.h = stepHeight;
 
 				var ang = -stepAngle * i * turnFactor;
+
+				bolzPar.regShimThk = 0;
 				if (stairType != "metal" && i <= params.regShimAmt) {
-					if (i !== params.regShimAmt) bolzPar.h += regShimThk;
+					//if (i !== params.regShimAmt) bolzPar.h += regShimThk;
+					if (i !== params.regShimAmt) bolzPar.regShimThk = regShimThk;
 					if (i > 0) posY += regShimThk;
 				}
 

@@ -165,7 +165,7 @@
 				<option value="нет">нет</option>
 				<option value="есть">есть</option>
 			</select>
-		</td></tr>
+		</td></tr>		
 
 		</tbody> </table>
 
@@ -326,6 +326,15 @@
 					<option value="внутренняя">внутренняя</option>
 					<option value="две">две стороны</option>			
 				</select>
+		</td></tr>
+
+		<tr>
+			<td>Накладка на перекрытие:</td>
+				<td>
+					<select id="lastRiser" size="1" onchange="">
+						<option value="нет">нет</option>
+						<option value="есть">есть</option>
+					</select>
 		</td></tr>
 
 		</tbody> </table>
