@@ -1179,7 +1179,7 @@ function createMenu(){
 			});
 		}});
 
-		menu.addCheckbox({state: true, group: group, title: 'Прозр. Стены', callback: function(menuElement){
+		menu.addCheckbox({state: true, group: group, variableName: 'transparentWalls', title: 'Прозр. Стены', callback: function(menuElement){
 			var layers = ["wall1", "wall2", "wall3", "wall4", "topFloor", "ceil", "beamTop"]
 
 			view.scene.traverse(function(node){

@@ -675,3 +675,55 @@ function getUserDevicePar() {
 
 }
 
+/** функция возвращает количество и парамеры поворотов лестницы */
+function getTurnPar(){
+	var wndTurnAmt = 0;
+	var pltTurnAmt = 0
+	
+	if(params.stairModel == "Г-образная с площадкой" || 
+		params.stairModel == "П-образная с площадкой" || 
+		params.stairModel == "Прямая с промежуточной площадкой" || 
+		params.stairModel == "Прямая горка"){
+			pltTurnAmt = 1;
+	}	
+	if(params.stairModel == "Г-образная с забегом"){
+		wndTurnAmt = 1;
+	}
+	if(params.stairModel == "П-образная с забегом"){
+		wndTurnAmt = 2;
+	}
+	if (params.stairModel == "П-образная трехмаршевая") {
+		if (params.turnType_1 == "забег") {
+			wndTurnAmt += 1;				
+		}
+		if (params.turnType_1 == "площадка") {
+			pltTurnAmt = 1;
+		}
+		if (params.turnType_2 == "забег") {
+			wndTurnAmt += 1;			
+		}
+		if (params.turnType_2 == "площадка") {
+			pltTurnAmt = 1;
+		}			
+	}
+	
+	var countWndTread = 3; //кол-во забежных ступеней на поворот 90гр
+	if(params.model == "гнутый") countWndTread = params.countWndTread;
+	
+	var wndTreadAmt = countWndTread * wndTurnAmt;
+	var wndRiserAmt = (countWndTread - 1) * wndTurnAmt;
+	var pltAmt = pltTurnAmt;
+	var riserAmt = pltTurnAmt + wndTurnAmt;
+	
+	var result = {
+		wndTurnAmt: wndTurnAmt,
+		pltTurnAmt: pltTurnAmt,
+		countWndTread: countWndTread,
+		wndTreadAmt: wndTreadAmt,
+		wndRiserAmt: wndRiserAmt,
+		pltAmt: pltAmt,
+		riserAmt: riserAmt,
+	}
+	
+	return result;
+}

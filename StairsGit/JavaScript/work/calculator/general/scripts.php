@@ -84,7 +84,7 @@ $scripts = [
 	],
 	[
 		'url' => '/manufacturing/bolz/drawCarcasParts.js',
-		'only_for' => ['bolz'],
+		'only_for' => ['bolz', 'vint'],
 	],
 	[
 		'url' => '/manufacturing/bolz/drawRailing.js',
@@ -258,10 +258,6 @@ $scripts = [
 	],
 		[
 		'url' => '/manufacturing/vint/testing.js',
-		'only_for' => ['vint'],
-	],
-	[
-		'url' => '/manufacturing/bolz/drawCarcasParts.js',
 		'only_for' => ['vint'],
 	],
 	

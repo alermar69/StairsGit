@@ -865,6 +865,9 @@ function calcColumnParams(par, stringerParams){
 				}
 			}
 			top1.topAngle = calcAngleX1(pStart, pEnd);
+			
+			if (params.model == 'гнутый') top1.topAngle = marshParams.ang;
+
 			//Позиция рассчитывается в фун-ии calcColumnsPosition
 			var localPosX = columnPosition.top1.x - pStart.x;//Позиция учитывая только пластину
 			var localPos = localPosX * Math.cos(top1.topAngle);
@@ -3429,7 +3432,7 @@ function drawMonoFlan(par) {
 		//flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -flanPar.width - 100);
 		flanPar.dxfBasePoint.y -= flanPar.width + 100;
 
-		if (params.model == "сварной") {
+		if (params.model == "сварной" || params.model == "гнутый") {
 			//добавляем  отверстия по краям
 			flanPar.roundHoleCenters = [];
 			addHolesMonoFlan(flanPar);

@@ -123,3 +123,14 @@ function getLayersList(){
 return layers;
 	
 }
+
+function getLayersByGroup(group){
+	var allLayers = getLayersList();
+	var layers = [];
+	$.each(allLayers, function(key, item){
+		if (item.group == group) {
+			layers.push(key);
+		}
+	});
+	return layers;
+}

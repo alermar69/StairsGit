@@ -66,8 +66,12 @@ function calcPrice(){
 			
 			$row.find("input.сost").val(Math.round(cost * amt));
 			$row.find(".unitPrice").val(Math.round(cost * margin));
+			
+			$row.find(".metalPart").val(0);
+			$row.find(".timberPart").val(100);
+			$row.find(".partnersPart").val(0);
 		}
-		
+
 	//подстолья
 		if(type == "подстолье") {
 			var height = $row.find(".height").val() * 1.0
@@ -86,8 +90,12 @@ function calcPrice(){
 			
 			$row.find("input.сost").val(Math.round(cost * amt));
 			$row.find(".unitPrice").val(Math.round(cost * margin));
+			
+			$row.find(".metalPart").val(100);
+			$row.find(".timberPart").val(0);
+			$row.find(".partnersPart").val(0);
 		}
-		
+	
 	//коммерческая цена
 		
 		var amt = $row.find(".amt").val()

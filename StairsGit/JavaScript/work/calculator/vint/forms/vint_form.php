@@ -227,7 +227,6 @@
 					<td>Материал поручня:</td>
 					<td><select name="handrailMaterial" size="1" id="handrailMaterial" onchange="">
 							<option value="ПВХ">ПВХ Ф50</option>
-							<option value="Ф50 нерж.">Ф50 нерж.</option>
 							<option value="Дуб">Дуб 40х60</option>
 						</select>
 					</td>

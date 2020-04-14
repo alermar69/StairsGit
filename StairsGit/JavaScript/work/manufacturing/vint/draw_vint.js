@@ -253,6 +253,7 @@ function drawStaircase(viewportId, isVisible) {
 
 		//отрисовывамем винтовую ступень
 		var posY = stepHeight;
+		var vintTreadsObj = new THREE.Object3D();
 		for (var i = 0; i < stairAmt; i++) {
 
 			if (stairType != "metal" && i < regShimAmt && !treadParams.isMonoSpiral) posY += regShimThk;
@@ -274,7 +275,8 @@ function drawStaircase(viewportId, isVisible) {
 			tread.position.z = 0;
 			tread.castShadow = true;
 			//treads.push(tread);
-			model.add(tread, "treads");
+			// model.add(tread, "treads");
+			vintTreadsObj.add(tread);
 
 			posY += stepHeight;
 			if (stairType == "metal" && i < regShimAmt && !treadParams.isMonoSpiral) posY += regShimThk;
@@ -283,6 +285,8 @@ function drawStaircase(viewportId, isVisible) {
 			treadParams.dxfArr = dxfPrimitivesArr0;
 		}
 
+		model.add(vintTreadsObj, 'treads');
+		window.vintTreads = vintTreadsObj;
 	}
 
 	/*бобышки*/
@@ -1346,6 +1350,8 @@ function drawStaircase(viewportId, isVisible) {
 			moove.rot += Math.PI / 2;
 		}
 	}
+	
+	window.vintStaircaseMoove = moove;
 
 	for (var i = 0; i < model.objects.length; i++) {
 		var obj = model.objects[i].obj;
@@ -1359,7 +1365,6 @@ function drawStaircase(viewportId, isVisible) {
 		addObjects(viewportId, obj, model.objects[i].layer);
 
 	}
-
 
 	//измерение размеров на модели
 	addMeasurement(viewportId);

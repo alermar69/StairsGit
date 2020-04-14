@@ -3,19 +3,20 @@
 */
 
 function configEstimateForms(){
-	
+
 	$(".estimateItem").remove();
 	
 	$(".estimate").each(function(){
 		var amt = $(this).find('.rowAmt').val();
 		var estimateId = $(this).attr("id");
-		console.log(amt, estimateId)
+
 		for(var i = 0; i < amt; i++){
 			addRow(estimateId);
 		}
-		reindexTable()
+		
 	})
 	
+	reindexTable()
 }
 
 /** функция добавляет строку в таблицу работ или матреиалов
@@ -66,34 +67,30 @@ function addRow(estimateId){
 	addUnitParamsInputs($row);
 	configParamsInputs($row);
 	
-	reindexTable()
+	//reindexTable()
 };
 
 function reindexTable(){
 	$(".estimateItem").each(function(i){
 		$(this).find(".id").text(i+1);
 		$(this).find("input,select,textarea").each(function(){
-			$(this).attr('id', $(this).attr('class') + i)
+			$(this).attr('id', $(this).attr('class').split(' ')[0] + i)
 		});
 		//пересчитываем % работы подрядчиков
-		if($(this).find(".unitType").val() == "изделие"){
-			var parts = {
-				metal: $(this).find(".metalPart").val(),
-				timber: $(this).find(".timberPart").val(),
-			};
-			var partnersPart = 100;
-			$.each(parts, function(){
-				partnersPart -= this;
-			})
-			
-			$(this).find(".partnersPart").val(partnersPart)
-			if(partnersPart < 0) alert("ВНИМАНИЕ ОШИБКА! Отрицательная часть подрядчика! Проверьте цифры")
-		}
-		else{
-			$(this).find(".metalPart").val(0)
-			$(this).find(".timberPart").val(0)
-			$(this).find(".partnersPart").val()
-		}
+
+		var parts = {
+			metal: $(this).find(".metalPart").val(),
+			timber: $(this).find(".timberPart").val(),
+		};
+		var partnersPart = 100;
+		$.each(parts, function(){
+			partnersPart -= this;
+		})
+		
+		$(this).find(".partnersPart").val(partnersPart)
+		if(partnersPart < 0) alert("ВНИМАНИЕ ОШИБКА! Отрицательная часть подрядчика! Проверьте цифры")
+
+
 	})
 	
 	//кол-во элементов в таблицах
@@ -101,7 +98,7 @@ function reindexTable(){
 		var rowAmt = $(this).find(".estimateItem").length;
 		$(this).find(".rowAmt").val(rowAmt)
 	});
-	
+
 }
 
 /** функция рассчитывает процент монтажа в цене изделия

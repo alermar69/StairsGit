@@ -38,8 +38,8 @@ function draw3DDimensions(par){
 
 	if (params.calcType == 'timber') offsetEnd = 40;
 
-	//Ширина марша и высота проема
-	if (viewType == 'front' || viewType == 'top') {
+	//Ширина марша
+	if ((viewType == 'front' || viewType == 'top') && par.treadsObj) {
 		// ширина первого марша
 		var firstMarsh = new THREE.Object3D();
 		var firstMarshMeshes = treadsObj.treads.children.filter( function(o){return o.marshId == 1 && !o.isTurn});
@@ -166,7 +166,7 @@ function draw3DDimensions(par){
 	}
 
 	// размеры не прямой лестницы
-	if (params.stairModel !== 'Прямая') {
+	if (params.stairModel && params.stairModel !== 'Прямая') {
 		if (!additionalParams.hideTreadDimensions) {
 			//Размер ступени 1 марша
 			var treadDimensions = setTreadsDimensions(treadsObj, 1, viewType);
@@ -513,6 +513,52 @@ function draw3DDimensions(par){
 		}
 	}
 
+	if (params.calcType == 'vint' && window.vintStaircaseMoove) {
+		var dimPar = {
+			p1: {
+				x: window.vintStaircaseMoove.x,
+				y: params.staircaseHeight,
+				z: window.vintStaircaseMoove.z,
+			},
+			p2: {
+				x: window.vintStaircaseMoove.x,
+				y: params.staircaseHeight,
+				z: 0,
+			},
+			offset: 100,
+			basePlane: 'yz',
+			baseAxis: 'z',
+			dimSide: 'спереди'
+		}
+
+		if (viewType == 'top') dimPar.basePlane = 'xz';
+
+		var dim = drawDimension3D_2(dimPar).mesh;
+		mesh.add(dim);
+
+		var dimPar = {
+			p1: {
+				x: 0,
+				y: params.staircaseHeight,
+				z: window.vintStaircaseMoove.z,
+			},
+			p2: {
+				x: window.vintStaircaseMoove.x,
+				y: params.staircaseHeight,
+				z: window.vintStaircaseMoove.z,
+			},
+			offset: 100,
+			basePlane: 'xy',
+			baseAxis: 'x',
+			dimSide: 'спереди'
+		}
+
+		if (viewType == 'top') dimPar.basePlane = 'xz';
+
+		var dim = drawDimension3D_2(dimPar).mesh;
+		mesh.add(dim);
+	}
+
 	//Размеры для 3д
 	if (viewType == '3d') {
 		if (params.stairModel == 'Прямая') {
@@ -579,7 +625,7 @@ function draw3DDimensions(par){
 			}
 		}
 
-		if (params.stairModel !== 'Прямая') {
+		if (params.stairModel && params.stairModel !== 'Прямая') {
 			if (!additionalParams.hideTreadDimensions) {
 				//Размеры ступени
 				var treadDimensions = setTreadsDimensions(treadsObj, 1, "3d");
@@ -777,7 +823,7 @@ function draw3DDimensions(par){
 		}
 
 		// window.firstMarshSize = firstMarshSize;
-		if (params.stairModel != 'Прямая') {
+		if (params.stairModel && params.stairModel != 'Прямая') {
 			if(typeof secondMarshSize != 'undefined') window.secondMarshSize = secondMarshSize;
 			if(typeof thirdMarshSize != 'undefined') window.thirdMarshSize = thirdMarshSize;
 		}
@@ -991,7 +1037,7 @@ function drawFloorHoleDimensions(viewType){
 	if (viewType == 'left' && (params.stairModel == 'Г-образная с площадкой' || params.stairModel == 'Г-образная с забегом')){
 		dimPar.basePlane = 'yz';
 	}
-	if (viewType == 'front' && params.stairModel == 'Прямая') dimPar.basePlane = 'yz';
+	if (viewType == 'front' && params.stairModel == 'Прямая' || params.calcType == 'vint') dimPar.basePlane = 'yz';
 	if (viewType == 'front' && (params.stairModel == 'П-образная с площадкой' || params.stairModel == 'П-образная с забегом' || params.stairModel == 'П-образная трехмаршевая')) {
 		dimPar.basePlane = 'yz';
 		dimPar.dimSide = 'сзади';
@@ -1081,14 +1127,18 @@ function drawFloorHoleDimensions(viewType){
 	Функция устанавливает размеры для одного вида
 */
 function setDimensions(viewportId, viewType, callback, dimensionParams){
-	if(typeof treadsObj == 'undefined'){
+	if(typeof treadsObj == 'undefined' && params.calcType !== 'vint'){
 		console.log("Невозможно построить размеры, treadsObj нужно сделать глобальным!");
 		return;
 	}
 
-	var moove = calcStaircaseMoove(treadsObj.lastMarshEnd);
+	if (typeof treadsObj == 'undefined') {
+		var moove = {x:0,y:0,z:0, rot: 0};
+	}else{
+		var moove = calcStaircaseMoove(treadsObj.lastMarshEnd);
+	}
 	var dimensionsPar = {
-		treadsObj: treadsObj,
+		treadsObj: window.treadsObj,
 		view: viewType,
 		additionalParams: dimensionParams
 	};
@@ -1139,7 +1189,17 @@ makeDrawings = function(callback, dimensionParams){
 makeDrawing = function(viewportId, viewType, callback, dimensionParams){
 	removeObjects('vl_1', 'dimensions');
 	view.camera = new THREE.OrthographicCamera( view.width / - 0.25, view.width / 0.25, view.height / 0.25, view.height / - 0.25, -20000, 50000);
-	fitCameraToObject(treadsObj.treads, viewType);
+	if (typeof treadsObj == 'undefined') {
+		if (params.calcType == 'vint') {
+			var mainObj = window.vintTreads;
+		}else{
+			var mainObj = new THREE.Object3D();
+		}
+	}else{
+		var mainObj = treadsObj.treads;
+	}
+
+	fitCameraToObject(mainObj, viewType);
 	setDimensions(viewportId, viewType, callback, dimensionParams);
 	var floorView = viewType;
 	if (floorView == 'left' || floorView == 'right') floorView = 'side';
@@ -1150,12 +1210,12 @@ makeDrawing = function(viewportId, viewType, callback, dimensionParams){
 			floorView = 'front';
 		}
 	};
-	if (params.stairModel == 'Прямая') {
+	if (params.stairModel == 'Прямая' || params.calcType == 'vint') {
 		if (viewType == 'front'){
-			floorView = 'side';
-	 }else if ((viewType == 'left' || viewType == 'right')) {
-		 floorView = 'front';
-	 }
+				floorView = 'side';
+		}else if ((viewType == 'left' || viewType == 'right')) {
+			floorView = 'front';
+		}
 	}
 	addTopFloorGeom(floorView)
 	setTimeout(function () {
@@ -1248,6 +1308,7 @@ fitCameraToObject = function ( object, viewType ) {
 	//Масштаб изображения 1500 / maxDim примерно в притык
 	var scale = 1000 / maxDim;
 	if (params.calcType == 'timber_stock') scale = 800 / maxDim;
+	if (params.calcType == 'vint') scale = 800 / maxDim;
 	view.camera = new THREE.OrthographicCamera( view.width / - scale, view.width / scale, view.height / scale, view.height / - scale, -20000, 50000);
 
 	//Положения камер отличаются в зависимости от типа лестниц
@@ -1266,10 +1327,10 @@ fitCameraToObject = function ( object, viewType ) {
 		}
 	}
 
-	if (params.stairModel == 'Прямая' || params.stairModel == 'П-образная с площадкой' || params.stairModel == 'П-образная с забегом' || params.stairModel == 'П-образная трехмаршевая') {
+	if (params.calcType == 'vint' || params.stairModel == 'Прямая' || params.stairModel == 'П-образная с площадкой' || params.stairModel == 'П-образная с забегом' || params.stairModel == 'П-образная трехмаршевая') {
 		if (viewType == 'front') {
 			view.camera.position.set(5000, center.y, center.z);
-			if (params.stairModel == 'Прямая') {
+			if (params.stairModel == 'Прямая' || params.calcType == 'vint') {
 				view.camera.position.set(-5000, center.y, center.z);
 			}
 		}

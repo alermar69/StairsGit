@@ -210,6 +210,7 @@ function drawBolz(par) {
 			profile: 35,
 			thk: par.shimThk,
 			dxfBasePoint: par.dxfBasePoint,
+			isNotSpec: true,
 		}
 		var shim = drawShimBolz(shimPar).mesh;
 		shim.rotation.x = Math.PI / 2;
@@ -298,6 +299,7 @@ function drawBolz(par) {
 			profile: 35,
 			thk: par.shimThk,
 			dxfBasePoint: par.dxfBasePoint,
+			isNotSpec: true,
 		}
 		var shim = drawShimBolz(shimPar).mesh;
 		shim.rotation.x = Math.PI / 2;
@@ -345,6 +347,7 @@ function drawBolz(par) {
 			profile: 35,
 			thk: par.shimThk,
 			dxfBasePoint: par.dxfBasePoint,
+			isNotSpec: true,
 		}
 		var shim = drawShimBolz(shimPar).mesh;
 		shim.rotation.x = Math.PI / 2;
@@ -587,7 +590,7 @@ function drawShimBolz(par) {
 	//параметры для рабочего чертежа
 	if (!par.drawing) {
 		shapePar.drawing = {
-			name: "Шайба",
+			name: "Шайба больца",
 			group: "Bolzs",
 		}
 	}
@@ -612,17 +615,17 @@ function drawShimBolz(par) {
 	par.mesh.add(shim);
 
 	//сохраняем данные для спецификации
-	var partName = "shim_";
+	var partName = "bolzShim_";
 	if (typeof specObj != 'undefined' && !par.isNotSpec) {
 		if (!specObj[partName]) {
 			specObj[partName] = {
 				types: {},
 				amt: 0,
 				sumLength: 0,
-				name: "Шайба",
+				name: "Шайба больца",
 				metalPaint: true,
 				timberPaint: false,
-				division: "stock_1",
+				division: "stock_2",
 				workUnitName: "amt", //единица измерения
 				group: "Метизы",
 			}
@@ -634,7 +637,7 @@ function drawShimBolz(par) {
 
 		par.mesh.specId = partName + name;
 	}
-	
+
 
 	return par;
 }
@@ -667,22 +670,22 @@ function drawShimWeld(par) {
 	par.mesh.add(shim);
 
 	//сохраняем данные для спецификации
-	var partName = "shimWeld_";
+	var partName = "bolzShimWld_";
 	if (typeof specObj != 'undefined') {
 		if (!specObj[partName]) {
 			specObj[partName] = {
 				types: {},
 				amt: 0,
 				sumLength: 0,
-				name: "Шайба",
+				name: "Шайба больца сварная",
 				metalPaint: true,
 				timberPaint: false,
-				division: "stock_1",
+				division: "stock_2",
 				workUnitName: "amt", //единица измерения
 				group: "Метизы",
 			}
 		}
-		var name = 'сварная 8мм';
+		var name = '50х50';
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;

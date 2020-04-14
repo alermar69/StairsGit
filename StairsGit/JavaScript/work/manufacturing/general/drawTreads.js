@@ -1039,12 +1039,12 @@ function drawMarshTreads2(par) {
 
 		//деревянные заглушки
 		for (var i = 0; i < plateParams.holes.length; i++) {
-			var plug = drawTimberPlug(rad * 2)
+			var plug = drawTimberPlug(25)
 			plug.position.y = plateParams.holes[i].center.y;
 			plug.position.x = plateParams.holes[i].center.x;
 			plug.position.z = plateParams.thk;
 			plug.rotation.x = Math.PI / 2;
-			lastRiser.add(plug);
+			if (!testingMode) lastRiser.add(plug);
 		}
 		
 
@@ -3533,6 +3533,8 @@ function drawNotchedPlate(par){
         dxfBasePoint
         }
     */
+
+    if (!par.widthFull) par.widthFull = par.width;
    
     //пересчет внутренней/внешней стороны на правую/левую
 

@@ -208,6 +208,10 @@ class AdditionalObject extends THREE.Object3D {
 			{
 				className: 'Socket',
 				title: 'Розетка'
+			},
+			{
+				className: 'Ladder',
+				title: 'Лестница'
 			}
 		]
 	}

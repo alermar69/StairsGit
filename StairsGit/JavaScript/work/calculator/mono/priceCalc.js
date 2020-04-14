@@ -133,12 +133,17 @@ if (platformTop == "площадка") {
 	}
 	
 var stringerMeterPrice = 4500; //цена тетивы из листа за м2	
-if(params.model == "сварной") stringerMeterPrice *= 1.1
+if(params.model == "сварной" || params.model == "гнутый") stringerMeterPrice *= 1.1
 strigerPrice = stringerMeterPrice * stringerArea;
 stringerWeight = stringerArea * 62.4;
 
 if (params.stringerThickness > 200) strigerPrice = strigerPrice * 1.5;
 if (params.stringerThickness > 300) strigerPrice = strigerPrice * 1.5; //всего 2,25
+
+if(params.model == "гнутый") {
+	var turnPar = getTurnPar();
+	strigerPrice += 20000 * turnPar.wndTurnAmt + 2000 * turnPar.wndTreadAmt;
+}
 
 
 if(params.model == "сварной"){
@@ -184,13 +189,8 @@ if(params.model == "труба")treadPlatePrice = 500;
 	
 
 if (stairModel == "Прямая"){
-	if(params.model == "сварной"){
-		treadPlatesAmt += stairAmt1;
-		}
-	if(params.model == "труба"){
-		treadPlatesAmt += stairAmt1;
-		}
-	}
+	treadPlatesAmt += stairAmt1;
+}
 if (stairModel == "Г-образная с площадкой"){
 	if(params.model == "сварной"){
 		treadPlatesAmt += stairAmt1 + 3 + stairAmt3;
@@ -201,7 +201,7 @@ if (stairModel == "Г-образная с площадкой"){
 		}
 	}
 if (stairModel == "Г-образная с забегом"){
-	if(params.model == "сварной"){
+	if(params.model == "сварной" || params.model == "гнутый"){
 		treadPlatesAmt += stairAmt1 + 3 + stairAmt3;
 		}
 	if(params.model == "труба"){
@@ -218,7 +218,7 @@ if (stairModel == "П-образная с площадкой"){
 		}
 	}
 if (stairModel == "П-образная с забегом"){
-	if(params.model == "сварной"){
+	if(params.model == "сварной" || params.model == "гнутый"){
 		treadPlatesAmt += stairAmt1 + 6 + stairAmt3;
 		}
 	if(params.model == "труба"){
@@ -226,7 +226,7 @@ if (stairModel == "П-образная с забегом"){
 		}
 	}
 if (stairModel == "П-образная трехмаршевая"){
-	if(params.model == "сварной"){
+	if(params.model == "сварной" || params.model == "гнутый"){
 		treadPlatesAmt += stairAmt1 + 3 + stairAmt2 + 3 + stairAmt3;
 		}
 	if(params.model == "труба"){
@@ -240,7 +240,7 @@ if (stairModel == "П-образная трехмаршевая"){
 	}
 	
 if (platformTop == "площадка") {
-	if(params.model == "сварной"){
+	if(params.model == "сварной" || params.model == "гнутый"){
 		treadPlatesAmt += 3;
 		}
 	if(params.model == "труба"){
@@ -248,7 +248,7 @@ if (platformTop == "площадка") {
 		}
 	}	
 
-	if(params.model == "сварной"){
+	if(params.model == "сварной" || params.model == "гнутый"){
 		boltAmt = treadPlatesAmt * 4;
 		}
 	if(params.model == "труба"){
@@ -261,13 +261,13 @@ totalBoltPrice = boltAmt * boltPrice;
 totalFramePrice += framePrice * frameAmt;
 
 //расход материала
-if(params.model == "сварной"){
+	if(params.model == "сварной" || params.model == "гнутый"){
 		materials.sheet8.amt += treadPlatesAmt * 0.3 * 0.6;
-		}
+	}
 	if(params.model == "труба"){
 		materials.sheet2.amt += treadPlatesAmt * (0.3 * 0.6 + 0.2*0.6 + 0.3*0.2 * 2);
 		materials.prof_60_30.amt += frameAmt * 0.6 * 4;
-		}
+	}
 
 
 } //end of calcCarcasParts()
@@ -352,7 +352,7 @@ if(treadParams.riserPanelName) materials[riserPanelName].amt += treadParams.rise
 
 //наценка на сварной короб
 var carcasCostFactor = 1;
-if(params.model == "сварной") carcasCostFactor = 1.3;
+if(params.model == "сварной" || params.model == "гнутый") carcasCostFactor = 1.3;
 if(params.isCarcas == "нет") carcasCostFactor = 0;
 
 strigerPrice = strigerPrice * costMarkup * carcasCostFactor;

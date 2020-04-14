@@ -7,6 +7,7 @@ $(function () {
 	$(".addRow").click(function(){
 		var estimateId = $(this).closest('.estimate').attr("id");
 		addRow(estimateId);
+		reindexTable()
 		recalculate();
 	});
 	

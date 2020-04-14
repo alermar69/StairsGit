@@ -2543,7 +2543,7 @@ function calcTreadParams(){
 	if (wndRiserLength <= 1050) wndRiserLength = 1;
 	if (wndRiserLength > 1050) wndRiserLength = 1.5;
 	var wndRiserArea = wndRiserLength * riserWidth;
-
+	
 //верхняя площадка
 	var pltWidth = treadLength;
 	//пересчитываем ширину покрытия площадки с учетом длины доски дпк 4м
@@ -2561,63 +2561,15 @@ function calcTreadParams(){
 	
 	
 //подсчет количества деталей повротов
+	var turnPar = getTurnPar();
 	
-	var wndTreadAmt = 0;
-	var wndRiserAmt = 0;
-	var pltAmt = 0;
-	var riserAmt = 0;
-	
-	if(params.stairModel == "Г-образная с площадкой"){
-		pltAmt = 1;
-		riserAmt = 1;
-		}
-	if(params.stairModel == "Г-образная с забегом"){
-		wndTreadAmt = 3;		
-		wndRiserAmt = 2;
-		riserAmt = 1;			
-		}
-	if(params.stairModel == "П-образная с площадкой")	{
-		pltAmt = 1;
-		riserAmt = 1;
-		}
-	if(params.stairModel == "П-образная с забегом")	{
-		wndTreadAmt = 6;		
-		wndRiserAmt = 5;
-		riserAmt = 1;			
-		}
-	if (params.stairModel == "П-образная трехмаршевая") {
-		if (params.turnType_1 == "забег") {
-			wndTreadAmt += 3;			
-			wndRiserAmt = 2;
-			riserAmt = 1;				
-			}
-		if (params.turnType_1 == "площадка") {
-			pltAmt += 1;
-			riserAmt += 1;
-			}
-		if (params.turnType_2 == "забег") {
-			wndTreadAmt += 3;
-			wndRiserAmt += 2;
-			riserAmt += 1;				
-			}
-		if (params.turnType_2 == "площадка") {
-			pltAmt += 1;
-			riserAmt += 1;
-			}			
-		}
-		
-	if(params.stairModel == "Прямая с промежуточной площадкой" || params.stairModel == "Прямая горка")	{
-		pltAmt = 1;
-		riserAmt = 1;			
-		}
-		
 //площадь забежных деталей
-	treadShieldArea += pltShieldArea * pltAmt + wndTreadArea * wndTreadAmt;
-	paintedArea += (pltShieldArea * pltAmt + wndTreadArea * wndTreadAmt) * 2; //приблизительная формула
+	treadShieldArea += pltShieldArea * turnPar.pltAmt + wndTreadArea * turnPar.wndTreadAmt;
+	paintedArea += (pltShieldArea * turnPar.pltAmt + wndTreadArea * turnPar.wndTreadAmt) * 2; //приблизительная формула
 
 	if(params.riserType != "нет"){
-		riserShieldArea += wndRiserArea * wndRiserAmt + riserArea * riserAmt;	
-		paintedArea += (wndRiserArea * wndRiserAmt + riserArea * riserAmt) * 2; //приблизительная формула
+		riserShieldArea += wndRiserArea * turnPar.wndRiserAmt + riserArea * turnPar.riserAmt;	
+		paintedArea += (wndRiserArea * turnPar.wndRiserAmt + riserArea * turnPar.riserAmt) * 2; //приблизительная формула
 		}
 
 //вертикальная рамка
@@ -2659,6 +2611,8 @@ var stairType = params.stairType;
 //деревянные ступени
 var treadsPanelName = calcTimberParams(params.treadsMaterial).treadsPanelName;
 var riserPanelName = calcTimberParams(params.risersMaterial).riserPanelName;
+//толстые ступени
+if(params.treadThickness > 41) riserPanelName = calcTimberParams(params.treadsMaterial).riserPanelName;
 var skirtingPanelName = calcTimberParams(params.skirtingMaterial).riserPanelName;
 var treadMeterPrice = calcTimberParams(params.treadsMaterial).m2Price_40;
 var riserMeterPrice = calcTimberParams(params.risersMaterial).m2Price_20;
@@ -2766,7 +2720,7 @@ if(params.treadThickness > 41){
 	if(params.treadThickness > 101){
 		treadsTotalPrice *= 4;
 		timberPaintPrice *= 2;
-		treadShieldArea *= 4;
+		treadShieldArea *= 3;
 		paintedArea *= 1.5;
 	}
 }
@@ -2798,7 +2752,7 @@ if(params.treadLigts == "есть") treadLigtsCost = 25000;
 		isTimberPaint: isTimberPaint,
 		treadLigtsCost: treadLigtsCost,
 		}
-		
+
 	return par; 
 
 

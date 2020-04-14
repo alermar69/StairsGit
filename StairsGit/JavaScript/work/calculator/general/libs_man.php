@@ -47,6 +47,7 @@
 <script type="text/javascript" src="/calculator/general/scene/objects/tv.js"></script>
 <script type="text/javascript" src="/calculator/general/scene/objects/lustre.js"></script>
 <script type="text/javascript" src="/calculator/general/scene/objects/wallLamp.js"></script>
+<script type="text/javascript" src="/calculator/general/scene/objects/ladder.js"></script>
 
 <!--другая библиотека polygon triangulation-->
 <script type="text/javascript" src="/calculator/general/three_libs/earcut.js"></script>

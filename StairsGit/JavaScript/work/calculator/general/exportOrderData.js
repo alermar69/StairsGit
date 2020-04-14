@@ -145,70 +145,124 @@ function getExportData_com(checkSumm){
 		
 	};
 	
+	if(params.calcType == "slabs"){
+		var price_data = {};
+		var discountFactor = staircasePrice.finalPrice / staircasePrice.total;
+		$(".estimateItem").each(function(){
+			var id = $(this).find(".id").text();
+
+			price_data[id] = {
+				name: $(this).find(".name").val(),
+				price: $(this).find(".summ").text() * discountFactor,
+				metalPaint: 0,
+				timberPaint: 0,
+			};
+			
+			//распределение по участкам
+			price_data[id].production = price_data[id].price;
+			price_data[id].assembling = 0;
+			price_data[id].delivery = 0;
+			
+			if($(this).find(".unitType").val() == "сборка"){
+				price_data[id].production = 0;
+				price_data[id].assembling = price_data[id].price;
+				price_data[id].delivery = 0;
+			}
+			if($(this).find(".unitType").val() == "доставка"){
+				price_data[id].production = 0;
+				price_data[id].assembling = 0;
+				price_data[id].delivery = price_data[id].price;
+			}
+			
+		});
+		
+	};
+
 	
 	//исправляем пустые значения
 	for(var unit in price_data){
 		if(!price_data[unit]['price']) price_data[unit]['price'] = 0;	
 	}
 	
+	if(params.calcType != "slabs" && params.calcType != "custom"){
+		//подсчитываем общие данные
+		price_data.main = 
+			{
+			price: 0,
+			metalPaint: 0,
+			timberPaint: 0,
+			production: 0,
+			assembling: staircasePrice.assemblingFinal,
+			};
 		
-	//подсчитываем общие данные
-	price_data.main = 
-		{
-		price: 0,
-		metalPaint: 0,
-		timberPaint: 0,
-		production: 0,
-		assembling: staircasePrice.assemblingFinal,
-		};
-	
-	if(!price_data.main.assembling) price_data.main.assembling = 0;
-	for(var unit in price_data){
-		if(unit != "main"){
-			var totalPrice = 0;
-			for(var pricePart in price_data[unit]){
-				if(pricePart != "name" && pricePart != "stage"){
-					//исправляем некорректные значения
-					if(!price_data[unit][pricePart]) price_data[unit][pricePart] = 0;
-					//подсчитываем общую сумму по каждому пункту
-					totalPrice += price_data[unit][pricePart];
-					//подсчитываем общие данные по заказу
-					price_data.main[pricePart] += price_data[unit][pricePart];
-					price_data.main.production += price_data[unit][pricePart];
-					}
-				};
-			price_data[unit].production = totalPrice;			
-			};
-		};
-	//распределяем монтаж пропорционально между всеми позициями
-
-	var assemblingSum = 0; //контрольная сумма
-	for(var unit in price_data){
-		if(unit != "main"){
-			price_data[unit].assembling = staircasePrice.assemblingFinal * (price_data[unit].production / price_data.main.production);
-			//округляем сумму монтажа
-			price_data[unit].assembling = Math.round(price_data[unit].assembling);
-			if(!price_data[unit].assembling) price_data[unit].assembling = 0;
-			assemblingSum += price_data[unit].assembling;
-			};
-		};
-	
-	//исправляем ошибку округления сумм монтажа про разным узлам
-	if(staircasePrice.assemblingFinal != assemblingSum){
-		//добавляем разницу в первый ненулевой пункт
+		if(!price_data.main.assembling) price_data.main.assembling = 0;
 		for(var unit in price_data){
-			if(unit != "main" && price_data[unit].assembling){
-				price_data[unit].assembling += staircasePrice.assemblingFinal - assemblingSum;
-				break;
+			if(unit != "main"){
+				var totalPrice = 0;
+				for(var pricePart in price_data[unit]){
+					if(pricePart != "name" && pricePart != "stage"){
+						//исправляем некорректные значения
+						if(!price_data[unit][pricePart]) price_data[unit][pricePart] = 0;
+						//подсчитываем общую сумму по каждому пункту
+						totalPrice += price_data[unit][pricePart];
+						//подсчитываем общие данные по заказу
+						price_data.main[pricePart] += price_data[unit][pricePart];
+						price_data.main.production += price_data[unit][pricePart];
+						}
+					};
+				price_data[unit].production = totalPrice;			
+				};
 			};
-		};
-	}
-	
-	//доставка
-	
-	price_data.main.delivery = staircasePrice.delivery;
-	if(!price_data.main.delivery) price_data.main.delivery = 0;
+		//распределяем монтаж пропорционально между всеми позициями
 
+		var assemblingSum = 0; //контрольная сумма
+		for(var unit in price_data){
+			if(unit != "main"){
+				price_data[unit].assembling = staircasePrice.assemblingFinal * (price_data[unit].production / price_data.main.production);
+				//округляем сумму монтажа
+				price_data[unit].assembling = Math.round(price_data[unit].assembling);
+				if(!price_data[unit].assembling) price_data[unit].assembling = 0;
+				assemblingSum += price_data[unit].assembling;
+				};
+			};
+		
+		//исправляем ошибку округления сумм монтажа про разным узлам
+		if(staircasePrice.assemblingFinal != assemblingSum){
+			//добавляем разницу в первый ненулевой пункт
+			for(var unit in price_data){
+				if(unit != "main" && price_data[unit].assembling){
+					price_data[unit].assembling += staircasePrice.assemblingFinal - assemblingSum;
+					break;
+				};
+			};
+		}
+		
+		//доставка
+		
+		price_data.main.delivery = staircasePrice.delivery;
+		if(!price_data.main.delivery) price_data.main.delivery = 0;
+
+	}
+	if(params.calcType == "slabs"){
+		price_data.main = {
+			price: staircasePrice.total,
+			metalPaint: 0,
+			timberPaint: 0,
+			production: 0,
+			assembling: 0,
+			delivery: 0,
+		}
+		var discountFactor = staircasePrice.finalPrice / staircasePrice.total;
+		$("#estimate_mat .estimateItem").each(function(){
+			price_data.main.production += $(this).find(".summ").text() * discountFactor;
+		})
+		$("#estimate_works .estimateItem").each(function(){
+			var dept = "assembling"
+			if($(this).find(".unitType").val() == "доставка") dept = "delivery";
+			price_data.main[dept] += $(this).find(".summ").text() * discountFactor;
+		})
+	};
+	
 	if(params.calcType == "custom"){
 		price_data.main = {
 			price: staircasePrice.total,
@@ -387,6 +441,25 @@ function getExportData_com(checkSumm){
 			description += " " + type + " " + Math.round(types[type].len * 10) / 10 + " м.п. (" + types[type].amt + " секц.)";
 			}
 		}
+		
+	if(params.calcType == "slabs"){
+		description = "";
+		//подсчитываем кол-во изделий каждого типа
+		var unitTypes = {};
+		$(".estimateItem").each(function(){
+			var $row = $(this);
+			var type = $row.find(".unitType").val()
+			var amt = $row.find(".amt").val()
+			if(!unitTypes[type]) unitTypes[type] = 0;
+			unitTypes[type] += amt * 1.0;
+		});
+		
+		//формируем описание		
+		for(var key in unitTypes){
+			description += key + ": " + unitTypes[key] + " шт; "
+		};
+		description += "Покраска дерева " + params.timberPaint;
+	}
 	
 			
 	if(staircaseHasUnit().banister) description += ", Балюстрада " + params.railingModel_bal + " " + calcBanisterLen() + "м.п. ";
@@ -413,7 +486,7 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		assembling: price_data.main.assembling + price_data.main.delivery,
 		}
 	
-	if(params.calcType != "vint" && params.calcType != "custom"){
+	if(params.calcType != "vint" && params.calcType != "custom" && params.calcType != "slabs"){
 		if(params.calcType != "railing"){
 			//каркас
 			if(params.calcType.indexOf("timber") == -1) dept_data.metal += price_data.carcas.production;
@@ -463,7 +536,7 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		}
 
 	//балюстрада
-	if(params.calcType != "railing" && params.calcType != "custom"){
+	if(params.calcType != "railing" && params.calcType != "custom" && params.calcType != "slabs"){
 		var metal = staircasePrice.banister_metal + price_data.banister.metalPaint;
 		var timber = staircasePrice.banister_timber + price_data.banister.timberPaint;
 		var partners = staircasePrice.banister_glass;
@@ -487,6 +560,20 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		dept_data.partners = staircasePrice.partners;
 	}
 	
+	if(params.calcType == "slabs"){		
+		var discountFactor = staircasePrice.finalPrice / staircasePrice.total;
+		dept_data.metal = 0
+		dept_data.timber = 0
+		dept_data.partners = 0
+		
+		$("#estimate_mat .estimateItem").each(function(){
+			var sum = $(this).find(".summ").text() * discountFactor;
+			dept_data.metal += sum * $(this).find(".metalPart").val() / 100;
+			dept_data.timber += sum * $(this).find(".timberPart").val() / 100;
+			dept_data.partners += sum * $(this).find(".partnersPart").val() / 100;
+		})
+	}
+
 	//проверка
 	var deptsSum = dept_data.metal + dept_data.timber + dept_data.partners;
 	if(Math.abs(deptsSum - price_data.main.production) > 1 && checkPrice){
@@ -941,7 +1028,15 @@ function printExportData(data, outputDivId){
 		"Доставка, монтаж: " + Math.round(dept_data.assembling) + "<br/>" + 
 		"<b>Всего: " + Math.round(dept_data.metal + dept_data.timber + dept_data.partners + dept_data.assembling) + "</b><br/><br/>";
 		
-		
+	//данные по материалам
+	
+	var printPar={
+		list: data.materials_data,
+		noPrint: true,
+	}
+	text += "<br/><b>Потребность в материалах: </b> </br>" + 
+		printMaterialsNeed(printPar).text;
+				
 	$("#" + outputDivId).html(text);
 
 }
