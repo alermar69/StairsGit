@@ -351,7 +351,16 @@ function configParamsInputs($row){
 		$row.find(".countertop").show();
 		var model = $row.find(".model").val();
 		if(model == "слэб + смола непрозр." || model == "слэб + смола прозр.") $row.find(".resin").show();			
-		if(model == "слэб + стекло") $row.find(".glass").show();			
+		if(model == "слэб + стекло") $row.find(".glass").show();
+		//толщина слэбов
+		if(model.indexOf("слэб") != -1){
+			if(model == "слэб цельный") {
+				$row.find(".thk").val(60);
+			}
+			else {
+				$row.find(".thk").val(40);
+			}
+		}
 	}
 	
 	if(type == "подстолье") $row.find(".tableBase").show();
@@ -359,5 +368,7 @@ function configParamsInputs($row){
 	if(type == "фасад мдф" || type == "фасад массив") $row.find(".facade").show();
 	
 	if(!$row.find(".name").val()) $row.find(".name").val(type)
+	
+	
 		
 }

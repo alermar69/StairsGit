@@ -895,57 +895,7 @@ function drawCornerShelf(par){
 	
 }
 
-function drawArcPanel(par){
 
-/*
-функция отрисовывает радиусную панель
-rad //радиус на оси панели
-height
-thk
-angle
-layer
-*/
-
-var shape = new THREE.Shape();
-	var p0 = {x: 0, y: 0} //центр дуг
-	
-	//нижний внутренний угол
-	var p1 = newPoint_xy(p0, par.rad - par.thk / 2, 0);
-	//нижний внешний угол
-	var p2 = newPoint_xy(p1, par.thk, 0)	
-	//верхний внешний угол
-	var p3 = polar(p0, par.angle, par.rad + par.thk / 2);
-	//верхний нижний угол
-	var p4 = polar(p0, par.angle, par.rad - par.thk / 2);
-
-	if(!par.layer) par.layer = "parts";
-
-	addLine(shape, dxfPrimitivesArr, p2, p1, par.dxfBasePoint, par.layer);
-	addArc2(shape, dxfPrimitivesArr, p0, par.rad - par.thk / 2, par.angle, 0, false, par.dxfBasePoint, par.layer);
-	addLine(shape, dxfPrimitivesArr, p4, p3, par.dxfBasePoint, par.layer);
-	addArc2(shape, dxfPrimitivesArr, p0, par.rad + par.thk / 2,  par.angle, 0, true, par.dxfBasePoint, par.layer);
-	
-	/*
-	addLine(shape, dxfPrimitivesArr, p1, p2, par.dxfBasePoint, par.layer);
-	addArc2(shape, dxfPrimitivesArr, p0, par.rad + par.thk / 2, 0, par.angle, false, par.dxfBasePoint, par.layer);
-	addLine(shape, dxfPrimitivesArr, p3, p4, par.dxfBasePoint, par.layer);
-	addArc2(shape, dxfPrimitivesArr, p0, par.rad - par.thk / 2, par.angle, 0, true, par.dxfBasePoint, par.layer);
-	*/
-	
-	var treadExtrudeOptions = {
-		amount: par.height, 
-		bevelEnabled: false,
-		curveSegments: 12,
-		steps: 1
-		};
-		
-	var geom = new THREE.ExtrudeGeometry(shape, treadExtrudeOptions);
-	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	par.mesh = new THREE.Mesh(geom, par.material);
-	
-	return par;
-
-};
 
 function drawDoorProf(par){
 	

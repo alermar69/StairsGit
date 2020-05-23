@@ -14,7 +14,7 @@ $(function(){
 		$(this).parents('.additionalObjectRow').remove();
 		var id = $(this).parents('.additionalObjectRow').data('object_id');
 		var item = getAdditionalObject(id);
-		window.service_data.additional_objects.splice(window.service_data.additional_objects.indexOf(item), 1);
+		window.additional_objects.splice(window.additional_objects.indexOf(item), 1);
 		redrawAdditionalObjects();
 	});
 
@@ -46,6 +46,13 @@ $(function(){
 	$('#redrawAdditionalObjects').click(function(){
 		redrawAdditionalObjects();
 	})
+
+	$('body').on('change', '.additionalObjectCalcPrice', function(){
+		var id = $(this).parents('.additionalObjectRow').data('object_id');
+		var item = getAdditionalObject(id);
+		item.calc_price = $(this).is(':checked');
+		redrawAdditionalObjects();
+	});
 
 	$('body').on('change', '.additionalObjectPosX', function(){
 		var id = $(this).parents('.additionalObjectRow').data('object_id');
@@ -106,6 +113,18 @@ $(function(){
 		setToHole(id);
 	});
 
+	$('body').on('click', '.copyObject', function(){
+		var id = $(this).parents('.additionalObjectRow').data('object_id');
+		
+		var item = Object.assign({}, getAdditionalObject(id));
+		item.meshParams = Object.assign({}, item.meshParams);
+		item.position = Object.assign({}, item.position);
+		item.id = getAdditionalObjectCurrentId();
+		addAdditionalObjectTable(item);
+
+		redrawAdditionalObjects();
+	});
+
 	addContextMenu();
 
 	$('#additionalObjectContextMenu').contextmenu(function() {
@@ -140,6 +159,11 @@ $(function(){
 	});
 });
 
+function addNotify(content, type, title){
+	$("#notifyContent").html(content);
+	$("#notifyToast").toast('show');
+}
+
 function addContextMenu(){
 	var text = "\
 	<div class='dropdown-menu dropdown-menu-sm' id='additionalObjectContextMenu'>\
@@ -151,18 +175,134 @@ function addContextMenu(){
 	$('body').append(text);
 }
 
+var objectMovingId = false;
+var firstPointSelected = false;
+var axisObject = null;
+
 function moveToPoint(id){
-	var result = confirm("Вы уверены что хотите переместить объект?");
-	if (result) {
-		var item = getAdditionalObject(id);
+	objectMovingId = id;
+	firstPointSelected = false;
+	addNotify('Выберите базовую точку');
+}
 
-		var point = lastSelectedPoint; //глобавльная переменная из файла viewports
-		item.position.x = point.x;
-		item.position.y = point.y;
-		item.position.z = point.z;
+/**
+ * Обрабатываем выбор точки
+ */
+function firstPointSelect(){
+	window.firstPointSelected = true;
+	addNotify('Выберите вторую точку или выберите ось');
+	var point = lastSelectedPoint;
+	
+	var geometry = new THREE.BoxGeometry(20, 20, 50);
+	
+	axisObject = new THREE.Object3D();
 
-		redrawAdditionalObjects();
+	var xAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#FF0000"}));
+	xAxis.position.x = point.x + 25;
+	xAxis.position.y = point.y;
+	xAxis.position.z = point.z;
+	xAxis.isAxis = true;
+	xAxis.rotation.y = Math.PI / 2;
+	xAxis.axis = 'x';
+	xAxis.factor = 1;
+	axisObject.add(xAxis);
+
+	var xAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#FF0000"}));
+	xAxis.position.x = point.x - 25;
+	xAxis.position.y = point.y;
+	xAxis.position.z = point.z;
+	xAxis.isAxis = true;
+	xAxis.rotation.y = Math.PI / 2;
+	xAxis.axis = 'x';
+	xAxis.factor = -1;
+	axisObject.add(xAxis);
+
+	var yAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#00FF00"}));
+	yAxis.position.x = point.x;
+	yAxis.position.y = point.y + 25;
+	yAxis.position.z = point.z;
+	yAxis.rotation.x = Math.PI / 2;
+	yAxis.isAxis = true;
+	yAxis.axis = 'y';
+	yAxis.factor = 1;
+	axisObject.add(yAxis);
+
+	var yAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#00FF00"}));
+	yAxis.position.x = point.x;
+	yAxis.position.y = point.y - 25;
+	yAxis.position.z = point.z;
+	yAxis.rotation.x = Math.PI / 2;
+	yAxis.isAxis = true;
+	yAxis.axis = 'y';
+	yAxis.factor = -1;
+	axisObject.add(yAxis);
+
+	var zAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#0000FF"}));
+	zAxis.position.x = point.x;
+	zAxis.position.y = point.y;
+	zAxis.position.z = point.z + 25;
+	zAxis.isAxis = true;
+	zAxis.axis = 'z';
+	zAxis.factor = 1;
+	axisObject.add(zAxis);
+
+	var zAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#0000FF"}));
+	zAxis.position.x = point.x;
+	zAxis.position.y = point.y;
+	zAxis.position.z = point.z - 25;
+	zAxis.isAxis = true;
+	zAxis.axis = 'z';
+	zAxis.factor = -1;
+	axisObject.add(zAxis);
+
+	view.scene.add(axisObject);
+}
+
+function moveObjectByAxis(axis, factor){
+	if (!window.objectMovingId || !window.firstPointSelected || !window.lastSelectedPoint1) {
+		return;
 	}
+	var item = getAdditionalObject(objectMovingId);
+
+	var value = prompt('Введите на сколько переместить') * 1.0;
+	console.log(value, axis)
+	if (value && value > 0) {
+		item.position[axis] += value * (factor || 1);
+		redrawAdditionalObjects();
+	
+		objectMovingId = false;
+		firstPointSelected = false;
+		addNotify('Объект перемещен');
+		view.scene.remove(axisObject);
+	}else{
+		
+	}
+	var evt = document.createEvent("MouseEvents");
+	evt.initEvent("mouseup", true, true);
+	document.getElementById("WebGL-output").dispatchEvent(evt);
+}
+
+function moveObjectTwoPoints(){
+	if (!window.objectMovingId || !window.firstPointSelected || !window.lastSelectedPoint || !window.lastSelectedPoint1) {
+		return;
+	}
+	var item = getAdditionalObject(objectMovingId);
+
+	var differenceX = item.position.x - lastSelectedPoint1.x;
+	var differenceY = item.position.y - lastSelectedPoint1.y;
+	var differencez = item.position.z - lastSelectedPoint1.z;
+
+	var point = lastSelectedPoint; //глобавльная переменная из файла viewports
+	item.position.x = (differenceX + point.x).toFixed(2) * 1.0;
+	item.position.y = (differenceY + point.y).toFixed(2) * 1.0;
+	item.position.z = (differencez + point.z).toFixed(2) * 1.0;
+
+	redrawAdditionalObjects();
+
+	objectMovingId = false;
+	firstPointSelected = false;
+	addNotify('Объект перемещен');
+	view.scene.remove(axisObject);
 }
 
 function setToHole(id){
@@ -249,9 +389,9 @@ function setToHole(id){
 
 function getAdditionalObjectCurrentId(){
 	var id = 1;
-	if (window.service_data && window.service_data.additional_objects && window.service_data.additional_objects.length) {
-		for (var i = 0; i < window.service_data.additional_objects.length; i++) {
-			var obj = window.service_data.additional_objects[i];
+	if (window.service_data && window.additional_objects && window.additional_objects.length) {
+		for (var i = 0; i < window.additional_objects.length; i++) {
+			var obj = window.additional_objects[i];
 			if (obj.id >= id) id = obj.id + 1;
 		}
 	}
@@ -262,12 +402,12 @@ function addAdditionalObjectTable(par){
 	if(!par) {
 		par = {
 			id: getAdditionalObjectCurrentId(),
-			className: 'Table',
-			meshParams: Table.getDefaults(),
+			className: 'ConcretePlatform',
+			meshParams: ConcretePlatform.getDefaults(),
 			position: {
-				x: 100,
-				y: 0,
-				z: 100
+				x: 0,
+				y: 1000,
+				z: 0
 			},
 			rotation: 0,
 			color: '#cccccc'
@@ -294,6 +434,9 @@ function addAdditionalObjectTable(par){
 				<button class="btn btn-outline-dark setHolePos" style="margin: 2px" data-toggle="tooltip" title="Вставить в проем" data-original-title="Вставить в проем">\
 					<i class="fa fa-window-maximize actionIcon"></i>\
 				</button>\
+				<button class="btn btn-outline-dark copyObject" style="margin: 2px" data-toggle="tooltip" title="Копировать" data-original-title="Копировать">\
+					<i class="fa fa-copy actionIcon"></i>\
+				</button>\
 				<button class="btn btn-outline-dark setPosition" style="margin: 2px" data-toggle="tooltip" title="Вставить" data-original-title="Вставить">\
 					<i class="fa fa-arrows-alt actionIcon"></i>\
 				</button>\
@@ -304,12 +447,15 @@ function addAdditionalObjectTable(par){
 					<i class="fa fa-trash-o actionIcon"></i>\
 				</button>\
 			</td>\
+			<td>\
+				<input type="checkbox" class="additionalObjectCalcPrice">\
+			</td>\
 		</tr>\
 	';
 
 	if (!window.service_data) window.service_data = {};
-	if (!window.service_data.additional_objects) window.service_data.additional_objects = [];
-	if (window.service_data.additional_objects.indexOf(par) == -1) window.service_data.additional_objects.push(par);
+	if (!window.additional_objects) window.additional_objects = [];
+	if (window.additional_objects.indexOf(par) == -1) window.additional_objects.push(par);
 
 	$('#objectsTableBody').append(text);
 	var el = $('.additionalObjectRow[data-object_id="' + par.id +'"]');
@@ -319,13 +465,15 @@ function addAdditionalObjectTable(par){
 	el.find('.additionalObjectRot').val(par.rotation);
 	el.find('.additionalObjectClass').val(par.className);
 	el.find('.additionalObjectColor').val(par.color);
+	if(par.calc_price) el.find('.additionalObjectCalcPrice').attr('checked', true);
+
 
 	return par.id;
 }
 
 function getAdditionalObject(id){
-	if (!window.service_data || !window.service_data.additional_objects || window.service_data.additional_objects.length == 0) return null;
-	return window.service_data.additional_objects.find(item => item.id == id);
+	if (!window.service_data || !window.additional_objects || window.additional_objects.length == 0) return null;
+	return window.additional_objects.find(item => item.id == id);
 }
 
 function additionalObjectModalShow(id){
@@ -338,6 +486,12 @@ function additionalObjectModalShow(id){
 	if (!item) return;
 	$.each(itemMeta.inputs, function(){
 		text += '<div>';
+		if (this.type == 'delimeter') {
+			text += "<div style='margin: 15px;width: 100%;border: 1px solid gray;'></div>";
+		}
+		if (this.type == 'text') {
+			text += this.title + ' <input class="meshParam" type="text" name="' + this.key + '" value="' + item.meshParams[this.key] + '">';
+		}
 		if (this.type == 'number') {
 			text += this.title + ' <input class="meshParam" type="number" name="' + this.key + '" value="' + item.meshParams[this.key] + '">';
 		}

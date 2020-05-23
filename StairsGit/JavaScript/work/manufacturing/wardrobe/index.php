@@ -84,7 +84,7 @@ $APPLICATION->SetTitle("Расчет Шкафа 1.0");
 	".default",
 	Array(
 		"AREA_FILE_SHOW" => "file",
-		"PATH" => "/calculator/general/orderFiles/orderFiles.php",
+		"PATH" => "/orders/files/orderFiles.php",
 		"EDIT_TEMPLATE" => ""
 	)
 );?>
@@ -246,7 +246,15 @@ $APPLICATION->SetTitle("Расчет Шкафа 1.0");
 		"PATH" => "/calculator/general/libs_man.php",
 		"EDIT_TEMPLATE" => ""
 	)
-);?>
+);
+foreach($scripts as $script){
+	$printScript = true;
+	if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
+	if($printScript){
+		echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+	};
+};
+?>
 
 <!--визуализация-->
 <script type="text/javascript" src="drawWardrobe.js"></script>

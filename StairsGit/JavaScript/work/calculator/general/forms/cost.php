@@ -9,30 +9,64 @@
 	<div class="toggleDiv">
 		<table class="form_table"><tbody>
 			<tr><th>Наименование</th><th>к-т на себестоимость</th><th>к-т на цену</th> </tr>
-			<tr>
-				<td>Каркас:</td>
-				<td><input id="carcasCostFactor" type="number" value="1"></td>
-				<td><input id="carcasPriceFactor" type="number" value="1"></td>
-			</tr>
-			<tr>
-				<td>Ступени:</td>
-				<td><input id="treadsCostFactor" type="number" value="1"></td>
-				<td><input id="treadsPriceFactor" type="number" value="1"></td>
-			<tr>
-				<td>Перила:</td>
-				<td><input id="railingCostFactor" type="number" value="1"></td>
-				<td><input id="railingPriceFactor" type="number" value="1"></td>
-			</tr>
-			<tr>
-				<td>Шкаф:</td>
-				<td><input id="wrCostFactor" type="number" value="1"></td>
-				<td><input id="wrPriceFactor" type="number" value="1"></td>
-			</tr>
+			
+			
+			<?php
+				//выцепляем модуль и представление из url
+				$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+			
+				//модуль
+				$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects'];
+				$calc_type = '';
+				foreach($calc_types as $item){
+					if (strpos($url,'/'.$item) !== false) $calc_type = $item;
+				};
+				
+				//лестницы
+				if ($calc_type != 'carport') {					
+					echo '<tr>
+						<td>Каркас:</td>
+						<td><input id="carcasCostFactor" type="number" value="1"></td>
+						<td><input id="carcasPriceFactor" type="number" value="1"></td>
+					</tr>
+					<tr>
+						<td>Ступени:</td>
+						<td><input id="treadsCostFactor" type="number" value="1"></td>
+						<td><input id="treadsPriceFactor" type="number" value="1"></td>
+					<tr>
+						<td>Перила:</td>
+						<td><input id="railingCostFactor" type="number" value="1"></td>
+						<td><input id="railingPriceFactor" type="number" value="1"></td>
+					</tr>
+					<tr>
+						<td>Шкаф:</td>
+						<td><input id="wrCostFactor" type="number" value="1"></td>
+						<td><input id="wrPriceFactor" type="number" value="1"></td>
+					</tr>';
+				};
+				
+				//навесы
+				if ($calc_type == 'carport') {
+					echo '<tr>
+							<td>Каркас:</td>
+							<td><input id="carcasCostFactor" type="number" value="1"></td>
+							<td><input id="carcasPriceFactor" type="number" value="1"></td>
+						</tr>
+						<tr>
+							<td>Кровля:</td>
+							<td><input id="roofCostFactor" type="number" value="1"></td>
+							<td><input id="roofPriceFactor" type="number" value="1"></td>
+						</tr>';
+				};
+				
+			?>
+			
 			<tr>
 				<td>Сборка:</td>
 				<td><input id="assemblingCostFactor" type="number" value="1"></td>
 				<td><input id="assemblingPriceFactor" type="number" value="1"></td>
 			</tr>
+			
 		</tbody> </table>
 	</div>
 

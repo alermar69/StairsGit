@@ -4,7 +4,7 @@ $APPLICATION->SetTitle("Расчет Шкафа 1.0");
 ?>
 
 <!-- все формы -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/main.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/main.php" ?>
 
 <!-- Инструкции для пользователей -->
 <?$APPLICATION->IncludeComponent(
@@ -21,6 +21,6 @@ $APPLICATION->SetTitle("Расчет Шкафа 1.0");
 <p class="raschet" onclick="exportToDxf(dxfPrimitivesArr);">Экспорт контуров в dxf</p>
 
 <!-- все скрипты -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/scripts.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/scripts.php" ?>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

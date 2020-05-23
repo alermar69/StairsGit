@@ -114,7 +114,7 @@ $APPLICATION->SetTitle("Комоды v.1.1");
 
 
 <!-- форма параметров каркаса-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/sideboard/forms/mainForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/sideboard/forms/mainForm.php" ?>
 
 
 <div id="result" style="display: none;"></div>
@@ -206,7 +206,15 @@ $APPLICATION->SetTitle("Комоды v.1.1");
 		"PATH" => "/calculator/general/libs_man.php",
 		"EDIT_TEMPLATE" => ""
 	)
-);?>
+);
+foreach($scripts as $script){
+	$printScript = true;
+	if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
+	if($printScript){
+		echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+	};
+};
+?>
 
 <script type="text/javascript" src="/manufacturing/general/drawDimensions.js"></script>
 

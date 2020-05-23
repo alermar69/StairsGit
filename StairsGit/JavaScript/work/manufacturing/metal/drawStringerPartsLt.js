@@ -1500,6 +1500,8 @@ function drawBotStepLt_wndOut(par) {
 			// вторая забежная ступень
 			center1 = newPoint_xy(p2, 20, angleHoleY);
 			center2 = newPoint_xy(center1, -angPar.angleHoleDist, 0);
+			center1.partName = 'wndTreadFix';
+			center2.partName = 'wndTreadFix';
 			par.pointsHole.push(center2);
 			par.pointsHole.push(center1);
 			pointsAngles.push({
@@ -1513,6 +1515,8 @@ function drawBotStepLt_wndOut(par) {
 
 			center1 = newPoint_xy(p3, 60, angleHoleY);
 			center2 = newPoint_xy(center1, angPar.angleHoleDist, 0);
+			center1.partName = 'wndTreadFix';
+			center2.partName = 'wndTreadFix';
 			par.pointsHole.push(center1);
 			par.pointsHole.push(center2);
 			pointsAngles.push({
@@ -1525,6 +1529,8 @@ function drawBotStepLt_wndOut(par) {
 			center1 = newPoint_xy(p4, 20, angleHoleY);
 			if (params.M < 600) center1 = newPoint_xy(p4, 60, angleHoleY);
 			center2 = newPoint_xy(center1, -angPar.angleHoleDist, 0);
+			center1.partName = 'wndTreadFix';
+			center2.partName = 'wndTreadFix';
 			par.pointsHole.push(center2);
 			par.pointsHole.push(center1);
 			pointsAngles.push({
@@ -1816,6 +1822,8 @@ function drawMiddleStepsLt(par) {
 				var center2 = newPoint_xy(center1, 0.0, -par.holeDistU4);
 				var center4 = newPoint_xy(p1, 45.0, stepHoleY);
 				var center3 = newPoint_xy(center4, 50.0, 0.0);
+				center4.partName = 'otherTreadFix';
+				center3.partName = 'otherTreadFix';
 				center1.hasAngle = center2.hasAngle = false; //уголки перемычки отрисовываются внутри drawBridge_2
 				par.elmIns[par.key].bridges.push(newPoint_xy(center1, -38, 20));
 
@@ -3968,6 +3976,8 @@ function drawTopStepLt_wndOut(par) {
 
 			center1 = newPoint_xy(p2, angleHoleOffsetX, par.stepHoleY)
 			center2 = newPoint_xy(center1, -angPar.angleHoleDist, 0);
+			center1.partName = 'wndTreadFix';
+			center2.partName = 'wndTreadFix';
 			par.pointsHole.push(center2);
 			par.pointsHole.push(center1);
 
@@ -3986,6 +3996,8 @@ function drawTopStepLt_wndOut(par) {
 
 			center1 = newPoint_xy(p4, angleHoleOffsetX, par.stepHoleY);
 			center2 = newPoint_xy(center1, angPar.angleHoleDist, 0);
+			center1.partName = 'wndTreadFix';
+			center2.partName = 'wndTreadFix';
 			par.pointsHole.push(center1);
 			par.pointsHole.push(center2);
 

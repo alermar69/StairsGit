@@ -1,6 +1,7 @@
 var hovered = null;
 var animations = [];
 var rightClickObject = null;
+var partsAmt_dop = {}; //глобальный массив количеств эл-тов для спецификации балюстрады
 
 class AdditionalObject extends THREE.Object3D {
 	material = {};
@@ -13,11 +14,19 @@ class AdditionalObject extends THREE.Object3D {
 
 		this.objId = par.id;
 		this.par = par.meshParams;
+		this.calc_price = par.calc_price;
 
 		if (this.par.color) this.color = new THREE.Color(this.par.color);
 		this.material = new THREE.MeshBasicMaterial({ color: this.color });
 
-		this.setLayer('additionalObject');
+		if (this.calc_price) {
+			partsAmt_dop[this.objId] = {unit: par.className};
+			specObj = partsAmt_dop[this.objId];
+		}else{
+			specObj = {};
+		}
+
+		this.setLayer(par.layer || 'additionalObject');
 	}
 
 	/** События */
@@ -80,6 +89,26 @@ class AdditionalObject extends THREE.Object3D {
 		return [];
 	}
 
+	getObjectMaterial(){
+		if(!window.textureManager) return this.material
+		if (this.par.material == 'металл') {
+			var metalType = 'additionalObjectMetal';
+			if (params.additionalObjectsMetalMaterial == 'хром. сталь' || params.additionalObjectsMetalMaterial ==  'нерж. сталь') metalType = 'inox';
+			return textureManager.createMaterial({name: metalType, color: getMetalColorId(params.additionalObjectsMetalColor), wireframe: false});
+		}
+		if (this.par.material == 'массив') {
+			return textureManager.createMaterial({name: 'additionalObjectTimber', color: getTimberColorId(params.additionalObjectsTimberColor), wireframe: false});
+		}
+	}
+
+	static calcPrice(par){
+		return {
+			name: this.getMeta().title,
+			cost: 0,
+			priceFactor: 1,
+			costFactor: 1
+		}
+	}
 	/** STATIC METHODS */
 
 	static onHover(item, event) {
@@ -150,6 +179,66 @@ class AdditionalObject extends THREE.Object3D {
 	static getAvailableClasses() {
 		return [
 			{
+				className: 'ConcretePlatform',
+				title: 'Площадка бетон'
+			},
+			{
+				className: 'Ladder',
+				title: 'Марш бетон'
+			},			
+			{
+				className: 'Winder',
+				title: 'Забег бетон'
+			},
+			{
+				className: 'RackWall',
+				title: 'Реечная перегородка'
+			},
+			{
+				className: 'MetalPlatform',
+				title: 'Площадка металл'
+			},
+			{
+				className: 'Column',
+				title: 'Колонна'
+			},
+			{
+				className: 'Canopy',
+				title: 'Козырек'
+			},	
+			
+			{
+				className: 'Door',
+				title: 'Дверь'
+			},
+			{
+				className: 'Window',
+				title: 'Окно'
+			},
+			{
+				className: 'Battery',
+				title: 'Батарея'
+			},
+			{
+				className: 'PipeObject',
+				title: 'Труба'
+			},
+			
+			{
+				className: 'Switch',
+				title: 'Выключатель'
+			},
+			{
+				className: 'Socket',
+				title: 'Розетка'
+			},
+			
+			{
+				className: 'Transport',
+				title: 'Транспорт'
+			},
+			
+			{
 				className: 'Table',
 				title: 'Стол'
 			},
@@ -173,22 +262,7 @@ class AdditionalObject extends THREE.Object3D {
 				className: 'Wardrobe',
 				title: 'Шкаф'
 			},
-			{
-				className: 'Door',
-				title: 'Дверь'
-			},
-			{
-				className: 'Window',
-				title: 'Окно'
-			},
-			{
-				className: 'Battery',
-				title: 'Батарея'
-			},
-			{
-				className: 'PipeObject',
-				title: 'Труба'
-			},
+			
 			{
 				className: 'Tv',
 				title: 'Телевизор'
@@ -201,18 +275,7 @@ class AdditionalObject extends THREE.Object3D {
 				className: 'WallLamp',
 				title: 'Настенный светильник'
 			},
-			{
-				className: 'Switch',
-				title: 'Выключатель'
-			},
-			{
-				className: 'Socket',
-				title: 'Розетка'
-			},
-			{
-				className: 'Ladder',
-				title: 'Лестница'
-			}
+			
 		]
 	}
 }

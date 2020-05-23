@@ -21,7 +21,7 @@
 	<button id="stopTesting" class='btn btn-danger groupTesting'>Стоп</button>
 	
 		<!--модальные окна для сравнения с версией инженера-->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/modals/checkSpec.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/calculator/general/modals/checkSpec.php" ?>
 	
 	<br/>
 	

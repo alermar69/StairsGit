@@ -67,7 +67,3 @@
 </tbody> </table>
 
 
-<!--Обработчик формы-->
-<script type="text/javascript" src="/calculator/startTreads/forms/formChange.js"></script>
-
-

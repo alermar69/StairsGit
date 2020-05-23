@@ -75,6 +75,10 @@ function drawCarcasAngles(holes, side){
 			// 	rotation: rotation,
 			// 	parent: mesh
 			// }, 'angles');
+			if (params.model == 'лт' && (holes[i].partName == "treadFix" || holes[i].partName == 'wndTreadFix' || holes[i].partName == 'otherTreadFix') && params.stringerModel == 'короб') {
+				carcasAnglePar.noBoltsInSide1 = true;
+			}
+
 			var angle = drawCarcasAngle(carcasAnglePar);
 			angle.rotation.x = rotation.x;
 			angle.rotation.y = rotation.y;

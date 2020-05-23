@@ -49,15 +49,15 @@
 					<div class='walls'>
 						<?php 
 							$dir = '/calculator/images/textures/walls/';
-							$files = scandir($_SERVER['DOCUMENT_ROOT'].$dir);
+							$files = scandir($GLOBALS['ROOT_PATH'].$dir);
 							
 							foreach($files as $key=>$file){
 								if($file != "." && 
 									$file != ".." &&
-									!is_dir($_SERVER['DOCUMENT_ROOT']. $dir . DIRECTORY_SEPARATOR . $file)
+									!is_dir($GLOBALS['ROOT_PATH']. $dir . DIRECTORY_SEPARATOR . $file)
 									){
 										$name = str_replace(".jpg", "", $file);
-										echo "<div data-itemName=". $name . " class='modalItem'> <img src=".$dir.$file."><div class='title'>". $name . "</div></div>";
+										echo "<div data-itemName=". $name . " class='modalItem'> <img src='' data-src=".$dir.$file."><div class='title'>". $name . "</div></div>";
 									};
 							};
 						?>						
@@ -66,14 +66,14 @@
 					<div class='floor'>
 						<?php 
 							$dir = '/calculator/images/textures/floor/';
-							$files = scandir($_SERVER['DOCUMENT_ROOT'].$dir);
+							$files = scandir($GLOBALS['ROOT_PATH'].$dir);
 							foreach($files as $file){
 								if($file != "." && 
 									$file != ".." &&
-									!is_dir($_SERVER['DOCUMENT_ROOT']. $dir . DIRECTORY_SEPARATOR . $file)
+									!is_dir($GLOBALS['ROOT_PATH']. $dir . DIRECTORY_SEPARATOR . $file)
 									){
 										$name = str_replace(".jpg", "", $file);
-										echo "<div data-itemName=". $name ." class='modalItem'> <img src=".$dir.$file."></div>";
+										echo "<div data-itemName=". $name ." class='modalItem'> <img src='' data-src=".$dir.$file."></div>";
 									};
 							};
 						?>						
@@ -87,6 +87,3 @@
 		</div><!-- /.модальное окно-Содержание -->  
 	</div><!-- /.модальное окно-диалог -->  
 </div><!-- /.модальное окно --> 
-
-<!-- обработчик -->
-<script type="text/javascript" src="/calculator/general/modals/forgedBals.js"></script>

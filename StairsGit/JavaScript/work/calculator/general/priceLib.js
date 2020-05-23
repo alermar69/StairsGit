@@ -355,6 +355,28 @@ function calcRailingPrice(par){
 		balTotalPrice = balPrice * par.balAmt;
 		
 	}
+	
+	if (railingModel == "Реечные") {
+		var ralingPricePar = {
+			racksLength: params.racksType == "металл" ? getPartPropVal("racksMetalPole", "sumLength") : getPartPropVal("racksTimberPole", "sumLength"),
+			racksProfile: params.racksProfile,
+			racksType: params.racksType,
+			racksMaterial: params.timberBalMaterial
+		};
+		var railingPrices = calcRackWallPrice(ralingPricePar);
+		railingParams.rackLength_sum = railingPrices.racksLength;
+		balTotalPrice = railingPrices.balPrice;
+
+		//покраска дерева
+		if (timberPaint != "нет" && (params.racksType == "массив" || params.racksType == "шпон")) {
+			timberPaintTotalPrice += railingPrices.paintPrice;
+		}
+		
+		//покраска металла
+		if (metalPaint == "порошок" && params.racksType == "металл") {
+			metalPaintTotalPrice += railingPrices.paintPrice;
+		}
+	}
 		
 
 	/*ИТОГОВАЯ ЦЕНА*/
@@ -396,6 +418,9 @@ function calcRailingPrice(par){
 		}
 	if (railingModel == "Экраны лазер"){
 		railingPrice = (handrailTotalPrice + rackTotalPrice + lasetTotalPrice) * costMarkup;
+		}
+	if (railingModel == "Реечные"){
+		railingPrice = (handrailTotalPrice + balTotalPrice) * costMarkup;
 		}
 
 
@@ -441,6 +466,9 @@ function calcRailingPrice(par){
 		
 	if (railingModel == "Экраны лазер")
 		totalCostPerila = handrailTotalPrice + rackTotalPrice + lasetTotalPrice// + (metalPaintTotalPrice/marginPaint) + (timberPaintTotalPrice/marginPaint);
+
+	if (railingModel == "Реечные")
+		totalCostPerila = handrailTotalPrice + balTotalPrice;
 
 
 	/*глобальные переменные для расчета общей себестоимости*/
@@ -832,18 +860,36 @@ function calculateTotalPrice2(){
 			delivery: {name: "Доставка"},
 		};
 	}
+	if(params.calcType == "carport"){
+		priceObj = {
+			carcas: {name: "Каркас"},
+			roof: {name: "Кровля"},
+			assembling: {name: "Установка"},
+			delivery: {name: "Доставка"},
+		}
+	}
+
+	if (window.additional_objects) {
+		var calcPriceObjects = additional_objects.filter(function(item){return item.calc_price});
+		if (calcPriceObjects.length > 0) {
+			calcPriceObjects.forEach(function(item){
+				var price = eval(item.className + '.calcPrice(item)');
+				priceObj[item.className + '_' + item.id] = price;
+			});
+		}
+	}
 
 	for(var unit in priceObj){
 		var name = priceObj[unit].name;
-		priceObj[unit] = {
-			name: name,
+		priceObj[unit] = Object.assign(priceObj[unit], {
 			price: 0,
-			cost: 0,
 			discount: 0,
-			discountPrice: 0,
-			priceFactor: params[unit + "PriceFactor"],
-			costFactor: params[unit + "CostFactor"],	
-			}
+			discountPrice: 0
+		});
+		if (priceObj[unit].cost == undefined) priceObj[unit].cost = 0;
+		if (priceObj[unit].priceFactor == undefined) priceObj[unit].priceFactor = params[unit + "PriceFactor"];
+		if (priceObj[unit].costFactor == undefined) priceObj[unit].costFactor = params[unit + "CostFactor"];
+
 		if(unit == "banister"){
 			priceObj[unit].priceFactor = params.railingPriceFactor;
 			priceObj[unit].costFactor = params.railingCostFactor;
@@ -900,6 +946,13 @@ function calculateTotalPrice2(){
 			carcas: ["carcas", "carcasMetalPaint", "carcasTimberPaint"],
 			countertop: ["countertop", "topMetalPaint", "topTimberPaint"],
 			shelfs: ["shelfs", "timberPaint"],
+		}
+	}
+	
+	if(params.calcType == "carport"){
+		var unitItems = {
+			carcas: ["truss", "columns", "flans", "progon", "bolts", "carcasMetalPaint", "carcasTimberPaint"],
+			roof: ["roof", "roofProf", "roofShim"],
 		}
 	}
 		
@@ -996,9 +1049,7 @@ function calculateTotalPrice2(){
 
 	for(var unit in priceObj){
 		priceObj[unit].vp = priceObj[unit].discountPrice - priceObj[unit].cost;
-		}
-
-//подсчитываем итоговые суммы
+	}
 
 	priceObj.total = {
 		price: 0,
@@ -1006,18 +1057,34 @@ function calculateTotalPrice2(){
 		discount: 0,
 		discountPrice: 0,
 		vp: 0,
-		}
-		
+	}
+
 	for(var pricePart in priceObj.total){
-		for(var unit in priceObj){
-			if(unit != "total")	{
-				priceObj["total"][pricePart] += priceObj[unit][pricePart];			
-				}
+	for(var unit in priceObj){
+		if(unit != "total")	{
+			priceObj["total"][pricePart] += priceObj[unit][pricePart];
 			}
 		}
+	}
 
 	priceObj.total.name = "Итого";
 	priceObj.total.productionPrice = productionPrice;
+}
+
+function calcColumnPrice(par){
+	var cost = 0;
+
+	// Для всех расчет как за 100х50
+	cost = par.columnLength * 400 + par.columnAmt * 1000;
+
+	if (par.columnModel == "40х40") {
+		cost = par.columnLength * 60 + par.columnAmt * 200;
+	}
+	if (par.columnModel == "100x100") {
+		cost = par.columnLength * 600 + par.columnAmt * 1500;
+	}
+
+	return cost;
 }
 
 /** выводит на страницу данные по цене из массива priceObj
@@ -1055,7 +1122,7 @@ function printPrice2(){
 
 	//костыли для совместимости со старыми функциями
 
-	if(params.calcType == "tables" || params.calcType == "racks"){
+	if(params.calcType == "tables" || params.calcType == "racks" || params.calcType == "carport"){
 		var railing_timber = 0;
 		var railing_glass = 0;
 		var railing_metal = 0;
@@ -1209,7 +1276,7 @@ function printCost2(){
 
 	$("#total_cost").html(text);
 
-	if(params.calcType != "vint"){
+	if(params.calcType != "vint" && params.calcType != "carport"){
 		var carcasCostDivId = "cost_carcas";
 		var railingCostDivId = "cost_perila";
 		var banisterCostDivId = "cost_banister";
@@ -1274,6 +1341,37 @@ function printCost2(){
 		outputDivId = banisterCostDivId;
 		printRailingCost("балюстрада", outputDivId);
 
+		/*** ДОСТАВКА, СБОРКА ***/
+		
+		text =
+			"Сборка: " + staircaseCost.assembling +  " руб; <br/>"+
+			"Доставка: " + staircaseCost.delivery +  " руб; <br/>";
+		
+		$("#" + assemblingCostDivId).html(text);
+	};
+	
+	if(params.calcType == "carport"){
+		var carcasCostDivId = "cost_carcas";
+		var railingCostDivId = "cost_perila";
+		var banisterCostDivId = "cost_banister";
+		var assemblingCostDivId = "cost_assembling";
+
+		//себестоимость лестницы
+		var text =
+			"Фермы: " + staircaseCost.truss +  " руб; <br/>" + 
+			"Колонны: " + staircaseCost.columns +  " руб; <br/>" + 
+			"Фланцы: " + staircaseCost.flans +  " руб; <br/>" + 
+			"Прогоны: " + staircaseCost.progon +  " руб; <br/>" + 
+			"Метизы: " + staircaseCost.bolts +  " руб; <br/>"+
+			"Листы кровли: " + staircaseCost.roof +  " руб; <br/>" + 
+			"Профили кровли: " + staircaseCost.roofProf +  " руб; <br/>" + 
+			"Термошайбы: " + staircaseCost.roofShim +  " руб; <br/>" + 
+			"<b>Итого: " + staircaseCost.staircase +  " руб; </b><br/>" + 
+			"Покраска металла: " + staircaseCost.staircaseMetalPaint +  " руб; <br/>" + 	
+			"Покраска дерева: " + staircaseCost.staircaseTimberPaint +  " руб; <br/>";	
+		
+		$("#" + carcasCostDivId).html(text);
+		
 		/*** ДОСТАВКА, СБОРКА ***/
 		
 		text =
@@ -2611,13 +2709,14 @@ var stairType = params.stairType;
 //деревянные ступени
 var treadsPanelName = calcTimberParams(params.treadsMaterial).treadsPanelName;
 var riserPanelName = calcTimberParams(params.risersMaterial).riserPanelName;
+
 //толстые ступени
 if(params.treadThickness > 41) riserPanelName = calcTimberParams(params.treadsMaterial).riserPanelName;
 var skirtingPanelName = calcTimberParams(params.skirtingMaterial).riserPanelName;
 var treadMeterPrice = calcTimberParams(params.treadsMaterial).m2Price_40;
 var riserMeterPrice = calcTimberParams(params.risersMaterial).m2Price_20;
 var skirtingMeterPrice = calcTimberParams(params.skirtingMaterial).m2Price_20;
-	
+
 //учитываем стоимость работ
 var workMeterPrice = 330;
 treadMeterPrice += workMeterPrice;
@@ -2724,6 +2823,9 @@ if(params.treadThickness > 41){
 		paintedArea *= 1.5;
 	}
 }
+
+//коробчатые ступени
+if(params.stairType == "короб") treadsTotalPrice *= 3;
 	
 //работа по изготовлению плинтуса
 treadsTotalPrice += (getPartAmt('skirting_hor') + getPartAmt('skirting_hor')) * 200;
@@ -3064,15 +3166,21 @@ function calcTimberParams(timberType){
 	}
 		
 	if (timberType == "дуб натур") {
-		m3Price = 80000;
-		treadsPanelName = "panelOakPremium_40";
-		riserPanelName = "panelOakPremium_20";
+		m3Price = 50000 / 0.8 / 0.8; //50 тыс/м3 доски, толщина 40 из 50, 20% отходов по площади
+		treadsPanelName = "slabOak_50";
+		riserPanelName = "slabOak_50";
 	}
 	
 	if (timberType == "карагач натур") {
-		m3Price = 100000;
-		treadsPanelName = "panelOakPremium_40";
-		riserPanelName = "panelOakPremium_20";
+		m3Price = 50000 / 0.8 / 0.8; //50 тыс/м3 доски, толщина 40 из 50, 20% отходов по площади
+		treadsPanelName = "slabElm_50";
+		riserPanelName = "slabElm_50";
+	}
+	
+	if (timberType == "шпон") {
+		m3Price = 105000;
+		treadsPanelName = "veneer";
+		riserPanelName = "veneer";
 	}
 	
 	//формируем возвращаемый объект
@@ -3213,33 +3321,110 @@ function getPricePolicy(finalPrice){
 	return result;
 }
 
-function getProfParams(profName){
+function getProfParams(profName, profMaterial){
+	var priceKf = 1;
+
+	if (profMaterial) {
+		if(profMaterial == 'хром') priceKf = 2;
+		if(profMaterial == 'нержавейка') priceKf = 4;
+	}
+
 	var costArr = {	
 		'20х20': 47,
 		'40х40': 120,
 		'50х50': 198,
 		'60х60': 217,
 		'80х80': 287,
-		'100х100': 415,		
+		'100х100': 415,
 		'40х20': 72,
 		'60х30': 136,
 		'60х40': 178,
 		'80х40': 217,
-		'100х40': 275,		
-		'100х50': 315,	
+		'100х40': 275,
+		'100х50': 315,
+		'-150х8': 470,
+		'-200х8': 625,
+		'-250х8': 780,
+		'Ф12': 100,
+		'Ф16': 120,
+		'Ф25': 200,
+		'Ф38': 300,
 	};
 	
 	var result = {
 		sizeA: profName.slice(0, profName.indexOf('х')) * 1.0,
-		sizeB: profName.slice(profName.indexOf('х')+1, profName.length) * 1.0,
+		sizeB: profName.slice(profName.indexOf('х') + 1, profName.length) * 1.0,
 		unitCost: costArr[profName],
+		type: 'rect',
+	}
+	
+	if(profName[0] == "Ф"){
+		result = {
+			sizeA: profName.slice(1, profName.length) * 1.0,
+			sizeB: profName.slice(1, profName.length) * 1.0,
+			unitCost: costArr[profName],
+			type: 'round',
+		}
+	}
+	if(profName[0] == "-"){
+		result = {
+			sizeA: profName.slice(1, profName.indexOf('х')) * 1.0,
+			sizeB: profName.slice(profName.indexOf('х') + 1, profName.length) * 1.0,
+			unitCost: costArr[profName],
+			type: 'round',
+		}
 	}
 	
 	if((result.sizeA != result.sizeB) && !result.unitCost){
 		profName = result.sizeB + "х" + result.sizeA;
 		result.unitCost = costArr[profName];
 	}
+
+	// Учитываем материал
+	result.unitCost *= priceKf;
 	
 	return result;
 
+}
+
+function calcRackWallPrice(par){
+	var racksLength = par.racksLength;
+	var balPrice = 0;
+	var paintPrice = 0;
+	var profPar = getProfParams(par.racksProfile);
+	
+	if(par.racksType == "массив"){
+		var timberPar = calcTimberParams(par.racksMaterial);
+		var meterPrice = profPar.sizeA / 1000 * profPar.sizeB / 1000 * timberPar.m3Price;
+	}
+	if(par.racksType == "шпон") {
+		var timberPar = calcTimberParams(par.racksType);
+		var meterPrice = profPar.sizeA / 1000 * profPar.sizeB / 1000 * timberPar.m3Price;
+	}
+	
+	if (par.racksType == "металл"){
+		meterPrice = profPar.unitCost;
+	}
+	
+	balPrice = racksLength * meterPrice;
+	
+	var paintedArea = (profPar.sizeA / 1000 + profPar.sizeB / 1000) * 2 * racksLength;
+	
+	//покраска дерева
+	if (params.timberPaint != "нет" && (par.racksType == "массив" || par.racksType == "шпон")) {
+		var m2PaintPrice = calcTimberPaintPrice(timberPaint, par.timberBalMaterial);			
+		var balPaintPrice = m2PaintPrice * paintedArea
+		paintPrice += balPaintPrice;
+	}
+	
+	//покраска металла
+	if (params.metalPaint == "порошок" && par.racksType == "металл") {
+		paintPrice += paintedArea * 1000;			
+	}
+
+	return {
+		racksLength: racksLength,
+		paintPrice: paintPrice,
+		balPrice: balPrice
+	}
 }

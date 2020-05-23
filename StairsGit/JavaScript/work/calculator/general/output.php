@@ -9,16 +9,13 @@
 <div class="noPrint">
 	<button id="sendMessageModalShow" class='btn btn-primary'>Отправить КП</button>	
 	<button id='createBuildingTask'>Распечатать строительное задание</button>
-	<button id="cloneCanvas">Дублировать</button>
-	<button id="loadSavedCams">Загрузить виды</button>
-	<button id="resaveCam">Сохранить виды</button>
 	<button onclick="saveCanvasImg(0)">Сохранить png</button>	
 	<button id="toggleAll">Свернуть все</button>
 </div>
 
 <!-- блоки из производственного модуля -->
 <div style='display: none'>	
-	<?php include $_SERVER['DOCUMENT_ROOT']."/manufacturing/general/testing/forms/mainForm.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/manufacturing/general/testing/forms/mainForm.php" ?>
 	<!-- рабочие чертежи -->
 	<div id="svgDrawings">		
 		<div id='svgParForm' style="display: none;">
@@ -36,18 +33,18 @@
 
 <div class="noPrint">
 	<!-- файлы заказа и типовые чертежи -->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/orderFiles/orderFiles.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/orders/files/orderFiles.php" ?>
 
 </div>
 
 <!-- модальное окно создания/редактирования письма -->
-<?php include $_SERVER['DOCUMENT_ROOT'].'/orders/mail/forms/mailModal.php' ?>
+<?php include $GLOBALS['ROOT_PATH'].'/orders/mail/forms/mailModal.php' ?>
 
 <!-- описание, комплектация -->
 <?php include "content/description.php" ?>
 
 <!-- варианты цены -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/priceEditions.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/priceEditions.php" ?>
 
 <div id="totalResultWrap">
 	<h2 class="raschet">Стоимость заказа</h2>
@@ -67,4 +64,4 @@
 </div>
 
 <!-- О компании -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/content/about.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/content/about.php" ?>

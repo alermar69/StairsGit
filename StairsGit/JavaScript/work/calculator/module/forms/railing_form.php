@@ -2,7 +2,7 @@
 <table class="form_table" ><tbody>
 
 <!-- параметры расположения ограждений по маршам -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/railing.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/railing.php" ?>
 
 <tr><td>Модель ограждения:</td> <td> 
 	<select id="railingModel" size="1" onchange="changeFormRailing()">
@@ -195,7 +195,7 @@
 	<td> 
 		<select id="railingMetalColorNumber" size="1" onchange="">
 			<!-- варианты цветов морилки -->
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalColors.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalColors.php" ?>
 		</select>
 </td></tr>
 
@@ -221,7 +221,7 @@
 	<td> 
 		<select id="railingTimberColorNumber" size="1" onchange="">
 		<!-- варианты цветов морилки -->
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberColors.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberColors.php" ?>
 		</select>
 </td></tr>
 

@@ -1099,7 +1099,6 @@ function getGeomDescr(){
 		
 		par.G = Math.round((params.floorHoleLength - topStepDelta) * marshParams.h / marshParams.b - params.floorThickness);
 		if(params.topStairType == "вровень") par.G -= Math.round(marshParams.h)
-		
 		par.staircaseLength = marshParams.stairAmt * marshParams.b + topStepDelta;
 		if(params.model == "лт") par.staircaseLength += 5; //учитываем вынос тетивы перед первой ступенью
 		
@@ -1162,8 +1161,8 @@ function getGeomDescr(){
 			stepAmt_3: stepAmt_3,
 			stairAmt2: params.stairAmt2
 		}
-		G = calcG(parG);
-
+		par.G = calcG(parG);
+		
 		var stepAmt = params.stairAmt1 + params.stairAmt3 + 1;		
 		if(params.stairModel == "Г-образная с забегом") stepAmt += 2;
 		if(params.stairModel == "П-образная с забегом") stepAmt += 5;
@@ -1199,7 +1198,7 @@ function getGeomDescr(){
 				"Свес ступени = " + params.nose + "мм<br/>" +
 				"Кол-во подъемов всего = " + stepAmt + "шт.<br/>" +
 				"Зазор от лестницы до стен = " + params.wallDist + "мм<br/>" +
-				"Габарит G = " + G + " мм<br/>";
+				"Габарит G = " + par.G + " мм<br/>";
 			if(params.stairModel == "П-образная с площадкой"){
 				par.text[0] +=
 					"Глубина площадки = " + params.platformLength_1 + " мм;<br/>";
@@ -1256,13 +1255,16 @@ function printGeomDescr(){
 			</div>\
 		</div>' + 
 		geomDescr.text[0];
-
-
-		
-		
 	
 	$("#geomDescr").html(text);
 	makeGeomSvg();
+
+	if ($("#geometryFacts").length > 0) {
+		var facts = getFacts('geometry');
+		var template = $.templates("#geometryFactsTemplate");
+		var html = template.render(facts);
+		$('#geometryFacts').html(html);
+	}
 
 	//конфигурируем внешний вид картинок
 	if(params.stairModel == "Прямая"){

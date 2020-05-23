@@ -133,17 +133,23 @@ function recalculate(){
 			try {
 				shapesList = []; //Очищаем
 				changeAllForms();
-
-				drawStaircase('vl_1', true);
+				
+				var drawFunc = function(){};
+				if($("#calcType").val() == "carport") drawFunc = drawCarport;
+				else drawFunc = drawStaircase;
+				
+				drawFunc('vl_1', true);
 				redrawWalls();
 
 				if($("#calcType").val() == "railing"){
 					drawConcrete('vl_1');
 				}
 				else {
-					drawTopFloor();				
+					drawTopFloor();
 					drawBanister();
 				}
+
+				redrawAdditionalObjects();
 
 				//данные для производства
 				if (!menu.simpleMode) {
@@ -155,7 +161,7 @@ function recalculate(){
 
 				drawSceneDimensions();
 				
-				if($("#calcType").val() != "railing"){
+				if($("#calcType").val() != "railing" && $("#calcType").val() != "carport"){
 					printGeomDescr();
 				}
 			
@@ -205,5 +211,11 @@ function staircaseLoaded(){
 	createCamCurve();
 	if (window.menu) {
 		window.menu.update();
+	}
+}
+
+if (window.prepareFatalErrorNotify == undefined) {
+	window.prepareFatalErrorNotify = function(err){
+		console.log(err);
 	}
 }

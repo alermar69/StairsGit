@@ -56,12 +56,12 @@ function getCarcasDescr(){
 	}
 
 	//дополнительные факты
-	text['facts'].push("Выдерживает нагрузку до 900 кг")
-	text['facts'].push("Изготавливается специально под Ваши размеры")
-	text['facts'].push("Срок службы не ограничен")
-	text['facts'].push("Собирается без сварки за 3-4 часа")
-	if(params.metalPaint == "порошок") text['facts'].push("Окрашивается долговечной износостойкой порошковой краской")
-
+	// text['facts'].push("Выдерживает нагрузку до 900 кг")
+	// text['facts'].push("Изготавливается специально под Ваши размеры")
+	// text['facts'].push("Срок службы не ограничен")
+	// text['facts'].push("Собирается без сварки за 3-4 часа")
+	// if(params.metalPaint == "порошок") text['facts'].push("Окрашивается долговечной износостойкой порошковой краской")
+	text['facts'] = getFacts('description', 'carcas').map(function(item){return item.name});
 	return text;
 }
 
@@ -122,69 +122,69 @@ function getTreadDescr(){
 
 	if (stairType =="рифленая сталь") {
 		stairsHeader = "Ступени из рифленой стали";
-		text['facts'].push("Ступени полностью металлические, изготовлены из нескользкого рифленого стального листа;");
-		text['facts'].push("Ступени имеют усиленную конструкцию и каждая ступень выдерживает нагрузку до 250кг;");
-		text['facts'].push("Металлические ступени идеально подходят для уличных лестниц");
+		// text['facts'].push("Ступени полностью металлические, изготовлены из нескользкого рифленого стального листа;");
+		// text['facts'].push("Ступени имеют усиленную конструкцию и каждая ступень выдерживает нагрузку до 250кг;");
+		// text['facts'].push("Металлические ступени идеально подходят для уличных лестниц");
 		stairMaterial = "металл";
 		stairsImage = "005.jpg";
 	}
 
 	if (stairType =="лотки") {
 		stairsHeader = "Лотковые ступени под плитку"
-		text['facts'].push("Ступени предвтавляют собо сварной лоток, который заливается бетоном и облицовывается плиткой или камнем;");
-		text['facts'].push("Ступени имеют усиленную конструкцию и каждая ступень выдерживает нагрузку до 250кг;");
-		text['facts'].push("Ступени, облицованные плиткой идеально подходят для лестниц в общественных местах с большой проходимостью");
+		// text['facts'].push("Ступени предвтавляют собо сварной лоток, который заливается бетоном и облицовывается плиткой или камнем;");
+		// text['facts'].push("Ступени имеют усиленную конструкцию и каждая ступень выдерживает нагрузку до 250кг;");
+		// text['facts'].push("Ступени, облицованные плиткой идеально подходят для лестниц в общественных местах с большой проходимостью");
 		stairMaterial = "металл";
 		stairsImage = "007.jpg";
 	}
 	if (stairType =="дпк") {
 		stairsHeader = "Ступени из террасной доски ДПК"
-		text['facts'].push("Ступени состоят из несущеей стальной рамки и покрытия террасной доски ДПК;");		
-		text['facts'].push("Cтупени из террасной доски великолепно выглядят, нескользкие и долговечные;");
+		// text['facts'].push("Ступени состоят из несущеей стальной рамки и покрытия террасной доски ДПК;");		
+		// text['facts'].push("Cтупени из террасной доски великолепно выглядят, нескользкие и долговечные;");
 		stairMaterial = "рамки";
 		stairsImage = "008.jpg";
 	}
 	if (stairType =="пресснастил") {
 		stairsHeader = "Ступени из решетчатого настила";
-		text['facts'].push("Ступени предвтавляют собой решетку из стальных полос, поставленных на ребро;");
-		text['facts'].push("Зимой на решетчатых ступенях не задерживается снег;");
-		text['facts'].push("Ступени защищены от коррозии методом горячего цинкования;");
+		// text['facts'].push("Ступени предвтавляют собой решетку из стальных полос, поставленных на ребро;");
+		// text['facts'].push("Зимой на решетчатых ступенях не задерживается снег;");
+		// text['facts'].push("Ступени защищены от коррозии методом горячего цинкования;");
 		stairsImage = "009.jpg";
 	}
 	if (stairType =="стекло") {
 		stairsHeader = "Ступени из многослойного стекла";
-		text['facts'].push( "Ступени состоят из несущеей стальной рамки и покрытия из двухслойного закаленного стекла толщиной 20мм;");
-		text['facts'].push("Стеклянные ступени идеальный вариант при оформлении интерьера в стие Хайтек;");
+		// text['facts'].push( "Ступени состоят из несущеей стальной рамки и покрытия из двухслойного закаленного стекла толщиной 20мм;");
+		// text['facts'].push("Стеклянные ступени идеальный вариант при оформлении интерьера в стие Хайтек;");
 		stairMaterial = "рамки";
 		stairsImage = "010.jpg";
 	}
 	
-	text['facts'].push("Ступени имеют усиленную конструкцию и каждая ступень выдерживает нагрузку до 250кг;");
+	// text['facts'].push("Ступени имеют усиленную конструкцию и каждая ступень выдерживает нагрузку до 250кг;");
 
 	if (stairMaterial == "дерево") {
 		
 		stairsHeader += "Изготавливаются из мебельного щита толщиной " + params.treadThickness + " мм. Для удобства и безопасности все кромки скруляются небольшим радиусом."
 		
-		text['facts'].push("Ступени склеены на немецкой линии сращивания клеем класса D3. Прочность склейки превышает прочность дерева;");
-		text['facts'].push("Дерево тщательно высушено до влажности 8%. Благодаря этому ступени не потрескаются и не покоробятся в процессе эксплуатации;");
+		// text['facts'].push("Ступени склеены на немецкой линии сращивания клеем класса D3. Прочность склейки превышает прочность дерева;");
+		// text['facts'].push("Дерево тщательно высушено до влажности 8%. Благодаря этому ступени не потрескаются и не покоробятся в процессе эксплуатации;");
 		if (params.timberPaint == "нет"){
-			text['facts'].push("Для красоты и безопасности верхние грани аккуратно скруглены фрезером;");
-			text['facts'].push("Ступени поставляются отшлифованными и подготовленными к покраске");
+			// text['facts'].push("Для красоты и безопасности верхние грани аккуратно скруглены фрезером;");
+			// text['facts'].push("Ступени поставляются отшлифованными и подготовленными к покраске");
 		}
 		if (params.timberPaint == "лак" || params.timberPaint == "морилка+лак") {
-			text['facts'].push("Ступени покрываются в 3 слоя специальным износостойким двухкомпонентным паркетным лаком итальянского производства;");
-			text['facts'].push("Лак имеет нескользкую и приятную на ощупь полуматовую поверхность. Отделка подчеркивает красоту натурального дерева;");
+			// text['facts'].push("Ступени покрываются в 3 слоя специальным износостойким двухкомпонентным паркетным лаком итальянского производства;");
+			// text['facts'].push("Лак имеет нескользкую и приятную на ощупь полуматовую поверхность. Отделка подчеркивает красоту натурального дерева;");
 		}
 		
 		if (params.timberPaint == "масло" || params.timberPaint == "цветное масло") {
-			text['facts'].push("Ступени покрываются в 3 слоя специальным износостойким паркетным маслом итальянского производства;");
-			text['facts'].push("Дерево имеет нескользкую и приятную на ощупь полуматовую поверхность. Отделка подчеркивает красоту натурального дерева;");
+			// text['facts'].push("Ступени покрываются в 3 слоя специальным износостойким паркетным маслом итальянского производства;");
+			// text['facts'].push("Дерево имеет нескользкую и приятную на ощупь полуматовую поверхность. Отделка подчеркивает красоту натурального дерева;");
 		}
 	}
 		
 	if (stairMaterial == "металл") { 
-		if (metalPaint == "нет") text['facts'].push("Ступени поставляются зачищенными и подготовленными к покраске;");
-		if (metalPaint == "порошок") text['facts'].push("Ступени покрываются красивой, прочной и долговечной порошковой краской;");
+		// if (metalPaint == "нет") text['facts'].push("Ступени поставляются зачищенными и подготовленными к покраске;");
+		// if (metalPaint == "порошок") text['facts'].push("Ступени покрываются красивой, прочной и долговечной порошковой краской;");
 
 	}
 	
@@ -192,7 +192,9 @@ function getTreadDescr(){
 	if(staircaseHasUnit().risers && params.treadsMaterial == params.risersMaterial ) text.main += ", подступенки";
 	if(staircaseHasUnit().skirting && params.treadsMaterial == params.skirtingMaterial ) text.main += ", плинтус";
 	text.main += stairsHeader;
-//	text.img = "/calculator/images/stairs/" + stairsImage;
+	text['facts'] = getFacts('description', 'treads').map(function(item){return item.name});
+
+	text.img = "/calculator/images/stairs/" + stairsImage;
 	
 	return text;
 }
@@ -233,47 +235,49 @@ function getRailingDescr(){
 	if(params.calcType == "vint"){
 		text.main += "Ограждения имеют оригинальный современный дизайн и состоят из вертикльных стоек квадратного сечения и поручня, изогнутого в форме спирали.";
 		
-		if(params.handrailMaterial == "ПВХ") text['facts'].push("Круглый поручень из ПВХ диаметром 50мм удобный, красивый и приятный на ощупь;")
-		if(params.handrailMaterial == "Дуб") text['facts'].push("Гнутый поручень из массива дуба - самый лучший вариант для элитной винтовой лестницы;")
+		// if(params.handrailMaterial == "ПВХ") text['facts'].push("Круглый поручень из ПВХ диаметром 50мм удобный, красивый и приятный на ощупь;")
+		// if(params.handrailMaterial == "Дуб") text['facts'].push("Гнутый поручень из массива дуба - самый лучший вариант для элитной винтовой лестницы;")
 
-		if(params.rackType == "черная сталь") text['facts'].push("Стойки ограждений, крашенные в цвет лестницы, создают единый гармоничный внешний вид;")
-		if(params.rackType == "нержавейка") text['facts'].push("Стойки ограждений из полированной нержавейки великолепно выглядят и отлично вписываются в любое помещение;")
+		// if(params.rackType == "черная сталь") text['facts'].push("Стойки ограждений, крашенные в цвет лестницы, создают единый гармоничный внешний вид;")
+		// if(params.rackType == "нержавейка") text['facts'].push("Стойки ограждений из полированной нержавейки великолепно выглядят и отлично вписываются в любое помещение;")
 	}
 
 	//параметры поручня
-	if(params.calcType != "vint"){
-		var handrailPar = {
-			prof: params.handrailProf,
-			sideSlots: params.handrailSlots,
-			handrailType: params.handrail,
-		}
+	// if(params.calcType != "vint"){
+	// 	var handrailPar = {
+	// 		prof: params.handrailProf,
+	// 		sideSlots: params.handrailSlots,
+	// 		handrailType: params.handrail,
+	// 	}
 			
-		handrailPar = calcHandrailMeterParams(handrailPar);
+	// 	handrailPar = calcHandrailMeterParams(handrailPar);
 
-		if(handrailPar.mat == "metal") text['facts'].push("Металлический поручень сечением " + handrailPar.handrailProfileY + "x" + handrailPar.handrailProfileZ + " мм");
-		if(handrailPar.mat == "inox") text['facts'].push("Поручень из полированной нержавеющей стали");
-		if(handrailPar.mat == "timber") text['facts'].push("Прямоугольный поручень из массива дерева теплый и приятный на ощупь подчеркивает оригинальный дизайн ограждений;");
-	}
+	// 	if(handrailPar.mat == "metal") text['facts'].push("Металлический поручень сечением " + handrailPar.handrailProfileY + "x" + handrailPar.handrailProfileZ + " мм");
+	// 	if(handrailPar.mat == "inox") text['facts'].push("Поручень из полированной нержавеющей стали");
+	// 	if(handrailPar.mat == "timber") text['facts'].push("Прямоугольный поручень из массива дерева теплый и приятный на ощупь подчеркивает оригинальный дизайн ограждений;");
+	// }
 	
-	if (staircaseHasUnit().railingMetalPaint) {
-		text['facts'].push("Металлические детали ограждений покрываются красивой, прочной и долговечной порошковой краской;");
-	}
-	if (staircaseHasUnit().railingTimberPaint){
-		if (params.timberPaint == "нет") text['facts'].push("Деревянные детали ограждений поставляются отшлифованными и подготовленными к покраске");
-		if (params.timberPaint == "лак") text['facts'].push("Деревянные детали ограждений покрываются прозрачным лаком");
-		if (params.timberPaint == "морилка+лак") text['facts'].push("Деревянные детали ограждений тонируются в выбранный Вами цвет и покрываются лаком");
-		if (params.timberPaint == "масло" || params.timberPaint == "цветное масло") {
-			text['facts'].push("Деревянные детали ограждений покрываются в 3 слоя специальным износостойким паркетным маслом итальянского производства;");
-			text['facts'].push("Дерево имеет нескользкую и приятную на ощупь полуматовую поверхность. Отделка подчеркивает красоту натурального дерева;");
-		}
-	}
+	// if (staircaseHasUnit().railingMetalPaint) {
+	// 	text['facts'].push("Металлические детали ограждений покрываются красивой, прочной и долговечной порошковой краской;");
+	// }
+	// if (staircaseHasUnit().railingTimberPaint){
+	// 	if (params.timberPaint == "нет") text['facts'].push("Деревянные детали ограждений поставляются отшлифованными и подготовленными к покраске");
+	// 	if (params.timberPaint == "лак") text['facts'].push("Деревянные детали ограждений покрываются прозрачным лаком");
+	// 	if (params.timberPaint == "морилка+лак") text['facts'].push("Деревянные детали ограждений тонируются в выбранный Вами цвет и покрываются лаком");
+	// 	if (params.timberPaint == "масло" || params.timberPaint == "цветное масло") {
+	// 		text['facts'].push("Деревянные детали ограждений покрываются в 3 слоя специальным износостойким паркетным маслом итальянского производства;");
+	// 		text['facts'].push("Дерево имеет нескользкую и приятную на ощупь полуматовую поверхность. Отделка подчеркивает красоту натурального дерева;");
+	// 	}
+	// }
 	
 
-	if(params.calcType == "railing"){
+	// if(params.calcType == "railing"){
 		
 		
 		
-	}
+	// }
+
+	text['facts'] = getFacts('description', 'railing').map(function(item){return item.name});
 	
 	return text;
 }
@@ -296,49 +300,117 @@ function getMatDescr() {
 	//стекло для ограждений
 	//ступени из стекла
 
-	
-	
 }
+
+/** функция возвращает описание каркаса навеса для авто
+*/
+
+function getCarportCarcasDescr(){
+	
+	var text = {
+		title: "Каркас",
+		main: "",
+		facts: [],
+		img: "",
+	};
+	
+	//главное описание
+	
+	text['main'] = "Каркас представляет собой усилинные фермы из толстого листа металла с оригинальным дизайном";
+	
+	text['facts'] = getFacts('description', 'carcas').map(function(item){return item.name});
+	return text;
+}
+
+/** функция возвращает описание кровли навеса для авто
+*/
+
+function getCarportRoofDescr(){
+	
+	var text = {
+		title: "Кровля",
+		main: "",
+		facts: [],
+		img: "",
+	};
+	
+	//главное описание
+	
+	text['main'] = "Кровля представляет собой лист поликорбаната...";
+	
+	text['facts'] = getFacts('description', 'roof').map(function(item){return item.name});
+	return text;
+}
+
+/** функция выводит описание лестницы на страницу
+*/
 
 function printDescr() {
 	
-	var text = "<h2>Описание</h2>";
+	var text = "<div class='description-title'>Основные особенности Вашей лестницы</div>";
+	if (params.calcType == 'carport') var text = "<div class='description-title'>Основные особенности Вашего навеса</div>";
 	var blocks = [];
 	var units = staircaseHasUnit();
-	if(units.carcas) blocks.push(getCarcasDescr());
-	if(units.treads) blocks.push(getTreadDescr());
-	if(units.railing || units.banister || units.sideHandrails) blocks.push(getRailingDescr());
+	//каркас
+	if(units.carcas) blocks.push({type: 'carcas', content: getCarcasDescr(), images: getPreviewImages('carcas')});
 	
+	//ступени
+	if(units.treads) {
+		var images = getPreviewImages('treads');
+		//картинка по умолчанию
+		if(images.length == 0){
+			images = [{url: getTreadDescr().img}]
+		}
+		blocks.push({type: 'treads', content: getTreadDescr(), images: images});
+	}
+	
+	//ограждения
+	if(units.railing || units.banister || units.sideHandrails) blocks.push({type: 'railing', content: getRailingDescr(), images: getPreviewImages('railing')});
+	
+	if (units.carportCarcas) blocks.push({type: 'carport_carcas', content: getCarportCarcasDescr(), images: getPreviewImages('carport_carcas')});
+	if (units.carportRoof) blocks.push({type: 'carport_roof', content: getCarportRoofDescr(), images: getPreviewImages('carport_roof')});
 
-	$.each(blocks, function(){
-		if(!this || !this.title) return true;
+	// $.each(blocks, function(){
+	// 	if(!this || !this.type) return true;
+	// 	text += html;
+	// });
+	var template = $.templates("#descriptionTempalte");
+	var html = template.render(blocks);
+	text += html;
+	$("#description").html(text);
+
+	if ($('#previewImages').length > 0) {
+		var images = getPreviewImages('preview');
+		var template = $.templates("#previewsTemplate");
+		var html = template.render({images: images});
+		$('#previewImages').html(html);
+	}
+
+		// var block = this;
+		// text += "<h3>" + block.title + "</h3>";
 		
-		var block = this;
-		text += "<h3>" + block.title + "</h3>";
-		
-		if(this.img){
-			text +=
-			'<div class="row">\
-				<div class="col-12 col-md-4">\
-					<a href="' + this.img + '" rel="fancy">\
-						<img src="' + this.img + '" width="300px">\
-					</a>\
-				</div>\
-				<div class="col-12 col-md-8">';
-		}
-		else {
-			text += "<div>"
-		}
-		text += "<p>" + block.main + "</p>" +
-		"<ul>";
-		$.each(block.facts, function(){
-			text += "<li>" + this + "</li>";
-		})
-		text += "</ul>\
-		</div>";
-	})
+		// if(this.img){
+		// 	text +=
+		// 	'<div class="row">\
+		// 		<div class="col-12 col-md-4">\
+		// 			<a href="' + this.img + '" rel="fancy">\
+		// 				<img src="' + this.img + '" width="300px">\
+		// 			</a>\
+		// 		</div>\
+		// 		<div class="col-12 col-md-8">';
+		// }
+		// else {
+		// 	text += "<div>"
+		// }
+		// text += "<p>" + block.main + "</p>" +
+		// "<ul>";
+		// $.each(block.facts, function(){
+		// 	text += "<li>" + this + "</li>";
+		// })
+		// text += "</ul>\
+		// </div>";
+	// })
 	
 	
-	$("#description").html(text)
 
 }

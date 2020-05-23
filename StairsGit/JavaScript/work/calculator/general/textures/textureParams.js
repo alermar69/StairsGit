@@ -1874,6 +1874,8 @@ function getMaterialsConfigs2(){
 		timber: getTimberMatConfig(),
 		timber2: getTimberMatConfig(),
 		riser: getTimberMatConfig(),
+		additionalObjectTimber: getTimberMatConfig(),
+		additionalObjectMetal: getMetalMatConfig(),
 		skirting: getTimberMatConfig(),
 		newell: getTimberMatConfig(),
 		handrail: getTimberMatConfig(),

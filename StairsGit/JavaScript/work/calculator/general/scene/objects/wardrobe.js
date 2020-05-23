@@ -6,7 +6,8 @@ class Wardrobe extends AdditionalObject {
 	constructor(par) {
 		super(par);
 
-		var dspThikness = 15;
+		var dspThikness = this.par.dspThickness || 15;
+		console.log(dspThikness);
 
 		var radAngle = THREE.Math.degToRad(this.par.angle);
 		var p0 = { x: 0, y: this.par.height };
@@ -102,7 +103,7 @@ class Wardrobe extends AdditionalObject {
 
 		if (this.par.doorExist) {
 			var extrudeOptions = {
-				amount: 15,
+				amount: dspThikness,
 				bevelEnabled: false,
 				curveSegments: 12,
 				steps: 1
@@ -152,10 +153,42 @@ class Wardrobe extends AdditionalObject {
 		return actions;
 	}
 
+	static calcPrice(par){
+		var meshParams = par.meshParams;
+		var price = meshParams.height * 12; // Пример
+		return {
+			name: meshParams.name || this.getMeta().title,
+			cost: price,
+			priceFactor: meshParams.priceFactor || 1,
+			costFactor: meshParams.costFactor || 1
+		}
+	}
+
 	static getMeta() {
 		return {
 			title: 'Шкаф',
 			inputs: [
+				{
+					key: 'name',
+					title: 'Название',
+					default: 'Шкаф',
+					type: 'text'
+				},
+				{
+					key: 'priceFactor',
+					title: 'К-т на цену',
+					default: 1,
+					type: 'number'
+				},
+				{
+					key: 'costFactor',
+					title: 'К-т на себестоимость',
+					default: 1,
+					type: 'number'
+				},
+				{
+					type: 'delimeter'
+				},
 				{
 					key: 'height',
 					title: 'Высота',

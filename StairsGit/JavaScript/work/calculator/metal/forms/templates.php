@@ -25,21 +25,21 @@
 		<td>
 			<select id='templateTimber'>
 				<!-- варианты пород дерева -->
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberTypes.php" ?>		
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberTypes.php" ?>		
 			</select>
 		</td>
 		
 		<td>
 			<select id='templateMetalPaint'>
 				<!-- варианты покраски меалла -->
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalPaint.php" ?>		
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalPaint.php" ?>		
 			</select>
 		</td>
 		
 		<td>
 			<select id='templateTimberPaint'>
 				<!-- варианты покраски дерева -->
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberPaint.php" ?>		
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberPaint.php" ?>		
 			</select>
 		</td>
 		

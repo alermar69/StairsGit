@@ -1,4 +1,8 @@
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/priceEditions.php" ?>
+<?php 
+	if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
+		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/priceEditions.php";
+	}
+?>
 
 <div id="totalResultWrap" class="printBlock">
 	<h2 class="raschet">Стоимость заказа</h2>

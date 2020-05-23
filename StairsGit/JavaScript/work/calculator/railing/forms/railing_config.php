@@ -6,13 +6,13 @@
 
 
 			<!-- варианты поручней -->
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/handrailParams.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/handrailParams.php" ?>
 
 			
 			<tr class="railing_tr handrailParams_tr"><td>Материал поручня:</td> <td> 
 				<select id="handrailsMaterial" size="1" onchange="">
 					<!-- варианты пород дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberTypes.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberTypes.php" ?>
 				</select>
 			</td></tr>
 			
@@ -109,13 +109,13 @@
 				первая: 
 				<select id="banister1" size="1" onchange="">
 					<!-- варианты кованых балясин -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/forgedBals.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
 				</select>
 				<br/>
 				вторая: 
 				<select id="banister2" size="1" onchange="">
 					<!-- варианты кованых балясин -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/forgedBals.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
 				</select>
 				<button class="showForgePrv noPrint">эскизы</button>
 			</td></tr>
@@ -178,7 +178,7 @@
 			<tr class="railingMetalPaint_tr"><td>Покраска металла:</td> <td> 
 				<select id="metalPaint_railing" size="1" onchange="">
 					<!-- варианты покраски металла -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalPaint.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalPaint.php" ?>
 				</select>
 			</td></tr>
 
@@ -187,7 +187,7 @@
 				<td> 
 					<select id="metalBalColor" size="1" onchange="">
 					<!-- варианты цветов морилки -->
-						<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalColors.php" ?>
+						<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalColors.php" ?>
 					</select>
 			</td></tr>
 
@@ -199,21 +199,21 @@
 			<tr class='railingTimberPaint_tr'><td>Покраска дерева:</td> <td> 
 				<select id="timberPaint" size="1" onchange="">
 					<!-- варианты покраски дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberPaint.php" ?>		
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberPaint.php" ?>		
 				</select>
 			</td></tr>
 			
 			<tr class="railingTimberPaint_tr"><td>Поверхность дерева:</td> <td> 
 				<select id="surfaceType" size="1" >
 					<!-- варианты покраски дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/surfaceTypes.php" ?>		
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/surfaceTypes.php" ?>		
 				</select>
 			</td></tr>
 			
 			<tr class="railingTimberPaint_tr"><td>Шпаклевка:</td> <td> 
 				<select id="fillerType" size="1" >
 					<!-- варианты покраски дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fillerTypes.php" ?>		
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fillerTypes.php" ?>		
 				</select>
 			</td></tr>
 
@@ -222,7 +222,7 @@
 				<td> 
 					<select id="handrailsColor" size="1" onchange="">
 					<!-- варианты цветов морилки -->
-							<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberColors.php" ?>
+							<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberColors.php" ?>
 					</select>
 			</td></tr>
 
@@ -296,6 +296,3 @@
 
 	</div>
 </div>
-
-<!--Обработчик формы--> 
-<script type="text/javascript" src="/calculator/banister/forms/banister_construct_form_change.js"></script>

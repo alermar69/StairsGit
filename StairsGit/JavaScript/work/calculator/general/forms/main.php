@@ -1,23 +1,28 @@
 <?php
 
-	//выцепляем модуль и представление из url
-
-	$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-
-	//модуль
-	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe'];
-	$calc_type = '';
-	foreach($calc_types as $item){
-		if (strpos($url,'/'.$item) !== false) $calc_type = $item;
-	};
-
-
-	//представление
-	$templates = ['calculator', 'manufacturing', 'installation', 'customers'];
-	$template = '';
-	foreach($templates as $item){
-		if (strpos($url,'/'.$item) !== false) $template = $item;
-	};
+	if (!isset($GLOBALS['IS_YII']) || !$GLOBALS['IS_YII']) {
+		//выцепляем модуль и представление из url
+		$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+	
+		//модуль
+		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects'];
+		$calc_type = '';
+		foreach($calc_types as $item){
+			if (strpos($url,'/'.$item) !== false) $calc_type = $item;
+		};
+	
+	
+		//представление
+		$templates = ['calculator', 'manufacturing', 'installation', 'customers'];
+		$template = '';
+		foreach($templates as $item){
+			if (strpos($url,'/'.$item) !== false) $template = $item;
+		};
+	}else{
+		$calc_type = $GLOBALS['CALCULATOR_CONFIG']['calc_type'];
+		$template = $GLOBALS['CALCULATOR_CONFIG']['template'];
+		echo '<script>var IS_YII = true;</script>';
+	}
 
 	//верхняя часть страницы
 	$title = "Лестница на металлокаркасе";
@@ -32,6 +37,9 @@
 	if($calc_type == 'vint') $title = "Винтовая лестница";
 	if($calc_type == 'geometry') $title = "Расчет геометрии лестницы";
 	if($calc_type == 'wardrobe') $title = "Расчет шкафа";
+	if($calc_type == 'wardrobe_2') $title = "Расчет шкафа 2.0";
+	if($calc_type == 'objects') $title = "Расчет объектов";
+	if($calc_type == 'carport') $title = "Расчет навеса";
 
 	//тип расчета и версия
 	echo '
@@ -40,25 +48,27 @@
 			<input id="calcVersion" type="text" value="4.2" >
 		</div>
 		';
-	if($template != 'customers') echo '<h1 id="mainTitle" contenteditable="true">' . $title . '</h1>';
+	if($template != 'customers' && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) echo '<h1 id="mainTitle" contenteditable="true">' . $title . '</h1>';
 
 	//форма параметров заказа
 	if($template == 'customers') {
 		echo '<div class="d-none">';
-		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/orderForm.php";
+		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/orderForm.php";
 		echo '</div>';
 	};
 
-	//пошаговый конфигуратор лестницы
-	$ignor_calc_types = ['railing', 'geometry', 'wardrobe'];
-	if ($template == 'calculator' && !in_array($calc_type, $ignor_calc_types)) {
-		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/master/main.php";
+	//пошаговый конфигуратор лестницы и менеджер картинок
+	$ignor_calc_types = ['railing', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects'];
+	if ($template == 'calculator' && !in_array($calc_type, $ignor_calc_types) && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
+		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/main.php";
 	}
-
+	
 	if($template != 'customers') {
 
-		//Форма параметров заказа
-		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/orderForm.php";
+		if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
+			//Форма параметров заказа
+			include $GLOBALS['ROOT_PATH']."/calculator/general/forms/orderForm.php";
+		}
 
 		//визуализация
 		echo
@@ -81,15 +91,12 @@
 			</div>';
 
 		//кнопки под визуализацией
-		if($template == 'calculator' && $calc_type != 'wardrobe') {
+		if($template == 'calculator' && $calc_type != 'wardrobe' && $calc_type != 'wardrobe_2' && $calc_type != 'objects') {
 			echo
 				'<div class="noPrint mainButtons">
 					<button id="open_master_modal" class="btn btn-outline-primary">Конфигуратор</button>
 					<button id="sendMessageModalShow" class="btn btn-outline-primary">Отправить КП</button>
 					<button id="print" class="btn btn-outline-primary">Печать</button>
-					<button id="cloneCanvas" class="btn btn-outline-secondary">Дублировать</button>
-					<button id="loadSavedCams" class="btn btn-outline-secondary">Загрузить виды</button>
-					<button id="resaveCam" class="btn btn-outline-secondary">Сохранить виды</button>
 					<button onclick="saveCanvasImg(0)" class="btn btn-outline-secondary">Сохранить png</button>
 					
 				</div>
@@ -100,6 +107,7 @@
 				'<div class="printBlock" id="geomDescrWrapper">
 					<h2>Геометрия</h2>
 					<div id="geomDescr"></div>
+					<div id="geometryFacts" style="width: 100vw;"></div>
 				</div>
 				';
 		};
@@ -107,7 +115,7 @@
 		if($template == 'manufacturing') {
 			echo
 			'<div class="noPrint mainButtons">
-				<button id="cloneCanvas">Дублировать</button>
+				<button id="cloneCanvas" onclick="cloneCanvas()">Дублировать</button>
 				<button onclick="saveCanvasImg(0)">Сохранить png</button>
 				<button id="print">Печать</button>
 			</div>
@@ -136,27 +144,31 @@
 		'price' => [
 				'name' => 'Цены',
 				'url' => '/calculator/general/price_tab.php',
-				'group' => 'data',
+				'group' => 'data'
 			],
 		'carcas' => [
 				'name' => 'Лестница',
 				'url' => '/calculator/metal/forms/carcas_form.php',
 				'group' => 'form',
+				'scripts' => ["/calculator/startTreads/forms/formChange.js", "/calculator/metal/forms/carcas_form_change.js"]
 			],
 		'railing' => [
 				'name' => 'Ограждения',
 				'url' => '/calculator/metal/forms/railing_form.php',
 				'group' => 'form',
+				'scripts' => ["/calculator/metal/forms/railing_form_change.js"]
 			],
 		'banister' => [
 			'name' => 'Балюстрада',
 			'url' => '/calculator/banister/forms/banister_form.php',
 			'group' => 'form',
+			'scripts' => ["/calculator/banister/forms/banister_construct_form_change.js"]
 			],
 		'assembling' => [
 				'name' => 'Установка',
 				'url' => '/calculator/general/forms/assemblingForm.php',
 				'group' => 'form',
+				'scripts' => ["/calculator/general/forms/assemblingFormChange.js"]
 			],
 		'comments' => [
 				'name' => 'Комментарии',
@@ -167,6 +179,7 @@
 				'name' => 'Геометрия',
 				'url' => '/calculator/geometry/forms/calculator_form.php',
 				'class' => 'noPrint',
+				'scripts' => ["/calculator/geometry/forms/calculator_form_change.js"],
 				'group' => 'form',
 			],
 		'floor_form' => [
@@ -181,6 +194,7 @@
 				'url' => '/calculator/walls/forms/walls_form.php',
 				'class' => 'noPrint',
 				'group' => 'form',
+				'scripts' => ["/calculator/walls/forms/walls_form_change.js"]
 			],
 	];
 
@@ -201,36 +215,56 @@
 	};
 	if($calc_type == 'mono'){
 		$tabs['carcas']['url']  = "/calculator/mono/forms/carcas_form.php";
+		$tabs['carcas']['scripts']  = ["/calculator/mono/forms/carcas_form_change.js", "/calculator/startTreads/forms/formChange.js"];
 	};
 	if($calc_type == 'railing'){
 		$tabs['geom'] = false;
 		$tabs['carcas'] = false;
 		$tabs['banister'] = false;
 		$tabs['railing']['url'] = "/calculator/railing/forms/railing_config.php";
+		$tabs['railing']['scripts']  = ["/calculator/banister/forms/banister_construct_form_change.js"];
 	};
 	if($calc_type == 'timber' || $calc_type == 'timber_stock'){
 		$tabs['carcas']['url']  = "/calculator/timber/forms/carcas_form.php";
+		$tabs['carcas']['scripts'] = ["/calculator/timber/forms/carcas_form_change.js", "/calculator/startTreads/forms/formChange.js"];
 		$tabs['railing']['url'] = "/calculator/timber/forms/railing_form.php";
+		$tabs['railing']['scripts'] = ["/calculator/timber/forms/railing_form_change.js"];
 	};
 	if($calc_type == 'vhod'){
 		$tabs['geom'] = false;
 		$tabs['carcas']['url']  = "/calculator/vhod/forms/carcas_form.php";
+		$tabs['carcas']['scripts'] = ["/calculator/vhod/forms/carcas_form_change.js"];
 		$tabs['railing']['url'] = "/calculator/vhod/forms/railing_form.php";
+		$tabs['railing']['scripts'] = ["/calculator/metal/forms/railing_form_change.js"];
 	};
 	if($calc_type == 'vint'){
 		$tabs['geom'] = false;
 		$tabs['carcas']['url']  = "/calculator/vint/forms/vint_form.php";
+		$tabs['carcas']['scripts'] = ["/calculator/vint/forms/changeFormVint.js"];
 		$tabs['railing'] = false;
 	};
 
 	if($calc_type == 'geometry'){
 		$tabs['price'] = false;
 		$tabs['carcas']['url']  = "/calculator/geometry/forms/carcas_form.php";
+		$tabs['carcas']['scripts'] = ["/calculator/geometry/forms/carcas_form_change.js"];
 		$tabs['railing'] = false;
 		$tabs['banister'] = false;
 		$tabs['assembling'] = false;
 		$tabs['comments'] = false;
 	};
+	
+	if ($calc_type == 'carport') {
+		$tabs['geom'] = false;
+		$tabs['carcas']['name'] = "Навес";
+		$tabs['carcas']['url'] = "/calculator/carport/forms/main_form.php";
+		$tabs['banister'] = false;
+		$tabs['railing'] = false;
+		$tabs['floor_form'] = false;
+		$tabs['walls'] = false;
+	};
+
+		
 
 	//убираем геометрию где она не нужна
 	if($template != 'manufacturing' && $template != 'calculator'){
@@ -238,10 +272,10 @@
 	};
 
 	//файлы заказа и типовые чертежи
-	if($template != 'customers'){
+	if($template != 'customers' && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])){
 		$tabs['files'] = [
 				'name' => 'Файлы',
-				'url' => '/calculator/general/orderFiles/orderFiles.php',
+				'url' => '/orders/files/orderFiles.php',
 				'class' => 'noPrint',
 				'group' => 'data',
 			];
@@ -257,7 +291,7 @@
 			];
 	};
 
-	if($template != 'customers'){
+	if($template != 'customers' && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])){
 		$tabs['drawings2'] = [
 				'name' => 'Эскизы',
 				'url' => '/calculator/geometry/forms/drawings.php',
@@ -267,12 +301,20 @@
 
 	//описание лестницы
 	if($template == 'calculator'){
+		$tabs['descrBlocks'] = [
+			'name' => 'Описание',
+			'url' => '/calculator/general/content/descriptionBlocks.php',
+			'group' => 'data',
+		];
 		$tabs['descr'] = [
-				'name' => 'Описание',
-				'url' => '/calculator/general/content/description.php',
-				'group' => 'data',
-			];
+			'name' => 'Описание',
+			'url' => '/calculator/general/content/description.php',
+			'group' => 'data',
+		];
 	};
+	if ($calc_type != 'wardrobe_2' && $calc_type != 'objects') {
+		include $GLOBALS['ROOT_PATH']."/calculator/general/content/templates.php";
+	}
 
 	if($calc_type == 'vint'){
 		$tabs['geom_params'] = [
@@ -291,15 +333,16 @@
 
 	//себестоимость
 	$tabs['cost'] = [
-			'name' => 'Себестоимость',
-			'url' => '/calculator/general/forms/cost.php',
-			'class' => 'd-none',
-			'group' => 'data',
-		];
+		'name' => 'Себестоимость',
+		'url' => '/calculator/general/forms/cost.php',
+		'class' => 'd-none',
+		'group' => 'data',
+	];
+
 	if($template == 'calculator') $tabs['cost']['class'] = 'noPrint';
 
 	//тесты
-	if($template == 'calculator' || $template == 'manufacturing'){
+	if(($template == 'calculator' || $template == 'manufacturing') && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])){
 		$tabs['testing'] = [
 				'name' => 'Тесты',
 				'url' => '/manufacturing/general/testing/forms/mainForm.php',
@@ -319,13 +362,14 @@
 	};
 
 	//данные для производства
-
-	$tabs['production'] = [
+	if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
+		$tabs['production'] = [
 			'name' => 'Производство',
 			'url' => '/manufacturing/general/include_areas/production_data.php',
 			//'class' => 'noPrint',
 			'group' => 'data',
 		];
+	}
 
 	if($template == 'customers' || $template == 'calculator') $tabs['production']['class'] = 'd-none';
 
@@ -416,6 +460,52 @@
 		);
 	}
 
+	if ($calc_type == 'wardrobe_2') {
+		$tabs = [
+			"menu"=>[
+				'name' => 'Меню',
+				'url' => '/calculator/general/forms/menu_form.php',
+				'class' => 'noPrint',
+				'group' => 'form',
+			],
+			"form"=>[
+				'name' => 'Секции',
+				'url' => '/calculator/wardrobe_2/form.php',
+				'class' => 'noPrint',
+				'group' => 'form'
+			],
+			'objects' => [
+				'name' => 'Объекты',
+				'url' => '/calculator/general/forms/objects/form.php',
+				'class' => 'noPrint',
+				'group' => 'form',
+			]
+		];
+	}
+
+	if ($calc_type == 'objects') {
+		$tabs = [
+			"menu"=>[
+				'name' => 'Меню',
+				'url' => '/calculator/general/forms/menu_form.php',
+				'class' => 'noPrint',
+				'group' => 'form',
+			],
+			"form"=>[
+				'name' => 'Объекты',
+				'url' => '/calculator/objects/form.php',
+				'class' => 'noPrint',
+				'group' => 'form'
+			],
+			'objects' => [
+				'name' => 'Объекты',
+				'url' => '/calculator/general/forms/objects/form.php',
+				'class' => 'noPrint',
+				'group' => 'form',
+			]
+		];
+	}
+
 
 	//формируем вкладки для вывода на страницу
 	$form_nav = '<nav><div class="nav nav-pills" id="nav-tab" role="tablist">';
@@ -460,7 +550,7 @@
 				$data_nav .= '<span class="dropdown-item"  id="makeAccepted">Привязать к заказу</span>';
 			};
 			$data_nav .= '
-				<span class="dropdown-item"  onclick="exportToObj($["vl_1"]);">Сохранить OBJ</span>
+				<span class="dropdown-item"  onclick="exportToObj(scene);">Сохранить OBJ</span>
 				<span class="dropdown-item"  id="saveIntoFile">Сохранить в файл</span>
 				<span class="dropdown-item"  onclick="$(\'#loadFile\').click();">Загрузить из файла</span>
 				<p><input type="file" accept="text/json" id="loadFile" style="display:none"></p>
@@ -475,16 +565,16 @@
 	foreach($tabs as $key=>$val){
 		if($val){
 			$class = "";
-			if($val['class']) $class = $val['class'];
+			if(isset($val['class']) && $val['class']) $class = $val['class'];
 
-			if($val['group'] == 'form'){
+			if(isset($val['group']) && $val['group'] == 'form'){
 				if($isFirst) $class .= " active"; //первая вкладка активная
 				$form_nav .= '<a class="nav-item nav-link ' . $class . '" id="nav-' . $key . '-tab" data-toggle="tab" href="#nav-' . $key . '" role="tab" aria-controls="nav-' . $key . '" aria-selected="true">' .
 						$val['name'] . '</a>';
 				$form_body .= '<div class="tab-pane fade show ' . $class . ' printBlock" id="nav-' . $key . '" role="tabpanel" aria-labelledby="nav-' . $key . '-tab">';
 				//получаем содержимое файла формы с учетом вложенных include
 				ob_start();
-				include $_SERVER['DOCUMENT_ROOT'].$val['url'];
+				include $GLOBALS['ROOT_PATH'].$val['url'];
 				$form_body .= ob_get_contents();
 				ob_end_clean();
 
@@ -492,21 +582,19 @@
 
 				$isFirst = false;
 			};
-			if($val['group'] == 'data'){
+			if(isset($val['group']) && $val['group'] == 'data'){
 				$data_nav .= '<a class="nav-item nav-link ' . $class . '" id="nav-' . $key . '" href="#' . $key . '-sect">' . $val['name']. '</a>';
 
 				if($key != "price") $class .= " printBlock";
 
 				$data_body .= '<div id="' . $key . '-sect" class="' . $class . '">';
 				ob_start();
-				include $_SERVER['DOCUMENT_ROOT'].$val['url'];
+				include $GLOBALS['ROOT_PATH'].$val['url'];
 				$data_body .= ob_get_contents();
 				ob_end_clean();
 
 				$data_body .= '</div>';
 			};
-
-
 		};
 	};
 
@@ -542,218 +630,355 @@
 		echo "<br/>" . $form_nav . $form_body;
 	};
 
+	if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
+		//загрузка данных кп
+		include $GLOBALS['ROOT_PATH']."/orders/calcs/getOrderData.php";
+	}
 
-//загрузка данных кп
-include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
+	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/forgedBals.php";
+	if ($template != 'customers') {
+		include $GLOBALS['ROOT_PATH']."/calculator/general/modals/timberBals.php";
+		include $GLOBALS['ROOT_PATH']."/calculator/general/modals/timberNewells.php";
+		include $GLOBALS['ROOT_PATH']."/calculator/general/modals/startNewell.php";
+		include $GLOBALS['ROOT_PATH']."/calculator/general/modals/textures.php";
+		include $GLOBALS['ROOT_PATH']."/orders/mail/forms/mailModal.php";
+		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/partInfo.php";
+	};
+
 ?>
+
+<script>
+	$(function(){
+		//отправка на печать
+		$("#print").click(function(){	
+
+			if($(this).text() == "Печать"){
+				//window.print();
+				$(this).text("Редактировать")
+				togglePrintMode(true);
+			}
+			else {
+				togglePrintMode(false);
+				$(this).text("Печать");
+			}
+			
+		})
+		
+		//включение/выключение печати блоков
+		$("body").delegate(".togglePrint", "click", function(){
+			$(this).toggleClass("grey") //добавляем кнопке класс, чтобы можно было отличить блоки, отключенные пользователем
+			$(this).closest('div.printBlock').toggleClass("noPrint").show();
+		})
+		
+		//сворачивание, разворачивание панели
+		$('#panelToggle').click(function(){
+			var cond = $(".panelBody").css('display')
+			
+			//$(".panelBody").toggleClass("d-none");
+			$(".panelBody").animate({width: 'toggle'}, 200);
+			
+			$(".panelWrap").toggleClass("visible");
+			$(".panelResizer").toggleClass("d-none");
+			$(".panelWrap button.recalculate").toggleClass("d-none");
+			
+			
+			if(cond == "block") $("#panelToggle").html('<i class="fa fa-chevron-circle-left"></i>')
+			else $("#panelToggle").html('<i class="fa fa-chevron-circle-right"></i>')
+			
+		});
+		
+		//ресайз
+		$('.panelResizer').on('mousedown', function(e) {
+			$(document).on('mousemove', resize);
+			$(document).on('mouseup', finishResize);
+			
+			var $wrapper = $(".panelBody");
+			var width = $wrapper.outerWidth(true);
+			var left = $wrapper.offset().left;
+
+			function resize(e) {
+				
+				$('body').css({'user-select': 'none'}) //отключаем выделение текста мышкой
+				var delta = left - e.pageX;
+				var newWidth = width + delta;
+
+				$wrapper.css({
+				'width': newWidth,
+				'max-width': 'unset',
+				});
+				
+			}
+
+			function finishResize(e) {
+				$('body').css({'user-select': 'auto'}) //включаем выделение текста мышкой
+				$(document).off('mousemove', resize);
+				$(document).off('mouseup', finishResize);
+			}
+			
+			
+		})
+		
+
+		
+	});
+
+	function getArrItemByProp(arr, prop, val){
+		if(!arr || !prop) return false;
+		
+		for(var i=0; i<arr.length; i++){
+			if(typeof arr[i] != 'undefined' && arr[i][prop] == val){
+				return arr[i];
+				}
+			}
+		return false;
+	} //end of getItemById
+
+
+	/** функция включает/выклчает режим печати на странице
+	*/
+
+	function togglePrintMode(printMode){
+		
+		if(printMode){
+			$("body").addClass("print")
+			
+			//добавляем кнопочки во все блоки, если их еще нет
+			if($(".togglePrint").length == 0) {
+				$(".printBlock").prepend("<div class='togglePrint'><span class='fa fa-print'></span></div>");
+			}
+			
+			//показываем те блоки, где печать была отключена пользователем
+			$(".togglePrint.grey").closest("div.printBlock").show();
+		}
+		else{
+			$("body").removeClass("print")
+		}
+		
+		$(".mainButtons").show();
+		
+	}; //end of togglePrintMode
+
+</script>
+
+<!-- Всплывающее уведомление -->
+<div class="toast" id="notifyToast" data-delay='4000' style="display: none; position: fixed; z-index: 999; top: 200px; left: 50px;">
+  <div class="toast-header">
+      <strong class="mr-auto" id='notifyTitle'>Уведомление</strong>
+      <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">
+          <span aria-hidden="true">&times;</span>
+      </button>
+  </div>
+  <div class="toast-body" id='notifyContent'>
+  </div>
+</div>
 
 <style>
 
-.panelWrap{
-	position: fixed;
-	top: 5px;
-	right: 0;
-	height: 0;
-	z-index: 1030;
-	float: right;
-	display:inline-block;
-    height: 98vh;
-	padding: 10px;
-    border-radius: 5px;
-	/*overflow: hidden;*/
-}
+	.panelWrap{
+		position: fixed;
+		top: 5px;
+		right: 0;
+		height: 0;
+		z-index: 1030;
+		float: right;
+		display:inline-block;
+		height: 98vh;
+		padding: 10px;
+		border-radius: 5px;
+		/*overflow: hidden;*/
+	}
 
-.panelWrap.visible{
-	border: 1px solid grey;
-	background-color: white;
-}
+	.panelWrap.visible{
+		border: 1px solid grey;
+		background-color: white;
+	}
 
-.panelWrap nav{
-    position: relative;
-	background-color: aliceblue;
-    padding: 5px;
-    border-radius: 5px;
-	margin: 10px 0;
-	width: 100%;
-	font-size: 0.8em;
-}
+	.panelWrap nav{
+		position: relative;
+		background-color: aliceblue;
+		padding: 5px;
+		border-radius: 5px;
+		margin: 10px 0;
+		width: 100%;
+		font-size: 0.8em;
+	}
 
-.panelBody {
-	max-width: 600px;
-	width: 90vw;
-	height: 97%;
-}
-
-
-.mainForm{
-	width: 100%;
-	height: 75%;
-	overflow: scroll;
-	min-height: 200px;
-	padding-bottom: 100px;
-}
-
-.new-menu-wrapper{
-	/* position: fixed;
-	top: 100px;
-	right: 10px;
-	width: 300px;
-	border: 1px solid rgba(0,0,0,0.3);
-	border-radius: 5px;
-	overflow: auto;
-	height: 80vh; */
-}
-
-.new-menu-wrapper .menu-item{
-	padding: 0 10px;
-	border: 1px solid rgba(0,0,0,0.3);
-	display: flex;
-	height: 30px;
-}
-
-.new-menu-wrapper .menu-item > *{
-	/* line-height: 25px; */
-	flex: 1;
-	height: 20px;
-	font-size: 13px;
-	margin: auto;
-}
-
-.new-menu-wrapper .menu-item.menu-item__clickable{
-	cursor:pointer;
-}
-
-.new-menu-wrapper .menu-item.menu-item__clickable:hover{
-	background-color: rgb(230,230,230);
-}
-
-.new-menu-wrapper .menu-item span{
-	height: 30px;
-	flex: 3;
-	display: flex;
-	align-items: center;
-}
-
-.new-menu-wrapper .menu-item[data-menu_delimeter], .new-menu-wrapper .menu-item[data-menu_folder]{
-	background-color: cornflowerblue;
-	color: white;
-	font-size: 18px;
-	cursor: pointer;
-}
-
-.new-menu-wrapper .menu-item[data-menu_checkbox]{
-	background-color: cornflowerblue;
-	color: white;
-	font-size: 18px;
-	cursor: pointer;
-}
+	.panelBody {
+		max-width: 600px;
+		width: 90vw;
+		height: 97%;
+	}
 
 
-/* .new-menu-wrapper .menu-group .menu-item:not([data-menu_delimeter]){
-	padding-left: 20px;
-} */
+	.mainForm{
+		width: 100%;
+		height: 75%;
+		overflow: scroll;
+		min-height: 200px;
+		padding-bottom: 100px;
+	}
 
-.new-menu-wrapper .menu-group .menu-group__content{
-	padding-left: 10px;
-}
+	.new-menu-wrapper{
+		/* position: fixed;
+		top: 100px;
+		right: 10px;
+		width: 300px;
+		border: 1px solid rgba(0,0,0,0.3);
+		border-radius: 5px;
+		overflow: auto;
+		height: 80vh; */
+	}
+
+	.new-menu-wrapper .menu-item{
+		padding: 0 10px;
+		border: 1px solid rgba(0,0,0,0.3);
+		display: flex;
+		height: 30px;
+	}
+
+	.new-menu-wrapper .menu-item > *{
+		/* line-height: 25px; */
+		flex: 1;
+		height: 20px;
+		font-size: 13px;
+		margin: auto;
+	}
+
+	.new-menu-wrapper .menu-item.menu-item__clickable{
+		cursor:pointer;
+	}
+
+	.new-menu-wrapper .menu-item.menu-item__clickable:hover{
+		background-color: rgb(230,230,230);
+	}
+
+	.new-menu-wrapper .menu-item span{
+		height: 30px;
+		flex: 3;
+		display: flex;
+		align-items: center;
+	}
+
+	.new-menu-wrapper .menu-item[data-menu_delimeter], .new-menu-wrapper .menu-item[data-menu_folder]{
+		background-color: cornflowerblue;
+		color: white;
+		font-size: 18px;
+		cursor: pointer;
+	}
+
+	.new-menu-wrapper .menu-item[data-menu_checkbox]{
+		background-color: cornflowerblue;
+		color: white;
+		font-size: 18px;
+		cursor: pointer;
+	}
 
 
-.dg.ac {
-	z-index: 1200;
-}
+	/* .new-menu-wrapper .menu-group .menu-item:not([data-menu_delimeter]){
+		padding-left: 20px;
+	} */
 
-.panelResizer{
-	width: 5px;
-    height: 100px;
-    background-color: #d0d0d0;
-    float: left;
-    cursor: w-resize;
-    font-size: 20px;
-    position: absolute;
-    top: 100px;
-    left: -5px;
-}
-
-/*стили печати*/
-.print .panelWrap{
-	position: relative!important;
-	width: 100%!important;
-	height: 100%!important;
-    border: none!important;
-	height: auto!important;
-}
-
-.print .panelHeader{
-	display: none;
-}
+	.new-menu-wrapper .menu-group .menu-group__content{
+		padding-left: 10px;
+	}
 
 
-.print nav{
-	display: none;
-}
+	.dg.ac {
+		z-index: 1200;
+	}
 
-.print .panelBody{
-	width: 100%;
-	display: block!important;
-	height: auto!important;
-}
+	.panelResizer{
+		width: 5px;
+		height: 100px;
+		background-color: #d0d0d0;
+		float: left;
+		cursor: w-resize;
+		font-size: 20px;
+		position: absolute;
+		top: 100px;
+		left: -5px;
+	}
 
-.print .mainForm{
-	overflow: visible;
-	height: auto!important;
-}
+	/*стили печати*/
+	.print .panelWrap{
+		position: relative!important;
+		width: 100%!important;
+		height: 100%!important;
+		border: none!important;
+		height: auto!important;
+	}
+
+	.print .panelHeader{
+		display: none;
+	}
 
 
-.print .mainForm>.tab-pane {
-    display: block;
-	opacity: 100;
-}
+	.print nav{
+		display: none;
+	}
 
-.print .mainForm>.tab-pane.noPrint {
-    display: none;
-}
+	.print .panelBody{
+		width: 100%;
+		display: block!important;
+		height: auto!important;
+	}
 
-.printBlock {
-	margin: 5px;
-}
+	.print .mainForm{
+		overflow: visible;
+		height: auto!important;
+	}
 
-.print .printBlock:hover {
-	border: 1px solid red;
-}
 
-.print .noPrint {
-	display: none;
-	border: 1px solid lightgrey;
-}
+	.print .mainForm>.tab-pane {
+		display: block;
+		opacity: 100;
+	}
 
-.print .panelResizer {
-	display: none;
-}
+	.print .mainForm>.tab-pane.noPrint {
+		display: none;
+	}
 
-.togglePrint{
-	display: none;
-	padding: 10px;
-    position: absolute;
-    right: 20;
-    font-size: 1.5em;
-	cursor: pointer;
-	z-index: 1;
-}
+	.printBlock {
+		margin: 5px;
+	}
 
-.togglePrint:hover{
-	background-color: lavender;
-    border-radius: 5px;
-}
+	.print .printBlock:hover {
+		border: 1px solid red;
+	}
 
-.print .togglePrint {
-	display: block;
-}
+	.print .noPrint {
+		display: none;
+		border: 1px solid lightgrey;
+	}
 
-.grey{
-	color: lightgrey;
-}
+	.print .panelResizer {
+		display: none;
+	}
 
-.dropdown-item{
-	cursor: pointer;
-}
+	.togglePrint{
+		display: none;
+		padding: 10px;
+		position: absolute;
+		right: 20;
+		font-size: 1.5em;
+		cursor: pointer;
+		z-index: 1;
+	}
+
+	.togglePrint:hover{
+		background-color: lavender;
+		border-radius: 5px;
+	}
+
+	.print .togglePrint {
+		display: block;
+	}
+
+	.grey{
+		color: lightgrey;
+	}
+
+	.dropdown-item{
+		cursor: pointer;
+	}
 </style>

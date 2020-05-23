@@ -35,6 +35,3 @@
 		</div><!-- /.модальное окно-Содержание -->  
 	</div><!-- /.модальное окно-диалог -->  
 </div><!-- /.модальное окно --> 
-
-<!-- обработчик -->
-<script type="text/javascript" src="/calculator/general/modals/forgedBals.js"></script>

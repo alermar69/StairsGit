@@ -1403,8 +1403,6 @@ function addGeneralItems(list){
 		division: "stock_1",
 		items: [],
 	};
-		
-	
 	
 }
 	
@@ -1515,6 +1513,26 @@ function getMaterialName(item){
 	
 	
 	return matName;
+}
+
+function addDopSpecItems(partsList){
+	$.each(partsAmt_dop, function(key, item){
+		if(key == 'unit') return
+		for(var partName in item){
+			var itemsPar = {
+				specObj: item,
+				partName: partName,
+				metalPaint: item[partName]["metalPaint"],
+				timberPaint: item[partName]["timberPaint"],
+				division: item[partName]["division"],
+				itemGroup: item[partName]["group"],
+				
+			}
+			if(item[partName].comment) itemsPar.comment = item[partName].comment;
+	
+			partsList.addSpecObjItems(itemsPar);
+		}
+	});
 }
 
 function addFixParts(par){
@@ -1780,7 +1798,7 @@ function printSpecificationCollation(partsList, customTable) {
 				"<td data-propId='isModelData'>" + isModelData + "</td>" + 				
 				"</tr>";
 		}
-		
+
 		if(countItem > 0)
 		switch(list.division){
 		    case 'stock_1': // Склад фурнитуры

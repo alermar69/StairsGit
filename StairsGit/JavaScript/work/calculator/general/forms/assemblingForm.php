@@ -257,6 +257,3 @@
 
 	</div>
 </div>
-
-<!--обработчик формы-->
-<script type="text/javascript" src="/calculator/general/forms/assemblingFormChange.js"></script>

@@ -186,11 +186,13 @@ function addMeasurement(viewportId) {
 		sConnection.visible = false;
 		sphereHelper.visible = false;
 
-		$('#selectedObjectInfo').hide();
-		if (selectedSpecObj && !allSpecsShowed) unselectSpecObj();
-		$('#popuup_div').stop(true, true).hide();
-		$('#popuup2_div').stop(true, true).hide();
-		if ((!evt.ctrlKey && !evt.shiftKey && !params.customersDimensions) || evt.which !== 1) return;
+		if (!window.objectMovingId) {
+			$('#selectedObjectInfo').hide();
+			if (selectedSpecObj && !allSpecsShowed) unselectSpecObj();
+			$('#popuup_div').stop(true, true).hide();
+			$('#popuup2_div').stop(true, true).hide();
+			if ((!evt.ctrlKey && !evt.shiftKey && !params.customersDimensions) || evt.which !== 1) return;
+		}
 
 		//выделение объекта
 		if (intersects[0]) var selectedObj = intersects[0].object;
@@ -199,7 +201,17 @@ function addMeasurement(viewportId) {
 				selectSpecObj(selectedObj, evt)
 			}
 
-			if (evt.ctrlKey || params.customersDimensions) {
+			if (window.objectMovingId && window.firstPointSelected) {
+				var selectedAxis = intersects.find(function(intersect){
+					return intersect.object && intersect.object.isAxis;
+				});
+				if (selectedAxis) {
+					var obj = selectedAxis.object;
+					moveObjectByAxis(obj.axis, obj.factor);
+				}
+			}
+
+			if (evt.ctrlKey || params.customersDimensions ) {
 				sphereHelper.visible = false;
 				spStart.visible = true;
 				spEnd.visible = true;
@@ -228,21 +240,35 @@ function addMeasurement(viewportId) {
 					sConnection.geometry.vertices[1].copy(spEnd.position);
 					sConnection.geometry.verticesNeedUpdate = true;
 					sConnection.geometry.computeBoundingSphere();
+
+					if (window.objectMovingId) {
+						if (!window.firstPointSelected) {
+							firstPointSelect();
+							return;
+						}
+						
+						if (window.firstPointSelected) {
+							moveObjectTwoPoints();
+							return;
+						}
+					}
 				}
 
 
 				// placing distance label
-				var labelPos = spStart.position.clone().add(spEnd.position).multiplyScalar(0.5);
-				var distance = spStart.position.distanceTo(spEnd.position);
-				var lblDistance = document.getElementById("popuup_div");
-				$('#popuup_div').stop(true, true).css({
-					left: Math.round(evt.pageX + 20),
-					top: Math.round(evt.pageY)
-				}).show();
-				lblDistance.innerHTML = '&#x1D6AB;x: ' + Math.abs(spStart.position.x - spEnd.position.x).toFixed(1) +
-					'<br/>&#x1D6AB;y: ' + Math.abs(spStart.position.y - spEnd.position.y).toFixed(1) +
-					'<br/>&#x1D6AB;z: ' + Math.abs(spStart.position.z - spEnd.position.z).toFixed(1) +
-					'<br/>dist: ' + distance.toFixed(2);
+				if (!window.objectMovingId) {
+					var labelPos = spStart.position.clone().add(spEnd.position).multiplyScalar(0.5);
+					var distance = spStart.position.distanceTo(spEnd.position);
+					var lblDistance = document.getElementById("popuup_div");
+					$('#popuup_div').stop(true, true).css({
+						left: Math.round(evt.pageX + 20),
+						top: Math.round(evt.pageY)
+					}).show();
+					lblDistance.innerHTML = '&#x1D6AB;x: ' + Math.abs(spStart.position.x - spEnd.position.x).toFixed(1) +
+						'<br/>&#x1D6AB;y: ' + Math.abs(spStart.position.y - spEnd.position.y).toFixed(1) +
+						'<br/>&#x1D6AB;z: ' + Math.abs(spStart.position.z - spEnd.position.z).toFixed(1) +
+						'<br/>dist: ' + distance.toFixed(2);
+				}
 
 			}
 		}
@@ -262,14 +288,16 @@ function addMeasurement(viewportId) {
 			mouse.y = (pos.y / canvas.clientHeight) * -2 + 1; // note we flip Y
 
 			raycaster.setFromCamera(mouse, view.camera);
+
 			var intersects = raycaster.intersectObjects(view.scene.children, true);
+
+			if ((!intersects || intersects.length == 0) && typeof AdditionalObject == 'function' && hovered) hovered.onUnHover({});
 			if (intersects.length > 0) {
 
 				var intersect = intersects[0];
 				var point = intersect.point;
 				var object = intersect.object;
 				var distance;
-
 				if (typeof AdditionalObject == 'function') AdditionalObject.onHover(object, evt);
 
 				canvas.style.cursor = 'auto';
@@ -883,6 +911,7 @@ function addLedges(wall, n){
 	}
 
 	complexWall.add(wall);
+	
 
 	// Текст на стене сбоку
 	var wallDepth = $('#wallThickness_' + n).val() * 1.0;
@@ -898,6 +927,7 @@ function addLedges(wall, n){
 	text.rotation.z = wall.rotation.z;
 
 	text.alwaysTransparent = true;
+	text.setLayer('labels');
 	complexWall.add(text);
 
 	// Текст на стене сверху
@@ -911,6 +941,7 @@ function addLedges(wall, n){
 	text.rotation.y = wall.rotation.y;
 	text.rotation.z = wall.rotation.z + Math.PI / 2;
 	text.alwaysTransparent = true;
+	text.setLayer('labels');
 	complexWall.add(text);
 
 	wall.userData.isWall = true;
@@ -1043,13 +1074,13 @@ function addAdditionalObject(json){
 			mesh.rotation.y = THREE.Math.degToRad(json.rotation) || 0;
 		}
 
-		addObjects('', mesh, 'externalObject');
+		addObjects('', mesh, json.layer || 'additionalObject');
 	}
 	return mesh;
 }
 
 function redrawAdditionalObjects(){
-	if (!window.service_data || !window.service_data.additional_objects) return;
+	if (!window.additional_objects) return;
 	var obj = view.scene.getObjectsByLayerName('additionalObject');
 
 	if (obj) {
@@ -1060,10 +1091,17 @@ function redrawAdditionalObjects(){
 
 	$('.additionalObjectRow').remove();
 
-	$.each(window.service_data.additional_objects, function(){
+	// Сохраняем ссылку на specObj перед отрисовкой, тк в процессе отрисовки формируется спецификация для доп объектов
+	partsAmt_dop = {};
+
+	$.each(window.additional_objects, function(){
+		console.log(this);
 		addAdditionalObjectTable(this);
 		addAdditionalObject(this);
 	})
+
+	// Возвращаем на место
+	// specObj = oldSpecObj;
 }
 
 function drawParMeshWrapper(par){
@@ -1123,6 +1161,8 @@ function createMenu(){
 			menu.wall2 = menuElement.value;
 			menu.wall3 = menuElement.value;
 			menu.wall4 = menuElement.value;
+			menu.topFloor = menuElement.value;
+			menu.labels = menuElement.value;
 		}});
 		menu.addLayer({group: group, layerName: 'floorBottom', title: 'Нижнее'});
 		menu.addLayer({group: group, layerName: 'topFloor', title: 'Верхнее'});
@@ -1132,7 +1172,7 @@ function createMenu(){
 		var group = menu.addGroup({title: 'Настройки'});
 		
 		var simpleModeState = true;
-		if (window.location.href.includes("/manufacturing")) simpleModeState = false;
+		if (window.location.href.includes("/manufacturing") || params.calcType == 'carport') simpleModeState = false;
 		var simpleModeUrl = $.urlParam('simpleMode');
 		if (simpleModeUrl !== null) simpleModeState = simpleModeUrl == 1;
 
@@ -1180,10 +1220,10 @@ function createMenu(){
 		}});
 
 		menu.addCheckbox({state: true, group: group, variableName: 'transparentWalls', title: 'Прозр. Стены', callback: function(menuElement){
-			var layers = ["wall1", "wall2", "wall3", "wall4", "topFloor", "ceil", "beamTop"]
+			var wallLayers = ["wall1", "wall2", "wall3", "wall4", "topFloor", "ceil", "beamTop"]
 
 			view.scene.traverse(function(node){
-				if (node.material && layers.indexOf(node.layerName) != -1 && !node.alwaysTransparent) {
+				if (node.material && wallLayers.indexOf(node.layerName) != -1 && !node.alwaysTransparent) {
 					node.material.transparent = menuElement.value;
 					node.material.opacity = 0.3;
 				}
@@ -1194,7 +1234,7 @@ function createMenu(){
 			toggleTreadLights('step', menuElement.value);
 		}});
 
-		menu.addCheckbox({group: group, title: 'Текстуры', callback: function(menuElement){
+		menu.addCheckbox({group: group, title: 'Текстуры', variableName: 'textures', callback: function(menuElement){
 			redrawView(menuElement.value);
 		}});
 

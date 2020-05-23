@@ -271,7 +271,7 @@
 			<!-- Пригласительные ступени -->
 			<div id="startTreads">
 				<h4>3. Пригласительные ступени</h4>
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/startTreads/forms/form.php" ?>
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/startTreads/forms/form.php" ?>
 			</div>
 
 
@@ -309,6 +309,7 @@
 									<option value="лиственница тер.">лиственница тер.</option>
 									<option value="пресснастил">пресснастил</option>
 									<option value="стекло">стекло</option>
+									<option value="короб">короб</option>
 								</select>
 							</td>
 						</tr>
@@ -318,7 +319,7 @@
 							<td>
 								<select id="metalPaint" size="1">
 									<!-- варианты покраски металла -->
-									<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalPaint.php" ?>
+									<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalPaint.php" ?>
 								</select>
 							</td>
 						</tr>
@@ -328,7 +329,7 @@
 							<td>
 								<select id="metalPaint_railing" size="1">
 									<!-- варианты покраски металла -->
-									<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalPaint.php" ?>
+									<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalPaint.php" ?>
 								</select>
 							</td>
 						</tr>
@@ -338,7 +339,7 @@
 							<td>
 								<select id="timberPaint" size="1">
 									<!-- варианты покраски дерева -->
-									<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberPaint.php" ?>
+									<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberPaint.php" ?>
 								</select>
 							</td>
 						</tr>
@@ -348,7 +349,7 @@
 							<td>
 								<select id="surfaceType" size="1">
 									<!-- варианты покраски дерева -->
-									<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/surfaceTypes.php" ?>
+									<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/surfaceTypes.php" ?>
 								</select>
 							</td>
 						</tr>
@@ -358,7 +359,7 @@
 							<td>
 								<select id="fillerType" size="1">
 									<!-- варианты покраски дерева -->
-									<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fillerTypes.php" ?>
+									<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fillerTypes.php" ?>
 								</select>
 							</td>
 						</tr>
@@ -447,7 +448,7 @@
 			<!-- цвета и материалы -->
 			<div id="colors_inputs">
 				<h4>5. Материалы и цвета:</h4>
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/colorsForm.php" ?>
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/colorsForm.php" ?>
 			</div>
 		</div>
 
@@ -455,7 +456,7 @@
 
 			<h4>6. Крепление лестницы.</h4>
 			<!-- параметры крепления лестницы к стенам-->
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fixingParams.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fixingParams.php" ?>
 			<table class="form_table">
 				<tbody>
 
@@ -759,6 +760,3 @@
 -->
 	</div>
 </div>
-
-<!--Обработчик формы-->
-<script type="text/javascript" src="/calculator/metal/forms/carcas_form_change.js"></script>

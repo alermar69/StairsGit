@@ -1,178 +1,183 @@
-<!--чтение данных из форм-->
-<script type="text/javascript" src="/calculator/general/inputsReading_2.0.js?23012020"></script>
+<?php
+// <!--чтение данных из форм-->
+$scripts[] = ["url" => "/calculator/general/inputsReading_2.0.js"];
 
-<!--общие библитотеки-->
-<script async="" src="/calculator/general/FileSaver.min.js" /></script>
-<script type="text/javascript" src="/calculator/general/forms/formsChange.js" /></script>
-<script type="text/javascript" src="/calculator/general/layers.js" /></script>
-<script type="text/javascript" src="/calculator/general/orderFiles/getLinks.js" /></script>
-<script type="text/javascript" src="/calculator/general/modals/main.js" /></script>
-<script type="text/javascript" src="/calculator/general/offer.js" /></script>
-<script type="text/javascript" src="/calculator/general/content/description.js"></script>
+//<!--общие библитотеки-->
+$scripts[] = ["url" => "/calculator/general/FileSaver.min.js"];
+$scripts[] = ["url" => "/calculator/general/forms/formsChange.js"];
+$scripts[] = ["url" => "/calculator/general/layers.js"];
+$scripts[] = ["url" => "/orders/files/getLinks.js"];
+$scripts[] = ["url" => "/calculator/general/modals/main.js"];
+$scripts[] = ["url" => "/calculator/general/offer.js"];
+$scripts[] = ["url" => "/calculator/general/content/description.js"];
 
-<!--графика-->
+//<!--графика-->
+$scripts[] = ["url" => "/calculator/general/scene/utils.js"];
+$scripts[] = ["url" => "/calculator/general/scene/viewport.js"];
+$scripts[] = ["url" => "/calculator/general/scene/menu.js"];
+$scripts[] = ["url" => "/calculator/general/scene/scene.js"];
+$scripts[] = ["url" => "/calculator/general/dxf_tools/dxf_tools.js"];
+$scripts[] = ["url" => "/calculator/general/dxf_tools/dxf-parser.js"];
 
-<!-- <script type="text/javascript" src="/calculator/general/viewports_3.0.js"></script> -->
-<script type="text/javascript" src="/calculator/general/scene/utils.js?23012020"></script>
-<script type="text/javascript" src="/calculator/general/scene/viewport.js?23012020"></script>
-<script type="text/javascript" src="/calculator/general/scene/menu.js?23012020"></script>
-<script type="text/javascript" src="/calculator/general/scene/scene.js"></script>
-<script type="text/javascript" src="/calculator/general/dxf_tools/dxf_tools.js"></script>
-<script type="text/javascript" src="/calculator/general/dxf_tools/dxf-parser.js"></script>
+$scripts[] = ["url" => "/calculator/general/three_libs/three.js"];
+$scripts[] = ["url" => "/calculator/general/three_libs/stats.js"];
+$scripts[] = ["url" => "/calculator/general/three_libs/OrbitControls.js"];
+$scripts[] = ["url" => "/calculator/general/three_libs/ThreeBSP.js"];
+$scripts[] = ["url" => "/calculator/general/three_libs/OBJExporter.js"];
+$scripts[] = ["url" => "/calculator/general/three_libs/THREE.MeshLine.js"];
+$scripts[] = ["url" => "/calculator/general/three_libs/SceneUtils.js"];
+$scripts[] = ["url" => "/calculator/general/three_libs/SVGRenderer.js"];
+$scripts[] = ["url" => "/calculator/general/three_libs/Projector.js"];
+$scripts[] = ["url" => "/calculator/general/three_libs/OBJLoader.js"];
+$scripts[] = ["url" => "/calculator/general/three_libs/MTLLoader.js"];
 
-<script type="text/javascript" src="/calculator/general/three_libs/three.js"></script>
-<script type="text/javascript" src="/calculator/general/three_libs/stats.js"></script>
-<!-- <script type="text/javascript" src="/calculator/general/three_libs/dat.gui.js"></script> -->
-<script type="text/javascript" src="/calculator/general/three_libs/OrbitControls.js"></script>
-<script type="text/javascript" src="/calculator/general/three_libs/ThreeBSP.js"></script>
-<script type="text/javascript" src="/calculator/general/three_libs/OBJExporter.js"></script>
-<script type="text/javascript" src="/calculator/general/three_libs/THREE.MeshLine.js"></script>
-<script type="text/javascript" src="/calculator/general/three_libs/SceneUtils.js"></script>
-<script type="text/javascript" src="/calculator/general/three_libs/SVGRenderer.js"></script>
-<script type="text/javascript" src="/calculator/general/three_libs/Projector.js"></script>
+$scripts[] = ["url" => "/calculator/general/content/facts_generator.js"];
 
-<script type="text/javascript" src="/calculator/general/scene/additionalObject.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/sofa.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/table.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/door.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/window.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/battery.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/chair.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/bedside.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/fridge.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/pipe.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/switch.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/socket.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/wardrobe.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/tv.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/lustre.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/wallLamp.js"></script>
-<script type="text/javascript" src="/calculator/general/scene/objects/ladder.js"></script>
+$scripts[] = ["url" => "/calculator/general/scene/additionalObject.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/sofa.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/table.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/door.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/window.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/battery.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/chair.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/bedside.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/fridge.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/pipe.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/switch.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/socket.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/wardrobe.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/tv.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/lustre.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/wallLamp.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/ladder.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/winder.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/concretePlatform.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/rack_wall.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/metalPlatform.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/column.js"]; 
+$scripts[] = ["url" => "/calculator/general/scene/objects/canopy.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/transport.js"];
 
-<!--другая библиотека polygon triangulation-->
-<script type="text/javascript" src="/calculator/general/three_libs/earcut.js"></script>
-<script type="text/javascript" src="/calculator/general/three_libs/triangulation.js"></script>
+$scripts[] = ['url' => "/calculator/general/jsviews.min.js"];
 
-<!--визуализация-->
-<script type="text/javascript" src="/manufacturing/general/drawTreads.js"></script>
-<script type="text/javascript" src="/manufacturing/general/calcParams.js"></script>
-<script type="text/javascript" src="/manufacturing/general/drawRailing.js"></script>
-<script type="text/javascript" src="/manufacturing/general/calcRailingParams.js"></script>
-<script type="text/javascript" src="/manufacturing/general/drawCarcasParts.js"></script>
-<script type="text/javascript" src="/manufacturing/general/sideHandrail.js"></script>
-<script type="text/javascript" src="/manufacturing/general/drawSkirting.js"></script>
+//<!--другая библиотека polygon triangulation-->
+$scripts[] = ["url" => "/calculator/general/three_libs/earcut.js"];
+$scripts[] = ["url" => "/calculator/general/three_libs/triangulation.js"];
 
-<script type="text/javascript" src="/calculator/general/drawPrimitives.js"></script>
-<script type="text/javascript" src="/manufacturing/general/drawRailingPartsLib_4.0.js"></script>
-<script type="text/javascript" src="/manufacturing/general/drawRailingParts_man_4.0.js"></script>
-<script type="text/javascript" src="/calculator/banister/drawBanister_man_4.0.js"></script>
-<script type="text/javascript" src="/calculator/banister/drawBalSect_man_4.0.js"></script>
-<script type="text/javascript" src="/calculator/general/drawPrimitives3D.js"></script>
+//<!--визуализация-->
+$scripts[] = ["url" => "/manufacturing/general/drawTreads.js"];
+$scripts[] = ["url" => "/manufacturing/general/calcParams.js"];
+$scripts[] = ["url" => "/manufacturing/general/drawRailing.js"];
+$scripts[] = ["url" => "/manufacturing/general/calcRailingParams.js"];
+$scripts[] = ["url" => "/manufacturing/general/drawCarcasParts.js"];
+$scripts[] = ["url" => "/manufacturing/general/sideHandrail.js"];
+$scripts[] = ["url" => "/manufacturing/general/drawSkirting.js"];
 
-<script type="text/javascript" src="/manufacturing/general/drawDimensions.js"></script>
-<script type="text/javascript" src="/calculator/startTreads/drawTreads.js"></script>
-<script type="text/javascript" src="/calculator/general/drawCarcasPartsLib.js"></script>
-<script type="text/javascript" src="/calculator/general/colors.js"></script>
-<script type="text/javascript" src="/calculator/geometry/calcGeomParams2.js"></script>
-<script type="text/javascript" src="/calculator/geometry/drawDimensions.js"></script>
-<script type="text/javascript" src="/calculator/geometry/drawGeomSvg.js"></script>
+$scripts[] = ["url" => "/calculator/general/drawPrimitives.js"];
+$scripts[] = ["url" => "/manufacturing/general/drawRailingPartsLib_4.0.js"];
+$scripts[] = ["url" => "/manufacturing/general/drawRailingParts_man_4.0.js"];
+$scripts[] = ["url" => "/calculator/banister/drawBanister_man_4.0.js"];
+$scripts[] = ["url" => "/calculator/banister/drawBalSect_man_4.0.js"];
+$scripts[] = ["url" => "/calculator/general/drawPrimitives3D.js"];
 
+$scripts[] = ["url" => "/manufacturing/general/drawDimensions.js"];
+$scripts[] = ["url" => "/calculator/startTreads/drawTreads.js"];
+$scripts[] = ["url" => "/calculator/general/drawCarcasPartsLib.js"];
+$scripts[] = ["url" => "/calculator/general/colors.js"];
+$scripts[] = ["url" => "/calculator/geometry/calcGeomParams2.js"];
+$scripts[] = ["url" => "/calculator/geometry/drawDimensions.js"];
+$scripts[] = ["url" => "/calculator/geometry/drawGeomSvg.js"];
 
-<!--svg чертежи-->
-<script type="text/javascript" src="/manufacturing/general/svg/raphael.js"></script>
-<script type="text/javascript" src="/manufacturing/general/svg/svgPrimitives.js"></script>
-<script type="text/javascript" src="/manufacturing/general/svg/flattenPath.js"></script>
-<script type="text/javascript" src="/manufacturing/general/svg/svg-to-shape.js"></script>
-<script type="text/javascript" src="/manufacturing/general/svg/svgRailing.js"></script>
-<script type="text/javascript" src="/manufacturing/general/svg/svg-pan-zoom.min.js"></script>
+// <!--svg чертежи-->
+$scripts[] = ["url" => "/manufacturing/general/svg/raphael.js"];
+$scripts[] = ["url" => "/manufacturing/general/svg/svgPrimitives.js"];
+$scripts[] = ["url" => "/manufacturing/general/svg/flattenPath.js"];
+$scripts[] = ["url" => "/manufacturing/general/svg/svg-to-shape.js"];
+$scripts[] = ["url" => "/manufacturing/general/svg/svgRailing.js"];
+$scripts[] = ["url" => "/manufacturing/general/svg/svg-pan-zoom.min.js"];
 
-<!--шкаф под лестницей-->
-<script type="text/javascript" src="/manufacturing/wardrobe/drawWardrobeParts.js"></script>
-<script type="text/javascript" src="/calculator/wardrobe/drawWardrobe_st.js"></script>
+//<!--шкаф под лестницей-->
+$scripts[] = ["url" => "/manufacturing/wardrobe/drawWardrobeParts.js"];
+$scripts[] = ["url" => "/calculator/wardrobe/drawWardrobe_st.js"];
 
-<!--экспорт в dxf-->
-<script type="text/javascript" src="/calculator/general/dxfFileMaker.js"></script>
+// <!--экспорт в dxf-->
+$scripts[] = ["url" => "/calculator/general/dxfFileMaker.js"];
 
-<!--экспорт в xls-->
-<script type="text/javascript" src="/calculator/general/excelExport/tableToXls.js"></script>
+//<!--экспорт в xls-->
+$scripts[] = ["url" => "/calculator/general/excelExport/tableToXls.js"];
 
-<!--экспорт в svg-->
-<script type="text/javascript" src="/manufacturing/general/svg/three-to-svg.js"></script>
+// <!--экспорт в svg-->
+$scripts[] = ["url" => "/manufacturing/general/svg/three-to-svg.js"];
+$scripts[] = ["url" => "/manufacturing/general/svg/dxfPrv.js"];
 
-<script type="text/javascript" src="/manufacturing/general/svg/dxfPrv.js"></script>
+// <!-- правое меню-->
+$scripts[] = ["url" => "/calculator/general/right_menu/lighttabs.js"];
+// <link rel="stylesheet" href="/calculator/general/right_menu/lighttabs.css">
 
-<!-- правое меню-->
-<script src="/calculator/general/right_menu/lighttabs.js"></script>
-<link rel="stylesheet" href="/calculator/general/right_menu/lighttabs.css">
-
-<!--расчет спецификации-->
-<script type="text/javascript" src="/manufacturing/general/calcSpecGeneral.js"></script>
-<script type="text/javascript" src="/calculator/banister/calcSpecBanister.js"></script>
-<script type="text/javascript" src="/manufacturing/general/calcSpec.js"></script>
-<script src="/orders/spec/save.js"></script>
-
-
-<!-- сортируемая таблица -->
-<link href="/calculator/general/tablelib/theme.default.min.css" rel="stylesheet">
-<link href="/calculator/general/tablelib/theme.blue.css" rel="stylesheet">
-<script src="/calculator/general/tablelib/jquery.tablesorter.min.js"></script>
-<script src="/calculator/general/tablelib/jquery.tablesorter.widgets.min.js"></script>
-<script src="/calculator/general/tablelib/parser-input-select.js"></script>
-<script src="/calculator/general/tablelib/parser-date.js"></script>
-<link rel="stylesheet" href="/manufacturing/general/calc_spec/export_spec.css">
-<script src="/manufacturing/general/calc_spec/export_spec.js"></script>
-<script src="/manufacturing/general/calc_spec/stockNames.js"></script>
-<script src="/manufacturing/general/checkSpec.js"></script>
-
-<script src="/orders/libs/table.js"></script>
-<script src="/orders/libs/tableHeadFixer.js"></script>
-
-<!-- автотесты -->
-<script type="text/javascript" src="/manufacturing/general/testing/baseTest.js"></script>
-<script type="text/javascript" src="/manufacturing/general/testing/testingLib.js"></script>
-<script type="text/javascript" src="/manufacturing/general/testing/testingActions.js"></script>
-<script type="text/javascript" src="/manufacturing/general/testing/debug/checkSamples.js"></script>
-<script type="text/javascript" src="/manufacturing/general/testing/debug/testHelper.js"></script>
-<script type="text/javascript" src="/manufacturing/general/testing/debug/testReport.js"></script>
-<script type="text/javascript" src="/manufacturing/general/testing/debug/testSamples.js"></script>
+// <!--расчет спецификации-->
+$scripts[] = ["url" => "/manufacturing/general/calcSpecGeneral.js"];
+$scripts[] = ["url" => "/calculator/banister/calcSpecBanister.js"];
+$scripts[] = ["url" => "/manufacturing/general/calcSpec.js"];
+$scripts[] = ["url" => "/orders/spec/save.js"];
 
 
+// <!-- сортируемая таблица -->
+// <link href="/calculator/general/tablelib/theme.default.min.css" rel="stylesheet">
+// <link href="/calculator/general/tablelib/theme.blue.css" rel="stylesheet">
+// <link rel="stylesheet" href="/manufacturing/general/calc_spec/export_spec.css">
+$scripts[] = ["url" => "/calculator/general/tablelib/jquery.tablesorter.min.js"];
+$scripts[] = ["url" => "/calculator/general/tablelib/jquery.tablesorter.widgets.min.js"];
+$scripts[] = ["url" => "/calculator/general/tablelib/parser-input-select.js"];
+$scripts[] = ["url" => "/calculator/general/tablelib/parser-date.js"];
+$scripts[] = ["url" => "/manufacturing/general/calc_spec/export_spec.js"];
+$scripts[] = ["url" => "/manufacturing/general/calc_spec/stockNames.js"];
+$scripts[] = ["url" => "/manufacturing/general/checkSpec.js"];
 
-<!--расчет цены-->
-<script type="text/javascript" src="/calculator/general/priceLib.js"></script>
-<script type="text/javascript" src="/calculator/banister/priceCalcBanister.js"></script>
-<script type="text/javascript" src="/calculator/wardrobe/priceCalc.js"></script>
+$scripts[] = ["url" => "/orders/libs/table.js"];
+$scripts[] = ["url" => "/orders/libs/tableHeadFixer.js"];
 
-<!--экономика-->
-<script type="text/javascript" src="/calculator/general/materials.js"></script>
-<script type="text/javascript" src="/calculator/general/works.js"></script>
+// <!-- автотесты -->
+$scripts[] = ["url" => "/manufacturing/general/testing/baseTest.js"];
+$scripts[] = ["url" => "/manufacturing/general/testing/testingLib.js"];
+$scripts[] = ["url" => "/manufacturing/general/testing/testingActions.js"];
+$scripts[] = ["url" => "/manufacturing/general/testing/debug/checkSamples.js"];
+$scripts[] = ["url" => "/manufacturing/general/testing/debug/testHelper.js"];
+$scripts[] = ["url" => "/manufacturing/general/testing/debug/testReport.js"];
+$scripts[] = ["url" => "/manufacturing/general/testing/debug/testSamples.js"];
 
-<!-- расчет срока выполнения заказа -->
-<script type="text/javascript" src="/calculator/general/calcTime.js"></script>
+// <!--расчет цены-->
+$scripts[] = ["url" => "/calculator/general/priceLib.js"];
+$scripts[] = ["url" => "/calculator/banister/priceCalcBanister.js"];
+$scripts[] = ["url" => "/calculator/wardrobe/priceCalc.js"];
 
-<!-- текстуры-->
-<!--<script type="text/javascript" src="/calculator/general/textures/textures.js"></script>-->
-<script type="text/javascript" src="/calculator/general/textures/textureParams.js"></script>
-<script type="text/javascript" src="/calculator/general/modals/textures.js"></script>
+// <!--экономика-->
+$scripts[] = ["url" => "/calculator/general/materials.js"];
+$scripts[] = ["url" => "/calculator/general/works.js"];
 
-<!--скрипт отпарвки отчета-->
-<script type="text/javascript" src="/bugs/sendReport2.js"></script>
+// <!-- расчет срока выполнения заказа -->
+$scripts[] = ["url" => "/calculator/general/calcTime.js"];
 
-<!--строительное задание для заказчика-->
-<script type="text/javascript" src="/calculator/general/content/construction_task.js"></script>
+// <!-- текстуры-->
+$scripts[] = ["url" => "/calculator/general/textures/textureParams.js"];
+$scripts[] = ["url" => "/calculator/general/modals/textures.js"];
 
+// <!--скрипт отпарвки отчета-->
+$scripts[] = ["url" => "/bugs/sendReport2.js"];
 
+// <!--строительное задание для заказчика-->
+$scripts[] = ["url" => "/calculator/general/content/construction_task.js"];
 
-<!-- диалоговые окна -->
+// //вывод скриптов на страницу
+// foreach($scripts as $script){
+// 	$printScript = true;
+// 	if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
+// 	if($printScript){
+// 		if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
+// 			echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+// 		}else{
+// 			$GLOBALS['CALCULATOR_SCRIPTS'][] = $script['url'];
+// 		}
+// 	};
+// };
 
-<?
-	include $_SERVER['DOCUMENT_ROOT']."/calculator/general/modals/forgedBals.php";
-	 if ($template != 'customers') {
-		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/modals/timberBals.php";
-		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/modals/timberNewells.php";
-		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/modals/startNewell.php";
-		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/modals/textures.php";
-		include $_SERVER['DOCUMENT_ROOT']."/orders/mail/forms/mailModal.php";
-		include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/partInfo.php";
-	};
 ?>

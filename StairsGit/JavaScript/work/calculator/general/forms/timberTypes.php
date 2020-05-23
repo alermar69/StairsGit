@@ -8,3 +8,4 @@
 <option value="дуб ц/л">дуб ц/л</option>
 <option value="дуб натур">дуб натур</option>
 <option value="карагач натур">карагач натур</option>
+<option value="шпон">шпон</option>

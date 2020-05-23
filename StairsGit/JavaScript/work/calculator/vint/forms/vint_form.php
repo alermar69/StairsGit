@@ -114,7 +114,7 @@
 						<td>Покраска металлических деталей:</td>
 						<td><select name="metalPaint" size="1" id="metalPaint">
 								<!-- варианты покраски металла -->
-								<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalPaint.php" ?>
+								<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalPaint.php" ?>
 							</select>
 						</td>
 					</tr>
@@ -124,7 +124,7 @@
 						<td>
 							<select id="carcasColor" size="1" onchange="">
 								<!-- варианты цветов покраски металла -->
-								<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalColors.php" ?>
+								<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalColors.php" ?>
 							</select>
 						</td>
 					</tr>
@@ -139,7 +139,7 @@
 						<td>Покраска деревянных деталей</td>
 						<td><select name="timberPaint" size="1" id="timberPaint" onchange="">
 								<!-- варианты покраски дерева -->
-								<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberPaint.php" ?>
+								<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberPaint.php" ?>
 							</select>
 						</td>
 					</tr>
@@ -149,7 +149,7 @@
 						<td>
 							<select id="surfaceType" size="1">
 								<!-- варианты покраски дерева -->
-								<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/surfaceTypes.php" ?>
+								<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/surfaceTypes.php" ?>
 							</select>
 						</td>
 					</tr>
@@ -159,7 +159,7 @@
 						<td>
 							<select id="fillerType" size="1">
 								<!-- варианты покраски дерева -->
-								<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fillerTypes.php" ?>
+								<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fillerTypes.php" ?>
 							</select>
 						</td>
 					</tr>
@@ -170,7 +170,7 @@
 						<td>
 							<select id="timberColorNumber" size="1" onchange="">
 								<!-- варианты цветов морилки -->
-								<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberColors.php" ?>
+								<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberColors.php" ?>
 							</select>
 						</td>
 					</tr>
@@ -237,7 +237,7 @@
 					<td>
 						<select size="1" id="handrailColor" onchange="">
 							<!-- варианты цветов поручня пвх -->
-							<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/pvcColors.php" ?>
+							<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/pvcColors.php" ?>
 						</select>
 					</td>
 				</tr>
@@ -393,7 +393,7 @@
 
 
 		<!-- параметры крепления лестницы к стенам-->
-		<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fixingParams.php" ?>
+		<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fixingParams.php" ?>
 
 		<div id="complect_inputs">
 
@@ -433,6 +433,3 @@
 -->
 	</div>
 </div>
-
-<!--Обработчик формы-->
-<script type="text/javascript" src="/calculator/vint/forms/changeFormVint.js"></script>

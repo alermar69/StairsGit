@@ -22,7 +22,7 @@ $APPLICATION->SetTitle("Расчет модульных v.1.6");
 </div>
 
 <!-- Форма параметров заказа-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/orderForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/orderForm.php" ?>
 
 <!-- Инструкции для пользователей -->
 <?php include "content/manual.php" ?>
@@ -46,7 +46,7 @@ $APPLICATION->SetTitle("Расчет модульных v.1.6");
 	<button id="toggleAll">Свернуть все</button>
 
 	<!-- файлы заказа и типовые чертежи -->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/orderFiles/orderFiles.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/orders/files/orderFiles.php" ?>
 
 </div>
 
@@ -65,7 +65,7 @@ $APPLICATION->SetTitle("Расчет модульных v.1.6");
 </div>
 
 <!-- О компании -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/content/about.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/content/about.php" ?>
 
 
 
@@ -116,16 +116,16 @@ $APPLICATION->SetTitle("Расчет модульных v.1.6");
 </div>
 
 <!-- форма параметров конструкции балюстрады-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/banister/forms/banister_construct_form.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/banister/forms/banister_construct_form.php" ?>
 
 <!-- форма параметров каркаса шкафа -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/wardrobe/forms/stairs_wr.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/wardrobe/forms/stairs_wr.php" ?>
 
 <!--форма доставка, сборка-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/assemblingForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/assemblingForm.php" ?>
 
 <!--себестоимость-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/cost.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/cost.php" ?>
 
 <div id="specificationList" style="display: none;">
 	<h2 class="raschet">Приблизительный расход материала</h2>
@@ -133,10 +133,18 @@ $APPLICATION->SetTitle("Расчет модульных v.1.6");
 </div>
 
 <!-- правое меню -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/right_menu/rightMenu.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/right_menu/rightMenu.php" ?>
 
 <!-- общие библиотеки -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/libs_man.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/libs_man.php";
+	foreach($scripts as $script){
+		$printScript = true;
+		if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
+		if($printScript){
+			echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+		};
+	};
+?>
  
 <!--визуализация-->
 <script type="text/javascript" src="drawStaircase.js"></script>

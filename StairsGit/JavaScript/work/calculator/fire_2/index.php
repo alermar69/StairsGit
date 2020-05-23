@@ -1,7 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Расчет пожарных лестниц v.1.0"); 
-include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
+include $GLOBALS['ROOT_PATH']."/orders/calcs/getOrderData.php";
 ?> 
 
 <h1 id = "mainTitle">Коммерческое предложение на пожарные лестницы</h1>
@@ -25,7 +25,7 @@ include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
 </div>
 
 <!-- Форма параметров заказа-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/orderForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/orderForm.php" ?>
 
 <!-- Инструкции для пользователей -->
 <?php include "content/manual.php" ?>
@@ -48,10 +48,10 @@ include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
 
 <!-- файлы заказа и типовые чертежи -->
 <div class='noPrint'>
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/orderFiles/orderFiles.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/orders/files/orderFiles.php" ?>
 </div>
 <!-- Картинки, описание, комплектация -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/fire_2/content/description.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/fire_2/content/description.php" ?>
 
 <div id="totalResultWrap">
 	<h2 class="raschet" onclick='recalculate()'>Общая стоимость лестницы</h2>
@@ -59,7 +59,7 @@ include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
 </div>
 
 <!-- О компании -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/fire_2/content/about.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/fire_2/content/about.php" ?>
 
 <div id="mainViewWrap">
 	<h2 class="raschet" onclick='recalculate()'>Основные размеры лестницы</h2>
@@ -68,19 +68,19 @@ include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
 
 
 <!-- форма параметров лестницы-->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/fire_2/forms/carcas_form.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/calculator/fire_2/forms/carcas_form.php" ?>
 
 <!--форма доставка, сборка-->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/fire_2/forms/assemblingForm.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/calculator/fire_2/forms/assemblingForm.php" ?>
 
 <!--комментарии менеджера-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/comments.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/comments.php" ?>
 	
 <!--себестоимость-->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/fire_2/forms/cost.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/calculator/fire_2/forms/cost.php" ?>
 
 <!--данные для производства-->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/manufacturing/general/include_areas/production_data.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/manufacturing/general/include_areas/production_data.php" ?>
 
 
 
@@ -99,7 +99,16 @@ include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
 
 
 <!-- общие библиотеки -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/libs_man.php" ?>
+<?php
+ 	include $GLOBALS['ROOT_PATH']."/calculator/general/libs_man.php";
+	foreach($scripts as $script){
+		$printScript = true;
+		if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
+		if($printScript){
+			echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+		};
+	};
+?>
 
 <!--2D графика-->
 <script type="text/javascript" src="/manufacturing/fire_2/drawStaircase.js"></script>

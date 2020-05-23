@@ -6,7 +6,7 @@
 			<table class="form_table" ><tbody>
 
 			<!-- параметры расположения ограждений по маршам -->
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/railing.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/railing.php" ?>
 
 			<tr><td>Модель ограждения:</td> <td> 
 				<select id="railingModel" size="1">
@@ -19,10 +19,10 @@
 
 
 			<!-- варианты поручней -->
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/handrailParams.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/handrailParams.php" ?>
 
 			<!-- параметры деревянных ограждений -->
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/timber/forms/timberRailing.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/timber/forms/timberRailing.php" ?>
 
 			<!-- параметры кованых ограждений -->
 
@@ -31,13 +31,13 @@
 				первая: 
 				<select id="banister1" size="1" onchange="">
 					<!-- варианты кованых балясин -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/forgedBals.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
 				</select>
 				<br/>
 				вторая: 
 				<select id="banister2" size="1" onchange="">
 					<!-- варианты кованых балясин -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/forgedBals.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
 				</select>
 				<button class="showModal noPrint" data-modal="forgeModal">эскизы</button>
 		</td></tr>
@@ -74,7 +74,3 @@
 		</div>
 	</div>
 </div>
-
-			
-<!--Обработчик формы--> 
-<script type="text/javascript" src="/calculator/timber/forms/railing_form_change.js"></script>

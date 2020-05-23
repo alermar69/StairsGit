@@ -46,4 +46,4 @@
 </tbody></table>
 
 <!-- кнопки -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/leftMenuButtons.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/leftMenuButtons.php" ?>

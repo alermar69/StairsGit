@@ -79,8 +79,7 @@ $APPLICATION->SetTitle("Расчет Шкафа 2.1");
 
 <div class="noPrint">
 	<!-- файлы заказа и типовые чертежи -->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/orderFiles/orderFiles.php" ?>
-
+	<?php include $GLOBALS['ROOT_PATH']."/orders/files/orderFiles.php" ?>
 </div>
 
 <div id="2d">
@@ -114,7 +113,7 @@ $APPLICATION->SetTitle("Расчет Шкафа 2.1");
 
 
 <!-- варианты цены 
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/priceEditions.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/priceEditions.php" ?>
 -->
 
 <div id="totalResultWrap">
@@ -223,7 +222,15 @@ $APPLICATION->SetTitle("Расчет Шкафа 2.1");
 
 
 <!-- общие библиотеки -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/libs_man.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/libs_man.php";
+	foreach($scripts as $script){
+		$printScript = true;
+		if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
+		if($printScript){
+			echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+		};
+	};
+?>
 
  
 <!--визуализация-->

@@ -1299,72 +1299,8 @@ function drawPole3D_4(par) {
 	var partName = par.partName;
 	if (typeof specObj != 'undefined' && partName && partName != "frameProf" && partName != "stringerPart") {
 		if (!specObj[partName]) {
-			specObj[partName] = {
-				types: {},
-				amt: 0,
-				sumLength: 0,
-				paintedArea: 0,
-				name: "Поручень " + handrailPar.handrailType,
-				metalPaint: false,
-				timberPaint: false,
-				division: "timber",
-				workUnitName: "sumLength",
-				group: "Ограждения",
-				type_comments: {}
-			}
-			if (partName == "handrails") {
-				specObj[partName].metalPaint = (handrailPar.mat == "metal");
-				specObj[partName].timberPaint = (handrailPar.mat == "timber");
-				specObj[partName].division = handrailPar.mat;
-				if (handrailPar.mat == "inox") specObj[partName].division = "metal";
-				//цвет поручня пвх
-				if (handrailPar.handrailType == "ПВХ") {
-					specObj[partName].name += " цвет " + handrailPar.handrailColor;
-					specObj[partName].division = "metal";
-					specObj[partName].timberPaint = false;
-				}
-				specObj[partName].group = "handrails";
-			}
-			if (partName == "rigels") {
-				specObj[partName].name = "Ригель черн.";
-				specObj[partName].metalPaint = true;
-				specObj[partName].division = "metal";
-				if (par.type == "round") {
-					specObj[partName].metalPaint = false;
-					specObj[partName].name = "Ригель нерж.";
-				}
-				if(params.calcType == 'vhod' && params.staircaseType == 'Готовая') specObj[partName].name = "Ригель " + params.rigelMaterial;
-			}
-			if (partName == "ladderBal") {
-				specObj[partName].name = "Стойка ограждения с фланцем";
-				specObj[partName].metalPaint = true;
-				specObj[partName].division = "metal";
-			}
-			if (partName == "glassProfiles") {
-				specObj[partName].name = "Профиль для стекла";
-				specObj[partName].division = "metal";
-			}
-			if (partName == "botPole") {
-				specObj[partName].name = "Подбалясинная доска";
-				specObj[partName].timberPaint = true;
-				specObj[partName].group = "handrails";
-			}
-			if (partName == "topPole") {
-				specObj[partName].name = "Рейка в поручень";
-				specObj[partName].timberPaint = true;
-				specObj[partName].group = "handrails";
-			}
-			if (partName == "botCoupeProf") specObj[partName].name = "Нижний профиль двери";
-			if (partName == "topCoupeProf") specObj[partName].name = "Верхний провль двери";
-			if (partName == "vertCoupeProf") specObj[partName].name = "Вертикальный профиль двери";
-			if (partName == "inpostCoupeProf") specObj[partName].name = "Разделительный профиль";
-			if (partName == "rail") specObj[partName].name = "Штанга";
-			if (partName == "timberPole") {
-				specObj[partName].name = "Брусок";
-				specObj[partName].timberPaint = true;
-				specObj[partName].group = "Каркас";
-			}
-
+			par.handrailPar = handrailPar;
+			specObj[partName] = getPoleSpecParams(par);
 		}
 		var name = Math.round(par.poleProfileZ) + "x" + Math.round(par.poleProfileY) + "х" + Math.round(par.length);
 		if (par.type == "round") name = "Ф" + Math.round(par.poleProfileY) + "х" + Math.round(par.length);
@@ -1375,6 +1311,10 @@ function drawPole3D_4(par) {
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["sumLength"] += Math.round(par.length) / 1000;
 		specObj[partName]["paintedArea"] += (par.poleProfileZ + par.poleProfileY) * 2 * par.length / 1000000;
+		
+		if (partName == 'polySheet') {
+			specObj[partName]["area"] += Math.ceil((par.length / 1000)) * Math.ceil((par.poleProfileZ / 2100));
+		}
 
 		par.mesh.specId = partName + name;
 	}
@@ -1446,6 +1386,111 @@ function drawPole3D_4(par) {
 
 	return par;
 } //end of drawPole3D_4
+
+/**
+ * На основе partName и параметров формирует объект в спецификацию
+ */
+function getPoleSpecParams(par){
+	var partName = par.partName;
+	var handrailPar = par.handrailPar;
+	var specObjPart = {
+		types: {},
+		amt: 0,
+		sumLength: 0,
+		paintedArea: 0,
+		area: 0,
+		name: "Поручень " + handrailPar.handrailType,
+		metalPaint: false,
+		timberPaint: false,
+		division: "timber",
+		workUnitName: "sumLength",
+		group: "Ограждения",
+		type_comments: {}
+	}
+	if (partName == "handrails") {
+		specObjPart.metalPaint = (handrailPar.mat == "metal");
+		specObjPart.timberPaint = (handrailPar.mat == "timber");
+		specObjPart.division = handrailPar.mat;
+		if (handrailPar.mat == "inox") specObjPart.division = "metal";
+		//цвет поручня пвх
+		if (handrailPar.handrailType == "ПВХ") {
+			specObjPart.name += " цвет " + handrailPar.handrailColor;
+			specObjPart.division = "metal";
+			specObjPart.timberPaint = false;
+		}
+		specObjPart.group = "handrails";
+	}
+	if (partName == "rigels") {
+		specObjPart.name = "Ригель черн.";
+		specObjPart.metalPaint = true;
+		specObjPart.division = "metal";
+		if (par.type == "round") {
+			specObjPart.metalPaint = false;
+			specObjPart.name = "Ригель нерж.";
+		}
+		if(params.calcType == 'vhod' && params.staircaseType == 'Готовая') specObjPart.name = "Ригель " + params.rigelMaterial;
+	}
+	if (partName == "ladderBal") {
+		specObjPart.name = "Стойка ограждения с фланцем";
+		specObjPart.metalPaint = true;
+		specObjPart.division = "metal";
+	}
+	if (partName == "glassProfiles") {
+		specObjPart.name = "Профиль для стекла";
+		specObjPart.division = "metal";
+	}
+	if (partName == "botPole") {
+		specObjPart.name = "Подбалясинная доска";
+		specObjPart.timberPaint = true;
+		specObjPart.group = "handrails";
+	}
+	if (partName == "topPole") {
+		specObjPart.name = "Рейка в поручень";
+		specObjPart.timberPaint = true;
+		specObjPart.group = "handrails";
+	}
+	if (partName == "botCoupeProf") specObjPart.name = "Нижний профиль двери";
+	if (partName == "topCoupeProf") specObjPart.name = "Верхний провль двери";
+	if (partName == "vertCoupeProf") specObjPart.name = "Вертикальный профиль двери";
+	if (partName == "inpostCoupeProf") specObjPart.name = "Разделительный профиль";
+	if (partName == "rail") specObjPart.name = "Штанга";
+	if (partName == "racksTimberPole" || partName == 'racksMetalPole'){
+		if (partName == "racksTimberPole") specObjPart.name = "Рейка ограждения";
+		if (partName == "racksMetalPole") specObjPart.name = "Профиль ограждения";
+		specObjPart.group = "Ограждения";
+	}
+	if (partName == "timberPole") {
+		specObjPart.name = "Брусок";
+		specObjPart.timberPaint = true;
+		specObjPart.group = "Каркас";
+	}
+	if (partName.indexOf("platformBeam") !== -1){
+		specObjPart.name = "Балка платформы";
+		if (partName == "platformBeam_front") specObj.name += ' передняя';
+		if (partName == "platformBeam_left") specObj.name += ' левая';
+		if (partName == "platformBeam_right") specObj.name += ' правая';
+		if (partName == "platformBeam_rear") specObj.name += ' задняя';
+		if (partName == "platformBeam_mid") specObj.name = 'Перемычка платформы';
+
+		specObjPart.metalPaint = true;
+		specObjPart.division = "metal";
+		specObjPart.group = "Каркас";
+	}
+	if (partName == 'polyEdgeProfile') {
+		specObjPart.name = "Краевой профиль поликарбоната";
+		specObjPart.division = "metal";
+	}
+	if (partName == 'carportRack') {
+		specObjPart.name = "Опора навеса";
+		specObjPart.division = "metal";
+	}
+	if (partName == 'polySheet') {
+		specObj.name = 'Поликарбонат';
+		specObj.group = 'carcas';
+	}
+
+	return specObjPart;
+}
 
 /*стойка кованой сеции*/
 

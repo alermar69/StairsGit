@@ -24,35 +24,43 @@ $APPLICATION->SetTitle("Расчет столов");
 <link href="styles.css" type="text/css" rel="stylesheet">
 
 <!-- Форма параметров заказа-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/orderForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/orderForm.php" ?>
 
 
 <!-- Блоки для вывода данных на странице, файлы заказа, чертежи-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/output.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/output.php" ?>
 
 <!-- форма параметров стола-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/rack/forms/mainForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/rack/forms/mainForm.php" ?>
 
 <!-- Модальное окно с вариантами боковин-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/rack/forms/sideModal.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/rack/forms/sideModal.php" ?>
 
 <!--форма доставка, сборка-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/assemblingForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/assemblingForm.php" ?>
 
 <!--комментарии менеджера-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/comments.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/comments.php" ?>
 
 <!--себестоимость-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/cost.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/cost.php" ?>
 
 <!--данные для производства-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/manufacturing/general/include_areas/production_data.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/manufacturing/general/include_areas/production_data.php" ?>
 
 <!-- правое меню -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/right_menu/rightMenu.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/right_menu/rightMenu.php" ?>
 
 <!-- общие библиотеки -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/libs_man.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/libs_man.php";
+	foreach($scripts as $script){
+		$printScript = true;
+		if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
+		if($printScript){
+			echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+		};
+	};
+?>
 
 <!--визуализация-->
 <script type="text/javascript" src="drawRack.js"></script>

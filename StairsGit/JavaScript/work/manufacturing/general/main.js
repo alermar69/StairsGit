@@ -63,12 +63,6 @@ $(function () {
 		if(needAdd) addLayer(layer, layers[layer]['name']);
 	}
 		
-	//конфигурируем правое меню
-	$(".tabs").lightTabs();
-	
-	//конфигурируем табы в трудоемкости
-	$("#wageInfo").lightTabs();
-	
 	//создаем номенклатуру материалов
 	createMaterialsList(); //в файле /calculator/general/materials.js
 
@@ -104,7 +98,10 @@ function recalculate(){
 				getAllInputsValues(params);
 				changeAllForms();
 				if (!window.location.href.includes('/coupe')) {
-					drawStaircase('vl_1', true);
+					if($("#calcType").val() == "carport") drawFunc = drawCarport;
+					else drawFunc = drawStaircase;
+					
+					drawFunc('vl_1', true);
 				}
 				redrawWalls();
 				if (!window.location.href.includes('/railing')) {
@@ -113,6 +110,9 @@ function recalculate(){
 
 				setHiddenLayers(); //скрываем слои в режиме тестирования
 				drawBanister();
+
+				redrawAdditionalObjects();
+
 				if (!menu.simpleMode) {
 					calculateSpec();	
 					if(!testingMode) checkSpec();

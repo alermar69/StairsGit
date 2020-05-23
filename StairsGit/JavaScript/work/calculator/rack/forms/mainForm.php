@@ -57,28 +57,28 @@
 			<tr class="timberPaint"><td>Порода дерева:</td> <td> 
 				<select id="timberType" size="1" >
 					<!-- варианты покраски дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberTypes.php" ?>		
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberTypes.php" ?>		
 				</select>
 			</td></tr>
 				
 			<tr class="timberPaint"><td>Покраска дерева:</td> <td> 
 				<select id="timberPaint" size="1" >
 					<!-- варианты покраски дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberPaint.php" ?>		
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberPaint.php" ?>		
 				</select>
 			</td></tr>
 			
 			<tr class="timberPaint"><td>Поверхность дерева:</td> <td> 
 				<select id="surfaceType" size="1" >
 					<!-- варианты покраски дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/surfaceTypes.php" ?>		
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/surfaceTypes.php" ?>		
 				</select>
 			</td></tr>
 			
 			<tr class="timberPaint"><td>Шпаклевка:</td> <td> 
 				<select id="fillerType" size="1" >
 					<!-- варианты покраски дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fillerTypes.php" ?>		
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fillerTypes.php" ?>		
 				</select>
 			</td></tr>
 		
@@ -131,14 +131,14 @@
 			<tr><td>Покраска металла:</td> <td> 
 				<select id="metalPaint" size="1" >
 					<!-- варианты покраски металла -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalPaint.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalPaint.php" ?>
 				</select>
 			</td></tr>
 			
 			<tr><td>Цвет металла:</td> <td> 
 				<select id="metalColor" size="1" >
 					<!-- варианты покраски металла -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalColors.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalColors.php" ?>
 				</select>
 			</td></tr>
 			

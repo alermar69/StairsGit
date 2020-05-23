@@ -20,5 +20,3 @@
 <br/>
 Масштаб размеров: 
 <input type="range" id="dimScale" min="0.1" max="10" step="0.1" value="2">
-
-<script type="text/javascript" src="/calculator/general/forms/dimensionsFormChange.js"></script>

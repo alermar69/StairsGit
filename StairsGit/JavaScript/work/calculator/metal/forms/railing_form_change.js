@@ -19,6 +19,7 @@ if(params.model == "ко" || params.calcType == "mono"){
 	$("#railingModel option[value='Дерево с ковкой']").show();
 	$("#railingModel option[value='Стекло']").show();
 	}
+
 	
 if(params.calcType == "vhod"){
 
@@ -150,6 +151,12 @@ if(isRailing) {
 	$(".timber_kovka_tr").hide();
 	$(".timber_glass_tr").hide();
 	$(".kovka_tr").hide();
+
+	if (params.railingModel == 'Реечные') {
+		$('.racksrailing_tr').show();
+	}else{
+		$('.racksrailing_tr').hide();
+	}
 	
 	if (railingModel == "Деревянные балясины") {
 		$(".timber_tr").show();
@@ -164,7 +171,7 @@ if(isRailing) {
 	if (railingModel == "Кованые балясины") $(".kovka_tr").show();
 		
 	}
-	
+
 	getAllInputsValues(params);
 	
 } //end of changeForm

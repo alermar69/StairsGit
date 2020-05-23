@@ -675,7 +675,7 @@ if(par.railingType == "поручень" || ((par.railingType == "стекло �
 		if(angle > 0) handrailParams.length -= glassCutTop/Math.tan(angle)/Math.cos(angle)
 	}
 		
-	handrailParams.fixType = "паз";
+	handrailParams.fixType = params.handrailFixType;//"паз";
 
 	if(par.railingType == "поручень" || params.handrailFixType == "кронштейны"){
 		handrailParams.fixType = "кронштейны";

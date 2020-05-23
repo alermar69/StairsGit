@@ -37,7 +37,7 @@ function getFileList($dir) {
   
 function getFileLinks($path, $ornamentName){
 if($path != ""){
-	$dir = $_SERVER['DOCUMENT_ROOT'].$path;
+	$dir = $GLOBALS['ROOT_PATH'].$path;
 	$dirlist = getFileList($dir);
 	$result = "<h4>".$ornamentName." ".$path."</h4>";
 
@@ -76,7 +76,7 @@ if($path != ""){
 
 function getPrvLinks($path){
 	$result = "";
-	$dir = $_SERVER['DOCUMENT_ROOT'].$path;
+	$dir = $GLOBALS['ROOT_PATH'].$path;
 	$dirlist = getFileList($dir);
 	
 	//картинки во вложенных директориях
@@ -88,7 +88,7 @@ function getPrvLinks($path){
 			foreach ($dirlist1 as $item1){
 				$name1 = str_replace($dir, "", $item1[name]);
 				if($item1[type] == "image/png") {
-					//resize($_SERVER['DOCUMENT_ROOT'] . $path.$name1);
+					//resize($GLOBALS['ROOT_PATH'] . $path.$name1);
 					//$result .= "<input type='button' data-img='{$path}{$name1}' class='rotate-right'>";
 					$folderName = str_replace("/", "", $name);
 					$result .= "<img src='".$path.$name1."' class='prvImg' data-folder='$folderName'>";

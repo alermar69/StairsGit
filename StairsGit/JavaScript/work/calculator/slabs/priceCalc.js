@@ -43,7 +43,7 @@ function calcPrice(){
 			var vol = area * $row.find(".thk").val() / 1000;
 			var timberType = $row.find(".timberType").val();
 			var m3Cost = calcTimberParams(timberType).m3Price;
-			if(model == "слэб цельный") m3Cost *= 1.5;
+			if(model == "слэб цельный") m3Cost = 200000;
 			
 			var timberCost = vol * m3Cost;
 			

@@ -1196,7 +1196,10 @@ function drawStringerHoles(par, typeDop){
 		if (!center.noDraw) {
 			var center = pointsHole[i];
 			if (!center.rad) center.rad = 6.5
-			
+			if ((center.partName == "treadFix" || center.partName == 'wndTreadFix' || center.partName == 'otherTreadFix') && params.stringerModel == 'короб') {
+				center = Object.assign({}, center);
+				center.y += 18;
+			}
 
 			var hole1 = new THREE.Path();
 			addCircle(hole1, dxfPrimitivesArr, center, center.rad, par.dxfBasePoint);

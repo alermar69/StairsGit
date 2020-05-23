@@ -54,7 +54,9 @@ function calculateSpec(){
 		if(partsAmt[partName].comment) itemsPar.comment = partsAmt[partName].comment;
 
 		partsList.addSpecObjItems(itemsPar);
-		}
+	}
+	addDopSpecItems(partsList);
+
 /*	
 	//крепление ступеней к каркасу
 	var treadFixItems = calcTreadFixMetiz();

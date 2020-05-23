@@ -19,7 +19,7 @@ $APPLICATION->SetTitle("Расчет геометрии лестницы v.5.0")
 </div>
 
 <!-- Форма параметров заказа-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/orderForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/orderForm.php" ?>
 
 <button id='printInstallationContract'>Распечатать строительное задание</button>
 
@@ -30,7 +30,7 @@ $APPLICATION->SetTitle("Расчет геометрии лестницы v.5.0")
 <?php include "content/history.php" ?>
 
 <!-- Описание методики расчета -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/geometry/content/description.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/geometry/content/description.php" ?>
 
 
 <p class="raschet noPrint" id="showPhotos">Фото с объекта</p>
@@ -40,7 +40,7 @@ $APPLICATION->SetTitle("Расчет геометрии лестницы v.5.0")
 <?php include "forms/carcas_form.php" ?>
 
 <!-- форма с кнопками -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/geometry/forms/calculator_form.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/geometry/forms/calculator_form.php" ?>
 
 
 
@@ -70,10 +70,10 @@ $APPLICATION->SetTitle("Расчет геометрии лестницы v.5.0")
 
 
 <!-- правое меню -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/right_menu/rightMenu_geom.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/right_menu/rightMenu_geom.php" ?>
 
 <!-- общие библиотеки -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/libs_man.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/libs_man.php" ?>
 <!-- <script type="text/javascript" src="/dev/egorov/metal_render2/textures/viewports_3.0.js"></script> -->
 
 <link href="styles.css" type="text/css" rel="stylesheet" />

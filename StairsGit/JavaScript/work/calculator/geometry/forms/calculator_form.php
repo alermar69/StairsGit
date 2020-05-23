@@ -97,5 +97,3 @@
 		width: fit-content;
 	}
 </style>
-
-<script type="text/javascript" src="/calculator/geometry/forms/calculator_form_change.js"></script>

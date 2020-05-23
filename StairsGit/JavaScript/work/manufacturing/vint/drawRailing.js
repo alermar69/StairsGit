@@ -259,12 +259,13 @@ function drawSpiralRailing(par) {
 		if (par.side == "in") banisterPositionRad = rad - banisterProfileSize - 0.1;
 		if (isBolz) banisterPositionRad -= banisterProfileSize + 5
 
+		// если есть больцы, определяем на каких ступенях будут стоять стойки
 		if (isBolz) {
-			var stepRack = Math.ceil(stairAmt / rackAmt)
-			var rackDistY = stepHeight * stepRack;
+			var stepRack = 2;
+			var rackAmt = Math.ceil((stairAmt + 1) / stepRack);
 			var racksPos = [1];
-			for (var i = 0; i < rackAmt - 2; i++) {
-				var pos = stepRack * (i + 1);
+			for (var i = 1; i <= rackAmt - 2; i++) {
+				var pos = stepRack * i + 1;
 				if (stairAmt + 1 - pos > 1) racksPos.push(pos);
 			}
 			racksPos.push(stairAmt+1);

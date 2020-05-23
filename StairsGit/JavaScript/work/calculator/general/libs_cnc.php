@@ -8,7 +8,7 @@
 <!--общие библитотеки-->
 <script async="" src="/calculator/general/FileSaver.min.js" /></script>
 <script type="text/javascript" src="/calculator/general/forms/formsChange.js" /></script>
-<script type="text/javascript" src="/calculator/general/orderFiles/getLinks.js" /></script>
+<script type="text/javascript" src="/orders/files/getLinks.js" /></script>
 <script type="text/javascript" src="/calculator/general/modals/main.js" /></script>
 <script type="text/javascript" src="/calculator/general/offer.js" /></script>
 
@@ -56,5 +56,5 @@
 
 <!-- диалоговые окна -->
 
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/modals/timberBals.php" ?>
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/modals/timberNewells.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/modals/timberBals.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/modals/timberNewells.php" ?>

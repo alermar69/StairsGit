@@ -71,6 +71,12 @@ $APPLICATION->SetTitle("");
 		<td><a href="/calculator/slabs/" target="_blank">Открыть</a></td>
 		<td></td>
 	</tr>
+	
+	<tr>
+		<td class="left">Навесы</td>
+		<td><a href="/calculator/carport/" target="_blank">Открыть</a></td>
+		<td><a href="/manufacturing/carport/" target="_blank">Открыть</a></td>
+	</tr>
 
 	<tr>
 		<td class="left">Полностью деревянные (архив)</td>
@@ -111,6 +117,7 @@ $APPLICATION->SetTitle("");
 <h2>Другие расчеты</h2>
 <ul> 
 	<li><a href="/calculator/geometry/" target="_blank">Калькулятор геометрии</a></li>
+	<li><a href="/manufacturing/strength_calc/" target="_blank">Расчет прогиба</a></li>
 	<li><a href="/orders/calcs/" target="_blank">Поиск заказов в базе</a></li>
 	<li><a href="/calculator/offers/stat/" target="_blank">Статистика расчетов</a></li>
 	<li><a href="/calculator/carving/" target="_blank">Конфигуратор резьбы</a></li>

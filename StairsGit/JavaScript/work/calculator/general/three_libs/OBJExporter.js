@@ -8,7 +8,7 @@ THREE.OBJExporter.prototype = {
 
 	constructor: THREE.OBJExporter,
 
-	parse: function ( object ) {
+	parse: function ( object, filename ) {
 
 	var output = '';
 		var materials = {};
@@ -17,8 +17,7 @@ THREE.OBJExporter.prototype = {
 		var indexVertexUvs = 0;
 		var indexNormals = 0;
 
-	var mtlFileName = 'objmaterial'; // maybe this value can be passed as parameter
-	output += 'mtllib ' + mtlFileName +  '.mtl\n';
+	output += 'mtllib ' + filename +  '.mtl\n';
 
 		var parseMesh = function ( mesh ) {
 
@@ -30,8 +29,9 @@ THREE.OBJExporter.prototype = {
 			var material = mesh.material;
 
 			if ( geometry instanceof THREE.Geometry ) {
-
-				output += 'o ' + mesh.name + '\n';
+				var meshName = mesh.name
+				if(!meshName) meshName = mesh.uuid
+				output += 'o ' + meshName + '\n';
 
 				var vertices = geometry.vertices;
 
@@ -158,6 +158,7 @@ THREE.OBJExporter.prototype = {
 	// mtl output
 
 	var mtlOutput = '';
+	var images = [];
 
 	for (var key in materials) {
 
@@ -179,20 +180,22 @@ THREE.OBJExporter.prototype = {
 		mtlOutput += 'Ks 0.0000 0.0000 0.0000\n';
 		mtlOutput += 'Ke 0.0000 0.0000 0.0000\n';
 
-		if (mat.map && mat.map instanceof THREE.Texture) {
+		if (mat.map && mat.map instanceof THREE.Texture && mat.map.image.currentSrc) {
 
-			var file = mat.map.image.currentSrc.slice( mat.map.image.currentSrc.slice.lastIndexOf("/"), mat.map.image.currentSrc.length - 1 );
-
+			var file = mat.map.image.currentSrc.slice( mat.map.image.currentSrc.lastIndexOf("/"), mat.map.image.currentSrc.length);
 			mtlOutput += 'map_Ka ' + file + '\n';
 			mtlOutput += 'map_Kd ' + file + '\n';
-
+			if(images.indexOf(mat.map.image.currentSrc) == -1){
+				images.push(mat.map.image.currentSrc)
+			}
 		}
 
 	}
 
 	return {
 		obj: output,
-		mtl: mtlOutput
+		mtl: mtlOutput,
+		images: images,
 	}
 
 	}
@@ -205,15 +208,26 @@ function exportToObj(scene) {
 	//saveSTL( $[viewportId], "aa111" );
 	//saveOBJ( sc, "aa111" );
 
-	var  filename = "aa111";
+	var filename = "scene";
+	if(params.orderName) filename = params.orderName;
 
 	// Use FileSaver.js 'saveAs' function to save the string
 	var exporter = new THREE.OBJExporter();
-	var expObj = exporter.parse( scene );
+	var expObj = exporter.parse( scene, filename );
 	var objString = expObj.obj;
 	var mtlString = expObj.mtl;
 	var blob = new Blob([objString], {type: 'text/plain'});
 	saveAs(blob, filename + '.obj');
 	var blob = new Blob([mtlString], {type: 'text/plain'});
 	saveAs(blob, filename + '.mtl');
+	
+	//картинки текстур
+	expObj.images.forEach(function(item, i) {
+		console.log( i + ": " + item );
+
+		var link = document.createElement('a');
+		link.setAttribute('href', item);
+		link.setAttribute('download', '');
+		onload=link.click();
+	});
 }

@@ -393,6 +393,18 @@ function drawTreads() {
     lastMarshEnd.x += topStepDelta * Math.cos(lastMarshEnd.rot);
     lastMarshEnd.z += topStepDelta * Math.sin(-lastMarshEnd.rot);
 
+	if (params.stairType == 'короб') {
+		treadsGroup.traverse(function(node){
+			if (node instanceof THREE.Mesh) {
+				if (node.specId && node.specId.indexOf('wndTread') != -1) {
+					node.scale.z = 3.5;
+					node.position.y -= 50;
+				}else{
+					node.scale.z = 3.5;
+				}
+			}
+		})
+	}
 
     //формируем возвращаемый объект
     var par = {
@@ -1015,7 +1027,7 @@ function drawMarshTreads2(par) {
 
 		var lastRiser = drawPlateRiser(plateParams).mesh;
 		lastRiser.rotation.y = -Math.PI / 2;
-		lastRiser.position.x = posX;
+		lastRiser.position.x = posX + 0.01;
 		lastRiser.position.y = par.endPos.y - par.h - params.treadThickness;
 		if (params.calcType == "timber_stock") lastRiser.position.y = par.endPos.y - plateParams.width;
 		lastRiser.position.z = - plateParams.len / 2;

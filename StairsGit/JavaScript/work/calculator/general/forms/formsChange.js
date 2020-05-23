@@ -48,47 +48,6 @@ $(function () {
 		$("svg#temp").remove();
 	})
 	
-	$("#cloneCanvas").click(function(){
-		if(!window.previews) window.previews = [];
-
-		var canvas = $("#WebGL-output").find("canvas:first")[0];
-		canvas.toBlob(function(blob){
-			var id = getPreviewsId();
-			var imageData = canvas.toDataURL();
-			appendPreview(id, imageData, false);
-			var obj = {id: id, blob: blob};
-			window.previews.push(obj);
-		}, 'image/jpeg', 0.95);
-	});
-
-	$('body').on('click', '.previewImage .removeImg', function(){
-		var id = $(this).parents('.previewImage').data('id');
-		if (typeof id == 'number') {
-			var index = window.previews.findIndex(function(v){return v.id == id});
-			console.log(index);
-			window.previews.splice(index, 1);
-			$(this).closest("div").fadeOut("100", function () {
-				$(this).remove();
-			});
-		}
-	});
-
-	$('body').on('click', '.previewImage .setMain', function(){
-		var data_id = $(this).parents('.previewImage').data('id');
-		var htmlElement = this;
-		if (data_id !== undefined) {
-			$('.previewImage').css('border', 'none');
-			window.previews.forEach(function(item){
-				if (item.id == data_id) {
-					item.isMain = true;
-					$(htmlElement).parents('.previewImage').css('border', '3px solid black');
-				}else{
-					item.isMain = false;
-				}
-			});
-		}
-	});
-
 	//Обработчик удаления
 	// TODO: в viewports работает некорректно, переработать
 	$(document).on('click','.cloned_canvas',function(){
@@ -446,9 +405,12 @@ var handRailCompatible = [1,2,3,4,5,6,9,10,11,12,13];
 if (railingModel == "Кованые балясины" || railingModel == "Решетка") 
 	handRailCompatible.push(15);
 if (railingModel == "Самонесущее стекло"){
-	if(params.handrailFixType == "паз") handRailCompatible = [1, 7,8,10,11,12,13,14];
+	if(params.handrailFixType == "паз") handRailCompatible = [1,7,8,10,11,12,13,14];
 	handRailCompatible.push(15);
-} 
+}
+if (railingModel == "Реечные"){
+	handRailCompatible.push(15);
+}
 
 
 	
@@ -561,7 +523,7 @@ function configPaintingInputs(){
 	
 	//показваем тип покраски металла каркаса если он есть
 	$('#metalPaint').closest("tr").hide();
-	if(isUnit.carcas || params.calcType == "vint") {
+	if(isUnit.carcas || params.calcType == "vint" || params.calcType == "carport") {
 		$('#metalPaint').closest("tr").show();
 	}
 
@@ -604,6 +566,7 @@ function configPaintingInputs(){
 		params.stairType != "береза паркет." &&
 		params.stairType != "лиственница паркет." &&
 		params.stairType != "дуб паркет." &&
+		params.stairType != "короб" &&
 		params.stairType != "дуб ц/л"){
 			$("#colorsFormTable #treadsParams").hide();
 			$("#colorsFormTable #risersParams").hide(); //если нет деревянных ступеней, то деревянных подступенков тоже нет
@@ -660,6 +623,10 @@ function configPaintingInputs(){
 		if(params.railingModel == "Дерево с ковкой") hasMetalBal = true;
 		
 		if(params.railingModel == "Кованые балясины") hasMetalBal = true;
+		if(params.railingModel == "Реечные") {
+			if(params.racksType == "массив" || params.racksType == "шпон") hasTimberBal = true;
+			if(params.racksType == "металл") hasMetalBal = true;
+		}
 	}
 
 	if(hasUnit.banister){
@@ -783,6 +750,13 @@ function configPaintingInputs(){
 		})
 	}
 	
+	//нет накладок
+	if(!hasUnit.dopTimber){
+		$("#colorsFormTable #additionalObjectsTimberParams").hide();
+	}
+	if(!hasUnit.dopMetal){
+		$("#colorsFormTable #additionalObjectsMetalParams").hide();
+	} 
 	
 }; //end of configPaintingInputs
 
@@ -908,6 +882,10 @@ function setStairOption(){
 	if(params.calcType == "bolz"){
 		if($("#treadThickness").val() < 60) $("#treadThickness").val(60);
 	}
+
+	if ($('#stairType').val() == 'короб') {
+		$("#treadThickness").val(20);
+	}
 	
 } //end of setStairOption()
 
@@ -977,13 +955,13 @@ function configDinamicInputs() {
 	}
 	else {
 		if(typeof changeFormBanister == 'function') changeFormBanister();
-		changeFormTopFloor();
+		if(typeof changeFormTopFloor == 'function') changeFormTopFloor();
 		changeAllForms();
 		
 	}
 	
 	addDimRows();
-	changeFormLedges();
+	if(typeof changeFormLedges == 'function') changeFormLedges();
 }
 
 /** функция используется для переиндексирования динамических таблиц параметров

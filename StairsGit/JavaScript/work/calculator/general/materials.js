@@ -245,6 +245,26 @@ function createMaterialsList(){
 		amtName: "м2",
 		amt: 0,
 		}
+//	
+	materials.slabOak_50 = {
+		name: "Слэб дуб",
+		dept: "timber",
+		amtName: "м2",
+		amt: 0,
+	}
+	
+	materials.slabElm_50 = {
+		name: "Слэб карагач",
+		dept: "timber",
+		amtName: "м2",
+		amt: 0,
+	}
+	materials.veneer = {
+		name: "Шпон",
+		dept: "timber",
+		amtName: "м2",
+		amt: 0,
+	}
 	
 	materials.dpc = {
 		name: "Доска ДПК",

@@ -7,6 +7,13 @@ $(function () {
 		filterTextures();
 	})
 	
+	$('#textureModal').on('show.bs.modal', function(){
+		$.each($('#textureModal img[data-src]'), function(){
+			$(this).attr('src', $(this).attr('data-src'))
+			$(this).removeAttr('data-src')
+		});
+	})
+
 	
 });
 

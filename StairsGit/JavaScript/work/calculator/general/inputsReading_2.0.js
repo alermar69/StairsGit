@@ -9,6 +9,34 @@ $(function () {
 			return decodeURIComponent(results[1]).replace(/\+/g, ' ') || 0;
 		}
 	}
+
+	$.fancybox.defaults.btnTpl.rotate = '<button data-fancybox-rotate class="fancybox-button fancybox-button--rotate" title="Rotate">' +
+		'<i class="fa fa-repeat"></i>' + 
+	'</button>';
+
+	$('body').on('click', '[data-fancybox-rotate]', function() {
+		var instance = $.fancybox.getInstance();
+		var currentImageSrc = instance.current.src;
+		$.ajax({
+			url: '/orders/files/db/rotateImage.php',
+			data: {
+				img: currentImageSrc
+			},
+			dataType: 'json',
+			success: function (result) {
+				if(result.STATUS == 'SUCCESS'){
+					var newImg = currentImageSrc.split("?")[0] + "?" + Math.random();
+					instance.current.$image.attr('src', newImg);
+					instance.current.$thumb.attr('src', newImg);
+				}else{
+					alert(result.MESSAGE);
+				}
+			},
+			error: function (a, b) {
+				alert(b);
+			}
+		});
+	});
 });
 
 /*функци¤ показывает/пр¤чет блок по id*/
@@ -344,7 +372,7 @@ function getMarshParams(marshId) {
 	if(stepSum > 640 || stepSum < 600) stepSumCheckText = "<span class='red'>неудобно</span>";
 	
 	par.text = 
-		"<table class='form_table'><tbody>\
+		"<table class='form_table' style='width: 100%;'><tbody>\
 			<tr><th>Параметр</th><th>Значение</th><th>Норма</th><th>Результат</th></tr>\
 			<tr>\
 				<td>Угол наклона марша</td>\
@@ -438,6 +466,8 @@ function staircaseHasUnit() {
 		handrail_bal: false,
 		wndTreads: false,
 		stringerCovers: false,
+		dopTimber: false,
+		dopMetal: false,
 	}
 	var marshPar_1 = getMarshParams(1);
 	var marshPar_2 = getMarshParams(2);
@@ -495,6 +525,7 @@ function staircaseHasUnit() {
 		params.stairType == "дуб паркет." ||
 		params.stairType == "лиственница паркет." ||
 		params.stairType == "лиственница тер." ||
+		params.stairType == "короб" ||
 		params.stairType == "дуб ц/л") par.carcasTimberPaint = true;
 
 	//винтовая
@@ -519,6 +550,9 @@ function staircaseHasUnit() {
 		}
 		if (params.railingModel == "Ригели" && params.rigelMaterial == "20х20 черн.")
 			par.railingMetalPaint = true;
+		if (params.railingModel == "Реечные" && params.racksType == "металл")
+			par.railingMetalPaint = true;
+		
 	}
 	if (params.calcType == "vint") par.railingMetalPaint = true;
 
@@ -538,6 +572,8 @@ function staircaseHasUnit() {
 		if (params.railingModel == "Ригели" || params.railingModel == "Стекло на стойках") {
 			if (params.banisterMaterial == "40х40 нерж+дуб") par.railingTimberPaint = true;
 		}
+		if (params.railingModel == "Реечные" && (params.racksType == "массив" || params.racksType == "шпон"))
+			par.railingMetalPaint = true;
 	}
 
 	if (par.handrail) {
@@ -599,6 +635,29 @@ function staircaseHasUnit() {
 	if (params.stringerCover_1 != 'нет') par.stringerCovers = true;
 	if (params.stringerCover_3 && params.stairModel != "Прямая" && params.stringerCover_3 != "нет") par.stringerCovers = true;
 	if (params.stringerCover_2 && params.stairModel != "П-образная трехмаршевая" && params.stringerCover_2 != "нет") par.stringerCovers = true;
+
+	if (params.calcType == 'carport') {
+		par = {
+			carportCarcas: true,
+			carportRoof: true
+		}
+	}
+	
+	//деревянные и металлические детали доп. объектов
+	if(typeof additional_objects != "undefined"){
+		$.each(additional_objects, function(){
+			if(this.calc_price){
+				if(this.className == "RackWall"){
+					if(this.meshParams.material == "дерево") par.dopTimber = true;
+					else par.dopMetal = true;
+				}
+				if(this.className == "MetalPlatform" || this.className == "Column" || this.className == "Canopy"){
+					par.dopMetal = true;
+				}
+			}
+		})
+	}
+		
 
 	return par;
 

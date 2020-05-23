@@ -232,7 +232,7 @@
 <h4>4. Крепление каркаса к стенам и перекрытиям.</h4>
 
 <!-- параметры крепления лестницы к стенам-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fixingParams.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fixingParams.php" ?>
 
 <table class="form_table">
 <tbody>
@@ -250,7 +250,7 @@
 	<!-- цвета и материалы -->
 	<div id="colors_inputs">
 		<h4>5. Материалы и цвета:</h4>
-		<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/colorsForm.php" ?>
+		<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/colorsForm.php" ?>
 	</div>	
 
 Комментарии к расчету:<br/>  <textarea id="comments_03" rows="1" cols="80" class="comments"></textarea>

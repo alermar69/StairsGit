@@ -3,6 +3,7 @@
 *@params height, width 
 *@params roundHoleCenters, pathHoles, thk, dxfBasePoint, cornerRad, holeRad, noBolts //не обязательные
 *@params dxfBasePoint //не обязательный. Если не указан, то в dxf контур не выводится
+*@params filletRad //не обязательный. объект со значениями радиусов скругления точек filletRad: {0: 20, 1: 30}
 
 *@return par.mesh
 */
@@ -10,7 +11,7 @@ function drawRectFlan2(par) {
 
 	par.mesh = new THREE.Object3D();
 
-	var dxfArr = dxfPrimitivesArr;
+	var dxfArr = par.dxfPrimitivesArr || dxfPrimitivesArr;
 	//если не задана базовая точка, в dxf контур не выводим
 	if (!par.dxfBasePoint) {
 		dxfArr = [];
@@ -25,6 +26,13 @@ function drawRectFlan2(par) {
 	var p4 = newPoint_xy(p1, par.width, 0);
 
 	var points = [p1, p2, p3, p4];
+	
+	//скругление углов
+	if(par.filletRad && typeof par.filletRad == "object"){
+		for(var index in par.filletRad){
+			points[index].filletRad = par.filletRad[index];
+		}
+	}
 
 	//срезанный задний угол для пресснастила
 	if (par.cutAngle) {
@@ -687,7 +695,6 @@ function drawAngleSupport(par, parDop) {
 	}
 	else var angleModel = par.model;
 
-
 	//if(!dxfBasePoint.x || !dxfBasePoint.y) dxfBasePoint = {x:0,y:0};
 	var dxfBasePoint = { x: 0, y: 0 };
 
@@ -950,7 +957,7 @@ function drawAngleSupport(par, parDop) {
 	var complexObject1 = new THREE.Object3D();
 	complexObject1.add(angleSupport1);
 	complexObject1.add(angleSupport2);
-	complexObject1.add(angleSupport3);
+	if (!(partName == 'treadAngle' && params.stringerModel == 'короб')) complexObject1.add(angleSupport3);
 
 	complexObject1.position.x = 0;
 	complexObject1.position.y = 0;
@@ -2501,3 +2508,98 @@ function drawVintHead(par){
 	return par;
 
 }
+
+function drawArcPanel(par){
+
+/*
+функция отрисовывает радиусную панель
+rad //радиус на оси панели
+height
+thk
+angle
+layer
+*/
+
+	var shape = new THREE.Shape();
+	var p0 = {x: 0, y: 0} //центр дуг
+	
+	//нижний внутренний угол
+	var p1 = newPoint_xy(p0, par.rad - par.thk / 2, 0);
+	//нижний внешний угол
+	var p2 = newPoint_xy(p1, par.thk, 0)	
+	//верхний внешний угол
+	var p3 = polar(p0, par.angle, par.rad + par.thk / 2);
+	//верхний нижний угол
+	var p4 = polar(p0, par.angle, par.rad - par.thk / 2);
+
+	if(!par.layer) par.layer = "parts";
+
+	par.dxfPrimitivesArr = par.dxfPrimitivesArr || dxfPrimitivesArr;
+
+	addLine(shape, par.dxfPrimitivesArr, p2, p1, par.dxfBasePoint, par.layer);
+	addArc2(shape, par.dxfPrimitivesArr, p0, par.rad - par.thk / 2, par.angle, 0, false, par.dxfBasePoint, par.layer);
+	addLine(shape, par.dxfPrimitivesArr, p4, p3, par.dxfBasePoint, par.layer);
+	addArc2(shape, par.dxfPrimitivesArr, p0, par.rad + par.thk / 2,  par.angle, 0, true, par.dxfBasePoint, par.layer);
+	
+	/*
+	addLine(shape, dxfPrimitivesArr, p1, p2, par.dxfBasePoint, par.layer);
+	addArc2(shape, dxfPrimitivesArr, p0, par.rad + par.thk / 2, 0, par.angle, false, par.dxfBasePoint, par.layer);
+	addLine(shape, dxfPrimitivesArr, p3, p4, par.dxfBasePoint, par.layer);
+	addArc2(shape, dxfPrimitivesArr, p0, par.rad - par.thk / 2, par.angle, 0, true, par.dxfBasePoint, par.layer);
+	*/
+	
+	var treadExtrudeOptions = {
+		amount: par.height, 
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+		};
+		
+	var geom = new THREE.ExtrudeGeometry(shape, treadExtrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	par.mesh = new THREE.Mesh(geom, par.material);
+
+	if (par.partName) {
+		var partName = par.partName;
+		var arcLength = Math.round(par.rad * par.angle);
+		
+		if (typeof specObj != 'undefined') {
+			if (!specObj[partName]) {
+				specObj[partName] = {
+					types: {},
+					amt: 0,
+					sumLength: 0,
+					area: 0,
+					name: "Полоса фермы",
+					metalPaint: false,
+					timberPaint: false,
+					division: "metal",
+					workUnitName: "amt",
+					group: "carcas",
+				}
+				if (partName == 'polySheet') {
+					specObj[partName].name = 'Поликарбонат';
+					// specObj[partName].division = "stock_2";
+				}
+			}
+			var name = arcLength;
+			if (partName == 'polySheet') name = arcLength.toFixed(2)+'x'+par.height.toFixed(2);
+			if (partName != 'trussLine') {
+				if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+				if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+				specObj[partName]["amt"] += 1;
+			}
+			if (partName == 'trussLine') {
+				specObj[partName]["area"] += (arcLength / 1000) * (par.height / 1000);
+			}else if (partName == 'polySheet') {
+				specObj[partName]["area"] += Math.ceil((arcLength / 1000)) * Math.ceil((par.height / 2100));
+			}else{
+				specObj[partName]["sumLength"] += arcLength / 1000;
+			}
+		}
+		par.mesh.specId = partName + name;
+	}
+	
+	return par;
+
+};

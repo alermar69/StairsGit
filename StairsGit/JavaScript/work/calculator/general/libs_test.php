@@ -4,7 +4,7 @@
 <!--общие библитотеки-->
 <script async="" src="/calculator/general/FileSaver.min.js" /></script>
 <script type="text/javascript" src="/calculator/general/forms/formsChange.js" /></script>
-<script type="text/javascript" src="/calculator/general/orderFiles/getLinks.js" /></script>
+<script type="text/javascript" src="/orders/files/getLinks.js" /></script>
 
 <!--графика-->
 <!--<script type="text/javascript" src="/calculator/general/viewports_3.0.js"></script>-->

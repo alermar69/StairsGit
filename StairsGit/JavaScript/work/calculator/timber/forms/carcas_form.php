@@ -188,7 +188,7 @@
 				<!-- Пригласительные ступени -->
 				<div id="startTreads">
 					<h4>3. Пригласительные ступени</h4>
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/startTreads/forms/form.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/startTreads/forms/form.php" ?>
 				</div>
 
 				<div id="complect_inputs">
@@ -202,7 +202,7 @@
 								<td>
 									<select id="timberPaint" size="1" onchange="">
 										<!-- варианты покраски дерева -->
-										<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberPaint.php" ?>
+										<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberPaint.php" ?>
 									</select>
 								</td>
 							</tr>
@@ -212,7 +212,7 @@
 								<td>
 									<select id="surfaceType" size="1">
 										<!-- варианты покраски дерева -->
-										<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/surfaceTypes.php" ?>
+										<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/surfaceTypes.php" ?>
 									</select>
 								</td>
 							</tr>
@@ -222,7 +222,7 @@
 								<td>
 									<select id="fillerType" size="1">
 										<!-- варианты покраски дерева -->
-										<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fillerTypes.php" ?>
+										<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fillerTypes.php" ?>
 									</select>
 								</td>
 							</tr>
@@ -245,7 +245,7 @@
 				<!-- цвета и материалы -->
 				<div id="colors_inputs">
 					<h4>5. Материалы и цвета:</h4>
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/colorsForm.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/colorsForm.php" ?>
 				</div>
 			</div>
 
@@ -254,7 +254,7 @@
 				<h4>6. Крепление лестницы.</h4>
 
 				<!-- параметры крепления лестницы к стенам-->
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fixingParams.php" ?>
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fixingParams.php" ?>
 
 
 				<table class="form_table">
@@ -413,6 +413,3 @@
 
 	</div>
 </div>
-
-<!--Обработчик формы-->
-<script type="text/javascript" src="/calculator/timber/forms/carcas_form_change.js"></script>

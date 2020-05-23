@@ -109,7 +109,8 @@ for(var partName in partsAmt){
 	
 	if(partName == "treadFrame" && params.riserType == "есть") itemsPar.comment = "Сверлить под подступенки";
 	partsList.addSpecObjItems(itemsPar);
-	}
+}
+addDopSpecItems(partsList);
 
 function addCarcasItems(){}; //пустая функция для навигации
 /*
@@ -351,6 +352,11 @@ function balustradeItemsAdd(){}; //функция для навигации
 	calcSpecBanister(partsList);
 	
 
+// var additionalObjectSpec = additionalObjectItemsAdd();
+
+// for(var i=0; i<additionalObjectSpec.items.length; i++){
+// 	partsList.addItem(additionalObjectSpec.items[i]);
+// }
 	
 function addMetiz(){};
 

@@ -73,7 +73,7 @@ $APPLICATION->SetTitle("Расчет пожарных лестниц v.1.0");
 	".default",
 	Array(
 		"AREA_FILE_SHOW" => "file",
-		"PATH" => "/calculator/general/orderFiles/orderFiles.php",
+		"PATH" => "/orders/files/orderFiles.php",
 		"EDIT_TEMPLATE" => ""
 	)
 );?>
@@ -198,7 +198,15 @@ $APPLICATION->SetTitle("Расчет пожарных лестниц v.1.0");
 
 
 <!-- общие библиотеки -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/libs_man.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/libs_man.php"
+	foreach($scripts as $script){
+		$printScript = true;
+		if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
+		if($printScript){
+			echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+		};
+	};
+?>
 
 
 

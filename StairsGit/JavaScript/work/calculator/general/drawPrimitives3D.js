@@ -126,6 +126,10 @@ function drawPlate(par) {
 				specObj[par.partName].group = "Наполнение";
 			}
 
+			if (par.partName == 'platformPlate') {
+				specObj[par.partName].name = 'Площадка платформы';
+			}
+
 		}
 		var area = par.len * par.width / 1000000;
 		var paintedArea = area * 2 + (par.len + par.width) * 2 * thk / 1000000;

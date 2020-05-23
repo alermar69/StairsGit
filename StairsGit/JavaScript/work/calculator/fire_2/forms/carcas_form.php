@@ -75,7 +75,7 @@
 			<td> 
 				<select id="carcasColor" size="1" onchange="">
 				<!-- варианты цветов металла -->
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalColors.php" ?>
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalColors.php" ?>
 				</select>
 		</td></tr>
 

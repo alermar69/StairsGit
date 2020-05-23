@@ -53,7 +53,7 @@
 			<div class="master-menu col-6 h-100">
 				<? foreach ($steps as $index => $form_url) {?>
 					<div class='master-step' data-step='<?= $index + 1 ?>'>
-						<? include $_SERVER['DOCUMENT_ROOT'].$form_url; ?>
+						<? include $GLOBALS['ROOT_PATH'].$form_url; ?>
 					</div>
 				<? } ?>
 				<div class='master-buttons'>

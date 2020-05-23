@@ -27,8 +27,6 @@
 	<button id='redrawBanister'>Обновить</button>
 </div>
 
-<script type="text/javascript" src="/calculator/banister/forms/changeFormBanister.js"></script>
-
 <div id="banisterСonstructFormWrap">
 	<h4 class="raschet">Конструкция балюстрады</h4>
 	<div id="banisterСonstructForm"  class="toggleDiv">
@@ -203,13 +201,13 @@
 				первая: 
 				<select id="banister1_bal" size="1" onchange="">
 					<!-- варианты кованых балясин -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/forgedBals.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
 				</select>
 				<br/>
 				вторая: 
 				<select id="banister2_bal" size="1" onchange="">
 					<!-- варианты кованых балясин -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/forgedBals.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
 				</select>
 				<button class="showModal noPrint" data-modal="forgeModal" data-unit="balustrade">эскизы</button>
 			</td></tr>
@@ -241,7 +239,7 @@
 			<tr><td>Узор:</td> <td> 
 				<select id="laserModel_bal" size="1">
 					<!-- варианты узоров -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/laserModels.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/laserModels.php" ?>
 				</select>
 			</td></tr>
 
@@ -346,6 +344,3 @@
 		-->
 	</div>
 </div>
-
-<!--Обработчик формы--> 
-<script type="text/javascript" src="/calculator/banister/forms/banister_construct_form_change.js"></script>

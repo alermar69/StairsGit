@@ -74,7 +74,7 @@
 			</td></tr>
 
 		<!-- варианты поручней -->
-		<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/handrailParams.php" ?>
+		<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/handrailParams.php" ?>
 
 		<tr class="railing_tr"><td>Начало ограждения:</td> <td> 
 			<select id="railingStart" size="1" onchange="">
@@ -136,7 +136,7 @@
 
 		<tr class="railing_tr glass_tr"><td>Тип стекла:</td> <td> 
 			<select id="glassType" size="1" onchange="">
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/glass.php" ?>				
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/glass.php" ?>				
 			</select>
 		</td></tr>
 
@@ -185,13 +185,13 @@
 				первая: 
 				<select id="banister1" size="1" onchange="">
 					<!-- варианты кованых балясин -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/forgedBals.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
 				</select>
 				<br/>
 				вторая: 
 				<select id="banister2" size="1" onchange="">
 					<!-- варианты кованых балясин -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/forgedBals.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
 				</select>
 				<button class="showModal noPrint" data-modal="forgeModal">эскизы</button>
 			</td></tr>
@@ -216,14 +216,14 @@
 		<tr class="railing_tr"><td>Узор:</td> <td> 
 			<select id="laserModel" size="1">
 				<!-- варианты узоров -->
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/laserModels.php" ?>
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/laserModels.php" ?>
 			</select>
 		</td></tr>
 
 
 
 	<!-- параметры деревянных ограждений -->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/timber/forms/timberRailing.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/calculator/timber/forms/timberRailing.php" ?>
 	
 
 		</tbody> </table>
@@ -245,6 +245,3 @@
 -->
 	</div>
 </div>
-
-<!--Обработчик формы--> 
-<script type="text/javascript" src="/calculator/metal/forms/railing_form_change.js"></script>

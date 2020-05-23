@@ -173,7 +173,17 @@ img.selected{
 		"PATH" => "/calculator/general/libs_man.php",
 		"EDIT_TEMPLATE" => ""
 	)
-);?>
+);
+
+foreach($scripts as $script){
+	$printScript = true;
+	if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
+	if($printScript){
+		echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+	};
+};
+
+?>
 
 <script type="text/javascript" src="draw.js"></script>
 

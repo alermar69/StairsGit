@@ -15,27 +15,27 @@
 
 	<!-- Форма ввода параметров стен-->
 		<div id="wallsFormDiv">
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/walls/forms/walls_form.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/walls/forms/walls_form.php" ?>
 		</div>
 
 	<!-- форма параметров проема -->
 	<div id="topFloorForm">
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/walls/forms/floor_form.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/walls/forms/floor_form.php" ?>
 		</div>
 
 	<!-- форма параметров балюстрады -->
 	<div id="banisterForm">
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/banister/forms/banister_form.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/banister/forms/banister_form.php" ?>
 		</div>
 		
 	<!-- Форма ввода параметров размеров-->
 	<div id="dimFormDiv">
-		<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/dimensionsForm.php" ?>
+		<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/dimensionsForm.php" ?>
 	</div>
 	
 	<!-- Форма текстур обстановки -->
 	<div id="texturesFormDiv">
-		<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/textures/form.php" ?>
+		<?php include $GLOBALS['ROOT_PATH']."/calculator/general/textures/form.php" ?>
 	</div>
 
 	</div>

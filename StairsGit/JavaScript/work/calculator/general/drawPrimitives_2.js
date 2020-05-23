@@ -1387,6 +1387,8 @@ function addHolesToShape(par) {
 	var trashShape = new THREE.Shape();
 	if(!par.holeRad) par.holeRad = 6.5;
 	par.noZenkHoles = [];
+
+	par.dxfPrimitivesArr = par.dxfPrimitivesArr || dxfPrimitivesArr;
 	
 	//задаем функцию добавления отверстий
 	var addHole = addRoundHole;
@@ -1398,24 +1400,24 @@ function addHolesToShape(par) {
 		var rad = par.holeRad;
 		if(center.rad) rad = center.rad;
 		if(center.holeRad) rad = center.holeRad;
-		addRoundHole(par.shape, dxfPrimitivesArr, center, rad, par.dxfBasePoint); 
+		addRoundHole(par.shape, par.dxfPrimitivesArr, center, rad, par.dxfBasePoint); 
 
 		//не зенковать
 		if (center.noZenk && params.boltHead == "countersunk") {
 			layer = "comments";
 			var pz1 = newPoint_xy(center, -zencDiam, zencDiam);
 			var pz2 = newPoint_xy(center, zencDiam, -zencDiam);
-			addLine(trashShape, dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
+			addLine(trashShape, par.dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
 			pz1 = newPoint_xy(pz1, 0, -zencDiam * 2);
 			pz2 = newPoint_xy(pz2, 0, zencDiam * 2);
-			addLine(trashShape, dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
+			addLine(trashShape, par.dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
 			}
 		
 
 		//зенковать с обратной стороны
 		if (center.backZenk) {
 			layer = "comments";
-			addHole(trashShape, dxfPrimitivesArr, center, zencDiam, par.dxfBasePoint, layer);
+			addHole(trashShape, par.dxfPrimitivesArr, center, zencDiam, par.dxfBasePoint, layer);
 			}
 		
 		//сохраняем отверстия для длинных болтов

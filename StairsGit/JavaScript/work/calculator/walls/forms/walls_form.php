@@ -64,6 +64,3 @@
 
 <button id='addWallLedge'>Добавить выступ</button>
 <button id='redrawWalls'>Обновить</button>
-
-<!--Обработчик формы-->
-<script type="text/javascript" src="/calculator/walls/forms/walls_form_change.js"></script>

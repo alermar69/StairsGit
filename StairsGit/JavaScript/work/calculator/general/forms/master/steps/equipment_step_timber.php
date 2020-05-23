@@ -1,4 +1,4 @@
-<? include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/master/steps/cam_controls.php" ?>
+<? include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/steps/cam_controls.php" ?>
 <h2>Комлпектация</h2>
 <div class="row">
 	<div class="col-12">

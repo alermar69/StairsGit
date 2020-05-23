@@ -26,10 +26,10 @@
 	<div id="dxfPrv"></div>
 
 	<!-- тестирование -->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/manufacturing/general/testing/forms/mainForm.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/manufacturing/general/testing/forms/mainForm.php" ?>
 
 	<!-- файлы заказа и типовые чертежи -->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/orderFiles/orderFiles.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/orders/files/orderFiles.php" ?>
 	
 	<!-- рабочие чертежи -->
 	<div id="svgDrawings">		
@@ -44,7 +44,7 @@
 	</div>
 	
 	<!-- модальное окно создания/редактирования письма -->
-	<?php include $_SERVER['DOCUMENT_ROOT'].'/orders/mail/forms/mailModal.php' ?>
+	<?php include $GLOBALS['ROOT_PATH'].'/orders/mail/forms/mailModal.php' ?>
 
 	
 

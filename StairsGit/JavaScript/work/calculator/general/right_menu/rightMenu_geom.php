@@ -14,22 +14,22 @@
 
 	<!-- Форма ввода параметров стен-->
 		<div id="wallsFormDiv">
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/walls/forms/walls_form.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/walls/forms/walls_form.php" ?>
 		</div>
 
 	<!-- форма параметров проема - нестандартная -->
 	<div id="ledgeForm">
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/walls/forms/floor_form_geom.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/walls/forms/floor_form_geom.php" ?>
 		</div>
 		
 	<!-- форма параметров балюстрады -->
 	<div id="banisterForm">
-			<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/banister/forms/banister_form.php" ?>
+			<?php include $GLOBALS['ROOT_PATH']."/calculator/banister/forms/banister_form.php" ?>
 		</div>
 		
 	<!-- Форма ввода параметров размеров-->
 	<div id="dimFormDiv">
-		<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/dimensionsForm.php" ?>
+		<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/dimensionsForm.php" ?>
 	</div>
 
 	</div>

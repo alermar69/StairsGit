@@ -1297,7 +1297,7 @@ function printTimberPaintWage(list){
 	$.each(paintLayers, function(){
 		this.amt = 0;
 	})
-	if(typeof params != "undefined" && params.calcType != 'fire_2'){
+	if(typeof params != "undefined" && params.calcType != 'fire_2' && params.calcType != 'carport'){
 		if(params.timberPaint.indexOf("масло") != -1){
 			paintLayers.base.name += " (масло)";
 			paintLayers.finish.name += " (масло)";
@@ -1582,6 +1582,28 @@ if(params.calcType == "vint"){
 		}
 	if(params.model == "Винтовая с тетивой" || calcAll) wage.carcas = 20;
 	extraWages.push(wage);
+	
+	}
+	
+if(params.calcType == "carport"){
+	
+	//каркас	
+	var wage = {
+		name: "Сборка каркаса навеса",
+		amt: params.arcCount * params.sectLen * params.fermaType / 1000000,
+		unitName: "м2",
+		unitWage: 400,
+		}	
+	wages.carcas.items.push(wage);
+	
+	//кровля
+	var wage = {
+		name: "Укладка кровли",
+		amt: params.arcCount * params.sectLen * params.fermaType / 1000000,
+		unitName: "м2",
+		unitWage: 100,
+		}	
+	wages.other.items.push(wage);
 	
 	}
 

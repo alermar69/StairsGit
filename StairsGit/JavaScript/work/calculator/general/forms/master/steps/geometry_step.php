@@ -1,4 +1,4 @@
-<? include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/master/steps/cam_controls.php" ?>
+<? include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/steps/cam_controls.php" ?>
 <h2>Геометрия лестницы</h2>
 <div class="row">
 	<div class="col-12 move_form_container" id="carcasFormMaster" data-content_from="#carcasTableWrapper"></div>

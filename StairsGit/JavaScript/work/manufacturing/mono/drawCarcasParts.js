@@ -6691,36 +6691,38 @@ function drawFramePlatform(framePlatformParams) {
 	shape.holes.push(hole);
 
 	//отверстия под крепления к площадке
-	var hole1 = new THREE.Path();
-	var hole2 = new THREE.Path();
-	var hole3 = new THREE.Path();
-	var hole4 = new THREE.Path();
-
-	if (framePlatformParams.topConnection) {
-		var pt = newPoint_xy(p0, width / 2, plateWidth / 2);
-		var center1 = newPoint_xy(pt, - 100, 0);
-		var center2 = newPoint_xy(pt, 100, 0);
-		pt = newPoint_xy(p0, width / 2, height - plateWidth / 2);
-		var center3 = newPoint_xy(pt, - 100, 0);
-		var center4 = newPoint_xy(pt, 100, 0);
+	if (framePlatformParams.topConnection || framePlatformParams.botConnection) {
+		var hole1 = new THREE.Path();
+		var hole2 = new THREE.Path();
+		var hole3 = new THREE.Path();
+		var hole4 = new THREE.Path();
+	
+		if (framePlatformParams.topConnection) {
+			var pt = newPoint_xy(p0, width / 2, plateWidth / 2);
+			var center1 = newPoint_xy(pt, - 100, 0);
+			var center2 = newPoint_xy(pt, 100, 0);
+			pt = newPoint_xy(p0, width / 2, height - plateWidth / 2);
+			var center3 = newPoint_xy(pt, - 100, 0);
+			var center4 = newPoint_xy(pt, 100, 0);
+		}
+	
+		if (framePlatformParams.botConnection) {
+			pt = newPoint_xy(p0, plateWidth / 2, height / 2);
+			var center1 = newPoint_xy(pt, 0, - 100);
+			var center2 = newPoint_xy(pt, 0, 100);
+			pt = newPoint_xy(p0, width - plateWidth / 2, height / 2);
+			var center3 = newPoint_xy(pt, 0, - 100);
+			var center4 = newPoint_xy(pt, 0, 100);
+		}
+		addCircle(hole1, dxfPrimitivesArr, center1, framePlatformParams.firstBoultRaduis, dxfBasePoint);
+		addCircle(hole2, dxfPrimitivesArr, center2, framePlatformParams.firstBoultRaduis, dxfBasePoint);
+		addCircle(hole3, dxfPrimitivesArr, center3, framePlatformParams.firstBoultRaduis, dxfBasePoint);
+		addCircle(hole4, dxfPrimitivesArr, center4, framePlatformParams.firstBoultRaduis, dxfBasePoint);
+		shape.holes.push(hole1);
+		shape.holes.push(hole2);
+		shape.holes.push(hole3);
+		shape.holes.push(hole4);
 	}
-
-	if (framePlatformParams.botConnection) {
-		pt = newPoint_xy(p0, plateWidth / 2, height / 2);
-		var center1 = newPoint_xy(pt, 0, - 100);
-		var center2 = newPoint_xy(pt, 0, 100);
-		pt = newPoint_xy(p0, width - plateWidth / 2, height / 2);
-		var center3 = newPoint_xy(pt, 0, - 100);
-		var center4 = newPoint_xy(pt, 0, 100);
-	}
-	addCircle(hole1, dxfPrimitivesArr, center1, framePlatformParams.firstBoultRaduis, dxfBasePoint);
-	addCircle(hole2, dxfPrimitivesArr, center2, framePlatformParams.firstBoultRaduis, dxfBasePoint);
-	addCircle(hole3, dxfPrimitivesArr, center3, framePlatformParams.firstBoultRaduis, dxfBasePoint);
-	addCircle(hole4, dxfPrimitivesArr, center4, framePlatformParams.firstBoultRaduis, dxfBasePoint);
-	shape.holes.push(hole1);
-	shape.holes.push(hole2);
-	shape.holes.push(hole3);
-	shape.holes.push(hole4);
 
 	framePlatformParams.shape = shape;
 

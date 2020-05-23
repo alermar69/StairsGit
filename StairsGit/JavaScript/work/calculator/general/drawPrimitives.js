@@ -326,6 +326,7 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 		arcRad: stairRad,
 		filletRad: 20,
 		topAngle //верхний или нижний угол
+		rightAngle //правый или левый угол
 		}	
 	*/	
 	
@@ -344,6 +345,7 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 	
 	//считаем расстояние от перпендикуляра до точки пересечения прямой и окружности
 	var rad2 = par.arcRad - par.filletRad;
+	if(par.rightAngle) rad2 = par.arcRad + par.filletRad;
 	var dist = Math.sqrt(rad2 * rad2 - h * h);
 	
 	//считаем координаты точек пересечения
@@ -1059,10 +1061,10 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 		var lineGeometry = new THREE.Geometry();
 		var v1 = new THREE.Vector3(p1.x, p1.y, p1.z);
 		var v2 = new THREE.Vector3(p2.x, p2.y, p2.z);
-		//lineGeometry.vertices.push(p1, p2);
 		lineGeometry.vertices.push(v1, v2);
-		lineGeometry.colors.push(color, color, color);
-		var lineMaterial = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
+		if(!color) color = 0xff0000
+
+		var lineMaterial = new THREE.LineBasicMaterial( { color: color } );
 		var line = new THREE.Line(lineGeometry, lineMaterial);
 		
 		return line;
@@ -1083,6 +1085,25 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 			return mesh;
 		
 	
+	}
+	
+	function drawEllipse3D(par){
+		var curve = new THREE.EllipseCurve(
+			0, 0,             // center ax, aY
+			par.rad.x, par.rad.y,            // xRadius, yRadius
+			par.startAngle, par.endAngle, // aStartAngle, aEndAngle
+			par.clockWise             // aClockwise
+		);
+
+		var points = curve.getSpacedPoints( 20 );
+
+		var geometry = new THREE.Geometry().setFromPoints( points ) ;
+
+		var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+
+		var line = new THREE.Line( geometry, material );
+
+		return line;
 	}
 
 	// function changeDimTextScale(val){
@@ -1107,12 +1128,12 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 	
 	function loadFont(callBack){
 		var loader = new THREE.FontLoader();
-		var mesh = loader.load( '/calculator/general/three_libs/font.json', function ( font ) {
-		fontGlob = font;
-		if(callBack) callBack(font);
-		if (typeof fontLoadedCallback == 'function') fontLoadedCallback();
-	});
-	
+		var fontUrl = window.IS_YII ? '/calculator/calculator/general/three_libs/font.json' : '/calculator/general/three_libs/font.json';
+		loader.load( fontUrl, function ( font ) {
+			fontGlob = font;
+			if(callBack) callBack(font);
+			if (typeof fontLoadedCallback == 'function') fontLoadedCallback();
+		});
 	}
 	
 	
@@ -1477,6 +1498,8 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 		var trashShape = new THREE.Shape();
 		if(!par.holeRad) par.holeRad = 6.5;
 		par.noZenkHoles = [];
+
+		par.dxfPrimitivesArr = par.dxfPrimitivesArr || dxfPrimitivesArr;
 		
 		//задаем функцию добавления отверстий
 		var addHole = addRoundHole;
@@ -1503,24 +1526,24 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 			var rad = par.holeRad;
 			if(center.rad) rad = center.rad;
 			if(center.holeRad) rad = center.holeRad;
-			addRoundHole(par.shape, dxfPrimitivesArr, center, rad, par.dxfBasePoint); 
+			addRoundHole(par.shape, par.dxfPrimitivesArr, center, rad, par.dxfBasePoint); 
 	
 			//не зенковать
 			if (center.noZenk && params.boltHead == "countersunk") {
 				layer = "comments";
 				var pz1 = newPoint_xy(center, -zencDiam, zencDiam);
 				var pz2 = newPoint_xy(center, zencDiam, -zencDiam);
-				addLine(trashShape, dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
+				addLine(trashShape, par.dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
 				pz1 = newPoint_xy(pz1, 0, -zencDiam * 2);
 				pz2 = newPoint_xy(pz2, 0, zencDiam * 2);
-				addLine(trashShape, dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
+				addLine(trashShape, par.dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
 				}
 			
 	
 			//зенковать с обратной стороны
 			if (center.backZenk) {
 				layer = "comments";
-				addHole(trashShape, dxfPrimitivesArr, center, zencDiam, par.dxfBasePoint, layer);
+				addHole(trashShape, par.dxfPrimitivesArr, center, zencDiam, par.dxfBasePoint, layer);
 				}
 			
 			//сохраняем отверстия для длинных болтов
@@ -1682,6 +1705,24 @@ function itercectionLineCircle1(line, center, rad) {
 	return itercectionLineCircle(line.p1, line.p2, center, rad)
 }
 
+
+function itercectionCircles(center1, rad1, center2, rad2) {
+	//обозначение углов и сторон http://skrinshoter.ru/s/140520/MkVTsX5G
+	
+	var a = rad1
+	var b = rad2
+	var c = distance(center1, center2)
+	var ang_A =  Math.acos((b*b + c*c - a*a) / 2 * b * c)
+	var ang_AC = angle(center1, center2)
+	
+	var points = [
+		polar(center2, ang_AC + ang_A, rad2),
+		polar(center2, ang_AC - ang_A, rad2),
+	]
+	
+	return points;	
+}
+
 /**
 	функция возвращает коэффициенты прямой ax+by+c=0 и y=kx+s
 */
@@ -1730,4 +1771,33 @@ function angleLines1(line1, line2) {
 function angleLineX(line) {
 	var lineX = { p1: { x: 0, y: 0 }, p2: { x: 100, y: 0 } }
 	return angleLines(line.p1, line.p2, lineX.p1, lineX.p2);
+}
+
+/*функция рассчитывает скругление двух окружностей третьей
+	par = {
+		center1 //верхняя дуга
+		center2 //нижняя дуга
+		rad1 
+		rad2
+		point //точка на верхней дуге, в которой происходит сопряжение
+	}
+	решение по теореме косинусов
+*/
+
+function calcCirclesFillet(par){
+	//расстояние от точки до центра второй окружности
+	var d2 = distance(par.point, par.center2);
+	var ang = angle(par.point, par.center1) - angle(par.point, par.center2)
+	
+	par.rad = (d2*d2 - par.rad2*par.rad2) / (2*par.rad2 + 2 * d2 * Math.cos(ang))
+	
+	var ang1 = angle(par.point, par.center1)
+	par.center = polar(par.point, ang1, par.rad);
+	
+	//точка пересечения с нижней дугой
+	var ang2 = angle(par.center, par.center2)
+	par.point2 = polar(par.center, ang2, par.rad);
+
+	
+	return par;
 }

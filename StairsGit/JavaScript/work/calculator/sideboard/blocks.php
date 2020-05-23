@@ -77,7 +77,7 @@
 <button id="makeAccepted">Запустить в работу</button>
 
 <!-- Кнопки загрузки/сохранения из файла -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/leftMenuButtons.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/leftMenuButtons.php" ?>
 
 <p>Ссылки: <br/>
 <a href="/manufacturing/sideboard/" id="comLink" target="_blank">Производство</a><br/>

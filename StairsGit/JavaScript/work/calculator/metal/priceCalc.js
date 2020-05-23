@@ -70,15 +70,21 @@ var colAmt = getPartAmt("column");
 var colSumLen = getPartPropVal('column', 'sumLength') / 1000;
 var columnTotalPrice = 0;
 
-if (params.columnModel == "40х40") {
-	columnTotalPrice = colSumLen * 60 + colAmt * 200;
-	}
-if (params.columnModel == "100x50") {
-	columnTotalPrice = colSumLen * 400 + colAmt * 1000;
-	}
-if (params.columnModel == "100x100") {
-	columnTotalPrice = colSumLen * 600 + colAmt * 1500;
-	}
+var columnTotalPrice = calcColumnPrice({
+	columnLength: colSumLen,
+	columnAmt: colAmt,
+	columnModel: params.columnModel
+})
+
+// if (params.columnModel == "40х40") {
+// 	columnTotalPrice = colSumLen * 60 + colAmt * 200;
+// 	}
+// if (params.columnModel == "100x50") {
+// 	columnTotalPrice = colSumLen * 400 + colAmt * 1000;
+// 	}
+// if (params.columnModel == "100x100") {
+// 	columnTotalPrice = colSumLen * 600 + colAmt * 1500;
+// }
 	
 
 /***  ПОКРАСКА МЕТАЛЛА   ***/

@@ -39,7 +39,7 @@
 			<td>
 				<select id="metalPaintColor" size="1">
 					<!-- варианты покраски металла -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/metalColors.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalColors.php" ?>
 					
 				</select>
 			</td>
@@ -50,7 +50,7 @@
 			<td>
 				<select id="timberPaint" size="1">
 					<!-- варианты покраски дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberPaint.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberPaint.php" ?>
 					<option value="76-2" class="lakColor">76 насыщенный (1:5)</option>
 				</select>
 			</td>
@@ -61,7 +61,7 @@
 			<td>
 				<select id="timberPaintColor" size="1">
 					<!-- варианты покраски дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/timberColors.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberColors.php" ?>
 				</select>
 			</td>
 		</tr>
@@ -71,7 +71,7 @@
 			<td>
 				<select id="surfaceType" size="1">
 					<!-- варианты покраски дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/surfaceTypes.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/surfaceTypes.php" ?>
 				</select>
 			</td>
 		</tr>
@@ -81,7 +81,7 @@
 			<td>
 				<select id="fillerType" size="1">
 					<!-- варианты покраски дерева -->
-					<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/fillerTypes.php" ?>
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fillerTypes.php" ?>
 				</select>
 			</td>
 		</tr>

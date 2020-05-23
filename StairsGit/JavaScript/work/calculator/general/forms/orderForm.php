@@ -9,7 +9,7 @@
 
 
 <!-- отправка отчета об ошибке: кнопка + модальное окно + скрипт -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/bugs/forms/sendBugForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/bugs/forms/sendBugForm.php" ?>
 
 <?
 global $USER;
@@ -22,10 +22,10 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 ?>
 
 <!-- проверка данных: модальное окно отчета + скрипт -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/validationReport.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/validationReport.php" ?>
 
 <!-- имя и описание расчета: модальное окно -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/offerNameForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/offerNameForm.php" ?>
 
 </div>
 
@@ -78,7 +78,7 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 <span style="display: none;" id="userName"><?if (isset($USER)) {echo $USER->GetLastName();}?></span>
 
 <!-- информер -->
-<?php include $_SERVER['DOCUMENT_ROOT'].'/orders/libs/informer.php' ?>
+<?php include $GLOBALS['ROOT_PATH'].'/orders/libs/informer.php' ?>
 
 
 

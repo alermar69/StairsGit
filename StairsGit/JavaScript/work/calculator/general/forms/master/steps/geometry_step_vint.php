@@ -1,4 +1,4 @@
-<? include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/master/steps/cam_controls.php" ?>
+<? include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/steps/cam_controls.php" ?>
 <h2>Настройка геометрии</h2>
 <div class="row master-input-container">
 	<div class="col-5">Модель:</div>

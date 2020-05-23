@@ -291,6 +291,8 @@ var isSideHandrail = false;
 		if(railingType == "стекло рут."){
 			isGlass = true;
 			isRutel = true;
+			isRacks = false;
+			isTimber = false;
 			}
 		if(railingType == "стекло проф."){
 			isGlass = true;
@@ -389,13 +391,14 @@ if(isHandrail) {
 
 	//тип крепления поручня
 	$("#handrailFixType").closest("tr").hide();
+	console.log(isRacks, isTimber)
 	if (!isRacks && !isTimber) {
 		$("#handrailFixType").closest("tr").show();
-		}
+	}
 		
 	if (isRacks) {
 		$("#handrailFixType").val("кронштейны");
-		}
+	}
 
 
 	//параметры ограждений с ригелями

@@ -13,7 +13,7 @@ $APPLICATION->SetTitle("Шаблон КП на нестандартные изд
 
 <?
 //загрузка данных кп
-include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
+include $GLOBALS['ROOT_PATH']."/orders/calcs/getOrderData.php";
 ?>
 
 <!--служебные поля-->
@@ -34,11 +34,11 @@ include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
 
 
 <!-- Форма параметров заказа-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/orderForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/orderForm.php" ?>
 
 <!-- файлы заказа и типовые чертежи -->
 <div class='noPrint'>
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/orderFiles/orderFiles.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/orders/files/orderFiles.php" ?>
 </div>
 
 <br/>
@@ -46,14 +46,22 @@ include $_SERVER['DOCUMENT_ROOT']."/orders/calcs/getOrderData.php";
 <?php include "forms/mainForm.php" ?>
 
 <!-- О компании -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/content/about.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/content/about.php" ?>
 
 
 <!--себестоимость-->
 <?php include "forms/costForm.php" ?>
 
 <!-- общие библиотеки -->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/libs_man.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/libs_man.php";
+	foreach($scripts as $script){
+		$printScript = true;
+		if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
+		if($printScript){
+			echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+		};
+	};
+?>
 
 
 <!--расчет цены-->

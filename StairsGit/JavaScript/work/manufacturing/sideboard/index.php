@@ -70,15 +70,15 @@ $APPLICATION->SetTitle("Комоды v.1.1");
 	<button id="openDoors">Открыть дверки</button>
 
 	<!-- тестирование -->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/manufacturing/general/testing/pagePart.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/manufacturing/general/testing/pagePart.php" ?>
 
 	<!-- файлы заказа и типовые чертежи -->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/orderFiles/orderFiles.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/orders/files/orderFiles.php" ?>
 	
 </div>
 
 <!-- форма параметров каркаса-->
-<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/sideboard/forms/mainForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/sideboard/forms/mainForm.php" ?>
 
 
 <div id="result" style="display: none;"></div>
@@ -121,7 +121,15 @@ $APPLICATION->SetTitle("Комоды v.1.1");
 		"PATH" => "/calculator/general/libs_man.php",
 		"EDIT_TEMPLATE" => ""
 	)
-);?>
+);
+foreach($scripts as $script){
+    $printScript = true;
+    if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
+    if($printScript){
+        echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+    };
+};
+?>
 
 <script type="text/javascript" src="/manufacturing/general/drawDimensions.js"></script>
 

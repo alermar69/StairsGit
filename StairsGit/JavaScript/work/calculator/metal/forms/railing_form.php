@@ -4,7 +4,7 @@
 		<table class="form_table" ><tbody>
 
 		<!-- параметры расположения ограждений по маршам -->
-		<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/railing.php" ?>
+		<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/railing.php" ?>
 
 		<tr class="railing_tr"><td>Модель ограждения:</td> <td> 
 			<select id="railingModel" size="1">
@@ -18,11 +18,46 @@
 				<option value="Деревянные балясины">Деревянные балясины</option>
 				<option value="Дерево с ковкой">Дерево с ковкой</option>
 				<option value="Стекло">Стекло</option>
+				<option value="Реечные">Реечные</option>
+			</select>
+		</td></tr>
+
+		<tr class="railing_tr racksrailing_tr"><td>Реек на ступень:</td> <td> 
+			<select id="racksPerStep" size="1" onchange="">
+				<option value="1">1</option>
+				<option value="1.5" >3/2</option> 
+				<option value="2">2</option>
+			</select>
+		</td></tr>
+		
+		<tr class="railing_tr racksrailing_tr"><td>Тип реек:</td> <td> 
+			<select id="racksType" size="1" onchange="">
+				<option value="массив">массив дерева</option>
+				<option value="металл">металл</option>
+				<option value="шпон">шпон</option>
+			</select>
+		</td></tr>
+		
+		<tr class="railing_tr racksrailing_tr"><td>Профиль реек:</td> <td> 
+			<select id="racksProfile" size="1" onchange="">
+				<option value="20х20">20х20</option>
+				<option value="40х40">40х40</option>
+				<option value="50х50">50х50</option>
+				<option value="60х60">60х60</option>
+				<option value="40х20">40х20</option>
+				<option value="60х30">60х30</option>
+				<option value="60х40">60х40</option>
+				<option value="80х40">80х40</option>
+				<option value="100х40">100х40</option>
+				<option value="Ф12">Ф12</option>
+				<option value="Ф16">Ф16</option>
+				<option value="Ф25">Ф25</option>
+				<option value="Ф38">Ф38</option>
 			</select>
 		</td></tr>
 
 		<!-- варианты поручней -->
-		<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/handrailParams.php" ?>
+		<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/handrailParams.php" ?>
 
 		<tr class="railing_tr"><td>Начало ограждения:</td> <td> 
 			<select id="railingStart" size="1" onchange="">
@@ -89,7 +124,7 @@
 
 		<tr class="railing_tr glass_tr"><td>Тип стекла:</td> <td> 
 			<select id="glassType" size="1" onchange="">
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/glass.php" ?>				
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/glass.php" ?>				
 			</select>
 		</td></tr>
 
@@ -140,13 +175,13 @@
 			первая: 
 			<select id="banister1" size="1" onchange="">
 				<!-- варианты кованых балясин -->
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/forgedBals.php" ?>
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
 			</select>
 			<br/>
 			вторая: 
 			<select id="banister2" size="1" onchange="">
 				<!-- варианты кованых балясин -->
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/forgedBals.php" ?>
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
 			</select>
 			<button class="showModal noPrint" data-modal="forgeModal">эскизы</button>
 		</td></tr>
@@ -171,14 +206,14 @@
 		<tr class="railing_tr"><td>Узор:</td> <td> 
 			<select id="laserModel" size="1">
 				<!-- варианты узоров -->
-				<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/general/forms/laserModels.php" ?>
+				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/laserModels.php" ?>
 			</select>
 		</td></tr>
 
 
 
 	<!-- параметры деревянных ограждений -->
-	<?php include $_SERVER['DOCUMENT_ROOT']."/calculator/timber/forms/timberRailing.php" ?>
+	<?php include $GLOBALS['ROOT_PATH']."/calculator/timber/forms/timberRailing.php" ?>
 	
 	
 </tbody> </table>
@@ -200,6 +235,3 @@
 -->	
 	</div>
 </div>
-
-<!--Обработчик формы--> 
-<script type="text/javascript" src="/calculator/metal/forms/railing_form_change.js"></script>

@@ -6,6 +6,7 @@
 			<th style="min-width: 190px">Позиция</th>
 			<th>Цвет</th>
 			<th style="min-width: 100px">Действия</th>
+			<th style="min-width: 100px">Считать цену</th>
 		</tr>
 	</thead>
 	<tbody id='objectsTableBody'>
@@ -32,6 +33,13 @@
 	</div><!-- /.модальное окно-диалог -->
 </div><!-- /.модальное окно -->
 
-<!-- <button class="showModal noPrint" data-modal="forgeModal" data-unit="balustrade">эскизы</button> -->
+<div id='canopySvg' style='display: none;'>
+  <div data-type='m-800'>
+    <?php include $GLOBALS['ROOT_PATH'].'/calculator/general/scene/objects/files/canopy/m-800.svg'; ?>
+  </div>
+  <div data-type='m-1000'>
+    <?php include $GLOBALS['ROOT_PATH'].'/calculator/general/scene/objects/files/canopy/m-1000.svg'; ?>
+  </div>
+</div>
 
-<script type="text/javascript" src="/calculator/general/forms/objects/objectsFormChange.js"></script>
+<!-- <button class="showModal noPrint" data-modal="forgeModal" data-unit="balustrade">эскизы</button> -->

@@ -201,7 +201,3 @@
 	<textarea id="comments" rows="1" cols="80" class="comments"></textarea>
 </span>
 <br/>
-
-
-<!--Обработчик формы-->
-<script type="text/javascript" src="/calculator/geometry/forms/carcas_form_change.js"></script>

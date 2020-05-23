@@ -439,6 +439,7 @@ class TextureManager{
 			if (params.metalPaint == "порошок") color_name = params.carcasColor;
 		}
 		if (material_name == 'metal_railing') {
+			if (params.metalPaint_railing == "нет" || params.metalPaint_railing == "не указано") color_name = 'черный';
 			if (params.metalPaint_railing == "порошок") color_name = params.metalBalColor;
 			if (params.calcType == "vint") color_name = params.carcasColor;
 			texture_name = 'metal'
@@ -455,6 +456,8 @@ class TextureManager{
 			texture_name = 'light';
 		}
 
+		if (material_name == 'additionalObjectTimber') texture_name = getTimberTextureName(params.additionalObjectsTimberMaterial);
+		
 		if (material_name == 'timber' || material_name == 'timber2') {
 			color_name = params.stringersColor;
 			texture_name = getTimberTextureName(params.stringersMaterial);

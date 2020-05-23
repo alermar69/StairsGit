@@ -5,12 +5,12 @@ function getLayersList(){
 	var layers = {
 		treads: {
 			name: "Ступени",
-			not_for: ['railing'],
+			not_for: ['railing', 'carport'],
 			group: 'treads'
 			},
 		risers: {
 			name: "Подступенки",
-			not_for: ['railing', 'vint'],
+			not_for: ['railing', 'vint', 'carport'],
 			group: 'treads'
 			},
 		angles: {
@@ -25,27 +25,27 @@ function getLayersList(){
 			},
 		carcas1: {
 			name: "Каркас1",
-			not_for: ['railing', 'vint'],
+			not_for: ['railing', 'vint', 'carport'],
 			group: 'carcas'
 			},
 		railing: {
 			name: "Ограждения лестницы",
-			not_for: ['geometry'],
+			not_for: ['geometry', 'carport'],
 			group: 'railing'
 			},
 		topRailing: {
 			name: "Балюстрада",
-			not_for: ['railing'],
+			not_for: ['railing', 'carport'],
 			group: 'railing'
 			},
 		forge: {
 			name: "Ковка",
-			not_for: ['railing', 'geometry'],
+			not_for: ['railing', 'geometry', 'carport'],
 			group: 'railing'
 			},
 		handrails: {
 			name: "Поручни",
-			not_for: ['geometry'],
+			not_for: ['geometry', 'carport'],
 			group: 'railing'
 			},
 		newel: {
@@ -81,6 +81,10 @@ function getLayersList(){
 			name: "Размеры",
 			not_for: [],
 			},
+		labels: {
+			name: "Номера стен",
+			not_for: ['carport'],
+			},
 		//специальные слои для монокосоуров
 		treadPlates: {
 			name: "Подложки",
@@ -89,7 +93,7 @@ function getLayersList(){
 			},
 		flans: {
 			name: "Фланцы",
-			only_for: ['mono'],
+			only_for: ['mono', 'carport'],
 			group: 'carcas'
 			},
 		//специальные слои для ограждений
@@ -118,6 +122,22 @@ function getLayersList(){
 			only_for: ['vint'],
 			group: 'carcas'
 			},
+		//специальные слои для навесов
+		roof: {
+			name: "Кровля",
+			only_for: ['carport'],
+			group: 'roof'
+		},
+		progon: {
+			name: "Прогоны",
+			only_for: ['carport'],
+			group: 'progon'
+		},
+		racks: {
+			name: "Опоры",
+			only_for: ['carport'],
+			group: 'racks'
+		},
 	}
 	
 return layers;
