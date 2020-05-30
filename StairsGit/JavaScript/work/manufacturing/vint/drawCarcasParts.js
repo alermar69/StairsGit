@@ -1480,7 +1480,15 @@ function drawVintPlatformShape(par) {
 			var p7 = basePoints[4];
 			var p6 = newPoint_xy(p7, 0, calcTriangleParams().treadOverlayLength);
 			var p5 = itercection(p6, polar(p6, edgeAngle / 2, 100), rearLine.p1, rearLine.p2)
-			
+
+			//рассчитываем и запоминаем точку вставки стойки ограждения завязки поручня на площадке
+			var ang = calcAngleX1(p6, p5);
+			var pt = polar(p6, ang, distance(p6, p5) / 2);
+			var pt = polar(pt, ang + Math.PI / 2, 25);
+			var pt = rotatePoint(pt, Math.PI / 2 - ang);
+			par.pointRack = pt;
+			par.lengthConnection = distance(p6, p5);
+
 			/*отрисовываем контур площадки*/
 
 			var treadShape = new THREE.Shape();

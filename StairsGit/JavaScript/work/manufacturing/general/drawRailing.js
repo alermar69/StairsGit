@@ -2994,7 +2994,7 @@ function drawRailingSectionForge2(par) {
 
     //марш
 
-    if (parRacks.marshFirst) {
+	if (parRacks.marshFirst && !parRacks.isNotMarsh) {
         //расчет угла марша
 
         //если стойки сверху, тогда сдвигаем вверх нижнюю перемычку, чтобы не было пересечения перемычки со ступенями
@@ -3041,13 +3041,20 @@ function drawRailingSectionForge2(par) {
         parRacks.marshLen = distance(topPoint2, topPoint3)
 
         //делаем чтобы угол секции соответствовал углу марша
-		if (par.key == 'in' || (par.key == 'out' && par.botTurn == "пол")) {
+		if (par.key == 'in' && marshPar.botTurn !== "пол") {
             parRacks.angMarsh = marshPar.ang;
             var pt = itercection(topPoint3, polar(topPoint3, parRacks.angMarsh, 100), topPoint2, polar(topPoint2, Math.PI / 2, 100));
             parRacks.marshLen = distance(topPoint3, pt);
 			parRacks.firstRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
-            if (par.key == 'in') parRacks.lastRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
+			if (par.key == 'in')parRacks.lastRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
             topPoint2 = copyPoint(pt);
+		}
+		if (marshPar.botTurn == "пол") {
+			parRacks.angMarsh = marshPar.ang;
+			var pt = itercection(topPoint2, polar(topPoint2, parRacks.angMarsh, 100), topPoint3, polar(topPoint3, Math.PI / 2, 100));
+			parRacks.marshLen = distance(topPoint2, pt);
+			parRacks.lastRackDeltaLength = pt.y - topPoint3.y;
+			topPoint3 = copyPoint(pt);
 		}
 
         rackPar.angTop = parRacks.angMarsh;
@@ -3589,7 +3596,7 @@ function drawRailingSectionForge2(par) {
         }
 
         //корректируем вторую точку если нет нижнего поворота
-        if (!topPoint1) {
+		if (!topPoint1 && topPoint2) {
             var extraLen = 80 + rackPar.topCutLen / 2;
 			if (par.isPlatform && par.botConnection) {
                 extraLen = 80 + rackPar.topCutLen / 2;

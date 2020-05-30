@@ -710,19 +710,24 @@ function drawSVGForgedRailing(par) {
 					}
 					return false
 				});
-				var dimPar = {
-					type: "dist",
-					p1: racks[0].drawing.pos,
-					p2: pole[0].drawing.endPoint,
-					offset: 0,
-					side: "bot",
-					draw: draw,
-				}
-				if (racks[0].drawing.zeroDelta) dimPar.p1.y -= racks[0].drawing.zeroDelta - 90;
 
-				dimSet = drawDim(dimPar);
-				dimSet.setClass("dimensions");
-				this.push(dimSet);
+				if (racks[0]) {
+					var dimPar = {
+						type: "dist",
+						p1: racks[0].drawing.pos,
+						p2: pole[0].drawing.endPoint,
+						offset: 0,
+						side: "bot",
+						draw: draw,
+					}
+					if (racks[0].drawing.zeroDelta) dimPar.p1.y -= racks[0].drawing.zeroDelta - 90;
+
+					dimSet = drawDim(dimPar);
+					dimSet.setClass("dimensions");
+					this.push(dimSet);
+				}
+
+				
 			});
 		}
 
@@ -821,6 +826,7 @@ function isMirrored(side){
 	var isMirrored = false;
 	if (turnFactor == 1 && side == 'in') isMirrored = true;
 	if (turnFactor == -1 && side == 'out') isMirrored = true;
+	if (params.stairModel == "Прямая") isMirrored = !isMirrored;
 	return isMirrored;
 }
 

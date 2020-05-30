@@ -509,8 +509,10 @@ function drawMarshStringers(par, marshId){
 		if (params.model == "лт") flans.position.x -= 5;
 		flans.position.z = -(params.M / 2 - stringerParams.stringerSideOffset - params.stringerThickness)
 	if (turnFactor == 1) flans.position.z += calcStringerMoove(par.marshId).stringerOutMoove
-	if (params.calcType == 'bolz' && turnFactor == -1)
-		flans.position.z = (params.M / 2 - stringerParams.stringerSideOffset - params.stringerThickness * 2)
+	if (params.calcType == 'bolz') {
+		flans.position.z = posZOut + params.stringerThickness * turnFactor;
+		if (params.stairModel == "Прямая") flans.position.z = posZOut - params.stringerThickness * turnFactor;
+	}
 		mesh.add(flans);
 
 

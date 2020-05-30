@@ -113,7 +113,7 @@ drawStaircase = function(viewportId, isVisible) {
 
 	//сдвигаем и поворачиваем лестницу чтобы верхний марш был вдоль оси Х
 	var moove = calcStaircaseMoove(treadsObj.lastMarshEnd);
-
+	
 	//сохраняем позицию лестницы для позиционирования шкафа
 	params.starcasePos = moove;
 	params.starcasePos.rot = moove.rot;

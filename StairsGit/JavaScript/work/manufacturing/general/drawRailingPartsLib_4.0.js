@@ -3594,14 +3594,17 @@ function drawHandrailPorfile_4(par) {
 				amt: 0,
 				sumLength: 0,
 				name: "Поручень",
-				metalPaint: false,
-				timberPaint: false,
+				metalPaint: (handrailPar.mat == "metal"),
+				timberPaint: (handrailPar.mat == "timber"),
 				division: handrailPar.mat,
 				workUnitName: "amt",
+				group: "handrails",
+				type_comments: {}
 			}
 		}
 
-		var name = Math.round(rightX - leftX)
+		var name = Math.round(par.profWidth) + "x" + Math.round(par.profHeight) + "х" + Math.round(par.length);
+		if (par.type == "round") name = "Ф" + Math.round(par.profHeight) + "х" + Math.round(par.length);
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;

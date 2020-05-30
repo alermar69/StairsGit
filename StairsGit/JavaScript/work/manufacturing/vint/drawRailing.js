@@ -892,3 +892,76 @@ function drawHandrailRing(){
 
 	return ring;
 }
+
+function drawRailingConnectionPlatform(par) {
+	var railingSection = new THREE.Object3D();
+
+	//параметры поручня
+	var handrailPar = {
+		prof: params.handrailProf_bal,
+		sideSlots: params.handrailSlots_bal,
+		handrailType: params.handrail_bal,
+	}
+
+	handrailPar = calcHandrailMeterParams(handrailPar); //функция в файле priceLib.js
+
+	var rackOffsetY = 150;
+	var rackLength = params.handrailHeight_bal - handrailPar.profY; //длина стойки с учетом кронштейна
+
+	var rackParams = {
+		len: rackLength - 70 - 2, //70 - высота кронштейна 2 - толщина кронштейна
+		isBotFlan: true,
+		dxfBasePoint: par.dxfBasePoint,
+		dxfArr: dxfPrimitivesArr,
+		material: params.materials.metal_railing,
+		sectText: "балюстрада",
+		unit: 'balustrade',
+		realHolder: true, //точно отрисовываем кронштейн поручня
+		holderAng: 0,
+	};
+
+	var rack = drawRack3d_4(rackParams).mesh;
+	rack.position.y = -60;
+
+	railingSection.add(rack);
+
+
+	var handrailMaterial = params.materials.metal;
+	if (handrailPar.mat == "timber") handrailMaterial = params.materials.handrail;
+	if (handrailPar.mat == "inox") handrailMaterial = params.materials.inox;
+
+	var handrailParams = {
+		partName: "handrails",
+		unit: "balustrade",
+		type: handrailPar.handrailModel,
+		poleProfileY: handrailPar.profY,
+		poleProfileZ: handrailPar.profZ,
+		length: par.lengthHandrail + 70,
+		poleAngle: 0,
+		material: handrailMaterial,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+		dxfArr: dxfPrimitivesArr,
+		fixType: "нет",
+		side: "in",
+		drawing: { group: 'handrails', unit: 'balustrade', ang: 0 }
+		//drawing: { group: 'handrails', unit: 'balustrade', pos: basePoint, ang: 0 }
+	}
+
+	if (params.handrailConnectionType_bal == 'без зазора премиум') {
+		handrailParams.cutBasePlane = 'top';
+		handrailParams.startAngle = 0;
+		handrailParams.endAngle = 0;
+	}
+
+
+	var pole = drawHandrail_4(handrailParams).mesh;
+	pole.position.x = - par.lengthHandrail / 2 - 70;
+	pole.position.y = params.handrailHeight_bal - 150 - handrailPar.profY + 25;
+	if (testingMode) pole.position.y += 2; //2 подогнано чтобы не было пересечений
+	pole.position.z = 50 + handrailPar.profZ / 2;
+	railingSection.add(pole);
+
+	par.mesh = railingSection;
+
+	return par;
+}

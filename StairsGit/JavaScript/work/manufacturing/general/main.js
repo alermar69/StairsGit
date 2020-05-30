@@ -33,6 +33,7 @@ var isFixPats = true; //отрисовывать болты крепления �
 var holeMooveParams = []; //массив данных для смещения отверстий
 var modelSpec = {};//Сюда попадает итоговая спецификация
 var calculatedSpec = {};//Сюда попадает итоговая спецификация
+var boltDiamNoTest = boltDiam;
 
 $(function () {
 	getAllInputsValues(params);
@@ -87,7 +88,8 @@ $(function () {
 
 });
 
-function recalculate(){
+function recalculate() {
+	if (!testingMode) boltDiam = boltDiamNoTest;
 	return new Promise(function(resolve, reject){
 		try {
 			$('#loaderBlock').show({done: function(){

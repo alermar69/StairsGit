@@ -924,7 +924,7 @@ function setModelDimensions(par) {
 
 	if(par.model == "mono") {
 		topStepDelta = params.nose;
-		if(params.topAnglePosition == "над ступенью") topStepDelta += 8;
+		//if(params.topAnglePosition == "над ступенью") topStepDelta += 8;
 	}
 
 	if(par.model == "timber") topStepDelta = 60;

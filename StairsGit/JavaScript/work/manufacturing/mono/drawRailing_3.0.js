@@ -1976,6 +1976,7 @@ function calculateRacks(par){
 	//обычная стойка
 	if(marshPar.topTurn == "пол"){
 		mooveX = marshPar.a - 100;
+		if (params.topAnglePosition == "над ступенью") mooveX -= 20;
 		parRacks.marshLast.type = "last"
 		parRacks.marshLast.x -= marshPar.b;
 		parRacks.marshLast.y -= marshPar.h;
@@ -2246,6 +2247,7 @@ function calculateRacks(par){
 	var isMarshFirst = false;
 	if (par.stairAmt !== 0 || isWndP || isRearPlatform || marshPar.hasTopBalRailing.in) isMarshFirst = true;
 	if (parRacks.marshFirst.x > parRacks.marshLast.x - 50) isMarshFirst = false;
+	//if (marshPar.botTurn === "пол" && par.stairAmt < 2) isMarshFirst = false;
 
 	if (isMarshFirst) {
 		par.racks.push(parRacks.marshFirst);		

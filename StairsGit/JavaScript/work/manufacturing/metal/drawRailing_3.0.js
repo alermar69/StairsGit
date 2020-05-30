@@ -185,7 +185,7 @@ function calcHandrailPoints(par, parRacks) {
 						extraLen += par.rackProfile / 2;
 					if(meterHandrailPar.handrailModel != "round")
 						extraLen += par.rackProfile / 2 - meterHandrailPar.profZ / 2;
-					if (par.isRearPRailing) {
+					if (par.isRearPRailing && parRacks.angMarsh !== 0) {
 						extraLen += meterHandrailPar.profZ;
 						var p1 = polar(marshLast, parRacks.angMarsh, 0);
 						var pt = newPoint_xy(marshLast, extraLen + 50, 0)

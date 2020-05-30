@@ -138,7 +138,6 @@ function doBoltTest(bd){
 		text = "<a href='" + link + "' target='_blank'>" + $("#orderName").val() + "</a> " + testName + " ";
 		
 	$("#testResults").append(text);
-	
 };
 
 /** функция устанавливает конфигурацию по ее id
@@ -198,6 +197,7 @@ function queueConfigurationTest(onFinish) {
 			}			
 		});
 	});
+
 }
 	
 	

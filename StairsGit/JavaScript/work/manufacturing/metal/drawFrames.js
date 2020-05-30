@@ -189,7 +189,12 @@ function drawWndFrames2(par){
 		par.frameId = 1;
 		var wndFrame1 = drawWndFrame(par);
 		//wndFrame1.mesh.position.x = params.nose;
-		if (params.model == "ко") wndFrame1.mesh.position.x = params.nose;
+	if (params.model == "ко") {
+		wndFrame1.mesh.position.x = params.nose;
+		if (params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && params.stairAmt2 == 0)
+			wndFrame1.mesh.position.x -= (params.nose - 20);
+
+	}
 		if (params.model == "лт") wndFrame1.mesh.position.x += wndSteps.frameFrontOffset;
 
 		if(params.stairModel == "П-образная с забегом" && par.turnId == "turn2") wndFrame1.mesh.position.x = 20;
@@ -251,7 +256,9 @@ function drawWndFrames2(par){
 			wndFrame3.mesh.position.z += (wndSteps[1].in.topMarsh + wndSteps[2].in.topMarsh) * turnFactor;
 			if (par.turnId == "turn1" && (params.stairModel == "П-образная с забегом" || (params.stairModel == "П-образная трехмаршевая" && params.stairAmt2 == 0)))
 				if (!(params.stairModel == "П-образная с забегом" && params.stairAmt3 == 0))
-					wndFrame3.mesh.position.z += (params.marshDist - 57 - 20 + (params.nose - 20)) * turnFactor
+					wndFrame3.mesh.position.z += (params.marshDist - 57 - 20) * turnFactor
+					//wndFrame3.mesh.position.z += (params.marshDist - 57 - 20 + (params.nose - 20)) * turnFactor
+			
 			}
 		
 		obj.add(wndFrame3.mesh);
@@ -874,7 +881,7 @@ function drawWndFrame2(par){
 	
 	var outLine = calcWndTread2Points(pathPar); //точки наружного контура
 	var pathOut = outLine.points;
-
+	var sideOut2 = true;
 	if(params.model == "ко"){
 		var flanLength = 80;
 		// модфицируем массив точек
@@ -895,7 +902,23 @@ function drawWndFrame2(par){
 			p1: outLine.points[4],
 			p2: outLine.points[3],
 			len: distance(outLine.points[3], outLine.points[4]),
+		};
+
+		if (outLine.points[3].y <= 80) {
+			sideOut2 = false;
+			outLine.points.pop();
+			outLine.points.push(newPoint_xy(outLine.points[0], 0, outLine.points[3].y));
+			outLine.sideOut = {
+				p1: outLine.points[0],
+				p2: outLine.points[5],
+				len: distance(outLine.points[0], outLine.points[5]),
 			};
+			outLine.rear1 = {
+				p1: outLine.points[5],
+				p2: outLine.points[3],
+				len: distance(outLine.points[3], outLine.points[5]),
+			};
+		}
 	}
 
 	//смещаем точки так, чтобы базовая точка была в середине передней грани
@@ -927,6 +950,10 @@ function drawWndFrame2(par){
 		},
 		mirrow: true,
 	}
+	if (!sideOut2) {
+		shapePar.drawing.baseLine.p1 = shapePar.points[3]
+		shapePar.drawing.baseLine.p2 = shapePar.points[5]
+	}
 	if (turnFactor == 1) {
 		shapePar.drawing.baseLine.p1 = shapePar.points[0]
 		shapePar.drawing.baseLine.p2 = shapePar.points[1]
@@ -939,18 +966,22 @@ function drawWndFrame2(par){
 	var holeOffset = 40;
 
 	var lines = [outLine.rear2, outLine.front2, outLine.sideOut];
-	if(params.model == "ко") lines.push(outLine.sideOut2);
+	if (params.model == "ко" && sideOut2) lines.push(outLine.sideOut2);
 	lines.push(outLine.rear1);
 	
 	//параметры, чтобы параллельные линии строились в нужную сторону
 	outLine.front2.offsetBack = true;
-	if(turnFactor == -1) outLine.sideOut.offsetBack = true;
+	if (turnFactor == -1) outLine.sideOut.offsetBack = true;
+	if (!sideOut2) {
+		outLine.sideOut.distOut = -100;
+		if (turnFactor == -1) outLine.sideOut.distOut = 100;
+	}
 	
 	linesPar = {
 		lines: lines,
 		dist: -40,
 		isFrame2: true,
-		}
+	}
 	
 	var pathIn = offsetLines(linesPar);
 	
@@ -976,7 +1007,7 @@ function drawWndFrame2(par){
 		if (turnFactor == -1) outLine.front1.offsetBack = true;
 
 		var lines = [outLine.rear2, outLine.front1, outLine.front2, outLine.sideOut];
-		if (params.model == "ко") lines.push(outLine.sideOut2);
+		if (params.model == "ко" && sideOut2) lines.push(outLine.sideOut2);
 		lines.push(outLine.rear1);
 
 		linesPar = {
@@ -1171,7 +1202,7 @@ function drawWndFrame2(par){
 	//боковой маленький на задней стороне внутреннего угла рамки
 
 	//if(params.model == "лт"){
-	if(true){
+	if(sideOut2){
 		flanDxfBasePoint.y -= flanDxfDist;
 
 		outLine.sideIn.len += thk.side;
@@ -1273,6 +1304,7 @@ function offsetLines(par){
 	for (var i = 0; i < par.lines.length; i++) {
 		var line = parallel(par.lines[i].p1, par.lines[i].p2, par.dist);
 		if (par.lines[i].offsetBack) line = parallel(par.lines[i].p1, par.lines[i].p2, -par.dist);
+		if (par.lines[i].distOut) line = parallel(par.lines[i].p1, par.lines[i].p2, par.lines[i].distOut);
 		newLines.push(line);		
 		}
 	

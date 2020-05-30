@@ -968,7 +968,7 @@ function drawAngleSupport(par, parDop) {
 	complexObject1.rotation.z = 0;
 
 	/* болты крепления к нижнему или верхнему перекрытию */
-	if (typeof isFixPats != "undefined" && isFixPats && (angleModel !== "У5-60х60х100" && params.bottomAngleType !== "регулируемая опора")) { //глобальная переменная
+	if (typeof isFixPats != "undefined" && isFixPats && (angleModel !== "У5-60х60х100" && params.bottomAngleType !== "регулируемая опора") && !testingMode) { //глобальная переменная
 		if (par.pos) {
 			var fixPar = getFixPart(0, par.pos);
 

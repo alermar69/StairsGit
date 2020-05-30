@@ -3652,7 +3652,9 @@ function drawTopStepLt_wndIn(par) {
 			botLinePoints.push(botLineP1);
 			}
 
-		if (params.stringerType == "прямая" && par.stairAmt !== 0) par.pointsShape.pop();
+		if (params.stringerType == "прямая" && par.stairAmt !== 0) {
+			if (!(par.stairAmt == 1 && par.botEnd == 'winder')) par.pointsShape.pop();
+		}
 		if (params.stringerType != "прямая" && step != 0) par.pointsShape.push(p1);
 		
 	//if (params.stringerType == "прямая" && !(par.stairAmt == 0 && params.marshDist < 85)) par.pointsShape.push(pt);

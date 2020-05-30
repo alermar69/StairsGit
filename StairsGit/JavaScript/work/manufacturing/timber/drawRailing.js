@@ -132,7 +132,10 @@ function calcRailingRacks(par) {
 			if (marshParams.botTurn == 'забег' && marshParams.lastMarsh) botFirst.x -= calcTurnParams(marshParams.prevMarshId).topMarshOffsetZ - 5;
 			if (marshParams.botTurn == 'площадка') botFirst.x -= calcTurnParams(marshParams.prevMarshId).topMarshOffsetZ;
 			if (marshParams.botTurn == 'забег') botFirst.y -= marshParams.h;
-			if (params.stairModel == 'П-образная с забегом') botFirst.x -= calcTurnParams(marshParams.prevMarshId).topMarshOffsetZ;
+			if (params.stairModel == 'П-образная с забегом') {
+				//botFirst.x -= calcTurnParams(marshParams.prevMarshId).topMarshOffsetZ;
+				botFirst.x -= 5;
+			}
 			//if (marshParams.botTurn == 'забег' && params.calcType == 'mono') botFirst.x -= params.nose + calcTurnParams(marshParams.prevMarshId).topMarshOffsetZ;
 			if (marshParams.botTurn == 'забег' && marshParams.stairAmt == 0 && !marshParams.lastMarsh) botFirst.x -= params.marshDist;
 
@@ -2734,10 +2737,20 @@ function drawBanistersArr(par) {
 		balDist = (par.lenX + balSize) / (balAmt + 1);
 		var pos = newPoint_xy(par.basePoint, balDist - balSize / 2, 0);
 
+		var l1 = treadsObj.wndPar.params[2].stepWidthX - 22 * Math.cos(treadsObj.wndPar.params[2].angleX); 
+		var l2 = treadsObj.wndPar.params[3].stepWidthHi - 20; 
+		var l3 = treadsObj.wndPar2.params[1].stepWidthHi - 20 * Math.cos(treadsObj.wndPar2.params[1].edgeAngle); 
+
 		var dh = 0;
 		for (i = 0; i < balAmt; i++) {
 			var balType = getBalType(i, par.unit); //функция в файле manufacturing/general/drawRailing.js
-			if (i % 2 == 1) dh += par.h;
+			//if (i % 2 == 1) dh += par.h;
+
+			var dh = 0;
+			if (balDist * (i + 1) > l1) dh += par.h;
+			if (balDist * (i + 1) > l1 + l2) dh += par.h;
+			if (balDist * (i + 1) > l1 + l2 + l3) dh += par.h;
+
 			var basePoint = newPoint_xy(pos, balDist * i, dh);
 
 			var balPar = {

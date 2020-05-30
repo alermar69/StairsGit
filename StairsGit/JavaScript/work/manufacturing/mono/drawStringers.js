@@ -765,6 +765,7 @@ function drawComplexStringer(par) {
 						platePar.hasTrapHole = false;
 						platePar.isTurn2 = false;
 						var isPlate = true;
+						var isDrawPlate = true;
 						platePar.isBotPlatform = false;
 
 
@@ -850,7 +851,7 @@ function drawComplexStringer(par) {
 								platePar.turnSteps = par.turnSteps.params[1];
 							}
 
-							if (params.model == 'гнутый') isPlate = false;
+							if (params.model == 'гнутый') isDrawPlate = false;
 						}
 						//пластина второй забежной ступени(верхнего марша)
 						if (par.botEnd == "забег" && i == 1) {
@@ -858,7 +859,7 @@ function drawComplexStringer(par) {
 								platePar.turnSteps = par.turnSteps.params[2];
 								platePar.isTurn2 = true;
 							}
-							if (params.model == 'гнутый') isPlate = false;
+							if (params.model == 'гнутый') isDrawPlate = false;
 						}
 
 						//пластина промежуточной площадки(верхнего марша)
@@ -895,6 +896,9 @@ function drawComplexStringer(par) {
 
 						if (isPlate) {
 							var plate = drawHorPlate(platePar).mesh; //функция в drawCarcasParts.js			
+						}
+
+						if (isDrawPlate) {
 							plate.position.x = sidePlate2.position.x + par.stepPoints[i].x;
 							plate.position.y = sidePlate2.position.y + par.stepPoints[i].y - params.metalThickness - offsetY;
 							par.mesh2.add(plate);
@@ -2184,6 +2188,22 @@ function drawPltStringer(par) {
 						dxfBasePoint: shapePar.dxfBasePoint
 					}
 					shapeTop.holes.push(topCoverCentralHole(holeParams));
+
+					if (!par.isNotFlan) {
+						//третий прямогуольный вырез
+						var pt = newPoint_xy(p3,  - 30 - 50, p1.y / 2);
+						var pt1 = newPoint_xy(pt, - 50, -params.stringerThickness / 2 + 30);
+						var pt2 = newPoint_xy(pt, - 50, params.stringerThickness / 2 - 30);
+						var pt3 = newPoint_xy(pt, 50, params.stringerThickness / 2 - 30);
+						var pt4 = newPoint_xy(pt, 50, -params.stringerThickness / 2 + 30);
+						var holeParams = {
+							vertexes: [pt1, pt2, pt3, pt4],
+							cornerRad: 10.0,
+							dxfPrimitivesArr: dxfPrimitivesArr,
+							dxfBasePoint: shapePar.dxfBasePoint
+						}
+						shapeTop.holes.push(topCoverCentralHole(holeParams));
+					}
 				}
 
 				//для дополнительного куска if (params.carcasConfig == "003" || params.carcasConfig == "004")
@@ -2196,6 +2216,20 @@ function drawPltStringer(par) {
 					var pt4 = newPoint_xy(pt, -150, -params.stringerThickness / 2 + 30);
 					var holeParams = {
 						vertexes: [pt4, pt3, pt2, pt1],
+						cornerRad: 10.0,
+						dxfPrimitivesArr: dxfPrimitivesArr,
+						dxfBasePoint: shapePar.dxfBasePoint
+					}
+					shapeTop.holes.push(topCoverCentralHole(holeParams));
+
+					//второй прямогуольный вырез
+					var pt = newPoint_xy(p0, 30 + 50, p1.y / 2);
+					var pt1 = newPoint_xy(pt, - 50, -params.stringerThickness / 2 + 30);
+					var pt2 = newPoint_xy(pt, - 50, params.stringerThickness / 2 - 30);
+					var pt3 = newPoint_xy(pt, 50, params.stringerThickness / 2 - 30);
+					var pt4 = newPoint_xy(pt, 50, -params.stringerThickness / 2 + 30);
+					var holeParams = {
+						vertexes: [pt1, pt2, pt3, pt4],
 						cornerRad: 10.0,
 						dxfPrimitivesArr: dxfPrimitivesArr,
 						dxfBasePoint: shapePar.dxfBasePoint
@@ -2354,6 +2388,7 @@ function drawPltStringer(par) {
 			
 			//if (!par.isReversBolt) flanPar.noBolts = true; //болты не добавляются
 			flanPar.noBolts = true; //болты не добавляются
+			flanPar.isCentralHoles = true; //отверстия в центре
 			flanPar.isPointSvg = true;
 			flanPar.groupSvg = 'stringersPlatform';
 			flanPar.pointCurrentSvg = newPoint_xy(p0, par.length + 100, 0);
@@ -2364,6 +2399,20 @@ function drawPltStringer(par) {
             if (par.isReversFlans) flan.position.x = sidePlate2.position.x - params.flanThickness;
 			flan.position.y = sidePlate2.position.y; // + par.pointsShape[2].y;
 			par.flans.add(flan);
+
+			//фланец-заглушка
+			var flanPar = {
+				type: "joinStub",
+				pointsShape: par.pointsShape,
+				dxfBasePoint: par.dxfBasePoint,
+			};
+			flanPar.height = params.stringerThickness - params.metalThickness * 2 - 5;
+
+			var flan1 = drawMonoFlan(flanPar).mesh;
+			flan1.position.x = flan.position.x - params.flanThickness;
+			if (par.marshId1 == 22) flan1.position.x += params.flanThickness * 2;
+			flan1.position.y = flan.position.y  + params.metalThickness //+ par.pointsShape[2].y;
+			par.flans.add(flan1);
 		}
 		//если нет фланца соединения косорура к стене, делаем заднюю пластину
 		if (par.isNotFlan) {

@@ -171,7 +171,7 @@ if (par.prevMarshPar.stairAmt == 0 && par.prevMarshPar.botTurn == "пол") par.
 
 	//сохраняем точку для расчета длины
 	par.keyPoints.botPoint = copyPoint(p0);
-	
+
 
 	//удлинение внешнего косоура площадки
 	
@@ -383,6 +383,7 @@ if (par.prevMarshPar.stairAmt == 0 && par.prevMarshPar.botTurn == "пол") par.
 	var ph = { x: p2.x, y: p0.y };
 	if (params.stairModel == 'П-образная трехмаршевая' && par.marshId == 3 && params.stairAmt2 == 0) ph.x = 0;
 	par.keyPoints[par.key].botLineP0 = newPoint_xy(ph, 0, -215);//FIX
+	if (params.riserType == "есть") par.keyPoints[par.key].botLineP0.x -= params.riserThickness;
 	if (par.key == "out")
 		par.keyPoints[par.key].botLineP0.x -= params.M - par.stringerSideOffset;
 
@@ -682,7 +683,8 @@ function drawBotStepKo_wndIn(par){
 	var p5 = newPoint_xy(p4, par.wndSteps[2].in.topMarsh, 0.0);
 	//if (params.stairModel == "П-образная трехмаршевая" &&par.marshId == 2 &&params.stairAmt2 == 0 && par.topEnd !== "winder")
 	if (params.stairModel == "П-образная трехмаршевая" &&par.marshId == 2 &&params.stairAmt2 == 0)
-		p5.x += (params.marshDist - 77 + (params.nose - 20));
+		p5.x += (params.marshDist - 77);
+		//p5.x += (params.marshDist - 77 + (params.nose - 20));
 
 	// третья ступень
 	var p6 = newPoint_xy(p5, 0.0, par.h);
@@ -882,7 +884,8 @@ function drawBotStepKo_wndOut(par){
 	var p5 = newPoint_xy(p4, par.wndSteps[3].out.topMarsh + 0.01, 0.0);
 	if (par.isWndP) p5.x += (params.marshDist - 77); //57 подогнано
 	if (params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && params.stairAmt2 == 0)
-		p5.x += (params.marshDist - 77 + (params.nose - 20));
+		p5.x += (params.marshDist - 77);
+		//p5.x += (params.marshDist - 77 + (params.nose - 20));
 	if (par.marshId == "3" && par.stairAmt == 0 && par.topEnd == "platformG") {
 		p5.x += params.lastWinderTreadWidth - 55; //55 - номинальная ширина ступени	
 	}
@@ -997,7 +1000,8 @@ function drawBotStepKo_wndOut(par){
 	}
 	//if (params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && params.stairAmt2 == 0 && par.topEnd == "platformG")
 	if (params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && params.stairAmt2 == 0)
-		holePar.basePoint.x += (params.marshDist - 77 + (params.nose - 20));
+		holePar.basePoint.x += (params.marshDist - 77);
+		//holePar.basePoint.x += (params.marshDist - 77 + (params.nose - 20));
 	par.pointsHole.push(...calcWndHoles(holePar));
 	
 	//Отверстия под ограждения
@@ -1059,7 +1063,7 @@ function drawBotStepKo_wndOut(par){
 		center1.wallFix = true;
 		par.pointsHole.push(center1);
 		//отверстие ближе к углу
-		center1 = newPoint_xy(p5, -100, -100);
+		center1 = newPoint_xy(p5, -50, -100);
 		center1.rad = fixPar.diam / 2 + 1;
 		center1.hasAngle = false;
 		center1.noZenk = true;
@@ -1731,23 +1735,33 @@ function drawTopStepKo_pltG(par) {
 		holeMoove = pltFrameWidth - par.marshFramesParams.width; //смещение второго отверстия из-за изменения ширины рамки
 	}
 
+	var holeDist = par.marshFramesParams.holeDist;
+	var stepHoleX2 = par.marshFramesParams.holeDist + par.marshFramesParams.sideHolePosX;
+	var pltLen = par.tyrnLengthTop - params.sideOverHang - params.nose
+	if (!par.stringerLast) pltLen -= calcStringerMoove(par.marshId).stringerOutMooveNext;
+	if (pltLen < pltFrameWidth * 2 + 100) {
+		pltFrameWidth = Math.floor((pltLen - 100) / 2);
+		holeDist = pltFrameWidth - par.stepHoleX1 * 2;
+		stepHoleX2 = holeDist + par.marshFramesParams.sideHolePosX;
+	}
+
 	// отверстия под первую рамку	
 	var center1 = newPoint_xy(p2, par.stepHoleX1, par.stepHoleY);
-	var center2 = newPoint_xy(p2, par.stepHoleX2 + holeMoove, par.stepHoleY);
+	var center2 = newPoint_xy(p2, stepHoleX2 + holeMoove, par.stepHoleY);
 	par.pointsHole.push(center1);
 	par.pointsHole.push(center2);
 	
 	
 	//расстояние от края первого щита площадки до начала косоура (точка p2)
 	var nose1 = params.nose;
-	if(params.riserType == "есть") nose1 += params.riserThickness;
-	
+	if (params.riserType == "есть") nose1 += params.riserThickness;
+
 	//рамки под стыками щитов площадки
 	for (var i = 0; i < pltPar.partsAmt - 1; i++){
 		//расстояние от стыка щитов площадки до угла косоура (p2)
 		var dividePosX = pltPar.partLen * (i + 1) - nose1;
 		
-		center1 = newPoint_xy(p2, dividePosX - par.marshFramesParams.holeDist / 2, par.stepHoleY);
+		center1 = newPoint_xy(p2, dividePosX - holeDist / 2, par.stepHoleY);
 		//не допускаем пересечения рамок				
 		if (i == 0) {
 			if (center1.x - par.pointsHole[par.pointsHole.length - 1].x < par.marshFramesParams.sideHolePosX * 2 + 5) {
@@ -1759,7 +1773,7 @@ function drawTopStepKo_pltG(par) {
 				center1.x = pointsHoleTop[pointsHoleTop.length - 1].x + par.marshFramesParams.sideHolePosX * 2 + 5
 			}
 		}
-		center2 = newPoint_xy(center1, par.marshFramesParams.holeDist, 0);
+		center2 = newPoint_xy(center1, holeDist, 0);
 
 		pointsHoleTop.push(center1);
 		pointsHoleTop.push(center2);
@@ -1779,8 +1793,11 @@ function drawTopStepKo_pltG(par) {
 	
 	var ph = newPoint_xy(p1, params.M - par.stringerSideOffset, par.h);
 	//внутренняя сторона Г-образная нижний марш
-	if (par.key == "in" && !par.stringerLast)
-		ph = newPoint_xy(p1, 85, par.h);
+	if (par.key == "in" && !par.stringerLast) {
+		ph = newPoint_xy(p1, 25 - params.nose + par.stringerSideOffset, par.h);
+		if (params.riserType == "есть") ph.x -= params.riserThickness;
+	}
+		//ph = newPoint_xy(p1, 85, par.h);
 		
 	//верхняя площадка - есть ограждение
 	if (par.stringerLast && topPltRailing[par.key])
@@ -2137,7 +2154,9 @@ function drawTopStepKo_wndIn(par) {
 	//учитываем свес
 	if(!par.isWndP) topLineLen -= params.nose;
 	if(par.isWndP) topLineLen -= 20;
-	if(params.riserType == "есть") topLineLen -= params.riserThickness;
+	if (params.riserType == "есть") topLineLen -= params.riserThickness;
+	if (params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && params.stairAmt2 == 0)
+		topLineLen += (params.nose - 20);
 
 	var topLineP1 = newPoint_xy(p2, topLineLen, 0.0);
 
@@ -2287,6 +2306,8 @@ function drawTopStepKo_wndOut(par){
 	if (params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && params.stairAmt2 == 0 && par.botEnd == "platformG")
 		p2 = newPoint_xy(p1, 0.0, par.h - 0.01);
 	var p3 = newPoint_xy(p2, par.wndSteps[1].out.botMarsh, 0.0);
+	if (params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && params.stairAmt2 == 0)
+		p3.x += (params.nose - 20);
 
 	// вторая забежная ступень
 	var p4 = newPoint_xy(p3, 0.0, par.h_next);
@@ -2345,7 +2366,7 @@ function drawTopStepKo_wndOut(par){
 	var holePar = {
 		holes: par.wndFramesHoles.botMarsh.out[1],
 		basePoint: p2,
-		}
+	}
 	par.pointsHole.push(...calcWndHoles(holePar));
 	var centerHoleWnd1 = par.pointsHole[par.pointsHole.length - 1];//запоминаем второе отверстие рамки для расчета пересечения отверстия ограждения
 	

@@ -126,7 +126,7 @@ $(function () {
 	}
 });
 
-function recalculate(){
+function recalculate() {
 	rt1 = performance.now();
 	return new Promise(function(resolve, reject){
 		$('#loaderBlock').show({done: function(){

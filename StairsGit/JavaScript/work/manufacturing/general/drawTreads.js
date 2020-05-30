@@ -1000,7 +1000,7 @@ function drawMarshTreads2(par) {
 			plateParams.width = par.h - params.treadThickness / 2;
 			if(params.calcType == "mono") {
 				if(typeof riserSideOffset == 'undefined') var riserSideOffset = 20;
-				plateParams.len -= riserSideOffset * 2;
+				plateParams.len -= riserSideOffset * 2 + 2;
 			}
 			
 			if (params.calcType == "timber_stock") {
@@ -1671,6 +1671,8 @@ function drawWndTread1(par) {
 		stepWidthHi
 	*/
 
+	var marshPar = getMarshParams(par.marshId);
+
 	var path = calcWndTread1Points(par);
 
 	//зеркалим третью ступень
@@ -1680,11 +1682,30 @@ function drawWndTread1(par) {
 		}
 	}
 
+
+	var points1 = path.points.concat();
+	if (params.model == "ко" && params.riserType == "есть") {
+		if (par.treadId == 1 && par.turnId == 2) {
+			if (params.stairModel == 'П-образная с забегом' ||
+				(params.stairModel == 'П-образная трехмаршевая' && marshPar.stairAmt == 0)) {
+				var line = parallel(points1[0], points1[3], -(params.nose - 20));
+				points1[0] = itercection(points1[0], points1[1], line.p1, line.p2);
+				points1[3] = itercection(points1[3], points1[2], line.p1, line.p2);
+			}
+		}
+		if (par.treadId == 3) {
+			var line = parallel(points1[1], points1[2], (params.nose - 20));
+			points1[1] = itercection(points1[0], points1[1], line.p1, line.p2);
+			points1[2] = itercection(points1[3], points1[2], line.p1, line.p2);
+		}
+
+	}
+
 	//	signKeyPoints(path.signKeyPoints, par.dxfBasePoint);
 
 	//создаем шейп
 	var shapePar = {
-		points: path.points,
+		points: points1,
 		dxfArr: dxfPrimitivesArr,
 		dxfBasePoint: par.dxfBasePoint,
 		markPoints: false, //пометить точки в dxf для отладки		
@@ -1706,6 +1727,7 @@ function drawWndTread1(par) {
 			p2: shapePar.points[2],
 		};
 	}
+
 
 	var shape = drawShapeByPoints2(shapePar).shape;
 
@@ -1863,9 +1885,16 @@ function drawWndTread2(par) {
 	points[0].x += 0.01 * turnFactor;
 	if (points[5]) points[5].x += 0.01 * turnFactor;
 
+	var points1 = points.concat();
+	if (params.model == "ко" && params.riserType == "есть") {
+		var line = parallel(points1[0], points1[1], - (params.nose - 20));
+		points1[0] = itercection(points1[0], points1[4], line.p1, line.p2);
+		points1[1] = itercection(points1[1], points1[2], line.p1, line.p2);
+	}
+
 	//создаем шейп
 	var shapePar = {
-		points: points,
+		points: points1,
 		dxfArr: dxfPrimitivesArr,
 		dxfBasePoint: par.dxfBasePoint,
 		markPoints: false, //пометить точки в dxf для отладки
@@ -2154,7 +2183,11 @@ function drawWndTreadsMetal(par) {
 		riser.rotation.z = Math.PI / 2;
 		riser.rotation.y = Math.PI / 2 * turnFactor;
 		riser.position.x = params.nose// - params.riserThickness;
-		if (params.stairModel == "П-образная с забегом" && par.turnId == 2) riser.position.x = 20 - 0.01;
+		if (par.turnId == 2) {
+			if (params.stairModel == "П-образная с забегом" || (params.stairModel == 'П-образная трехмаршевая' && marshPar.stairAmt == 0)) {
+				riser.position.x = 20 - 0.01;
+			}
+		}
 		riser.position.y = -riserPar.width - params.treadThickness;
 		riser.position.z = tread1.position.z;
 
@@ -2299,7 +2332,7 @@ function drawWndTreadsMetal(par) {
 	var deltaLen = 0;
 	if (par.plusMarshDist) {
 		deltaLen = params.marshDist - 77;
-		if (par.type == "ко") deltaLen += params.nose - 20;
+		//if (par.type == "ко") deltaLen += params.nose - 20;
 		if (params.calcType === 'bolz') deltaLen = params.marshDist;
 	}
 

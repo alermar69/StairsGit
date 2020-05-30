@@ -1,7 +1,7 @@
 $(function(){
 
 	//проверить текущую
-	$("#test_this").click(function() {
+	$("#test_this").click(function () {
 		testingMode = true;
 		var testType = getTestType();
 		if(testType == "spec_vhod") testingMode = false;
@@ -16,7 +16,7 @@ $(function(){
 		if(testType == "spec") checkSpec(function(){});
 		if(testType == "spec_vhod") checkSpec_vhod(function(){});
 		
-
+		
 	});
 	
 	//загрузка синтетической конфигурации при клике по номеру конфигурации в отчете о тестировании

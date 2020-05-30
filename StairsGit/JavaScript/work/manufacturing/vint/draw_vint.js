@@ -1064,7 +1064,7 @@ function drawStaircase(viewportId, isVisible) {
 	
 	/*площадка*/
 
-	if(params.platformType != 'нет')addVintPlatform();
+	if (params.platformType != 'нет') vintPlatformParams = addVintPlatform();
 
 	function addVintPlatform() {
 
@@ -1122,6 +1122,7 @@ function drawStaircase(viewportId, isVisible) {
 			//carcas.push(platform);
 			model.add(platform, "carcas");
 		}
+		return vintPlatformParams;
 	} //конец площадки
 
 
@@ -1310,6 +1311,26 @@ function drawStaircase(viewportId, isVisible) {
 		//railing.push(railingSection);
 		if (!testingMode) {
 			model.add(railingSection, "railing");
+		}
+
+
+		{
+			var railingPar = {
+				lengthHandrail: vintPlatformParams.lengthConnection,
+				dxfBasePoint: balSectionParams.dxfBasePoint,
+			}
+
+			
+			var railingSection1 = drawRailingConnectionPlatform(railingPar).mesh;
+			
+			railingSection1.position.y = 150 + stepHeight * (stairAmt + 1) + regShimAmt * regShimThk;
+			railingSection1.position.x = -vintPlatformParams.pointRack.y;
+			railingSection1.position.z = -vintPlatformParams.pointRack.x * turnFactor;
+
+
+			if (!testingMode) {
+				model.add(railingSection1, "railing");
+			}
 		}
 	};
 	//addPlatformRailingSection();
