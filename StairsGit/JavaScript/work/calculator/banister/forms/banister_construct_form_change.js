@@ -39,6 +39,12 @@ else {
 	$("#rigel_bal_tr_2").hide()
 }
 
+if (railingModel == "Кресты"){
+	$(".banister_crossrailing_tr").show();
+} else{
+	$(".banister_crossrailing_tr").hide();
+}
+
 //параметры кованых ограждений
 	$(".kovka_bal_tr").hide();	
 	if (railingModel == "Кованые балясины") $(".kovka_bal_tr").show();

@@ -87,7 +87,7 @@ function getExportData_com(checkSumm){
 	if(url.indexOf('calculator') != -1 && url.indexOf('dev') == -1) checkPrice = true;
 
 	//данные по цене
-
+	// debugger;
 	var price_data = {
 		carcas: {
 			name: "Каркас",
@@ -268,15 +268,31 @@ function getExportData_com(checkSumm){
 			price: staircasePrice.total,
 			metalPaint: 0,
 			timberPaint: 0,
-			production: staircasePrice.product,
+			production: staircasePrice.finalPrice,
 			assembling: staircasePrice.assembling,
 			delivery: staircasePrice.delivery,
 		}
-	};
+	}
+	if (params.calcType == "carport") {
+		price_data.main = {
+			price: staircasePrice.total,
+			metalPaint: 0,
+			timberPaint: 0,
+			production: staircasePrice.carcasFinal,
+			assembling: staircasePrice.assembling,
+			delivery: staircasePrice.delivery,
+		}
+	}
+
+	if (window.additional_objects) {
+		price_data.main.additional_objects = staircasePrice.additionalObjectsFinalPrice;
+	}else{
+		price_data.main.additional_objects = 0;
+	}
 	
 	//общая цена заказа
 
-	var totalPrice = price_data.main.production + price_data.main.assembling + price_data.main.delivery;
+	var totalPrice = price_data.main.production + price_data.main.assembling + price_data.main.delivery + price_data.main.additional_objects;
 
 	if(staircasePrice.finalPrice != totalPrice && checkPrice && totalPrice){
 		console.log("Ошибка расчета цены для выгрузки: " + totalPrice + " != " + staircasePrice.finalPrice )
@@ -486,7 +502,7 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		assembling: price_data.main.assembling + price_data.main.delivery,
 		}
 	
-	if(params.calcType != "vint" && params.calcType != "custom" && params.calcType != "slabs"){
+	if(params.calcType != "vint" && params.calcType != "custom" && params.calcType != "slabs" && params.calcType != "carport"){
 		if(params.calcType != "railing"){
 			//каркас
 			if(params.calcType.indexOf("timber") == -1) dept_data.metal += price_data.carcas.production;
@@ -536,7 +552,7 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		}
 
 	//балюстрада
-	if(params.calcType != "railing" && params.calcType != "custom" && params.calcType != "slabs"){
+	if(params.calcType != "railing" && params.calcType != "custom" && params.calcType != "carport" && params.calcType != "slabs"){
 		var metal = staircasePrice.banister_metal + price_data.banister.metalPaint;
 		var timber = staircasePrice.banister_timber + price_data.banister.timberPaint;
 		var partners = staircasePrice.banister_glass;
@@ -559,6 +575,10 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		dept_data.timber = staircasePrice.timber;
 		dept_data.partners = staircasePrice.partners;
 	}
+
+	if(params.calcType == "carport"){
+		dept_data.metal = staircasePrice.finalPrice;
+	}
 	
 	if(params.calcType == "slabs"){		
 		var discountFactor = staircasePrice.finalPrice / staircasePrice.total;
@@ -576,6 +596,9 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 
 	//проверка
 	var deptsSum = dept_data.metal + dept_data.timber + dept_data.partners;
+	if (params.calcType == 'carport') {
+		var deptsSum = staircasePrice.carcasFinal;
+	}
 	if(Math.abs(deptsSum - price_data.main.production) > 1 && checkPrice){
 		var errorText = "Ошибка расчета сумм по цехам - сумма стоимости по цехам не равна стоимости изделия: " + deptsSum + " != " + price_data.main.production;
 		console.log(errorText);

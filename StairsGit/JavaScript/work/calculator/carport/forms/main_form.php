@@ -9,11 +9,13 @@
 					<select id="carportType" data-link="carport^carportType">
 						<option value="двухскатный">двухскатный</option>
 						<option value="односкатный">односкатный</option>
-						<option value="п односкатный">консольный боковой</option>
-						<option value="п односкатный">консольный фронтальный</option>
-						<!-- <option value="арочный продольный">арочный продольный</option> -->
-						<!-- <option value="консольный боковой">консольный боковой</option> -->
-						<!-- <option value="консольный продольный">консольный продольный</option>
+						<option value="консольный">консольный</option>
+						<option value="консольный двойной">консольный двойной</option>
+						<!-- 
+						<option value="консольный фронтальный">консольный фронтальный</option>
+						<option value="арочный продольный">арочный продольный</option>
+						<option value="консольный">консольный</option>
+						<option value="консольный продольный">консольный продольный</option>
 						<option value="пристроенный">пристроенный </option> -->
 						
 					</select>
@@ -51,52 +53,17 @@
 			</tr>
 			
 			
-			<tr>
-				<td>Поперечные балки:</td>
-				<td>
-					<select id="arcType" data-link="carport^arcType">
-						<option value="ферма">Фермы</option>
-						<option value="дуги">Дуги</option>						
-					</select>
-				</td>
-			</tr>
-			
-			
 			<tr class="truss">
-				<td>Ширина по осям колонн:</td>
+				<td>Ширина:</td>
 				<td>
-					<input type="number" name="fermaType" id="fermaType" value="3000">
-					<!-- <select id="fermaType" data-link="carport^fermaType">
-						<option value="3000">3000</option>
-						<option value="3500">3500</option>
-						<option value="4000">4000</option>
-						<option value="4500">4500</option>
-						<option value="5000">5000</option>
-						<option value="5500">5500</option>
-						<option value="6000">6000</option>
-						<option value="6500">6500</option>
-						<option value="7000">7000</option>
-					</select> -->
+					<input type="number" name="trussWidth" id="trussWidth" value="3000">
 				</td>
 			</tr>
-			
-			<tr class="arc">
-				<td>Ширина по осям колонн:</td>
-				<td><input type="number" id="width" value="3000"></td>
-			</tr>
-			
-			
 			
 			<tr class="truss">
 				<td>Длина секции:</td>
 				<td>
 					<input type="number" name="sectLen" id="sectLen" value="2000">
-					<!-- <select id="sectLen">
-						<option value="2000">2000</option>
-						<option value="2500">2500</option>
-						<option value="3000">3000</option>
-
-					</select> -->
 				</td>
 			</tr>
 			
@@ -105,25 +72,6 @@
 				<td><input type="number" id="arcCount" value="3"></td>
 			</tr>
 			
-			<tr class="arc">
-				<td>Длина по осям колонн:</td>
-				<td><input type="number" id="length" value="5000"></td>
-			</tr>
-			<tr class="arc">
-				<td>Кол-во колонн:</td>
-				<td><input type="number" id="racksCount" value="3"></td>
-			</tr class="arc">
-			
-			<tr class="arc">
-				<td>Кол-во поперечных дуг:</td>
-				<td><input type="number" id="vertArcCount" value="3"></td>
-			</tr>
-
-			<tr class="arc">
-				<td>Высота дуги:</td>
-				<td><input type="number" id="topOffset" value="300"></td>
-			</tr>
-		
 			<tr>
 				<td>Прогоны:</td>
 				<td>
@@ -148,6 +96,7 @@
 						<option value="60х60">60х60</option>
 						<option value="80х80">80х80</option>
 						<option value="100х100">100х100</option>
+						<option value="100х200">100х200</option>
 					</select>
 				</td>
 			</tr>

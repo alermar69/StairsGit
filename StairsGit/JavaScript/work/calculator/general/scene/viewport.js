@@ -156,9 +156,9 @@ function addMeasurement(viewportId) {
 	sphereHelper.visible = false;
 
 	var nowStart = true;
-	var newdiv1 = $("<div id='popuup_div' align='left' style='position:absolute;z-index:10;width:130px;height:88px;background-color:white;text-align:left;padding-left:9px;color:#000000;font: 16px Verdana, Arial, Helvetica, sans-serif;display:none;'></div>");
+	var newdiv1 = $("<div id='popuup_div' align='left' style='position:absolute;z-index:100;width:130px;height:88px;background-color:white;text-align:left;padding-left:9px;color:#000000;font: 16px Verdana, Arial, Helvetica, sans-serif;display:none;'></div>");
 	$("body").append(newdiv1);
-	var newdiv2 = $("<div id='popuup2_div' align='left' style='position:absolute;z-index:10;width:330px;height:28px;background-color:white;text-align:left;padding-left:9px;color:#000000;font: 18px Verdana, Arial, Helvetica, sans-serif;display:none;'></div>");
+	var newdiv2 = $("<div id='popuup2_div' align='left' style='position:absolute;z-index:100;width:330px;height:28px;background-color:white;text-align:left;padding-left:9px;color:#000000;font: 18px Verdana, Arial, Helvetica, sans-serif;display:none;'></div>");
 	$("body").append(newdiv2);
 
 	var canvas = view.renderer.domElement;

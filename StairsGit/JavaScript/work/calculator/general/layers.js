@@ -5,12 +5,12 @@ function getLayersList(){
 	var layers = {
 		treads: {
 			name: "Ступени",
-			not_for: ['railing', 'carport'],
+			not_for: ['carport'],
 			group: 'treads'
 			},
 		risers: {
 			name: "Подступенки",
-			not_for: ['railing', 'vint', 'carport'],
+			not_for: ['vint', 'carport'],
 			group: 'treads'
 			},
 		angles: {
@@ -50,7 +50,7 @@ function getLayersList(){
 			},
 		newel: {
 			name: "Столбы",
-			not_for: ['geometry'],
+			not_for: ['geometry', 'carport'],
 			group: 'carcas'
 			},
 		newel1: {
@@ -138,6 +138,10 @@ function getLayersList(){
 			only_for: ['carport'],
 			group: 'racks'
 		},
+		additionalObject: {
+			name: 'Объекты',
+			group: 'other'
+		}
 	}
 	
 return layers;

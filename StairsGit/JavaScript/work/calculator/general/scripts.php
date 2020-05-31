@@ -1,4 +1,10 @@
 <?php	
+	// Подключаем файл содержащий номер ревизии, для сброса кэша
+	include $GLOBALS['ROOT_PATH']."/revision.php";
+
+	if (!isset($revision)) {
+		$revision = '';
+	}
  	if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
 	//выцепляем модуль и представление из url
 	
@@ -293,6 +299,10 @@
 			'only_for' => ['carport'],
 		],
 		[
+			'url' => '/manufacturing/carport/drawCarportParts.js',
+			'only_for' => ['carport'],
+		],
+		[
 			'url' => '/manufacturing/carport/calcSpec.js',
 			'only_for' => ['carport'],
 		],
@@ -419,7 +429,7 @@
 		if(isset($script['only_for']) && !in_array($calc_type, $script['only_for'])) $printScript = false;
 		if($printScript){
 			if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
-				echo '<script type="text/javascript" src="' . $script['url'] . '"></script>';
+				echo '<script type="text/javascript" src="' . $script['url'] . '?revision='.$revision.'"></script>';
 			}else{
 				$GLOBALS['CALCULATOR_SCRIPTS'][] = $script['url'];
 			}

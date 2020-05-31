@@ -186,6 +186,9 @@ if (params.platformTop == "площадка") {
 	$(".topFixParams").hide();
 	}
 	
+if(params.calcType == "vint" && params.platformType != "нет"){
+	$(".topPlt").show();
+}
 
 //параметры креплений
 $(".fixSpacerLength").hide();
@@ -411,6 +414,8 @@ if (railingModel == "Самонесущее стекло"){
 if (railingModel == "Реечные"){
 	handRailCompatible.push(15);
 }
+
+if (railingModel == "Кресты") handRailCompatible.push(15);
 
 
 	
@@ -939,6 +944,7 @@ function changeAllForms() {
 	if($("#calcType").val() == "railing"){
 		changeFormConcrete();
 		changeFormRailing();
+		changeFormTreads();
 	}
 	
 	textureManager = getTextureMangerInstance()

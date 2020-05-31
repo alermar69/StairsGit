@@ -12,6 +12,7 @@
 				<option value="Стекло на стойках" selected >Стекло на стойках</option>
 				<option value="Самонесущее стекло"  >Самонесущее стекло</option>
 				<option value="Кованые балясины">Кованые балясины</option>
+				<option value="Кресты">Кресты</option>
 				<option style="display: none;" value="Решетка">Решетка из профиля</option>
 				<option value="Трап">Трап</option>
 				<option value="Экраны лазер">Экраны лазер</option>
@@ -53,6 +54,17 @@
 				<option value="Ф16">Ф16</option>
 				<option value="Ф25">Ф25</option>
 				<option value="Ф38">Ф38</option>
+			</select>
+		</td></tr>
+
+		<tr class="railing_tr crossrailing_tr"><td>Профиль крестов:</td> <td> 
+			<select id="crossProfile" size="1" onchange="">
+				<option value="20х20">20х20</option>
+				<option value="20х40">20х40</option>
+				<option value="40х20">40х20</option>
+				<option value="40х40">40х40</option>
+				<option value="40х60">40х60</option>
+				<option value="40х80">40х80</option>
 			</select>
 		</td></tr>
 

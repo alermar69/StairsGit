@@ -898,12 +898,14 @@ function drawRailingConnectionPlatform(par) {
 
 	//параметры поручня
 	var handrailPar = {
-		prof: params.handrailProf_bal,
-		sideSlots: params.handrailSlots_bal,
-		handrailType: params.handrail_bal,
+		//prof: params.handrailProf_bal,
+		//sideSlots: params.handrailSlots_bal,
+		//handrailType: params.handrail_bal,
+		profY: 50,
+		profZ: 50,
 	}
 
-	handrailPar = calcHandrailMeterParams(handrailPar); //функция в файле priceLib.js
+	//handrailPar = calcHandrailMeterParams(handrailPar); //функция в файле priceLib.js
 
 	var rackOffsetY = 150;
 	var rackLength = params.handrailHeight_bal - handrailPar.profY; //длина стойки с учетом кронштейна
@@ -926,19 +928,20 @@ function drawRailingConnectionPlatform(par) {
 	railingSection.add(rack);
 
 
-	var handrailMaterial = params.materials.metal;
-	if (handrailPar.mat == "timber") handrailMaterial = params.materials.handrail;
-	if (handrailPar.mat == "inox") handrailMaterial = params.materials.inox;
+	//var handrailMaterial = params.materials.metal;
+	//if (handrailPar.mat == "timber") handrailMaterial = params.materials.handrail;
+	//if (handrailPar.mat == "inox") handrailMaterial = params.materials.inox;
 
 	var handrailParams = {
 		partName: "handrails",
-		unit: "balustrade",
-		type: handrailPar.handrailModel,
+		unit: "vint",
+		//type: handrailPar.handrailModel,
+		type: 'ПВХ',
 		poleProfileY: handrailPar.profY,
 		poleProfileZ: handrailPar.profZ,
-		length: par.lengthHandrail + 70,
+		length: par.lengthHandrail + params.topHandrailExtraLength,
 		poleAngle: 0,
-		material: handrailMaterial,
+		material: params.materials.handrail,
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
 		dxfArr: dxfPrimitivesArr,
 		fixType: "нет",
@@ -947,15 +950,15 @@ function drawRailingConnectionPlatform(par) {
 		//drawing: { group: 'handrails', unit: 'balustrade', pos: basePoint, ang: 0 }
 	}
 
-	if (params.handrailConnectionType_bal == 'без зазора премиум') {
-		handrailParams.cutBasePlane = 'top';
-		handrailParams.startAngle = 0;
-		handrailParams.endAngle = 0;
-	}
+	//if (params.handrailConnectionType_bal == 'без зазора премиум') {
+	//	handrailParams.cutBasePlane = 'top';
+	//	handrailParams.startAngle = 0;
+	//	handrailParams.endAngle = 0;
+	//}
 
 
 	var pole = drawHandrail_4(handrailParams).mesh;
-	pole.position.x = - par.lengthHandrail / 2 - 70;
+	pole.position.x = - par.lengthHandrail / 2 - params.topHandrailExtraLength;
 	pole.position.y = params.handrailHeight_bal - 150 - handrailPar.profY + 25;
 	if (testingMode) pole.position.y += 2; //2 подогнано чтобы не было пересечений
 	pole.position.z = 50 + handrailPar.profZ / 2;

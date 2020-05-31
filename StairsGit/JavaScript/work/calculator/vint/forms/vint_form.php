@@ -82,16 +82,6 @@
 						<td><input type="number" id="platformSectionLength" value="700" step="10" /></td>
 					</tr>
 
-					<tr class="topPlt">
-						<td>Замыкание поручня на площадке:</td>
-						<td>
-							<select size="1" id="pltHandrailConnection">
-								<option value="нет">нет</option>
-								<option value="есть">есть</option>
-							</select>
-						</td>
-					</tr>
-
 					<tr>
 						<td>Направление подъема:</td>
 						<td><select size="1" id="turnFactor">
@@ -295,6 +285,21 @@
 					<td><input name="banisterPerStep" type="number" id="banisterPerStep" value="2" /></td>
 				</tr>
 
+				<tr>
+					<td>Замыкание поручня лестницы и балюстрады:</td>
+					<td>
+						<select size="1" id="pltHandrailConnection">
+							<option value="нет">нет</option>
+							<option value="есть">есть</option>
+						</select>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Удлиннение поручня площадки:</td> 
+					<td><input id="topHandrailExtraLength" type="number" value="0" step="10"></td>
+				</tr>
+					
 			</tbody>
 		</table>
 

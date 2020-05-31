@@ -201,6 +201,13 @@ function drawBalSection(par) {
 			handrailType: params.handrail,
 		}
 	}
+	if (par.type == "секция площадки" && params.calcType == 'vint') {
+		var handrailPar = {
+			prof: params.handrailProf,
+			sideSlots: params.handrailSlots,
+			handrailType: par.handrailType,
+		}
+	}
 	handrailPar = calcHandrailMeterParams(handrailPar); //функция в файле priceLib.js
 
 	var scale = 1;
@@ -547,7 +554,7 @@ function drawBalSection(par) {
 
 	function forge_nav() { }; //пустая функция для навигации
 
-	if (railingModel == "Кованые балясины") {
+	if (railingModel == "Кованые балясины" || railingModel == "Кресты") {
 		if (typeof balDist == 'undefined') balDist = [150];
 
 		var sectionLength = platformLength - offsetLeft - offsetRight;
@@ -595,61 +602,98 @@ function drawBalSection(par) {
 			// frame.position.x = offsetLeft +sectBaseX;
 			railingSection.add(frame);
 
-			//балясины	
-			var frameLengthIn = sectLen - frameParams.legProf * 2;
-			var balAmt = Math.round(frameLengthIn / balDist[0])
-			balDist[1] = frameLengthIn / balAmt;
-			var balLength = frameParams.height - frameParams.shortLegLength - frameParams.botProf - frameParams.topProf;
-
-			var insertPoint = [offsetLeft + sectBaseX + frameParams.legProf, frameParams.botProf - 50, -26];
-			insertPoint[0] += balDist[1];
-			insertPoint[0] -= 20; //подогнано
-			var balAmt1 = 0;
-			var balAmt2 = 0;
-
-			//точки для линии в dxf
-			var p1 = newPoint_xy(par.dxfBasePoint, frameParams.legProf + balDist[1], frameParams.botProf + frameParams.shortLegLength);
-			for (i = 0; i < balAmt - 1; i++) {
-
-				var balPar = {
-					type: getBalType(i, 'balustrade'),
-					len: balLength,
-					dxfBasePoint: newPoint_xy(p1, balDist[1] * i, 0),
+			//балясины
+			if (railingModel == "Кованые балясины") {
+				var frameLengthIn = sectLen - frameParams.legProf * 2;
+				var balAmt = Math.round(frameLengthIn / balDist[0])
+				balDist[1] = frameLengthIn / balAmt;
+				var balLength = frameParams.height - frameParams.shortLegLength - frameParams.botProf - frameParams.topProf;
+	
+				var insertPoint = [offsetLeft + sectBaseX + frameParams.legProf, frameParams.botProf - 50, -26];
+				insertPoint[0] += balDist[1];
+				insertPoint[0] -= 20; //подогнано
+				var balAmt1 = 0;
+				var balAmt2 = 0;
+	
+				//точки для линии в dxf
+				var p1 = newPoint_xy(par.dxfBasePoint, frameParams.legProf + balDist[1], frameParams.botProf + frameParams.shortLegLength);
+				for (i = 0; i < balAmt - 1; i++) {
+	
+					var balPar = {
+						type: getBalType(i, 'balustrade'),
+						len: balLength,
+						dxfBasePoint: newPoint_xy(p1, balDist[1] * i, 0),
+					}
+					//var bal = drawForgedBanister_4(balPar).mesh;
+					if (!menu.meshBanisters)
+						var bal = drawForgedBanister_4(balPar).mesh;
+					else
+						var bal = drawForgedBanister_5(balPar).mesh;
+					bal.position.x = insertPoint[0] + balDist[1] * i;
+					bal.position.y = insertPoint[1];
+					bal.position.z = insertPoint[2];
+					railingSection.add(bal);
+	
+					var fakeShape = new THREE.Shape();
+					var pos = { x: bal.position.x, y: bal.position.y };
+					fakeShape.drawing = {
+						marshId: svgMarshId,
+						poleId: svgPoleId,
+						key: 'balustrade',
+						group: 'forged_railing',
+						elemType: 'banister',
+						index: i,
+						count: balAmt - 1,
+						pos: pos,
+						balLen: balLength,
+						//banisterType: balType,
+					};
+					shapesList.push(fakeShape);
 				}
-				//var bal = drawForgedBanister_4(balPar).mesh;
-				if (!menu.meshBanisters)
-					var bal = drawForgedBanister_4(balPar).mesh;
-				else
-					var bal = drawForgedBanister_5(balPar).mesh;
-				bal.position.x = insertPoint[0] + balDist[1] * i;
-				bal.position.y = insertPoint[1];
-				bal.position.z = insertPoint[2];
-				railingSection.add(bal);
+			}
+			if (railingModel == 'Кресты') {
+				var crossHeight = frameParams.height;
+				var crossProfParams = getProfParams(params.crossProfileBal);
+				var crossProfileX = crossProfParams.sizeA;
+				var crossProfileY = crossProfParams.sizeB;
 
-				var fakeShape = new THREE.Shape();
-				var pos = { x: bal.position.x, y: bal.position.y };
-				fakeShape.drawing = {
-					marshId: svgMarshId,
-					poleId: svgPoleId,
-					key: 'balustrade',
-					group: 'forged_railing',
-					elemType: 'banister',
-					index: i,
-					count: balAmt - 1,
-					pos: pos,
-					balLen: balLength,
-					//banisterType: balType,
+				var crossFillParams = {
+					sectLen: sectLen - 80,
+					ang: 0,
+					height: crossHeight - 140,
+					dxfBasePoint: par.dxfBasePoint,
+					dxfArr: dxfPrimitivesArr,
+					material: params.materials.metal_railing,
+					profileX: crossProfileX,
+					profileY: crossProfileY
+				}
+
+				var crossFillPos = {
+					x: offsetLeft + sectBaseX + frameParams.legProf - 20,
+					y: frameParams.botProf - 50,
 				};
-				shapesList.push(fakeShape);
+
+				crossFillParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, crossFillPos.x, crossFillPos.y);
+
+				var crossFill = drawCrossFill(crossFillParams);
+				crossFill.position.x = crossFillPos.x;
+				crossFill.position.y = crossFillPos.y;
+				crossFill.position.z = -40;
+				railingSection.add(crossFill);
 			}
 		}
 
-		//подпись
-		var text = "Кованая секция балюстрады " + (par.sectId + 1);
-		if (par.type == "секция площадки") text = "Секция ограждения площадки";
-		var textHeight = 30;
-		var textBasePoint = newPoint_xy(par.dxfBasePoint, 100, -100)
-		addText(text, textHeight, dxfPrimitivesArr, textBasePoint)
+		if (railingModel == "Кованые балясины") {
+			//подпись
+			var text = "Кованая секция балюстрады " + (par.sectId + 1);
+			if (par.type == "секция площадки") text = "Секция ограждения площадки";
+			var textHeight = 30;
+			var textBasePoint = newPoint_xy(par.dxfBasePoint, 100, -100)
+			addText(text, textHeight, dxfPrimitivesArr, textBasePoint)
+		}
+		if (railingModel == 'Кресты') {
+
+		}
 
 		//кронштейны поручня
 		if (handrail != "нет" && handrailFixType == "кронштейны") {
@@ -775,12 +819,16 @@ function drawBalSection(par) {
 				side: "in",
 				drawing: { group: 'handrails', unit: 'balustrade', pos: basePoint, ang: 0 }
 			}
+			if (par.type == "секция площадки" && params.calcType == 'vint') {
+				handrailParams.unit = "vint"
+				handrailParams.type = "ПВХ"
+			}
 
 			//Поправка положения поручня по оси Z
 			if (params.railingModel_bal !== 'Самонесущее стекло') railingPositionZ -= 20 - handrailProfileZ / 2;
 
 
-			if (params.handrailConnectionType_bal == 'без зазора премиум') {
+			if (params.handrailConnectionType_bal == 'без зазора премиум' && !(par.type == "секция площадки" && params.calcType == 'vint')) {
 				handrailParams.cutBasePlane = 'top';
 				handrailParams.startAngle = 0;
 				handrailParams.endAngle = 0;

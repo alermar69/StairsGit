@@ -38,6 +38,7 @@
 					<option value="Стекло на стойках">Стекло на стойках</option>
 					<option value="Самонесущее стекло">Самонесущее стекло</option>
 					<option value="Кованые балясины">Кованые балясины</option>
+					<option value="Кресты">Кресты</option>
 					<option value="Деревянные балясины" >Деревянные балясины</option>
 					<option value="Стекло">Модерн</option>
 					<option value="Дерево с ковкой">Дерево с ковкой</option>
@@ -46,6 +47,17 @@
 					<option value="Экраны лазер">Экраны лазер</option>
 					
 					<option value="нет">нет</option> 
+				</select>
+			</td></tr>
+
+			<tr class="banister_crossrailing_tr"><td>Профиль крестов:</td> <td> 
+				<select id="crossProfileBal" size="1" onchange="">
+					<option value="20х20">20х20</option>
+					<option value="20х40">20х40</option>
+					<option value="40х20">40х20</option>
+					<option value="40х40">40х40</option>
+					<option value="40х60">40х60</option>
+					<option value="40х80">40х80</option>
 				</select>
 			</td></tr>
 

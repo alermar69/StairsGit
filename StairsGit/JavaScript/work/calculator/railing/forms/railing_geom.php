@@ -1,6 +1,6 @@
 <input id="railingSectAmt" value="0"/></p>
 
-<table class="form_table"  id="railingParamsTable">
+<table class="form_table" style="width:100%"  id="railingParamsTable">
 <tbody>
 <tr><th>N</th><th>Тип</th><th width="150">Параметры</th><th>Позиция</th><th width="15">X</th></tr> 
 

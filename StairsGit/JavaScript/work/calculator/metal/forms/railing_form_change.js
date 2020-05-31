@@ -157,6 +157,14 @@ if(isRailing) {
 	}else{
 		$('.racksrailing_tr').hide();
 	}
+
+	if (params.railingModel == 'Кресты') {
+		$('.crossrailing_tr').show();
+	}else{
+		$('.crossrailing_tr').hide();
+	}
+
+	
 	
 	if (railingModel == "Деревянные балясины") {
 		$(".timber_tr").show();

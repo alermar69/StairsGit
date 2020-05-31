@@ -3134,9 +3134,14 @@ function drawRailingSectionForge2(par) {
 	}
 
 
-	//марш
+<<<<<<< HEAD
 	if (parRacks.marshFirst && !parRacks.isNotMarsh) {
+        //расчет угла марша
+=======
+	//марш
+	if (parRacks.marshFirst) {
 		//расчет угла марша
+>>>>>>> 514e687dfd5ff70c554f10f3dfb757fa9f82a6aa
 
 		//если стойки сверху, тогда сдвигаем вверх нижнюю перемычку, чтобы не было пересечения перемычки со ступенями
 		var dyRackTop = 60 * Math.tan(parRacks.angMarsh);
@@ -3181,14 +3186,25 @@ function drawRailingSectionForge2(par) {
 		parRacks.angMarsh = angle(topPoint2, topPoint3)
 		parRacks.marshLen = distance(topPoint2, topPoint3)
 
-		//делаем чтобы угол секции соответствовал углу марша
+<<<<<<< HEAD
+        //делаем чтобы угол секции соответствовал углу марша
 		if (par.key == 'in' && marshPar.botTurn !== "пол") {
+            parRacks.angMarsh = marshPar.ang;
+            var pt = itercection(topPoint3, polar(topPoint3, parRacks.angMarsh, 100), topPoint2, polar(topPoint2, Math.PI / 2, 100));
+            parRacks.marshLen = distance(topPoint3, pt);
+			parRacks.firstRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
+			if (par.key == 'in')parRacks.lastRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
+            topPoint2 = copyPoint(pt);
+=======
+		//делаем чтобы угол секции соответствовал углу марша
+		if (par.key == 'in' || (par.key == 'out' && par.botTurn == "пол")) {
 			parRacks.angMarsh = marshPar.ang;
 			var pt = itercection(topPoint3, polar(topPoint3, parRacks.angMarsh, 100), topPoint2, polar(topPoint2, Math.PI / 2, 100));
 			parRacks.marshLen = distance(topPoint3, pt);
 			parRacks.firstRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
-			if (par.key == 'in')parRacks.lastRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
+			if (par.key == 'in') parRacks.lastRackDeltaLength = pt.y - topPoint2.y; //изменение длины последней стойки марша из-за изменения угла секции
 			topPoint2 = copyPoint(pt);
+>>>>>>> 514e687dfd5ff70c554f10f3dfb757fa9f82a6aa
 		}
 		if (marshPar.botTurn == "пол") {
 			parRacks.angMarsh = marshPar.ang;
@@ -3616,6 +3632,19 @@ function drawRailingSectionForge2(par) {
 		polePar.len = parRacks.marshLen;
 		polePar.len += rackPar.topCutLen;
 
+<<<<<<< HEAD
+        //корректируем вторую точку если нет нижнего поворота
+		if (!topPoint1 && topPoint2) {
+            var extraLen = 80 + rackPar.topCutLen / 2;
+			if (par.isPlatform && par.botConnection) {
+                extraLen = 80 + rackPar.topCutLen / 2;
+                if (params.model == "ко") extraLen += params.sideOverHang;
+                if (params.rackBottom == "сверху с крышкой") extraLen -= 80;
+                if (meterHandrailPar.handrailModel == "round")
+                    extraLen -= rackProfile / 2;
+                if (meterHandrailPar.handrailModel != "round")
+					extraLen += rackProfile / 2 - meterHandrailPar.profZ / 2;
+=======
 		polePar.poleAngle = parRacks.angMarsh1;
 		pos.x = parRacks.marsh1First.x - rackPar.poleProfileY / 2;
 		pos.y = parRacks.marsh1First.y - 90 + rackPar.len2;
@@ -3673,6 +3702,7 @@ function drawRailingSectionForge2(par) {
 				material: params.materials.metal,
 				profileX: crossProfileX,
 				profileY: crossProfileY
+>>>>>>> 514e687dfd5ff70c554f10f3dfb757fa9f82a6aa
 			}
 
 			var crossFillPos = {
@@ -3956,7 +3986,7 @@ function drawRailingSectionForge2(par) {
 	}
 
 	//корректируем вторую точку если нет нижнего поворота
-		if (!topPoint1 && topPoint2) {
+	if (!topPoint1) {
 		var extraLen = 80 + rackPar.topCutLen / 2;
 		if (par.isPlatform && par.botConnection) {
 			extraLen = 80 + rackPar.topCutLen / 2;

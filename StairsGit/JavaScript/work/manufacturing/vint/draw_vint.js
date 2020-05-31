@@ -1264,6 +1264,7 @@ function drawStaircase(viewportId, isVisible) {
 				x: 0,
 				y: 3000
 			},
+			handrailType: "ПВХ"
 		}
 		if (params.railingModel_bal == "Ригели" || params.railingModel_bal == "Стекло на стойках") {
 			balSectionParams.handrailOffsetEnd += 40; //размер стойки
@@ -1313,8 +1314,8 @@ function drawStaircase(viewportId, isVisible) {
 			model.add(railingSection, "railing");
 		}
 
-
-		{
+		//замыкание поручня на площадке
+		if (params.pltHandrailConnection == 'есть'){
 			var railingPar = {
 				lengthHandrail: vintPlatformParams.lengthConnection,
 				dxfBasePoint: balSectionParams.dxfBasePoint,
@@ -1322,14 +1323,15 @@ function drawStaircase(viewportId, isVisible) {
 
 			
 			var railingSection1 = drawRailingConnectionPlatform(railingPar).mesh;
-			
-			railingSection1.position.y = 150 + stepHeight * (stairAmt + 1) + regShimAmt * regShimThk;
-			railingSection1.position.x = -vintPlatformParams.pointRack.y;
-			railingSection1.position.z = -vintPlatformParams.pointRack.x * turnFactor;
-
-
-			if (!testingMode) {
-				model.add(railingSection1, "railing");
+			if (vintPlatformParams.pointRack) {
+				railingSection1.position.y = 150 + stepHeight * (stairAmt + 1) + regShimAmt * regShimThk;
+				railingSection1.position.x = -vintPlatformParams.pointRack.y;
+				railingSection1.position.z = -vintPlatformParams.pointRack.x * turnFactor;
+	
+	
+				if (!testingMode) {
+					model.add(railingSection1, "railing");
+				}
 			}
 		}
 	};

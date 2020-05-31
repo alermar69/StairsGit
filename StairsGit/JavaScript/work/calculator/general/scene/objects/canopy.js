@@ -2,7 +2,7 @@ class Canopy extends AdditionalObject {
 	constructor(par) {
 		super(par);
 		var obj = this;
-		
+		this.par.material = 'металл';
 		var canopyPar = {
 			dxfArr: [],
 			dxfBasePoint: {
@@ -14,6 +14,7 @@ class Canopy extends AdditionalObject {
 			posZ: 0,
 			posAng: 0,
 			metalMaterial: this.getObjectMaterial(),
+			polyColor: this.par.polyColor
 		};
 		
 		var meta = Canopy.getMeta();
@@ -86,6 +87,38 @@ class Canopy extends AdditionalObject {
 					]
 				},
 				{
+					key: "polyColor",
+					title: "Цвет поликорбаната",
+					default: "#bfbfbf",
+					type: 'select',
+					values: [
+						{
+							title: 'Прозрачный',
+							value: '#bfbfbf'
+						},
+						{
+							title: 'Бронза',
+							value: '#a15000'
+						}
+					]
+				},
+				{
+					key: "polyType",
+					title: "Тип поликорбаната",
+					default: "сотовый",
+					type: 'select',
+					values: [
+						{
+							title: 'Сотовый',
+							value: 'сотовый'
+						},
+						{
+							title: 'Монолитный',
+							value: 'монолитный'
+						}
+					]
+				},
+				{
 					key: 'holderAmt',
 					title: 'Количество держателей',
 					default: 3,
@@ -124,13 +157,18 @@ function drawCanopy(par){
 	var endOffset = 100; //свес за край кронштейна
 	var fullAngle = (holderPar.arcLen + endOffset) / holderPar.topArcRad;
 	
+	var polyMaterial = textureManager.createMaterial({name: 'glass', wireframe: false});
+	polyMaterial.color = new THREE.Color(par.polyColor);
+	polyMaterial.opacity = 0.5;
+	polyMaterial.transparent = true;
+
 	var arcPanelPar = {
 		rad: roofRad,
 		height: par.width,
 		thk: par.roofThk,
 		angle: fullAngle,
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
-		material: params.materials.glass,
+		material: polyMaterial,
 		partName: 'polySheet'
 	}
 
@@ -180,8 +218,6 @@ function drawCanopyHolder(par, mirrorMetis){
 	
 	mesh.position.x -= holderBBox.max.x
 	holder.add(mesh);
-	
-	
 
 	//фланец крепления к стене
 	var holderPlateHeight = 227;

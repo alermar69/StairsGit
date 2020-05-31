@@ -399,6 +399,7 @@ function getAdditionalObjectCurrentId(){
 }
 
 function addAdditionalObjectTable(par){
+	console.log(par);
 	if(!par) {
 		par = {
 			id: getAdditionalObjectCurrentId(),

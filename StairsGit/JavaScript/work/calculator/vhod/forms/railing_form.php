@@ -69,9 +69,21 @@
 					<option value="Стекло на стойках" class="custom">Стекло на стойках</option>
 					<option value="Самонесущее стекло" class="custom">Самонесущее стекло</option>
 					<option value="Кованые балясины" class="custom">Кованые балясины</option>
+					<option value="Кресты">Кресты</option>
 					<option value="Экраны лазер">Экраны лазер</option>
 				</select>
 			</td></tr>
+
+		<tr class="railing_tr crossrailing_tr"><td>Профиль крестов:</td> <td> 
+			<select id="crossProfile" size="1" onchange="">
+				<option value="20х20">20х20</option>
+				<option value="20х40">20х40</option>
+				<option value="40х20">40х20</option>
+				<option value="40х40">40х40</option>
+				<option value="40х60">40х60</option>
+				<option value="40х80">40х80</option>
+			</select>
+		</td></tr>
 
 		<!-- варианты поручней -->
 		<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/handrailParams.php" ?>

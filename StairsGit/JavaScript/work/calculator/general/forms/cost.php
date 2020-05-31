@@ -90,6 +90,13 @@
 		<p>Расчет еще не произведен</p>
 	</div>
 
+	<div id='vint_cost' style='display: none;'>
+		<h3>Себестоимость лестницы</h3>
+		<div id="cost_staircase" class="toggleDiv">
+			<p>Расчет еще не произведен</p>
+		</div>
+	</div>
+
 	<h3>Себестоимость каркаса и ступеней</h3>
 	<div id="cost_carcas" class="toggleDiv">
 		<p>Расчет еще не произведен</p>

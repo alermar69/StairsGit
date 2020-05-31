@@ -1,22 +1,22 @@
-function createPartsList(){
-	
-    var list = {
+function createPartsList() {
+
+	var list = {
 		addItem: addItem, //функция в файле /manufacturing/general/calc_spec/calcSpec.js
 		addSpecObjItems: addSpecObjItems, //функция в файле /manufacturing/general/calc_spec/calcSpec.js
-		};
-	
+	};
+
 	//общие позиции для всех лестницы
 	addGeneralItems(list); //функция в файле /calculator/general/calcSpec.js
 
 	return list;
-}//end of createPartsList
+} //end of createPartsList
 
 // функция расчёта спецификации
-function calculateSpec(){
+function calculateSpec() {
 	//Инициализация справочника деталей
 	var partsList = createPartsList();
 
-	for(var partName in partsAmt){
+	for (var partName in partsAmt) {
 		var itemsPar = {
 			specObj: partsAmt,
 			partName: partName,
@@ -26,7 +26,7 @@ function calculateSpec(){
 			itemGroup: partsAmt[partName]["group"],
 			comment: "",
 		}
-		console.log(partName, partsAmt[partName]["division"]);
+
 		if(partsAmt[partName].comment) itemsPar.comment = partsAmt[partName].comment;
 
 		partsList.addSpecObjItems(itemsPar);
@@ -41,20 +41,20 @@ function calculateSpec(){
 	// createMaterialsList(); // обнуляем список материалов
 	// calcMaterialsAmt();
 	// printMaterialsNeed();
-	console.log(partsList);
+
 	printSpecificationCollation(partsList);
 
 	$('.tab_4').tablesorter({
-		widgets: [ 'zebra', 'filter' ],
+		widgets: ['zebra', 'filter'],
 		theme: 'blue',
-		usNumberFormat : false,
-		sortReset      : true,
-		sortRestart    : true,
+		usNumberFormat: false,
+		sortReset: true,
+		sortRestart: true,
 	});
-	
+
 	// showDrawingsLinks();
 	printPartsAmt(); //функция в файле calcSpecGeneral.js
 	printPoleList(); //функция в файле calcSpecGeneral.js
-	
-	if(typeof modelSpec !== 'undefined') modelSpec = partsList;
+
+	if (typeof modelSpec !== 'undefined') modelSpec = partsList;
 } //end of calculateSpec

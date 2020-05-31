@@ -194,9 +194,6 @@ function drawTriangleTruss(par){
 		points = [botLine.p1, topLine.p1, rightLine.p1, rightLine.p2, botLine.p2]
 	}
 
-	console.log(points)
-
-	
 	//создаем шейп
 	var shapePar = {
 		points: points,
@@ -233,7 +230,7 @@ function drawTriangleTruss(par){
 		
 	}
 
-	par.progonCount = Math.floor(distance(topLine.p1, rightLine.p1) / holeStep) + 2;
+	par.progonAmt = Math.floor(distance(topLine.p1, rightLine.p1) / holeStep) + 2;
 
 	for(var i=0; i<holeAmt; i++ ){
 		var holeRightLine = parallel(holeLeftLine.p1, holeLeftLine.p2, bridgeWidth)
@@ -411,7 +408,6 @@ function drawTriangleTruss(par){
 	var ang = angle(topLine.p1, rightLine.p1);
 	par.basePoint = polar(rightLine.p1, ang + Math.PI / 2, stripeThk);
 	par.basePoint = polar(par.basePoint, ang, par.flanThk / Math.cos(ang) + stripeThk * Math.tan(ang));
-	console.log(ang);
 	// par.basePoint.x += par.flanThk;
 	
 	par.length = distance(polar(topLine.p1, angle(topLine.p1, rightLine.p1) + Math.PI / 2, stripeThk), par.basePoint);
@@ -550,130 +546,21 @@ function drawArcTruss2(par){
 	
 
 	//большие отверстия
-	var holeStep = 650; //максимальный шаг прогонов
-	var sideWidth = 60; //ширина верхнего и нижнего поясов
-	var bridgeWidth = 100; //ширина перемычки по верхней дуге
-	var bridgeWidthAng = bridgeWidth / topArc.rad; //угловая ширина перемычки
-	var holeCornerRad = 20
-	
-	var holeAmt = Math.ceil(topArc.len / holeStep)
-	var holeStepAng = (topArc.startAngle - topArc.endAngle) / holeAmt;
-	
-	if(par.holesModel == "круги"){
-		var maxHoleDiam = distance(rightLine.p1, rightLine.p2) - sideWidth * 2;
-		var holeAmt = Math.ceil(topArc.len / (maxHoleDiam + bridgeWidth))
-		var holeStepAng = (topArc.startAngle - topArc.endAngle) / holeAmt;
-		holeAmt -= 2;
-		bridgeWidthAng *= 2;
+	var holePar = {
+		holeStep: 650, //максимальный шаг прогонов
+		sideWidth: 60, //ширина верхнего и нижнего поясов
+		bridgeWidth: 100, //ширина перемычки по верхней дуге
+		topArc: topArc, //объект с параметрами верхней дуги фермы
+		botArc: botArc, //объект с параметрами нижней дуги фермы		
+		shape: par.shape,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,		
 	}
+	holePar.maxHoleDiam = distance(rightLine.p1, rightLine.p2) - holePar.sideWidth * 2; //макс. диаметр для круглых отверстий
 	
-	par.progonCount = Math.ceil(topArc.len / holeStep)
-
-	//строим отверстия справа налево
+	addTrussHoles(holePar);
 	
-	for(var i=0; i<holeAmt; i++ ){
-
-		//правая линия
-		var rightLineAng = Math.PI / 2 + holeStepAng * i + bridgeWidthAng / 2;
-		
-		//левая линия
-		var leftLineAng = Math.PI / 2 + holeStepAng * (i + 1) - bridgeWidthAng / 2;
-		
-		//уменьшаем первое и последнее отверстия		
-		if(i == holeAmt-1) leftLineAng -= holeStepAng / 2;
-		if(par.holesModel == "вытянутые" && i == 0) rightLineAng += bridgeWidthAng;
-		
-		//точки без учета скругления
-		var ph2 = polar(topArc.center, leftLineAng, topArc.rad - sideWidth) //левая верхняя
-		var ph3 = polar(topArc.center, rightLineAng, topArc.rad - sideWidth) //правая верхняя
-		var ph4 = itercectionLineCircle(topArc.center, ph3, botArc.center, botArc.rad + sideWidth)[0] //правая нижняя
-		var ph1 = itercectionLineCircle(topArc.center, ph2, botArc.center, botArc.rad + sideWidth)[0] //левая нижняя
-		
-		//рассчитываем скругление справа
-		fillPar = {
-			center1: topArc.center, 
-			center2: botArc.center,
-			rad1: topArc.rad - sideWidth,
-			rad2: botArc.rad + sideWidth,
-			point: ph3, //предварительная точка
-		}
-
-		var rad = calcCirclesFillet(fillPar).rad
-		//смещаем точку сопряжения на радиус дуги сопряжения
-		var deltaAng = rad / topArc.rad;
-		var ang = rightLineAng + deltaAng;
-		fillPar.point = polar(topArc.center, ang, topArc.rad - sideWidth) //правая верхняя
-		
-		var filletParRight = calcCirclesFillet(fillPar)
-		
-		//рассчитываем скругление слева
-		fillPar = {
-			center1: topArc.center, 
-			center2: botArc.center,
-			rad1: topArc.rad - sideWidth,
-			rad2: botArc.rad + sideWidth,
-			point: ph2, //предварительная точка
-		}
-		
-		
-		var rad = calcCirclesFillet(fillPar).rad
-		//смещаем точку сопряжения на радиус дуги сопряжения
-		var deltaAng = rad / topArc.rad;
-		var ang = leftLineAng - deltaAng;
-		fillPar.point = polar(topArc.center, ang, topArc.rad - sideWidth) //правая верхняя
-		
-		var filletParLeft = calcCirclesFillet(fillPar)
-		
-		
-		//верхняя дуга
-		var holeTopArc = {
-			center: topArc.center,
-			rad: topArc.rad - sideWidth,
-			startAngle: angle(topArc.center, filletParLeft.point) + Math.PI,
-			endAngle: angle(topArc.center, filletParRight.point)  + Math.PI,
-		}
-		
-		//нижняя дуга
-		var holeBotArc = {
-			center: botArc.center,
-			rad: botArc.rad + sideWidth,
-			endAngle : angle(botArc.center, filletParRight.point2)  + Math.PI,		
-			startAngle : angle(botArc.center, filletParLeft.point2)  + Math.PI, 
-		}
-		
-		//левая дуга
-		var holeLeftArc = {
-			center: filletParLeft.center,
-			rad: filletParLeft.rad,
-			endAngle : angle(filletParLeft.center, filletParLeft.point) + Math.PI,		
-			startAngle : angle(filletParLeft.point2, filletParLeft.center),
-		}
-
-		//правая дуга
-		var holeRightArc = {
-			center: filletParRight.center,
-			rad: filletParRight.rad,
-			endAngle : angle(filletParRight.center, filletParRight.point2) ,		
-			startAngle : angle(filletParRight.center, filletParRight.point) + Math.PI,
-		}
-		
-		if(par.holesModel == "вытянутые"){
-			var holeShape = new THREE.Shape();
-			//левая линия
-			addArc2(holeShape, par.dxfArr, holeLeftArc.center, holeLeftArc.rad, holeLeftArc.startAngle, holeLeftArc.endAngle, true, par.dxfBasePoint)
-			//верхняя дуга
-			addArc2(holeShape, par.dxfArr, holeTopArc.center, holeTopArc.rad, holeTopArc.startAngle, holeTopArc.endAngle, true, par.dxfBasePoint)
-			//правая линия
-			addArc2(holeShape, par.dxfArr, holeRightArc.center, holeRightArc.rad, holeRightArc.startAngle, holeRightArc.endAngle, true, par.dxfBasePoint)
-			//нижняя дуга
-			addArc2(holeShape, par.dxfArr, holeBotArc.center, holeBotArc.rad, holeBotArc.startAngle, holeBotArc.endAngle, false, par.dxfBasePoint)
-			par.shape.holes.push(holeShape)
-		}
-		if(par.holesModel == "круги"){
-			addRoundHole(par.shape, par.dxfArr, holeRightArc.center, holeRightArc.rad, par.dxfBasePoint)
-		}
-		
-	}
+	par.progonAmt = Math.ceil(topArc.len / holePar.holeStep)
 
 	//отверстия для болтов
 	var holeOffset = 20;
@@ -881,3 +768,326 @@ function drawArcTruss2(par){
 
 	return par;
 } //end of drawArcTruss2
+
+
+/** функция отрисовывает крыло консольного навеса
+	*@params: len,dxfBasePoint
+	model: "сужающаяся", "постоянной ширины"
+	holesModel: "вытянутые", "круги"
+*/
+function drawArcWing(par){
+	console.log("drawArcWing")
+	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
+	
+	par.mesh = new THREE.Object3D();
+	par.dxfArr = par.dxfPrimitivesArr || dxfPrimitivesArr;
+	
+	//параметры
+
+	par.a1 = -66 / 180 * Math.PI //угол вектора на центр верхней дуги и точку p1
+	par.endWidth = 150; //высота на краю без учета скругления
+	par.deltaRad = 2000; //разница радиуса верхней и нижней дуги
+	par.botWidth = 200; //ширина внизу по горизонтали
+	par.filletRad = 500; //радиус скругления внутреннего угла
+	
+	if(par.model == "постоянной ширины"){
+		par.endWidth = 200;
+		par.deltaRad = par.endWidth;
+		par.filletRad = 700;
+	}
+	
+	par.filletRadEnd = par.endWidth - 20; //радиус скругления на конце фермы
+	
+	//внешний контур
+	var p0 = {x: 0, y: 0}
+	
+	//правая линия
+	var rightLine = {
+		p1: {x: par.len, y: 0,}, //временная точка
+		p2: {x: par.len, y: 100,}, //временная точка
+	}
+	
+	//нижняя линия
+	var botLine = {
+		p1: copyPoint(p0),
+		p2: newPoint_xy(p0, 0, - 100), //временная точка
+		p3: newPoint_xy(p0, par.botWidth, - 100), //временная точка
+		p4: newPoint_xy(p0, par.botWidth, 0), //временная точка
+	}
+
+	//верхняя дуга
+	var topArc = {
+		center: itercection(p0, polar(p0, par.a1, 100) , rightLine.p1, rightLine.p2),		
+		startAngle: par.a1 + Math.PI,
+	}
+	topArc.rad = distance(p0, topArc.center);
+	
+	rightLine.p1 = itercectionLineCircle(rightLine.p1, rightLine.p2, topArc.center, topArc.rad)[0]
+	rightLine.p2 = newPoint_xy(rightLine.p1, 0, -par.endWidth)
+	
+	topArc.endAngle = angle(topArc.center, rightLine.p1)
+	topArc.len = topArc.rad * (topArc.startAngle - topArc.endAngle)
+	
+	
+	//нижняя дуга
+	var botArc = {
+		rad: topArc.rad - par.deltaRad,
+		center: newPoint_xy(topArc.center, 0, par.deltaRad - par.endWidth),		
+	}
+	
+	botLine.p4 = itercectionLineCircle(botLine.p3, botLine.p4, botArc.center, botArc.rad)[0];
+	
+	botArc.endAngle = angle(botArc.center, rightLine.p2)
+	
+	
+	//скругление внутреннего угла нижней дуги
+	
+	var filletPar = {
+		line_p1: copyPoint(botLine.p3),
+		line_p2: copyPoint(botLine.p4),
+		arcCenter: copyPoint(botArc.center),
+		arcRad: botArc.rad,
+		filletRad: par.filletRad,
+		topAngle: true, //верхний или нижний угол
+		//rightAngle: true, //правый или левый угол
+	}
+	
+	filletPar = calcArcFillet(filletPar).filletPar[0]
+	
+	botArc.startAngle = angle(botArc.center, filletPar.end) + Math.PI
+	
+	botLine.p3 = copyPoint(filletPar.start);
+	botLine.p2 = newPoint_xy(botLine.p3, -par.botWidth, 0);
+	
+	
+	//скругление правого конца
+	var filletParEnd = {
+		line_p1: copyPoint(rightLine.p1),
+		line_p2: copyPoint(rightLine.p2),
+		arcCenter: copyPoint(botArc.center),
+		arcRad: botArc.rad,
+		filletRad: par.filletRadEnd,
+		//topAngle: true, //верхний или нижний угол
+		rightAngle: true, //правый или левый угол
+	}
+	
+	filletParEnd = calcArcFillet(filletParEnd).filletPar[0]
+	
+	console.log(filletParEnd)
+	
+	rightLine.p2 = filletParEnd.end;
+	botArc.endAngle = angle(botArc.center, filletParEnd.start) + Math.PI
+	
+	
+	
+	//строим шейп 
+	
+	par.shape = new THREE.Shape();
+	
+	//addLine(par.shape, par.dxfArr, botLine.p4, botLine.p3, par.dxfBasePoint);
+	addLine(par.shape, par.dxfArr, botLine.p3, botLine.p2, par.dxfBasePoint);
+	addLine(par.shape, par.dxfArr, botLine.p2, botLine.p1, par.dxfBasePoint);	
+	//верхняя дуга
+	addArc2(par.shape, par.dxfArr, topArc.center, topArc.rad, topArc.startAngle, topArc.endAngle, true, par.dxfBasePoint)
+	//правая линия
+	addLine(par.shape, par.dxfArr, rightLine.p1, rightLine.p2, par.dxfBasePoint);
+	//нижняя дуга
+	addArc2(par.shape, par.dxfArr, filletParEnd.center, par.filletRadEnd, filletParEnd.angEnd, filletParEnd.angStart,  true, par.dxfBasePoint)
+	addArc2(par.shape, par.dxfArr, botArc.center, botArc.rad, botArc.startAngle, botArc.endAngle, false, par.dxfBasePoint)
+	addArc2(par.shape, par.dxfArr, filletPar.center, par.filletRad, filletPar.angStart, filletPar.angEnd + Math.PI, false, par.dxfBasePoint)
+	
+	//большие отверстия
+	var holePar = {
+		holeStep: 650, //максимальный шаг прогонов
+		sideWidth: 60, //ширина верхнего и нижнего поясов
+		bridgeWidth: 100, //ширина перемычки по верхней дуге
+		topArc: topArc, //объект с параметрами верхней дуги фермы
+		botArc: botArc, //объект с параметрами нижней дуги фермы		
+		shape: par.shape,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,		
+	}
+	holePar.maxHoleDiam = distance(botLine.p3, botLine.p4) - holePar.sideWidth * 2; //макс. диаметр для круглых отверстий
+	
+	addTrussHoles(holePar);
+
+
+
+	var extrudeOptions = {
+		amount: par.thk, 
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+	
+	var geom = new THREE.ExtrudeGeometry(par.shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var truss = new THREE.Mesh(geom, params.materials.metal);
+	par.mesh.add(truss);
+	truss.setLayer('carcas');
+	
+	var box3 = new THREE.Box3().setFromObject(truss);
+	var s = ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
+
+	var partName = "truss";
+	if (typeof specObj != 'undefined') {
+		name = par.len;
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				area: 0,
+				name: "Ферма поперечная",
+				metalPaint: false,
+				timberPaint: false,
+				division: "metal",
+				workUnitName: "amt",
+				group: "carcas",
+			}
+		}
+		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		specObj[partName]["area"] += s;
+
+	}
+	truss.specId = partName + name;
+	
+	// Выводим переменные для использования дальше
+	par.topRad = topArc.rad;
+	par.arcLength = topArc.rad * (topArc.startAngle - topArc.endAngle)
+	par.progonAmt = Math.ceil(par.arcLength / holePar.holeStep)
+	par.centerY = rightLine.p1.y;
+	par.centerYBot = rightLine.p2.y;
+
+	
+	return par;
+}
+
+/** функция добавляет большие отверстия в радиусную ферму
+*/
+
+function addTrussHoles(par){
+		
+	var bridgeWidthAng = par.bridgeWidth / par.topArc.rad; //угловая ширина перемычки
+
+	
+	var holeAmt = Math.ceil(par.topArc.len / par.holeStep)
+	var holeStepAng = (par.topArc.startAngle - par.topArc.endAngle) / holeAmt;
+	
+	
+	if(params.trussHolesType == "круги"){
+		var holeAmt = Math.ceil(par.topArc.len / (par.maxHoleDiam + par.bridgeWidth))
+		var holeStepAng = (par.topArc.startAngle - par.topArc.endAngle) / holeAmt;
+		holeAmt -= 2;
+		bridgeWidthAng *= 2;
+	}
+
+	if(params.carportType == "консольный") holeAmt -= 1
+
+	//строим отверстия справа налево
+	
+	for(var i=0; i<holeAmt; i++ ){
+
+		//правая линия
+		var rightLineAng = Math.PI / 2 + holeStepAng * i + bridgeWidthAng / 2;
+		
+		//левая линия
+		var leftLineAng = Math.PI / 2 + holeStepAng * (i + 1) - bridgeWidthAng / 2;
+		
+		//уменьшаем первое и последнее отверстия		
+		if(i == holeAmt-1 && params.carportType != "консольный") leftLineAng -= holeStepAng / 2;
+		if(params.trussHolesType == "вытянутые" && i == 0) rightLineAng += bridgeWidthAng;
+		
+		//точки без учета скругления
+		var ph2 = polar(par.topArc.center, leftLineAng, par.topArc.rad - par.sideWidth) //левая верхняя
+		var ph3 = polar(par.topArc.center, rightLineAng, par.topArc.rad - par.sideWidth) //правая верхняя
+		var ph4 = itercectionLineCircle(par.topArc.center, ph3, par.botArc.center, par.botArc.rad + par.sideWidth)[0] //правая нижняя
+		var ph1 = itercectionLineCircle(par.topArc.center, ph2, par.botArc.center, par.botArc.rad + par.sideWidth)[0] //левая нижняя
+		
+		//рассчитываем скругление справа
+		fillPar = {
+			center1: par.topArc.center, 
+			center2: par.botArc.center,
+			rad1: par.topArc.rad - par.sideWidth,
+			rad2: par.botArc.rad + par.sideWidth,
+			point: ph3, //предварительная точка
+		}
+
+		var rad = calcCirclesFillet(fillPar).rad
+		//смещаем точку сопряжения на радиус дуги сопряжения
+		var deltaAng = rad / par.topArc.rad;
+		var ang = rightLineAng + deltaAng;
+		fillPar.point = polar(par.topArc.center, ang, par.topArc.rad - par.sideWidth) //правая верхняя
+		
+		var filletParRight = calcCirclesFillet(fillPar)
+		
+		//рассчитываем скругление слева
+		fillPar = {
+			center1: par.topArc.center, 
+			center2: par.botArc.center,
+			rad1: par.topArc.rad - par.sideWidth,
+			rad2: par.botArc.rad + par.sideWidth,
+			point: ph2, //предварительная точка
+		}
+		
+		
+		var rad = calcCirclesFillet(fillPar).rad
+		//смещаем точку сопряжения на радиус дуги сопряжения
+		var deltaAng = rad / par.topArc.rad;
+		var ang = leftLineAng - deltaAng;
+		fillPar.point = polar(par.topArc.center, ang, par.topArc.rad - par.sideWidth) //правая верхняя
+		
+		var filletParLeft = calcCirclesFillet(fillPar)
+		
+		
+		//верхняя дуга
+		var holeTopArc = {
+			center: par.topArc.center,
+			rad: par.topArc.rad - par.sideWidth,
+			startAngle: angle(par.topArc.center, filletParLeft.point) + Math.PI,
+			endAngle: angle(par.topArc.center, filletParRight.point)  + Math.PI,
+		}
+		
+		//нижняя дуга
+		var holeBotArc = {
+			center: par.botArc.center,
+			rad: par.botArc.rad + par.sideWidth,
+			endAngle : angle(par.botArc.center, filletParRight.point2)  + Math.PI,		
+			startAngle : angle(par.botArc.center, filletParLeft.point2)  + Math.PI, 
+		}
+		
+		//левая дуга
+		var holeLeftArc = {
+			center: filletParLeft.center,
+			rad: filletParLeft.rad,
+			endAngle : angle(filletParLeft.center, filletParLeft.point) + Math.PI,		
+			startAngle : angle(filletParLeft.point2, filletParLeft.center),
+		}
+
+		//правая дуга
+		var holeRightArc = {
+			center: filletParRight.center,
+			rad: filletParRight.rad,
+			endAngle : angle(filletParRight.center, filletParRight.point2) ,		
+			startAngle : angle(filletParRight.center, filletParRight.point) + Math.PI,
+		}
+
+		if(params.trussHolesType == "вытянутые"){
+			var holeShape = new THREE.Shape();
+			//левая линия
+			addArc2(holeShape, par.dxfArr, holeLeftArc.center, holeLeftArc.rad, holeLeftArc.startAngle, holeLeftArc.endAngle, true, par.dxfBasePoint)
+			//верхняя дуга
+			addArc2(holeShape, par.dxfArr, holeTopArc.center, holeTopArc.rad, holeTopArc.startAngle, holeTopArc.endAngle, true, par.dxfBasePoint)
+			//правая линия
+			addArc2(holeShape, par.dxfArr, holeRightArc.center, holeRightArc.rad, holeRightArc.startAngle, holeRightArc.endAngle, true, par.dxfBasePoint)
+			//нижняя дуга
+			addArc2(holeShape, par.dxfArr, holeBotArc.center, holeBotArc.rad, holeBotArc.startAngle, holeBotArc.endAngle, false, par.dxfBasePoint)
+			par.shape.holes.push(holeShape)
+		}
+		if(params.trussHolesType == "круги"){
+			addRoundHole(par.shape, par.dxfArr, holeRightArc.center, holeRightArc.rad, par.dxfBasePoint)
+		}
+		
+	}
+}

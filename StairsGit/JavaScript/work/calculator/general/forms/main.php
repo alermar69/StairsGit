@@ -218,12 +218,53 @@
 		$tabs['carcas']['scripts']  = ["/calculator/mono/forms/carcas_form_change.js", "/calculator/startTreads/forms/formChange.js"];
 	};
 	if($calc_type == 'railing'){
+		
 		$tabs['geom'] = false;
 		$tabs['carcas'] = false;
 		$tabs['banister'] = false;
 		$tabs['railing']['url'] = "/calculator/railing/forms/railing_config.php";
 		$tabs['railing']['scripts']  = ["/calculator/banister/forms/banister_construct_form_change.js"];
+		
+		//форма параметров комплектации ограждений
+		$tabs['railing'] = [
+			'name' => 'Комплектация',
+			'url' => '/calculator/railing/forms/railing_config.php',
+			'group' => 'form',
+			'scripts' => ["/calculator/banister/forms/banister_construct_form_change.js"]
+		];
+		
+		//Форма ввода параметров бетонных лестниц
+		$tabs['stairs_geom'] = [
+			'name' => 'Бетон',
+			'url' => '/calculator/railing/forms/stairs_geom.php',
+			'class' => 'noPrint',
+			'group' => 'form',
+		];
+
+		//форма параметров ограждений
+		$tabs['railing_geom'] = [
+			'name' => 'Секции',
+			'url' => '/calculator/railing/forms/railing_geom.php',
+			'group' => 'form',
+		];
+
+		//рутели
+		$tabs['rutelMoove'] = [
+			'name' => 'Рутели',
+			'url' => '/calculator/railing/forms/rutelMoove.php',
+			'class' => 'noPrint',
+			'group' => 'form',
+		];
+		
+		//обшивка бетона
+		$tabs['treads_config'] = [
+			'name' => 'Обшивка',
+			'url' => '/calculator/railing/forms/treads_config.php',
+			'group' => 'form',
+		];
+
 	};
+	
 	if($calc_type == 'timber' || $calc_type == 'timber_stock'){
 		$tabs['carcas']['url']  = "/calculator/timber/forms/carcas_form.php";
 		$tabs['carcas']['scripts'] = ["/calculator/timber/forms/carcas_form_change.js", "/calculator/startTreads/forms/formChange.js"];
@@ -324,7 +365,7 @@
 			];
 
 	};
-
+	
 
 	//цены
 	if($template != 'calculator'){
@@ -340,6 +381,7 @@
 	];
 
 	if($template == 'calculator') $tabs['cost']['class'] = 'noPrint';
+	if($calc_type == 'railing') $tabs['cost']['url'] = '/calculator/railing/forms/cost.php';
 
 	//тесты
 	if(($template == 'calculator' || $template == 'manufacturing') && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])){
@@ -389,34 +431,7 @@
 		'group' => 'form',
 	];
 
-	if($calc_type == 'railing'){
 
-		//Форма ввода параметров бетонных лестниц
-		$tabs['stairs_geom'] = [
-			'name' => 'Бетон',
-			'url' => '/calculator/railing/forms/stairs_geom.php',
-			'class' => 'noPrint',
-			'group' => 'form',
-		];
-
-		//форма параметров ограждений
-		$tabs['railing_geom'] = [
-			'name' => 'Ограждения',
-			'url' => '/calculator/railing/forms/railing_geom.php',
-			'group' => 'form',
-		];
-
-		//рутели
-		$tabs['rutelMoove'] = [
-			'name' => 'Рутели',
-			'url' => '/calculator/railing/forms/rutelMoove.php',
-			'class' => 'noPrint',
-			'group' => 'form',
-		];
-
-		//себестоимость
-		$tabs['cost']['url'] = '/calculator/railing/forms/cost.php';
-	}
 
 	if($template == 'customers'){
 		$tabs['dimensions']['class'] = 'd-none';

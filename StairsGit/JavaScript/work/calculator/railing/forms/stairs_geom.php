@@ -1,6 +1,6 @@
 <input id="stairSectAmt" value="0"/></p>
 
-<table class="form_table" id="concreteParamsTable" >
+<table class="form_table" style="width:100%" id="concreteParamsTable" >
 <tbody>
 <tr><th>N</th><th>Тип</th><th width="140px">Параметры</th><th>Позиция</th><th>X</th></tr> 
 

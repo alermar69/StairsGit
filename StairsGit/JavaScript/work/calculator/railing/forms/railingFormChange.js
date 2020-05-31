@@ -460,3 +460,10 @@ if(isHandrail) {
 
 
 } //end of changeFormRailing
+
+
+function changeFormTreads(){
+	$(".treadParams").hide();
+	
+	if(params.stairType != "нет") $(".treadParams").show();
+}

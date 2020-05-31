@@ -1,5 +1,5 @@
 function calculateCarcasPrice(){
-	var fermaType = params.fermaType;
+	var trussWidth = params.trussWidth;
 		
 	//колонны
 	var profParmas = getProfParams(params.columnProfile);
@@ -18,7 +18,8 @@ function calculateCarcasPrice(){
 	var polyRoofCost = getPartPropVal('polySheet', 'area') * polyListPrice;
 	
 	//соединительные профиля для поликарбоната
-	var roofProfPrice = getPartPropVal('polyConnectionProfile', "sumLength") * 100;
+	var roofProfPrice = (getPartPropVal('polyConnectionProfile', "sumLength") || 0) * 100;
+	roofProfPrice += (getPartPropVal('topRoofProfile', "sumLength") || 0) * 100;
 
 	
 	//краевой профиль для поликарбоната
@@ -34,6 +35,12 @@ function calculateCarcasPrice(){
 	
 	// Поперечные фермы
 	var trussWidthCost = getPartPropVal('truss', 'area') * trussListPrice;
+	
+	if(params.carportType.indexOf("консольный") != -1){
+		trussWidthCost *= 2; //к-т учитывает метизы, соединители и т.п.
+	}
+		
+		
 	//полоса по верху фермы
 	trussWidthCost += getPartPropVal('trussLine', 'area') * list4mmPrice;
 
@@ -58,4 +65,14 @@ function calculateCarcasPrice(){
 	staircaseCost.roof = Math.round(polyRoofCost);
 	staircaseCost.roofProf = Math.round(roofProfPrice)
 	staircaseCost.roofShim = Math.round(roofShimPrice)
+
+	staircaseCost.total = 
+		staircaseCost.truss
+		+ staircaseCost.columns
+		+ staircaseCost.flans
+		+ staircaseCost.progon
+		+ staircaseCost.bolts
+		+ staircaseCost.roof
+		+ staircaseCost.roofProf
+		+ staircaseCost.roofShim;
 };

@@ -481,7 +481,11 @@ function calcHandrailPoints(par, parRacks) {
 					divideX.push(par.racks[i].x + par.b / 2);
 					i += 3;
 					}
-				}
+			}
+			if (divideX.length > 0) {
+				if(par.racks[par.racks.length - 1].x - divideX[divideX.length - 1] < 200) divideX.pop();
+			}
+			
 			//массив длин стекол
 			var glassLengths = [];
 			for(var i=0; i< divideX.length; i++){
