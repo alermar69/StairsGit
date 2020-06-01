@@ -136,6 +136,7 @@ function drawStrightTruss(par){
 	*@params: height,len,dxfBasePoint
 	model: "сужающаяся", "постоянной ширины"
 	holesModel: "вытянутые", "круги"
+	обозначения размеров 6692035.ru/drawings/carport/triangleTruss.png
 	
 */
 function drawTriangleTruss(par){
@@ -448,6 +449,7 @@ function drawTriangleTruss(par){
 	*@params: len,dxfBasePoint
 	model: "сужающаяся", "постоянной ширины"
 	holesModel: "вытянутые", "круги"
+	обозначения размеров 6692035.ru/drawings/carport/arcTruss.png
 */
 function drawArcTruss2(par){
 	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
