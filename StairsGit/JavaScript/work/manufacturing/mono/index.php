@@ -10,3 +10,4 @@ $APPLICATION->SetTitle("Расчет лестниц");
 <?php include $GLOBALS['ROOT_PATH']."/calculator/general/scripts.php" ?>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+

@@ -266,6 +266,7 @@
 									<option value="лиственница паркет.">лиственница паркет.</option>
 									<option value="дуб паркет.">дуб паркет.</option>
 									<option value="дуб ц/л">дуб ц/л</option>
+									<option value="лотки">лотки</option>
 									<option value="нет">нет</option>
 								</select>
 							</td>

@@ -70,6 +70,9 @@ function drawPlate(par) {
 	if (params.stairType == "нет" && (par.partName == "tread" || par.partName == "riser" || par.partName == "dpc"))
 		return par;
 
+	if (par.partName == "tread" && params.stairType == 'лотки' && params.calcType == "mono")
+		return par;
+
 	var thk = par.thk;
 	if (par.thkFull) thk = par.thkFull;
 	if (typeof specObj != 'undefined' && par.partName) {

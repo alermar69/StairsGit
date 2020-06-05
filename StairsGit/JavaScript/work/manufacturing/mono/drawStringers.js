@@ -455,6 +455,7 @@ function drawComplexStringer(par) {
                             }
                             var stepPlate = par.stepPoints[i - 1].x - par.stepPoints[i - 2].x
                             platePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -(stepPlate + 150) * i - 1000);
+                            if (params.stairModel == "П-образная с площадкой") platePar.isPltP = true;
 
 						    var plate = drawHorPlates(platePar).mesh;
 							isPlate = false;
@@ -567,22 +568,29 @@ function drawComplexStringer(par) {
 				//подложка промежуточной площадки(верхнего марша)
 				if (par.botEnd == "площадка" && i == 1) {
 					if (params.model == "сварной") {
-						if (params.stairModel == "П-образная с площадкой" || par.botConnection) {
-							platePar.frontOff = 1;
-							basePointShiftX = -(platePar.frontOff + params.flanThickness + 2);
-							if (params.stairModel !== "П-образная с площадкой" && par.botConnection)
-								basePointShiftX += - par.stringerLedge;
-							platePar.step += basePointShiftX ;
-							var plate = drawHorPlates(platePar).mesh;
-							isPlate = false;
-						}
-						else {
-							basePointShiftX = params.stringerThickness / 2 - (params.M / 2) / 2 - 5 - 30;
-                            platePar.step += basePointShiftX;
-                            platePar.isBotPlatform = true;
+						if (!(params.stairType == 'лотки' && params.stairModel !== "П-образная с площадкой")) {
+							if (params.stairModel == "П-образная с площадкой" || par.botConnection) {
+								platePar.frontOff = 1;
+								basePointShiftX = -(platePar.frontOff + params.flanThickness + 2);
+								if (params.stairModel !== "П-образная с площадкой" && par.botConnection)
+									basePointShiftX += - par.stringerLedge;
+								platePar.step += basePointShiftX;
+								if (params.stairModel == "П-образная с площадкой" && params.stairType == 'лотки') {
+									basePointShiftX = 0;
+									var plate = drawHorPlatesPlatform(platePar).mesh;
+								}
+								else
+									var plate = drawHorPlates(platePar).mesh;
+								isPlate = false;
+							}
+							else {
+								basePointShiftX = params.stringerThickness / 2 - (params.M / 2) / 2 - 5 - 30;
+								platePar.step += basePointShiftX;
+								platePar.isBotPlatform = true;
+							}
 						}
 					}
-					if (params.model == "труба") {
+					if (params.model == "труба" || params.stairType == 'лотки') {
                         isPlate = false;
 					}
 				}
@@ -783,7 +791,7 @@ function drawComplexStringer(par) {
 									platePar.step -= params.metalThickness;
 									platePar.backOffHoles = -params.M / 4 + params.flanThickness - params.metalThickness;
 								}
-								if (par.topConnection) {
+								if (par.topConnection && params.stairType !== 'лотки') {
 
 									var deltaLen = 8;//Сдвиг к стене, чтобы закрыть фланец.
 									var len = params.M / 2 / 2 + par.stringerLedge - 0.01;//-platePar.dStep + 10 + deltaLen;
@@ -871,7 +879,10 @@ function drawComplexStringer(par) {
 								platePar.basePointShiftX = -(platePar.frontOff + params.flanThickness + 2);
 								if (params.stairModel !== "П-образная с площадкой" && par.botConnection)
 									platePar.basePointShiftX += - par.stringerLedge;
-								var plate = drawHorPlates(platePar).mesh; //функция в drawCarcasParts.js
+								if (params.stairModel == "П-образная с площадкой" && params.stairType == 'лотки')
+									var plate = drawHorPlatesPlatform(platePar).mesh;
+								else
+									var plate = drawHorPlates(platePar).mesh;
 								isPlate = false;
 							}
 							else {
@@ -2244,24 +2255,26 @@ function drawPltStringer(par) {
 		}
 		if (par.isTreadPlate) {
 			//подложки ступеней
-            var platePar = {
-                marshId: par.marshId,
-				plateId: 0,
-				dxfArr: dxfPrimitivesArr,
-				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -1000),
-                type: "treadPlate",
-                isSvg: true,
-			}
-			if (par.backOffHoles) platePar.backOffHoles = par.backOffHoles;
-			platePar.step = par.pointsShape[2].x - par.pointsShape[1].x;
-			platePar.frontOff = 0;
-			platePar.frontOffset = 0;
-			var basePointShiftX = -(platePar.frontOff + params.flanThickness + 2);
-			platePar.step += basePointShiftX;
-			var plate = drawHorPlates(platePar).mesh;
-			plate.position.x = -basePointShiftX;
-			par.treadPlates.add(plate);
+			if (params.stairType !== 'лотки') {
+				var platePar = {
+					marshId: par.marshId,
+					plateId: 0,
+					dxfArr: dxfPrimitivesArr,
+					dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -1000),
+					type: "treadPlate",
+					isSvg: true,
+				}
+				if (par.backOffHoles) platePar.backOffHoles = par.backOffHoles;
+				platePar.step = par.pointsShape[2].x - par.pointsShape[1].x;
+				platePar.frontOff = 0;
+				platePar.frontOffset = 0;
+				var basePointShiftX = -(platePar.frontOff + params.flanThickness + 2);
+				platePar.step += basePointShiftX;
 
+				var plate = drawHorPlates(platePar).mesh;
+				plate.position.x = -basePointShiftX;
+				par.treadPlates.add(plate);
+			}
 
 			//верхняя пластина косоура
             var platePar = {
@@ -2284,15 +2297,19 @@ function drawPltStringer(par) {
 			platePar.frontOff = 0;
 			platePar.frontOffset = 0;
 			platePar.basePointShiftX = -(platePar.frontOff + params.flanThickness + 2);
-			var sidePlateTop = drawHorPlates(platePar).mesh;
-			sidePlateTop.rotation.x = Math.PI / 2;
-			sidePlateTop.position.z = params.stringerThickness / 2 - params.metalThickness;
+			if (params.stairType !== 'лотки') {
+				var sidePlateTop = drawHorPlates(platePar).mesh;
+				sidePlateTop.rotation.x = Math.PI / 2;
+				sidePlateTop.position.z = params.stringerThickness / 2 - params.metalThickness;
+			}
 		}
 
-		sidePlateTop.position.y = -5;
-		sidePlateTop.position.z += -params.stringerThickness / 2 + params.metalThickness;
-		sidePlateTop.rotation.x += Math.PI / 2;
-		par.mesh2.add(sidePlateTop);
+		if (sidePlateTop) {
+			sidePlateTop.position.y = -5;
+			sidePlateTop.position.z += -params.stringerThickness / 2 + params.metalThickness;
+			sidePlateTop.rotation.x += Math.PI / 2;
+			par.mesh2.add(sidePlateTop);
+		}
 
 		//нижняя пластина косоура
 		pointCurrentSvg.y -= params.stringerThickness + 100;

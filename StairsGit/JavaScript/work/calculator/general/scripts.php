@@ -148,6 +148,10 @@
 			'url' => '/manufacturing/curve/drawCarcasParts.js',
 			'only_for' => ['mono'],
 		],
+		[
+			'url' => '/manufacturing/mono/personalScripts.js',
+			'only_for' => ['mono'],
+		],
 		//mono
 		
 		//console

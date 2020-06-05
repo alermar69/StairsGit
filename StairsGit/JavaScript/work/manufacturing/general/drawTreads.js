@@ -30,7 +30,8 @@ function drawTreads() {
     var marshTreads = marshObj.treads;
     var marshRisers = marshObj.risers;
     marshTreads.marshId = 1;
-    treadsGroup.add(marshTreads);
+	if (!(params.calcType == "mono" && params.stairType == 'лотки'))
+		treadsGroup.add(marshTreads);
     risersGroup.add(marshRisers);
 
 
@@ -143,7 +144,8 @@ function drawTreads() {
                 platform.position.y = platformRiser.position.y = unitPosTmp.y;
                 platform.rotation.y = platformRiser.rotation.y = unitPosTmp.rot;
                 platform.position.z = platformRiser.position.z = unitPosTmp.z - turnZ;
-                treadsGroup.add(platform);
+				if (!(params.calcType == "mono" && params.stairType == 'лотки'))
+					treadsGroup.add(platform);
                 risersGroup.add(platformRiser);
             }
             dxfBasePoint.x += pltPar.width + 1000;
@@ -172,7 +174,8 @@ function drawTreads() {
             wndTreads.position.z = wndRisers.position.z = unitPos.z;
             wndTreads.marshId = 1;
             wndTreads.isTurn = true;
-            treadsGroup.add(wndTreads);
+			if (!(params.calcType == "mono" && params.stairType == 'лотки'))
+				treadsGroup.add(wndTreads);
             risersGroup.add(wndRisers);
 
             var unitPos = calcTurnEndPoint(wndTreads.position, wndTreads.rotation.y, marshId, wndPar.plusMarshDist, wndPar.turnId);
@@ -204,7 +207,8 @@ function drawTreads() {
             marshTreads.position.y = marshRisers.position.y = unitPos.y;
             marshTreads.position.z = marshRisers.position.z = unitPos.z;
             marshTreads.marshId = 2;
-            treadsGroup.add(marshTreads);
+			if (!(params.calcType == "mono" && params.stairType == 'лотки'))
+				treadsGroup.add(marshTreads);
             risersGroup.add(marshRisers);
 
             var unitPos = calcMarshEndPoint(marshTreads.position, marshTreads.rotation.y, marshId);
@@ -250,7 +254,8 @@ function drawTreads() {
                 platform.position.x = platformRiser.position.x = unitPos.x;
                 platform.position.y = platformRiser.position.y = unitPos.y;
                 platform.position.z = platformRiser.position.z = unitPos.z;
-                treadsGroup.add(platform);
+				if (!(params.calcType == "mono" && params.stairType == 'лотки'))
+					treadsGroup.add(platform);
                 risersGroup.add(platformRiser);
 
                 var unitPos = calcTurnEndPoint(platform.position, platform.rotation.y, marshId);
@@ -281,7 +286,8 @@ function drawTreads() {
                 wndTreads.position.z = wndRisers.position.z = unitPos.z;
                 wndTreads.marshId = 2;
                 wndTreads.isTurn = true;
-                treadsGroup.add(wndTreads);
+				if (!(params.calcType == "mono" && params.stairType == 'лотки'))
+					treadsGroup.add(wndTreads);
                 risersGroup.add(wndRisers);
                 var unitPos = calcTurnEndPoint(wndTreads.position, wndTreads.rotation.y, marshId, false, wndPar2.turnId);
                 dxfBasePoint.x += 6000;
@@ -311,7 +317,8 @@ function drawTreads() {
         marshTreads.position.y = marshRisers.position.y = unitPos.y;
         marshTreads.position.z = marshRisers.position.z = unitPos.z;
         marshTreads.marshId = 3;
-        treadsGroup.add(marshTreads);
+		if (!(params.calcType == "mono" && params.stairType == 'лотки'))
+			treadsGroup.add(marshTreads);
         risersGroup.add(marshRisers);
 
         lastMarshEnd = calcMarshEndPoint(marshTreads.position, marshTreads.rotation.y, marshId);
@@ -380,7 +387,8 @@ function drawTreads() {
             }
         }
         platform.marshId = 3;
-        treadsGroup.add(platform);
+		if (!(params.calcType == "mono" && params.stairType == 'лотки'))
+			treadsGroup.add(platform);
         risersGroup.add(risers);
 
     }
@@ -492,7 +500,6 @@ function drawMarshTreads2(par) {
 			plateParams.thkFull = plateParams.thk + parFrame.profHeight;
 		}
 
-
 		//пригласительные ступени
 		par.startTreadsParams = [];
 		if (params.startTreadAmt > 0 && par.marshId == 1) {
@@ -512,7 +519,7 @@ function drawMarshTreads2(par) {
 		var posZ = 0;
 		for (var i = startIndex; i < par.stairAmt; i++) {
 			//коррекция длины
-			if (params.stairType == 'лотки') {
+			if (params.stairType == 'лотки' && params.calcType !== "mono") {
 				// длина ступени уменьшаеться если ступень попадает на фланец разделения тетив
 				var divide = ltko_set_divide(par.marshId).divide;
 				if (i == divide - 1) plateParams.len = par.treadLen - 8 * 2;
@@ -812,13 +819,15 @@ function drawMarshTreads2(par) {
 				tread.position.y = par.h * (i + 1) - techDelta;
 				if (params.stairType == 'лотки') {
 					// рассчитываем параметры рамки
-					var parFrame = {}
+					var parFrame = {marshId: par.marshId}
 					calcFrameParams(parFrame);
 					tread.position.y -= parFrame.profHeight + plateParams.thk;
 					tread.position.x += plateParams.thk + 0.05;
+					
 				}
 				tread.position.z = - plateParams.len / 2;
 			}
+			
 
 			if (params.model == "тетива+косоур") tread.position.z += (params.stringerThickness - params.stringerSlotsDepth) / 2 * turnFactor;
 			if (params.calcType == 'bolz') tread.position.z += (params.M - plateParams.len) / 2 * turnFactor;
@@ -840,6 +849,7 @@ function drawMarshTreads2(par) {
 				tread.userData.marshId = par.marshId;
 				tread.userData.treadIndex = i;
 			}
+
 			par.treads.add(tread);
 
 			/*подступенки марша*/

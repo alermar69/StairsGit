@@ -177,17 +177,26 @@ function moovePoints(points, mooveDist) {
 
 //функция повороачивает массив точек как единое целое вокруг начала координат
 function rotatePoints(points, rotAng, p0) {
+	var pt = { x: 100000, y: 100000 }
 	var newPoints = [];
 	var zeroPoint = { x: 0, y: 0, }
 	if (p0) zeroPoint = copyPoint(p0);
+
+	zeroPoint = newPoint_xy(zeroPoint, pt.x, pt.y)
+	points = moovePoints(points, pt);
+
 	for (var i = 0; i < points.length; i++) {
 		//рассчитываем полярные координаты точки
-		var ang = angle(zeroPoint, points[i]);
+		var ang = calcAngleX1(zeroPoint, points[i]);
+		if (!ang) ang = 0;
 		var dist = distance(zeroPoint, points[i]);
 		//рассчитываем координаты новой точки с учетом угла поворота
 		var newPoint = polar(zeroPoint, (ang + rotAng), dist);
 		newPoints.push(newPoint);
 	}
+
+	pt = { x: -100000, y: -100000 }
+	newPoints = moovePoints(newPoints, pt);
 	return newPoints;
 } //end of rotatePoints
 
