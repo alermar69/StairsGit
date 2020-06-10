@@ -113,7 +113,7 @@ function drawStrightTruss(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += s;
-
+		truss.specParams = {specObj: specObj, amt: 1, area: s, partName: partName, name: name}
 	}
 	truss.specId = partName + name;
 
@@ -436,7 +436,7 @@ function drawTriangleTruss(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += s;
-
+		truss.specParams = {specObj: specObj, amt: 1, area: s, partName: partName, name: name}
 	}
 	truss.specId = partName + name;
 
@@ -764,7 +764,7 @@ function drawArcTruss2(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += s;
-
+		truss.specParams = {specObj: specObj, amt: 1, area: s, partName: partName, name: name}
 	}
 	truss.specId = partName + name;
 
@@ -776,9 +776,9 @@ function drawArcTruss2(par){
 	*@params: len,dxfBasePoint
 	model: "сужающаяся", "постоянной ширины"
 	holesModel: "вытянутые", "круги"
+	эскиз с параметрами: 6692035.ru/drawings/carport/consoleWing.png
 */
 function drawArcWing(par){
-	console.log("drawArcWing")
 	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
 	
 	par.mesh = new THREE.Object3D();
@@ -875,8 +875,6 @@ function drawArcWing(par){
 	
 	filletParEnd = calcArcFillet(filletParEnd).filletPar[0]
 	
-	console.log(filletParEnd)
-	
 	rightLine.p2 = filletParEnd.end;
 	botArc.endAngle = angle(botArc.center, filletParEnd.start) + Math.PI
 	
@@ -951,7 +949,7 @@ function drawArcWing(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += s;
-
+		truss.specParams = {specObj: specObj, amt: 1, area: s, partName: partName, name: name}
 	}
 	truss.specId = partName + name;
 	
@@ -985,7 +983,7 @@ function addTrussHoles(par){
 		bridgeWidthAng *= 2;
 	}
 
-	if(params.carportType == "консольный") holeAmt -= 1
+	if(params.carportType == "консольный" || params.carportType == "консольный двойной") holeAmt -= 1
 
 	//строим отверстия справа налево
 	
@@ -998,7 +996,7 @@ function addTrussHoles(par){
 		var leftLineAng = Math.PI / 2 + holeStepAng * (i + 1) - bridgeWidthAng / 2;
 		
 		//уменьшаем первое и последнее отверстия		
-		if(i == holeAmt-1 && params.carportType != "консольный") leftLineAng -= holeStepAng / 2;
+		if(i == holeAmt-1 && params.carportType != "консольный" && params.carportType != "консольный двойной") leftLineAng -= holeStepAng / 2;
 		if(params.trussHolesType == "вытянутые" && i == 0) rightLineAng += bridgeWidthAng;
 		
 		//точки без учета скругления

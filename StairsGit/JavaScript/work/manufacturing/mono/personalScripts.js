@@ -9,7 +9,7 @@ $("#stairType").val("лотки");
 $("#stairModel").val("Прямая");
 
 $("#stairModel").val("Г-образная с забегом");
-//$("#stairModel").val("Г-образная с площадкой");
+$("#stairModel").val("Г-образная с площадкой");
 $("#stairModel").val("П-образная с площадкой");
 //$("#stairModel").val("П-образная с забегом");
 //$("#stairModel").val("П-образная трехмаршевая");
@@ -24,6 +24,7 @@ $("#stairModel").val("П-образная с площадкой");
 //$("#turnType_2").val("забег");
 $("#platformLength_1").val("2000");
 $("#marshDist").val("400");
+$("#treadLigts").val("есть");
 
 $("#stairAmt1").val("8");
 $("#stairAmt2").val("8");

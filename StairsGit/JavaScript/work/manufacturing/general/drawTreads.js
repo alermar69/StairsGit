@@ -402,13 +402,16 @@ function drawTreads() {
     lastMarshEnd.z += topStepDelta * Math.sin(-lastMarshEnd.rot);
 
 	if (params.stairType == 'короб') {
+		var fullThk = 70;
+		if(params.calcType == "mono") fullThk = 60;
+
 		treadsGroup.traverse(function(node){
 			if (node instanceof THREE.Mesh) {
 				if (node.specId && node.specId.indexOf('wndTread') != -1) {
-					node.scale.z = 3.5;
-					node.position.y -= 50;
+					node.scale.z = fullThk / params.treadThickness;
+					node.position.y -= fullThk - params.treadThickness;
 				}else{
-					node.scale.z = 3.5;
+					node.scale.z = fullThk / params.treadThickness;
 				}
 			}
 		})
@@ -492,6 +495,10 @@ function drawMarshTreads2(par) {
 		//коррекция толщины
 		if (params.stairType == "лотки" || params.stairType == "рифленая сталь") plateParams.thk = 4;
 		if (params.stairType == "лотки") plateParams.width -= plateParams.thk * 2 + 0.1;
+		if (params.calcType == "mono" && params.model == "сварной") {
+			plateParams.thkFull = plateParams.thk;
+			plateParams.thk -= 10;
+		}
 		// if (params.calcType == "timber") plateParams.thk -= 0.02;
 		if (params.stairType == 'лотки') {
 			// рассчитываем параметры рамки
@@ -788,7 +795,7 @@ function drawMarshTreads2(par) {
 			if (drawRectTread) {
 				if (params.stairType == 'дпк' || params.stairType == "лиственница тер.") {
 					var tread = new THREE.Object3D();//Объеъкт ступеньки
-					// plateParams.material = params.materials.dpc;
+					plateParams.partName = "dpc";
 					plateParams.dxfArr = [];
 
 					//Считаем количество досок на ступень
@@ -1116,6 +1123,11 @@ function drawPlatform2(par) {
 			var parFrame = {}
 			calcFrameParams(parFrame);
 			plateParams.thkFull = plateParams.thk + parFrame.profHeight;
+		}
+
+		if (params.calcType == "mono" && params.model == "сварной") {
+			plateParams.thkFull = plateParams.thk;
+			plateParams.thk -= 10;
 		}
 
 		var partLen = par.partLen;
@@ -3766,7 +3778,7 @@ function calcPltPartsParams(par) {
 		}
 		
 	}
-	
+
 	return par;
 } //end of calcPltPartsParams
 

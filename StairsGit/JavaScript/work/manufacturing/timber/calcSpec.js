@@ -102,70 +102,6 @@ function calculateSpec() {
 		if (item.amt > 0) partsList.addItem(item);
 	}
 
-	//крепление к стенам
-
-	function wallsMountingItemsAdd() {} //пустая функция для навигации
-
-	//стена 1
-	var fixParams = {
-		partsList: partsList,
-		amt: params.fixAmt3,
-		discription: "Крепление к стене 1",
-		fixSurfaceType: params.fixType3,
-		fixPart: params.fixPart3,
-		fixSpacer: params.fixSpacer3,
-		fixSpacerLength: params.fixSpacerLength3,
-		fixSpacerId: "fixSpacer3",
-	}
-	wallMountingItemsAdd(fixParams);
-
-
-	//стена 2
-	var fixParams = {
-		partsList: partsList,
-		amt: params.fixAmt4,
-		discription: "Крепление к стене 2",
-		fixSurfaceType: params.fixType4,
-		fixPart: params.fixPart4,
-		fixSpacer: params.fixSpacer4,
-		fixSpacerLength: params.fixSpacerLength4,
-		fixSpacerId: "fixSpacer4",
-	}
-	wallMountingItemsAdd(fixParams);
-
-	//стена 3
-	var fixParams = {
-		partsList: partsList,
-		amt: params.fixAmt5,
-		discription: "Крепление к стене 3",
-		fixSurfaceType: params.fixType5,
-		fixPart: params.fixPart5,
-		fixSpacer: params.fixSpacer5,
-		fixSpacerLength: params.fixSpacerLength5,
-		fixSpacerId: "fixSpacer5",
-	}
-	wallMountingItemsAdd(fixParams);
-
-	//стена 4
-	var fixParams = {
-		partsList: partsList,
-		amt: params.fixAmt6,
-		discription: "Крепление к стене 4",
-		fixSurfaceType: params.fixType6,
-		fixPart: params.fixPart6,
-		fixSpacer: params.fixSpacer6,
-		fixSpacerLength: params.fixSpacerLength6,
-		fixSpacerId: "fixSpacer6",
-	}
-	wallMountingItemsAdd(fixParams);
-
-	//end of wallsMountingItemsAdd	
-
-
-	//ограждения
-
-
-
 	//метизы
 
 	function screwsAdd() {};
@@ -492,13 +428,6 @@ function calculateSpec() {
 		itemGroup: "Каркас",
 	};
 	if (item.amt > 0) partsList.addItem(item);
-
-
-
-	function balustradeItemsAdd() {}; //функция для навигации
-
-	calcSpecBanister(partsList)
-
 
 	function addWorks() {}
 

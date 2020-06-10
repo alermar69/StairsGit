@@ -89,7 +89,7 @@
 			<tr id="rackBottom_bal_tr"><td>Крепление стоек:</td> <td> 
 				<select id="rackBottom_bal" size="1" onchange="">
 					<option value="сверху с крышкой" >сверху</option>
-					<option value="боковое" style="display: none">боковое</option>		
+					<option value="боковое">боковое</option>		
 				</select>
 			</td></tr>
 

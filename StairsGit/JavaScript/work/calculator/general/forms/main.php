@@ -90,6 +90,8 @@
 				<div id="WebGL-output"><canvas>Для отображения содержимого откройте страницу в Гугл Хром</canvas></div>
 			</div>';
 
+		echo "<div class='dropdown-menu dropdown-menu-sm' id='objectContextMenu'></div>";
+
 		//кнопки под визуализацией
 		if($template == 'calculator' && $calc_type != 'wardrobe' && $calc_type != 'wardrobe_2' && $calc_type != 'objects') {
 			echo
@@ -789,6 +791,9 @@
 
 <style>
 
+	.toast.show, .toast.showing{
+		display: block !important;
+	}
 	.panelWrap{
 		position: fixed;
 		top: 5px;

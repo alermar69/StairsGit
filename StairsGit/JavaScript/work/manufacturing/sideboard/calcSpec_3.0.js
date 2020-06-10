@@ -302,65 +302,6 @@ function createPartsList(){
 	
 }; //end of createPartsList
 
-// функция расчёта спецификации
-function calculateSpec(){
-
-	//Инициализация справочника деталей
-	var partsList = createPartsList();
-	var item = {}
-
-	/*
-	добавляются следующие позиции:
-	countertop
-	handle
-	mdfPlate
-	timberPlate
-	timberPole
-	sideBridge
-	drawerSidePlate
-	drawerFrontPlate
-	door
-	drawerBotPlate
-	drawerSlide
-	rail
-	*/
-	for(var partName in partsAmt){
-		var itemsPar = {
-			specObj: partsAmt,
-			partName: partName,
-			metalPaint: partsAmt[partName]["metalPaint"],
-			timberPaint: partsAmt[partName]["timberPaint"],
-			division: partsAmt[partName]["division"],
-			itemGroup: partsAmt[partName]["group"],
-			}
-		
-		partsList.addSpecObjItems(itemsPar);
-		}
-		
-	function addWorks(){}
-
-	crateWorksList();
-	calcWorks(partsAmt, "sideboard");
-	printWorks2();
-
-    // вывод спецификации "Комплектовка"
-    printSpecificationCollation(partsList);
-    // вывод спецификации "Сборка"
-    printSpecificationAssembly(partsList);
-    //включаем сортировку и поиск по таблица спецификаций
-    $('.tab_4').tablesorter({
-		widgets: [ 'zebra', 'filter' ],
-		theme: 'blue',
-		usNumberFormat : false,
-		sortReset      : true,
-		sortRestart    : true,
-		});
-		
-	showDrawingsLinks();
-	
-} //end of calculateSpec
-
-
 
 function showDrawingsLinks(){
 

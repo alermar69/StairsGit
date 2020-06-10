@@ -16,6 +16,7 @@ $scripts[] = ["url" => "/calculator/general/scene/utils.js"];
 $scripts[] = ["url" => "/calculator/general/scene/viewport.js"];
 $scripts[] = ["url" => "/calculator/general/scene/menu.js"];
 $scripts[] = ["url" => "/calculator/general/scene/scene.js"];
+$scripts[] = ["url" => "/calculator/general/scene/mooveObjects.js"];
 $scripts[] = ["url" => "/calculator/general/dxf_tools/dxf_tools.js"];
 $scripts[] = ["url" => "/calculator/general/dxf_tools/dxf-parser.js"];
 
@@ -54,9 +55,11 @@ $scripts[] = ["url" => "/calculator/general/scene/objects/winder.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/concretePlatform.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/rack_wall.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/metalPlatform.js"];
-$scripts[] = ["url" => "/calculator/general/scene/objects/column.js"]; 
+$scripts[] = ["url" => "/calculator/general/scene/objects/columns.js"]; 
 $scripts[] = ["url" => "/calculator/general/scene/objects/canopy.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/transport.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/shelf.js"];
+$scripts[] = ["url" => "/calculator/rack/drawCarcas.js"];
 
 $scripts[] = ['url' => "/calculator/general/jsviews.min.js"];
 

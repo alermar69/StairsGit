@@ -6,9 +6,9 @@ $(function () {
 	//показать на модели детали по клику на строке спецификации
 	$("#specificationList1").delegate(".specRow", "click", function(event){
 
-		if(event.shiftKey) {
+		if(event.altKey) {
 			$(".specRow.selected").removeClass("selected")
-			var articul = $(this).attr("data-articul")    
+			var articul = $(this).attr("data-articul")
 			showSpecItem(articul);
 			$(this).addClass("selected")
 		}
@@ -650,7 +650,11 @@ function checkSpec(callback){
 			
 			if(params.stairModel == "П-образная с площадкой"){
 				calcTreadAmt += calcPltFrameParams(params.platformLength_1 + 25, 0).frameAmt * 2; //25 взято из функции отрисовки, откуда берется изначально не знаю, но работает корректно;
-				if(params.marshDist > 0) calcTreadAmt += calcPltFrameParams(params.platformLength_1 + 25, 0).frameAmt;
+				if (params.marshDist > 0) {
+					if (!(params.calcType == "mono" && params.stairType == 'лотки'))
+						calcTreadAmt += calcPltFrameParams(params.platformLength_1 + 25, 0).frameAmt;
+
+				}
 			}
 
 			if(params.stairModel == "П-образная трехмаршевая"){
@@ -808,6 +812,8 @@ function checkSpec(callback){
 	$("#specCheckResult").html("");//Очищаем div
 	//Проверяем входную лестницу
 	var isVhodOk = true;
+/*
+	
 	if (params.calcType == 'vhod' && params.staircaseType == 'Готовая') {
 		$("#specCheckResult").html("<span id='vhodCompareTable' class='compareToggleDiv closed'>Подробнее</span>");
 		$("#specCheckResult").append("<div id='vhodCompareSpec' style='display: none;'></div><br>");
@@ -818,7 +824,7 @@ function checkSpec(callback){
 			$("#specCheckResult").prepend("Тест входной лестницы " + (isVhodOk ? "<span class='green'>пройден</span>" : "<span class='red'>не пройден</span>"));
 		}
 	}
-	
+*/	
 	if(isPaintingOk) text += "Цвет морилки <span class='green'>совпадает с параметрами</span><br/>";
  	if(!isPaintingOk){
 		isTestOk = false;
@@ -855,7 +861,8 @@ function checkSpec(callback){
 	}
 	
 	// отправка сообщения об ошибке в багтрекер
-	if(!isNamesOk || !isTestOk || !isVhodOk || !isModelSpecOk){		
+	// if(!isNamesOk || !isTestOk || !isVhodOk || !isModelSpecOk){		
+	if(!isNamesOk || !isTestOk || !isModelSpecOk){		
 		var reportPar = {
 			description: "Ошибка спецификации",
 			screenshoot: "-",
@@ -863,7 +870,7 @@ function checkSpec(callback){
 			}
 		if(!isNamesOk) reportPar.description += " Есть нескладские наименования";
 		if(isErrWords) reportPar.description += " Есть ошибки в числах";
-		if(!isVhodOk) reportPar.description += " Ошибка в входной лестнице";
+		// if(!isVhodOk) reportPar.description += " Ошибка в входной лестнице";
 		if(!isModelSpecOk) reportPar.description += " Не все позиции спецификации есть на модели";
 		
 		sendBugReport(reportPar); //функция в файле sendReport.js
@@ -993,7 +1000,7 @@ function checkSpec_vhod(callback){
 }
 
 function showSpecItem(specId){
-	selectedSpecObj = {specId: specId}
+	selectedObject = {specId: specId}
 	$("#showAllObjects").trigger("click")
 }
 

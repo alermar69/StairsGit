@@ -241,8 +241,8 @@ if (params.model == "ко"){
 /*тип ступеней*/
 var stairType = document.getElementById('stairType').options;
 var stairCompatible = [];
-if (params.model == "лт") stairCompatible = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-if (params.model == "ко") stairCompatible = [1,2,3,4,5,6,7,8,15];
+if (params.model == "лт") stairCompatible = [1,2,3,4,5,6,7,8,9];
+if (params.model == "ко") stairCompatible = [1,3,8,9];
 showOptions("stairType", stairCompatible);
 
 

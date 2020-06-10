@@ -19,6 +19,8 @@ $(function(){
 							var obj = this.oldClone(recursive);
 							if(this.layerName) obj.layerName = this.layerName;
 							if(this.drawing) obj.drawing = this.drawing;
+							if(this.specId) obj.specId = this.specId;
+							if(this.specParams) obj.specParams = this.specParams;
 							return obj;
 						};
 					}
@@ -49,6 +51,22 @@ $(function(){
 	THREE.Object3D.prototype.setFullyVisible = function(){
 		this.visible = true;
 		if(this.parent && typeof this.parent.setFullyVisible == 'function') this.parent.setFullyVisible(this.parent);
+	};
+
+	THREE.Object3D.prototype.cloneWithSpec = function(){
+		this.traverse(function(node){
+			if (node.specId) {
+				if(node.specParams){
+					if(node.specParams.amt){
+						node.specParams.specObj[node.specParams.partName]['amt'] += node.specParams.amt;
+						node.specParams.specObj[node.specParams.partName]["types"][node.specParams.name] += node.specParams.amt;
+					} 
+					if(node.specParams.area) node.specParams.specObj[node.specParams.partName]['area'] += node.specParams.area;
+					if(node.specParams.sumLength) node.specParams.specObj[node.specParams.partName]['sumLength'] += node.specParams.sumLength;
+				}
+			}
+		});
+		return new this.constructor().copy( this, true );
 	};
 
 	/**

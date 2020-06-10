@@ -71,8 +71,8 @@ $(function () {
 	//создаем номенклатуру материалов
 	createMaterialsList(); //в файле /calculator/general/materials.js
 
-	//вешаем перерисовку стен на измененние инпутов формы параметров стен
-    $('.tabs').delegate('input,select,textarea', 'change', function(){
+	//перерисовка стен при измененнии инпутов формы параметров стен
+    $('#nav-walls').delegate('input,select', 'change', function(){
 		getAllInputsValues(params);
 		if($("#calcType").val() != "railing"){
 			drawTopFloor();
@@ -81,6 +81,15 @@ $(function () {
 		
 		drawSceneDimensions();
 	});
+	
+	//перерисовка балюстрады при измененнии инпутов формы параметров стен
+    $('#nav-banister').delegate('input,select', 'change', function(){
+		getAllInputsValues(params);
+		if($("#calcType").val() != "railing" && typeof drawBanister == "function"){
+			drawBanister();
+		}
+	});
+	
 	
 	//Вызов рассчета геометрии
 	$("#calcGeometry").click(function(){
@@ -170,8 +179,7 @@ function recalculate() {
 					staircasePrice = {}; //очищаем глобальный массив цен элементов лестницы
 					if($("#calcType").val() == "railing"){
 						calcGlassRailingPrice();
-					}
-					else {
+					}else {
 						if($("#calcType").val() == "vhod" && params.staircaseType == "Готовая"){
 							calculateCarcasPrice_stock();
 							calculateRailingPrice_stock();

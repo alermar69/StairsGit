@@ -39,7 +39,7 @@ drawRack = function (viewportId, isVisible) {
 		dxfBasePoint: {x: 0, y: 0},
 		}
 		
-	var carcasObj = drawCarcas(carcasPar);
+	var carcasObj = drawShelf(carcasPar);
 	model.add(carcasObj.carcas, "carcas");
 	model.add(carcasObj.panels, "panels");
 	model.add(carcasObj.countertop, "countertop");

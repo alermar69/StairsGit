@@ -122,12 +122,16 @@ function recalculate() {
 
 				drawSceneDimensions();
 				
-				/* непонятные функции
+				createMaterialsList(); // обнуляем список материалов
 				crateWorksList();
 				calcWorks(partsAmt, "staircase");
 				calcWorks(partsAmt_bal, "banister");
+
+				printMaterialsNeed();
+				calcProductionTime();
 				printWorks2();
-				*/
+				formatNumbers();
+				printDescr();
 				
 				if(params.calcType == "railing"){
 					drawConcrete('vl_1');

@@ -1148,6 +1148,7 @@ function printPrice2(){
 		var banister_metal = 0;
 
 		if (params.calcType == 'carport') {
+			// priceObj["total"] += 
 			staircasePrice = {
 				carcasFinal: priceObj["total"].discountPrice, // В каркас пишем всю цену
 				carcasMetalPaint: 0,

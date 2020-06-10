@@ -295,14 +295,7 @@
 							<td>Ступени:</td>
 							<td>
 								<select id="stairType" size="1">
-									<option value="массив">массив дерева</option>
-									<option value="сосна кл.Б">сосна кл.Б</option>
-									<option value="сосна экстра">сосна экстра</option>
-									<option value="береза паркет.">береза паркет.</option>
-									<option value="лиственница паркет.">лиственница паркет.</option>
-									<option value="дуб паркет.">дуб паркет.</option>
-									<option value="дуб ц/л">дуб ц/л</option>
-									<option value="нет">нет</option>
+									<option value="массив">массив дерева</option>									
 									<option value="рифленая сталь">рифленая сталь</option>
 									<option value="лотки">лотки</option>
 									<option value="дпк">дпк</option>
@@ -310,6 +303,7 @@
 									<option value="пресснастил">пресснастил</option>
 									<option value="стекло">стекло</option>
 									<option value="короб">короб</option>
+									<option value="нет">нет</option>
 								</select>
 							</td>
 						</tr>

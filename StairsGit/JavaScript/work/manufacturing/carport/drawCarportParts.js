@@ -87,6 +87,7 @@ function drawProgon(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["sumLength"] += par.length / 1000;
+		par.mesh.specParams = {specObj: specObj, amt: 1, sumLength: par.length / 1000, partName: partName, name: name}
 	}
 
 	par.mesh.specId = partName + name;
@@ -127,6 +128,7 @@ function drawTermoShim(){
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
+		shim.specParams = {specObj: specObj, amt: 1, partName: partName, name: name}
 	}
 
 	shim.setLayer("metis");
@@ -216,6 +218,7 @@ function drawPolyConnectionProfile(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["sumLength"] += arcLength / 1000;
+		profile.specParams = {specObj: specObj, amt: 1, sumLength: arcLength / 1000, partName: partName, name: name}
 	}
 	profile.specId = partName + name;
 	
@@ -327,6 +330,7 @@ function drawRackFlan(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += s;
+		flan.specParams = {specObj: specObj, amt: 1, area: s, partName: partName, name: name}
 	}
 	flan.specId = partName;
 
@@ -430,6 +434,7 @@ function drawTrussFlan(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += s;
+		flan.specParams = {specObj: specObj, amt: 1, area: s, partName: partName, name: name}
 	}
 	flan.specId = partName;
 	flanMesh.add(flan);
@@ -539,6 +544,7 @@ function drawArcTrussFlan(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += s;
+		flan.specParams = {specObj: specObj, amt: 1, area: s, partName: partName, name: name}
 	}
 	flan.specId = partName;
 	flanMesh.add(flan);

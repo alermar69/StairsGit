@@ -196,7 +196,7 @@ $(function() {
         var el = $('#wallLedgeType' + number);
         if (el.length > 0)
             return;
-        $('<tr class="ledgeParRow">' +
+        $('<tr class="ledgeParRow" data-object_selector="ledgeParRow">' +
             '<td>' +
             '<select id="wallLedgeType' + number + '" size="1" class="wallLedgeType">' +
             '<option value="проем">проем</option>' +

@@ -9005,6 +9005,8 @@
 			this.renderOrder = source.renderOrder;
 
 			this.userData = JSON.parse( JSON.stringify( source.userData ) );
+			this.specId = 	source.specId;
+			if(source.specParams) this.specParams = JSON.parse( JSON.stringify( source.specParams ) );
 
 			if ( recursive === true ) {
 

@@ -61,7 +61,7 @@ function drawTrussCarport(par){
 	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0,y:0}
 
 	par.width = par.trussWidth * 1.0;
-	if (params.carportType == "односкатный" || params.carportType == "консольный") par.width *= 2.0;
+	if (params.carportType == "односкатный" || params.carportType == "консольный" || params.carportType == "консольный двойной") par.width *= 2.0;
 	
 	var columnPar = getProfParams(params.columnProfile)
 	
@@ -96,26 +96,26 @@ function drawTrussCarport(par){
 		var fermaShapes = new THREE.Object3D();
 		var drawFunc = drawTriangleTruss;
 		if(params.roofType == "Арочная") drawFunc = drawArcTruss2;
-		if(params.carportType == "консольный") drawFunc = drawArcWing;
+		if(params.carportType == "консольный" || params.carportType == "консольный двойной") drawFunc = drawArcWing;
 		
 		// Правая половина
 		var truss = drawFunc(topTrussPar).mesh;
 		truss.position.x = -topTrussPar.len;
 		truss.position.z = -topTrussPar.thk / 2;
-		if(params.carportType == "консольный") {
+		if(params.carportType == "консольный" || params.carportType == "консольный двойной") {
 			truss.position.z = -topTrussPar.thk / 2 - columnPar.sizeA / 2;
 		}
 		truss.setLayer('carcas');
 		fermaShapes.add(truss);
 
-		if (params.carportType == "двухскатный" || params.carportType == "консольный") {
+		if (params.carportType == "двухскатный" || params.carportType == "консольный" || params.carportType == "консольный двойной") {
 			//левая половина
 			topTrussPar.dxfPrimitivesArr = [];
 			var truss = drawFunc(topTrussPar).mesh;
 			truss.position.x = topTrussPar.len;
 			truss.position.z = topTrussPar.thk / 2;
 			truss.rotation.y = Math.PI;
-			if(params.carportType == "консольный"){
+			if(params.carportType == "консольный" || params.carportType == "консольный двойной"){
 				truss.position.x = -topTrussPar.len;
 				truss.position.z = topTrussPar.thk / 2 + columnPar.sizeA / 2;
 				truss.rotation.y = 0;
@@ -165,7 +165,7 @@ function drawTrussCarport(par){
 		rack.rotation.y = Math.PI / 2;
 		rack.position.x = -columnPar.sizeB / 2 - par.width / 2;// - offset / 2;
 		rack.position.z = -columnPar.sizeA / 2;
-		if(params.carportType == "консольный"){
+		if(params.carportType == "консольный" || params.carportType == "консольный двойной"){
 			rack.position.x = - par.width / 2;
 		}
 		rack.setLayer('racks');
@@ -173,7 +173,7 @@ function drawTrussCarport(par){
 
 		par.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, 400);
 
-		if(params.carportType != "консольный"){
+		if(params.carportType != "консольный" && params.carportType != "консольный двойной"){
 			var flanParams = {
 				dxfBasePoint: par.dxfBasePoint,
 				dxfPrimitivesArr: i == 0 ? dxfPrimitivesArr : [],
@@ -264,7 +264,7 @@ function drawTrussCarport(par){
 				truss.setLayer('carcas');
 				section.add(truss);
 			}
-			if(params.carportType == "консольный"){
+			if(params.carportType == "консольный" || params.carportType == "консольный двойной"){
 				truss.position.y -= trussPar.height
 			}
 		}
@@ -294,7 +294,7 @@ function drawTrussCarport(par){
 		var startAngle = -halfAngle + Math.PI / 2 - (par.progonProfileX / 2) / posRad;
 		var progonStep = halfAngle / (par.vertArcAmt / 2);
 
-		if (params.carportType == "односкатный" || params.carportType == "консольный") {
+		if (params.carportType == "односкатный" || params.carportType == "консольный" || params.carportType == "консольный двойной") {
 			var halfAngle = (topTrussPar.arcLength - par.progonProfileX)  / posRad;
 			var startAngle = -halfAngle + Math.PI / 2 - par.progonProfileX / posRad;
 			var progonStep = halfAngle / (par.vertArcAmt / 2);
@@ -309,7 +309,6 @@ function drawTrussCarport(par){
 			vertProfile.position.z = profilePos.x;
 			vertProfile.position.x = -params.rackFaceOffset + 50;
 			vertProfile.rotation.x = -(startAngle + progonStep * i);
-			console.log(vertProfile)
 			vertProfile.setLayer('progon');
 			carport.add(vertProfile);
 		}
@@ -335,12 +334,12 @@ function drawTrussCarport(par){
 				partName: 'polySheet',
 				dxfPrimitivesArr: []
 			}
-			if (params.carportType == "односкатный"  || params.carportType == "консольный") arcPanelPar.angle = halfAngle + extraAnle;// * 2;
+			if (params.carportType == "односкатный"  || params.carportType == "консольный" || params.carportType == "консольный двойной") arcPanelPar.angle = halfAngle + extraAnle;// * 2;
 			
 			var stripe = drawArcPanel(arcPanelPar).mesh;
 			
 			stripe.rotation.z = Math.PI / 2 - arcPanelPar.angle / 2;
-			if (params.carportType == "односкатный"  || params.carportType == "консольный") stripe.rotation.z = Math.PI / 2;// - extraAnle;
+			if (params.carportType == "односкатный"  || params.carportType == "консольный" || params.carportType == "консольный двойной") stripe.rotation.z = Math.PI / 2;// - extraAnle;
 			stripe.position.z = -arcPanelPar.height + params.rackFaceOffset
 			stripe.position.z -= sectWidth * i;
 			stripe.position.y = -roofRad + par.height + topTrussPar.centerY + par.progonProfileZ + params.roofThk;
@@ -356,11 +355,11 @@ function drawTrussCarport(par){
 					dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
 					dxfPrimitivesArr: []
 				}
-				if (params.carportType == "односкатный"  || params.carportType == "консольный") polyProfilePar.angle = halfAngle + extraAnle;
+				if (params.carportType == "односкатный"  || params.carportType == "консольный" || params.carportType == "консольный двойной") polyProfilePar.angle = halfAngle + extraAnle;
 				var polyProfile = drawPolyConnectionProfile(polyProfilePar);
 		
 				polyProfile.rotation.z = Math.PI / 2 - arcPanelPar.angle / 2;
-				if (params.carportType == "односкатный"  || params.carportType == "консольный") polyProfile.rotation.z = Math.PI / 2;
+				if (params.carportType == "односкатный"  || params.carportType == "консольный" || params.carportType == "консольный двойной") polyProfile.rotation.z = Math.PI / 2;
 				polyProfile.position.z = -polySize + params.rackFaceOffset - sectWidth * i;
 				polyProfile.position.y = -roofRad + par.height + topTrussPar.centerY + par.progonProfileZ + params.roofThk;
 		
@@ -590,6 +589,18 @@ function drawTrussCarport(par){
 		}
 	}
 	
+	if (params.carportType == "консольный двойной") {
+		var mirrorCarport = carport.cloneWithSpec();
+		mirrorCarport.scale.z *= -1;
+		mirrorCarport.position.z = params.width * 2;
+		carport.add(mirrorCarport);
+	}
+
+	if (params.carportType != 'двухскатный') {
+		var box3 = new THREE.Box3().setFromObject(carport);
+		carport.position.z -= box3.max.x / 2;
+	}
+	console.log(box3);
 	return carport;
 }
 

@@ -1,6 +1,6 @@
 function changeFormCarcas(){
 	
-	if(params.carportType.indexOf("консольный") != -1){
+	if(params.carportType.indexOf("консольный") != -1 || params.carportType.indexOf("консольный двойной") != -1){
 		$("#columnProfile").val("100х200")
 		$("#roofType").val("Арочная")
 	}

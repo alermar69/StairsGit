@@ -761,10 +761,11 @@ par.frameParams = {
 				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
+				comment: getWndFrameComment(partName),
 				workUnitName: "amt", //единица измерения
 				group: "Каркас",
-				}
 			}
+		}
 		var name = dimX + "x" + dimY;
 		var area = dimX * dimY / 1000000 
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
@@ -1263,11 +1264,12 @@ function drawWndFrame2(par){
 				name: "Рамка забежной ступени №2 " + turnName,
 				metalPaint: true,
 				timberPaint: false,
+				comment: getWndFrameComment(partName),
 				division: "metal",
 				workUnitName: "amt", //единица измерения
 				group: "Каркас",
-				}
 			}
+		}
 		var name = dimX + "x" + dimY;
 		var area = dimX * dimY / 1000000
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
@@ -1281,6 +1283,27 @@ function drawWndFrame2(par){
 
 } //end of drawWndFrame
 
+/**
+ * Формирует комментарий с описанием фланцев для забежных рамок
+ * @param partName 
+ */
+function getWndFrameComment(partName){
+	var paramsId = "";
+	if (partName == "wndFrame1") paramsId = "frame1Flans";
+	if (partName == "wndFrame2") paramsId = "frame2Flans";
+	if (partName == "wndFrame3") paramsId = "frame3Flans";
+	if (partName == "wndFrame6") paramsId = "frame6Flans";
+
+	var comment = "";
+	if (staircasePartsParams[paramsId]) {
+		comment += "Фланцы: "
+		for (var i = 0; i < staircasePartsParams[paramsId].length; i++) {
+			comment += staircasePartsParams[paramsId][i];
+			if (i < staircasePartsParams[paramsId].length - 1) comment += "; ";
+		}
+	}
+	return comment;
+}
 
 function getMiddlePoint(p1, p2){
 	var point = {
@@ -2154,6 +2177,7 @@ function drawTreadFrame2(par){
 				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
+				comment: params.riserType == "есть" ? "Сверлить под подступенки" : '',
 				workUnitName: "amt", //единица измерения
 				group: "Каркас",
 			}

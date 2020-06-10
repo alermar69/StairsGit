@@ -1264,7 +1264,6 @@ function drawStaircase(viewportId, isVisible) {
 				x: 0,
 				y: 3000
 			},
-			handrailType: "ПВХ"
 		}
 		if (params.railingModel_bal == "Ригели" || params.railingModel_bal == "Стекло на стойках") {
 			balSectionParams.handrailOffsetEnd += 40; //размер стойки

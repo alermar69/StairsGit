@@ -218,21 +218,24 @@ function drawBolt(par) {
 				types: {},
 				amt: 0,
 				name: "Болт",
-				metalPaint: (params.paintedBolts == "есть"),
+				metalPaint: false,
 				timberPaint: false,
 				division: "stock_1",
 				workUnitName: "amt",
 				group: "Метизы",
-						}
-						if (par.partName == 'stud') {
-							specObj[par.partName].name = "Шпилька";
-							if (par.diam == 10 && (par.len == 100 || par.len == 140)) {
-								specObj[par.partName].name += " сантехническая"
-							}
-							if (par.diam == 14 && (par.len == 125 || par.len == 150)) {
-								specObj[par.partName].name += " рутеля"
-							}
-						}
+			}
+			if ((params.calcType == 'metal' || params.calcType == 'vhod') && params.metalPaint != "нет" && params.paintedBolts != "нет") {
+				specObj[par.partName].metalPaint = true;
+			}
+			if (par.partName == 'stud') {
+				specObj[par.partName].name = "Шпилька";
+				if (par.diam == 10 && (par.len == 100 || par.len == 140)) {
+					specObj[par.partName].name += " сантехническая"
+				}
+				if (par.diam == 14 && (par.len == 125 || par.len == 150)) {
+					specObj[par.partName].name += " рутеля"
+				}
+			}
 		}
 		var headName = "шестигр. гол.";
 		if (par.headType == "потай") headName = "потай внутр. шестигр."
@@ -249,6 +252,8 @@ function drawBolt(par) {
 		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
 		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 		specObj[par.partName]["amt"] += 1;
+
+		par.mesh.specParams = {specObj: specObj, amt: 1, partName: par.partName, name: name}
 	}
 	if (menu.simpleMode) return par;
 
@@ -458,7 +463,7 @@ function drawPlasticCap(diam){
 				types: {},
 				amt: 0,
 				name: "Колпачок на гайку",
-				metalPaint: true,
+				metalPaint: false,
 				timberPaint: false,
 				division: "stock_1",
 				workUnitName: "amt",
@@ -603,6 +608,8 @@ function drawNut(par){
 		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
 		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 		specObj[par.partName]["amt"] += 1;
+
+		par.mesh.specParams = {specObj: specObj, amt: 1, partName: par.partName, name: name}
 	}
 	par.mesh.specId = par.partName + name;
 	
@@ -663,6 +670,7 @@ function drawShim(par) {
 		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
 		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 		specObj[par.partName]["amt"] += 1;
+		shim.specParams = {specObj: specObj, amt: 1, partName: par.partName, name: name}
 	}
 
 	par.mesh = shim;
@@ -1322,6 +1330,7 @@ function drawScrew(par){
 		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
 		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 		specObj[par.partName]["amt"] += 1;
+		par.mesh.specParams = {specObj: specObj, amt: 1, partName: par.partName, name: name}
 	}
 
 	par.mesh.setLayer("metis");
@@ -2589,13 +2598,19 @@ layer
 				if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 				specObj[partName]["amt"] += 1;
 			}
+			var area = 0;
+			var sumLength
 			if (partName == 'trussLine') {
-				specObj[partName]["area"] += (arcLength / 1000) * (par.height / 1000);
+				area = (arcLength / 1000) * (par.height / 1000);
+				specObj[partName]["area"] += area;
 			}else if (partName == 'polySheet') {
-				specObj[partName]["area"] += Math.ceil((arcLength / 1000)) * Math.ceil((par.height / 2100));
+				area = Math.ceil((arcLength / 1000)) * Math.ceil((par.height / 2100));
+				specObj[partName]["area"] += area;
 			}else{
-				specObj[partName]["sumLength"] += arcLength / 1000;
+				sumLength = arcLength / 1000;
+				specObj[partName]["sumLength"] += sumLength;
 			}
+			par.mesh.specParams = {specObj: specObj, amt: 1, area: area, sumLength: sumLength, partName: partName, name: name}
 		}
 		par.mesh.specId = partName + name;
 	}

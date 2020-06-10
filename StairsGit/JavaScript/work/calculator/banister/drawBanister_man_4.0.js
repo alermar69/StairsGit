@@ -80,7 +80,7 @@ $(function(){
 						if(sectDirNext == "вправо") angleEnd = -Math.PI / 4;
 						if(sectDirNext == "влево") angleEnd = Math.PI / 4;
 						}
-					}
+				}
 				if(banisterSectionDirection == "назад"){
 					if(sectTypePrev == "секция"){
 						if(sectDirPrev == "вправо") angleStart = -Math.PI / 4;
@@ -90,7 +90,7 @@ $(function(){
 						if(sectDirNext == "вправо") angleEnd = Math.PI / 4;
 						if(sectDirNext == "влево") angleEnd = -Math.PI / 4;
 						}
-					}
+				}
 				if(banisterSectionDirection == "вправо"){
 					if(sectTypePrev == "секция"){
 						if(sectDirPrev == "назад") angleStart = Math.PI / 4;
@@ -100,7 +100,7 @@ $(function(){
 						if(sectDirNext == "назад") angleEnd = -Math.PI / 4;
 						if(sectDirNext == "вперед") angleEnd = Math.PI / 4;
 						}
-					}
+				}
 				if(banisterSectionDirection == "влево"){
 					if(sectTypePrev == "секция"){
 						if(sectDirPrev == "назад") angleStart = -Math.PI / 4;
@@ -110,13 +110,13 @@ $(function(){
 						if(sectDirNext == "назад") angleEnd = Math.PI / 4;
 						if(sectDirNext == "вперед") angleEnd = -Math.PI / 4;
 						}
-					}
+				}
 				if(banisterSectionDirection == "вправо"){
 					
-					}
+				}
 				if(banisterSectionDirection == "влево"){
 					
-					}
+				}
 				
 				if(banisterSectionType == "секция") {
 					var sectionParams = {
@@ -128,7 +128,7 @@ $(function(){
 						angleEnd: angleEnd,
 						dxfBasePoint: dxfBasePoint,
 						flans: $('#banisterFlan' + i).val(),
-						}
+					}
 
 					var section = addBanisterSection(sectionParams);
 					section.rotation.y = -sectionTyrnAngle;
@@ -136,7 +136,8 @@ $(function(){
 					section.position.y = params.staircaseHeight + 150;
 					section.position.z = banisterSectionBasePoint[i].z; // + params.topThreadsPosition;
 					if(params.turnSide == "левое") section.position.z -= params.floorHoleWidth;
-					
+					section.objectRowClass = 'balSectRow'
+					section.objectRowId = i;
 					/*корректируем положение секции чтобы базовая точка была на оси секции*/
 					var rackSize = 40;
 					if(params.railingModel_bal == "Деревянные балясины" || params.railingModel_bal == "Стекло" || params.railingModel_bal == "Дерево с ковкой"){
@@ -168,7 +169,8 @@ $(function(){
 				topRailing[i].position.x += balPos.x;
 				topRailing[i].position.y += balPos.y;
 				topRailing[i].position.z += balPos.z;
-				}
+			}
+
 			
 			
 			//добавляем белые ребра

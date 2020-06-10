@@ -1,4 +1,5 @@
 
+
 $(function() {
 
 	//добавление выступа стен
@@ -42,6 +43,15 @@ $(function() {
 	$('#dxfFile').change(function(){
 		changeAllForms();
 		drawTopFloor();
+	});
+
+	$("#mooveWall").click(function(){
+		var selectedWallId = $(".wallRow.selected").attr("data-id");
+		if(!selectedWallId) {
+			alert("Выберите стену")
+			return;
+		}
+		moveToPoint(selectedWallId, 'wall');
 	});
 
 //обработчик изменения инпутов выступов стен
@@ -101,6 +111,9 @@ $(function() {
 		
 		redrawWalls();
 	})
+	
+	
+	
     
 });
 
@@ -128,7 +141,7 @@ function addTopFloorLedge(){
 /** функция добавляет строку в таблицу выступов стен*/
 
 function addWallLedge(){
-	 var text = '<tr class="ledgeParRow">' +
+	 var text = '<tr class="ledgeParRow" data-object_selector="ledgeParRow">' +
             '<td>' +
             	'<span class="row_id" data-id="0">0</span>' +
             '</td>' +

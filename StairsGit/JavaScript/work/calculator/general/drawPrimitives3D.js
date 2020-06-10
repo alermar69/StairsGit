@@ -104,7 +104,7 @@ function drawPlate(par) {
 			}
 
 			if (par.partName == "dpc") {
-				specObj[par.partName].name = "Доска дпк " + params.stairType;
+				specObj[par.partName].name = "Доска " + params.stairType;
 				specObj[par.partName].timberPaint = false;
 				specObj[par.partName].group = "Ступени";
 			}

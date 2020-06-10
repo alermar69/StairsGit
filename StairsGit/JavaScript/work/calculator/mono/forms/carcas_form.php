@@ -260,13 +260,8 @@
 							<td>
 								<select id="stairType" size="1" onchange="">
 									<option value="массив">массив дерева</option>
-									<option value="сосна кл.Б">сосна кл.Б</option>
-									<option value="сосна экстра">сосна экстра</option>
-									<option value="береза паркет.">береза паркет.</option>
-									<option value="лиственница паркет.">лиственница паркет.</option>
-									<option value="дуб паркет.">дуб паркет.</option>
-									<option value="дуб ц/л">дуб ц/л</option>
 									<option value="лотки">лотки</option>
+									<option value="короб">короб</option>
 									<option value="нет">нет</option>
 								</select>
 							</td>

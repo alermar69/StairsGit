@@ -989,6 +989,7 @@ function drawTreadFrameStock(par) {
 				metalPaint: true,
 				timberPaint: false,
 				division: "stock_2",
+				comment: params.riserType == "есть" ? "Сверлить под подступенки" : '',
 				workUnitName: "amt", //единица измерения
 				group: "Каркас",
 			}

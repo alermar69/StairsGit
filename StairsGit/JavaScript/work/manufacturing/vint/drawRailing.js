@@ -893,19 +893,20 @@ function drawHandrailRing(){
 	return ring;
 }
 
+/** функция отрисовывает участок ограждения на площадке для замыкания спирального ограждения лестницы и балюстрады
+*/
+
 function drawRailingConnectionPlatform(par) {
 	var railingSection = new THREE.Object3D();
 
 	//параметры поручня
 	var handrailPar = {
-		//prof: params.handrailProf_bal,
-		//sideSlots: params.handrailSlots_bal,
-		//handrailType: params.handrail_bal,
-		profY: 50,
-		profZ: 50,
+		prof: params.handrailProf_bal,
+		sideSlots: params.handrailSlots_bal,
+		handrailType: params.handrail_bal,
 	}
 
-	//handrailPar = calcHandrailMeterParams(handrailPar); //функция в файле priceLib.js
+	handrailPar = calcHandrailMeterParams(handrailPar); //функция в файле priceLib.js
 
 	var rackOffsetY = 150;
 	var rackLength = params.handrailHeight_bal - handrailPar.profY; //длина стойки с учетом кронштейна
@@ -927,16 +928,10 @@ function drawRailingConnectionPlatform(par) {
 
 	railingSection.add(rack);
 
-
-	//var handrailMaterial = params.materials.metal;
-	//if (handrailPar.mat == "timber") handrailMaterial = params.materials.handrail;
-	//if (handrailPar.mat == "inox") handrailMaterial = params.materials.inox;
-
 	var handrailParams = {
 		partName: "handrails",
-		unit: "vint",
-		//type: handrailPar.handrailModel,
-		type: 'ПВХ',
+		unit: 'balustrade',
+		type: handrailPar.handrailModel,
 		poleProfileY: handrailPar.profY,
 		poleProfileZ: handrailPar.profZ,
 		length: par.lengthHandrail + params.topHandrailExtraLength,

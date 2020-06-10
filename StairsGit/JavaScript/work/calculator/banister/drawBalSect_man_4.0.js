@@ -201,13 +201,7 @@ function drawBalSection(par) {
 			handrailType: params.handrail,
 		}
 	}
-	if (par.type == "секция площадки" && params.calcType == 'vint') {
-		var handrailPar = {
-			prof: params.handrailProf,
-			sideSlots: params.handrailSlots,
-			handrailType: par.handrailType,
-		}
-	}
+
 	handrailPar = calcHandrailMeterParams(handrailPar); //функция в файле priceLib.js
 
 	var scale = 1;
@@ -297,6 +291,7 @@ function drawBalSection(par) {
 
 
 	/* ригели */
+	
 	if (railingModel == "Ригели") {
 
 		var rigelProfileY = 20;
@@ -322,8 +317,7 @@ function drawBalSection(par) {
 		var y0 = 0;
 		var rigelLength = platformLength - offsetLeft - offsetRight + 60;
 		var z0 = 0;
-		// if (railingSide == "left") z0 = -40 + rigelProfileZ + 20 + 1;
-		// if (railingSide == "right") z0 = 40 - rigelProfileZ - 1;
+
 		rigelAmt = Number(rigelAmt);
 		var rigelDist = (rackLength - rackOffsetY) / (rigelAmt + 1);
 
@@ -391,20 +385,6 @@ function drawBalSection(par) {
 				}
 			}
 
-			//var screw = drawScrew(screwPar).mesh;
-			//screw.rotation.x = Math.PI / 2;
-			//screw.position.x = rigelLength - 30 + 20;
-			//screw.position.y = rigelDist * i + 10;
-			//screw.position.z = 10;
-			//railingSection.add(screw);
-
-			//if (params.rigelMaterial_bal != "20х20 черн.") {
-			//	var holder = drawRigelHolder(holderPar);
-			//	holder.position.x = rigelLength - 30 + 20;
-			//	holder.position.y = rigelDist * i + 10;
-			//	holder.position.z = 10;
-			//	if (!testingMode) railingSection.add(holder);
-			//}
 		}
 		if (par.type == "секция") {
 			balPartsParams.rigels.push(poleParams.length);
@@ -448,6 +428,7 @@ function drawBalSection(par) {
 
 
 	/* самонесущее стекло */
+	
 	if (railingModel == "Самонесущее стекло") {
 		var glassDist = 10; //зазор между стеклами
 
@@ -551,8 +532,6 @@ function drawBalSection(par) {
 
 
 	/*  ковка */
-
-	function forge_nav() { }; //пустая функция для навигации
 
 	if (railingModel == "Кованые балясины" || railingModel == "Кресты") {
 		if (typeof balDist == 'undefined') balDist = [150];
@@ -738,8 +717,7 @@ function drawBalSection(par) {
 	}//конец кованых ограждений
 
 
-	/*** частые стойки ***/
-
+	/* частые стойки */
 
 	if (railingModel == "Частые стойки") {
 		var sectionLength = platformLength - offsetLeft - offsetRight - 40
@@ -784,8 +762,6 @@ function drawBalSection(par) {
 
 	/* поручень */
 
-	function handrail_nav() { }; //пустая функция для навигации
-
 	if (handrail != "нет") {
 
 		var handrailProfileY = handrailPar.profY;
@@ -818,10 +794,6 @@ function drawBalSection(par) {
 				fixType: "нет",
 				side: "in",
 				drawing: { group: 'handrails', unit: 'balustrade', pos: basePoint, ang: 0 }
-			}
-			if (par.type == "секция площадки" && params.calcType == 'vint') {
-				handrailParams.unit = "vint"
-				handrailParams.type = "ПВХ"
 			}
 
 			//Поправка положения поручня по оси Z

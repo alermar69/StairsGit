@@ -982,6 +982,7 @@ function reindexId(tableId){
 			$(val).find('.row_id').attr("data-id", self - 1);
 			$(val).find('.row_id').html(self - 1);
 		}
+		$(val).attr('data-id', self - 1);
 		//перебираем элементы в строке
 		$.each(input, function(i, val){
 			var id = val.id.match(/^([^0-9]+)[0-9]+$/)[1];

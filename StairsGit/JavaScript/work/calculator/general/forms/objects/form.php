@@ -1,17 +1,19 @@
-<h1>Дополнительные объекты</h1>
-<table class="form_table objectsTable" id='objectsTable'>
-	<thead>
-		<tr>
-			<th>Тип</th>
-			<th style="min-width: 190px">Позиция</th>
-			<th>Цвет</th>
-			<th style="min-width: 100px">Действия</th>
-			<th style="min-width: 100px">Считать цену</th>
-		</tr>
-	</thead>
-	<tbody id='objectsTableBody'>
-	</tbody>
-</table>
+<div class='table-content' style='overflow: scroll; height: calc(100% - 40px)'>
+	<h1>Дополнительные объекты</h1>
+	<table class="form_table objectsTable" id='objectsTable'>
+		<thead>
+			<tr>
+				<th>Тип</th>
+				<th style="min-width: 190px">Позиция</th>
+				<th>Цвет</th>
+				<th style="min-width: 100px">Действия</th>
+				<th style="min-width: 100px">Считать цену</th>
+			</tr>
+		</thead>
+		<tbody id='objectsTableBody'>
+		</tbody>
+	</table>
+</div>
 <button id='addAdditionalObject'>Добавить объект</button>
 <button id='redrawAdditionalObjects'>Обновить</button>
 

@@ -354,8 +354,6 @@ function drawRack3d_4(par) {
 				specObj[partName].division = "timber";
 				specObj[partName].group = "timberBal";
 			}
-			if(params.calcType == 'vhod' && params.staircaseType == 'Готовая') specObj[partName].name = "Стойка краш.";
-			if(params.calcType == 'vhod' && params.staircaseType == 'Готовая' && par.material.name == 'inox') specObj[partName].name = "Стойка нерж.";
 		}
 		var name = Math.round(par.len);
 		if (rackModel == "40х40 черн.") name += " черн.";
@@ -364,8 +362,6 @@ function drawRack3d_4(par) {
 		if (par.holderAng == 0) name += " штырь прямой"
 		else name += " штырь с шарниром";
 
-		if(params.calcType == 'vhod' && params.staircaseType == 'Готовая') name = Math.round(par.len) + " мм. 40х40 бок. крепление";
-		if (params.calcType == 'vhod' && params.staircaseType == 'Готовая' && par.material.name == 'inox') name += " 304";
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
@@ -1304,7 +1300,6 @@ function drawPole3D_4(par) {
 		}
 		var name = Math.round(par.poleProfileZ) + "x" + Math.round(par.poleProfileY) + "х" + Math.round(par.length);
 		if (par.type == "round") name = "Ф" + Math.round(par.poleProfileY) + "х" + Math.round(par.length);
-		if(params.calcType == 'vhod' && params.staircaseType == 'Готовая') name = "L=" + Math.round(par.length) + "мм";
 
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
@@ -1312,8 +1307,12 @@ function drawPole3D_4(par) {
 		specObj[partName]["sumLength"] += Math.round(par.length) / 1000;
 		specObj[partName]["paintedArea"] += (par.poleProfileZ + par.poleProfileY) * 2 * par.length / 1000000;
 		
+		par.mesh.specParams = {specObj: specObj, amt: 1, sumLength: Math.round(par.length) / 1000, partName: partName, name: name}
 		if (partName == 'polySheet') {
-			specObj[partName]["area"] += Math.ceil((par.length / 1000)) * Math.ceil((par.poleProfileZ / 2100));
+			var polyArea = Math.ceil((par.length / 1000)) * Math.ceil((par.poleProfileZ / 2100));
+			specObj[partName]["area"] += polyArea;
+			par.mesh.specParams.area = polyArea;
+			par.mesh.specParams.sumLength = null;
 		}
 
 		par.mesh.specId = partName + name;
@@ -1430,7 +1429,6 @@ function getPoleSpecParams(par){
 			specObjPart.metalPaint = false;
 			specObjPart.name = "Ригель нерж.";
 		}
-		if(params.calcType == 'vhod' && params.staircaseType == 'Готовая') specObjPart.name = "Ригель " + params.rigelMaterial;
 	}
 	if (partName == "ladderBal") {
 		specObjPart.name = "Стойка ограждения с фланцем";
@@ -2291,7 +2289,6 @@ function drawHandrailHolder(par) {
 			diam: 8,
 			isSelfLock: true,
 		}
-		if (params.calcType == 'vhod') nutParams.isSelfLock = false;
 
 		var nut = drawNut(nutParams).mesh;
 		nut.position.y = -10;
@@ -2391,7 +2388,6 @@ function drawHolderFlan(par){
 			par.material = params.materials.metal_railing;
 	}
 	if (handrailPar.handrailModel == "round") par.holderFlanId = "handrailHolderFlanArc";
-	if (params.handrail == "ПВХ" && params.calcType == 'vhod') par.holderFlanId = "handrailHolderFlanPlane";
 
 	var len = 60;
 	var wid = 20;
@@ -2498,7 +2494,11 @@ function drawHolderFlan(par){
 				group: "Ограждения",
 				purposes: ["Крепление поручня к стойкам"]
 			}
-			if (partName == "holderFlan_model") specObj[partName].name = "Лодочка плоская черн.";
+			if (partName == "holderFlan_model") {
+				specObj[partName].name = "Лодочка плоская черн.";
+				specObj[partName].metalPaint = true;
+				
+			}
 			if (partName == "handrailHolderFlanPlane_model") specObj[partName].name = "Лодочка под плоский поручень нерж.";
 			if (partName == "handrailHolderFlanArc_model") specObj[partName].name = "Лодочка под круглый поручень";
 		}
@@ -3819,15 +3819,7 @@ function drawHandrail_4(par) {
 			timberPaint: params.timberPaint_perila,
 		}
 	}
-	if (par.unit == "vint") {
-		var handrailPar = {
-			prof: params.handrailProf,
-			sideSlots: 'нет',
-			handrailType: par.type,
-			metalPaint: params.metalPaint_railing,
-			timberPaint: params.timberPaint_perila,
-		}
-	}
+
 	
 	handrailPar = calcHandrailMeterParams(handrailPar); //функция в файле priceLib.js
 
@@ -4084,13 +4076,10 @@ function drawHandrail_4(par) {
 			if (handrailPar.mat == "inox") specObj[partName].division = "metal";
 			//if(params.calcType == "timber") specObj[partName].name = "Поручень";
 			if (par.partName == "botPole") specObj[partName].name = "Подбалясная рейка";
-			if(params.calcType == 'vhod' && params.staircaseType == 'Готовая') specObj[partName].name = "Поручень " + handrailPar.handrailType;
-
 		}
 
 		var name = Math.round(par.profWidth) + "x" + Math.round(par.profHeight) + "х" + Math.round(par.length);
 		if (par.type == "round") name = "Ф" + Math.round(par.profHeight) + "х" + Math.round(par.length);
-		if(params.calcType == 'vhod' && params.staircaseType == 'Готовая') name = "L=" + Math.round(par.length) + "мм";
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;

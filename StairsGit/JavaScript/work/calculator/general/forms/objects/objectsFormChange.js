@@ -10,12 +10,8 @@ $(function(){
 	});
 
 	$('body').on('click', '.removeAdditionalItem', function(){
-		if(!confirm("Удалить объект?")) return;
-		$(this).parents('.additionalObjectRow').remove();
 		var id = $(this).parents('.additionalObjectRow').data('object_id');
-		var item = getAdditionalObject(id);
-		window.additional_objects.splice(window.additional_objects.indexOf(item), 1);
-		redrawAdditionalObjects();
+		removeAdditionalItem(id);
 	});
 
 	//кнопка применить в модальном окне
@@ -115,195 +111,91 @@ $(function(){
 
 	$('body').on('click', '.copyObject', function(){
 		var id = $(this).parents('.additionalObjectRow').data('object_id');
-		
-		var item = Object.assign({}, getAdditionalObject(id));
-		item.meshParams = Object.assign({}, item.meshParams);
-		item.position = Object.assign({}, item.position);
-		item.id = getAdditionalObjectCurrentId();
-		addAdditionalObjectTable(item);
-
-		redrawAdditionalObjects();
+		copyAdditionalObject(id);
 	});
 
-	addContextMenu();
+	// addContextMenu();
 
-	$('#additionalObjectContextMenu').contextmenu(function() {
-		return false;
-	});
-
-	$('.editObject').click(function(){
-		if (window.rightClickObject) {
-			additionalObjectModalShow(window.rightClickObject.objId);
+	$('body').on('click', '.editObject', function(){
+		if (window.selectedObject) {
+			AdditionalObject.selectIfItemIsChild(window.selectedObject);
+			additionalObjectModalShow(window.selectedObject.objId);
 		}
 	})
 
-	$('.moveObjectToPoint').click(function(){
-		if (window.rightClickObject) {
-			moveToPoint(window.rightClickObject.objId);
+	$('body').on('click', '.moveObject', function(){
+		if (window.selectedObject) {
+			AdditionalObject.selectIfItemIsChild(window.selectedObject);
+			moveToPoint(window.selectedObject.objId);
 		}
 	})
 
-	$('.setObjectInHole').click(function(){
-		if (window.rightClickObject) {
-			setToHole(window.rightClickObject.objId);
+	$('body').on('click', '.copyObjectContext', function(){
+		if (window.selectedObject) {
+			AdditionalObject.selectIfItemIsChild(window.selectedObject);
+			copyAdditionalObject(window.selectedObject.objId);
+		}
+	})
+
+	$('body').on('click', '.removeObject', function(){
+		if (window.selectedObject) {
+			AdditionalObject.selectIfItemIsChild(window.selectedObject);
+			removeAdditionalItem(window.selectedObject.id);
+		}
+	})
+
+	$('body').on('click', '.setObjectInHole', function(){
+		if (window.selectedObject) {
+			AdditionalObject.selectIfItemIsChild(window.selectedObject);
+			setToHole(window.selectedObject.objId);
 		}
 	});
 
 	$('body').on('click', '.additionalAction', function() {
 		var func = $(this).data('function');
-		if (window.rightClickObject) {
-			if (window.rightClickObject[func]) {
-				window.rightClickObject[func]();
+		if (window.selectedObject) {
+			AdditionalObject.selectIfItemIsChild(window.selectedObject);
+			if (window.selectedObject[func]) {
+				window.selectedObject[func]();
 			}
 		}
 	});
 });
+
+function copyAdditionalObject(id){
+	var item = Object.assign({}, getAdditionalObject(id));
+	item.meshParams = Object.assign({}, item.meshParams);
+	item.position = Object.assign({}, item.position);
+	item.id = getAdditionalObjectCurrentId();
+	addAdditionalObjectTable(item);
+
+	redrawAdditionalObjects();
+}
+
+function removeAdditionalItem(objId){
+	if(!confirm("Удалить объект?")) return;
+	$('additionalObjectRow[data-id="'+objId+'"').remove();
+	var item = getAdditionalObject(objId);
+	window.additional_objects.splice(window.additional_objects.indexOf(item), 1);
+	redrawAdditionalObjects();
+}
 
 function addNotify(content, type, title){
 	$("#notifyContent").html(content);
 	$("#notifyToast").toast('show');
 }
 
-function addContextMenu(){
-	var text = "\
-	<div class='dropdown-menu dropdown-menu-sm' id='additionalObjectContextMenu'>\
-		<a class='dropdown-item editObject'>Редактировать</a>\
-		<a class='dropdown-item moveObjectToPoint'>Вставить</a>\
-		<a class='dropdown-item setObjectInHole'>Вставить в проем</a>\
-		<div class='dropdown-actions'></div>\
-	</div>";
-	$('body').append(text);
-}
+// function addContextMenu(){
+// 	var text = "\
+// 	<div class='dropdown-menu dropdown-menu-sm' id='additionalObjectContextMenu'>\
+// 		<a class='dropdown-item editObject'>Редактировать</a>\
+// 		<a class='dropdown-item moveObjectToPoint'>Вставить</a>\
+// 		<a class='dropdown-item setObjectInHole'>Вставить в проем</a>\
+// 		<div class='dropdown-actions'></div>\
+// 	</div>";
+// 	$('body').append(text);
+// }
 
-var objectMovingId = false;
-var firstPointSelected = false;
-var axisObject = null;
-
-function moveToPoint(id){
-	objectMovingId = id;
-	firstPointSelected = false;
-	addNotify('Выберите базовую точку');
-}
-
-/**
- * Обрабатываем выбор точки
- */
-function firstPointSelect(){
-	window.firstPointSelected = true;
-	addNotify('Выберите вторую точку или выберите ось');
-	var point = lastSelectedPoint;
-	
-	var geometry = new THREE.BoxGeometry(20, 20, 50);
-	
-	axisObject = new THREE.Object3D();
-
-	var xAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#FF0000"}));
-	xAxis.position.x = point.x + 25;
-	xAxis.position.y = point.y;
-	xAxis.position.z = point.z;
-	xAxis.isAxis = true;
-	xAxis.rotation.y = Math.PI / 2;
-	xAxis.axis = 'x';
-	xAxis.factor = 1;
-	axisObject.add(xAxis);
-
-	var xAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#FF0000"}));
-	xAxis.position.x = point.x - 25;
-	xAxis.position.y = point.y;
-	xAxis.position.z = point.z;
-	xAxis.isAxis = true;
-	xAxis.rotation.y = Math.PI / 2;
-	xAxis.axis = 'x';
-	xAxis.factor = -1;
-	axisObject.add(xAxis);
-
-	var yAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#00FF00"}));
-	yAxis.position.x = point.x;
-	yAxis.position.y = point.y + 25;
-	yAxis.position.z = point.z;
-	yAxis.rotation.x = Math.PI / 2;
-	yAxis.isAxis = true;
-	yAxis.axis = 'y';
-	yAxis.factor = 1;
-	axisObject.add(yAxis);
-
-	var yAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#00FF00"}));
-	yAxis.position.x = point.x;
-	yAxis.position.y = point.y - 25;
-	yAxis.position.z = point.z;
-	yAxis.rotation.x = Math.PI / 2;
-	yAxis.isAxis = true;
-	yAxis.axis = 'y';
-	yAxis.factor = -1;
-	axisObject.add(yAxis);
-
-	var zAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#0000FF"}));
-	zAxis.position.x = point.x;
-	zAxis.position.y = point.y;
-	zAxis.position.z = point.z + 25;
-	zAxis.isAxis = true;
-	zAxis.axis = 'z';
-	zAxis.factor = 1;
-	axisObject.add(zAxis);
-
-	var zAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#0000FF"}));
-	zAxis.position.x = point.x;
-	zAxis.position.y = point.y;
-	zAxis.position.z = point.z - 25;
-	zAxis.isAxis = true;
-	zAxis.axis = 'z';
-	zAxis.factor = -1;
-	axisObject.add(zAxis);
-
-	view.scene.add(axisObject);
-}
-
-function moveObjectByAxis(axis, factor){
-	if (!window.objectMovingId || !window.firstPointSelected || !window.lastSelectedPoint1) {
-		return;
-	}
-	var item = getAdditionalObject(objectMovingId);
-
-	var value = prompt('Введите на сколько переместить') * 1.0;
-	console.log(value, axis)
-	if (value && value > 0) {
-		item.position[axis] += value * (factor || 1);
-		redrawAdditionalObjects();
-	
-		objectMovingId = false;
-		firstPointSelected = false;
-		addNotify('Объект перемещен');
-		view.scene.remove(axisObject);
-	}else{
-		
-	}
-	var evt = document.createEvent("MouseEvents");
-	evt.initEvent("mouseup", true, true);
-	document.getElementById("WebGL-output").dispatchEvent(evt);
-}
-
-function moveObjectTwoPoints(){
-	if (!window.objectMovingId || !window.firstPointSelected || !window.lastSelectedPoint || !window.lastSelectedPoint1) {
-		return;
-	}
-	var item = getAdditionalObject(objectMovingId);
-
-	var differenceX = item.position.x - lastSelectedPoint1.x;
-	var differenceY = item.position.y - lastSelectedPoint1.y;
-	var differencez = item.position.z - lastSelectedPoint1.z;
-
-	var point = lastSelectedPoint; //глобавльная переменная из файла viewports
-	item.position.x = (differenceX + point.x).toFixed(2) * 1.0;
-	item.position.y = (differenceY + point.y).toFixed(2) * 1.0;
-	item.position.z = (differencez + point.z).toFixed(2) * 1.0;
-
-	redrawAdditionalObjects();
-
-	objectMovingId = false;
-	firstPointSelected = false;
-	addNotify('Объект перемещен');
-	view.scene.remove(axisObject);
-}
 
 function setToHole(id){
 	var result = prompt("Укажите ид проема");
@@ -416,7 +308,7 @@ function addAdditionalObjectTable(par){
 	}
 
 	var text = '\
-		<tr class="additionalObjectRow" data-object_id='+ par.id +'>\
+		<tr class="additionalObjectRow" data-object_selector="additionalObjectRow" data-object_id='+ par.id +' data-id='+ par.id +'>\
 			<td>\
 				<select class="additionalObjectClass">';
 				AdditionalObject.getAvailableClasses().forEach(function(c){

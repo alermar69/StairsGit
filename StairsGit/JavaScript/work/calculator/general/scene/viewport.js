@@ -34,44 +34,42 @@ $(function () {
 		textureManager.updateMaterials();
 	})
 
+	$('#objectContextMenu').contextmenu(function() {
+		return false;
+	});
+
+	$('body').on('click', '.findInSpec', function(evt){
+		if (window.selectedObject) {
+			// window.selectedObject = selectSpecObj(window.selectedObject);
+			showSpecInfo(window.selectedObject, evt);
+		}
+	})
+
 	//Обработчик кнопки отмена(возвращает сцену в нормальный вид)
 	$('#resetSpecView').click(function () {
-		view.scene.traverse(function (node) {
-			if (node.material) {
-				node.material.transparent = false;
-				node.material.depthTest = true;
-				node.material.opacity = 1;
-				if (node.oldMaterial) {
-					node.material = node.oldMaterial;
-					node.material.transparent = false;
-					node.material.depthTest = true;
-					node.material.opacity = 1;
-				}
-			}
-		});
+		unselectAllObjects();
+		$('#selectedObjectInfo').hide();
 	})
 
 	//Обработчик кнопки показать все объекты
 	$('#showAllObjects').click(function () {
-		var specId = selectedSpecObj.specId;
+		var specId = selectedObject.specId;
 		if (specId) {
 			var specObjects = [];
 			allSpecsShowed = true;
 			view.scene.traverse(function (node) {
-				if (node.specId == specId) {
-					specObjects.push(node);
-				}
+				if (node.specId == specId) specObjects.push(node);
 				if (node.material) {
 					if (node.oldMaterial) {
 						node.material = node.oldMaterial;
-						node.material.transparent = false;
-						node.material.depthTest = true;
-						node.material.opacity = 1;
+						delete node.oldMaterial
 						node.oldMaterial = null;
 					}
+					if( node.material.transparentDefaultState == undefined) node.material.transparentDefaultState = !!node.material.transparent;
+					if( node.material.opacityDefaultState == undefined) node.material.opacityDefaultState = node.material.opacity;
 
-					node.material.opacity = 0.1;
 					node.material.transparent = true;
+					node.material.opacity = 0.1;
 				}
 			});
 			for (var i = 0; i < specObjects.length; i++) {
@@ -81,16 +79,36 @@ $(function () {
 		}
 	});
 
+	$('body').on('click', 'tr', function(evt){
+		if (evt.altKey) {
+			if ($(this).attr('data-id') && $(this).attr('data-object_selector')) {
+				var id = $(this).attr('data-id');
+				var selector = $(this).attr('data-object_selector');
+
+				view.scene.traverse(function(node){
+					if (node.objectRowClass == selector && node.objectRowId == id) {
+						selectObject(node);
+					}
+				})
+			}
+		}
+	});
+
 	var linesHidden = false;
 
 	$(document).keydown(function (e) {
-		if (e.shiftKey && typeof view.scene != 'undefined') {
+		if (e.altKey && typeof view.scene != 'undefined') {
 			view.scene.traverse(function (node) {
 				if (node instanceof THREE.LineSegments) {
 					node.visible = false;
 					linesHidden = true;
 				}
 			})
+		}
+
+		if (event.key == "Escape") {
+			unselectObject();
+			unselectAllObjects();
 		}
 	});
 
@@ -166,7 +184,7 @@ function addMeasurement(viewportId) {
 	function onDocumentMouseDown(evt) {
 
 		//Чистим правое меню
-		$('#additionalObjectContextMenu').hide();
+		$('#objectContextMenu').hide();
 		if (window.rightClickObject) window.rightClickObject = null;
 
 		var raycaster = new THREE.Raycaster();
@@ -179,175 +197,201 @@ function addMeasurement(viewportId) {
 		raycaster.setFromCamera(mouse, view.camera);
 		var intersects = raycaster.intersectObjects(view.scene.children, true);
 
-		if (typeof AdditionalObject == 'function' && intersects[0]) AdditionalObject.onClick(intersects[0].object, evt);
-
 		spStart.visible = false;
 		spEnd.visible = false;
 		sConnection.visible = false;
 		sphereHelper.visible = false;
 
-		if (!window.objectMovingId) {
+		if (!window.objectMovingId && !window.wallMovingId) {
 			$('#selectedObjectInfo').hide();
-			if (selectedSpecObj && !allSpecsShowed) unselectSpecObj();
 			$('#popuup_div').stop(true, true).hide();
 			$('#popuup2_div').stop(true, true).hide();
-			if ((!evt.ctrlKey && !evt.shiftKey && !params.customersDimensions) || evt.which !== 1) return;
+			// if ((!evt.ctrlKey && !params.customersDimensions) || evt.which !== 1) return;
 		}
 
-		//выделение объекта
-		if (intersects[0]) var selectedObj = intersects[0].object;
-		if (selectedObj) {
-			if (evt.shiftKey) {
-				selectSpecObj(selectedObj, evt)
+		if ((window.objectMovingId || window.wallMovingId) && window.firstPointSelected) {
+			var selectedAxis = intersects.find(function(intersect){
+				return intersect.object && intersect.object.isAxis;
+			});
+			if (selectedAxis) {
+				var obj = selectedAxis.object;				
+				moveObjectByAxis(obj.axis, obj.factor);
 			}
-
-			if (window.objectMovingId && window.firstPointSelected) {
-				var selectedAxis = intersects.find(function(intersect){
-					return intersect.object && intersect.object.isAxis;
-				});
-				if (selectedAxis) {
-					var obj = selectedAxis.object;
-					moveObjectByAxis(obj.axis, obj.factor);
-				}
-			}
-
-			if (evt.ctrlKey || params.customersDimensions ) {
-				sphereHelper.visible = false;
-				spStart.visible = true;
-				spEnd.visible = true;
-				sConnection.visible = true;
-				if (typeof onObjSelection == "function") onObjSelection(selectedObj);
-
-				if (fmin && intersects.length > 0) {
-					var Ipoint = sphereHelper.position;
-					//сохраняем точку Ipoint в глобальную переменную
-					lastSelectedPoint1 = copyPoint(lastSelectedPoint);
-					lastSelectedPoint = copyPoint(Ipoint);
-
-					if (nowStart) {
-						spStart.position.x = Ipoint.x;
-						spStart.position.y = Ipoint.y;
-						spStart.position.z = Ipoint.z;
-						nowStart = false;
-					} else {
-						spEnd.position.x = Ipoint.x;
-						spEnd.position.y = Ipoint.y;
-						spEnd.position.z = Ipoint.z;
-						nowStart = true;
+		}
+		if (intersects.length > 0) {
+			var object = intersects[0].object;
+			if (object) {
+				if (evt.altKey) {
+					if(event.button == 0) selectObject(object);
+					if(event.button == 2 && selectedObject) {
+						var top = event.pageY - 100;
+						var left = event.pageX - 90;
+						$("#objectContextMenu").css({
+							display: "block",
+							position: 'absolute',
+							top: top,
+							left: left
+						}).addClass("show");
+						// rightClickObject = object;
+						$('#objectContextMenu').html("");
+						$('#objectContextMenu').append("<a class='dropdown-item findInSpec'>Инфо</a>");
+						if (typeof AdditionalObject == 'function') AdditionalObject.onClick(selectedObject, evt);
 					}
-
-					sConnection.geometry.vertices[0].copy(spStart.position);
-					sConnection.geometry.vertices[1].copy(spEnd.position);
-					sConnection.geometry.verticesNeedUpdate = true;
-					sConnection.geometry.computeBoundingSphere();
-
-					if (window.objectMovingId) {
-						if (!window.firstPointSelected) {
-							firstPointSelect();
-							return;
+				}
+		
+				if (evt.ctrlKey) {
+					sphereHelper.visible = false;
+					spStart.visible = true;
+					spEnd.visible = true;
+					sConnection.visible = true;
+					if (typeof onObjSelection == "function") onObjSelection(selectedObj);
+		
+					if (fmin) {
+						var Ipoint = sphereHelper.position;
+						//сохраняем точку Ipoint в глобальную переменную
+						lastSelectedPoint1 = copyPoint(lastSelectedPoint);
+						lastSelectedPoint = copyPoint(Ipoint);
+		
+						if (nowStart) {
+							spStart.position.x = Ipoint.x;
+							spStart.position.y = Ipoint.y;
+							spStart.position.z = Ipoint.z;
+							nowStart = false;
+						} else {
+							spEnd.position.x = Ipoint.x;
+							spEnd.position.y = Ipoint.y;
+							spEnd.position.z = Ipoint.z;
+							nowStart = true;
+						}
+		
+						sConnection.geometry.vertices[0].copy(spStart.position);
+						sConnection.geometry.vertices[1].copy(spEnd.position);
+						sConnection.geometry.verticesNeedUpdate = true;
+						sConnection.geometry.computeBoundingSphere();
+						
+						//перемещение объекта или стены
+						if (window.objectMovingId || window.wallMovingId) {
+							if (!window.firstPointSelected) {
+								firstPointSelect();
+								return;
+							}
+							
+							if (window.firstPointSelected) {
+								moveObjectTwoPoints();
+								return;
+							}
 						}
 						
-						if (window.firstPointSelected) {
-							moveObjectTwoPoints();
-							return;
-						}
+					}
+		
+					// placing distance label
+					if (!window.objectMovingId && !window.wallMovingId) {
+						var labelPos = spStart.position.clone().add(spEnd.position).multiplyScalar(0.5);
+						var distance = spStart.position.distanceTo(spEnd.position);
+						var lblDistance = document.getElementById("popuup_div");
+						$('#popuup_div').stop(true, true).css({
+							left: Math.round(evt.pageX + 20),
+							top: Math.round(evt.pageY)
+						}).show();
+						lblDistance.innerHTML = '&#x1D6AB;x: ' + Math.abs(spStart.position.x - spEnd.position.x).toFixed(1) +
+							'<br/>&#x1D6AB;y: ' + Math.abs(spStart.position.y - spEnd.position.y).toFixed(1) +
+							'<br/>&#x1D6AB;z: ' + Math.abs(spStart.position.z - spEnd.position.z).toFixed(1) +
+							'<br/>dist: ' + distance.toFixed(2);
 					}
 				}
-
-
-				// placing distance label
-				if (!window.objectMovingId) {
-					var labelPos = spStart.position.clone().add(spEnd.position).multiplyScalar(0.5);
-					var distance = spStart.position.distanceTo(spEnd.position);
-					var lblDistance = document.getElementById("popuup_div");
-					$('#popuup_div').stop(true, true).css({
-						left: Math.round(evt.pageX + 20),
-						top: Math.round(evt.pageY)
-					}).show();
-					lblDistance.innerHTML = '&#x1D6AB;x: ' + Math.abs(spStart.position.x - spEnd.position.x).toFixed(1) +
-						'<br/>&#x1D6AB;y: ' + Math.abs(spStart.position.y - spEnd.position.y).toFixed(1) +
-						'<br/>&#x1D6AB;z: ' + Math.abs(spStart.position.z - spEnd.position.z).toFixed(1) +
-						'<br/>dist: ' + distance.toFixed(2);
-				}
-
 			}
 		}
 	}
 
 	function onDocumentMouseMove(evt) {
 		try {
-			var raycaster = new THREE.Raycaster();
-			
-			var mouse = {};
-			const rect = canvas.getBoundingClientRect();
-			const pos = {
-				x: event.clientX - rect.left,
-				y: event.clientY - rect.top,
-			};
-			mouse.x = (pos.x / canvas.clientWidth) * 2 - 1;
-			mouse.y = (pos.y / canvas.clientHeight) * -2 + 1; // note we flip Y
-
-			raycaster.setFromCamera(mouse, view.camera);
-
-			var intersects = raycaster.intersectObjects(view.scene.children, true);
-
-			if ((!intersects || intersects.length == 0) && typeof AdditionalObject == 'function' && hovered) hovered.onUnHover({});
-			if (intersects.length > 0) {
-
-				var intersect = intersects[0];
-				var point = intersect.point;
-				var object = intersect.object;
-				var distance;
-				if (typeof AdditionalObject == 'function') AdditionalObject.onHover(object, evt);
-
-				canvas.style.cursor = 'auto';
-				if (!evt.ctrlKey && !params.customersDimensions) return;
-
-				if (object.layerName == "measure") return;
-				// to skip
-				for (var i = 0, il = intersects.length; i < il; i++) {
-					intersect = intersects[i];
-					object = intersect.object;
-					if (object.layerName !== "wireframes") break;
-				}
-				if (object.layerName === "wireframes") return;
-
-				object.updateMatrixWorld();
-				point = intersect.point;
-				var points = object.geometry.vertices;
-				if (points === undefined) return;
-				//object.material.transparent = true;
-				//object.material.opacity = 0.3;
-				//object.material.needsUpdate = true;
-
-				point_snap = {
-					x: 0,
-					y: 0,
-					z: 0
+			if (evt.altKey || evt.ctrlKey || window.objectMovingId || window.wallMovingId) {
+				var raycaster = new THREE.Raycaster();
+				
+				var mouse = {};
+				const rect = canvas.getBoundingClientRect();
+				const pos = {
+					x: event.clientX - rect.left,
+					y: event.clientY - rect.top,
 				};
-				fmin = false;
-				var mindistance = threshold;
-				for (var i = 0, il = points.length; i < il; i++) {
-					var pt = points[i].clone();
-					object.localToWorld(pt);
-					distance = pt.distanceTo(point);
-					if (distance < mindistance) {
-						point_snap.x = pt.x;
-						point_snap.y = pt.y;
-						point_snap.z = pt.z;
-						mindistance = distance;
-						fmin = true;
-					}
+				mouse.x = (pos.x / canvas.clientWidth) * 2 - 1;
+				mouse.y = (pos.y / canvas.clientHeight) * -2 + 1; // note we flip Y
+	
+				raycaster.setFromCamera(mouse, view.camera);
+	
+				var intersects = raycaster.intersectObjects(view.scene.children, true);
+	
+				if ((!intersects || intersects.length == 0) && hovered){
+					hovered.material.color = hovered.material.oldColor;
+					hovered.material.oldColor = undefined;
+					// hovered.onUnHover({});
 				}
-				if (fmin) {
-					var dia = view.camera.position.distanceTo(point_snap) / 300;
-					sphereHelper.scale.x = sphereHelper.scale.y = sphereHelper.scale.z = dia;
-					sphereHelper.position.copy(point_snap);
-					sphereHelper.visible = true;
-					canvas.style.cursor = 'pointer';
-				} else {
-					sphereHelper.visible = false;
-					canvas.style.cursor = 'auto'; //'no-drop';
+				if (intersects.length > 0) {
+	
+					var intersect = intersects[0];
+					var point = intersect.point;
+					var object = intersect.object;
+					var distance;
+					// if (typeof AdditionalObject == 'function') AdditionalObject.onHover(object, evt);
+					if (object.hoverable) {
+						if (hovered) {
+							hovered.material.color = hovered.material.oldColor;
+							hovered.material.oldColor = undefined;
+						}
+						object.material.oldColor = object.material.color;
+						object.material.color = new THREE.Color(0,155,155);
+						hovered = object;
+					}
+	
+					canvas.style.cursor = 'auto';
+					if (!evt.ctrlKey && !params.customersDimensions) return;
+	
+					if (object.layerName == "measure") return;
+					// to skip
+					for (var i = 0, il = intersects.length; i < il; i++) {
+						intersect = intersects[i];
+						object = intersect.object;
+						if (object.layerName !== "wireframes") break;
+					}
+					if (object.layerName === "wireframes") return;
+	
+					object.updateMatrixWorld();
+					point = intersect.point;
+					var points = object.geometry.vertices;
+					if (points === undefined) return;
+					//object.material.transparent = true;
+					//object.material.opacity = 0.3;
+					//object.material.needsUpdate = true;
+	
+					point_snap = {
+						x: 0,
+						y: 0,
+						z: 0
+					};
+					fmin = false;
+					var mindistance = threshold;
+					for (var i = 0, il = points.length; i < il; i++) {
+						var pt = points[i].clone();
+						object.localToWorld(pt);
+						distance = pt.distanceTo(point);
+						if (distance < mindistance) {
+							point_snap.x = pt.x;
+							point_snap.y = pt.y;
+							point_snap.z = pt.z;
+							mindistance = distance;
+							fmin = true;
+						}
+					}
+					if (fmin) {
+						var dia = view.camera.position.distanceTo(point_snap) / 300;
+						sphereHelper.scale.x = sphereHelper.scale.y = sphereHelper.scale.z = dia;
+						sphereHelper.position.copy(point_snap);
+						sphereHelper.visible = true;
+						canvas.style.cursor = 'pointer';
+					} else {
+						sphereHelper.visible = false;
+						canvas.style.cursor = 'auto'; //'no-drop';
+					}
 				}
 			}
 		} catch (ex) {
@@ -520,6 +564,7 @@ function findIntersects(scene, viewportId, onFinish) {
 
 //Показывает информацию о объекте
 function showSpecInfo(selectedObj, e) {
+	$('#objectContextMenu').hide();
 	$('#selectedObjectInfo').show();
 	$('#selectedObjectInfo').css({
 		left: Math.round(e.pageX + 20),
@@ -544,43 +589,100 @@ function showSpecInfo(selectedObj, e) {
 	}
 }
 
-//Убирает выделение с объекта
-function unselectSpecObj() {
-	if (selectedSpecObj && selectedSpecObj.traverse) {
-		selectedSpecObj.traverse(function (node) {
+// Убирает выделение с объекта
+// function unselectSpecObj() {
+// 	if (selectedSpecObj && selectedSpecObj.traverse) {
+// 		selectedSpecObj.traverse(function (node) {
+// 			if (node.material instanceof THREE.Material && node.oldMaterial instanceof THREE.Material) {
+// 				node.material = node.oldMaterial;
+// 				delete node.oldMaterial;
+// 			}
+// 		});
+// 	}
+// 	selectedSpecObj = null;
+// }
+
+var selectedObject = null
+
+/**
+ * Функция выделяет объект либо по specId либо по нажатой строке, либо из raycaster
+ * @param object - выделяемый объект
+ */
+function selectObject(object){
+	if (selectedObject) unselectObject();
+	selectedObject = findNearestObject3D(object);
+	if (selectedObject) {
+		selectedObject.traverse(function (node) {
+			if (node.type != "LineSegments" && node.material && !node.oldMaterial) {
+				node.oldMaterial = node.material;
+				node.material = selectMaterial;
+			}
+		});
+
+		if (selectedObject.objectRowClass && (selectedObject.objectRowId != undefined)) {
+			$('.' + selectedObject.objectRowClass).removeClass('selected');
+			$('.' + selectedObject.objectRowClass + '[data-id="' + selectedObject.objectRowId + '"').addClass('selected');
+		}else{
+			if (selectedObject.specId) {
+				$('.specRow').removeClass('selected');
+				$('.specRow[data-articul="' + selectedObject.specId + '"').addClass('selected');
+			}
+		}
+	}
+}
+
+function findNearestObject3D(object){
+	if (object.specId || object.objectRowClass && (object.objectRowId != undefined) || !object.parent) {
+		if (object == view.scene) {
+			return null
+		}else{
+			return object;
+		}
+	}else{
+		return findNearestObject3D(object.parent);
+	}
+}
+
+function unselectObject(){
+	if (selectedObject && selectedObject.traverse) {
+		selectedObject.traverse(function (node) {
 			if (node.material instanceof THREE.Material && node.oldMaterial instanceof THREE.Material) {
 				node.material = node.oldMaterial;
 				delete node.oldMaterial;
+				node.oldMaterial = null;
 			}
 		});
 	}
-	selectedSpecObj = null;
+	selectedObject = null;
 }
 
-//Применяет материал выделения к объекту
+function unselectAllObjects(){
+	view.scene.traverse(function (node) {
+		if (node.material) {
+			if (node.oldMaterial) {
+				node.material = node.oldMaterial;
+				delete node.oldMaterial;
+				node.oldMaterial = null;
+			}
+
+			if (node.material.transparentDefaultState != undefined) node.material.transparent = node.material.transparentDefaultState
+			if (node.material.opacityDefaultState != undefined) node.material.opacity = node.material.opacityDefaultState;
+			node.material.transparentDefaultState = node.material.opacityDefaultState = undefined;
+		}
+		if (node.objectRowClass) $('.' + node.objectRowClass).removeClass('selected');
+	});
+	$('.specRow').removeClass('selected');
+	allSpecsShowed = false;
+}
+
+// Применяет материал выделения к объекту исключая те дочерние объекты у которых есть свой specId
 function showSpecObject(object, specId) {
 	object.specIdTraverse(specId, function (node) {
-		if ((!node.specId || node == object) && node.type != "LineSegments" && node.material) {
+		if ((!node.specId || node == object) && node.type != "LineSegments" && node.material && !node.oldMaterial) {
 			node.oldMaterial = node.material;
 			node.material = selectMaterial;
 		}
 	});
-}
-
-//Выделяет объект
-function selectSpecObj(selectedObj, evt) {
-	if (selectedObj.specId) {
-		if (selectedSpecObj) unselectSpecObj();
-		selectedSpecObj = selectedObj;
-		showSpecInfo(selectedObj, evt);
-		showSpecObject(selectedObj, selectedObj.specId)
-	} else {
-		if (selectedObj.parent) {
-			selectSpecObj(selectedObj.parent, evt);
-		} else {
-			showSpecInfo(false, evt);
-		}
-	}
 }
 
 function addObjects(viewportId, objectsArr, layerName) {
@@ -740,9 +842,11 @@ function _addWalls(viewportId, turnFactor) {
 		var length = $('#wallLength_' + i).val() * 1.0;
 		var height = $('#wallHeight_' + i).val() * 1.0;
 		var thickness = $('#wallThickness_' + i).val() * 1.0;
+
 		if (length && height && thickness) {
 			var positionX = $('#wallPositionX_' + i).val() * 1 + (i > 2 ? 0 : length / 2) + (i == 4 ? -thickness / 2 : i == 3 ? thickness / 2 : 0);
 			var positionZ = $('#wallPositionZ_' + i).val() * 1 + (i > 2 ? length / 2 : thickness / 2 * (i == 1 ? -1 : 1));
+
 			var wallGeometry = new THREE.CubeGeometry(length, height, thickness);
 			var wall = new THREE.Mesh(wallGeometry, params.materials.wall);
 			wall.userData.isWall = true;
@@ -750,7 +854,9 @@ function _addWalls(viewportId, turnFactor) {
 			wallMesh.position.set(positionX, height / 2, positionZ * turnFactor);
 			wallMesh.rotation.y = i == 3 ? 1.5 * Math.PI : i == 4 ? 0.5 * Math.PI : i == 2 ? Math.PI : 0;
 			if ($("#turnSide").val() == 'левое' && (i == 1 || i == 2)) wallMesh.rotation.y -= Math.PI;
-
+			
+			wallMesh.objectRowClass = 'wallRow';
+			wallMesh.objectRowId = i;
 			addObjects(viewportId, wallMesh, wallMesh.layerName);
 			// Обновляем состояние для объекта
 			menu['wall' + i] = menu['wall' + i];
@@ -858,6 +964,8 @@ function addLedges(wall, n){
 				wallLedgeBase = $('#wallLedgeBase' + i).val(),
 				geometry = new THREE.CubeGeometry(wallLedgeWidth, wallLedgeHeight, wallLedgeDepth),
 				ledge = new THREE.Mesh(geometry, params.materials.wall);
+				ledge.objectRowClass = 'ledgeParRow';
+				ledge.objectRowId = i;
 
 			if (wallLedgeWidth > 0 && wallLedgeHeight > 0) {
 				ledge.position.x = x - w / 2 + wallLedgeWidth / 2 + wallLedgePosX * 1;
@@ -1095,7 +1203,6 @@ function redrawAdditionalObjects(){
 	partsAmt_dop = {};
 
 	$.each(window.additional_objects, function(){
-		console.log(this);
 		addAdditionalObjectTable(this);
 		addAdditionalObject(this);
 	})
@@ -1207,7 +1314,6 @@ function createMenu(){
 
 						mat.transparent = true;
 						mat.opacity = 0.3;
-						console.log(mat.opacity);
 					}
 				}else{
 					if (mat) {
@@ -1534,7 +1640,6 @@ function addTopFloor(viewportId, isVisible) {
 }
 
 function drawTopFloor() {
-	//console.log(asdf)
 	var floorThickness = $("#floorThickness").val() * 1;
 
 	var obj;
@@ -1545,6 +1650,10 @@ function drawTopFloor() {
 		while (obj = view.scene.getObjectByLayerName('beamTop'))
 			view.scene.remove(obj);
 	}
+	
+	//не отрисовываем верхнее перекрытие нулевой толщины
+	if(floorThickness == 0) return;
+	
 	var floorCoverThk = params.floorOffsetTop;
 	if (floorCoverThk == 0) floorCoverThk = 1;
 
@@ -1782,7 +1891,6 @@ function drawTopFloorPlane(thickness, color, offsetY, isCeil) {
 				if (hole) {
 					if (!window.service_data) window.service_data = {}
 					window.service_data.openingPath = hole.toJSON();
-					console.log(hole.toJSON())
 					floorShape.holes.push(hole);
 				}else{
 					alert('Проблема при построении проема!')

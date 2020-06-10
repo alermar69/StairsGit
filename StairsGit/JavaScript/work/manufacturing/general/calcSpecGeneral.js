@@ -1515,26 +1515,6 @@ function getMaterialName(item){
 	return matName;
 }
 
-function addDopSpecItems(partsList){
-	$.each(partsAmt_dop, function(key, item){
-		if(key == 'unit') return
-		for(var partName in item){
-			var itemsPar = {
-				specObj: item,
-				partName: partName,
-				metalPaint: item[partName]["metalPaint"],
-				timberPaint: item[partName]["timberPaint"],
-				division: item[partName]["division"],
-				itemGroup: item[partName]["group"],
-				
-			}
-			if(item[partName].comment) itemsPar.comment = item[partName].comment;
-	
-			partsList.addSpecObjItems(itemsPar);
-		}
-	});
-}
-
 function addFixParts(par){
 	var partsList = par.partsList;
 	
@@ -1689,50 +1669,6 @@ function addFixParts(par){
 		}
 	
 }//end of addFixParts
-
-
-function wallMountingItemsAdd(par){
-	
-	var amt = par.amt;
-	if(par.fixPart != "не указано" && par.fixPart != "нет" && 
-		par.fixSpacer == "40х40 сдвоен.") amt = par.amt * 2;
-			
-	var fixParams = {
-			partsList: par.partsList,
-			fixPart: par.fixPart,
-			fixSurfaceType: par.fixSurfaceType,
-			discription: par.discription,
-			unit: "Крепление к стенам",
-			itemGroup: "Крепление к обстановке",
-			amt: amt,
-			extraStudLength: par.fixSpacerLength,
-			studDiam: 10,
-		};
-	if(par.fixSurfaceType == "пеноблок") fixParams.studDiam = 16;
-		
-		
-		//if(params.isAssembling == "есть") addFixParts(fixParams);
-		
-	//проставка
-	if(par.fixPart != "не указано" && par.fixPart != "нет" && 
-		par.fixSpacer != "не указано" && par.fixSpacer != "нет"){
-			var spacerAmt = par.fixAmt;
-			if(par.fixSpacer == "40х40 сдвоен.") spacerAmt = spacerAmt;
-			
-			item = {
-				id: par.fixSpacerId,
-				amt: spacerAmt,
-				discription: par.discription,
-				unit: "Крепление к стенам",
-				itemGroup: "Крепление к обстановке",
-				};
-			if(item.amt > 0) partsList.addItem(item);					
-			}
-	
-}//end of wallMountingItemsAdd
-
-/** функция рассчитывает кол-во стыков ограждений с шарнирами
-*/
 
 function calcRailingJointAmt(){
 	var jointAmt = 0;

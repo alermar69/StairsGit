@@ -53,7 +53,7 @@ changeFormBanister = function(){
 
 function addBanisterSect(){
 	 var text = 
-		'<tr class="balSectRow">\
+		'<tr class="balSectRow" data-object_selector="balSectRow">\
 			<td>\
 				<select id="banisterSectionType0" size="1" class="balSectType">\
 					<option value="секция">секция</option>\

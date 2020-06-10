@@ -1,6 +1,6 @@
 var hovered = null;
 var animations = [];
-var rightClickObject = null;
+// var rightClickObject = null;
 var partsAmt_dop = {}; //глобальный массив количеств эл-тов для спецификации балюстрады
 
 class AdditionalObject extends THREE.Object3D {
@@ -27,6 +27,8 @@ class AdditionalObject extends THREE.Object3D {
 		}
 
 		this.setLayer(par.layer || 'additionalObject');
+		this.objectRowClass = 'additionalObjectRow';
+		this.objectRowId = par.id;
 	}
 
 	/** События */
@@ -35,26 +37,22 @@ class AdditionalObject extends THREE.Object3D {
 		console.log('Left click', this.constructor.getMeta());
 	}
 
-	onRightClick(event) {
-		var top = event.pageY - 10;
-		var left = event.pageX - 90;
-		$("#additionalObjectContextMenu").css({
-			display: "block",
-			position: 'absolute',
-			top: top,
-			left: left
-		}).addClass("show");
-		rightClickObject = this;
-
+	onRightClick() {
 		var actions = this.getActions();
 
-		var text = "";
+		var text = "\
+			<a class='dropdown-item editObject'>Редактировать</a>\
+			<a class='dropdown-item moveObject'>Переместить</a>\
+			<a class='dropdown-item setObjectInHole'>Вставить в проем</a>\
+			<a class='dropdown-item copyObjectContext'>Копировать</a>\
+			<a class='dropdown-item removeObject'>Удалить</a>\
+		";
 
 		actions.forEach(function (action) {
 			text += "<a class='dropdown-item additionalAction' data-function='" + action.function + "'>" + action.title + "</a>"
 		});
 
-		$("#additionalObjectContextMenu .dropdown-actions").html(text);
+		$("#objectContextMenu").append(text);
 	}
 
 	onHoverEvent(event) {
@@ -126,14 +124,23 @@ class AdditionalObject extends THREE.Object3D {
 
 	static onClick(item, event) {
 		var parent = AdditionalObject.isChild(item);
-
 		if (parent) {
 			if (event.button == 0) parent.onLeftClick(event);
 			if (event.button == 2) parent.onRightClick(event);
 		}
 	}
 
+	static selectIfItemIsChild(item){
+		var parent = AdditionalObject.isChild(item);
+		if (parent) {
+			unselectObject();
+			selectObject(parent);
+		}
+	}
+
 	static isChild(object) {
+		if (object instanceof AdditionalObject) return object;
+
 		if (object && object.parent) {
 			if (object.parent instanceof AdditionalObject) {
 				return object.parent;
@@ -199,8 +206,8 @@ class AdditionalObject extends THREE.Object3D {
 				title: 'Площадка металл'
 			},
 			{
-				className: 'Column',
-				title: 'Колонна'
+				className: 'Columns',
+				title: 'Колонны'
 			},
 			{
 				className: 'Canopy',
@@ -275,7 +282,10 @@ class AdditionalObject extends THREE.Object3D {
 				className: 'WallLamp',
 				title: 'Настенный светильник'
 			},
-			
+			{
+				className: 'Shelf',
+				title: 'Стеллаж'
+			}
 		]
 	}
 }
