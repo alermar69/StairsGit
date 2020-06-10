@@ -148,10 +148,6 @@
 			'url' => '/manufacturing/curve/drawCarcasParts.js',
 			'only_for' => ['mono'],
 		],
-		[
-			'url' => '/manufacturing/mono/personalScripts.js',
-			'only_for' => ['mono'],
-		],
 		//mono
 		
 		//console
@@ -318,6 +314,10 @@
 			'url' => '/calculator/carport/forms/main_form_change.js',
 			'only_for' => ['carport'],
 		],
+		[
+			'url' => '/calculator/carport/modelActions.js',
+			'only_for' => ['carport'],
+		]
 	]);
 
 	if ($calc_type != 'wardrobe_2' && $calc_type != 'objects') {

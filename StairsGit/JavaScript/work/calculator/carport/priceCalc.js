@@ -9,19 +9,23 @@ function calculateCarcasPrice(){
 	var profParmas = getProfParams(params.progonProfile);
 	var progonCost = profParmas.unitCost * getPartPropVal('progonProfile', 'sumLength');
 	
+	if(params.carportType == "купол") progonCost *= 3;
 	
 	//кровля
-
+	if(params.roofThk == '4') var polyListPrice = 160;
+	if(params.roofThk == '6') var polyListPrice = 200;
 	if(params.roofThk == '8') var polyListPrice = 270;
 	if(params.roofThk == '10') var polyListPrice = 350;
+	
+	if(params.roofMat == "монолитный поликарбонат") polyListPrice *= 8;
+	
 	
 	var polyRoofCost = getPartPropVal('polySheet', 'area') * polyListPrice;
 	
 	//соединительные профиля для поликарбоната
 	var roofProfPrice = (getPartPropVal('polyConnectionProfile', "sumLength") || 0) * 100;
 	roofProfPrice += (getPartPropVal('topRoofProfile', "sumLength") || 0) * 100;
-
-	
+		
 	//краевой профиль для поликарбоната
 	roofProfPrice += getPartPropVal('polyEdgeProfile', "sumLength") * 100;
 	
@@ -56,6 +60,20 @@ function calculateCarcasPrice(){
 	boltPrice += 10 * getPartAmt('boltM12');
 	//болты крепления прогонов М6
 	boltPrice += 5 * getPartAmt('boltM6');
+	
+	//расчетные данные для купольного навеса - удалить после проработки модели
+	
+	if(params.carportType == "купол") {
+		
+		if(params.roofMat != "нет"){
+			var profMeterPrice = 60; 
+			if(params.roofProfType == "алюминий") profMeterPrice = 350;
+			roofProfPrice = getPartPropVal('progonProfile', 'sumLength') * profMeterPrice;
+			
+		}
+		
+		boltPrice = 5000; //болты, подшипники, колеса и т.п.
+	}
 
 	staircaseCost.truss = Math.round(trussWidthCost + trussLenCost);
 	staircaseCost.columns = Math.round(columnsCost);

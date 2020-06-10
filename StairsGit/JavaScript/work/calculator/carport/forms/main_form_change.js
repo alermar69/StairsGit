@@ -14,4 +14,22 @@ function changeFormCarcas(){
 		alert("Прочность фермы не позволяет сделать ширину навеса более 7500 мм. Была установлена ширина 7500 мм.")
 		$("#trussWidth").val(7500)
 	}
+	
+	$(".truss").show()
+	$(".dome").hide()
+	if(params.carportType == "купол"){
+		$(".truss").hide()
+		$(".dome").show()
+	}
+	
+	//параметры кровли
+	$(".roofPar").show();	
+	if(params.roofMat == "нет") $(".roofPar").hide();
+	
+	$(".polyPar").show()
+	if(params.roofMat.indexOf("поликарбонат") == -1) $(".polyPar").hide()
+		
+	$(".profSheetPar").hide()
+	if(params.roofMat == "профнастил") $(".profSheetPar").show()
+	
 }

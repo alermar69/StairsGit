@@ -59,6 +59,7 @@ $scripts[] = ["url" => "/calculator/general/scene/objects/columns.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/canopy.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/transport.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/shelf.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/pool.js"];
 $scripts[] = ["url" => "/calculator/rack/drawCarcas.js"];
 
 $scripts[] = ['url' => "/calculator/general/jsviews.min.js"];

@@ -285,6 +285,10 @@ class AdditionalObject extends THREE.Object3D {
 			{
 				className: 'Shelf',
 				title: 'Стеллаж'
+			},
+			{
+				className: 'Pool',
+				title: 'Бассейн'
 			}
 		]
 	}

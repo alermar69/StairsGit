@@ -11,6 +11,7 @@
 						<option value="односкатный">односкатный</option>
 						<option value="консольный">консольный</option>
 						<option value="консольный двойной">консольный двойной</option>
+						<option value="купол">купол</option>
 						<!-- 
 						<option value="консольный фронтальный">консольный фронтальный</option>
 						<option value="арочный продольный">арочный продольный</option>
@@ -32,7 +33,7 @@
 				</td>
 			</tr>
 			
-			<tr>
+			<tr class="truss">
 				<td>Модель ферм:</td>
 				<td>
 					<select id="trussModel">
@@ -42,7 +43,7 @@
 				</td>
 			</tr>
 			
-			<tr>
+			<tr class="truss">
 				<td>Отверстия в фермах:</td>
 				<td>
 					<select id="trussHolesType">
@@ -72,6 +73,13 @@
 				<td><input type="number" id="arcCount" value="3"></td>
 			</tr>
 			
+			<tr class="dome">
+				<td>Диаметр купола:</td>
+				<td>
+					<input type="number" name="domeDiam" id="domeDiam" value="4000">
+				</td>
+			</tr>
+			
 			<tr>
 				<td>Прогоны:</td>
 				<td>
@@ -85,11 +93,11 @@
 			</tr>
 			
 			<tr>
-				<td>Высота колонн:</td>
+				<td>Высота:</td>
 				<td><input type="number" id="height"value="2000"></td>
 			</tr>
 			
-			<tr>
+			<tr class="truss">
 				<td>Колонны:</td>
 				<td>
 					<select id="columnProfile">
@@ -101,6 +109,21 @@
 				</td>
 			</tr>
 			
+			<tr class="dome">
+				<td>Поворотный сектор, град.:</td>
+				<td><input type="number" id="doorArc"value="90"></td>
+			</tr>
+			
+			
+			<tr class="dome">
+				<td>Цилиндрическое основание:</td>
+				<td>
+					<select id="cylinderBase">						
+						<option value="нет">нет</option>
+						<option value="есть">есть</option>
+					</select>
+				</td>
+			</tr>
 			
 			
 			<tr>
@@ -145,22 +168,45 @@
 				</td>
 			</tr>
 			
-			<tr>
+			<tr class="roofPar">
 				<td>Толщина:</td>
 				<td>
 					<select id="roofThk">
-						<option value="8">8</option>
-						<option value="10">10</option>
+						<option value="0.5" class="profSheetPar">0.5 мм</option>
+						<option value="0.7" class="profSheetPar">0.7 мм</option>
+						<option value="4" class="polyPar">4 мм</option>
+						<option value="6" class="polyPar">6 мм</option>
+						<option value="8" class="polyPar">8 мм</option>
+						<option value="10" class="polyPar">10 мм</option>
 					</select>
 				</td>
 			</tr>
 			
-			<tr>
+			<tr class="roofPar">
 				<td>Цвет:</td>
 				<td>
 					<select id="roofColor">
 						<option value="прозрачный">прозрачный</option>
 						<option value="бронза">бронза</option>
+						<option value="опал">опал</option>
+						<option value="зеленый">зеленый</option>
+						<option value="синий">синий</option>
+						<option value="голубой">голубой</option>
+						<option value="бирюзовый">бирюзовый</option>
+						<option value="желтый">желтый</option>
+						<option value="оранжевый">оранжевый</option>
+						<option value="красный">красный</option>
+						<option value="гранат">гранат</option>
+					</select>
+				</td>
+			</tr>
+			
+			<tr class="roofPar">
+				<td>Соединительные профили:</td>
+				<td>
+					<select id="roofProfType">
+						<option value="пластик">пластик</option>
+						<option value="алюминий">алюминий</option>
 					</select>
 				</td>
 			</tr>

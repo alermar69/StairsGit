@@ -34,9 +34,10 @@ drawCarport = function (par) {
 	/*удаляем контуры*/
 	dxfPrimitivesArr = [];
 	
+	var drawFunc = drawTrussCarport;
+	if(params.carportType == "купол") drawFunc = drawDome;
 	
-	
-	var carport = drawTrussCarport(params);
+	var carport = drawFunc(params);
 	model.add(carport, "carport");
 
 	for(var i=0; i<model.objects.length; i++){		
@@ -604,4 +605,331 @@ function drawTrussCarport(par){
 	return carport;
 }
 
+/** функция отрисовывает купольный навес со сдвижной дверью
+*/
 
+function drawDome(par){
+	
+	//неподвижная часть
+	var dome = new THREE.Object3D();
+	
+	par.fullAngle = Math.PI * 2 - params.doorArc / 180 * Math.PI;
+	par.extraRad = 0;
+	par.isMovable = false;
+	dome.add(drawDomeSegment(par))
+	
+	//подвижная часть (дверь)
+	var overlayAng = 5; //угол нахлеста двери на неподвижну часть с каждой стороны
+	par.fullAngle = (params.doorArc + overlayAng * 2) / 180 * Math.PI;
+	par.extraRad = 70;
+	par.isMovable = true;
+	var door = window.domeDoor = drawDomeSegment(par)
+	door.rotation.y = -par.fullAngle + (overlayAng / 180 * Math.PI)
+	dome.add(door)
+	
+	return dome;
+}
+
+/** функция отрисовывает сегмент шарового купола
+	fullAngle  - полный угол сектора
+	extraRad - увеличение радиуса и высоты по сравнению со значением из параметров
+*/
+
+function drawDomeSegment(par){
+
+	var dome = new THREE.Object3D();
+	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0,y:0}
+	if(!par.extraRad) par.extraRad = 0;
+	
+	//радиус и полная высота купола
+	var rad = params.domeDiam / 2 + par.extraRad;
+	var height = params.height + par.extraRad;
+	
+	//разница по высоте в сравнении с половиной сферы
+	var extraHeight = height - rad;
+	var extraAngle = Math.atan(extraHeight / (rad));
+	
+	if(params.cylinderBase == "есть") extraAngle = 0;
+	
+	//кольцо в основании
+	var baseRing = {
+		rad: rad * Math.cos(extraAngle),
+	}
+	baseRing.len = par.fullAngle * baseRing.rad
+	
+	var arcPanelPar = {
+		rad: baseRing.rad,
+		height: 30,
+		thk: 60,
+		angle: par.fullAngle,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+		material: params.materials.metal,
+		partName: 'progonProfile',
+		dxfPrimitivesArr: []
+	}
+
+	var ring = drawArcPanel(arcPanelPar).mesh;
+	
+	ring.rotation.x = -Math.PI / 2;
+	dome.add(ring)
+	
+	//второе кольцо на переходе сферы в цилиндр
+	if(params.cylinderBase == "есть"){
+		var ring = drawArcPanel(arcPanelPar).mesh;	
+		ring.rotation.x = -Math.PI / 2;
+		ring.position.y = extraHeight;
+		dome.add(ring)
+	}
+	
+	//верхний фланец
+	var flanPar = {
+		diam: 400,		
+	}
+	if(par.isMovable) flanPar.bearingHeight = par.extraRad; //высота подшипника)
+	
+	var flan = drawDomeTopFlan(flanPar).mesh;
+	flan.rotation.x = -Math.PI / 2;
+	flan.position.y = height;
+	dome.add(flan)
+	
+	//дуги
+	var arcStepMax = 1000; //макс. шаг дуг
+	var arcAmt = Math.ceil(baseRing.len / arcStepMax);
+	var arcStepAng = par.fullAngle / arcAmt;
+
+	
+	arcPar = getProfParams(par.progonProfile);
+	
+	//параметры дуги из профиля
+	var arcPanelPar = {
+		rad: rad,
+		height: arcPar.sizeA,
+		thk: arcPar.sizeB,
+		angle: Math.PI / 2 + extraAngle,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+		material: params.materials.metal,
+		partName: 'progonProfile',
+		dxfPrimitivesArr: []
+	}
+	
+	//укорачиваем дуги на половину диаметра верхнего диска
+	arcPanelPar.angle -= flanPar.diam / 4 / rad;
+	
+	//параметры сектора из поликарбоната
+	var sectorPolyPar = {
+		rad: rad,
+		height: arcPar.sizeA,
+		thk: params.roofThk,
+		angleWidth: arcStepAng,
+		extraAngle: extraAngle,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+		material: params.materials.glass,
+		dxfArr: [],
+	}
+	
+	//параметры цилиндрических листов из поликарбоната
+	
+	var arcSheetPar = {
+		rad: baseRing.rad,
+		height: extraHeight,
+		thk: params.roofThk,
+		angle: arcStepAng,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+		material: params.materials.glass,
+		partName: 'polySheet',
+		dxfPrimitivesArr: []
+	}
+
+	for(var i=0; i<= arcAmt; i++){
+		var pos = polar({x:0, y:0}, arcStepAng * i, -arcPanelPar.height / 2); //смещение на половину профиля
+		
+		var arcProf = drawArcPanel(arcPanelPar).mesh;
+		arcProf.rotation.z = -extraAngle;
+		arcProf.rotation.y = arcStepAng * i;
+		arcProf.position.x = pos.y;
+		arcProf.position.y = extraHeight;
+		arcProf.position.z = pos.x;
+		dome.add(arcProf)
+		
+		//цилиндрическая часть
+		if(params.cylinderBase == "есть"){
+			
+			//вертикальные стойки
+			var polePar = {
+				poleProfileY: arcPar.sizeA,
+				poleProfileZ: arcPar.sizeB,
+				dxfBasePoint: par.dxfBasePoint,
+				length: extraHeight,
+				poleAngle: 0,
+				material: params.materials.metal,
+				dxfArr: [],
+				type: 'rect',
+				partName: 'carportRack'
+			};
+			
+			var pos = polar({x:0, y:0}, -arcStepAng * i, baseRing.rad)
+			
+			var rack = drawPole3D_4(polePar).mesh;
+			rack.rotation.y = arcStepAng * i + Math.PI / 2;
+			rack.rotation.z = Math.PI / 2;
+			rack.position.x = pos.x;
+			rack.position.y = 0;
+			rack.position.z = pos.y;
+
+			dome.add(rack)
+			
+			//поликарбонат цилиндры
+			if(i != arcAmt){
+				var sheet = drawArcPanel(arcSheetPar).mesh;
+				sheet.rotation.z = -arcStepAng * (i + 1);
+				sheet.rotation.x = Math.PI / 2;
+				//sheet.position.x = pos.y;
+				sheet.position.y = extraHeight;
+				//sheet.position.z = pos.x;
+				dome.add(sheet)
+			}
+			
+		}
+	
+		//поликарбонат сегменты
+		if(i != arcAmt){
+			var coverSector = drawSphereSector(sectorPolyPar).mesh;
+			coverSector.rotation.y = arcStepAng * i + Math.PI;
+			coverSector.position.y = extraHeight
+			dome.add(coverSector)
+		}
+		
+	}
+	
+
+	
+	dome.setLayer('carcas');
+	
+	return dome;
+}
+
+/** функция отрисовывает сектор сферы из поликарбоната
+*/
+
+function drawSphereSector(par){
+	
+	const radius = par.rad;  // ui: radius
+	const widthSegments = 1;  // ui: widthSegments
+	const heightSegments = 20;  // ui: heightSegments
+	const phiStart = 0;  // ui: phiStart
+	const phiLength = par.angleWidth;  // ui: phiLength
+	const thetaStart = 0;  // ui: thetaStart
+	const thetaLength = Math.PI / 2 + par.extraAngle;  // ui: thetaLength
+
+	var geom = new THREE.SphereBufferGeometry(
+		radius,
+		widthSegments, heightSegments,
+		phiStart, phiLength,
+		thetaStart, thetaLength
+		);
+
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	par.mesh = new THREE.Mesh(geom, par.material);
+	par.mesh.setLayer('roof');
+	
+	var partName = "polySheet";
+	var len = Math.round(par.rad * thetaLength);
+	var width = Math.round(par.rad * par.angleWidth);
+	var area = len * width / 1000000;
+	
+	if (typeof specObj != 'undefined') {
+		name = len + "х" + width;
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				area: 0,
+				name: "Поликарбонат " + par.thk + " " + params.roofColor,
+				metalPaint: false,
+				timberPaint: false,
+				division: "metal",
+				workUnitName: "amt",
+				group: "carcas",
+			}
+		}
+		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		specObj[partName]["area"] += area;
+		par.mesh.specParams = {specObj: specObj, amt: 1, area: area, partName: partName, name: name}
+	}
+	par.mesh.specId = partName + name;
+	
+	return par;
+}
+
+/** функция отрисовывает верхний фланец купола
+*/
+
+function drawDomeTopFlan(par){
+	console.log(par)
+	if(!par.dxfArr) par.dxfArr = [];
+	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
+	
+	par.thk = 8;
+	var centerPoint = {x:0, y:0}
+	par.shape = new THREE.Shape();
+	par.mesh = new THREE.Object3D();
+
+	addCircle(par.shape, par.dxfArr, centerPoint, par.diam / 2, par.dxfBasePoint)
+		
+	
+	var extrudeOptions = {
+		amount: par.thk, 
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+	
+	var geom = new THREE.ExtrudeGeometry(par.shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var flan = new THREE.Mesh(geom, params.materials.metal);
+	par.mesh.add(flan);
+	flan.setLayer('carcas');
+	
+	if(par.bearingHeight){
+		var rad = 70
+		var geom = new THREE.CylinderBufferGeometry(rad, rad, par.bearingHeight - par.thk, 20);
+	
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var bearing = new THREE.Mesh(geom, params.materials.metal);
+		bearing.rotation.x = Math.PI / 2;
+		bearing.position.z = -par.bearingHeight / 2 + par.thk
+		
+		par.mesh.add(bearing);
+		bearing.setLayer('carcas');
+	}
+	
+	var partName = "trussFlan";
+	var area = par.diam * par.diam / 1000000;
+	
+	if (typeof specObj != 'undefined') {
+		name = par.diam + "х" + par.thk;
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				area: 0,
+				name: "Фланец верхний",
+				metalPaint: false,
+				timberPaint: false,
+				division: "metal",
+				workUnitName: "amt",
+				group: "carcas",
+			}
+		}
+		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		specObj[partName]["area"] += area;
+		par.mesh.specParams = {specObj: specObj, amt: 1, area: area, partName: partName, name: name}
+	}
+	par.mesh.specId = partName + name;
+	
+	return par;
+}
