@@ -2875,9 +2875,15 @@ treadsTotalPrice += (getPartAmt('skirting_hor') + getPartAmt('skirting_hor')) * 
 
 //подсветка ступеней
 var treadLigtsCost = 0;
-if(params.treadLigts == "есть") treadLigtsCost = 25000;
+if(params.treadLigts == "подготовка") treadLigtsCost = 5000;
+if(params.treadLigts == "простая") treadLigtsCost = 8000;
+if(params.treadLigts == "независимая") treadLigtsCost = 25000;
 
- treadsTotalPrice += treadLigtsCost;
+treadsTotalPrice += treadLigtsCost;
+
+//фрезеровка пазов под подложки на монокосоурах
+if(params.treadPlatePockets == "есть") treadsTotalPrice += 10000;
+
 
 
 //возвращаемый объект

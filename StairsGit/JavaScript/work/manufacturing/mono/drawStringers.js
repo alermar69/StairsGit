@@ -430,8 +430,10 @@ function drawComplexStringer(par) {
 				platePar.hasTrapHole = false;
 				platePar.isFirst = false;
 				platePar.isBotPlatform = false;
+				platePar.isPltBot = false;
 				platePar.isPltBotP = false;
 				platePar.isPlt = false;
+				var plate = false;
 
 				var isPlate = true;
 				var basePointShiftX = 0;
@@ -449,22 +451,28 @@ function drawComplexStringer(par) {
 
 				if (par.topEnd == "площадка" && i >= par.stepPoints.length - 2 && par.stairAmt > 1) {
 					if (params.model == "сварной") {
-						platePar.isPlt = true;
-						platePar.frontOff = 30;
-						if (params.stairModel == "П-образная с площадкой" || par.topConnection) {
-							if (par.topConnection) {
-								if (par.stringerLedge1) platePar.step -= par.stringerLedge1;
-								else platePar.step -= par.stringerLedge;
-                            }
-                            var stepPlate = par.stepPoints[i - 1].x - par.stepPoints[i - 2].x
-                            platePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -(stepPlate + 150) * i - 1000);
-                            if (params.stairModel == "П-образная с площадкой") platePar.isPltP = true;
+						if (!(params.stairModel !== "П-образная с площадкой" && params.stairType == 'лотки')) {
+							platePar.isPlt = true;
+							platePar.frontOff = 30;
+							if (params.stairModel == "П-образная с площадкой" || par.topConnection) {
+								if (par.topConnection) {
+									if (par.stringerLedge1) platePar.step -= par.stringerLedge1;
+									else platePar.step -= par.stringerLedge;
+								}
+								var stepPlate = par.stepPoints[i - 1].x - par.stepPoints[i - 2].x
+								platePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -(stepPlate + 150) * i - 1000);
+								if (params.stairModel == "П-образная с площадкой") platePar.isPltP = true;
 
-						    var plate = drawHorPlates(platePar).mesh;
-							isPlate = false;
+								var plate = drawHorPlates(platePar).mesh;
+								isPlate = false;
+							}
+							else {
+								platePar.step -= ((params.M / 2) / 2 - params.stringerThickness / 2);
+								if (!par.topConnection) platePar.isPlt = true;
+							}
 						}
 						else {
-							platePar.step -= ((params.M / 2) / 2 - params.stringerThickness / 2);
+							isPlate = false;
 						}
 					}
 					if (params.model == "труба") {
@@ -571,7 +579,7 @@ function drawComplexStringer(par) {
 				//подложка промежуточной площадки(верхнего марша)
 				if (par.botEnd == "площадка" && i == 1) {
 					if (params.model == "сварной") {
-						if (!(params.stairType == 'лотки' && params.stairModel !== "П-образная с площадкой")) {
+						if (!(params.stairModel !== "П-образная с площадкой" && params.stairType == 'лотки' && !par.botConnection)) {
 							if (params.stairModel == "П-образная с площадкой" || par.botConnection) {
 								platePar.frontOff = 1;
 								basePointShiftX = -(platePar.frontOff + params.flanThickness + 2);
@@ -581,10 +589,13 @@ function drawComplexStringer(par) {
 								if (params.stairModel == "П-образная с площадкой") {
 									platePar.isPltBotP = true;
 									if (params.stairType == 'лотки') basePointShiftX = 0;
-									var plate = drawHorPlatesPlatformBot(platePar).mesh;								
+									//var plate = drawHorPlatesPlatformBot(platePar).mesh;								
 								}
-								else
-									var plate = drawHorPlates(platePar).mesh;
+								else {
+									platePar.isPltBot = true;
+									//var plate = drawHorPlates(platePar).mesh;
+								}
+								var plate = drawHorPlatesPlatformBot(platePar).mesh;
 								isPlate = false;
 							}
 							else {
@@ -592,6 +603,9 @@ function drawComplexStringer(par) {
 								platePar.step += basePointShiftX;
 								platePar.isBotPlatform = true;
 							}
+						}
+						else {
+							isPlate = false;
 						}
 					}
 					if (params.model == "труба" || params.stairType == 'лотки') {
@@ -627,7 +641,7 @@ function drawComplexStringer(par) {
 
 				if (plate) {
 					plate.position.x += sidePlate2.position.x + par.stepPoints[i].x - basePointShiftX;
-					if (platePar.isPltBotP) plate.position.x = sidePlate2.position.x;
+					if (platePar.isPltBotP || platePar.isPltBot) plate.position.x = sidePlate2.position.x;
 					plate.position.y += sidePlate2.position.y + par.stepPoints[i].y + 0.005;
 					par.treadPlates.add(plate);
 				}
@@ -780,7 +794,8 @@ function drawComplexStringer(par) {
 						var isPlate = true;
 						var isDrawPlate = true;
 						platePar.isBotPlatform = false;
-						var isPltBotP = false;
+						platePar.isPltBotP = false;
+						platePar.isPltBot = false;
 
 
 						if (par.topEnd == "забег" && i >= par.stepPoints.length - 4) {
@@ -885,13 +900,15 @@ function drawComplexStringer(par) {
 								platePar.basePointShiftX = -(platePar.frontOff + params.flanThickness + 2);
 								if (params.stairModel !== "П-образная с площадкой" && par.botConnection)
 									platePar.basePointShiftX += - par.stringerLedge;
-								if (params.stairModel == "П-образная с площадкой")
-								{
-									var plate = drawHorPlatesPlatformBot(platePar).mesh;
-									var isPltBotP = true;
+								if (params.stairModel == "П-образная с площадкой") {
+									//var plate = drawHorPlatesPlatformBot(platePar).mesh;
+									platePar.isPltBotP = true;
 								}
-								else
-									var plate = drawHorPlates(platePar).mesh;
+								else {
+									platePar.isPltBot = true;
+									//var plate = drawHorPlates(platePar).mesh;
+								}
+								var plate = drawHorPlatesPlatformBot(platePar).mesh;
 								isPlate = false;
 							}
 							else {
@@ -920,7 +937,7 @@ function drawComplexStringer(par) {
 
 						if (isDrawPlate) {
 							plate.position.x = sidePlate2.position.x + par.stepPoints[i].x;
-							if (isPltBotP) plate.position.x = sidePlate2.position.x;
+							if (platePar.isPltBotP || platePar.isPltBot) plate.position.x = sidePlate2.position.x;
 							plate.position.y = sidePlate2.position.y + par.stepPoints[i].y - params.metalThickness - offsetY;
 							par.mesh2.add(plate);
 						}

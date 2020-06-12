@@ -1123,10 +1123,10 @@ function drawHorPlate(par) {
 	var plate = new THREE.Mesh(geom, params.materials.metal);
 	plate.rotation.x = -Math.PI / 2;
 	plate.rotation.z = -Math.PI / 2;
-
+	if (par.type == "treadPlate" && params.stairType == 'лотки') plate.setLayer('treads');
 	par.mesh.add(plate);
 
-	if (par.type == "treadPlate" && params.stairType == 'лотки') {
+	if (par.type == "treadPlate" && params.stairType == 'лотки' && !par.isPlt) {
 		var framePar = {
 			marshId: par.marshId,
 			length: params.M,
@@ -1135,9 +1135,9 @@ function drawHorPlate(par) {
 			thk: par.thk,
 			dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.M + 100, 0),
 		}
-		if (par.isPlt) framePar.partName = 'platformPlate';
 		var frame = drawTreadFrameLotok(framePar);
 		frame.position.x = par.frontOffset;
+		frame.setLayer('treads');
 		par.mesh.add(frame);
 	}
 
@@ -1181,7 +1181,7 @@ function drawHorPlate(par) {
 	}
 
 
-	if (par.type == "treadPlate" && params.model == "сварной" && params.stairType !== 'лотки' && !par.isBotPlatform) {
+	if (par.type == "treadPlate" && params.treadPlatePockets !== "нет" && !par.isBotPlatform && !par.isPlt) {
 		var treadPar = {
 			marshId: par.marshId,
 			length: params.M,
@@ -1194,7 +1194,8 @@ function drawHorPlate(par) {
 		}
 		var tread = drawTreadNotchMono(treadPar);
 		//tread.position.x = -params.nose;// par.frontOffset;
-		tread.position.y = params.treadPlateThickness;
+		tread.position.y = params.treadPlateThickness - treadPar.thk;
+		tread.setLayer('treads');
 		par.mesh.add(tread);
 	}
 	return par;
@@ -1249,6 +1250,10 @@ function drawHorPlates(par) {
 		if (par.isPltPBot) par.height = par.step;
 		par.length = par.height;
 		gapPlates = 5 + par.thk * 2;
+
+		//if (par.isPltP) {
+		//	if (params.carcasConfig == "003" || params.carcasConfig == "004") par.height -= 58;
+		//}
 
 		if (par.type == "carcasPlate") {
 			par.cornerRad = 0;
@@ -1468,7 +1473,7 @@ function drawHorPlates(par) {
 						}
 				}
 			}
-
+			if (par.type == "treadPlate" && params.stairType == 'лотки') plate.setLayer('treads');
 			par.mesh.add(plate);
 
 			//рамка лотка
@@ -1489,6 +1494,7 @@ function drawHorPlates(par) {
 				var frame = drawTreadFrameLotok(framePar);
 				frame.position.x = par.frontOffset;
 				if (par.isPltP) frame.position.z += params.marshDist / 2 / 2 * turnFactor;
+				frame.setLayer('treads');
 				par.mesh.add(frame);
 			}
 		}
@@ -1538,7 +1544,7 @@ function drawHorPlates(par) {
 		}
 
 
-		if (par.type == "treadPlate" && params.model == "сварной" && params.stairType !== 'лотки') {
+		if (par.type == "treadPlate" && params.treadPlatePockets !== "нет") {
 
 			if (j == 0) {
 				var length = params.M;
@@ -1657,7 +1663,8 @@ function drawHorPlates(par) {
 				plate.rotation.z = -Math.PI / 2;
 				tread.add(plate);
 
-				tread.position.y = params.treadPlateThickness;
+				tread.position.y = params.treadPlateThickness - extrudeOptions.amount;
+				tread.setLayer('treads');
 				par.mesh.add(tread);
 			}
 
@@ -1674,7 +1681,15 @@ function drawHorPlates(par) {
 
 function drawHorPlatesPlatformBot(par) {
 
-	var turnParams = calcTurnParams(1)
+	var marshPar = getMarshParams(par.marshId);
+
+	var turnParams = calcTurnParams(1);
+	if (par.isPltBot) turnParams = calcTurnParams(marshPar.prevMarshId);
+
+	var dlen = 0;
+	if (par.isPltBotP) dlen = params.marshDist / 2;
+	if (par.isPltBot) dlen = turnParams.topMarshOffsetX;
+
 
 	var gap = 1; //зазор от торца пластины до вертикальных пластин косоура
 	var gapPlates = 20; //зазор между пластинами
@@ -1683,10 +1698,12 @@ function drawHorPlatesPlatformBot(par) {
 
 	var lenTread = turnParams.turnLengthTop;
 	var lenStringer1 = turnParams.turnLengthTop / 2 - params.stringerThickness / 2;
+	if (par.isPltBot) {
+		lenTread = params.M;
+		lenStringer1 = params.M - params.flanThickness;
+	}
 
-	var lenStringer2 = lenStringer1;
-	if (params.carcasConfig == "001" || params.carcasConfig == "003") lenStringer2 -= 58;
-	else lenStringer2 -= params.flanThickness;
+	
 
 
 	var length = lenStringer1;
@@ -1726,14 +1743,6 @@ function drawHorPlatesPlatformBot(par) {
 		length = lenParts1 - gapPlates;
 
 
-	//разбиваем на несколько подложек
-	var count2 = 1;
-	count2 = Math.floor(lenStringer2 / 300);
-	if (count2 == 0) count2 = 1;
-	lenParts2 = lenStringer2 / count2;
-
-	var base2 = { x: lenTread / 2 + params.stringerThickness / 2, y: 0 }
-
 	par.mesh = new THREE.Object3D();
 
 	var mesh1 = new THREE.Object3D();
@@ -1767,12 +1776,12 @@ function drawHorPlatesPlatformBot(par) {
 				var p4 = newPoint_xy(p1, par.width, 0);
 				if (par.type == "treadPlate" && params.stairType == 'лотки') {
 					if (turnFactor == -1) {
-						p3.x += params.marshDist / 2;
-						p4.x += params.marshDist / 2;
+						p3.x += dlen;
+						p4.x += dlen;
 					}
 					if (turnFactor == 1) {
-						p1.x -= params.marshDist / 2;
-						p2.x -= params.marshDist / 2;
+						p1.x -= dlen;
+						p2.x -= dlen;
 					}
 				}
 
@@ -1977,7 +1986,18 @@ function drawHorPlatesPlatformBot(par) {
 	}
 
 	//для дополнительного куска косоура 
-	{
+	if(par.isPltBotP){
+		var lenStringer2 = lenStringer1;
+		if (params.carcasConfig == "001" || params.carcasConfig == "003") lenStringer2 -= 58;
+		else lenStringer2 -= params.flanThickness;
+
+		//разбиваем на несколько подложек
+		var count2 = 1;
+		count2 = Math.floor(lenStringer2 / 300);
+		if (count2 == 0) count2 = 1;
+		lenParts2 = lenStringer2 / count2;
+
+		var base2 = { x: lenTread / 2 + params.stringerThickness / 2, y: 0 }
 
 		var length = lenStringer2;
 		if (par.type == "treadPlate" && params.stairType !== 'лотки')
@@ -2217,10 +2237,11 @@ function drawHorPlatesPlatformBot(par) {
 	} //конец цикла перебора деталей
 
 	//пластина лотка или часть ступени с отверстиями под подложки
-	if (par.type == "treadPlate" && params.model == "сварной") {
+	if (par.type == "treadPlate" && (params.treadPlatePockets !== "нет" || params.stairType == 'лотки')) {
 		var length = params.M;
 		if (params.stairType == 'лотки') length -= par.thk * 2;
 		var width = turnParams.turnLengthTop;
+		if (par.isPltBot) width = params.M;
 
 		//создаем контур пластины для создания Object3D
 		var p0 = { x: 0, y: 0 };
@@ -2232,13 +2253,18 @@ function drawHorPlatesPlatformBot(par) {
 		}
 		var p3 = newPoint_xy(p2, length, 0);
 		var p4 = newPoint_xy(p1, length, 0);
+
 		if (turnFactor == -1) {
-			p3.x += params.marshDist / 2;
-			p4.x += params.marshDist / 2;
+			p3.x += dlen;
+			p4.x += dlen;
+			var pt1 = copyPoint(p3);
+			var pt2 = copyPoint(p4);
 		}
 		if (turnFactor == 1) {
-			p1.x -= params.marshDist / 2;
-			p2.x -= params.marshDist / 2;
+			p1.x -= dlen;
+			p2.x -= dlen;
+			var pt1 = copyPoint(p1);
+			var pt2 = copyPoint(p2);
 		}
 
 		var arr = [p1, p2, p3, p4];
@@ -2264,11 +2290,64 @@ function drawHorPlatesPlatformBot(par) {
 				holeParams.vertexes = pointsHoleTreadPlate[i];
 				shapeTread.holes.push(topCoverCentralHole(holeParams));
 			}
+
+			if (par.isPltBot) {
+				holesPar.lengthRectHole = turnParams.topMarshOffsetX + params.M / 2 - params.M / 2 / 2 - 5 - holeOffset * 2 - params.nose - params.metalThickness;
+				holesPar.basePoint = newPoint_xy(p0, -params.M / 2 / 2 - 5 - holesPar.lengthRectHole / 2 - holeOffset, params.M / 2);
+
+				var frontOff = 20;
+				if (params.treadLigts !== 'нет') frontOff = 30;
+				var len = turnParams.topMarshOffsetX + params.M / 2 - params.M / 2 / 2 - 1 - frontOff;
+
+				var p0 = { x: 0, y: 0 };
+				var p1 = newPoint_xy(p0, 0, par.width / 2);
+				var p2 = newPoint_xy(p1, -len, 0);
+				var p3 = newPoint_xy(p2, 0, -par.width);
+				var p4 = newPoint_xy(p1, 0, -par.width);
+				var pointsHole = [p1, p4, p3, p2]
+
+
+				basePoint = newPoint_xy(p0, -params.M / 2 / 2 - 1, params.M / 2);
+				if (turnFactor == -1) {
+					basePoint.x *= -1;
+					basePoint.x += len;
+				}
+				pointsHole = moovePoints(pointsHole, basePoint);
+
+				var holeParams = {
+					vertexes: pointsHole,
+					cornerRad: par.cornerRad,
+					dxfPrimitivesArr: par.dxfArr,
+					dxfBasePoint: par.dxfBasePoint
+				}
+				//if (turnFactor == 1) holeParams.clockwise = false;
+				shapeTread.holes.push(topCoverCentralHole(holeParams));
+
+				if (params.treadLigts !== 'нет') {
+					var holeParams = {
+						p1: pt1,
+						p2: pt2,
+						dxfPrimitivesArr: par.dxfArr,
+						dxfBasePoint: par.dxfBasePoint,
+						shape: shapeTread,
+						width: -12,
+						offsetFront: -10,
+						offsetSide: -20,
+						ang: 0,
+					}
+					if (turnFactor == -1) {
+						holeParams.offsetSide *= -1;
+						holeParams.offsetFront *= -1;
+						holeParams.width *= -1;
+					}
+					drawHoleTreadLigts(holeParams);
+				}
+			}
 		}
 
 		if (params.stairType == 'лотки') {
 			//отверстия для болтов и прямогуольный вырез в центре детали
-			var holeOfsset = 40;
+			var holeOffset = 40;
 			var holesPar = {
 				holeRad: 6.5,
 				dxfArr: par.dxfArr,
@@ -2284,6 +2363,19 @@ function drawHorPlatesPlatformBot(par) {
 
 				for (var j = 0; j < holesPar.holes.length; j++) {
 					shapeTread.holes.push(holesPar.holes[j]);
+				}
+			}
+
+			if (par.isPltBot) {
+				holesPar.lengthRectHole = turnParams.topMarshOffsetX + params.M / 2 - params.M / 2 / 2 - 5 - holeOffset * 2 - params.nose - params.metalThickness;
+				holesPar.basePoint = newPoint_xy(p0, -params.M / 2 / 2 - 5 - holesPar.lengthRectHole / 2 - holeOffset, params.M / 2);
+				if (turnFactor == -1) holesPar.basePoint.x *= -1;
+				holesPar.isRotate = true;
+
+				drawTreadPlateHoles1(holesPar);
+
+				for (var i = 0; i < holesPar.holes.length; i++) {
+					shapeTread.holes.push(holesPar.holes[i]);
 				}
 			}
 		}
@@ -2306,7 +2398,8 @@ function drawHorPlatesPlatformBot(par) {
 		plate.rotation.z = -Math.PI / 2;
 		tread.add(plate);
 
-		if (params.stairType !== 'лотки') tread.position.y = params.treadPlateThickness;
+		if (params.stairType !== 'лотки') tread.position.y = params.treadPlateThickness - extrudeOptions.amount;
+		tread.setLayer('treads');
 		mesh1.add(tread);
 
 		//болты
@@ -2332,10 +2425,12 @@ function drawHorPlatesPlatformBot(par) {
 				dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.M + 100, 0),
 				isPlt: true,
 			}
+			if (par.isPltBot) framePar.length = params.M + turnParams.topMarshOffsetX;
 
 			var frame = drawTreadFrameLotok(framePar);
-			frame.position.z -= params.marshDist / 2 / 2 * turnFactor;
+			frame.position.z -= dlen / 2 * turnFactor;
 			frame.position.x = par.thk;
+			frame.setLayer('treads');
 			mesh1.add(frame);
 		}
 	}
@@ -2890,6 +2985,7 @@ function drawTurnPlate1(par) {
 	drawPlateBolts(boltPar);
 	par.mesh.add(boltPar.mesh);
 
+	if (params.stairType == 'лотки') plate.setLayer('treads');
 	par.mesh.add(plate);
 
 	if (params.stairType == 'лотки') {
@@ -2909,6 +3005,7 @@ function drawTurnPlate1(par) {
 			frame.rotation.x = Math.PI;
 			frame.position.y = framePar.heigth;
 		}
+		frame.setLayer('treads');
 		par.mesh.add(frame);
 	}
 
@@ -2935,7 +3032,7 @@ function drawTurnPlate1(par) {
 	}
 	par.mesh.specId = partName + name;
 
-	if (params.model == "сварной" && params.stairType !== 'лотки') {
+	if (params.treadPlatePockets !== "нет") {
 		var tread = new THREE.Object3D();
 
 		if (treadsObj.wndPar) var treadsPar = treadsObj.wndPar.params[1];
@@ -2999,7 +3096,8 @@ function drawTurnPlate1(par) {
 		plate.rotation.z = -Math.PI / 2;
 		tread.add(plate);
 
-		tread.position.y = params.treadPlateThickness;
+		tread.position.y = params.treadPlateThickness - thk;
+		tread.setLayer('treads');
 		par.mesh.add(tread);
 
 
@@ -3157,6 +3255,7 @@ function drawTurnPlate3(par){
 	drawPlateBolts(boltPar);
 	par.mesh.add(boltPar.mesh);
 
+	if (params.stairType == 'лотки') plate.setLayer('treads');
 	par.mesh.add(plate);
 
 	if (params.stairType == 'лотки') {
@@ -3179,6 +3278,7 @@ function drawTurnPlate3(par){
 		}
 
 		frame.rotation.z += Math.PI;
+		frame.setLayer('treads');
 		par.mesh.add(frame);
 	}
 
@@ -3207,7 +3307,7 @@ function drawTurnPlate3(par){
 	}
 	par.mesh.specId = partName + name;
 
-	if (params.model == "сварной" && params.stairType !== 'лотки') {
+	if (params.treadPlatePockets !== "нет") {
 		var tread = new THREE.Object3D();
 
 		if (treadsObj.wndPar) var treadsPar = treadsObj.wndPar.params[3];
@@ -3271,7 +3371,8 @@ function drawTurnPlate3(par){
 		plate.rotation.z = -Math.PI / 2;
 		tread.add(plate);
 
-		tread.position.y = params.treadPlateThickness;
+		tread.position.y = params.treadPlateThickness - thk;
+		tread.setLayer('treads');
 		par.mesh.add(tread);
 	}
 
@@ -3495,6 +3596,7 @@ function drawTurnPlate2(par) {
 	plate.rotation.x = -Math.PI / 2;
 	plate.rotation.z = -Math.PI / 2;
 
+	if (params.stairType == 'лотки') plate.setLayer('treads');
 	par.mesh.add(plate);
 
 	if (params.stairType == 'лотки') {
@@ -3516,6 +3618,7 @@ function drawTurnPlate2(par) {
 			frame.rotation.x = Math.PI;
 			frame.position.y = 0;
 		}
+		frame.setLayer('treads');
 		par.mesh.add(frame);
 	}
 
@@ -3543,7 +3646,7 @@ function drawTurnPlate2(par) {
 	}
 	par.mesh.specId = partName + name;
 
-	if (params.model == "сварной" && params.stairType !== 'лотки') {
+	if (params.treadPlatePockets !== "нет") {
 		var tread = new THREE.Object3D();
 
 		if (treadsObj.wndPar) var treadsPar = treadsObj.wndPar.params[2];
@@ -3617,7 +3720,8 @@ function drawTurnPlate2(par) {
 		plate.rotation.z = -Math.PI / 2;
 		tread.add(plate);
 
-		tread.position.y = params.treadPlateThickness;
+		tread.position.y = params.treadPlateThickness - thk;
+		tread.setLayer('treads');
 		par.mesh.add(tread);
 	}
 
@@ -8361,11 +8465,15 @@ function drawTreadNotchMono(par) {
 }
 
 function drawHoleTreadLigts(par) {
+	var ang = Math.PI / 2;
+	if (par.ang) ang = par.ang;
+	if (par.ang === 0) ang = 0;
+
 	var hole = new THREE.Path();
 	var lineF = parallel(par.p1, par.p2, par.offsetFront);
 	var lineR = parallel(par.p1, par.p2, par.offsetFront + par.width);
-	var lineO = parallel(par.p1, polar(par.p1, Math.PI / 2, 100), -par.offsetSide);
-	var lineI = parallel(par.p2, polar(par.p2, Math.PI / 2, 100), par.offsetSide);
+	var lineO = parallel(par.p1, polar(par.p1, ang, 100), -par.offsetSide);
+	var lineI = parallel(par.p2, polar(par.p2, ang, 100), par.offsetSide);
 	var p1 = itercectionLines(lineF, lineO);
 	var p2 = itercectionLines(lineO, lineR);
 	var p3 = itercectionLines(lineI, lineR);

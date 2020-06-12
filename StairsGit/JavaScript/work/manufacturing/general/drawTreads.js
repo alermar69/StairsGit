@@ -495,10 +495,10 @@ function drawMarshTreads2(par) {
 		//коррекция толщины
 		if (params.stairType == "лотки" || params.stairType == "рифленая сталь") plateParams.thk = 4;
 		if (params.stairType == "лотки") plateParams.width -= plateParams.thk * 2 + 0.1;
-		if (params.calcType == "mono" && params.model == "сварной") {
-			plateParams.thkFull = plateParams.thk;
-			plateParams.thk -= 10;
-		}
+		//if (params.calcType == "mono" && params.treadPlatePockets !== "нет") {
+		//	plateParams.thkFull = plateParams.thk;
+		//	plateParams.thk -= 10;
+		//}
 		// if (params.calcType == "timber") plateParams.thk -= 0.02;
 		if (params.stairType == 'лотки') {
 			// рассчитываем параметры рамки
@@ -1125,10 +1125,10 @@ function drawPlatform2(par) {
 			plateParams.thkFull = plateParams.thk + parFrame.profHeight;
 		}
 
-		if (params.calcType == "mono" && params.model == "сварной") {
-			plateParams.thkFull = plateParams.thk;
-			plateParams.thk -= 10;
-		}
+		//if (params.calcType == "mono" && params.treadPlatePockets !== "нет") {
+		//	plateParams.thkFull = plateParams.thk;
+		//	plateParams.thk -= 10;
+		//}
 
 		var partLen = par.partLen;
 		for (var i = 0; i < par.partsAmt; i++) {

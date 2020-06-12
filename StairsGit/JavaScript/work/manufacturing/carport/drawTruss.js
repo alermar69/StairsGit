@@ -1005,6 +1005,11 @@ function addTrussHoles(par){
 		var ph4 = itercectionLineCircle(par.topArc.center, ph3, par.botArc.center, par.botArc.rad + par.sideWidth)[0] //правая нижняя
 		var ph1 = itercectionLineCircle(par.topArc.center, ph2, par.botArc.center, par.botArc.rad + par.sideWidth)[0] //левая нижняя
 		
+		//если отверстие получается вырожденным пропускаем шаг цикла
+		if(distance(ph4, ph1) < distance(ph2, ph1)){
+			continue
+		}
+		
 		//рассчитываем скругление справа
 		fillPar = {
 			center1: par.topArc.center, 

@@ -352,10 +352,22 @@
 							<td>
 								<select id="treadLigts" size="1">
 									<option value="нет">нет</option>
-									<option value="есть">есть</option>
+									<option value="простая">простая</option>
+									<option value="независимая">независимая</option>
+									<option value="подготовка">подготовка</option>
 								</select>
 							</td>
 						</tr>
+						
+					<tr>
+						<td>Фрезеровка под подложки:</td>
+						<td>
+							<select id="treadPlatePockets" size="1">
+								<option value="нет">нет</option>
+								<option value="есть">есть</option>
+							</select>
+						</td>
+					</tr>
 
 					</tbody>
 				</table>
