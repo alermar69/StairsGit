@@ -16,7 +16,7 @@ class Shelf extends AdditionalObject {
 				"timberPaint": "не указано",
 				"surfaceType": "гладкая",
 				"fillerType": "не указано",
-				"carcasModel": "01",
+				"carcasModel": this.par.carcasModel,
 				"legProf": this.par.legProf,
 				"bridgeProf": this.par.bridgeProf,
 				"topOffset": this.par.topOffset,
@@ -31,25 +31,43 @@ class Shelf extends AdditionalObject {
 	}
 
 	/** STATIC **/
+
+	static calcPrice(par){
+		var meshPar = par.meshParams;
+		var dopSpec = partsAmt_dop[par.id];
+		var cost = 0;
+		if (dopSpec) {
+			// Цена крестов
+			var crossProfileCost = getPartPropVal('shelfCrossProfile', 'sumLength', dopSpec) * getProfParams('20х20').unitCost;
+			cost += crossProfileCost;
+			// Ножки
+			var legProfileCost = getPartPropVal('shelfLeg', 'sumLength', dopSpec) * getProfParams(par.meshParams.legProf).unitCost;
+			cost += legProfileCost;
+			// перемычки
+			var bridgeProfileCost = getPartPropVal('shelfBridge', 'sumLength', dopSpec) * getProfParams(par.meshParams.bridgeProf).unitCost;
+			cost += bridgeProfileCost;
+			//Полки
+			var countertopCost = getPartPropVal('countertop', 'vol', dopSpec) * calcTimberParams(params.additionalObjectsTimberMaterial).m3Price;
+			cost += countertopCost;
+			//Сварка
+			var weldPrice = 100 * (getPartPropVal('shelfCrossProfile', 'amt', dopSpec) + getPartPropVal('shelfLeg', 'amt', dopSpec) + getPartPropVal('shelfBridge', 'amt', dopSpec));
+			cost += weldPrice;
+			//Покраска
+			var paintPrice = (getPartPropVal('countertop', 'area', dopSpec) * 2) * calcTimberPaintPrice(params.timberPaint, params.additionalObjectsTimberMaterial);
+			cost += paintPrice;
+		}
+		return {
+			name: par.name || this.getMeta().title,
+			cost: cost,
+			priceFactor: meshPar.priceFactor || 1,
+			costFactor: meshPar.costFactor || 1
+		}
+	}
+
 	static getMeta() {
 		return {
 			title: 'Стеллаж',
 			inputs: [
-				{
-					key: 'priceFactor',
-					title: 'К-т на цену',
-					default: 1,
-					type: 'number'
-				},
-				{
-					key: 'costFactor',
-					title: 'К-т на себестоимость',
-					default: 1,
-					type: 'number'
-				},
-				{
-					type: 'delimeter'
-				},
 				{
 					key: 'height',
 					title: 'Высота',
@@ -97,6 +115,22 @@ class Shelf extends AdditionalObject {
 					title: 'Радиус граней',
 					default: 3,
 					type: 'number'
+				},
+				{
+					key: 'carcasModel',
+					title: 'Кресты',
+					default: '01',
+					type: 'select',
+					values: [
+						{
+							value: '01',
+							title: 'Есть'
+						},
+						{
+							value: '02',
+							title: 'Нет'
+						}
+					]
 				},
 				{
 					key: 'legProf',
@@ -189,7 +223,22 @@ class Shelf extends AdditionalObject {
 					title: 'Отступ снизу',
 					default: 50,
 					type: 'number'
-				}
+				},
+				{
+					type: 'delimeter'
+				},
+				{
+					key: 'priceFactor',
+					title: 'К-т на цену',
+					default: 1,
+					type: 'number'
+				},
+				{
+					key: 'costFactor',
+					title: 'К-т на себестоимость',
+					default: 1,
+					type: 'number'
+				},
 			]
 		}
 	}

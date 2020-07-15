@@ -56,8 +56,10 @@ if(params.stairModel == "П-образная с площадкой" || params.st
 
 }	
 
-
+//минимальная толщина ступени
 if(params.railingModel == "Самонесущее стекло" && staircaseHasUnit().railing && params.treadThickness < 60) $("#treadThickness").val(60);
+if (params.stairType == 'короб' && params.treadThickness < 60) $("#treadThickness").val(60);
+
 
 var isMarsh_2 = false;
 if (stairModel == "П-образная трехмаршевая") isMarsh_2 = true;

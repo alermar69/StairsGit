@@ -330,12 +330,25 @@
 
 		<tr>
 			<td>Накладка на перекрытие:</td>
-				<td>
-					<select id="lastRiser" size="1" onchange="">
-						<option value="нет">нет</option>
-						<option value="есть">есть</option>
-					</select>
-		</td></tr>
+			<td>
+				<select id="lastRiser" size="1" onchange="">
+					<option value="нет">нет</option>
+					<option value="есть">есть</option>
+				</select>
+			</td>
+		</tr>
+		
+		<tr>
+			<td>Подсветка ступеней:</td>
+			<td>
+				<select id="treadLigts" size="1">
+					<option value="нет">нет</option>
+					<option value="простая">простая</option>
+					<option value="независимая">независимая</option>
+					<option value="подготовка">подготовка</option>
+				</select>
+			</td>
+		</tr>
 
 		</tbody> </table>
 

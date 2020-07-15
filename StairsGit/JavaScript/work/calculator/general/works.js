@@ -1459,7 +1459,7 @@ if(params.calcType != "vint" && params.calcType != "railing"){
 			}
 		wages.treads.items.push(wage);
 		}
-	if(params.platformTop != "нет" || calcAll) {
+	if((params.platformTop && params.platformTop != "нет") || calcAll) {
 		var wage = {
 			name: "Верхняя площадка",
 			amt: 1,
@@ -1590,7 +1590,7 @@ if(params.calcType == "carport"){
 	//каркас	
 	var wage = {
 		name: "Сборка каркаса навеса",
-		amt: params.arcCount * params.sectLen * params.fermaType / 1000000,
+		amt: params.sectAmt * params.sectLen * params.width / 1000000,
 		unitName: "м2",
 		unitWage: 400,
 		}	
@@ -1599,13 +1599,34 @@ if(params.calcType == "carport"){
 	//кровля
 	var wage = {
 		name: "Укладка кровли",
-		amt: params.arcCount * params.sectLen * params.fermaType / 1000000,
+		amt: params.sectAmt * params.sectLen * params.width / 1000000,
 		unitName: "м2",
 		unitWage: 100,
 		}	
 	wages.other.items.push(wage);
 	
+	//опоры столбов
+	if(params.fixType == "бетон"){
+		var wage = {
+			name: "Бетонирование столбов",
+			amt: getPartAmt("carportColumn"),
+			unitName: "шт",
+			unitWage: 500,
+			}	
+		wages.other.items.push(wage);
 	}
+	
+	if(params.fixType == "винтовые сваи"){
+		var wage = {
+			name: "Установка винтовых свай",
+			amt: getPartAmt("carportColumn"),
+			unitName: "шт",
+			unitWage: 500,
+			}	
+		wages.other.items.push(wage);
+	}
+	
+}
 
 if(params.calcType == "railing"){
 
@@ -1673,7 +1694,7 @@ if(params.calcType == "railing"){
 	
 	
 	//расчет длины	
-	if(railingParams.sections) wage.amt = Math.round(railingParams.sections.sumLen * 10) / 10;
+	if(typeof railingParams != "undefined" && railingParams.sections) wage.amt = Math.round(railingParams.sections.sumLen * 10) / 10;
 	if(params.calcType == "timber" || 
 		params.railingModel == "Деревянные балясины" ||
 		params.railingModel == "Стекло" ||

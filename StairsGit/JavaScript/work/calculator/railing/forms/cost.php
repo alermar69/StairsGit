@@ -28,6 +28,10 @@
 	<div id="total_cost">
 		<p>Расчет еще не произведен</p>
 	</div>
+	<!-- Для поддержки старого вывода себестоимости -->
+	<div id="total_railing_cost">
+		<p>Расчет еще не произведен</p>
+	</div>
 
 	<div id="glassParamsTable"></div>
 

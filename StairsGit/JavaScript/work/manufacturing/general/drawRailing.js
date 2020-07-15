@@ -909,7 +909,6 @@ function drawRailingSectionRacks(par) {
 	if (racksMode == 2) basePoint.x = -(marshPar.b / 2 - rackProfileX / 2) / 2;
 
 	var material = params.materials.banister;
-	if (params.racksType == 'металл') material = params.materials.metal_railing;
 
 	var polePar = {
 		poleProfileY: rackProfileX,
@@ -1088,7 +1087,7 @@ function drawRailingSectionRacks(par) {
 		holeProfileZ: rackProfileZ,
 		length: profLength,
 		dxfArr: dxfPrimitivesArr,
-		partName: params.racksType == 'металл' ? 'racksMetalPole' :"racksTimberPole",
+		partName: "racksTimberPole",
 		material: material
 	}
 
@@ -1157,7 +1156,7 @@ function drawRackTopPole(par){
 				amt: 0,
 				sumLength: 0,
 				paintedArea: 0,
-				name: "Рейка " + handrailPar.handrailType,
+				name: "Рейка " + params.handrailType,
 				metalPaint: false,
 				timberPaint: false,
 				division: "timber",

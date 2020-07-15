@@ -1,18 +1,13 @@
 var objectMovingId = false;
-var wallMovingId = false;
+var objectMovingType = false;
 var firstPointSelected = false;
 var axisObject = null;
 
 //функция перемещения объекта в заданную точку
 function moveToPoint(id, type){
-	if(type == 'wall') {
-		wallMovingId = id;
-		objectMovingId = false;
-	}
-	else {
-		wallMovingId = false;
-		objectMovingId = id;
-	}
+	if (!type) type = 'object';
+	objectMovingId = id;
+	objectMovingType = type;
 	
 	firstPointSelected = false;
 	addNotify('Выберите базовую точку');
@@ -102,7 +97,7 @@ function firstPointSelect(){
 */
 
 function moveObjectByAxis(axis, factor){
-	if ((!window.objectMovingId && !window.wallMovingId) || !window.firstPointSelected || !window.lastSelectedPoint1) {
+	if (!window.objectMovingId || !window.firstPointSelected || !window.lastSelectedPoint1) {
 		return;
 	}
 	
@@ -111,18 +106,33 @@ function moveObjectByAxis(axis, factor){
 	
 	if (value && value > 0) {
 		//перемещение доп. объекта
-		if(window.objectMovingId){
+		if(window.objectMovingId && window.objectMovingType == 'object'){
 			var item = getAdditionalObject(objectMovingId);
 			item.position[axis] += value * (factor || 1);
 			redrawAdditionalObjects();
 		
 			objectMovingId = false;		
 		}
-		//перемещение стены
-		if(window.wallMovingId){
+		// Перемещение бетон
+		if (window.objectMovingId && window.objectMovingType == 'concrete') {
 			var axisInputId = ""
-			if(axis == "x") axisInputId = "wallPositionX_" + window.wallMovingId;
-			if(axis == "z") axisInputId = "wallPositionZ_" + window.wallMovingId
+			if(axis == "x") axisInputId = "posX" + (window.objectMovingId * 1.0 - 1);
+			if(axis == "y") axisInputId = "posY" + (window.objectMovingId * 1.0 - 1);
+			if(axis == "z") axisInputId = "posZ" + (window.objectMovingId * 1.0 - 1);
+			if(axisInputId){
+				var inputVal = $(".concreteParRow[data-id='"+objectMovingId+"'] #" + axisInputId).val() * 1.0;
+				inputVal += value * (factor || 1);
+				$(".concreteParRow[data-id='"+objectMovingId+"'] #" + axisInputId).val(inputVal);
+				// recalculate();
+				redrawConcrete();
+			}
+			objectMovingId = false;
+		}
+		//перемещение стены
+		if(window.objectMovingId && window.objectMovingType == 'wall'){
+			var axisInputId = ""
+			if(axis == "x") axisInputId = "wallPositionX_" + window.objectMovingId;
+			if(axis == "z") axisInputId = "wallPositionZ_" + window.objectMovingId
 			if(axis == "y") alert("Перемещение стены по Y невозможно");
 			if(axisInputId){
 				var inputVal = $("#" + axisInputId).val() * 1.0;
@@ -130,7 +140,33 @@ function moveObjectByAxis(axis, factor){
 				$("#" + axisInputId).val(inputVal);
 				redrawWalls();
 			}
-			wallMovingId = false;		
+			objectMovingId = false;		
+		}
+		//перемещение выступа
+		if(window.objectMovingId && window.objectMovingType == 'ledge'){
+			var axisInputId = "";
+			var canMoove = true;
+			if(axis == "x" || axis == "z") axisInputId = "wallLedgePosX" + window.objectMovingId;
+			if(axis == "y") axisInputId = "wallLedgePosY" + window.objectMovingId;
+			var ledgeWall = $("#wallLedgeBaseWall" + window.objectMovingId).val();
+			if(axis == "x" && (ledgeWall == 3 || ledgeWall == 4)) canMoove = false;
+			if(axis == "z" && (ledgeWall == 1 || ledgeWall == 2)) canMoove = false;
+			if(canMoove){
+				var inputVal = $("#" + axisInputId).val() * 1.0;
+				var xFactor = factor;
+				if ((ledgeWall == 2 || ledgeWall == 4) && axis != 'y') {
+					xFactor *= -1;
+				}
+
+				if (turnFactor == -1 && axis != 'y') xFactor *= -1
+
+				inputVal += value * (xFactor || 1);
+				$("#" + axisInputId).val(inputVal);
+				redrawWalls();
+			}else{
+				alert("Перемещение выступа по этой оси невозможно");
+			}
+			objectMovingId = false;
 		}
 		firstPointSelected = false;
 		addNotify('Объект перемещен');
@@ -145,12 +181,12 @@ function moveObjectByAxis(axis, factor){
 }
 
 function moveObjectTwoPoints(){
-	if ((!window.objectMovingId && !window.wallMovingId) || !window.firstPointSelected || !window.lastSelectedPoint || !window.lastSelectedPoint1) {
+	if (!window.objectMovingId || !window.firstPointSelected || !window.lastSelectedPoint || !window.lastSelectedPoint1) {
 		return;
 	}
 	
 	//перемещение объекта
-	if(window.objectMovingId){
+	if(window.objectMovingId && window.objectMovingType == 'object'){
 		var item = getAdditionalObject(objectMovingId);
 
 		var differenceX = item.position.x - lastSelectedPoint1.x;
@@ -167,23 +203,69 @@ function moveObjectTwoPoints(){
 		objectMovingId = false;
 	}
 	
+	// Перемещение бетон
+	if (window.objectMovingId && window.objectMovingType == 'concrete') {
+		var itemX = $(".concreteParRow[data-id='"+objectMovingId+"'] #posX" + (window.objectMovingId * 1.0 - 1)).val() * 1.0;
+		var itemY = $(".concreteParRow[data-id='"+objectMovingId+"'] #posY" + (window.objectMovingId * 1.0 - 1)).val() * 1.0;
+		var itemZ = $(".concreteParRow[data-id='"+objectMovingId+"'] #posZ" + (window.objectMovingId * 1.0 - 1)).val() * 1.0;
+
+		var differenceX = itemX - lastSelectedPoint1.x;
+		var differenceY = itemY - lastSelectedPoint1.y;
+		var differencez = itemZ - lastSelectedPoint1.z;
+
+		var point = lastSelectedPoint; //глобавльная переменная из файла viewports
+		$(".concreteParRow[data-id='"+objectMovingId+"'] #posX" + (window.objectMovingId * 1.0 - 1)).val((differenceX + point.x).toFixed(2) * 1.0);
+		$(".concreteParRow[data-id='"+objectMovingId+"'] #posY" + (window.objectMovingId * 1.0 - 1)).val((differenceY + point.y).toFixed(2) * 1.0);
+		$(".concreteParRow[data-id='"+objectMovingId+"'] #posZ" + (window.objectMovingId * 1.0 - 1)).val((differencez + point.z).toFixed(2) * 1.0);
+
+		// recalculate();
+		redrawConcrete();
+		objectMovingId = false;
+	}
+
 	//перемещение стены
-	if(window.wallMovingId){
+	if(window.objectMovingId && window.objectMovingType == 'wall'){
 		var wallPos = {
-			x: params["wallPositionX_" + window.wallMovingId],
-			z: params["wallPositionZ_" + window.wallMovingId],
+			x: params["wallPositionX_" + window.objectMovingId],
+			z: params["wallPositionZ_" + window.objectMovingId],
 		}
 		
 		var differenceX = wallPos.x - lastSelectedPoint1.x;
 		var differencez = wallPos.z - lastSelectedPoint1.z;
 
 		var point = lastSelectedPoint; //глобавльная переменная из файла viewports
-		$("#wallPositionX_" + window.wallMovingId).val( (differenceX + point.x).toFixed(2) * 1.0);
-		$("#wallPositionZ_" + window.wallMovingId).val( (differencez + point.z).toFixed(2) * 1.0);
+		$("#wallPositionX_" + window.objectMovingId).val( (differenceX + point.x).toFixed(2) * 1.0);
+		$("#wallPositionZ_" + window.objectMovingId).val( (differencez + point.z).toFixed(2) * 1.0);
 		
 		redrawWalls();
 		
-		wallMovingId = false;
+		objectMovingId = false;
+	}
+
+	//перемещение выступа
+	if(window.objectMovingId && window.objectMovingType == 'ledge'){
+		var ledgeWall = $("#wallLedgeBaseWall" + window.objectMovingId).val();
+
+		var posX = $( "#wallLedgePosX" + window.objectMovingId).val() * 1.0;
+		var posY = $( "#wallLedgePosY" + window.objectMovingId).val() * 1.0;
+		if((ledgeWall == 3 || ledgeWall == 4)) posX += $("#wallPositionZ_" + ledgeWall).val() * 1.0;
+		if((ledgeWall == 1 || ledgeWall == 2)) posX += $("#wallPositionX_" + ledgeWall).val() * 1.0;
+
+		if((ledgeWall == 3 || ledgeWall == 4)) baseAxis = 'z';
+		if((ledgeWall == 1 || ledgeWall == 2)) baseAxis = 'x';
+
+		var differenceX = lastSelectedPoint[baseAxis] - lastSelectedPoint1[baseAxis];
+		var differenceY = lastSelectedPoint.y - lastSelectedPoint1.y;
+
+		if((ledgeWall == 4 || ledgeWall == 2)) differenceX *= -1;
+		if ((ledgeWall == 1 || ledgeWall == 2) && turnFactor == -1) differenceX *= -1
+
+		var point = lastSelectedPoint; //глобавльная переменная из файла viewports
+		$("#wallLedgePosX" + window.objectMovingId).val( $( "#wallLedgePosX" + window.objectMovingId).val() * 1.0 + differenceX);
+		$("#wallLedgePosY" + window.objectMovingId).val( $( "#wallLedgePosY" + window.objectMovingId).val() * 1.0 + differenceY);
+		redrawWalls();
+
+		objectMovingId = false;
 	}
 	firstPointSelected = false;
 	addNotify('Объект перемещен');

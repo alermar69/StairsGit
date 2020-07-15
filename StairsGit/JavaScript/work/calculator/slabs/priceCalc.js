@@ -36,7 +36,7 @@ function calcPrice(){
 		
 		
 	//столешницы, подоконники
-		if(type == "столешница" || type == "подоконник") {
+		if(type == "столешница" || type == "подоконник" || type == "изготовление столешницы") {
 			//дерево
 			var model = $row.find(".model").val();
 			var area = $row.find(".len").val() * $row.find(".width").val() / 1000000;
@@ -45,8 +45,15 @@ function calcPrice(){
 			var m3Cost = calcTimberParams(timberType).m3Price;
 			if(model == "слэб цельный") m3Cost = 200000;
 			
-			var timberCost = vol * m3Cost;
 			
+			var timberCost = vol * m3Cost;
+			var workCost = 0;
+			
+			//упрощенный расчет стоимости работы
+			if(type == "изготовление столешницы") {
+				timberCost = 0;
+				workCost = 5000 + area * 1000;
+			}
 			
 			//покраска
 			var paintCost = calcTimberPaintPrice(params.timberPaint, timberType) * area * 1.5; //1.5 учитывает торцы и низ
@@ -54,17 +61,20 @@ function calcPrice(){
 			//река
 			var riverWidth = $row.find(".riverWidth").val();
 			var riverArea = $row.find(".riverWidth").val() * $row.find(".len").val() / 1000000;
+			var resinVol = riverArea * $row.find(".thk").val();
+			if(type == "изготовление столешницы") resinVol = $row.find(".resinVol").val();
+			if(model == "слэб + смола непрозр.") resinVol *= 0.5 //к-т учитывает заполнитель
+		
 			var riverCost = 0;
 			var resinLiterCost = 1500;
-			if(model == "слэб + смола прозр." || model == "слэб + смола непрозр.") {
-				riverCost += riverArea * $row.find(".thk").val() * resinLiterCost;
-				if(model == "слэб + смола непрозр.") riverCost *= 0.5 //к-т учитывает заполнитель
+			if(model == "слэб + смола прозр." || model == "слэб + смола непрозр." || type == "изготовление столешницы") {
+				riverCost += riverArea * resinVol * resinLiterCost;				
 			}
 			if(model == "слэб + стекло") riverCost += riverArea * 12000 + 2000; //12к - цена стекла за м2, 2к - работа по фрезеровке 
+		
+			var cost = timberCost + workCost + paintCost + riverCost;			
 			
-			var cost = timberCost + paintCost + riverCost;			
-			
-			$row.find("input.сost").val(Math.round(cost * amt));
+			$row.find("input.cost").val(Math.round(cost * amt));
 			$row.find(".unitPrice").val(Math.round(cost * margin));
 			
 			$row.find(".metalPart").val(0);
@@ -72,6 +82,21 @@ function calcPrice(){
 			$row.find(".partnersPart").val(0);
 		}
 
+	//выравнивание слэбов
+		if(type == "выравнивание плоскости") {
+			var area = $row.find(".len").val() * $row.find(".width").val() / 1000000;
+			
+			var cost = 1000 + area * 500;
+			
+			$row.find("input.cost").val(Math.round(cost * amt));
+			$row.find(".unitPrice").val(Math.round(cost * margin));
+			
+			$row.find(".metalPart").val(0);
+			$row.find(".timberPart").val(100);
+			$row.find(".partnersPart").val(0);
+			
+		}
+		
 	//подстолья
 		if(type == "подстолье") {
 			var height = $row.find(".height").val() * 1.0
@@ -88,7 +113,7 @@ function calcPrice(){
 
 			cost = cost * 0.7 + (cost * 0.3 * profLen / nominalProfLen);
 			
-			$row.find("input.сost").val(Math.round(cost * amt));
+			$row.find("input.cost").val(Math.round(cost * amt));
 			$row.find(".unitPrice").val(Math.round(cost * margin));
 			
 			$row.find(".metalPart").val(100);
@@ -101,7 +126,7 @@ function calcPrice(){
 		var amt = $row.find(".amt").val()
 		var unitPrice = $row.find(".unitPrice").val();
 		var type = $row.find(".unitType").val();
-		var cost = $row.find(".сost").val() * 1.0;
+		var cost = $row.find(".cost").val() * 1.0;
 		var metalPart = $row.find(".metalPart").val();
 		var timberPart = $row.find(".timberPart").val();
 		var partnersPart = $row.find(".partnersPart").val();
@@ -126,7 +151,7 @@ function calcPrice(){
 			costObj.delivery += cost;
 		}		
 	})
-	
+
 	//скидка
 	var discountSum = 0;
 

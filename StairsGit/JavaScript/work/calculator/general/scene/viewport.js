@@ -132,7 +132,7 @@ function addMeasurement(viewportId) {
 
 	measure = [];
 	// measurement
-	var threshold = 10;
+	var threshold = 150;
 	var fmin = false;
 	var point_snap;
 
@@ -202,14 +202,14 @@ function addMeasurement(viewportId) {
 		sConnection.visible = false;
 		sphereHelper.visible = false;
 
-		if (!window.objectMovingId && !window.wallMovingId) {
+		if (!window.objectMovingId) {
 			$('#selectedObjectInfo').hide();
 			$('#popuup_div').stop(true, true).hide();
 			$('#popuup2_div').stop(true, true).hide();
 			// if ((!evt.ctrlKey && !params.customersDimensions) || evt.which !== 1) return;
 		}
 
-		if ((window.objectMovingId || window.wallMovingId) && window.firstPointSelected) {
+		if (window.objectMovingId && window.firstPointSelected) {
 			var selectedAxis = intersects.find(function(intersect){
 				return intersect.object && intersect.object.isAxis;
 			});
@@ -270,7 +270,7 @@ function addMeasurement(viewportId) {
 						sConnection.geometry.computeBoundingSphere();
 						
 						//перемещение объекта или стены
-						if (window.objectMovingId || window.wallMovingId) {
+						if (window.objectMovingId) {
 							if (!window.firstPointSelected) {
 								firstPointSelect();
 								return;
@@ -285,7 +285,7 @@ function addMeasurement(viewportId) {
 					}
 		
 					// placing distance label
-					if (!window.objectMovingId && !window.wallMovingId) {
+					if (!window.objectMovingId) {
 						var labelPos = spStart.position.clone().add(spEnd.position).multiplyScalar(0.5);
 						var distance = spStart.position.distanceTo(spEnd.position);
 						var lblDistance = document.getElementById("popuup_div");
@@ -305,7 +305,7 @@ function addMeasurement(viewportId) {
 
 	function onDocumentMouseMove(evt) {
 		try {
-			if (evt.altKey || evt.ctrlKey || window.objectMovingId || window.wallMovingId) {
+			if (evt.altKey || evt.ctrlKey || window.objectMovingId) {
 				var raycaster = new THREE.Raycaster();
 				
 				var mouse = {};
@@ -657,22 +657,24 @@ function unselectObject(){
 }
 
 function unselectAllObjects(){
-	view.scene.traverse(function (node) {
-		if (node.material) {
-			if (node.oldMaterial) {
-				node.material = node.oldMaterial;
-				delete node.oldMaterial;
-				node.oldMaterial = null;
+	if (window.view && view.scene) {
+		view.scene.traverse(function (node) {
+			if (node.material) {
+				if (node.oldMaterial) {
+					node.material = node.oldMaterial;
+					delete node.oldMaterial;
+					node.oldMaterial = null;
+				}
+	
+				if (node.material.transparentDefaultState != undefined) node.material.transparent = node.material.transparentDefaultState
+				if (node.material.opacityDefaultState != undefined) node.material.opacity = node.material.opacityDefaultState;
+				node.material.transparentDefaultState = node.material.opacityDefaultState = undefined;
 			}
-
-			if (node.material.transparentDefaultState != undefined) node.material.transparent = node.material.transparentDefaultState
-			if (node.material.opacityDefaultState != undefined) node.material.opacity = node.material.opacityDefaultState;
-			node.material.transparentDefaultState = node.material.opacityDefaultState = undefined;
-		}
-		if (node.objectRowClass) $('.' + node.objectRowClass).removeClass('selected');
-	});
-	$('.specRow').removeClass('selected');
-	allSpecsShowed = false;
+			if (node.objectRowClass) $('.' + node.objectRowClass).removeClass('selected');
+		});
+		$('.specRow').removeClass('selected');
+		allSpecsShowed = false;
+	}
 }
 
 // Применяет материал выделения к объекту исключая те дочерние объекты у которых есть свой specId
@@ -961,11 +963,20 @@ function addLedges(wall, n){
 				wallLedgePosZ = $('#wallLedgePosZ' + i).val(),
 				wallLedgeRotY = $('#wallLedgeRotY' + i).val(),
 				wallLedgeRotZ = $('#wallLedgeRotZ' + i).val(),
-				wallLedgeBase = $('#wallLedgeBase' + i).val(),
-				geometry = new THREE.CubeGeometry(wallLedgeWidth, wallLedgeHeight, wallLedgeDepth),
+				wallLedgeBase = $('#wallLedgeBase' + i).val();
+
+			if (wallLedgeType == 'проем') wallLedgeDepth = d;
+			
+			var geometry = new THREE.CubeGeometry(wallLedgeWidth, wallLedgeHeight, wallLedgeDepth),
 				ledge = new THREE.Mesh(geometry, params.materials.wall);
 				ledge.objectRowClass = 'ledgeParRow';
 				ledge.objectRowId = i;
+
+			if (wallLedgeType == 'проем') {
+				ledge.material = ledge.material.clone();
+				ledge.material.transparent = true;
+				ledge.material.opacity = 0;
+			};
 
 			if (wallLedgeWidth > 0 && wallLedgeHeight > 0) {
 				ledge.position.x = x - w / 2 + wallLedgeWidth / 2 + wallLedgePosX * 1;
@@ -990,6 +1001,9 @@ function addLedges(wall, n){
 
 					var ledgeBSP = new ThreeBSP(ledge);
 					wallBSP = wallBSP.subtract(ledgeBSP);
+
+					ledge.setLayer('block');
+					complexWall.add(ledge);
 				}
 	
 				if (wallLedgeType == "параллелепипед") {
@@ -1020,7 +1034,7 @@ function addLedges(wall, n){
 
 	complexWall.add(wall);
 	
-
+/*
 	// Текст на стене сбоку
 	var wallDepth = $('#wallThickness_' + n).val() * 1.0;
 	var text = drawTextureText(n, 700);
@@ -1051,7 +1065,7 @@ function addLedges(wall, n){
 	text.alwaysTransparent = true;
 	text.setLayer('labels');
 	complexWall.add(text);
-
+*/
 	wall.userData.isWall = true;
 
 	complexWall.setLayer('wall' + n);
@@ -1201,14 +1215,21 @@ function redrawAdditionalObjects(){
 
 	// Сохраняем ссылку на specObj перед отрисовкой, тк в процессе отрисовки формируется спецификация для доп объектов
 	partsAmt_dop = {};
-
-	$.each(window.additional_objects, function(){
+	
+	// Отсекаем несуществуюищие классы
+	window.additional_objects = window.additional_objects.filter(function(item){
+		try {
+			eval(item.className);
+			return true;
+		} catch (error) {
+			console.warn('Ошибка, класса ' + item.className + ' не существует');
+			return false
+		}
+	})
+	$.each(window.additional_objects, function(i){
 		addAdditionalObjectTable(this);
 		addAdditionalObject(this);
-	})
-
-	// Возвращаем на место
-	// specObj = oldSpecObj;
+	});
 }
 
 function drawParMeshWrapper(par){
@@ -1358,8 +1379,15 @@ function createMenu(){
 		}});
 
 		menu.addCheckbox({state: true, group: group, title: 'Ребра', callback: function(menuElement){
-			var objects = view.scene.getObjectsByLayerName("_wf");
-			objects.setVisible(menuElement.value);
+			// var objects = view.scene.getObjectsByLayerName("_wf");
+			// objects.setVisible(menuElement.value);
+			if (typeof view.scene != 'undefined') {
+				view.scene.traverse(function (node) {
+					if (node instanceof THREE.LineSegments) {
+						node.visible = menuElement.value;
+					}
+				})
+			}
 		}});
 
 		menu.addCheckbox({group: group, variableName: 'realColors', title: 'Цвета', callback: function(menuElement){
@@ -1410,21 +1438,7 @@ function render() {
 
 	var camera = cameraAnimation();
 	
-	if (window.animations) {
-		animations.forEach(function(animation, i){
-			var timeStart = animation.timeStart;
-			var duration = animation.duration;
-			var currentTimestamp = new Date().getTime();
-
-			var progress  = (currentTimestamp - timeStart) / duration;
-			if (progress < 1) {
-				animation.context.animationProgress(animation.animationName, progress)
-			}else{
-				animation.context.animationProgress(animation.animationName, 1);
-				animations.splice(i, 1);
-			}
-		});
-	}
+	processAnimations();
 	
 	view.renderer.render(view.scene, camera);
 }

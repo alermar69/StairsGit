@@ -90,13 +90,20 @@
 
 </div>
 
+<!-- доставка, сборка -->
+<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/assemblingForm.php" ?>
+
+
 <div class='estimate' id='estimate_works'>
-	<h3>Дополнительно</h3>
 	
 	<div class='noPrint'>
 		<button class="btn btn-success addRow" data-toggle="tooltip" title="Добавить строку">
 			<i class="fa fa-plus"></i>
 			<span>Строка</span>
+		</button>
+		<button class="btn btn-primary setWorksPrice" data-toggle="tooltip" title="Рассчитать стоимость доставки и сборки">
+			<i class="fa fa-plus"></i>
+			<span>Рассчитать</span>
 		</button>
 
 		<input type='number' class='rowAmt' id='rowAmt_works' value='0' style='display: none'>

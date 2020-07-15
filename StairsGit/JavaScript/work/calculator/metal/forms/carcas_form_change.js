@@ -272,6 +272,8 @@ if(params.stairType == "дпк" || params.stairType == "лиственница �
 		}
 	}
 
+//минимальная толщина коробчатых ступеней
+if (params.stairType == 'короб' && params.treadThickness < 70) $("#treadThickness").val(70);
 
 /*тип тетив*/
 var stringerType = document.getElementById('stringerType').options;

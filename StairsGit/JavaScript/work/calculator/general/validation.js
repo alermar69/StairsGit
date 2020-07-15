@@ -94,14 +94,14 @@ function checkOrderFiles(){
 
 	//выделяем номер заказа из имени расчета
 	if(offerName.charAt(0) != "w"){
-		var orderNameLength = 5;
-		if(offerName.charAt(0) != 1) orderNameLength = 4;
+		var orderNameLength = offerName.indexOf("-");
+		if(orderNameLength > 5) orderNameLength = 5;
 		var orderName = offerName.slice(0, orderNameLength);
-		}
+	}
 	if(offerName.charAt(0) == "w"){
-		var orderNameLength = 5;
+		var orderNameLength = 6;
 		var orderName = offerName.slice(0, orderNameLength);
-		}	
+	}
 	
 
 	var setting = {

@@ -134,7 +134,7 @@ function recalculate() {
 				printDescr();
 				
 				if(params.calcType == "railing"){
-					drawConcrete('vl_1');
+					redrawConcrete();
 				}
 				
 				if(params.calcType == "vhod" && !menu.simpleMode){			

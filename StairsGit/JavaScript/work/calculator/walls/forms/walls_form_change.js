@@ -54,6 +54,15 @@ $(function() {
 		moveToPoint(selectedWallId, 'wall');
 	});
 
+	$("#mooveLedge").click(function(){
+		var selectedLedgeId = $(".ledgeParRow.selected").attr("data-id");
+		if(!selectedLedgeId) {
+			alert("Выберите выступ")
+			return;
+		}
+		moveToPoint(selectedLedgeId, 'ledge');
+	});
+
 //обработчик изменения инпутов выступов стен
 	$('#wallLedgesTable').delegate('select, input', 'change', function(){
 

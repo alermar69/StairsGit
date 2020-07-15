@@ -20,6 +20,8 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 	</button>';
 	}
 ?>
+<?php include $GLOBALS['ROOT_PATH'].'/calculator/quick_calc/form.php' ?>
+
 
 <!-- проверка данных: модальное окно отчета + скрипт -->
 <?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/validationReport.php" ?>
@@ -50,6 +52,8 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 			<option value="Максим Петренко">Максим Петренко</option>			
 			<option value="Станислав Синельников">Станислав Синельников</option>
 			<option value="Алексей Котельников">Алексей Котельников</option>
+			<option value="Артем Николаев">Артем Николаев</option>
+			<option value="Алексей Степин">Алексей Степин</option>
 			
 			<option value="Константин Симбирев">Константин Симбирев</option>
 			<option value="Кирилл Янкин">Кирилл Янкин</option>

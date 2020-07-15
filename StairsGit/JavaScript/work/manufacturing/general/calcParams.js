@@ -315,6 +315,10 @@ function calcStaircaseMoove(lastMarshEnd){
 			moove.x -= params.M / 2;
 			moove.z += getMarshParams(1).len + lastMarshEnd.x + params.nose - params.floorHoleWidth;
 		}
+		if(params.calcType == "veranda"){
+			moove.x += params.floorHoleLength;
+			moove.z += params.floorHoleWidth;
+		}
 	}
 	if(params.floorHoleBaseSide == 2){
 		if (turnFactor == 1) {
@@ -325,6 +329,10 @@ function calcStaircaseMoove(lastMarshEnd){
 		}else{
 			moove.x -= params.floorHoleLength - params.M / 2;
 			moove.z -= getMarshParams(1).len + lastMarshEnd.x + params.nose;
+		}
+		if(params.calcType == "veranda"){
+			moove.x -= params.floorHoleLength;
+			moove.z -= params.floorHoleWidth;
 		}
 	}
 

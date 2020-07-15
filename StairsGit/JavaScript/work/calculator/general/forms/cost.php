@@ -23,7 +23,7 @@
 				};
 				
 				//лестницы
-				if ($calc_type != 'carport') {					
+				if ($calc_type != 'carport' && $calc_type != 'railing') {
 					echo '<tr>
 						<td>Каркас:</td>
 						<td><input id="carcasCostFactor" type="number" value="1"></td>
@@ -56,6 +56,29 @@
 							<td>Кровля:</td>
 							<td><input id="roofCostFactor" type="number" value="1"></td>
 							<td><input id="roofPriceFactor" type="number" value="1"></td>
+						</tr>';
+				};
+
+				if ($calc_type == 'railing') {
+					echo '<tr>
+							<td>Стекло:</td>
+							<td><input id="glassCostFactor" type="number" value="1"></td>
+							<td><input id="glassPriceFactor" type="number" value="1"></td>
+						</tr>
+						<tr>
+							<td>Обшивка:</td>
+							<td><input id="treadsCostFactor" type="number" value="1"></td>
+							<td><input id="treadsPriceFactor" type="number" value="1"></td>
+						</tr>
+						<tr>
+							<td>Ограждения:</td>
+							<td><input id="railingCostFactor" type="number" value="1"></td>
+							<td><input id="railingPriceFactor" type="number" value="1"></td>
+						</tr>
+						<tr>
+							<td>Прочее:</td>
+							<td><input id="otherCostFactor" type="number" value="1"></td>
+							<td><input id="otherPriceFactor" type="number" value="1"></td>
 						</tr>';
 				};
 				
@@ -161,4 +184,11 @@
 	<h3>Данные для экспорта:</h3>
 	<div id="exportData" class="toggleDiv"></div>
 	
+	<? if ($calc_type == 'railing') { ?>
+		<!-- Для поддержки старого вывода себестоимости -->
+		<div id="total_railing_cost">
+			<p>Расчет еще не произведен</p>
+		</div>
+		<div id="glassParamsTable"></div>
+	<? } ?>
 </div>

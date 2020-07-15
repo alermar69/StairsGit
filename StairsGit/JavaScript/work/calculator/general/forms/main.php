@@ -5,7 +5,7 @@
 		$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 	
 		//модуль
-		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects'];
+		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda'];
 		$calc_type = '';
 		foreach($calc_types as $item){
 			if (strpos($url,'/'.$item) !== false) $calc_type = $item;
@@ -40,6 +40,7 @@
 	if($calc_type == 'wardrobe_2') $title = "Расчет шкафа 2.0";
 	if($calc_type == 'objects') $title = "Расчет объектов";
 	if($calc_type == 'carport') $title = "Расчет навеса";
+	if($calc_type == 'veranda') $title = "Расчет веранды";
 
 	//тип расчета и версия
 	echo '
@@ -307,6 +308,31 @@
 		$tabs['walls'] = false;
 	};
 
+	if ($calc_type == 'veranda') {
+		$tabs['geom'] = false;
+		$tabs['carcas']['name'] = "Площадка";
+		$tabs['carcas']['url'] = "/calculator/veranda/forms/platform_form.php";
+		$tabs['railing'] = false;
+		$tabs['floor_form'] = false;
+		$tabs['walls'] = false;
+		
+		//лестница
+		$tabs['staircase'] = [
+			'name' => 'Лестница',
+			'url' => "/calculator/veranda/forms/stairs_form.php",
+			'group' => 'form',
+		];
+		
+		//кровля
+		$tabs['roof'] = [
+			'name' => 'Кровля',
+			'url' => "/calculator/veranda/forms/roof_form.php",
+			'group' => 'form',
+		];
+		
+	};
+
+
 		
 
 	//убираем геометрию где она не нужна
@@ -383,7 +409,7 @@
 	];
 
 	if($template == 'calculator') $tabs['cost']['class'] = 'noPrint';
-	if($calc_type == 'railing') $tabs['cost']['url'] = '/calculator/railing/forms/cost.php';
+	// if($calc_type == 'railing') $tabs['cost']['url'] = '/calculator/railing/forms/cost.php';
 
 	//тесты
 	if(($template == 'calculator' || $template == 'manufacturing') && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])){

@@ -1464,6 +1464,25 @@ function getPoleSpecParams(par){
 		specObjPart.timberPaint = true;
 		specObjPart.group = "Каркас";
 	}
+	if (partName == "shelfCrossProfile") {
+		specObjPart.name = "Профиль крестов стелажа";
+		specObjPart.timberPaint = false;
+		specObjPart.metalPaint = true;
+		specObjPart.group = "Каркас";
+	}
+	if (partName == "shelfLeg") {
+		specObjPart.name = "Ножка стелажа";
+		specObjPart.timberPaint = false;
+		specObjPart.metalPaint = true;
+		specObjPart.group = "Каркас";
+	}
+	if (partName == "shelfBridge") {
+		specObjPart.name = "Перемычка стелажа";
+		specObjPart.timberPaint = false;
+		specObjPart.metalPaint = true;
+		specObjPart.group = "Каркас";
+	}
+	
 	if (partName.indexOf("platformBeam") !== -1){
 		specObjPart.name = "Балка платформы";
 		if (partName == "platformBeam_front") specObjPart.name += ' передняя';
@@ -1476,20 +1495,31 @@ function getPoleSpecParams(par){
 		specObjPart.division = "metal";
 		specObjPart.group = "Каркас";
 	}
-	if (partName == 'polyEdgeProfile') {
+	if (partName == 'polyEdgeProf') {
 		specObjPart.name = "Краевой профиль поликарбоната";
 		specObjPart.division = "metal";
 	}
-	if (partName == 'carportRack') {
+	if (partName == 'carportColumn') {
 		specObjPart.name = "Опора навеса";
 		specObjPart.division = "metal";
 	}
+	
+	if (partName == 'carportBeamLen') {
+		specObjPart.name = "Балка продольная";
+		specObjPart.division = "metal";
+	}
+	
+	if (partName == 'carportBeam') {
+		specObjPart.name = "Балка поперечная";
+		specObjPart.division = "metal";
+	}
+	
 	if (partName == 'polySheet') {
 		specObjPart.name = 'Поликарбонат';
 		specObjPart.division = "metal";
 	}
-	if (partName == 'topRoofProfile') {
-		specObjPart.name = 'Верхний профиль';
+	if (partName == 'topRoofProf') {
+		specObjPart.name = 'Коньковый профиль';
 		specObjPart.division = "metal";
 		specObjPart.group = 'carcas';
 	}

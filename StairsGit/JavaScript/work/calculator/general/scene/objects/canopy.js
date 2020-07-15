@@ -29,6 +29,7 @@ class Canopy extends AdditionalObject {
 	}
 
 	static calcPrice(par){
+		var meshPar = par.meshParams;
 		var dopSpec = partsAmt_dop[par.id];
 		var cost = 0;
 		
@@ -49,8 +50,8 @@ class Canopy extends AdditionalObject {
 		return {
 			name: par.name || this.getMeta().title,
 			cost: cost,
-			priceFactor: par.priceFactor || 1,
-			costFactor: par.costFactor || 1
+			priceFactor: meshPar.priceFactor || 1,
+			costFactor: meshPar.costFactor || 1
 		}
 	}
 	
@@ -123,7 +124,22 @@ class Canopy extends AdditionalObject {
 					title: 'Количество держателей',
 					default: 3,
 					type: 'number'
-				}
+				},
+				{
+					type: 'delimeter'
+				},
+				{
+					key: 'priceFactor',
+					title: 'К-т на цену',
+					default: 1,
+					type: 'number'
+				},
+				{
+					key: 'costFactor',
+					title: 'К-т на себестоимость',
+					default: 1,
+					type: 'number'
+				},
 			]
 		}
 	}

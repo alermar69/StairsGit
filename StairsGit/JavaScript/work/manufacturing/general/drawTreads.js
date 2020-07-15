@@ -401,22 +401,22 @@ function drawTreads() {
     lastMarshEnd.x += topStepDelta * Math.cos(lastMarshEnd.rot);
     lastMarshEnd.z += topStepDelta * Math.sin(-lastMarshEnd.rot);
 
-	if (params.stairType == 'короб') {
-		var fullThk = 70;
-		if(params.calcType == "mono") fullThk = 60;
+	if (params.treadPlatePockets == "есть") {
+		var pocketDepth = 10;
 
 		treadsGroup.traverse(function(node){
 			if (node instanceof THREE.Mesh) {
-				if (node.specId && node.specId.indexOf('wndTread') != -1) {
-					node.scale.z = fullThk / params.treadThickness;
-					node.position.y -= fullThk - params.treadThickness;
-				}else{
-					node.scale.z = fullThk / params.treadThickness;
+				//масштабируем по толщине
+				node.scale.z = (params.treadThickness - pocketDepth) / params.treadThickness;				
+				//выравниваем забежные ступени по высоте
+				if (node.specId && node.specId.indexOf('wndTread') != -1) {					
+					node.position.y += pocketDepth;
 				}
 			}
 		})
+		
 	}
-
+	
     //формируем возвращаемый объект
     var par = {
         treads: treadsGroup,
@@ -4504,7 +4504,8 @@ function drawRectRiser(par) {
                 types: {},
                 amt: 0,
                 name: "Подступенок",
-                area: 0,
+				area: 0,
+				volume: 0,
                 paintedArea: 0,
                 metalPaint: treadPar.metalPaint,
                 timberPaint: treadPar.timberPaint,
@@ -4514,14 +4515,15 @@ function drawRectRiser(par) {
             }
         }
         var area = par.len * par.width / 1000000;
-        var paintedArea = area * 2 + (par.len + par.width) * 2 * par.thk / 1000000;
-
+        var paintedArea = area * 2 + (par.len * 1.0 + par.width * 1.0) * 2 * par.thk / 1000000;
+		
         var name = Math.round(par.len) + "x" + par.width + "x" + par.thk;
         if (par.ang) name += " забежн."
         if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
         if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
         specObj[partName]["amt"] += 1;
-        specObj[partName]["area"] += area;
+		specObj[partName]["area"] += area;
+		specObj[partName]["volume"] += par.len * par.width * par.thk / 1000000000;
         specObj[partName]["paintedArea"] += paintedArea;
 		}
 		par.mesh.specId = partName + name;

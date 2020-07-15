@@ -307,6 +307,8 @@ function addAdditionalObjectTable(par){
 		};
 	}
 
+	if (!par.id && !par.position) return;
+
 	var text = '\
 		<tr class="additionalObjectRow" data-object_selector="additionalObjectRow" data-object_id='+ par.id +' data-id='+ par.id +'>\
 			<td>\

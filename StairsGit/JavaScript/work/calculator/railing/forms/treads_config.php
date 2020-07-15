@@ -64,15 +64,50 @@
 			</td>
 		</tr>
 		
-		<tr class="treadParams">
+		<!-- <tr class="treadParams">
 			<td>Материал ступеней:</td>
 			<td>
 				<select name="treadsMaterial" size="1" id="treadsMaterial" onchange="setTreadThk()">
-				<!-- варианты покраски дерева -->
-				<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberTypes.php" ?>
+				варианты покраски дерева
+				<?php #include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberTypes.php" ?>
+				</select>
+			</td>
+		</tr> -->
+		<tr class="timberPaint">
+			<td>Покраска дерева:</td>
+			<td>
+				<select id="timberPaint" size="1">
+					<!-- варианты покраски дерева -->
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberPaint.php" ?>
 				</select>
 			</td>
 		</tr>
+
+		<tr class="timberPaint">
+			<td>Поверхность дерева:</td>
+			<td>
+				<select id="surfaceType" size="1">
+					<!-- варианты покраски дерева -->
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/surfaceTypes.php" ?>
+				</select>
+			</td>
+		</tr>
+
+		<tr class="timberPaint">
+			<td>Шпаклевка:</td>
+			<td>
+				<select id="fillerType" size="1">
+					<!-- варианты покраски дерева -->
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fillerTypes.php" ?>
+				</select>
+			</td>
+		</tr>
+
 		
 	</tbody>
 </table>
+<!-- цвета и материалы -->
+<div id="colors_inputs">
+	<h4>5. Материалы и цвета:</h4>
+	<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/colorsForm.php" ?>
+</div>

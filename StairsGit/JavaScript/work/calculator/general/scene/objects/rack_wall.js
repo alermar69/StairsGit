@@ -1,37 +1,31 @@
 class RackWall extends AdditionalObject {
 	constructor(par) {
 		super(par);
-		var profParams = getProfParams(this.par.racksProfile);
-
-		var rackProfileZ = profParams.sizeA;
-		var rackProfileX = profParams.sizeB;
-
-		// var racksCount = this.par.width / (this.par.step + rackProfileX);
-		var racksCount = Math.ceil(this.par.width / (this.par.step + rackProfileX));
-		var rackWall = new THREE.Object3D();
-		// var rackGeometry = new THREE.BoxGeometry(rackProfileX, this.par.height, rackProfileZ);
 		
-		var material = this.getObjectMaterial();
+		var obj = this;
+		
+		var objParams = {
+			dxfArr: [],
+			dxfBasePoint: {
+			  x: 0,
+			  y: 0
+			},
+			posX: 0,
+			posY: 0,
+			posZ: 0,
+			posAng: 0,
+			mat: this.getObjectMaterial(),
+		};
+		
+		var meta = RackWall.getMeta();
+		meta.inputs.forEach(function(input){
+			objParams[input.key] = obj.par[input.key];
+		})
 
-		var polePar = {
-			poleProfileY: rackProfileX,
-			poleProfileZ: rackProfileZ,
-			dxfBasePoint: par.dxfBasePoint,
-			length: this.par.height,
-			poleAngle: 0,
-			partName: this.par.material == 'металл' ? 'racksMetalPole' :"racksTimberPole",
-			material: material,
-			type: profParams.type
-		}
+		objParams = drawRackWall(objParams);
 
-		for (var i = 0; i < racksCount; i++) {
-			var rack = drawPole3D_4(polePar).mesh;
-			rack.position.x = (rackProfileX + this.par.step) * i;
-			rack.rotation.z = Math.PI / 2;
-			rackWall.add(rack);
-		}
-
-		this.add(rackWall);
+		obj.add(objParams.mesh);
+		
 	}
 
 	static calcPrice(par){
@@ -62,21 +56,6 @@ class RackWall extends AdditionalObject {
 		return {
 			title: 'Реечная перегородка',
 			inputs: [
-				{
-					key: 'priceFactor',
-					title: 'К-т на цену',
-					default: 1,
-					type: 'number'
-				},
-				{
-					key: 'costFactor',
-					title: 'К-т на себестоимость',
-					default: 1,
-					type: 'number'
-				},
-				{
-					type: 'delimeter'
-				},
 				{
 					key: 'height',
 					title: 'Высота',
@@ -170,8 +149,91 @@ class RackWall extends AdditionalObject {
 							title: 'Ф38'
 						}
 					]
-				}
+				},				
+				{
+					type: 'delimeter'
+				},
+				{
+					key: 'priceFactor',
+					title: 'К-т на цену',
+					default: 1,
+					type: 'number'
+				},
+				{
+					key: 'costFactor',
+					title: 'К-т на себестоимость',
+					default: 1,
+					type: 'number'
+				},
 			]
 		}
 	}
+}
+
+/** функция отрисовывает реечную перегородку от пола до потолка
+*/
+
+function drawRackWall(par){
+	par.mesh = new THREE.Object3D();
+	par.mesh = new THREE.Object3D();
+	par.dxfArr = [];
+	par.dxfBasePoint = {x:0, y:0};
+	par.width = par.width * 1.0;
+	par.height = par.height * 1.0;
+	
+	var profParams = getProfParams(par.racksProfile);
+
+	var amt = Math.ceil(par.width / par.step);
+
+	var polePar = {
+		poleProfileY: profParams.sizeB,
+		poleProfileZ: profParams.sizeA,
+		dxfBasePoint: par.dxfBasePoint,
+		length: par.height,
+		poleAngle: 0,
+		partName: par.material == 'металл' ? 'racksMetalPole' :"racksTimberPole",
+		material: par.mat,
+		type: profParams.type
+	}
+
+	for (var i = 0; i < amt; i++) {
+		var rack = drawPole3D_4(polePar).mesh;
+		rack.position.x = (par.step) * i;
+		rack.rotation.z = Math.PI / 2;
+		par.mesh.add(rack);
+	}
+	
+	//горизонтальные рейки
+	var polePar = {
+		thk: 40,
+		width: profParams.sizeA + 20,
+		dxfBasePoint: {x:0,y:0},//par.dxfBasePoint,
+		holeStep: par.step,
+		holeProfileX: profParams.sizeB,
+		holeProfileZ: profParams.sizeA,
+		length: profParams.sizeB + par.step * (amt - 1),
+		dxfArr: dxfPrimitivesArr,
+		partName: "racksTimberPole",
+		material: params.materials.timber,
+	}
+	
+	//рейка сверху
+	var topProfile = drawRackTopPole(polePar);
+	topProfile.position.x = -profParams.sizeB;
+	//topProfile.position.y = topProfileOffsetY;
+	topProfile.position.z -= 10;
+	topProfile.rotation.x = -Math.PI / 2;
+	topProfile.rotation.z = -Math.PI / 2;
+	par.mesh.add(topProfile);
+	
+	//рейка снизу
+	var botProfile = drawRackTopPole(polePar);
+	botProfile.position.x = topProfile.position.x;
+	botProfile.position.y = par.height - 40;
+	botProfile.position.z = topProfile.position.z;
+	botProfile.rotation.x = topProfile.rotation.x
+	botProfile.rotation.z = topProfile.rotation.z
+	par.mesh.add(botProfile);
+	
+	return par;
 }

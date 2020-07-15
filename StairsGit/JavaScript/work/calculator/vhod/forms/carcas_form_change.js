@@ -7,7 +7,6 @@ function changeFormCarcas(){
 		getAllInputsValues(params);
 	}
 
-	$("#riserType").val("нет");
 	getAllInputsValues(params);
 	
 	//глубина площадки кратна кол-ву досок
@@ -61,7 +60,8 @@ $("#nose").closest("tr").hide();
 if(params.staircaseType == "Готовая"){
 	$(".custom").hide();
 	$(".stock").show();
-	$("#stairModel").val("Прямая");	
+	$("#stairModel").val("Прямая");
+	$("#riserType").val("нет");	
 	if(params.platformTop == "увеличенная") $("#platformTop").val("нет");
 	$("#platformLength_3").val(params.topPltLength_stock);
 	//расчет ширины марша по кол-ву рамок

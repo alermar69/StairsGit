@@ -159,6 +159,40 @@ function getMaterialsConfigs(){
 				}
 			}
 		},
+		plastic_roof: {
+			main:{
+				needEnv: true,
+				matPar:{
+					opacity: 0.5,
+					metalness: 0.8,
+					roughness: 0.1,
+					color: new THREE.Color(0xCBF8F2),
+					transparent: true,
+					combine: THREE.MultiplyOperation,
+					reflectivity: 1.0,
+				}
+			},
+			textures:{
+				plastic_roof:{}
+			}
+		},
+		metal_roof: {
+			main:{
+				needEnv: true,
+				matPar:{
+					//opacity: 0.5,
+					metalness: 0.5,
+					roughness: 0.5,
+					color: new THREE.Color(0xCBF8F2),
+					//transparent: true,
+					//combine: THREE.MultiplyOperation,
+					reflectivity: 1.0,
+				}
+			},
+			textures:{
+				metal_roof:{}
+			}
+		},
 		glass:{
 			main:{
 				needEnv: true,
@@ -1808,6 +1842,44 @@ function getMaterialsConfigs(){
 			if (!texture.colors[color].main.matPar.color) texture.colors[color].main.matPar.color = new THREE.Color(getMetalColorId(color));
 		});
 	});
+
+	// Цвета для поликарбоната
+	if ($('#roofPlastColor').length > 0) {
+		var options = $('#roofPlastColor option');
+		var roofPlastColors = $.map(options ,function(option) {
+			return option.value;
+		});
+
+		$.each(config.plastic_roof.textures, function(){
+			var texture = this;
+			roofPlastColors.forEach(function(color){
+				if (!texture.colors) texture.colors = {};
+				if (!texture.colors[color]) texture.colors[color] = {};
+				if (!texture.colors[color].main) texture.colors[color].main = {};
+				if (!texture.colors[color].main.matPar) texture.colors[color].main.matPar = {};
+				if (!texture.colors[color].main.matPar.color) texture.colors[color].main.matPar.color = new THREE.Color(getPlasticColorId(color));
+			});
+		});
+	}
+	
+	// Цвета для профнастила
+	if ($('#roofMetalColor').length > 0) {
+		var options = $('#roofMetalColor option');
+		var roofMetalColors = $.map(options ,function(option) {
+			return option.value;
+		});
+
+		$.each(config.metal_roof.textures, function(){
+			var texture = this;
+			roofMetalColors.forEach(function(color){
+				if (!texture.colors) texture.colors = {};
+				if (!texture.colors[color]) texture.colors[color] = {};
+				if (!texture.colors[color].main) texture.colors[color].main = {};
+				if (!texture.colors[color].main.matPar) texture.colors[color].main.matPar = {};
+				if (!texture.colors[color].main.matPar.color) texture.colors[color].main.matPar.color = new THREE.Color(getMetalColorId(color));
+			});
+		});
+	}
 
 	return config;
 }
@@ -3516,6 +3588,9 @@ function getTimberMatConfig(){
 		},
 	}
 }
+/** функция возвращает номер hex цвета по его названию
+цвета ral взяты отсюда https://rgb.to/ral/3020
+*/
 
 function getMetalColorId(colorName){
 	var colorId = 0x363636;
@@ -3533,7 +3608,31 @@ function getMetalColorId(colorName){
 	if(colorName == "черная ящерица") colorId = 0x111111
 	if(colorName == "бежевая ящерица") colorId = 0xECD1C6
 	if(colorName == "коричневая ящерица") colorId = 0x762D15
-
+	
+	if(colorName == "оцинкованный") colorId = 0xEEEEEE
+	if(colorName == "RAL 1014") colorId = 0xddc49a
+	if(colorName == "RAL 1015") colorId = 0xe6d2b5
+	if(colorName == "RAL 1018") colorId = 0xfaca30
+	if(colorName == "RAL 1036") colorId = 0x80643f
+	if(colorName == "RAL 2004") colorId = 0xe25303
+	if(colorName == "RAL 3003") colorId = 0x861a22
+	if(colorName == "RAL 3005") colorId = 0x59191f
+	if(colorName == "RAL 3009") colorId = 0x6d342d
+	if(colorName == "RAL 3011") colorId = 0x792423
+	if(colorName == "RAL 3020") colorId = 0xbb1e10
+	if(colorName == "RAL 5002") colorId = 0x00387b
+	if(colorName == "RAL 5005") colorId = 0x005387
+	if(colorName == "RAL 5021") colorId = 0x007577
+	if(colorName == "RAL 6002") colorId = 0x325928
+	if(colorName == "RAL 6005") colorId = 0x114232
+	if(colorName == "RAL 7004") colorId = 0x9b9b9b
+	if(colorName == "RAL 7005") colorId = 0x6c6e6b
+	if(colorName == "RAL 7024") colorId = 0x45494e
+	if(colorName == "RAL 8017") colorId = 0x442f29
+	if(colorName == "RAL 9002") colorId = 0xd7d5cb
+	if(colorName == "RAL 9003") colorId = 0xecece7
+	if(colorName == "RAL 9006") colorId = 0xa1a1a0
+	
 	return colorId;
 }
 
@@ -3591,3 +3690,23 @@ function getTimberColorId(colorName){
 	return colorId;
 }
 
+/** возвращает цвет поликарбоната
+*/
+
+function getPlasticColorId(colorName){
+	var colorId = 0xc8c8c8;
+
+	if(colorName == "прозрачный") colorId = 0x73492F
+	if(colorName == "бронза") colorId = 0x632e2e
+	if(colorName == "опал") colorId = 0x73492F
+	if(colorName == "зеленый") colorId = 0x80c956
+	if(colorName == "синий") colorId = 0x4f76b5
+	if(colorName == "голубой") colorId = 0x79a8ff
+	if(colorName == "бирюзовый") colorId = 0x7bc6c7
+	if(colorName == "желтый") colorId = 0xffeb3b
+	if(colorName == "оранжевый") colorId = 0xff9800
+	if(colorName == "красный") colorId = 0xf44336
+	if(colorName == "гранат") colorId = 0xe91e63
+
+	return colorId;
+}

@@ -374,16 +374,18 @@ function printDescr() {
 	// 	if(!this || !this.type) return true;
 	// 	text += html;
 	// });
-	var template = $.templates("#descriptionTempalte");
-	var html = template.render(blocks);
-	text += html;
-	$("#description").html(text);
-
-	if ($('#previewImages').length > 0) {
-		var images = getPreviewImages('preview');
-		var template = $.templates("#previewsTemplate");
-		var html = template.render({images: images});
-		$('#previewImages').html(html);
+	if ($("#descriptionTempalte").length > 0) {
+		var template = $.templates("#descriptionTempalte");
+		var html = template.render(blocks);
+		text += html;
+		$("#description").html(text);
+	
+		if ($('#previewImages').length > 0) {
+			var images = getPreviewImages('preview');
+			var template = $.templates("#previewsTemplate");
+			var html = template.render({images: images});
+			$('#previewImages').html(html);
+		}
 	}
 
 		// var block = this;

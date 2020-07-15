@@ -1,5 +1,6 @@
 <div id="assemblingWrap">
-	<h2 class="raschet">Доставка, сборка на объекте</h2>
+	<h3>Доставка, сборка на объекте</h3>
+	
 	<div id="assembling" class="toggleDiv">
 		<table class="form_table" ><tbody>
 
@@ -50,14 +51,14 @@
 				</select>
 			</td></tr>
 
-			<tr class="installation_tr"><td>Шаблонировние стекол:</td> <td> 
+			<tr class="installation_tr"><td>Шаблонировние:</td> <td> 
 				<select id="needMockup" size="1" onchange="">
 					<option value="нет">нет</option>
 					<option value="да">да</option>
 				</select>
 			</td></tr>
 
-			<tr class="installation_tr"><td>Подгонка некрашеных ступеней к стене:</td> <td> 
+			<tr class="installation_tr"><td>Подгонка некрашеных деталей:</td> <td> 
 				<select id="stepCutting" size="1" onchange="">
 					<option value="нет">нет</option>
 					<option value="да">да</option>

@@ -214,13 +214,16 @@ class TextureManager{
 		var ceilMaterial = this.createMaterial({name: 'ceil',color: params.ceilColor,transparent: true,opacity: 0.3});
 		
 		var wireframeMaterial = this.createMaterial({name: 'wireframe',color: this.getMaterialColor('wireframe').colorId,wireframe: false});
-
+		
 		//материал ступеней не из дерева
 
 		if (params.stairType == "рифленая сталь" || params.stairType == "лотки") treadMaterial.color = metalMaterial.color;
 		if (params.stairType == "пресснастил") treadMaterial.color = new THREE.Color(0xEEEEEE);
 		// if (params.stairType == "стекло") treadMaterial = glassMaterial;
 		// if (params.stairType == "дпк") treadMaterial = dpcMaterial;
+		
+		var metalMaterial_roof = this.createMaterial({name:'metal_roof', color: getMetalColorId(params.roofMetalColor)});
+		var plasticMaterial_roof = this.createMaterial({name:'plastic_roof', opacity: 0.6, color: getPlasticColorId(params.roofPlastColor), transparent: true, opacity: 0.3 });
 
 		/**
 		 * Кастомный цвет для освещения
@@ -259,7 +262,9 @@ class TextureManager{
 			floor: floorMaterial,
 			wall: wallMaterial,
 			wireframe: wireframeMaterial,
-			lightMaterial: lightMaterial
+			lightMaterial: lightMaterial,
+			metal_roof: metalMaterial_roof,
+			plastic_roof: plasticMaterial_roof,
 		}
 
 		return materials;
@@ -437,6 +442,15 @@ class TextureManager{
 		if (material_name == 'metal' || material_name == 'metal2') {
 			texture_name = 'metal';
 			if (params.metalPaint == "порошок") color_name = params.carcasColor;
+		}
+		//roof
+		if (material_name == 'metal_roof') {
+			color_name = params.roofMetalColor;
+			texture_name = 'metal_roof';
+		}
+		if (material_name == 'plastic_roof') {
+			color_name = params.roofPlastColor;
+			texture_name = 'plastic_roof';
 		}
 		if (material_name == 'metal_railing') {
 			if (params.metalPaint_railing == "нет" || params.metalPaint_railing == "не указано") color_name = 'черный';
@@ -678,6 +692,8 @@ function addCustomersViewport(){
 				camera.lookAt(lookAt);
 			}
 		}
+
+		processAnimations();
 	// var camera = view.camera;
 
 		view.renderer.render(view.scene, camera);
@@ -691,6 +707,27 @@ function addCustomersViewport(){
 	// $sceneStruct[viewportId] = [];
 		
 	// change3dMenu($sceneStruct);
+}
+
+/**
+ * Функция обрабатывает анимации, вызывается при отрисовке фрейма
+ */
+function processAnimations(){
+	if (window.animations) {
+		animations.forEach(function(animation, i){
+			var timeStart = animation.timeStart;
+			var duration = animation.duration;
+			var currentTimestamp = new Date().getTime();
+
+			var progress  = (currentTimestamp - timeStart) / duration;
+			if (progress < 1) {
+				animation.context.animationProgress(animation.animationName, progress)
+			}else{
+				animation.context.animationProgress(animation.animationName, 1);
+				animations.splice(i, 1);
+			}
+		});
+	}
 }
 
 function onWindowResize() {

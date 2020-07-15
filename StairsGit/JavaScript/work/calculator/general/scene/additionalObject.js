@@ -160,8 +160,7 @@ class AdditionalObject extends THREE.Object3D {
 		}
 
 		if (json.color) json.meshParams.color = json.color;
-
-		return eval('new ' + json.className + '(json)')
+		return eval('new ' + json.className + '(json)');
 	}
 
 	static getMeta() {

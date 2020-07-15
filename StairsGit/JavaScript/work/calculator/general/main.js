@@ -145,13 +145,14 @@ function recalculate() {
 				
 				var drawFunc = function(){};
 				if($("#calcType").val() == "carport") drawFunc = drawCarport;
+				else if($("#calcType").val() == "veranda") drawFunc = drawVeranda;
 				else drawFunc = drawStaircase;
 				
 				drawFunc('vl_1', true);
 				redrawWalls();
 
 				if($("#calcType").val() == "railing"){
-					drawConcrete('vl_1');
+					redrawConcrete();
 				}
 				else {
 					drawTopFloor();
@@ -170,29 +171,29 @@ function recalculate() {
 
 				drawSceneDimensions();
 				
-				if($("#calcType").val() != "railing" && $("#calcType").val() != "carport"){
+				if($("#calcType").val() != "railing" && $("#calcType").val() != "carport" && $("#calcType").val() != "veranda"){
 					printGeomDescr();
 				}
 			
 				//расчет цены
 				if(params.calcType != "geometry"){
 					staircasePrice = {}; //очищаем глобальный массив цен элементов лестницы
-					if($("#calcType").val() == "railing"){
-						calcGlassRailingPrice();
-					}else {
+					if ($("#calcType").val() == "railing") {
+						calcRailingModulePrice()
+					}else{
 						if($("#calcType").val() == "vhod" && params.staircaseType == "Готовая"){
 							calculateCarcasPrice_stock();
 							calculateRailingPrice_stock();
 						}else{
-							calculateCarcasPrice(); //функция в файле /calculator/metal/priceCalc_2.0.js
+							calculateCarcasPrice();
 							calculateRailingPrice2(); //функция в файле priceLib.js
 						}
 						calculateBanisterPrice(); //функция в файле priceCalcBanister.js
 						calcWrPrice(); //функция в файле /calculator/wardrobe/priceCalc.js
-						calculateTotalPrice2(); //функция в файле priceLib.js
-						printPrice2(); //функция в файле priceLib.js
-						printCost2(); //функция в файле priceLib.js
 					}
+					calculateTotalPrice2(); //функция в файле priceLib.js
+					printPrice2(); //функция в файле priceLib.js
+					printCost2(); //функция в файле priceLib.js
 
 					printMaterialsNeed();
 					calcProductionTime();

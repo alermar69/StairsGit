@@ -20,6 +20,7 @@
 	if(strpos($_SERVER["REQUEST_URI"], "mono")) $calcType = "mono";
 	if(strpos($_SERVER["REQUEST_URI"], "timber")) $calcType = "timber";
 	if(strpos($_SERVER["REQUEST_URI"], "vhod")) $calcType = "vhod";
+	if(strpos($_SERVER["REQUEST_URI"], "railing")) $calcType = "railing";
 	if (isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII']) $calcType = $GLOBALS['CALCULATOR_CONFIG']['calc_type'];
 
 	
@@ -193,6 +194,12 @@
 		'material' => "timber",
 	];
 	$elements[] = $item;
+
+	if ($calcType == 'railing') {
+		$elements = array_filter($elements, function($v, $k) {
+			return $v['id'] == 'treads' || $v['id'] == 'risers' || $v['id'] == 'skirting';
+		}, ARRAY_FILTER_USE_BOTH);
+	}
 	
 	//заголовки таблицы
 	$formText = "<tr><th>Элемент</th>";	

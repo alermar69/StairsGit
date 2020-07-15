@@ -122,3 +122,4 @@
 
 <button id='addWallLedge'>Добавить выступ</button>
 <button id='redrawWalls'>Обновить</button>
+<button id='mooveLedge' type="button" name="button">Переместить</button>

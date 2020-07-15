@@ -713,6 +713,7 @@ function configPaintingInputs(){
 	//цвет покраски
 	$(".lakColor").hide();
 	$(".oilColor").hide();
+	console.log(params.timberPaint)
 	if(params.timberPaint == "морилка+лак" || params.timberPaint == "морилка+патина+лак") $(".lakColor").show();
 	if(params.timberPaint == "цветное масло") $(".oilColor").show();
 	
@@ -815,6 +816,7 @@ function setStairOption(){
 	if (stairTypeSelected == "лиственница тер.") frame = "только с рамками";
 	if (stairTypeSelected == "пресснастил") frame = "только без рамок";
 	if (stairTypeSelected == "стекло") frame = "только с рамками";
+	if (stairTypeSelected == "короб") frame = "только с рамками";
 
 
 	if (frame == "только с рамками") {
@@ -887,11 +889,11 @@ function setStairOption(){
 	if(params.calcType == "bolz"){
 		if($("#treadThickness").val() < 60) $("#treadThickness").val(60);
 	}
-
+/*
 	if ($('#stairType').val() == 'короб') {
 		$("#treadThickness").val(20);
 	}
-	
+*/	
 } //end of setStairOption()
 
 function addButtonDelete(id, countid){

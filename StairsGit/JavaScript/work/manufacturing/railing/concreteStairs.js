@@ -1,9 +1,9 @@
 var concrete = [];
 
-function drawConcrete(viewportId){
+function redrawConcrete(){
 
 //удаляем предыдущую лестницу
-	if (concrete) removeObjects(viewportId, 'concrete');
+	if (concrete) removeObjects(false, 'concrete');
 	
 //очищаем глобальные массивы
 	concrete = [];
@@ -23,6 +23,7 @@ function drawConcrete(viewportId){
 			var inputId = $(this).attr("id");
 			var propName = inputId.match(/^([^0-9]+)[0-9]+$/)[1]; //отсекаем индекс
 			sectParams[propName] = $(this).val();
+			if ($(this).attr('type') == 'checkbox') sectParams[propName] = $(this).is(':checked');
 		});
 			
 		//общие параметры
@@ -44,6 +45,8 @@ function drawConcrete(viewportId){
 			mesh.position.z = sectParams.posZ;
 			mesh.rotation.y = sectParams.posAng * Math.PI / 180;
 			concrete.push(mesh);
+			mesh.objectRowClass = 'concreteParRow'
+			mesh.objectRowId = i;
 			
 			dxfBasePoint.x += 2000;
 		}
@@ -52,7 +55,7 @@ function drawConcrete(viewportId){
 	for (var i = 0; i < concrete.length; i++) addWareframe(concrete[i], concrete);
 	
 	//добавляем объекты в сцену
-	addObjects(viewportId, concrete, 'concrete');
+	addObjects(false, concrete, 'concrete');
 
 }; //end of drawConcrete
 
@@ -73,7 +76,7 @@ function drawMarsh(par){
 		points.push(point)
 		point = newPoint_xy(point, par.b*1.0, 0);
 		points.push(point) 
-		};
+	};
 	var botLineP1 = points[points.length - 1]
 	
 	if(par.marshType == "пилообразный"){
@@ -87,7 +90,7 @@ function drawMarsh(par){
 		//нижняя точка
 		var point = itercection(points[0], newPoint_xy(points[0], 100, 0), botLine.p1, botLine.p2);
 		points.push(point)
-		}
+	}
 		
 	if(par.marshType == "ломаный"){
 		point = newPoint_xy(botLineP1, 0, -par.sectThk*1.0);
@@ -103,21 +106,19 @@ function drawMarsh(par){
 			};
 		point = newPoint_xy(points[0], par.b * 1.0 + par.sectThk * 1.0, 0);
 		points.push(point);	
-		}
+	}
 	
-	for (var i = 0; i < points.length; i++) {		
-		if(i < points.length-1)
-		addLine(shape, dxfPrimitivesArr, points[i], points[i+1], par.dxfBasePoint);
-		if(i == points.length-1)
-			addLine(shape, dxfPrimitivesArr, points[i], points[0], par.dxfBasePoint);
-		};
+	for (var i = 0; i < points.length; i++) {
+		if(i < points.length-1) addLine(shape, dxfPrimitivesArr, points[i], points[i+1], par.dxfBasePoint);
+		if(i == points.length-1) addLine(shape, dxfPrimitivesArr, points[i], points[0], par.dxfBasePoint);
+	};
 		
 	var extrudeOptions = {
-        amount: par.M,
-        bevelEnabled: false,
-        curveSegments: 12,
-        steps: 1
-		};
+		amount: par.M,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
 		
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
     geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
@@ -166,6 +167,7 @@ function drawMarsh(par){
 					hasTopScrews: false,
 					hasBotScrews: false
 				};
+				if (i == 0) riserPar.width += params.treadThickness;
 				
 				riserPar = drawRectRiser(riserPar);
 				riser = riserPar.mesh;
@@ -177,12 +179,43 @@ function drawMarsh(par){
 				par.mesh.add(riser);
 				riser.setLayer('risers');
 			}
+			
+			if (par.skirtingType != 'нет') {
+				// Плинтуса
+				var skirtingParams = {
+					rise: par.h * 1.0,
+					step: par.b * 1.0,
+					isLast: i == (par.stairAmt - 1),
+					dxfArr: dxfPrimitivesArr,
+					dxfBasePoint: par.dxfBasePoint
+				}
+				if (params.riserType == 'есть' && i == (par.stairAmt - 1)) skirtingParams.step += params.riserThickness;
+				if (i == 0) skirtingParams.rise += params.treadThickness;
+				
+				if (par.skirtingType == 'слева' || par.skirtingType == 'две стороны') {
+					skirtingParams = drawSkirting2(skirtingParams);
+					var skirting = skirtingParams.mesh;
+					skirting.position.x = par.b * i;
+					if (params.riserType == 'есть' && i < par.stairAmt) skirting.position.x -= params.riserThickness;
+					
+					skirting.position.y = par.h * i + params.treadThickness;
+					if (i == 0) skirting.position.y -= params.treadThickness;
+					par.mesh.add(skirting);
+				}
+				if (par.skirtingType == 'справа' || par.skirtingType == 'две стороны') {
+					skirtingParams = drawSkirting2(skirtingParams);
+					var skirting = skirtingParams.mesh;
+					skirting.position.x = par.b * i;
+					if (params.riserType == 'есть' && i < par.stairAmt) skirting.position.x -= params.riserThickness;
+					
+					skirting.position.y = par.h * i + params.treadThickness;
+					if (i == 0) skirting.position.y -= params.treadThickness;
+					skirting.position.z = par.M - 20;
+					par.mesh.add(skirting);
+				}
+			}
 		};
-
-
-		
-		
-		}
+	}
 	
 	return par;
 		
@@ -221,7 +254,8 @@ function drawTurn(par){
 		treadParams.endAngle = stepAngle * (i + 1);
 		treadParams.noseFront = 0;
 		
-		
+		treadParams.partName = null;
+
 		treadParams = drawTurnStep(treadParams)
 		var tread = treadParams.mesh;
 		tread.rotation.x = -Math.PI / 2;
@@ -241,6 +275,7 @@ function drawTurn(par){
 			treadParams.material = params.materials.tread;
 			treadParams.noseFront = params.nose;
 			if(params.riserType == "есть") treadParams.noseFront += params.riserThickness;
+			treadParams.partName = 'timberTurnTread';
 
 			treadParams = drawTurnStep(treadParams)
 			var tread = treadParams.mesh;
@@ -251,9 +286,7 @@ function drawTurn(par){
 			tread.setLayer('treads');
 			
 			//подступенок
-			if (params.riserType == "есть") {
-				console.log(treadParams)
-				
+			if (params.riserType == "есть") {				
 				var riserPar = {
 					len: treadParams.startLine.len,
 					width: par.h - params.treadThickness,
@@ -263,6 +296,8 @@ function drawTurn(par){
 					hasTopScrews: false,
 					hasBotScrews: false
 				};
+
+				if (i == 0) riserPar.width += params.treadThickness
 				
 				riserPar = drawRectRiser(riserPar);
 				riser = riserPar.mesh;
@@ -274,6 +309,69 @@ function drawTurn(par){
 				par.mesh.add(riser);
 				riser.setLayer('risers');
 			}
+		}
+
+		if (par.skirtingType != 'нет') {
+			// Плинтуса
+			var skirtingParams = {
+				rise: par.h * 1.0,
+				step: distance(treadParams.startLine.p2, treadParams.endLine.p2) - params.nose,
+				isLast: i == (par.stairAmt - 1),
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: par.dxfBasePoint
+			}
+			if (i == 0) skirtingParams.rise += params.treadThickness
+
+			if (params.riserType == 'есть') {
+				skirtingParams.step -= params.riserThickness;
+			}
+
+			if (i == (par.stairAmt / 2 - 1) && par.stairAmt % 2 == 0) {
+				skirtingParams.isLast = true;
+			}
+			
+			var firstPartStep = i < (par.stairAmt / 2);
+			if (par.stairAmt % 2 != 0) {
+				firstPartStep = i < (Math.ceil(par.stairAmt / 2))
+			}
+			var ang = angle(treadParams.endLine.p2, treadParams.startLine.p2);
+
+			var skirtingPos = {x: treadParams.startLine.p2.x, y: -treadParams.startLine.p2.y};
+			skirtingPos = polar(skirtingPos, ang, -params.nose);
+			if (par.stairAmt % 2 == 0 && i == par.stairAmt / 2) {
+				var ang = angle(treadParams.endLine.p2, treadParams.cornerOut);
+				skirtingPos.x = treadParams.cornerOut.x;
+				skirtingPos.y = -treadParams.cornerOut.y;
+				skirtingPos = polar(skirtingPos, ang, -params.nose);
+			}
+
+			// Вторая половина поворота
+			if (par.stairAmt % 2 != 0 && i == (Math.floor(par.stairAmt / 2))) {
+				var ang = angle(treadParams.startLine.p2, treadParams.cornerOut);
+				skirtingPos.x = treadParams.startLine.p2.x;
+				skirtingPos.y = -treadParams.startLine.p2.y;
+				skirtingPos = polar(skirtingPos, ang, -params.nose);
+			}
+			
+			skirtingParams = drawSkirting2(skirtingParams);
+			var skirting = skirtingParams.mesh;
+
+			skirtingPos = polar(skirtingPos, ang + Math.PI / 2, 20);
+
+			skirting.position.y = par.h * i + params.treadThickness;
+			if (i == 0) skirting.position.y -= params.treadThickness
+
+			skirting.position.x = skirtingPos.x;
+			skirting.position.z = skirtingPos.y + treadParams.offsetIn;
+			
+			if (!firstPartStep) {
+				ang += Math.PI;
+			}
+			skirting.rotation.y = ang;
+
+			var pos = {x: skirting.position.x, z: skirting.position.z};
+
+			par.mesh.add(skirting);
 		}
 	}
 
@@ -298,7 +396,7 @@ function drawTurn(par){
 	}
 */
 function drawTurnStep(par){
-
+	
 	var center = {x:0, y:0}; //центр поворота
 	
 	//костыль, чтобы не разваливалась геометрия со свесом при 0 отсутпе
@@ -322,7 +420,7 @@ function drawTurnStep(par){
 	//внешний угол
 	turnBorder.cornerOut = itercection(turnBorder.startOut, polar(turnBorder.startOut, Math.PI / 2, 100), turnBorder.endOut, polar(turnBorder.endOut, Math.PI / 2 + par.turnAngle, 100));
 	
-//передняя линия ступени
+	//передняя линия ступени
 
 	var startLine = {
 		p1: copyPoint(center),
@@ -342,7 +440,7 @@ function drawTurnStep(par){
 	
 	getTurnIntercectPoints(linePar)
 
-//задняя линия ступени
+	//задняя линия ступени
 
 	var endLine = {
 		p1: copyPoint(center),
@@ -372,7 +470,7 @@ function drawTurnStep(par){
 	}
 	
 	points.push(endLine.p2);
-	if(par.startAngle < par.turnAngle / 2 && par.endAngle > par.turnAngle / 2) points.push(turnBorder.cornerOut);
+	if(par.startAngle < par.turnAngle / 2 && par.endAngle > par.turnAngle / 2 || par.startAngle == par.turnAngle / 2) points.push(turnBorder.cornerOut);
 	points.push(startLine.p2);
 	
 	if(par.turnFactor == -1){
@@ -405,6 +503,41 @@ function drawTurnStep(par){
 	
 	startLine.len = distance(startLine.p1, startLine.p2)
 	par.startLine = startLine;
+	par.endLine = endLine;
+	par.cornerOut = turnBorder.cornerOut;
+
+	var partName = par.partName;
+	if (typeof specObj != 'undefined' && partName) {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				paintedArea: 0,
+				volume: 0,
+				area: 0,
+				name: "Забежная ступень",
+				metalPaint: false,
+				timberPaint: true,
+				division: "timber",
+				workUnitName: "area",
+				group: "Ступени",
+				type_comments: {}
+			}
+		}
+		var name = 0;
+
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		var box3 = new THREE.Box3().setFromObject(par.mesh);
+		specObj[partName]["area"] += ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
+		specObj[partName]["volume"] += (box3.max.x - box3.min.x) * (box3.max.y - box3.min.y) * par.thk / 1000000000;
+		specObj[partName]["paintedArea"] += ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
+				
+		par.mesh.specParams = {specObj: specObj, amt: 1, partName: partName, name: name}
+
+		par.mesh.specId = partName + name;
+	}
 	
 	return par;
 }
@@ -451,7 +584,7 @@ function drawPlatform(par){
 		bevelEnabled: false,
 		curveSegments: 12,
 		steps: 1
-		};
+	};
 	
 	var deltaWidth = par.sectWidth - par.sectWidthS
 	
@@ -477,9 +610,145 @@ function drawPlatform(par){
 	tread.rotation.x = -Math.PI / 2;
 	tread.rotation.z = -Math.PI / 2;
 	tread.position.y = -treadThickness;
-	//tread.position.z = par.sectWidth / 2;
 	par.mesh.add(tread);
 
+	//деревянные ступени
+	if(params.stairType != "нет"){
+		var shape = new THREE.Shape();
+		var baseLineOffset = params.nose;
+		if (params.riserType == 'есть') baseLineOffset += params.riserThickness;
+		var baseLine = parallel(p0, p1, 0 -baseLineOffset);
+		addLine(shape, par.dxfArr, baseLine.p1, baseLine.p2, par.dxfBasePoint);
+		addLine(shape, par.dxfArr, baseLine.p2, p2, par.dxfBasePoint);
+		addLine(shape, par.dxfArr, p2, p3, par.dxfBasePoint);
+		addLine(shape, par.dxfArr, p3, baseLine.p1, par.dxfBasePoint);
+
+		var extrudeOptions = {
+			amount: params.treadThickness,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));	
+		var tread = new THREE.Mesh(geom, params.materials.tread);
+		tread.rotation.x = -Math.PI / 2;
+		tread.rotation.z = -Math.PI / 2;
+		tread.position.y = 0;//treadThickness;
+		//tread.position.z = par.sectWidth / 2;
+		par.mesh.add(tread);
+		tread.setLayer('treads');
+
+		if (params.riserType == 'есть') {
+			var riserPar = {
+				len: distance(p0, p1),
+				width: par.sectThk * 1.0,
+				thk: params.riserThickness,
+				dxfArr: [],
+				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 2000, 0),
+				hasTopScrews: false,
+				hasBotScrews: false
+			};
+			
+			riserPar = drawRectRiser(riserPar);
+			riser = riserPar.mesh;
+			riser.rotation.z = -Math.PI / 2;
+			riser.rotation.y = -Math.PI / 2;
+			//riser.position.z = -frontLine.p1.y + treadParams.offsetIn;
+			// riser.position.y = tread.position.y - params.treadThickness;
+			// riser.position.x = tread.position.x - par.b;
+			par.mesh.add(riser);
+			riser.setLayer('risers');
+		}
+		
+		if (par.firstSkirting || par.thirdSkirting) {
+			// Плинтуса
+			var skirtingParams = {
+				rise: 0,
+				step: distance(p0, p1),
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: par.dxfBasePoint,
+				isNotVerticalPlank: true,
+				isLast: true
+			}
+
+			if (par.firstSkirting) {
+				skirtingParams = drawSkirting2(skirtingParams);
+				var skirting = skirtingParams.mesh;
+				skirting.position.z = skirtingParams.step;
+				skirting.position.y = params.treadThickness;
+				skirting.rotation.y = Math.PI / 2;
+				par.mesh.add(skirting);
+			}
+
+			if (par.thirdSkirting) {
+				skirtingParams = drawSkirting2(skirtingParams);
+				var skirting = skirtingParams.mesh;
+				skirting.position.x = distance(p3, p0) - params.riserThickness;
+				skirting.position.z = skirtingParams.step;
+				skirting.position.y = params.treadThickness;
+				skirting.rotation.y = Math.PI / 2;
+				par.mesh.add(skirting);
+			}
+		}
+		console.log(par.firstSkirting, par.secondSkirting, par.fourthSkirting)
+		if (par.secondSkirting || par.fourthSkirting) {
+			// Плинтуса
+			var skirtingParams = {
+				rise: 0,
+				step: distance(p3, p0),
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: par.dxfBasePoint,
+				isNotVerticalPlank: true,
+				isLast: true
+			}
+			if (par.secondSkirting) {
+				skirtingParams = drawSkirting2(skirtingParams);
+				var skirting = skirtingParams.mesh;
+				skirting.position.y = params.treadThickness;
+				par.mesh.add(skirting);
+			}
+
+			if (par.fourthSkirting) {
+				skirtingParams = drawSkirting2(skirtingParams);
+				var skirting = skirtingParams.mesh;
+				skirting.position.y = params.treadThickness;
+				skirting.position.z = distance(p0, p1) - params.riserThickness;
+				par.mesh.add(skirting);
+			}
+		}
+		
+		var partName = 'platformTread';
+		if (typeof specObj != 'undefined' && partName) {
+			if (!specObj[partName]) {
+				specObj[partName] = {
+					types: {},
+					amt: 0,
+					name: "Ступень площадка",
+					area: 0,
+					volume: 0,
+					paintedArea: 0,
+					metalPaint: false,
+					timberPaint: true,
+					division: "timber",
+					workUnitName: "amt",
+					group: "treads",
+				}
+			}
+			var area = par.sectLen * par.sectWidth / 1000000;
+			var paintedArea = area * 2 + (par.sectLen + par.sectWidth) * 2 * treadThickness / 1000000;
+	
+			var name = Math.round(par.sectLen) + "x" + Math.round(par.sectWidth) + "x" + Math.round(treadThickness);
+			if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+			if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+			specObj[partName]["amt"] += 1;
+			specObj[partName]["area"] += area;
+			specObj[partName]["volume"] += par.sectLen * par.sectWidth * treadThickness / 1000000000;
+			specObj[partName]["paintedArea"] += paintedArea;
+		}
+
+		tread.specId = partName + name;
+	}
 
 	return par;
 }//end of drawPlatform

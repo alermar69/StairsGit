@@ -121,6 +121,13 @@ $(function () {
 			$(this).val(params[this.id]) 
 		}
 	})
+	
+	$("#headerType").change(function(){
+		$(".header").hide();
+		$(".footerText").hide();
+		
+		$("." + $(this).val()).show()
+	})
 });
 
 /* функция показывает нужные инпуты для ввода имени расчета*/

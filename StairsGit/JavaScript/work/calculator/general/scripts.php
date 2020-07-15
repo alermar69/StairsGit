@@ -12,7 +12,7 @@
 		
 		//модуль
 
-		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'curve', 'wardrobe_2', 'objects', 'carport'];
+		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'curve', 'wardrobe_2', 'objects', 'carport', 'veranda'];
 
 		$calc_type = '';
 		foreach($calc_types as $item){
@@ -42,7 +42,7 @@
 		],
 		[
 			'url' => '/manufacturing/metal/drawSvg.js',
-			'only_for' => ['metal', 'bolz', 'console','vhod'],
+			'only_for' => ['metal', 'bolz', 'console','vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawStaircase.js',
@@ -50,35 +50,35 @@
 		],
 		[
 			'url' => '/manufacturing/metal/drawCarcasParts.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod'],
+			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawCarcasPartsLib_2.0.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod'],
+			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawRailing_3.0.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod'],
+			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawStringerPartsLt.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod'],
+			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawStringerPartsKo.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod'],
+			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawCarcas.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod'],
+			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawFrames.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod', 'vint', 'geometry'],
+			'only_for' => ['metal', 'bolz', 'console', 'vhod', 'vint', 'geometry','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawStringers.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod'],
+			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/testing.js',
@@ -86,7 +86,7 @@
 		],
 		[
 			'url' => '/manufacturing/metal/calcSpec.js',
-			'only_for' => ['bolz', 'console', 'metal', 'vhod'],
+			'only_for' => ['bolz', 'console', 'metal', 'vhod','veranda'],
 		],
 		
 		//bolz
@@ -170,10 +170,6 @@
 		],
 		[
 			'url' => '/manufacturing/railing/drawRailing.js',
-			'only_for' => ['railing'],
-		],
-		[
-			'url' => '/manufacturing/railing/calcSpec.js',
 			'only_for' => ['railing'],
 		],
 		[
@@ -292,15 +288,19 @@
 		// carport
 		[
 			'url' => '/manufacturing/carport/drawCarport.js',
-			'only_for' => ['carport'],
+			'only_for' => ['carport', 'veranda'],
 		],
 		[
 			'url' => '/manufacturing/carport/drawTruss.js',
-			'only_for' => ['carport'],
+			'only_for' => ['carport', 'veranda'],
+		],
+		[
+			'url' => '/manufacturing/carport/calcCarportParams.js',
+			'only_for' => ['carport', 'veranda'],
 		],
 		[
 			'url' => '/manufacturing/carport/drawCarportParts.js',
-			'only_for' => ['carport'],
+			'only_for' => ['carport', 'veranda'],
 		],
 		[
 			'url' => '/manufacturing/carport/calcSpec.js',
@@ -311,13 +311,19 @@
 			'only_for' => ['carport'],
 		],
 		[
-			'url' => '/calculator/carport/forms/main_form_change.js',
-			'only_for' => ['carport'],
+			'url' => '/calculator/veranda/forms/main_form_change.js',
+			'only_for' => ['veranda'],
 		],
 		[
 			'url' => '/calculator/carport/modelActions.js',
 			'only_for' => ['carport'],
-		]
+		],
+		
+		// veranda
+		[
+			'url' => '/manufacturing/veranda/drawVeranda.js',
+			'only_for' => ['veranda'],
+		],
 	]);
 
 	if ($calc_type != 'wardrobe_2' && $calc_type != 'objects') {
@@ -328,12 +334,12 @@
 
 	//специфические скрипты для модулей
 	
-	if($template == 'calculator' && $calc_type != 'geometry' && $calc_type != 'wardrobe_2' && $calc_type != 'objects'){
+	if(($template == 'calculator' || $template == 'customers') && $calc_type != 'geometry' && $calc_type != 'wardrobe_2' && $calc_type != 'objects'){
 		$scripts[] = [
-				'url' => '/'.$template.'/'.$calc_type.'/priceCalc.js',
+				'url' => '/calculator/'.$calc_type.'/priceCalc.js',
 			];
 		$scripts[] = [
-				'url' => '/'.$template.'/'.$calc_type.'/forms/templates.js',
+				'url' => '/calculator/'.$calc_type.'/forms/templates.js',
 			];
 		$scripts[] = [
 				'url' => '/calculator/metal/priceCalc.js',
@@ -400,14 +406,33 @@
 	if ($calc_type == 'railing') {
 		$formScripts['railing'] = ['/calculator/railing/forms/railingFormChange.js'];
 	}
-
-	if ($calc_type == 'wardrobe_2' || $calc_type == 'objects' || $calc_type == 'carport') {
+	
+	if ($calc_type == 'carport') {
 		$formScripts = [
 			'dimensions' => ["/calculator/general/forms/dimensionsFormChange.js"],
-			'objects' => ["/calculator/general/forms/objects/objectsFormChange.js"]
+			'objects' => ["/calculator/general/forms/objects/objectsFormChange.js"],
+			'assembling' => ["/calculator/general/forms/assemblingFormChange.js"],
+		];
+	}
+	
+	if ($calc_type == 'veranda') {
+		$formScripts = [
+			'dimensions' => ["/calculator/general/forms/dimensionsFormChange.js"],
+			'objects' => ["/calculator/general/forms/objects/objectsFormChange.js"],
+			'assembling' => ["/calculator/general/forms/assemblingFormChange.js"],
+			'banister' => ["/calculator/banister/forms/banister_construct_form_change.js", "/calculator/banister/forms/changeFormBanister.js"],
 		];
 	}
 
+	if ($calc_type == 'wardrobe_2' || $calc_type == 'objects') {
+		$formScripts = [
+			'dimensions' => ["/calculator/general/forms/dimensionsFormChange.js"],
+			'objects' => ["/calculator/general/forms/objects/objectsFormChange.js"],
+		];
+	}
+
+
+	
 	foreach ($formScripts as $script) {
 		foreach ($script as $script_url) {
 			$scripts[] = ['url' => $script_url];

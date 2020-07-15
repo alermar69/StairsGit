@@ -78,7 +78,7 @@ function drawShelf(par) {
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -1000),
 		length: shelfParams.width - legPar.sizeA * 2 - shelfParams.sideOverhang * 2,
 		poleAngle: 0,
-		partName: "timberPole",
+		partName: "shelfBridge",
 	}
 
 	//задняя царга
@@ -182,7 +182,7 @@ function drawSideWall(par) {
 		dxfBasePoint: par.dxfBasePoint,
 		length: shelfParams.height,
 		poleAngle: Math.PI / 2,
-		partName: "timberPole",
+		partName: "shelfLeg",
 	}
 
 	//передняя стоевая
@@ -215,7 +215,7 @@ function drawSideWall(par) {
 		dxfBasePoint: par.dxfBasePoint,
 		length: par.width - legPar.sizeB * 2,
 		poleAngle: 0,
-		partName: "timberPole",
+		partName: "shelfLeg",
 	}
 
 	//верхняя перемычка
@@ -341,6 +341,7 @@ function drawCountertop(par) {
 				amt: 0,
 				name: "Столешница",
 				area: 0,
+				vol: 0,
 				paintedArea: 0,
 				paintedArea: 0,
 				metalPaint: false,
@@ -357,7 +358,10 @@ function drawCountertop(par) {
 		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 		specObj[par.partName]["amt"] += 1;
 		specObj[par.partName]["area"] += area;
+		specObj[par.partName]["vol"] += par.width * par.len * shelfParams.shelfThk / 1000000000;
 		specObj[par.partName]["paintedArea"] += paintedArea;
+		
+		par.mesh.specId = par.partName + name;
 	}
 
 	//сохраняем данные для ведомости деталей
@@ -486,7 +490,7 @@ function drawCross(par) {
 		poleAngle: angle,
 		angStart: angle,
 		angEnd: angle,
-		partName: "timberPole",
+		partName: "shelfCrossProfile",
 	}
 
 	var pos = {

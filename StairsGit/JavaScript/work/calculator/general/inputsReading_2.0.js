@@ -487,6 +487,7 @@ function staircaseHasUnit() {
 	if (params.skirting_1 && params.skirting_1 != "нет") par.skirting = true;
 	if (params.skirting_3 && params.stairModel != "Прямая" && params.skirting_3 != "нет") par.skirting = true;
 	if (params.skirting_2 && params.stairModel != "П-образная трехмаршевая" && params.skirting_2 != "нет") par.skirting = true;
+	if (params.calcType == 'railing') par.skirting = true;
 
 	//ограждения
 	if (params.railingSide_1 != "нет") par.railing = true;
@@ -648,8 +649,11 @@ function staircaseHasUnit() {
 		$.each(additional_objects, function(){
 			if(this.calc_price){
 				if(this.className == "RackWall"){
-					if(this.meshParams.material == "дерево") par.dopTimber = true;
-					else par.dopMetal = true;
+					par.dopTimber = true;
+					if(this.meshParams.material == "металл") par.dopMetal = true;
+				}
+				if (this.className == "Shelf") {
+					par.dopTimber = true;
 				}
 				if(this.className == "MetalPlatform" || this.className == "Column" || this.className == "Canopy"){
 					par.dopMetal = true;

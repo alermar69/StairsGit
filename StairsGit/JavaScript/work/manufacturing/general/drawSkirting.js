@@ -679,6 +679,7 @@ function drawSkirting2(par) {
 				amt: 0,
 				name: "Планка плинтуса верт.",
 				area: 0,
+				volume: 0,
 				paintedArea: 0,
 				metalPaint: false,
 				timberPaint: true,
@@ -696,6 +697,7 @@ function drawSkirting2(par) {
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
+		specObj[partName]["volume"] += len * width * params.riserThickness / 1000000000;
 		specObj[partName]["paintedArea"] += paintedArea;
 	}
 	if(vert_plate) vert_plate.specId = partName + name;
@@ -708,6 +710,7 @@ function drawSkirting2(par) {
 				amt: 0,
 				name: "Планка плинтуса гор.",
 				area: 0,
+				volume: 0,
 				paintedArea: 0,
 				metalPaint: false,
 				timberPaint: true,
@@ -725,6 +728,7 @@ function drawSkirting2(par) {
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
+		specObj[partName]["volume"] += len * width * params.riserThickness / 1000000000;
 		specObj[partName]["paintedArea"] += paintedArea;
 	}
 	if(hor_plate) hor_plate.specId = partName + name;

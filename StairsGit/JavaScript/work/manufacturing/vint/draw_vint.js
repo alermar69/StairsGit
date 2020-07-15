@@ -79,7 +79,7 @@ function drawStaircase(viewportId, isVisible) {
 	var botFloorType = params.botFloorType;
 
 	var stairType = "timber";
-	if (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") stairType = "metal";
+	if (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку" || params.treadsMaterial == 'рамки') stairType = "metal";
 
 	var isBolz = false;
 	if (params.model == "Винтовая" && params.railingModel == "Ригели") isBolz = true;
@@ -104,6 +104,9 @@ function drawStaircase(viewportId, isVisible) {
 	var G = (Math.floor((360 - platformAngle) / params.stepAngle) - 1) * stepHeight;
 	if (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") {
 		G -= 120;
+	}
+	if (params.treadsMaterial == "рамки") {
+		G -= 120 + params.treadThickness;
 	}
 	if (params.treadsMaterial != "рифленая сталь" && params.treadsMaterial != "лотки под плитку") {
 		G -= 40;
@@ -237,12 +240,14 @@ function drawStaircase(viewportId, isVisible) {
 			material: params.materials.tread,
 			dxfArr: dxfPrimitivesArr,
 			turnFactor: turnFactor,
+			isFrame: params.treadsMaterial == 'рамки'
 		}
+		console.log(params.treadsMaterial, treadParams)
 		if (params.model.indexOf("Спиральная") != -1) {
 			treadParams.isMonoSpiral = true;
 			treadParams.columnDiam = params.staircaseDiam - params.M * 2;
 		}
-		if (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") {
+		if (params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку" || params.treadsMaterial == 'рамки') {
 			treadParams.type = "metal";
 		// 	treadParams.material = params.materials.metal;
 		}
@@ -266,7 +271,6 @@ function drawStaircase(viewportId, isVisible) {
 				}
 			}
 			if (isBolz) treadParams.isDivide = false;
-
 			treadParams = drawVintTread(treadParams);
 			var tread = treadParams.mesh;
 			tread.rotation.y = stepAngle * i * turnFactor + startAngle;
@@ -316,6 +320,8 @@ function drawStaircase(viewportId, isVisible) {
 
 		var spacerHeight0 = stepHeight - params.treadThickness - posY0;
 		if (stairType == "metal") spacerHeight0 = stepHeight - posY0 + 4; // 4 - подогнано
+		if (params.treadsMaterial == 'рамки') spacerHeight0 = -params.treadThickness + stepHeight - posY0 + 4; // 4 - подогнано
+		// if (params.treadsMaterial == 'рамки') spacerHeight0 = stepHeight - posY0; // 4 - подогнано
 
 		var spacerPar = {
 			height: spacerHeight0,
@@ -332,12 +338,14 @@ function drawStaircase(viewportId, isVisible) {
 		//cylParams.holeDiam = 26;
 		var spacerHeight = stepHeight - params.treadThickness;
 		if (stairType == "metal") spacerHeight = stepHeight;
+		// if (params.treadsMaterial == 'рамки') spacerHeight = stepHeight - params.treadThickness;
 
 		//var geom = new THREE.CylinderGeometry( radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded) 
 		//var geomHolderDrum = new THREE.CylinderGeometry( radiusTop, radiusBottom, height-8, radialSegments, heightSegments, openEnded) 
 
 		var posY = stepHeight;
 		if (stairType == "metal") posY += botFlanThk / 2;
+		if (params.treadsMaterial == 'рамки') posY -= params.treadThickness
 		//if (stairType == "metal") posY = spacerHeight0 + 8
 
 		for (var i = 1; i < stairAmt + 1; i++) {
@@ -356,7 +364,7 @@ function drawStaircase(viewportId, isVisible) {
 				params.treadsMaterial != "лотки под плитку" &&
 				midHoldersParams.pos.indexOf(i + 1) != -1
 			) isMidHolderSpacer = true;
-			if ((params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") &&
+			if ((params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку" || params.treadsMaterial == 'рамки') &&
 				midHoldersParams.pos.indexOf(i) != -1) isMidHolderSpacer = true;
 
 			if (isMidHolderSpacer) spacerPar.height -= 8;
@@ -367,7 +375,7 @@ function drawStaircase(viewportId, isVisible) {
 
 			var spacerObj = drawDrum(spacerPar)
 			spacerObj.tubeMesh.position.y = spacerObj.shimMesh.position.y = posY;
-			if ((params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку") &&
+			if ((params.treadsMaterial == "рифленая сталь" || params.treadsMaterial == "лотки под плитку" || params.treadsMaterial == 'рамки') &&
 				midHoldersParams.pos.indexOf(i) != -1) {
 				spacerObj.tubeMesh.position.y = spacerObj.shimMesh.position.y = posY + 8;
 			}
@@ -446,7 +454,8 @@ function drawStaircase(viewportId, isVisible) {
 			var regShim = drawCylinder_2(cylParams).mesh;
 			regShim.position.x = 0;
 			regShim.position.y = (stepHeight + regShimThk) * (i + 1) - params.treadThickness - regShimThk;
-			if (stairType == "metal") regShim.position.y += params.treadThickness + 4;
+			if (stairType == "metal" && params.treadsMaterial != 'рамки') regShim.position.y += params.treadThickness + 4;
+			if (params.treadsMaterial == 'рамки') regShim.position.y += 4;
 			if (midHoldersParams.pos.indexOf(i + 1) != -1 && stairType != "metal") {
 				regShim.position.y -= 8;
 			}

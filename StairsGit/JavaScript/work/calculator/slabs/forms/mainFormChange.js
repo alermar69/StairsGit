@@ -25,7 +25,7 @@ function configEstimateForms(){
 function addRow(estimateId){
 	
 	var types = ['сборка', 'доставка'];
-	if(estimateId == "estimate_mat") types = ['столешница', 'подоконник', 'подстолье', 'фасад мдф', 'фасад массив', 'другое'];
+	if(estimateId == "estimate_mat") types = ['столешница', 'подоконник', 'подстолье', 'фасад мдф', 'фасад массив', 'другое', 'слэб', 'изготовление столешницы', 'выравнивание плоскости'];
 	
 	var id = $("tr.estimateItem").length;
 	var row = "<tr class='estimateItem'>\
@@ -52,7 +52,7 @@ function addRow(estimateId){
 		</td>"
 	
 	row +=
-		"<td class='noPrint cost' style='display: none'><input type='number' id='сost" + id + "' class='сost' value='100'></td>\
+		"<td class='noPrint cost' style='display: none'><input type='number' id='cost" + id + "' class='cost' value='100'></td>\
 		<td class='noPrint cost' style='display: none'><input type='number' id='metalPart" + id + "' class='metalPart' value='0'></td>\
 		<td class='noPrint cost' style='display: none'><input type='number' id='timberPart" + id + "' class='timberPart' value='0'></td>\
 		<td class='noPrint cost' style='display: none'><input type='number' id='partnersPart" + id + "' class='partnersPart' value='0'></td>\
@@ -119,6 +119,9 @@ function calcPartnersPart(){
 	if(assemblingPart < 0) alert("ВНИМАНИЕ ОШИБКА! Сумма частей больше 100%! Проверьте цифры")
 }
 
+/** функция добавляет в таблицу материалов параметры изделия
+*/
+
 function addUnitParamsInputs($row){
 
 	var type = $row.find(".unitType").val();
@@ -155,6 +158,19 @@ function addUnitParamsInputs($row){
 		classNames: 'tableBase',
 	};
 	props.push(prop)
+	
+	//порода дерева
+	var prop = {
+		id: "geom",
+		values: [
+			"не указано",
+			"прямоугольник",
+			"по чертежу",
+		],
+		name: "Геометрия",
+		classNames: 'countertop facade',
+	};
+	props.push(prop);
 
 //столешницы, подоконники
 	
@@ -248,6 +264,16 @@ function addUnitParamsInputs($row){
 	};
 	props.push(prop);
 	
+	//ширина реки
+	var prop = {
+		id: "resinVol",
+		values: "number",
+		name: "Объем заливки, л",
+		defaultVal: 1,
+		classNames: 'resin',
+	};
+	props.push(prop);
+	
 	//тип фаски
 	var prop = {
 		id: "edgeModel",
@@ -265,7 +291,39 @@ function addUnitParamsInputs($row){
 		classNames: 'countertop',
 	};
 	props.push(prop);
+	
+	//геометрия фаски на верхней стороне
+	var prop = {
+		id: "edgeGeomTop",
+		values: [
+			"не указано",
+			"1 ребро",
+			"3 ребра",
+			"все ребра",
+			"по чертежу",
+			"нет",
+		],
+		name: "Фаска сверху",
+		classNames: 'countertop',
+	};
+	props.push(prop);
 
+	//геометрия фаски на верхней стороне
+	var prop = {
+		id: "edgeGeomBot",
+		values: [
+			"не указано",
+			"1 ребро",
+			"3 ребра",
+			"все ребра",
+			"по чертежу",
+			"нет",
+		],
+		name: "Фаска снизу",
+		classNames: 'countertop',
+	};
+	props.push(prop);
+	
 //подстолья
 
 
@@ -339,6 +397,9 @@ function addUnitParamsInputs($row){
 
 }
 
+/** функция конфигурирует параметры изделий
+*/
+
 function configParamsInputs($row){
 
 	var type = $row.find(".unitType").val();
@@ -347,7 +408,7 @@ function configParamsInputs($row){
 	
 	$row.find(".main").show();
 	
-	if(type == "столешница" || type == "подоконник") {
+	if(type == "столешница" || type == "подоконник" || type == "изготовление столешницы") {
 		$row.find(".countertop").show();
 		var model = $row.find(".model").val();
 		if(model == "слэб + смола непрозр." || model == "слэб + смола прозр.") $row.find(".resin").show();			
@@ -364,6 +425,27 @@ function configParamsInputs($row){
 	}
 	
 	if(type == "подстолье") $row.find(".tableBase").show();
+	
+	//слэбы
+	if(type == "слэб") {
+		$row.find(".len").closest('span').show();
+		$row.find(".thk").closest('span').show();
+		$row.find(".timberType").closest('span').show();
+	}
+	
+	if(type == "изготовление столешницы") {
+		//$row.find(".countertop").show();
+
+		$row.find(".resin").closest('span').show();
+		$row.find(".timberType").closest('span').hide();
+		if(model != "слэб + стекло") $row.find(".riverWidth").closest('span').hide();
+		$row.find(".thk").closest('span').hide();
+		
+	}
+	
+	if(type == "выравнивание плоскости"){
+		$row.find(".len").closest('span').show();
+	}
 	
 	if(type == "фасад мдф" || type == "фасад массив") $row.find(".facade").show();
 	

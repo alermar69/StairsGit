@@ -2546,6 +2546,8 @@ function calcFrameParams(par){
 	//координаты отверстий
 	if(params.model == "лт"){
 		par.stepHoleX1 = par.sideHolePosX + 5.0 + par.overhang;
+		//костыль для дпк с подступенками
+		if(params.stairType == "дпк" && params.riserType == "есть") par.stepHoleX1 += params.treadThickness;
 		par.stepHoleX2 = par.stepHoleX1 + par.width - par.sideHolePosX * 2;
 	}
 	

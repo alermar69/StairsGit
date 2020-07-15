@@ -1309,6 +1309,7 @@ fitCameraToObject = function ( object, viewType ) {
 	var scale = 1000 / maxDim;
 	if (params.calcType == 'timber_stock') scale = 800 / maxDim;
 	if (params.calcType == 'vint') scale = 800 / maxDim;
+	if (params.calcType == 'carport') scale = 900 / maxDim;
 	view.camera = new THREE.OrthographicCamera( view.width / - scale, view.width / scale, view.height / scale, view.height / - scale, -20000, 50000);
 
 	//Положения камер отличаются в зависимости от типа лестниц
@@ -1336,6 +1337,18 @@ fitCameraToObject = function ( object, viewType ) {
 		}
 		if (viewType == 'top') {
 			view.camera.position.set(center.x, center.y + 3000, center.z);
+		}
+		if (viewType == 'left' || viewType == 'right') {
+			view.camera.position.set(center.x, center.y, center.z);
+		}
+	}
+
+	if (params.calcType == 'carport') {
+		if (viewType == 'top') {
+			view.camera.position.set(center.x, center.y + 3000, center.z);
+		}
+		if (viewType == 'front') {
+			view.camera.position.set(5000, center.y, center.z);
 		}
 		if (viewType == 'left' || viewType == 'right') {
 			view.camera.position.set(center.x, center.y, center.z);

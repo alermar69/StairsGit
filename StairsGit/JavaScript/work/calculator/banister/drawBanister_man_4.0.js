@@ -134,6 +134,8 @@ $(function(){
 					section.rotation.y = -sectionTyrnAngle;
 					section.position.x = banisterSectionBasePoint[i].x;
 					section.position.y = params.staircaseHeight + 150;
+					if(params.calcType == "veranda") section.position.y = params.pltHeight + 150;
+					
 					section.position.z = banisterSectionBasePoint[i].z; // + params.topThreadsPosition;
 					if(params.turnSide == "левое") section.position.z -= params.floorHoleWidth;
 					section.objectRowClass = 'balSectRow'
@@ -155,6 +157,8 @@ $(function(){
 						section.name = 'banisterSections';
 						sectionArr.push(section);					
 						topRailing.push(section);
+						
+						console.log(section)
 					
 				}
 

@@ -97,6 +97,10 @@ drawStaircase = function (viewportId, isVisible) {
 	var skirting = drawSkirting_all(skirtingPar).mesh;
 	model.add(skirting, "treads");
 	
+	//корректируем толщину ступеней для коробчатых ступеней
+	if (params.stairType == 'короб') {
+		params.treadThickness = 20;
+	}
 	
 	/*** РАМКИ ЗАБЕЖНЫХ РАМОК ***/
 

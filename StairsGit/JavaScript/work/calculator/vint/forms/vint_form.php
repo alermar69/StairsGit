@@ -24,6 +24,16 @@
 								<option value="дуб ц/л">дуб ц/л</option>
 								<option value="рифленая сталь">рифленая сталь</option>
 								<option value="лотки под плитку">лотки под плитку</option>
+								<option value="рамки">Рамки</option>
+							</select>
+						</td>
+					</tr>
+
+					<tr class='frameTreads'>
+						<td>Материал накладок:</td>
+						<td><select name="frameFilling" size="1" id="frameFilling" onchange="setTreadThk()">
+								<option value="массив">Дерево</option>
+								<option value="камень">Камень</option>
 							</select>
 						</td>
 					</tr>

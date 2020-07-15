@@ -24,36 +24,27 @@ class Columns extends AdditionalObject {
 		})
 		
 		colParams = drawColArray(colParams);
-/*
-		//размеры профиля
-		var profPar = getProfParams(this.par.columnProf)
-		colParams.profWidth = profPar.sizeA;
-		colParams.profHeight = profPar.sizeB;
 		
-		colParams = drawColumn2(colParams);
-		colParams.mesh.position.y = this.par.length; //ноль колонны - центр верхнего отверстия
-*/		
 		this.add(colParams.mesh);
 	}
 
 	static calcPrice(par){
+		var meshPar = par.meshParams;
 		var dopSpec = partsAmt_dop[par.id];
 		var cost = 0;
 		if (dopSpec) {
 			var columnLength = getPartPropVal('column', 'sumLength', dopSpec) / 1000;
-			console.log('columnLength: ' + columnLength);
 			cost = calcColumnPrice({
 				columnLength: columnLength,
 				columnAmt: 1,
 				columnModel: par.meshParams.columnProf
 			})
-			console.log('columnCost: ' + cost);
 		}
 		return {
 			name: par.name || this.getMeta().title,
 			cost: cost,
-			priceFactor: par.priceFactor || 1,
-			costFactor: par.costFactor || 1
+			priceFactor: meshPar.priceFactor || 1,
+			costFactor: meshPar.costFactor || 1
 		}
 	}
 
@@ -124,14 +115,27 @@ class Columns extends AdditionalObject {
 					default: 2,
 					type: 'number'
 				},
-				
+				{
+					type: 'delimeter'
+				},
+				{
+					key: 'priceFactor',
+					title: 'К-т на цену',
+					default: 1,
+					type: 'number'
+				},
+				{
+					key: 'costFactor',
+					title: 'К-т на себестоимость',
+					default: 1,
+					type: 'number'
+				},
 			]
 		}
 	}
 }
 
 function drawColArray(par){
-	console.log(par)
 	par.mesh = new THREE.Object3D();
 		
 	//размеры профиля
@@ -145,9 +149,11 @@ function drawColArray(par){
 		dxfBasePoint: {x:0, y:0},
 	}
 	
-	var stepLen = par.len / par.amtLen;
-	var stepWidth = par.width / par.amtLen;
-	
+	var stepLen = par.len / (par.amtLen - 1);
+	var stepWidth = par.width / (par.amtWidth - 1);
+	if(par.amtLen < 2) stepLen = 0
+	if(par.amtWidth < 2) stepWidth = 0
+
 	for(var i=0; i<par.amtLen; i++){
 		for(var j=0; j<par.amtWidth; j++){
 			var column = drawColumn2(colParams).mesh;
@@ -155,7 +161,6 @@ function drawColArray(par){
 			column.position.x = stepLen * i;
 			column.position.y = par.length; //в функции отрисовки ноль колонны - центр верхнего отверстия
 			column.position.z = stepWidth * j;
-			
 			par.mesh.add(column);
 		}
 	}

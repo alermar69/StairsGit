@@ -82,6 +82,7 @@ function drawPlate(par) {
 				amt: 0,
 				name: "Панель",
 				area: 0,
+				volume: 0,
 				paintedArea: 0,
 				metalPaint: false,
 				timberPaint: true,
@@ -135,13 +136,14 @@ function drawPlate(par) {
 
 		}
 		var area = par.len * par.width / 1000000;
-		var paintedArea = area * 2 + (par.len + par.width) * 2 * thk / 1000000;
+		var paintedArea = area * 2 + (par.len * 1.0 + par.width * 1.0) * 2 * thk / 1000000;
 
 		var name = Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(thk);
 		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
 		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 		specObj[par.partName]["amt"] += 1;
 		specObj[par.partName]["area"] += area;
+		specObj[par.partName]["volume"] += par.len * par.width * thk / 1000000000;
 		specObj[par.partName]["paintedArea"] += paintedArea;
 	}
 

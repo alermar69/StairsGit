@@ -196,6 +196,198 @@ function drawRectFlan2(par) {
 
 }//end of drawRectFlan2
 
+/**функция отрисовки колонны. базовая точка это центр верхнего отверстия
+*/
+function drawColumn2(par) {
+	
+	par.mesh = new THREE.Object3D();
+	//var shape = new THREE.Shape();
+	
+	var holeOffset = 20;
+	var colLength = par.colLength + holeOffset;
+	var holeDst = 60;
+	var holeRad = 6.5;
+
+	//учитываем регулируемую опору
+	var adjustableLegHeight = 65;
+	if (par.profWidth != 40) colLength -= adjustableLegHeight;
+
+	var p0 = { x: 0, y: 0 }
+	var p1 = newPoint_xy(p0, -par.profWidth / 2, holeOffset)
+	var p2 = newPoint_xy(p1, 0, -colLength);// + holeOffset) // params basePoint, deltaX, deltaY
+	var p3 = newPoint_xy(p2, par.profWidth, 0)
+	var p4 = newPoint_xy(p1, par.profWidth, 0)
+
+	var pointsShape = [p1, p2, p3, p4];
+
+	//создаем шейп
+	var shapePar = {
+		points: pointsShape,
+		dxfArr: dxfPrimitivesArr,
+		dxfBasePoint: par.dxfBasePoint,
+	}
+	//параметры для рабочего чертежа
+	if (!par.drawing) {
+		shapePar.drawing = {
+			name: "Колонна",
+			group: "Columns",
+		}
+	}
+	shape = drawShapeByPoints2(shapePar).shape;
+
+	//круглое отверстие 1
+
+	var center1 = newPoint_xy(p0, 0, 0);
+	var center2 = newPoint_xy(center1, 0, -holeDst);
+	addRoundHole(shape, par.dxfArr, center1, holeRad, par.dxfBasePoint); //функция в файле drawPrimitives
+	addRoundHole(shape, par.dxfArr, center2, holeRad, par.dxfBasePoint); //функция в файле drawPrimitives
+
+
+	//подпись под фигурой
+	var text = par.text;
+	var textHeight = 30;
+	var textBasePoint = newPoint_xy(par.dxfBasePoint, -70, -100)
+	addText(text, textHeight, par.dxfArr, textBasePoint);
+
+	//отрисовываем закладную стойки
+	var rackFlan = drawColumnInnerFlan(par.profWidth);
+	rackFlan.position.y -= holeDst / 2;
+	rackFlan.position.x -= par.profWidth / 2;
+	rackFlan.position.z = -(par.profHeight / 2 - 4) * turnFactor;
+	if (par.key == "in") rackFlan.position.z = (par.profHeight / 2 - 2) * turnFactor;
+	if (!testingMode) par.mesh.add(rackFlan);
+
+	if(par.profWidth == 100 && par.profHeight == 50){
+		var plugParams = {
+			id: "plasticPlug_100_50",
+			width: 50,
+			height: 100,
+			description: "Заглушка опор",
+			group: "Каркас"
+		}
+		var rackBotPlug = drawPlug(plugParams);
+		rackBotPlug.rotation.y = Math.PI / 2;
+		rackBotPlug.position.x -= plugParams.width / 2 + plugParams.width / 2;
+		rackBotPlug.position.y = holeOffset;
+		if(!testingMode) par.mesh.add(rackBotPlug);
+	}
+
+	//тело
+	var extrudeOptions = {
+		amount: par.profHeight,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var col = new THREE.Mesh(geom, params.materials.metal);
+	col.position.x = -par.profWidth / 2;
+	col.position.z = -par.profHeight / 2;
+	par.mesh.add(col);
+	
+	// болты
+	
+	if(typeof anglesHasBolts != "undefined" && anglesHasBolts){ //глобальная переменная
+		var boltPar = {
+			diam: boltDiam,
+			len: boltLen,
+		}
+		
+		var bolt = drawBolt(boltPar).mesh;
+        bolt.rotation.x = Math.PI / 2 * turnFactor;
+	    if (params.model == "ко") bolt.rotation.x = -Math.PI / 2 * turnFactor;
+		bolt.position.x = - par.profWidth / 2;
+		bolt.position.z = (boltPar.len / 2 - boltBulge - par.profHeight / 2) * turnFactor;
+	    if (params.model == "ко") bolt.position.z = -(boltPar.len / 2 - boltBulge - par.profHeight / 2) * turnFactor;
+        if (par.key == "in") {
+            bolt.rotation.x *= -1;
+            bolt.position.z *= -1;
+        }
+		par.mesh.add(bolt);
+				
+		var bolt2 = drawBolt(boltPar).mesh;
+		bolt2.rotation.x = bolt.rotation.x;
+		bolt2.position.x = bolt.position.x;
+		bolt2.position.y = bolt.position.y - holeDst; 
+		bolt2.position.z = bolt.position.z;
+		par.mesh.add(bolt2);
+	}
+
+	if (par.profWidth != 40) {
+		var isAngle = false; //отрисовываем регулируемую опору без уголка
+		var leg = drawAdjustableLeg(isAngle);
+		leg.position.x = -par.profWidth / 2 - 50 ;
+		leg.position.z = - 37;
+		leg.position.y = p2.y - 25;// + 40;
+		par.mesh.add(leg);
+	//	col.position.y += adjustableLegHeight;
+	}
+
+	//сохраняем данные для спецификации
+	var partName = "column";
+	if(typeof specObj !='undefined'){
+		if(!specObj[partName]){
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				sumLength: 0,
+				name: "Колонна",
+				metalPaint: true,
+				timberPaint: false,
+				division: "metal",
+				workUnitName: "amt", //единица измерения
+				group: "Каркас",
+				}
+			}
+		var name = Math.round(colLength) + "x" + par.profWidth + "x" + par.profHeight;
+		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		specObj[partName]["sumLength"] += colLength;
+	}
+	par.mesh.specId = partName + name;
+
+	par.dxfBasePoint.x += par.profWidth + 100;
+
+	return par;
+}//end of drawColumn2
+
+/**
+ * Отрисовывает закладную колонны
+ */
+function drawColumnInnerFlan(profSize) {
+	var geometry = new THREE.BoxGeometry(profSize / 2, 80, 2);
+	var flan = new THREE.Mesh(geometry, params.materials.metal);
+
+	var partName = "banisterInnerFlange";
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				name: "Закладная колонн",
+				metalPaint: true,
+				timberPaint: false,
+				isModelData: true,
+				division: "stock2",
+				workUnitName: "amt",
+				group: "Каркас",
+				purposes: ["Закладная колонн"]
+			}
+		}
+
+		var name = 0;
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+	}
+
+	flan.specId = partName;
+	flan.setLayer("metis");
+	return flan;
+}
+
 function drawBolt(par) {
 	/*
 	diam
@@ -2604,7 +2796,7 @@ layer
 				area = (arcLength / 1000) * (par.height / 1000);
 				specObj[partName]["area"] += area;
 			}else if (partName == 'polySheet') {
-				area = Math.ceil((arcLength / 1000)) * Math.ceil((par.height / 2100));
+				area = Math.ceil((arcLength / 1000)) * Math.ceil((par.height / 2100)) * 2.1; //округляем до ширины листа
 				specObj[partName]["area"] += area;
 			}else{
 				sumLength = arcLength / 1000;

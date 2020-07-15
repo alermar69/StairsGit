@@ -4,6 +4,17 @@ $APPLICATION->SetTitle("Расчет пожарных лестниц v.1.0");
 include $GLOBALS['ROOT_PATH']."/orders/calcs/getOrderData.php";
 ?> 
 
+<div class="noPrint">
+	Шапка: 
+	<select size="1" id="headerType" class="form-control-sm">
+		<option value="style-t" selected >Стиль-Т</option>	
+		<option value="inside">Инсайд</option>	
+		<option value="нет">нет</option>	
+	</select>
+	<br/>
+	<button class="btn btn-outline-dark" id="makeAccepted">Привязать к заказу</button>
+</div>
+
 <h1 id = "mainTitle">Коммерческое предложение на пожарные лестницы</h1>
 
 

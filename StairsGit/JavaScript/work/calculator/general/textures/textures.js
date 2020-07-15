@@ -6,7 +6,7 @@ function getHandrailMaterial(angle){
 		if(params.handrailMaterial == "ПВХ") color = params.handrailColor
 		if(params.handrailMaterial == "Дуб") color = params.timberColorNumber
 	}
-consoel.log(color)
+
 	var material = new THREE.MeshStandardMaterial({
 		metalness: 0.1,
 		roughness: 0.5,
@@ -574,6 +574,7 @@ function getLedgeMaterial(matName, color, textureScale){
 }
 
 function initTextureMaterials(){
+	console.log("initTextureMaterials")
 	params.materials.texture = {
 		metal: getMetalMaterial(params.carcasColor),
 		metal_railing: getMetalMaterial(params.metalBalColor),
@@ -757,9 +758,9 @@ function setMaterials(){
 
 	var materials = [];
 
-		if(typeof $sceneStruct != 'undefined' && $sceneStruct.vl_1){
+	if(typeof $sceneStruct != 'undefined' && $sceneStruct.vl_1){
 		var metalColor = 0x767676;
-		var metalColor_railing = 0x767676;
+		var metalColor_railing = 0x767676;			
 		var metalColor2 = 0xA3A3A3;
 		var stringerCoverColor = 0x767676;
 		var skirtingColor = 0x804000;
@@ -771,6 +772,9 @@ function setMaterials(){
 		var balColor = timberColor;
 		var handrailColor = timberColor;
 		var boltColor = 0x8B8B8B//0xAEAEAE;
+		
+		var metalColor_roof = 0xEEEEEE;	
+		var plasticColor_roof 0x3AE2CE;
 
 		//цвета из параметров
 		if(!$sceneStruct.vl_1.realColors && params.calcType != "geometry"){
@@ -787,6 +791,10 @@ function setMaterials(){
 			newellColor = getTimberColorId(params.newellsColor)
 			balColor = getTimberColorId(params.timberBalColor)
 			handrailColor = getTimberColorId(params.handrailsColor)
+			
+			metalColor_roof = getMetalColorId(params.roofMetalColor);
+			plasticColor_roof = getPlasticColorId(params.roofPlastColor);
+			
 		}
 
 		var skirtingMaterial = new THREE.MeshLambertMaterial({name:'skirting', color: skirtingColor,});
@@ -819,7 +827,9 @@ function setMaterials(){
 			topFloorMaterial.transparent = ceilMaterial.transparent = wallMaterial.transparent = false;
 
 		}
-
+		
+		var metalMaterial_roof = new THREE.MeshLambertMaterial({name:'metal_roof', color: metalColor_roof, wireframe: false });
+		var plasticMaterial_roof = new THREE.MeshLambertMaterial({name:'plastic_roof', opacity: 0.6, color: plasticColor_roof, transparent: true });
 
 		//материал ступеней не из дерева
 
@@ -852,6 +862,8 @@ function setMaterials(){
 			topFloor: topFloorMaterial,
 			floor: floorMaterial,
 			wall: wallMaterial,
+			metal_roof: metalMaterial_roof,
+			plastic_roof: plasticMaterial_roof,
 		};
 	}
 

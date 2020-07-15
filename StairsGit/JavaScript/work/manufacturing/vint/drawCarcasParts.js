@@ -377,7 +377,6 @@ function drawVintTreadShape(par) {
 
 	//рассчитываем координаты базовых точек
 	var basePoints = calcVintTreadPoints(par.treadAngle)
-
 	//деревянная ступень
 	if (type == "timber" && !par.isMonoSpiral) {
 		/*рассчитываем координаты точек*/
@@ -526,6 +525,32 @@ function drawVintTreadShape(par) {
 
 		var sizeA = edgeLength;
 		var sizeB = distance(p3, p4);
+
+		if (par.isFrameTop) {
+			var sideOffset = 40;
+			// торец ступени
+			var line1 = parallel(p2, p3, -sideOffset);
+			var line2 = parallel(p4, p1, sideOffset);
+
+			// бока ступени
+			var line3 = parallel(p1, p2, sideOffset + radIn);
+			var line4 = parallel(p3, p4, -sideOffset);
+
+			var p0 = itercection(line1.p1, line1.p2, line3.p1, line3.p2);
+			var p1 = itercection(line2.p1, line2.p2, line3.p1, line3.p2);
+			var p2 = itercection(line2.p1, line2.p2, line4.p1, line4.p2);
+			var p3 = itercection(line1.p1, line1.p2, line4.p1, line4.p2);
+			
+			p0.filletRad = p1.filletRad = p2.filletRad = p3.filletRad = 15;
+
+			var shapePar = {
+				points: [p0,p1, p2, p3],
+				dxfArr: par.dxfArr,
+				dxfBasePoint: dxfBasePoint
+			}
+			var hole = drawShapeByPoints2(shapePar).shape;
+			treadShape.holes.push(hole);
+		}
 
 	}
 
@@ -737,8 +762,7 @@ function drawVintTread(par) {
 		curveSegments: 12,
 		steps: 1
 	};
-
-
+	// if(par.isFrame) par.type = 'timber';
 	topPlateParams = drawVintTreadShape(par);
 	var shape = topPlateParams.shape;
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
@@ -746,6 +770,7 @@ function drawVintTread(par) {
 	var topPlate = new THREE.Mesh(geom, par.material);
 	topPlate.rotation.x = -0.5 * Math.PI;
 	topPlate.position.y = -par.thk;
+	if (par.isFrame) topPlate.position.y += 4;
 	par.mesh.add(topPlate);
 	par.mesh.specId = topPlateParams.articul;
 
@@ -753,6 +778,22 @@ function drawVintTread(par) {
 	if (par.isDivide) {
 		var flanDivide = drawConnectingFlans(par);
 		par.mesh.add(flanDivide);
+	}
+
+	// Металлическая накладка
+	if (par.isFrame) {
+		extrudeOptions.amount = 4;
+		topFramePlate = drawVintTreadShape(Object.assign({isFrameTop: true}, par));
+		
+		var shape = topFramePlate.shape;
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var topPFramelate = new THREE.Mesh(geom, params.materials.metal);
+		topPFramelate.rotation.x = -0.5 * Math.PI;
+		topPFramelate.position.y = -par.thk;
+		par.mesh.add(topPFramelate);
+		par.mesh.specId = topFramePlate.articul;
+		topPFramelate.setLayer('angles')
 	}
 
 	
@@ -779,7 +820,7 @@ function drawVintTread(par) {
 
 	//передние пластины
 
-	if (par.type == "metal") {
+	if (par.type == "metal" || par.isFrame) {
 		var frontPlateParams = {
 			length: topPlateParams.edgeLength,
 			thk: 4,
@@ -791,6 +832,8 @@ function drawVintTread(par) {
 			material: par.material,
 		}
 
+		if (par.isFrame) frontPlateParams.material = params.materials.metal;
+
 		//первая пластина
 		frontPlateParams = drawMetalTreadFrontPlate(frontPlateParams)
 		var frontPlate = frontPlateParams.mesh;
@@ -798,6 +841,7 @@ function drawVintTread(par) {
 		frontPlate.position.z = -par.p1.y - frontPlateParams.thk;
 		frontPlate.position.x = par.p1.x;
 		frontPlate.rotation.y = par.ang1;
+		if (par.isFrame) frontPlate.setLayer('angles')
 		par.mesh.add(frontPlate);
 
 		//вторая пластина
@@ -808,6 +852,7 @@ function drawVintTread(par) {
 		frontPlate.position.z = -par.p2.y // - frontPlateParams.thk;
 		frontPlate.position.x = par.p2.x;
 		frontPlate.rotation.y = par.ang2;
+		if (par.isFrame) frontPlate.setLayer('angles')
 		par.mesh.add(frontPlate);
 	}
 

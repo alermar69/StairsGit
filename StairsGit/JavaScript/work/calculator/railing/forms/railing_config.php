@@ -196,27 +196,6 @@
 				<td><textarea id="metalBalComment" rows="1" cols="30" class="comments"></textarea></td>
 			</tr>
 
-			<tr class='railingTimberPaint_tr'><td>Покраска дерева:</td> <td> 
-				<select id="timberPaint" size="1" onchange="">
-					<!-- варианты покраски дерева -->
-					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberPaint.php" ?>		
-				</select>
-			</td></tr>
-			
-			<tr class="railingTimberPaint_tr"><td>Поверхность дерева:</td> <td> 
-				<select id="surfaceType" size="1" >
-					<!-- варианты покраски дерева -->
-					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/surfaceTypes.php" ?>		
-				</select>
-			</td></tr>
-			
-			<tr class="railingTimberPaint_tr"><td>Шпаклевка:</td> <td> 
-				<select id="fillerType" size="1" >
-					<!-- варианты покраски дерева -->
-					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/fillerTypes.php" ?>		
-				</select>
-			</td></tr>
-
 			<tr class='railingTimberColor railingTimberPaint_tr'>
 				<td>Морилка:</td> 
 				<td> 

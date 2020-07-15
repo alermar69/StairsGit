@@ -1,26 +1,32 @@
 function changeFormCarcas(){
 	
-	if(params.carportType.indexOf("консольный") != -1 || params.carportType.indexOf("консольный двойной") != -1){
-		$("#columnProfile").val("100х200")
-		$("#roofType").val("Арочная")
-	}
-	
-	if(params.sectLen > 3000){
-		alert("Прочность фермы не позволяет сделать длину секции более 3000 мм. Была установлена длина секции 3000 мм.")
-		$("#sectLen").val(3000)
-	}
-	
-	if(params.trussWidth > 7500){
-		alert("Прочность фермы не позволяет сделать ширину навеса более 7500 мм. Была установлена ширина 7500 мм.")
-		$("#trussWidth").val(7500)
-	}
+	//устанавливаем расчетные сечения профилей
+	if(params.profTypes == "расчетные") setCarportProfs();
+	getAllInputsValues(params)
+
 	
 	$(".truss").show()
 	$(".dome").hide()
-	if(params.carportType == "купол"){
+	if(params.carportType == "купол" || params.carportType == "многогранник"){
 		$(".truss").hide()
 		$(".dome").show()
 	}
+	
+	//количество граней для многогранной геометрии
+	$("#edgeAmt").closest("tr").hide();
+	if(params.carportType == "многогранник") {
+		$("#columnProf").closest("tr").show();
+		
+	}
+	
+	//угол наклона кровли
+	if(params.roofType == "Арочная" && 
+		params.beamModel == "сужающаяся" && 
+		params.carportType.indexOf("консольный") == -1 &&
+		params.roofAng < 30) $("#roofAng").val(30)
+	//$("#roofAng").closest("tr").hide();
+	//if(params.roofType == "Плоская" ) $("#roofAng").closest("tr").show();
+	
 	
 	//параметры кровли
 	$(".roofPar").show();	
@@ -30,6 +36,29 @@ function changeFormCarcas(){
 	if(params.roofMat.indexOf("поликарбонат") == -1) $(".polyPar").hide()
 		
 	$(".profSheetPar").hide()
-	if(params.roofMat == "профнастил") $(".profSheetPar").show()
+	if(params.roofMat == "профнастил" || params.roofMat == "металлочерепица") $(".profSheetPar").show()
 	
+	if(params.carportType.indexOf("консольный") != -1){
+		$("#columnProf").val("100х200")
+		$("#roofType").val("Арочная")
+	}
+	
+	if(params.carportType == "сдвижной") $("#beamModel").val("проф. труба");
+	
+	if(params.carportType == "четырехскатный") {
+		$("#roofType").val("Плоская")
+		$("#beamModel").val("проф. труба");
+	}
+	
+	if(params.carportType == "многогранник") {
+		$("#roofType").val("Плоская")
+		$("#beamModel").val("проф. труба");
+	}
+	
+	
+	//текстура пола первого этажа
+	if(!params.floorMat) $("#floorMat").val("road_brick3")
+		
+	getAllInputsValues(params)
+	 
 }

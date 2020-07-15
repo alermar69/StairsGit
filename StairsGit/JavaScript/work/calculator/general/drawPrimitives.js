@@ -1788,16 +1788,29 @@ function calcCirclesFillet(par){
 	//расстояние от точки до центра второй окружности
 	var d2 = distance(par.point, par.center2);
 	var ang = angle(par.point, par.center1) - angle(par.point, par.center2)
-	
+
 	par.rad = (d2*d2 - par.rad2*par.rad2) / (2*par.rad2 + 2 * d2 * Math.cos(ang))
 	
 	var ang1 = angle(par.point, par.center1)
+	
 	par.center = polar(par.point, ang1, par.rad);
+	if(ang1 > 0) par.center = polar(par.point, ang1, -par.rad); //непонятный костыль
 	
 	//точка пересечения с нижней дугой
 	var ang2 = angle(par.center, par.center2)
 	par.point2 = polar(par.center, ang2, par.rad);
 
 	
+	return par;
+}
+/** функция рассчитывает параметры сегмента по хорде и высоте
+*/
+function calcSegmentPar(width, height){
+	var par = {};
+	par.basePoint = {x: -width/2, y:0},
+	par.rad = height / 2 + (width * width) / (8 * height);
+	par.center = {x: 0, y: height - par.rad};
+	par.halfAngle = angle(par.basePoint, par.center)
+
 	return par;
 }

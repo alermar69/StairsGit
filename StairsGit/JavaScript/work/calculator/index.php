@@ -117,6 +117,7 @@ $APPLICATION->SetTitle("");
 <h2>Другие расчеты</h2>
 <ul> 
 	<li><a href="/calculator/geometry/" target="_blank">Калькулятор геометрии</a></li>
+	<li><a href="/calculator/quick_calc/" target="_blank">Быстрый расчет</a></li>
 	<li><a href="/manufacturing/strength_calc/" target="_blank">Расчет прогиба</a></li>
 	<li><a href="/orders/calcs/" target="_blank">Поиск заказов в базе</a></li>
 	<li><a href="/calculator/offers/stat/" target="_blank">Статистика расчетов</a></li>

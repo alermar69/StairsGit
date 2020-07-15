@@ -27,6 +27,7 @@ class MetalPlatform extends AdditionalObject{
 	}
 
 	static calcPrice(par){
+		var meshPar = par.meshParams;
 		var dopSpec = partsAmt_dop[par.id];
 		var cost = 0;
 		if (dopSpec) {
@@ -35,25 +36,24 @@ class MetalPlatform extends AdditionalObject{
 			// Считаем стоимость профилей
 			midPositions.forEach(function(pos){
 				var beamLength = getPartPropVal('platformBeam_' + pos, 'sumLength', dopSpec);
-				console.log('length: ' + pos + " : " + beamLength);
 				var beamCost = getProfParams(par.meshParams['beamProf_' + pos]).unitCost * beamLength;
-				console.log('cost: ' + pos + " : " + beamCost);
-				cost += beamLength * beamCost;
+				cost += beamCost;
+				console.log(pos, beamLength, beamCost, )
 			});
 
 			if (par.meshParams.coverType != 'нет') {
 				var platformArea = getPartPropVal('platformPlate', 'area', dopSpec);
 				if (par.meshParams.coverType == 'ступени') var treadMeterPrice = calcTimberParams(params.treadsMaterial).m3Price * (params.treadThickness / 1000);
 				if (par.meshParams.coverType == 'фанера 21мм') var treadMeterPrice = 525;
-				console.log('treadMeterPrice: ' + treadMeterPrice + ' area: ' + platformArea);
 				cost += platformArea * treadMeterPrice;
 			}
 		}
+
 		return {
 			name: par.name || this.getMeta().title,
 			cost: cost,
-			priceFactor: par.priceFactor || 1,
-			costFactor: par.costFactor || 1
+			priceFactor: meshPar.priceFactor || 1,
+			costFactor: meshPar.costFactor || 1
 		}
 	}
 
@@ -148,13 +148,27 @@ class MetalPlatform extends AdditionalObject{
 						],
 					type: 'select'
 				},
+				{
+					type: 'delimeter'
+				},
+				{
+					key: 'priceFactor',
+					title: 'К-т на цену',
+					default: 1,
+					type: 'number'
+				},
+				{
+					key: 'costFactor',
+					title: 'К-т на себестоимость',
+					default: 1,
+					type: 'number'
+				},
 			]
 		}
 	}
 }
 
 function drawMetalPlatform(par){
-	console.log(par)
 	par.mesh = new THREE.Object3D();
 	par.dxfArr = [];
 	par.dxfBasePoint = {x:0, y:0};

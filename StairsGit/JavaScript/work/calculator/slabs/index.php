@@ -76,5 +76,7 @@ include $GLOBALS['ROOT_PATH']."/orders/calcs/getOrderData.php";
 <!--оболочки-->
 <script type="text/javascript" src="main.js"></script>
 
+<!--обработчик формы монтажа-->
+<script type="text/javascript" src="/calculator/general/forms/assemblingFormChange.js"></script>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

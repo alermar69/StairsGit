@@ -64,7 +64,17 @@ drawStaircase = function(viewportId, isVisible) {
 
 
 /*** КАРКАС НА ВСЕ ЛЕСТНИЦЫ ***/
-
+	
+	//корректируем толщину ступеней для коробчатых ступеней
+	if (params.stairType == 'короб') {
+		params.treadThickness = 40;
+	}
+	
+	if (params.treadPlatePockets == "есть") {
+		params.treadThickness -= 10;
+	}
+	
+	
 	var stringerParams = {
 		dxfBasePoint: newPoint_xy(dxfBasePoint, 0, -5000),
 		treadsObj: treadsObj,

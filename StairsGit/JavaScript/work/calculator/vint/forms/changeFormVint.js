@@ -22,6 +22,12 @@ function changeFormVint(){
 	if (params.model == "Винтовая" && params.railingModel == "Ригели") {
 		$("#treadThickness").val(60);
 	}
+	if (params.treadsMaterial == "рамки") {
+		$("#treadThickness").val(20);
+		$('.frameTreads').show();
+	}else{
+		$('.frameTreads').hide();
+	}
 	if (params.model == "Спиральная" || params.model == "Спиральная (косоур)"){
 		$("#M").closest("tr").show();
 	}
