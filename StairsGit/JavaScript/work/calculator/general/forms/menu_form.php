@@ -1,1 +1,0 @@
-<div class='new-menu-wrapper' id='menu-form-wrapper'></div>
