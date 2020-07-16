@@ -1,0 +1,14 @@
+.form_table textarea {
+	    height: 1.8em; 
+}
+
+.form_table .noPrint {
+	background-color: #e7e7e7;
+}
+
+@media print {
+	.form_table textarea {
+		border: none;
+		resize: none;
+	}
+}

@@ -1,0 +1,125 @@
+.description-block .descripton-content{
+	padding-top: 60px;
+	padding-bottom: 60px;
+	font-family: 'Roboto Condensed',Arial,sans-serif;
+	color: #000;
+}
+
+.description-block:nth-child(even){
+	background-color: #f2f2f2;
+}
+
+.description-block:nth-child(even) .descripton-content{
+	flex-direction: row-reverse;
+}
+
+.description-block .description-title{
+	font-size: 40px;
+	line-height: 1.23;
+	font-family: 'Roboto',Arial,sans-serif;
+	font-weight: 400;
+	color: #000;
+	display: block;
+	padding-bottom: 34px;
+}
+
+.description-block .description-main{
+	font-size: 18px;
+	padding-bottom: 26px;
+}
+
+
+.description-block .description-facts ul{
+	padding-left: 20px;
+	font-weight: 400;
+}
+
+.description-block .description-facts ul li{
+	margin-top: 10px;
+}
+
+.description-block .description-images{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
+.description-block .description_image-button{
+	text-align: center;
+}
+
+.description-block .description-images .description-images_image{
+	/* width: 50%; */
+	padding: 5px;
+	position: relative;
+	flex: 0.3 0;
+}
+
+.description-block .description-images .description-images_image:first-child {
+	flex: 0 1 100%;
+	height: auto;
+	width: auto;
+}
+
+.description-block .description-images_image .description-images_image-delete{
+	position: absolute;
+	left: 5px;
+	top: 5px;
+	width: 32px;
+	height: 32px;
+}
+
+.description-block .description-images_image-delete .btn{
+	width: 32px;
+	height: 32px;
+}
+
+.description-block .description-images_image-delete i{
+	margin-left: -3px;
+}
+
+.description-block .description-images_image img{
+	width: 100%;
+	height: auto;
+}
+
+#descriptionWrap{
+	width: 100vw;
+}
+.preview_generator-content{
+	width: 600px;
+	height: 500px;
+}
+
+.preview_generator-visualisation{
+	width: 600px;
+	height: 450px;
+}
+
+.preview_generator-visualisation canvas{
+	transform: translate(-29%, -30%) scale(0.42);
+}
+
+.preview_generator-buttons{
+	bottom: 10px;
+	width: 100%;
+	margin: auto;
+	text-align: center;
+	display: flex;
+}
+
+.preview_generator-buttons .btn{
+	margin: auto 10px;
+	text-align: center;
+}
+
+.description-title{
+	text-align: center;
+	padding: 20px;
+	font-size: 36px;
+}
+
+.preview_generator-menu{
+	height: 500px;
+    overflow: scroll;
+}
