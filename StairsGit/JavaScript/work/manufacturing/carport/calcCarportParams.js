@@ -208,6 +208,7 @@ function calcCarportPartPar(){
 	//общая длина навеса
 	par.main.len = params.sectAmt * params.sectLen + params.frontOffset * 2;
 	par.main.width = params.width / Math.cos(params.roofAng / 180 * Math.PI);
+	par.main.roofAng = params.roofAng / 180 * Math.PI;
 	
 
 	//стропила

@@ -1306,7 +1306,10 @@ function drawRoofCarcas(par){
 	if(params.roofType == "Арочная") drawFunc = drawArcSheetTruss;
 	if(params.carportType == "консольный" || params.carportType == "консольный двойной") drawFunc = drawArcSheetWing;
 	if(params.beamModel == "проф. труба" || params.carportType == "сдвижной") drawFunc = drawCarportBeam;
-	if(params.beamModel == "ферма постоянной ширины") drawFunc = drawArcTubeTruss;
+	if (params.beamModel == "ферма постоянной ширины") {
+		drawFunc = drawArcTubeTruss;
+		if (params.roofType == "Плоская") drawFunc = drawTriangleTubeTruss;
+	}
 	
 	var rafterArrPar = {
 		amt: {
@@ -1335,6 +1338,13 @@ function drawRoofCarcas(par){
 	
 	if(params.carportType == "консольный" || params.carportType == "консольный двойной"){
 		rafterArrPar.arrSize.z += partPar.truss.thk //фермы внакладку на колонны
+	}
+	if (params.beamModel == "ферма постоянной ширины") {
+		if (params.roofType == "Плоская") {
+			//rafterPar.len /= Math.cos(partPar.main.roofAng)
+			//rafterArrPar.itemRot = {z: partPar.main.roofAng}
+			//rafterArrPar.moove = { y: (rafterPar.len / 2 - 100) * Math.tan(partPar.main.roofAng)}
+		}
 	}
 		
 	var rafterArr = drawRectArray(rafterArrPar).mesh;

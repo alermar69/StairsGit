@@ -318,6 +318,10 @@
 			'url' => '/calculator/carport/modelActions.js',
 			'only_for' => ['carport'],
 		],
+		[
+			'url' => '/manufacturing/carport/personalScripts.js',
+			'only_for' => ['carport'],
+		],
 		
 		// veranda
 		[

@@ -1498,3 +1498,240 @@ function drawArcTubeTruss(par){
 	return par;
 	
 }
+
+function drawTriangleTubeTruss(par) {
+	if (!par) par = {};
+	if (!par.dxfBasePoint) par.dxfBasePoint = { x: 0, y: 0 };
+	if (!par.len) par.len = params.width;
+	par.mesh = new THREE.Object3D();
+	var mesh = new THREE.Object3D();
+
+	var beamProfParams = getProfParams(params.beamProf)
+
+	//нижний пояс
+
+	var polePar = {
+		poleProfileY: beamProfParams.sizeA,
+		poleProfileZ: beamProfParams.sizeB,
+		dxfBasePoint: par.dxfBasePoint,
+		length: par.len,
+		poleAngle: 0,
+		material: params.materials.metal,
+		dxfArr: [],
+		type: 'rect',
+		partName: 'carportBeam',
+	};
+	polePar.length = par.len / Math.cos(partPar.main.roofAng)
+
+	var extrudeOptions = {
+		amount: beamProfParams.sizeB,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var ang = partPar.main.roofAng;
+	var p0 = { x: 0, y: 0 };
+
+	var sideOffset = params.sideOffset;
+	var profBinding = 20;
+
+	// вспомогательные прямые
+	var pt1Bot = newPoint_x(p0, -params.width / 2, 0);
+	var pt2Bot = newPoint_x(pt1Bot, sideOffset, 0);
+	var pt3Bot = newPoint_x(pt2Bot, partPar.column.profSize.x, 0);
+	var pt4Bot = newPoint_x(pt3Bot, profBinding, 0);
+	var line1Bot = { p1: pt1Bot, p2: polar(pt1Bot, Math.PI / 2, 100)}
+	var line2Bot = { p1: pt2Bot, p2: polar(pt2Bot, Math.PI / 2, 100)}
+	var line3Bot = { p1: pt3Bot, p2: polar(pt3Bot, Math.PI / 2, 100)}
+	var line4Bot = { p1: pt4Bot, p2: polar(pt4Bot, Math.PI / 2, 100)}
+
+	var pt1Top = newPoint_x(p0, params.width / 2, 0);
+	var pt2Top = newPoint_x(pt1Top, -sideOffset, 0);
+	var pt3Top = newPoint_x(pt2Top, -partPar.column.profSize.x, 0);
+	var pt4Top = newPoint_x(pt3Top, -profBinding, 0);
+	var line1Top = { p1: pt1Top, p2: polar(pt1Top, Math.PI / 2, 100) }
+	var line2Top = { p1: pt2Top, p2: polar(pt2Top, Math.PI / 2, 100) }
+	var line3Top = { p1: pt3Top, p2: polar(pt3Top, Math.PI / 2, 100) }
+	var line4Top = { p1: pt4Top, p2: polar(pt4Top, Math.PI / 2, 100) }
+
+	//верхний пояс
+
+	var line1 = {p1: copyPoint(p0), p2: polar(p0, ang, 100)}
+	var line2 = parallel(line1.p1, line1.p2, beamProfParams.sizeA)
+
+	var pt = itercectionLines(line1, line2Bot)
+	var dy = -pt.y;
+
+	var p2 = itercectionLines(line2, line1Bot)
+	var p4 = itercectionLines(line1, line1Top)
+	var p1 = itercection(line1.p1, line1.p2, p2, polar(p2, Math.PI / 2 + ang, 100))
+	var p3 = itercection(line2.p1, line2.p2, p4, polar(p4, Math.PI / 2 + ang, 100))
+
+	var points = [p1, p2, p3, p4];
+
+	//создаем шейп
+	var shapePar = {
+		points: points,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+		radOut: 0, //радиус скругления внешних углов
+	}
+
+	var shape = drawShapeByPoints2(shapePar).shape;
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var beam = new THREE.Mesh(geom, params.materials.metal);
+	mesh.add(beam)
+
+	//нижний пояс
+	var pt0 = newPoint_xy(p0, 0, -partPar.truss.width + beamProfParams.sizeA);
+
+	var line3 = { p1: copyPoint(pt0), p2: polar(pt0, ang, 100) }
+	var line4 = parallel(line3.p1, line3.p2, beamProfParams.sizeA)
+
+	var p1 = itercectionLines(line3, line4Bot);
+	var p2 = itercectionLines(line4, line4Bot);
+	var p3 = itercectionLines(line4, line4Top);
+	var p4 = itercectionLines(line3, line4Top);
+
+	var points = [p1, p2, p3, p4];
+
+	//создаем шейп
+	var shapePar = {
+		points: points,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+		radOut: 0, //радиус скругления внешних углов
+	}
+
+	var shape = drawShapeByPoints2(shapePar).shape;
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var beam = new THREE.Mesh(geom, params.materials.metal);
+	mesh.add(beam)
+
+
+	//крепление
+
+	var p1 = itercectionLines(line1, line3Bot);
+	var p2 = itercectionLines(line1, line4Bot);
+	var p3 = newPoint_xy(p1, profBinding, -500)
+	var p4 = newPoint_xy(p1, 0, -500)
+
+	var points = [p1, p2, p3, p4];
+
+	//создаем шейп
+	var shapePar = {
+		points: points,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+		radOut: 0, //радиус скругления внешних углов
+	}
+
+	var shape = drawShapeByPoints2(shapePar).shape;
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var beam = new THREE.Mesh(geom, params.materials.metal);
+	mesh.add(beam)
+
+
+
+
+
+
+
+
+
+
+	//plate.position.x = -plateDist / 2;
+	//plate.position.y = cons.position.y + maxHeight + 0.01;
+	//plate.position.z = -50;
+	//flanFix.add(plate);
+
+	//var beam = drawPole3D_4(polePar).mesh;
+	//beam.position.x = -polePar.length / 2
+	//beam.position.y = -partPar.truss.width + beamProfParams.sizeA
+	//mesh.add(beam)
+
+	////верхний пояс
+
+	//var beam = drawPole3D_4(polePar).mesh;
+	//beam.position.x = -polePar.length / 2
+	//mesh.add(beam)
+
+	//mesh.rotation.z = partPar.main.roofAng
+	//mesh.position.y = (params.width / 2 - 100) * Math.tan(partPar.main.roofAng)
+	mesh.position.y = dy
+	par.mesh.add(mesh)
+
+
+	if (false) {
+		//раскосы
+		var bracePar = {
+			poleProfileY: 20,
+			poleProfileZ: 20,
+			dxfBasePoint: par.dxfBasePoint,
+			length: 1000,
+			poleAngle: 0,
+			material: params.materials.metal,
+			dxfArr: [],
+			type: 'rect',
+			partName: 'carportBeam',
+		};
+
+		var braceAng = Math.PI / 4;
+		var lines = [];
+		var center = { x: 0, y: midArc.center.y }
+
+		var botLine = {
+			p1: { x: 0, y: polePar.poleProfileY / 2 },
+			p2: { x: 100, y: polePar.poleProfileY / 2 },
+		}
+		for (var sideFactor = 1; sideFactor >= -1; sideFactor -= 2) {
+			var lastPoint = newPoint_xy(center, 0, midArc.rad); //верхняя точка
+			if (params.carportType == "односкатный") {
+				lastPoint.x = par.len / 2
+				center.x = par.len / 2
+			}
+			for (var i = 0; i < 10; i++) {
+
+				var ang1 = Math.PI / 2 - braceAng * sideFactor;
+				var p1 = polar(lastPoint, ang1, 100) //временная точка
+				p1 = itercection(botLine.p1, botLine.p2, lastPoint, p1)
+
+				bracePar.poleAngle = ang1 + Math.PI;
+				bracePar.length = distance(lastPoint, p1);
+				if (bracePar.length < 250) break
+
+				var brace = drawPole3D_4(bracePar).mesh;
+				brace.position.x = lastPoint.x
+				brace.position.y = lastPoint.y
+				par.mesh.add(brace)
+
+
+				var ang2 = Math.PI / 2 + braceAng * sideFactor
+				var p2 = polar(p1, ang2, 500) //временная точка
+				p2 = itercectionLineCircle(p1, p2, center, midArc.rad)[0]
+
+				bracePar.poleAngle = ang2 + Math.PI;
+				bracePar.length = distance(p1, p2);
+				if (bracePar.length < 250) break
+
+				var brace = drawPole3D_4(bracePar).mesh;
+				brace.position.x = p2.x
+				brace.position.y = p2.y
+				par.mesh.add(brace)
+
+				lastPoint = copyPoint(p2)
+			}
+			if (params.carportType == "односкатный") break;
+		}
+
+		par.topArc.len = par.topArc.rad * (par.topArc.startAngle - par.topArc.endAngle)
+		par.progonAmt = Math.ceil(par.topArc.len / params.progonMaxStep)
+		console.log(par.progonAmt)
+	}
+	return par;
+
+}
