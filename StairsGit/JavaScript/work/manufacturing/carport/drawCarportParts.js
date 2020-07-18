@@ -452,7 +452,7 @@ function drawArcTrussFlan(par){
 	var p3 = newPoint_xy(p2, b, 0);
 	var p4 = newPoint_xy(p0, a / 2, 0);
 
-console.log(par.flanParams.notchRad);
+
 
 //вырез слева
 var p12 = newPoint_xy(p1, 0, h/2)
@@ -564,7 +564,7 @@ p14.filletRad = p44.filletRad =  par.flanParams.notchRad
 */
 
 function drawDomeTopFlan(par){
-	console.log(par)
+
 	if(!par.dxfArr) par.dxfArr = [];
 	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
 	
@@ -687,17 +687,23 @@ function drawSphereSector(par){
 }
 
 /** функция отрисовывает сектор кровли многоугольного павильона из поликарбоната
-	@param ang // угол между гранями листа, примыкающими к шпилю		
+	@param ang // угол между гранями листа, примыкающими к шпилю
 	@param dxfArr: dxfPrimitivesArr,
 	@param dxfBasePoint: {x: 2000, y:0},
 	@param edgeLen //длина ребра
+	@param isHalf //половина сектора
 */
 function drawPolygonRoofSector(par){
+	if(par.ang){
+		par.angLeft = par.angRight = par.ang / 2
+	}
 	
 	var p1 = {x:0, y:0}
 	var p2 = polar(p1, -Math.PI / 2 - par.ang / 2, par.edgeLen)
 	var p3 = polar(p1, -Math.PI / 2 + par.ang / 2, par.edgeLen)
 	
+	if(par.isHalf) p3.x = 0;
+		
 	//создаем шейп
 	var shapePar = {
 		points: [p1,p2,p3],
@@ -986,7 +992,6 @@ function drawCarportBeam(par){
 			dxfPrimitivesArr: []
 		}
 		
-console.log(arcPanelPar.rad, par)
 
 		var beam = drawArcPanel(arcPanelPar).mesh;
 		beam.rotation.z = midArc.endAngle;
@@ -1166,7 +1171,6 @@ function drawWaveSheet(par){
 			p4.y -= 2;
 			var p5 = newPoint_xy(p4, par.waveWidth, 0)
 			points.push(p5)
-			console.log(p5)
 		}
 		startPoint = copyPoint(p4)
 		
@@ -1299,10 +1303,7 @@ function drawRoofCarcas(par){
 	if(params.roofType == "Арочная") drawFunc = drawArcSheetTruss;
 	if(params.carportType == "консольный" || params.carportType == "консольный двойной") drawFunc = drawArcSheetWing;
 	if(params.beamModel == "проф. труба" || params.carportType == "сдвижной") drawFunc = drawCarportBeam;
-	if (params.beamModel == "ферма постоянной ширины") {
-		drawFunc = drawArcTubeTruss;
-		if (params.roofType == "Плоская") drawFunc = drawTriangleTubeTruss;
-	}
+	if(params.beamModel == "ферма постоянной ширины") drawFunc = drawArcTubeTruss;
 	
 	var rafterArrPar = {
 		amt: {
@@ -1393,7 +1394,7 @@ function drawRoofCarcas(par){
 			par.mesh.add(purlinArr)
 
 		}
-			
+	
 		if(params.roofType != "Арочная"){
 			//поворачиваем профиль
 			purlinPar.poleProfileZ = partPar.purlin.profSize.x;
@@ -1404,7 +1405,7 @@ function drawRoofCarcas(par){
 					x: partPar.purlin.amt,
 				},
 				arrSize: {
-					x: rafterPar.len,
+					x: rafterPar.len / Math.cos(THREE.Math.degToRad(params.roofAng)),
 				},
 				itemSize: {
 					x: partPar.purlin.profSize.x,
@@ -1433,8 +1434,8 @@ function drawRoofCarcas(par){
 				purlinArr.position.y = partPar.rafter.profSize.y - partPar.purlin.profSize.y
 			}
 			if(params.beamModel != "проф. труба") {				
-				//purlinArr.position.x = partPar.truss.endHeight
-				purlinArr.position.y = partPar.truss.endHeight
+				purlinArr.position.y = rafterPar.endPoint.y
+				if(params.carportType == "односкатный") purlinArr.position.x = rafterPar.endPoint.x; //выравниваем вручную
 			}
 			
 			if(params.carportType == "двухскатный"){
@@ -1475,5 +1476,168 @@ function drawRoofCarcas(par){
 	
 } //end of drawRoofCarcas
 
+/** функция отрисовывает стену навеса  **/
 
+function drawCarportWall(par){
+	par.mesh = new THREE.Object3D();
+
+	var sheetPar = {
+		poleProfileY: params.wallThk,
+		poleProfileZ: params.wallHeight - params.wallBotOffset,
+		dxfBasePoint: {x:0,y:0},
+		length: par.len,
+		material: params.materials.plastic_roof,
+		dxfArr: [],
+		type: 'rect',
+		partName: 'polySheet'
+	};
+	
+	var sheet = drawPole3D_4(sheetPar).mesh;
+	sheet.rotation.x = -Math.PI / 2;
+	sheet.position.y = params.wallBotOffset;
+	par.mesh.add(sheet)
+	
+	//горизонтальная обрешетка
+	
+	var maxStep = 1000;
+	var beamAmt = Math.ceil(sheetPar.poleProfileZ / maxStep) + 1;
+	var beamStep = (sheetPar.poleProfileZ - 40) / (beamAmt - 1)
+	
+	var polePar = {
+		poleProfileY: 40,
+		poleProfileZ: 40,
+		dxfBasePoint: {x:0,y:0},
+		length: par.len - partPar.column.profSize.y * 2,
+		material: params.materials.metal,
+		dxfArr: [],
+		type: 'rect',
+		partName: 'purlinProf'
+	};
+	
+	for(var i=0; i<beamAmt; i++){
+
+		var beam = drawPole3D_4(polePar).mesh;
+		beam.position.x = partPar.column.profSize.y;
+		beam.position.y = params.wallBotOffset + beamStep * i;
+		par.mesh.add(beam)
+	}
+	
+	//вертикальная обрешетка
+	
+	var maxStep = 1000;
+	var pillarAmt = Math.ceil(par.len / maxStep) - 1;
+	var pillarStep = (par.len - partPar.column.profSize.y * 2) / (pillarAmt + 1)
+	
+	var polePar = {
+		poleProfileY: 40,
+		poleProfileZ: 40,
+		dxfBasePoint: {x:0,y:0},
+		length: sheetPar.poleProfileZ - 40 * 2,
+		material: params.materials.metal,
+		dxfArr: [],
+		type: 'rect',
+		partName: 'purlinProf'
+	};
+
+	for(var i=1; i<=pillarAmt; i++){
+
+		var pillar = drawPole3D_4(polePar).mesh;
+		pillar.rotation.z = Math.PI / 2
+		pillar.position.x = partPar.column.profSize.y + pillarStep * i;
+		pillar.position.y = params.wallBotOffset + 40;
+		par.mesh.add(pillar)
+	}
+	
+	return par;
+}
+
+/* функция отрисовывает лист обшивки фронтона */
+function drawFronton(par){
+	if(!par) par = {};
+	par.mesh = new THREE.Object3D();
+	if(!par.dxfArr) par.dxfArr = [];
+	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
+	
+	
+	if(params.roofType == "Плоская"){
+		var roofSegmentPar = {
+			ang: Math.PI - THREE.Math.degToRad(params.roofAng) * 2,
+			edgeLen: params.width / 2 / Math.cos(THREE.Math.degToRad(params.roofAng)),	
+			dxfArr: par.dxfArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		if(params.carportType == "односкатный") {
+			roofSegmentPar.edgeLen *= 2
+			roofSegmentPar.isHalf = true
+		}
+
+		var sheet = drawPolygonRoofSector(roofSegmentPar).mesh
+		
+		sheet.position.x = params.width / 2 - params.sideOffset
+		sheet.position.y = params.width / 2 * Math.tan(THREE.Math.degToRad(params.roofAng))
+		
+		if(params.carportType == "односкатный") {
+			sheet.position.x = params.width - params.sideOffset
+			sheet.position.y = params.width * Math.tan(THREE.Math.degToRad(params.roofAng))
+		}
+		
+		sheet.position.y += partPar.truss.endHeight - params.sideOffset * Math.tan(THREE.Math.degToRad(params.roofAng));
+				
+		par.mesh.add(sheet)
+	}
+	
+	if(params.roofType == "Арочная"){
+		
+		var topArc = partPar.main.arcPar.topArc;
+		var shape = new THREE.Shape()
+		var p1 = polar(topArc.center, topArc.endAngle, topArc.rad)
+		var p2 = polar(topArc.center, topArc.startAngle, topArc.rad)
+		var p3 = {
+			x: p1.x,
+			y: p2.y,
+		}
+
+		//верхняя дуга
+		addArc2(shape, par.dxfArr, topArc.center, topArc.rad, topArc.startAngle, topArc.endAngle, true, par.dxfBasePoint)
+		if(params.carportType == "односкатный"){
+			addLine(shape, par.dxfArr, p2, p1, par.dxfBasePoint);
+			addLine(shape, par.dxfArr, p1, p3, par.dxfBasePoint);
+		}
+		if(params.carportType == "двухскатный") addLine(shape, par.dxfArr, p2, p1, par.dxfBasePoint);
+		
+		var extrudeOptions = {
+			amount: params.wallThk, 
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+			
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var sheet = new THREE.Mesh(geom, params.materials.plastic_roof);
+		par.mesh.add(sheet)
+	}
+	
+	//горизонтальная перемычка
+
+	var polePar = {
+		poleProfileY: 40,
+		poleProfileZ: 40,
+		dxfBasePoint: {x:0,y:0},
+		length: params.width - params.sideOffset * 2 - partPar.column.profSize.y * 2,
+		material: params.materials.metal,
+		dxfArr: [],
+		type: 'rect',
+		partName: 'purlinProf'
+	};
+	
+	var beam = drawPole3D_4(polePar).mesh;
+	beam.position.x = partPar.column.profSize.y;
+	beam.position.y = partPar.truss.endHeight - 40;
+	par.mesh.add(beam)
+
+	
+	return par;
+}
 

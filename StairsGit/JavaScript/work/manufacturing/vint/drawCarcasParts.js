@@ -360,6 +360,9 @@ function drawVintTreadShape(par) {
 	var holeDiam = par.holeDiam;
 	var type = par.type;
 	var stairRad = staircaseDiam / 2;
+	// Уменьшаем рамку чтобы получить свес
+	if (par.isFrameTop && params.stairType == 'рамки') stairRad -= params.nose;
+
 	var overlayAngle = calcTriangleParams().treadOverlayAngle;
 
 	//угол между ребрами ступени
@@ -479,7 +482,6 @@ function drawVintTreadShape(par) {
 	/*металлическая ступень*/
 
 	if (type == "metal" && !par.isMonoSpiral) {
-
 		var deltaAng = Math.PI / 6; //половина угла, на который уменьшается дуга ступени, прилегающая к бобышке
 		var radIn = columnRad + 0.1; //радиус внутренней дуги, примыкающей к бобышке
 		/*рассчитываем координаты точек*/
@@ -491,10 +493,13 @@ function drawVintTreadShape(par) {
 		var p1 = polar(p11, -Math.PI / 2, 5);
 		var p21 = polar(p0, edgeAngle + Math.PI / 2 - deltaAng, radIn) //точка на дуге
 		var p2 = polar(p21, Math.PI / 2 + edgeAngle, 5);
-		if (!par.isFrameTop && params.stairType == 'рамки') p2 = polar(p21, Math.PI / 2 + edgeAngle, params.nose);
-		
-		// Свес
-		if (!par.isFrameTop && params.stairType == 'рамки') extraAngle -= Math.asin(params.nose / stairRad)
+
+		// Добавляем свес
+		if (!par.isFrameTop && params.stairType == 'рамки'){
+			p2 = polar(p21, Math.PI / 2 + edgeAngle, 5 + params.nose);
+			p1 = polar(p11, -Math.PI / 2, 5 + params.nose);
+			extraAngle -= Math.asin(params.nose / stairRad);
+		}
 		
 		var p3 = {
 			x: stairRad * Math.cos(treadAngle - extraAngle),
@@ -511,14 +516,18 @@ function drawVintTreadShape(par) {
 			y: 0,
 		}
 
-		/*вычерчиваем конутр ступени*/
+		var stairRadAngle = extraAngle;
+		if (!par.isFrameTop && params.stairType == 'рамки'){
+			p4.y -= params.nose;
+		} 
 
+		/*вычерчиваем конутр ступени*/
 		var treadShape = new THREE.Shape();
 		addLine(treadShape, par.dxfArr, p1, p11, dxfBasePoint);
 		addArc2(treadShape, par.dxfArr, p0, radIn, (Math.PI / 2 + edgeAngle - deltaAng), -Math.PI / 2 + deltaAng,  false, dxfBasePoint);
 		addLine(treadShape, par.dxfArr, p21, p2, dxfBasePoint);
 		addLine(treadShape, par.dxfArr, p2, p3, dxfBasePoint);
-		addArc2(treadShape, par.dxfArr, p0, stairRad, (treadAngle - extraAngle), -extraAngle, true, dxfBasePoint);
+		addArc2(treadShape, par.dxfArr, p0, stairRad, (treadAngle - extraAngle), -stairRadAngle, true, dxfBasePoint);
 		addLine(treadShape, par.dxfArr, p4, p1, dxfBasePoint);
 
 		//параметры для передней пластины
@@ -721,6 +730,9 @@ function drawVintTreadShape(par) {
 
 	//сохраняем данные для спецификации
 	var partName = "vintTread";
+	if (params.stairType == 'рамки' && !par.isFrameTop) partName = "vintTreadTop";
+	console.log(partName);
+
 	if (typeof specObj != 'undefined') {
 		if (!specObj[partName]) {
 			specObj[partName] = {
@@ -735,7 +747,8 @@ function drawVintTreadShape(par) {
 				workUnitName: "area", //единица измерения
 				group: "Каркас",
 			}
-			if (type == "timber") {
+			if (partName == 'vintTreadTop') specObj[partName].name = 'Накладка ступени' + params.treadsMaterial;
+			if (type == "timber" || partName == 'vintTreadTop') {
 				specObj[partName].metalPaint = false;
 				specObj[partName].timberPaint = true;
 				specObj[partName].division = "timber";
@@ -782,6 +795,7 @@ function drawVintTread(par) {
 	if (par.isFrame) topPlate.position.y += 4;
 	par.mesh.add(topPlate);
 	par.mesh.specId = topPlateParams.articul;
+	if (params.stairType == 'рамки') topPlate.specId = topPlateParams.articul;
 
 	//добавляем соединительные пластины разделения тетив
 	if (par.isDivide) {
@@ -1841,16 +1855,16 @@ function drawVintPlatformShape(par) {
 
 			var p3 = {
 				x: p2.x,
-				y: params.staircaseDiam / 2 + params.platformLedge,
+				y: stairRad + params.platformLedge,
 			}
 
 			var p4 = {
-				x: params.staircaseDiam / 2 + params.platformLedgeM,
-				y: params.staircaseDiam / 2 + params.platformLedge,
+				x: stairRad + params.platformLedgeM,
+				y: stairRad + params.platformLedge,
 			}
 
 			var p5 = {
-				x: params.staircaseDiam / 2 + params.platformLedgeM,
+				x: stairRad + params.platformLedgeM,
 				y: p1.y,
 			}
 

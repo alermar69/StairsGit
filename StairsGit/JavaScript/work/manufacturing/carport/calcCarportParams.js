@@ -17,9 +17,15 @@ function setCarportProfs(){
 		$("#sectLen").val(3000)
 	}
 	
-	if(params.width > 7500){
-		alert("Прочность фермы не позволяет сделать ширину навеса более 7500 мм. Была установлена ширина 7500 мм.")
-		$("#width").val(7500)
+	
+	var maxHeight = 5100;
+	if(params.beamModel == "постоянной ширины") maxHeight = 7600;
+	if(params.roofType == "Плоская") maxHeight = 7600;
+	if(params.beamModel == "ферма постоянной ширины") maxHeight = 20000;
+	
+	if(params.width > maxHeight){
+		alert("Выбранная модель балки не может быть более " + maxHeight + " мм. Была установлена ширина " + maxHeight + " мм.")
+		$("#width").val(maxHeight);
 	}
 	
 	//прогоны
@@ -188,8 +194,7 @@ function setCarportProfs(){
 	if(params.roofMat == "металлочерепица") roofThk = 0.5
 	$("#roofThk").val(roofThk)
 	
-	//тип фермы
-	if(params.width > 5100) $("#beamModel").val("постоянной ширины");
+
 	
 }
 
@@ -208,7 +213,6 @@ function calcCarportPartPar(){
 	//общая длина навеса
 	par.main.len = params.sectAmt * params.sectLen + params.frontOffset * 2;
 	par.main.width = params.width / Math.cos(params.roofAng / 180 * Math.PI);
-	par.main.roofAng = params.roofAng / 180 * Math.PI;
 	
 
 	//стропила
@@ -276,17 +280,18 @@ function calcCarportPartPar(){
 			if(params.width > 5900) par.truss.width = 350
 		}
 	}
-	if(params.roofType != "Арочная") {
-		par.truss.midHeight = 350; // высота фермы в середине
-		par.truss.endHeight = 150; // высота фермы на краю
-		
-		if(params.width > 4900){
-			par.midHeight = 500
-			par.endHeight = 200;
-		}
 	
-		
+
+	par.truss.midHeight = 400; // высота фермы в середине
+	par.truss.endHeight = 200; // высота фермы на краю над колонной
+	
+	if(params.width > 4900){
+		par.truss.midHeight = 500
+		par.truss.endHeight = 250;
 	}
+	if(params.beamModel == "постоянной ширины") par.truss.midHeight = par.truss.endHeight 
+		
+
 		
 	
 	//прогоны

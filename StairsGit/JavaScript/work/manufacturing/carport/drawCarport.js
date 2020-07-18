@@ -551,6 +551,93 @@ function drawRoof(par){
 	return roof;
 }
 
+/** функция отрисовывает стенки навеса **/
+
+function drawCarportWalls(par){
+	if(!par) par = {};
+	par.mesh = new THREE.Object3D();
+	
+	//продольные стены
+	var wallPar = {
+		len: params.sectLen * params.sectAmt,
+	}
+	
+	//левая стена
+	if(params.isWall1){
+		var wall = drawCarportWall(wallPar).mesh;
+		wall.rotation.y = Math.PI / 2;
+		wall.position.x = -params.width / 2 + params.sideOffset
+		wall.position.z = wallPar.len / 2
+		par.mesh.add(wall)
+	}
+	
+	//правая стена
+	if(params.isWall2){
+		var wall = drawCarportWall(wallPar).mesh;
+		wall.rotation.y = -Math.PI / 2;
+		wall.position.x = params.width / 2 - params.sideOffset
+		wall.position.z = -wallPar.len / 2
+		par.mesh.add(wall)
+	}
+	
+	
+	//поперечные стены
+	wallPar = {
+		len: params.width - params.sideOffset * 2,
+	}
+	
+	//передняя стена
+	if(params.isWall3){
+		var wall = drawCarportWall(wallPar).mesh;
+		wall.rotation.y = Math.PI;
+		wall.position.x = params.width / 2 - params.sideOffset
+		wall.position.z = params.sectLen * params.sectAmt / 2
+		par.mesh.add(wall)
+	}
+	
+	//задняя стена
+	if(params.isWall4){
+		var wall = drawCarportWall(wallPar).mesh;
+		wall.position.x = -params.width / 2 + params.sideOffset
+		wall.position.z = -params.sectLen * params.sectAmt / 2
+		par.mesh.add(wall)
+	}
+	
+	//фронтон спереди
+	if(params.frontCover == "спереди" || params.frontCover == "две"){
+		var wall = drawFronton().mesh;
+/*
+		if(params.roofType == "Плоская"){
+			wall.position.x = 0
+			wall.position.y = params.height + 
+				params.width / 2 * Math.tan(THREE.Math.degToRad(params.roofAng)) + 
+				partPar.truss.endHeight - params.sideOffset * Math.tan(THREE.Math.degToRad(params.roofAng));
+			wall.position.z = params.sectLen * params.sectAmt / 2 - params.wallThk
+		}
+*/
+
+		wall.position.x = -params.width / 2 + params.sideOffset
+		wall.position.y = params.height	
+		wall.position.z = params.sectLen * params.sectAmt / 2
+		par.mesh.add(wall)
+
+		
+		par.mesh.add(wall)
+	}
+	
+	//фронтон сзади
+	if(params.frontCover == "сзади" || params.frontCover == "две"){
+		var wall = drawFronton().mesh;
+		wall.position.x = -params.width / 2 + params.sideOffset
+		wall.position.y = params.height	
+		wall.position.z = -params.sectLen * params.sectAmt / 2
+		par.mesh.add(wall)
+	}
+	
+	
+	return par;
+}
+
 /** функция отрисовывает беседку в форме многоугольника
 */
 
@@ -792,7 +879,8 @@ function drawRectCarport(par){
 	var deltaHeight = 0;
 	if(params.carportType == "односкатный"){
 		columnArrPar.arrSize.x += params.sideOffset; //не делаем свес на верхней стороне
-		deltaHeight = columnArrPar.arrSize.x * Math.tan(params.roofAng / 180 * Math.PI);
+		deltaHeight = (params.width - params.sideOffset - partPar.column.profSize.y / 2) * Math.tan(params.roofAng / 180 * Math.PI);
+		if(params.beamModel == "сужающаяся") deltaHeight -= partPar.truss.midHeight - partPar.truss.endHeight;
 		if(params.roofType == "Арочная") {
 			deltaHeight = partPar.main.arcPar.topArc.height - partPar.truss.width
 			if(params.beamModel == "проф. труба") deltaHeight = partPar.main.arcPar.topArc.height - partPar.rafter.profSize.y - partPar.beam.profSize.y
@@ -945,6 +1033,11 @@ function drawRectCarport(par){
 		roof.setLayer('roof');
 		carport.add(roof);
 	}
+	
+	//стенки
+	var walls = drawCarportWalls().mesh;
+	walls.setLayer('walls');
+	carport.add(walls);
 	
 	return carport;
 	

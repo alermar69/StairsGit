@@ -75,7 +75,28 @@ function createMaterialsList(){
 		dept: "metal",
 		amtName: "м.п.",
 		amt: 0,
-		}
+	}
+	
+	materials.prof_60_40 = {
+		name: "Проф. труба черн. 60х40",
+		dept: "metal",
+		amtName: "м.п.",
+		amt: 0,
+	}
+	
+	materials.prof_80_40 = {
+		name: "Проф. труба черн. 80х40",
+		dept: "metal",
+		amtName: "м.п.",
+		amt: 0,
+	}
+	
+	materials.prof_60_60 = {
+		name: "Проф. труба черн. 60х60",
+		dept: "metal",
+		amtName: "м.п.",
+		amt: 0,
+	}
 	
 	materials.prof_100_50 = {
 		name: "Проф. труба черн. 100х50",
@@ -89,7 +110,21 @@ function createMaterialsList(){
 		dept: "metal",
 		amtName: "м.п.",
 		amt: 0,
-		}
+	}
+	
+	materials.prof_120_120 = {
+		name: "Проф. труба черн. 120х120",
+		dept: "metal",
+		amtName: "м.п.",
+		amt: 0,
+	}
+	
+	materials.prof_200_100 = {
+		name: "Проф. труба черн. 200х100",
+		dept: "metal",
+		amtName: "м.п.",
+		amt: 0,
+	}
 	
 	materials.pipe_127 = {
 		name: "Труба круглая Ф127",
@@ -419,3 +454,16 @@ function printMaterialsNeed(par){
 	return par;
 	
 }//end of printMaterialsNeeds
+
+function addMaterialNeed(id, amt){
+	if(!materials[id]){
+		materials[id] = {
+			name: id,
+			dept: "metal",
+			amtName: "ед.",
+			amt: 0,
+		}
+	}
+	
+	materials[id].amt += amt;
+}

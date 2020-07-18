@@ -713,6 +713,9 @@ function getWorkId(partId){
 		partId == "topFlan" ||
 		partId == "stringerFlan" ||
 		partId == "treadPlate" ||
+		partId == "truss" ||
+		partId == "rackFlan" ||
+		partId == "trussSide" ||
 		partId == "treadPlateWnd"		
 		){
 			metal = "sheet";
@@ -763,7 +766,7 @@ function getWorkId(partId){
 			}
 		}
 	
-	if(partId == "column"){
+	if(partId == "column" || partId == "carportColumn"){
 		metal = "column";
 		powder = "pole";
 		plasma = {
@@ -809,8 +812,13 @@ function getWorkId(partId){
 	if(partId == "drum"){
 		metal = "lathePart";
 		powder = "smallPart";
-		}
+	}
 	
+		
+	if(partId == "purlinProf"){
+		metal = "pole";
+		powder = "pole";
+	}
 		
 //ступени
 	var treadType = getTreadParams().material;
@@ -887,7 +895,7 @@ function getWorkId(partId){
 		timber = "handrail";
 		painting = "handrail";
 		}
-		
+
 	if(partId == "rigels"){
 		metal = "pole";
 		powder = "pole";

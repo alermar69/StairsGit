@@ -553,7 +553,6 @@
 		$tabs["materials"] = [
 			'name' => 'Материалы',
 			'url' => "/calculator/general/forms/materialsForm.php",
-			'class' => 'noPrint',
 			'group' => 'form'
 		];
 	}

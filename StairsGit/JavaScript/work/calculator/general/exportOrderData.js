@@ -87,7 +87,7 @@ function getExportData_com(checkSumm){
 	if(url.indexOf('calculator') != -1 && url.indexOf('dev') == -1) checkPrice = true;
 
 	//данные по цене
-	// debugger;
+
 	var price_data = {
 		carcas: {
 			name: "Каркас",
@@ -145,12 +145,6 @@ function getExportData_com(checkSumm){
 				metalPaint: 0,
 				timberPaint: 0,
 			},
-			treads: {
-				name: "Установка",
-				price: staircasePrice.assemblingFinal,
-				metalPaint: 0,
-				timberPaint: 0,
-			}
 		};
 	}
 		
@@ -162,6 +156,24 @@ function getExportData_com(checkSumm){
 			product: {
 				name: "Изделие",
 				price: staircasePrice.product,
+				metalPaint: 0,
+				timberPaint: 0,
+			},
+		};
+		
+	};
+	
+	if(params.calcType == "carport" || params.calcType == "veranda"){
+		var price_data = {
+			carcas: {
+				name: "Каркас",
+				price: staircasePrice.carcas,
+				metalPaint: 0,
+				timberPaint: 0,
+			},
+			roof: {
+				name: "Кровля",
+				price: staircasePrice.roof,
 				metalPaint: 0,
 				timberPaint: 0,
 			},
@@ -297,16 +309,7 @@ function getExportData_com(checkSumm){
 			delivery: staircasePrice.delivery,
 		}
 	}
-	if (params.calcType == "carport") {
-		price_data.main = {
-			price: staircasePrice.total,
-			metalPaint: 0,
-			timberPaint: 0,
-			production: staircasePrice.carcasFinal,
-			assembling: staircasePrice.assembling,
-			delivery: staircasePrice.delivery,
-		}
-	}
+
 	if (params.calcType == "railing") {
 		price_data.main = {
 			price: staircasePrice.total,
@@ -510,6 +513,21 @@ function getExportData_com(checkSumm){
 		description += "Покраска дерева " + params.timberPaint;
 	}
 	
+	if(params.calcType == "carport"){
+		description = "Навес " + params.carportType;
+		if(params.roofType == "Арочная") description += " арочный"
+		if(params.roofType == "Плоская") description += " плоский"
+
+		description += ", " + params.width + "х" + (params.sectAmt * params.sectLen + params.frontOffset * 2) + ". " + 
+			"Балки - ";
+		if(params.beamModel == "сужающаяся" || params.beamModel == "постоянной ширины") description += "из листа."
+		if(params.beamModel == "ферма постоянной ширины") description += "сварные фермы из проф. трубы."
+		if(params.beamModel == "проф. труба") description += "из проф. трубы."
+		
+		description += " Покрытие " + params.roofMat;
+		if(params.wallMat != "нет") description += ". Стенки " + params.wallMat;
+	}
+	
 			
 	if(staircaseHasUnit().banister) description += ", Балюстрада " + params.railingModel_bal + " " + calcBanisterLen() + "м.п. ";
 
@@ -570,19 +588,19 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 			dept_data.metal += metal;
 			dept_data.timber += timber;
 			dept_data.partners += partners;
-			}
-		
 		}
+	
+	}
 
 	if(params.calcType == "vint"){
 		dept_data.timber = Math.round(price_data.carcas.production * staircaseCost.timberPart);
 		dept_data.metal = price_data.carcas.production - dept_data.timber;
-		}
+	}
 		
 	if(params.calcType == "fire_2"){
 		dept_data.partners += staircasePrice.testing;
 		dept_data.metal -= staircasePrice.testing;
-		}
+	}
 
 	//балюстрада
 	if(params.calcType != "railing" && params.calcType != "custom" && params.calcType != "carport" && params.calcType != "slabs"){
@@ -601,8 +619,8 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 			dept_data.metal += metal;
 			dept_data.timber += timber;
 			dept_data.partners += partners;
-			}
 		}
+	}
 	if(params.calcType == "custom"){		
 		dept_data.metal = staircasePrice.metal;
 		dept_data.timber = staircasePrice.timber;
@@ -610,7 +628,9 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 	}
 
 	if(params.calcType == "carport"){
-		dept_data.metal = staircasePrice.finalPrice;
+		dept_data.metal = staircasePrice.carcas;
+		dept_data.partners = staircasePrice.roof;
+		
 	}
 	if(params.calcType == "railing"){
 		dept_data.metal = staircasePrice.railingFinal;
@@ -632,8 +652,7 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 
 	//проверка
 	var deptsSum = dept_data.metal + dept_data.timber + dept_data.partners;
-	if (params.calcType == 'carport') var deptsSum = staircasePrice.carcasFinal;
-	if (params.calcType == 'railing') var deptsSum = staircasePrice.railingFinal;
+
 
 	if(Math.abs(deptsSum - price_data.main.production) > 1 && checkPrice){
 		var errorText = "Ошибка расчета сумм по цехам - сумма стоимости по цехам не равна стоимости изделия: " + deptsSum + " != " + price_data.main.production;

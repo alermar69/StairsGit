@@ -131,12 +131,17 @@ function getLayersList(){
 		progon: {
 			name: "Прогоны",
 			only_for: ['carport'],
-			group: 'progon'
+			group: 'carcas'
 		},
 		racks: {
-			name: "Опоры",
+			name: "Колонны",
 			only_for: ['carport'],
-			group: 'racks'
+			group: 'carcas'
+		},
+		walls: {
+			name: "Стенки",
+			only_for: ['carport'],
+			group: 'carcas'
 		},
 		additionalObject: {
 			name: 'Объекты',

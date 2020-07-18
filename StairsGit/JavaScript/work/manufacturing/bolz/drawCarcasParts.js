@@ -238,11 +238,12 @@ function drawBolz(par) {
 				dxfBasePoint: par.dxfBasePoint,
 			}
 
+			var frameThicknessFix = par.frameThicknessFix || 0;
 			//шайба снизу
 			var shim = drawShimBolz(shimPar).mesh;
 			shim.rotation.x = Math.PI / 2;
 			shim.position.x = par.bolzProfile / 2;
-			shim.position.y = -params.treadThickness;
+			shim.position.y = -params.treadThickness - frameThicknessFix;
 			shim.position.z = par.bolzProfile / 2;
 			par.mesh.add(shim);
 

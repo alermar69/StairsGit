@@ -3,11 +3,15 @@ function calculateCarcasPrice(){
 		
 	//колонны
 	var profParmas = getProfParams(params.columnProf);
-	var columnsCost = profParmas.unitCost * getPartPropVal('carportColumn', "sumLength");
+	var amt = getPartPropVal('carportColumn', "sumLength")
+	var columnsCost = profParmas.unitCost * amt;
+	addMaterialNeed(profParmas.materialNeedId, amt)
 	
 	//прогоны
-	var profParmas = getProfParams(params.progonProf);
-	var progonCost = profParmas.unitCost * getPartPropVal('purlinProf', 'sumLength');
+	profParmas = getProfParams(params.progonProf);
+	amt = getPartPropVal('purlinProf', 'sumLength')
+	var progonCost = profParmas.unitCost * amt;
+	addMaterialNeed(profParmas.materialNeedId, amt)
 	
 	if(params.carportType == "купол") progonCost *= 3;
 	
@@ -18,7 +22,9 @@ function calculateCarcasPrice(){
 	beamCost += profParmas.unitCost * getPartPropVal('carportBeamLen', 'sumLength');
 	
 	var profParmas = getProfParams(params.beamProf);
-	beamCost += profParmas.unitCost * getPartPropVal('carportBeam', 'sumLength');
+	amt = getPartPropVal('carportBeam', 'sumLength')
+	beamCost += profParmas.unitCost * amt;
+	addMaterialNeed(profParmas.materialNeedId, amt)
 	
 	//кровля
 	var roofMeterCost = 200; //цена кровельного материала за м2
@@ -39,8 +45,6 @@ function calculateCarcasPrice(){
 		
 		if(params.roofMat == "монолитный поликарбонат") roofMeterCost *= 8;
 	}
-	
-	
 	
 	var roofCoverCost = getPartPropVal('polySheet', 'area') * roofMeterCost;
 	
@@ -112,7 +116,11 @@ function calculateCarcasPrice(){
 		
 		beamCost *= 2; //к-т учитывающий сложное запиливание под уголом и соединители из листа
 	}
-	
+
+//если нет кровли
+	if(params.roofMat == "нет") {
+		roofCoverCost = roofProfPrice = roofShimPrice = 0;
+	}
 
 	staircaseCost.truss = Math.round(widthCost + trussLenCost);
 	staircaseCost.beams = Math.round(beamCost);
@@ -134,4 +142,5 @@ function calculateCarcasPrice(){
 		+ staircaseCost.roof
 		+ staircaseCost.roofProf
 		+ staircaseCost.roofShim;
+		
 };

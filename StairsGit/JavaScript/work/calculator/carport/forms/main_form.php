@@ -308,16 +308,6 @@
 				<td><input type="number" id="frontOffset" value="1000"></td>
 			</tr>
 			
-			<tr class="roofPar">
-				<td>Зашитый фронтон:</td>
-				<td>
-					<select id="frontCover">
-						<option value="нет">нет</option>
-						<option value="есть">есть</option>
-					</select>
-				</td>
-			</tr>
-			
 		</tbody>
 	</table>
 	
@@ -331,7 +321,7 @@
 						<option value="сотовый поликарбонат">сотовый поликарбонат</option>
 						<option value="монолитный поликарбонат">монолитный поликарбонат</option>
 						<option value="профнастил">профнастил</option>
-						<option value="нет">нет</option>
+						<option value="нет" selected>нет</option>
 					</select>
 				</td>
 			</tr>
@@ -385,16 +375,33 @@
 			</tr>
 			
 			<tr class="wallPar">
-				<td><img src="/images/calculator/columnPos/004.jpg" width="250px" id="columnPos_img"></td>
+				<td>Отступ снизу:</td>
+				<td><input type="number" id="wallBotOffset" value="100"></td>
+			</tr>
+			
+			<tr class="wallPar">
+				<td><img src="/images/calculator/carport/wallPos.png" width="250px" id="columnPos_img"></td>
 				<td>
 					<label id="isWall1_label" style=""><input type="checkbox" id="isWall1">1<br></label>
 					<label id="isWall2_label" style=""><input type="checkbox" id="isWall2">2<br></label>
 					<label id="isWall3_label" style=""><input type="checkbox" id="isWall3">3<br></label>
 					<label id="isWall4_label" style=""><input type="checkbox" id="isWall4">4<br></label>
-					<label id="isWall5_label" style=""><input type="checkbox" id="isWall5">5<br></label>
-					<label id="isWall6_label" style=""><input type="checkbox" id="isWall6">6<br></label>
-					<label id="isWall7_label" style=""><input type="checkbox" id="isWall7">7<br></label>
-					<label id="isWall8_label" style=""><input type="checkbox" id="isWall8">8<br></label>
+					<label id="isWall5_label" style="display: none"><input type="checkbox" id="isWall5">5<br></label>
+					<label id="isWall6_label" style="display: none"><input type="checkbox" id="isWall6">6<br></label>
+					<label id="isWall7_label" style="display: none"><input type="checkbox" id="isWall7">7<br></label>
+					<label id="isWall8_label" style="display: none"><input type="checkbox" id="isWall8">8<br></label>
+				</td>
+			</tr>
+			
+			<tr class="wallPar">
+				<td>Зашитый фронтон:</td>
+				<td>
+					<select id="frontCover">
+						<option value="нет">нет</option>
+						<option value="спереди">спереди</option>
+						<option value="сзади">сзади</option>
+						<option value="две">две стороны</option>
+					</select>
 				</td>
 			</tr>
 			

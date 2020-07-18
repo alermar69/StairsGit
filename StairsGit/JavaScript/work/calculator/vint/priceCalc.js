@@ -9,6 +9,7 @@ function calculateCarcasPrice(){
 
 /*получаем переменные из формы*/
 	var treadsMaterial = getInputValue("treadsMaterial");
+	var stairType = getInputValue("stairType");
 	var staircaseHeight = getInputValue("staircaseHeight");
 	var stepAmt = getInputValue("stepAmt");
 	var staircaseDiam = getInputValue("staircaseDiam");
@@ -40,8 +41,10 @@ var treadMeterPrice = treadParams.treadMeterPrice;
 
  
 /*лестница с деревянными ступенями*/
+var totalTreadsPrice = 0;
+var totalPlatformPrice = 0;
 
-if (treadsMaterial == "береза паркет." || treadsMaterial == "дуб паркет." || params.treadsMaterial == "дуб ц/л") {
+if ((stairType == 'массив' || stairType == 'рамки') && (treadsMaterial == "береза паркет." || treadsMaterial == "дуб паркет." || params.treadsMaterial == "дуб ц/л")) {
 	
 	//ступени (tread)
 
@@ -56,7 +59,7 @@ if (treadsMaterial == "береза паркет." || treadsMaterial == "дуб 
 	var m2PaintPrice = calcTimberPaintPrice(timberPaint, treadsMaterial);
 	
 	
-	var totalTreadsPrice = (treadsMaterialPrice + treadWorkPrice) * stairAmt;
+	totalTreadsPrice += (treadsMaterialPrice + treadWorkPrice) * stairAmt;
 	timberPaintPrice += m2PaintPrice * stairAmt * 0.7;
 	/*
 	if (timberPaint == "лак") timberPaintPrice += treadPaintPrice * stairAmt;
@@ -77,7 +80,7 @@ if (treadsMaterial == "береза паркет." || treadsMaterial == "дуб 
 	var platformWorkPrice = 300;
 	var platformPaintPrice = 1500;
 	
-	var totalPlatformPrice = platformMaterialPrice + platformWorkPrice;
+	totalPlatformPrice += platformMaterialPrice + platformWorkPrice;
 	if(params.platformType != "нет"){
 		var m2PaintPrice = calcTimberPaintPrice(timberPaint, treadsMaterial);
 		timberPaintPrice += m2PaintPrice * 1.5;
@@ -85,7 +88,7 @@ if (treadsMaterial == "береза паркет." || treadsMaterial == "дуб 
 		if (timberPaint == "лак") timberPaintPrice += platformPaintPrice;
 		if (timberPaint == "морилка+лак") timberPaintPrice += platformPaintPrice * 1.3;
 		*/
-		}
+	}
 	
 	//расход материала
 	/*
@@ -100,13 +103,13 @@ if (treadsMaterial == "береза паркет." || treadsMaterial == "дуб 
 	if(params.platformType != "нет") materials[treadsPanelName].amt += platformLength * platformWidth;
 		
 	timberPrice += totalTreadsPrice + totalPlatformPrice;
-	}
+}
 
 
 
 /* Лестница с металлическими ступенями*/
 
-if (treadsMaterial == "рифленая сталь" || treadsMaterial == "лотки под плитку") {
+if (stairType == "рифленая сталь" || stairType == "лотки под плитку" || stairType == 'рамки') {
 	
 	var treadsMaterialPrice;
 	var treadPaintPrice;
@@ -125,8 +128,8 @@ if (treadsMaterial == "рифленая сталь" || treadsMaterial == "лот
 	var platformWorkPrice = 200;
 	
 	
-	var totalTreadsPrice = (treadsMaterialPrice + treadWorkPrice) * stairAmt;
-	var totalPlatformPrice = platformMaterialPrice + platformWorkPrice;
+	totalTreadsPrice += (treadsMaterialPrice + treadWorkPrice) * stairAmt;
+	totalPlatformPrice += platformMaterialPrice + platformWorkPrice;
 
 	if (metalPaint == "порошок") {
 		metalPaintPrice = treadPaintPrice * stairAmt + platformPaintPrice;

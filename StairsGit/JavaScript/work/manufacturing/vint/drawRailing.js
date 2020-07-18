@@ -22,6 +22,8 @@ function drawRailing(par){
 		startAngle: par.startAngle,
 		stairType: par.stairType,
 	}
+	if (params.stairType == 'рамки') railingParams.rad -= params.nose
+
 	if (params.model != "Винтовая") railingParams.base = "stringer";
 
 	//ограждение по внешней стороне
@@ -204,7 +206,7 @@ function drawSpiralRailing(par) {
 		stairParams.startBanisterLength = startBanisterLength;
 
 		var banisterPositionRad = params.staircaseDiam / 2 + 0.1;
-
+		
 		//длинные балясины
 		var longBanisterLength = railingHeight + stepHeight + botLedge;
 		stairParams.longBanisterLength = longBanisterLength;
@@ -493,12 +495,12 @@ function drawSpiralRailing(par) {
 				h: stepHeight,
 				bolzProfile: 40,
 				isRack: false,
-				isPlateTread: true,
+				isPlateTread: params.stairType != 'рамки',
 				lenPlateTread: 2 * rad * Math.sin(triangleParams.treadAngle / 2) - 17.5,
-				angPlateTread: (triangleParams.treadAngle - triangleParams.treadOverlayAngle) / 2,
+				angPlateTread: (triangleParams.treadAngle - triangleParams.treadOverlayAngle) / 2
 			}
 
-			var rad = params.staircaseDiam / 2 - bolzPar.bolzProfile - 5;
+			var rad = par.rad - bolzPar.bolzProfile - 5;
 
 			//отрисовывамем больц
 			var posY = 0;
@@ -515,6 +517,15 @@ function drawSpiralRailing(par) {
 					//if (i !== params.regShimAmt) bolzPar.h += regShimThk;
 					if (i !== params.regShimAmt) bolzPar.regShimThk = regShimThk;
 					if (i > 0) posY += regShimThk;
+				}
+
+				if (params.stairType == 'рамки') {
+					bolzPar.regShimThk = 4;
+					bolzPar.frameThicknessFix = 4;
+					if ( i > params.regShimAmt) bolzPar.h -= regShimThk;
+					if ( i == (params.regShimAmt + 1)) {
+						posY += regShimThk;
+					}
 				}
 
 				bolzPar.isFirst = false;

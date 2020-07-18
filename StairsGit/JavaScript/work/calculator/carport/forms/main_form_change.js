@@ -23,9 +23,7 @@ function changeFormCarcas(){
 	if(params.roofType == "Арочная" && 
 		params.beamModel == "сужающаяся" && 
 		params.carportType.indexOf("консольный") == -1 &&
-		params.roofAng < 30) $("#roofAng").val(30)
-	//$("#roofAng").closest("tr").hide();
-	//if(params.roofType == "Плоская" ) $("#roofAng").closest("tr").show();
+		params.roofAng < 20) $("#roofAng").val(20)
 	
 	
 	//параметры кровли
@@ -54,6 +52,10 @@ function changeFormCarcas(){
 		$("#roofType").val("Плоская")
 		$("#beamModel").val("проф. труба");
 	}
+	
+	//параметры стенок
+	$(".wallPar").hide();	
+	if(params.wallMat != "нет") $(".wallPar").show();
 	
 	
 	//текстура пола первого этажа

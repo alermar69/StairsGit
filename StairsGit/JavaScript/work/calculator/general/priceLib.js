@@ -1154,7 +1154,9 @@ function printPrice2(){
 
 	//костыли для совместимости со старыми функциями
 
-	if(params.calcType == "tables" || params.calcType == "racks" || params.calcType == "carport" || params.calcType == 'railing'){
+	var notStairCalcs = ["tables", "racks", "carport", "veranda", "railing"]
+	
+	if(notStairCalcs.indexOf(params.calcType) != -1){
 		var railing_timber = 0;
 		var railing_glass = 0;
 		var railing_metal = 0;
@@ -1162,16 +1164,14 @@ function printPrice2(){
 		var banister_glass = 0;
 		var banister_metal = 0;
 
-		if (params.calcType == 'carport') {
+		if (params.calcType == 'carport' || params.calcType == 'veranda') {
 			staircasePrice = {
-				carcasFinal: priceObj["total"].discountPrice, // В каркас пишем всю цену
+				carcas: priceObj["carcas"].discountPrice,
+				roof: priceObj["roof"].discountPrice,
 				carcasMetalPaint: 0,
-				assemblingFinal: 0,
+				assemblingFinal: priceObj["assembling"].discountPrice,
 				delivery: priceObj["delivery"].discountPrice,
-				finalPrice: priceObj["total"].discountPrice + priceObj["assembling"].discountPrice + priceObj["delivery"].discountPrice, 
-				assembling: priceObj["assembling"].discountPrice,
-				delivery: priceObj["delivery"].discountPrice,
-				product: priceObj["total"].productionPrice
+				finalPrice: priceObj["total"].discountPrice, 
 			}
 		}
 
@@ -1188,7 +1188,8 @@ function printPrice2(){
 				skirtingFinal: priceObj["skirting"] ? priceObj["skirting"].discountPrice : 0
 			}
 		}
-	}else {
+	}
+	else {
 		var railing_timber = Math.round(priceObj["railing"].discountPrice * staircaseCost.railing_timber_part);
 		var railing_glass = Math.round(priceObj["railing"].discountPrice * staircaseCost.railing_glass_part);
 		var railing_metal = priceObj["railing"].discountPrice - railing_timber - railing_glass;
@@ -3467,6 +3468,10 @@ function getProfParams(profName, profMaterial){
 	
 	// Учитываем материал
 	result.unitCost *= priceKf;
+	
+	//идентификатор для потребности в материалах
+	result.materialNeedId = "prof_" + result.sizeA + "_" + result.sizeB;
+	if(result.sizeA < result.sizeB) result.materialNeedId = "prof_" + result.sizeB + "_" + result.sizeA;
 	
 	return result;
 
