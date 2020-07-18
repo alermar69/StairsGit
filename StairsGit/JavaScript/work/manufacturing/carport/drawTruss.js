@@ -1538,3 +1538,362 @@ function drawArcTubeTruss(par){
 	return par;
 	
 }
+
+function drawTriangleTubeTruss(par) {
+	if (!par) par = {};
+	if (!par.dxfBasePoint) par.dxfBasePoint = { x: 0, y: 0 };
+	if (!par.len) par.len = params.width;
+	par.mesh = new THREE.Object3D();
+	var mesh = new THREE.Object3D();
+
+	var beamProfParams = getProfParams(params.beamProf)
+
+	var extrudeOptions = {
+		amount: beamProfParams.sizeB,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var shapeMeshPar = {
+		points: [],
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+		extrudeOptions: extrudeOptions,
+		material: params.materials.metal,
+	}
+
+	var ang = partPar.main.roofAng;
+	var p0 = { x: 0, y: 0 };
+
+	var sideOffset = params.sideOffset;
+	var profBinding = 20;
+
+	// вспомогательные прямые
+	{
+		var pt1Out = newPoint_x(p0, -params.width / 2, 0);
+		var pt2Out = newPoint_x(pt1Out, sideOffset, 0);
+		var pt3Out = newPoint_x(pt2Out, partPar.column.profSize.x, 0);
+		var pt4Out = newPoint_x(pt3Out, profBinding, 0);
+		var line1Out = { p1: pt1Out, p2: polar(pt1Out, Math.PI / 2, 100) }
+		var line2Out = { p1: pt2Out, p2: polar(pt2Out, Math.PI / 2, 100) }
+		var line3Out = { p1: pt3Out, p2: polar(pt3Out, Math.PI / 2, 100) }
+		var line4Out = { p1: pt4Out, p2: polar(pt4Out, Math.PI / 2, 100) }
+
+		var pt1In = newPoint_x(p0, params.width / 2, 0);
+		var pt2In = newPoint_x(pt1In, -sideOffset, 0);
+		var pt3In = newPoint_x(pt2In, -partPar.column.profSize.x, 0);
+		var pt4In = newPoint_x(pt3In, -profBinding, 0);
+		var line1In = { p1: pt1In, p2: polar(pt1In, Math.PI / 2, 100) }
+		var line2In = { p1: pt2In, p2: polar(pt2In, Math.PI / 2, 100) }
+		var line3In = { p1: pt3In, p2: polar(pt3In, Math.PI / 2, 100) }
+		var line4In = { p1: pt4In, p2: polar(pt4In, Math.PI / 2, 100) }
+	}
+
+	if (params.carportType == 'односкатный') {
+		//верхний пояс---------------------------------------------------------------
+		var line1 = { p1: copyPoint(p0), p2: polar(p0, ang, 100) }
+		var line2 = parallel(line1.p1, line1.p2, beamProfParams.sizeA)
+
+		var pt = itercectionLines(line1, line2Out)
+		var dy = -pt.y;
+
+		var p2 = itercectionLines(line2, line1Out)
+		var p1 = itercection(line1.p1, line1.p2, p2, polar(p2, Math.PI / 2 + ang, 100))
+		var p4 = itercectionLines(line1, line1In)
+		var p3 = itercection(line2.p1, line2.p2, p4, polar(p4, Math.PI / 2 + ang, 100))
+
+		var points = [p1, p2, p3, p4];
+
+		shapeMeshPar.points = points;
+		mesh.add(createShapeAndMesh(shapeMeshPar))
+
+		//нижний пояс-------------------------------------------------------------
+		var pt0 = newPoint_xy(p0, 0, -partPar.truss.width + beamProfParams.sizeA);
+
+		var line3 = { p1: copyPoint(pt0), p2: polar(pt0, ang, 100) }
+		var line4 = parallel(line3.p1, line3.p2, beamProfParams.sizeA)
+
+		var p1 = itercectionLines(line3, line4Out);
+		var p2 = itercectionLines(line4, line4Out);
+		var p3 = itercectionLines(line4, line4In);
+		var p4 = itercectionLines(line3, line4In);
+
+		var points = [p1, p2, p3, p4];
+
+		shapeMeshPar.points = points;
+		mesh.add(createShapeAndMesh(shapeMeshPar))
+
+		//крепление--------------------------------------------------------------
+		var p1 = itercectionLines(line1, line3Out);
+		var p2 = itercectionLines(line1, line4Out);
+		var p3 = newPoint_xy(p1, profBinding, -500)
+		var p4 = newPoint_xy(p1, 0, -500)
+
+		var points = [p1, p2, p3, p4];
+
+		shapeMeshPar.points = points;
+		shapeMeshPar.extrudeOptions.amount = profBinding;
+		mesh.add(createShapeAndMesh(shapeMeshPar))
+
+		//----------------------------------------
+		var p1 = itercectionLines(line1, line3In);
+		var p2 = itercectionLines(line1, line4In);
+		var p3 = newPoint_xy(p1, -profBinding, -500)
+		var p4 = newPoint_xy(p1, 0, -500)
+
+		var points = [p1, p2, p3, p4];
+
+		shapeMeshPar.points = points;
+		mesh.add(createShapeAndMesh(shapeMeshPar))
+	}
+	if (params.carportType == 'двухскатный') {
+
+		//раскосы
+		var bracePar = {
+			profY: 20,
+			profZ: 20,
+			stepBrace: 5, // расстояние между раскосами
+			stepBraceDivide: 20,// расстояние между раскосами на разделение фермы
+		};
+
+		for (var i = 0; i < 2; i++) {
+			var sideFactor = 1
+			var lineAUX1 = line1Out;
+			var lineAUX2 = line2Out;
+			var lineAUX3 = line3Out;
+			var lineAUX4 = line4Out;
+			if (i == 1) {
+				var sideFactor = -1
+				var lineAUX1 = line1In;
+				var lineAUX2 = line2In;
+				var lineAUX3 = line3In;
+				var lineAUX4 = line4In;
+			}
+
+			var line1Top = { p1: copyPoint(p0), p2: polar(p0, ang * sideFactor, 100) }
+			var line2Top = parallel(line1Top.p1, line1Top.p2, beamProfParams.sizeA)
+
+			var p0Bot = newPoint_xy(p0, 0, -partPar.truss.width + beamProfParams.sizeA);
+			var line1Bot = { p1: copyPoint(p0Bot), p2: polar(p0Bot, ang * sideFactor, 100) }
+			var line2Bot = parallel(line1Bot.p1, line1Bot.p2, beamProfParams.sizeA)
+
+			var pc = itercection(line2Bot.p1, line2Bot.p2, p0Bot, polar(p0Bot, Math.PI / 2, 100))
+
+			var pt = itercectionLines(line2Bot, lineAUX4);
+
+			var distBrace = 0;
+			var distBraceAll = distance(pc, pt)
+
+			var pDivide = copyPoint(p0Bot); // точка разделения фермы
+
+			//Раскосы
+			//for (var j = 0; j < 4; j++) {
+			j = 0;
+			while (true) {
+				//первый раскос
+				if (j % 2 == 0) {
+					if (distBrace * (j + 1) > distBraceAll) break;
+					var pb1 = polar(pc, ang * sideFactor, - bracePar.stepBrace * sideFactor)
+					if (j == 4) pb1 = polar(pc, ang * sideFactor, - bracePar.stepBraceDivide * sideFactor)
+					var pb2 = itercection(pb1, polar(pb1, (ang + Math.PI / 2 + Math.PI / 4) * sideFactor, 100),line1Top.p1,line1Top.p2)
+					var line = parallel(pb1, pb2, -bracePar.profY)
+					var pb3 = itercectionLines(line, line1Top)
+					var pb4 = itercectionLines(line, line2Bot)
+
+					var points = [pb1, pb2, pb3, pb4];
+
+					shapeMeshPar.points = points;
+					shapeMeshPar.extrudeOptions.amount = bracePar.profZ;
+					mesh.add(createShapeAndMesh(shapeMeshPar))
+
+					//определяем расстояние одного раскоса
+					if (j == 0) {
+						var pc1 = polar(pb3, ang * sideFactor, - bracePar.stepBrace * sideFactor)
+						pc1 = itercection(pc1, polar(pc1, (ang + Math.PI / 2) * sideFactor, 100), line2Bot.p1, line2Bot.p2)
+						distBrace = distance(pc, pc1)
+					}
+
+					var pc = copyPoint(pb3)
+				}
+				//второй раскос (симметричный первому)------------------------------
+				if (j % 2 !== 0) {
+					if (distBrace * (j + 1) > distBraceAll) break;
+					var pb1 = polar(pc, ang * sideFactor, - bracePar.stepBrace * sideFactor)
+					var pb2 = itercection(pb1, polar(pb1, (ang + Math.PI / 8 * 10) * sideFactor, 100), line2Bot.p1, line2Bot.p2)
+					var line = parallel(pb1, pb2, bracePar.profY)
+					var pb3 = itercectionLines(line, line2Bot)
+					var pb4 = itercectionLines(line, line1Top)
+
+					var points = [pb1, pb2, pb3, pb4];
+
+					shapeMeshPar.points = points;
+					shapeMeshPar.extrudeOptions.amount = bracePar.profZ;
+					mesh.add(createShapeAndMesh(shapeMeshPar))
+
+					var pc = copyPoint(pb3)
+
+					if (j == 3)
+						pDivide = polar(pc, ang * sideFactor, -bracePar.stepBraceDivide / 2 * sideFactor)
+				}
+				j++;
+			}
+
+
+			//верхний пояс---------------------------------------------------------------
+			
+
+			if (i == 0) {
+				var pt = itercectionLines(line1Top, lineAUX2)
+				var dy = -pt.y;
+			}
+
+			var p2 = itercectionLines(line2Top, lineAUX1)
+			var p1 = itercection(line1Top.p1, line1Top.p2, p2, polar(p2, Math.PI / 2 + ang * sideFactor, 100))
+			var p3 = itercection(line2Top.p1, line2Top.p2, pDivide, polar(pDivide, Math.PI / 2 + ang * sideFactor, 100))
+			var p4 = itercection(line1Top.p1, line1Top.p2, pDivide, polar(pDivide, Math.PI / 2 + ang * sideFactor, 100))
+
+			var points = [p1, p2, p3, p4];
+
+			shapeMeshPar.points = points;
+			shapeMeshPar.extrudeOptions.amount = beamProfParams.sizeB;
+			mesh.add(createShapeAndMesh(shapeMeshPar))
+
+			//-------------------------
+			var p1 = copyPoint(p4);
+			var p2 = copyPoint(p3);
+			var p4 = copyPoint(p0)
+			var p3 = itercection(line2Top.p1, line2Top.p2, p4, polar(p4, Math.PI / 2, 100))
+
+			var points = [p1, p2, p3, p4];
+
+			shapeMeshPar.points = points;
+			shapeMeshPar.extrudeOptions.amount = beamProfParams.sizeB;
+			mesh.add(createShapeAndMesh(shapeMeshPar))
+
+			//нижний пояс-------------------------------------------------------------
+			
+			var p1 = itercectionLines(line1Bot, lineAUX4);
+			var p2 = itercectionLines(line2Bot, lineAUX4);
+			var p3 = itercection(line2Bot.p1, line2Bot.p2, pDivide, polar(pDivide, Math.PI / 2 + ang * sideFactor, 100))
+			var p4 = itercection(line1Bot.p1, line1Bot.p2, pDivide, polar(pDivide, Math.PI / 2 + ang * sideFactor, 100))
+
+			var points = [p1, p2, p3, p4];
+
+			shapeMeshPar.points = points;
+			mesh.add(createShapeAndMesh(shapeMeshPar))
+
+			//-----------------------------------
+			var p1 = copyPoint(p4);
+			var p2 = copyPoint(p3);
+			var p4 = copyPoint(p0Bot)
+			var p3 = itercection(line2Bot.p1, line2Bot.p2, p4, polar(p4, Math.PI / 2, 100))
+
+			var points = [p1, p2, p3, p4];
+
+			shapeMeshPar.points = points;
+			mesh.add(createShapeAndMesh(shapeMeshPar))
+
+			//крепление--------------------------------------------------------------
+			var p1 = itercectionLines(line1Top, lineAUX3);
+			var p2 = itercectionLines(line1Top, lineAUX4);
+			var p3 = newPoint_xy(p1, profBinding * sideFactor, -500)
+			var p4 = newPoint_xy(p1, 0, -500)
+
+			var points = [p1, p2, p3, p4];
+
+			shapeMeshPar.points = points;
+			shapeMeshPar.extrudeOptions.amount = profBinding;
+			mesh.add(createShapeAndMesh(shapeMeshPar))
+		}
+	}
+
+	mesh.position.y = dy
+	par.mesh.add(mesh)
+
+
+	if (false) {
+		//раскосы
+		var bracePar = {
+			poleProfileY: 20,
+			poleProfileZ: 20,
+			dxfBasePoint: par.dxfBasePoint,
+			length: 1000,
+			poleAngle: 0,
+			material: params.materials.metal,
+			dxfArr: [],
+			type: 'rect',
+			partName: 'carportBeam',
+		};
+
+		var braceAng = Math.PI / 4;
+		var lines = [];
+		var center = { x: 0, y: midArc.center.y }
+
+		var botLine = {
+			p1: { x: 0, y: polePar.poleProfileY / 2 },
+			p2: { x: 100, y: polePar.poleProfileY / 2 },
+		}
+		for (var sideFactor = 1; sideFactor >= -1; sideFactor -= 2) {
+			var lastPoint = newPoint_xy(center, 0, midArc.rad); //верхняя точка
+			if (params.carportType == "односкатный") {
+				lastPoint.x = par.len / 2
+				center.x = par.len / 2
+			}
+			for (var i = 0; i < 10; i++) {
+
+				var ang1 = Math.PI / 2 - braceAng * sideFactor;
+				var p1 = polar(lastPoint, ang1, 100) //временная точка
+				p1 = itercection(botLine.p1, botLine.p2, lastPoint, p1)
+
+				bracePar.poleAngle = ang1 + Math.PI;
+				bracePar.length = distance(lastPoint, p1);
+				if (bracePar.length < 250) break
+
+				var brace = drawPole3D_4(bracePar).mesh;
+				brace.position.x = lastPoint.x
+				brace.position.y = lastPoint.y
+				par.mesh.add(brace)
+
+
+				var ang2 = Math.PI / 2 + braceAng * sideFactor
+				var p2 = polar(p1, ang2, 500) //временная точка
+				p2 = itercectionLineCircle(p1, p2, center, midArc.rad)[0]
+
+				bracePar.poleAngle = ang2 + Math.PI;
+				bracePar.length = distance(p1, p2);
+				if (bracePar.length < 250) break
+
+				var brace = drawPole3D_4(bracePar).mesh;
+				brace.position.x = p2.x
+				brace.position.y = p2.y
+				par.mesh.add(brace)
+
+				lastPoint = copyPoint(p2)
+			}
+			if (params.carportType == "односкатный") break;
+		}
+
+		par.topArc.len = par.topArc.rad * (par.topArc.startAngle - par.topArc.endAngle)
+		par.progonAmt = Math.ceil(par.topArc.len / params.progonMaxStep)
+		console.log(par.progonAmt)
+	}
+	return par;
+
+}
+
+function createShapeAndMesh(par) {
+	//создаем шейп
+	var shapePar = {
+		points: par.points,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+	}
+
+	var shape = drawShapeByPoints2(shapePar).shape;
+
+	var geom = new THREE.ExtrudeGeometry(shape, par.extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var mesh = new THREE.Mesh(geom, par.material);
+	return mesh
+}
