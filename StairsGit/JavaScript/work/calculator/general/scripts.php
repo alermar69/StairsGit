@@ -330,6 +330,10 @@
 			'url' => '/manufacturing/carport/testing.js',
 			'only_for' => ['carport'],
 		],
+		[
+			'url' => '/manufacturing/carport/personalScripts.js',
+			'only_for' => ['carport'],
+		],
 		
 		// veranda
 		[

@@ -209,11 +209,13 @@ function calcCarportPartPar(){
 		roofSheet: {}, //листы кровли
 		truss: {},
 	}
-	
+
+	par.main.roofAng = params.roofAng / 180 * Math.PI;
+
 	//общая длина навеса
 	par.main.len = params.sectAmt * params.sectLen + params.frontOffset * 2;
-	par.main.width = params.width / Math.cos(params.roofAng / 180 * Math.PI);
-	
+	par.main.width = params.width / Math.cos(par.main.roofAng * Math.PI);
+
 
 	//стропила
 	

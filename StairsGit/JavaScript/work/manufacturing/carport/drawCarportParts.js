@@ -1303,7 +1303,10 @@ function drawRoofCarcas(par){
 	if(params.roofType == "Арочная") drawFunc = drawArcSheetTruss;
 	if(params.carportType == "консольный" || params.carportType == "консольный двойной") drawFunc = drawArcSheetWing;
 	if(params.beamModel == "проф. труба" || params.carportType == "сдвижной") drawFunc = drawCarportBeam;
-	if(params.beamModel == "ферма постоянной ширины") drawFunc = drawArcTubeTruss;
+	if (params.beamModel == "ферма постоянной ширины") {
+		drawFunc = drawArcTubeTruss;
+		if (params.roofType == "Плоская") drawFunc = drawTriangleTubeTruss;
+	}
 	
 	var rafterArrPar = {
 		amt: {
