@@ -175,13 +175,6 @@
 				</select>
 			</td></tr>
 
-			<tr class="railingMetalPaint_tr"><td>Покраска металла:</td> <td> 
-				<select id="metalPaint_railing" size="1" onchange="">
-					<!-- варианты покраски металла -->
-					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalPaint.php" ?>
-				</select>
-			</td></tr>
-
 			<tr class='railingMetalColor railingMetalPaint_tr'>
 				<td>Цвет покраски металла:</td> 
 				<td> 

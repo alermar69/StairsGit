@@ -118,39 +118,19 @@ function drawStrightTruss(par){
 	endFlan.position.x = par.len - flanPar.thk;
 	endFlan.position.z = flanPar.width / 2;
 	par.mesh.add(endFlan);
-/*
-	var flanPar = {
-		rackSize: partPar.column.profSize.y,
-		height: par.height,
-		thk: 8,
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, -200, 0),
-		dxfPrimitivesArr: par.dxfArr
-	};
-
-	var startFlan = drawTrussFlan(flanPar);
-	startFlan.position.x = -30 - 20;
-	startFlan.position.z = flanPar.thk / 2;
-	par.mesh.add(startFlan);
-
-	var endFlan = drawTrussFlan(flanPar);
-	endFlan.position.x = par.len + 30 + 20;
-	endFlan.rotation.y = Math.PI;
-	endFlan.position.z = flanPar.thk + par.thk;
-	par.mesh.add(endFlan);
-*/
 
 	var box3 = new THREE.Box3().setFromObject(truss);
 	var s = ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
 	var partName = "trussSide";
 	if (typeof specObj != 'undefined') {
-		name = par.len;
+		name = par.len + "х" + par.height + "х" + partPar.truss.thk;
 		if (!specObj[partName]) {
 			specObj[partName] = {
 				types: {},
 				amt: 0,
 				area: 0,
 				name: "Ферма боковая",
-				metalPaint: false,
+				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
 				workUnitName: "amt",
@@ -390,7 +370,6 @@ function drawTriangleSheetTruss(par){
 		material: params.materials.metal,
 		dxfArr: [],
 		type: 'rect',
-		partName: 'trussLine'
 	};
 
 	var stripe = drawPole3D_4(stripeParTop).mesh;
@@ -410,7 +389,6 @@ function drawTriangleSheetTruss(par){
 		material: params.materials.metal,
 		dxfArr: [],
 		type: 'rect',
-		partName: 'trussLine'
 	};
 	
 	if(params.carportType == "односкатный") {
@@ -515,7 +493,8 @@ function drawTriangleSheetTruss(par){
 	par.centerY = rightLine.p1.y;
 	par.centerYBot = rightLine.p2.y;
 	
-	par.endPoint = polar(topLine.p1, THREE.Math.degToRad(params.roofAng + 90), partPar.truss.stripeThk)
+	//сохраняем точку конец фермы для отрисовки прогонов и кровли
+	partPar.truss.endPoint = polar(topLine.p1, THREE.Math.degToRad(params.roofAng + 90), partPar.truss.stripeThk)
 	
 	//расчет площади одной половинки
 	var height_l = topLine.p1.y;
@@ -532,7 +511,7 @@ function drawTriangleSheetTruss(par){
 				amt: 0,
 				area: 0,
 				name: "Ферма поперечная",
-				metalPaint: false,
+				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
 				workUnitName: "amt",
@@ -894,7 +873,7 @@ function drawArcSheetTruss(par){
 				amt: 0,
 				area: 0,
 				name: "Ферма поперечная",
-				metalPaint: false,
+				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
 				workUnitName: "amt",
@@ -1123,7 +1102,7 @@ partPar.main.arcPar.topArc = topArc;
 				amt: 0,
 				area: 0,
 				name: "Ферма поперечная",
-				metalPaint: false,
+				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
 				workUnitName: "amt",
@@ -1372,11 +1351,13 @@ function calcRoofArcParams(par){
 	par.topArc.startAngle = angle(par.botLine.p1, par.topArc.center) + Math.PI;
 		
 	//дополнительная точка для большого свеса
-	if(angle(par.botLine.p1, par.botLine.p2) > -Math.PI / 6){
+
+	if(angle(par.botLine.p1, par.botLine.p2) > par.topArc.startAngle - Math.PI){
 		par.botLine.p11 = polar(par.botLine.p1, par.topArc.startAngle, -50)
+		if(par.botLine.p11.y > -20) par.botLine.p11 = itercection(par.botLine.p11, par.botLine.p1, par.botLine.p2, newPoint_xy(par.botLine.p2, 1,0))
 	}
 	
-
+console.log(angle(par.botLine.p1, par.botLine.p2) / Math.PI * 180, par.topArc.startAngle * 180 / Math.PI - 180)
 
 	
 	//нижняя линия
@@ -1569,6 +1550,8 @@ function drawArcTubeTruss1(par){
 	return par;
 	
 }
+/** функция отрисовывает арочную сварную ферму из проф. трубы
+*/
 
 function drawArcTubeTruss(par) {
 	if (!par) par = {};
@@ -2034,6 +2017,9 @@ function drawArcTubeTruss(par) {
 	return par;
 
 }
+
+/** функция отрисовывает сварную ферму из проф. трубы для плоской кровли
+*/
 
 function drawTriangleTubeTruss(par) {
 	if (!par) par = {};

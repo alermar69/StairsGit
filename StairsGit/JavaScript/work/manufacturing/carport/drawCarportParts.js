@@ -1,30 +1,44 @@
-/**Функция отрисовывает прогон с метизами
+/**Функция отрисовывает прогон с термошайбами и метизами
+	@param len
 */
 function drawPurlin(par){
 	par.mesh = new THREE.Object3D();
 
 	var polePar = {
-		poleProfileY: par.poleProfileY,
-		poleProfileZ: par.poleProfileZ,
+		poleProfileY: partPar.purlin.profSize.x,
+		poleProfileZ: partPar.purlin.profSize.y,
 		dxfBasePoint: par.dxfBasePoint,
-		length: par.length,
-		poleAngle: 0,
-		material: par.material,
-		dxfArr: [],
-		type: 'rect'
+		length: par.len,
+		material: params.materials.metal,
+		partName: 'purlinProf'
 	};
-
+	
+	//переворачиваем прогон для плоской кровли
+	if(params.roofType == "Плоская") {
+		polePar.poleProfileY = partPar.purlin.profSize.y
+		polePar.poleProfileZ = partPar.purlin.profSize.x 
+	}
+	
 	var purlin = drawPole3D_4(polePar).mesh;
 	par.mesh.add(purlin);
 
-	var screwsAmt = Math.round(par.length / 450);
-	var step = par.length / screwsAmt;
+//термошайбы и саморезы на прогонах
+
+	var screwsAmt = Math.round(par.len / 450);
+	var step = par.len / screwsAmt;
 	for (var i = 0; i < screwsAmt; i++) {
 		var shim = drawTermoShim();
 		shim.position.x = step / 2 + step * i
 		shim.rotation.x = Math.PI / 2;
-		shim.position.y = par.poleProfileY / 2;
-		shim.position.z = par.poleProfileZ + params.roofThk;
+		shim.position.z = partPar.purlin.profSize.y + params.roofThk;
+		shim.position.y = partPar.purlin.profSize.x / 2;
+		
+		//переворачиваем прогон для плоской кровли
+		if(params.roofType == "Плоская") {
+			shim.rotation.x = 0;
+			shim.position.z = partPar.purlin.profSize.x / 2;
+			shim.position.y = partPar.purlin.profSize.y + params.roofThk;
+		}
 		par.mesh.add(shim);
 
 		var screwPar = {
@@ -34,13 +48,14 @@ function drawPurlin(par){
 		}
 			
 		var screw = drawScrew(screwPar).mesh;
-		screw.position.x = step / 2 + step * i
-		screw.rotation.x = -Math.PI / 2;
-		screw.position.y = par.poleProfileY / 2;
-		screw.position.z = par.poleProfileZ + params.roofThk;
+		screw.position.x = shim.position.x
+		screw.rotation.x = shim.rotation.x - Math.PI;
+		screw.position.y = shim.position.y;
+		screw.position.z = shim.position.z;
 		par.mesh.add(screw);
 	};
 
+/*
 	var boltPar = {
 		diam: 6,
 		len: 20,
@@ -63,35 +78,7 @@ function drawPurlin(par){
 		bolt.rotation.x = Math.PI / 2;
 		par.mesh.add(bolt);
 	}
-
-	//сохраняем данные для спецификации
-	var partName = 'purlinProf';
-	if (typeof specObj != 'undefined' && partName) {
-		if (!specObj[partName]) {
-			specObj[partName] = {
-				types: {},
-				amt: 0,
-				sumLength: 0,
-				name: 'Прогон',
-				metalPaint: false,
-				timberPaint: false,
-				isModelData: true,
-				division: "metal",
-				purposes: [],
-				workUnitName: "amt",
-				group: "Каркас",
-			}
-		}
-		var name = Math.round(par.poleProfileZ) + "x" + Math.round(par.poleProfileY) + "х" + Math.round(par.length);
-		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
-		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
-		specObj[partName]["amt"] += 1;
-		specObj[partName]["sumLength"] += par.length / 1000;
-		par.mesh.specParams = {specObj: specObj, amt: 1, sumLength: par.length / 1000, partName: partName, name: name}
-	}
-
-	par.mesh.specId = partName + name;
-
+	*/
 	return par;
 }
 
@@ -215,7 +202,7 @@ function drawPolyConnectionProfile(par){
 				group: "carcas",
 			}
 		}
-		var name = profLength.toFixed(2);
+		var name = Math.round(profLength);
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
@@ -242,20 +229,31 @@ function drawColumnFlan(par){
 	var p2 = newPoint_xy(p1, 0, -50);
 	var p3 = itercection(par.lines.left.p1, par.lines.left.p2, p2, newPoint_xy(p2, 1, 0))
 	var p4 = itercectionLines(par.lines.left, par.lines.top)
+	if(!par.isTop) {
+		p4 = itercectionLines(par.lines.left, par.lines.top_ang)
+		var p41 = itercectionLines(par.lines.top, par.lines.top_ang);	
+	}
 	var p5 = itercectionLines(par.lines.right, par.lines.top)
+
 	var p6 = newPoint_xy(p5, 0, -p5.y);
 
 	var p9 = newPoint_xy(p0, partPar.column.profSize.y / 2, 0);
 	var p8 = newPoint_xy(p9, 0, -150);
 	var p7 = newPoint_xy(p8, 30, 0);
 	
+	p3.filletRad = p4.filletRad = p7.filletRad = 20;
 	
-
-	p3.filletRad = p4.filletRad = p5.filletRad = p7.filletRad = 20;
+	if(par.isTop) {
+		p5.filletRad = 20;
+	}
+	else{
+		p41.filletRad = 20;
+	}
+	
 
 	//создаем шейп
 	var shapePar = {
-		points: [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9],
+		points: [p0, p1, p2, p3, p4, p41, p5, p6, p7, p8, p9],
 		dxfArr: par.dxfPrimitivesArr,
 		dxfBasePoint: par.dxfBasePoint
 	}
@@ -301,139 +299,10 @@ function drawColumnFlan(par){
 	var flan = new THREE.Mesh(geom, params.materials.metal);
 	flan.setLayer('flans');
 
-	var partName = "rackFlan";
-	var box3 = new THREE.Box3().setFromObject(flan);
-	var s = ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
-	if (typeof specObj != 'undefined') {
-		if (!specObj[partName]) {
-			specObj[partName] = {
-				types: {},
-				amt: 0,
-				area: 0,
-				name: "Фланец стойки к ферме",
-				metalPaint: false,
-				timberPaint: false,
-				division: "metal",
-				workUnitName: "amt",
-				group: "carcas",
-			}
-		}
-		var name = 0;
-		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
-		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
-		specObj[partName]["amt"] += 1;
-		specObj[partName]["area"] += s;
-		flan.specParams = {specObj: specObj, amt: 1, area: s, partName: partName, name: name}
-	}
-	flan.specId = partName;
-
 	par.mesh.add(flan);
 	return par;
 }
 
-/** функция отрисовывает фланец крепления поперечной фермы навеса к колонне
-*/
-
-function drawTrussFlan(par){
-	var flanMesh = new THREE.Object3D();
-
-	var rackSize = par.rackSize - 8;// 8 толщина фланца фермы
-	// Отступ от стойки
-	var rackOffset = (100 - par.rackSize) / 2 + 20 + 23.5;// 100 - размер стойки(при колонне в 100, зазор между опорой и фланцем 0) 20 от края фермы + 20 для отверстий
-
-	var p0 = {x:0,y:0};
-	var p1 = newPoint_xy(p0, rackSize / 2, 0);
-	var p2 = newPoint_xy(p1, 0, -50);
-	var p3 = newPoint_xy(p2, rackOffset, 0);
-	var p4 = newPoint_xy(p3, 0, par.height + 50);
-	var p5 = newPoint_xy(p4, -rackSize / 2 - rackOffset, 0);
-
-	p3.filletRad = p5.filletRad = 10;
-
-	//создаем шейп
-	var shapePar = {
-		points: [p0,p1,p2,p3,p4,p5],
-		dxfArr: par.dxfPrimitivesArr,
-		dxfBasePoint: par.dxfBasePoint
-	}
-	
-	var shape = drawShapeByPoints2(shapePar).shape;
-
-	var h1 = newPoint_xy(p4, -20, -20);
-	var h2 = newPoint_xy(h1, 0, -160);
-	h1.rad = h2.rad = 7;
-
-	if (!par.noBolts) {
-		var holesPar = {
-			holeArr: [h1,h2],
-			dxfBasePoint: par.dxfBasePoint,
-			shape: shape,
-			dxfPrimitivesArr: par.dxfPrimitivesArr
-		}
-		addHolesToShape(holesPar);
-	}
-
-	if (!par.noBolts) {
-		holesPar.holeArr.forEach(function(hole){
-			var boltPar = {
-				diam: 12,
-				len: 30,
-				headType: "шестигр.",
-				headShim: true,
-			}
-			
-			var bolt = drawBolt(boltPar).mesh;
-			bolt.position.x = hole.x;
-			bolt.position.y = hole.y;
-			bolt.position.z = 0;
-			bolt.rotation.x = Math.PI / 2;
-			flanMesh.add(bolt);
-		});
-	}
-
-	var extrudeOptions = {
-		amount: par.thk,
-		bevelEnabled: false,
-		curveSegments: 12,
-		steps: 1
-	};
-
-	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
-	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-
-	var flan = new THREE.Mesh(geom, params.materials.metal);
-	flan.setLayer('flans');
-
-	var box3 = new THREE.Box3().setFromObject(flan);
-	var s = ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
-
-	var partName = "trussFlan";
-	if (typeof specObj != 'undefined') {
-		if (!specObj[partName]) {
-			specObj[partName] = {
-				types: {},
-				amt: 0,
-				area: 0,
-				name: "Фланец стойки к продольной ферме",
-				metalPaint: false,
-				timberPaint: false,
-				division: "metal",
-				workUnitName: "amt",
-				group: "carcas",
-			}
-		}
-		var name = 0;
-		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
-		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
-		specObj[partName]["amt"] += 1;
-		specObj[partName]["area"] += s;
-		flan.specParams = {specObj: specObj, amt: 1, area: s, partName: partName, name: name}
-	}
-	flan.specId = partName;
-	flanMesh.add(flan);
-	
-	return flanMesh;
-}
 
 /** функция отрисовывает соединительный фланец арочной фермы
 */
@@ -540,7 +409,7 @@ p14.filletRad = p44.filletRad =  par.flanParams.notchRad
 				amt: 0,
 				area: 0,
 				name: "Фланец соединения двух частей ферм",
-				metalPaint: false,
+				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
 				workUnitName: "amt",
@@ -613,7 +482,7 @@ function drawDomeTopFlan(par){
 				amt: 0,
 				area: 0,
 				name: "Фланец верхний",
-				metalPaint: false,
+				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
 				workUnitName: "amt",
@@ -955,6 +824,33 @@ function drawCarportBeam(par){
 		var beam = drawPole3D_4(polePar).mesh;
 		beam.position.x = -params.width / 2 - params.sideOffset
 		par.mesh.add(beam)
+		
+		//термошайбы и саморезы на балках
+
+		var screwsAmt = Math.round(par.len / 450);
+		var step = par.len / screwsAmt;
+		for (var i = 0; i < screwsAmt; i++) {
+			var shim = drawTermoShim();
+			shim.position.x = step / 2 + step * i
+			shim.rotation.x = Math.PI / 2;
+			shim.position.y = polePar.poleProfileY / 2;
+			shim.position.z = polePar.poleProfileZ + params.roofThk;
+			par.mesh.add(shim);
+
+			var screwPar = {
+				id: "roofingScrew_5x32",
+				description: "Крепление поликарбоната к профилям",
+				group: "Кровля"
+			}
+				
+			var screw = drawScrew(screwPar).mesh;
+			screw.position.x = step / 2 + step * i
+			screw.rotation.x = -Math.PI / 2;
+			screw.position.y = polePar.poleProfileY / 2;
+			screw.position.z = polePar.poleProfileZ + params.roofThk;
+			par.mesh.add(screw);
+		};
+		
 	}
 	
 	
@@ -1349,15 +1245,11 @@ function drawRoofCarcas(par){
 	
 	//параметры одного прогона
 	var purlinPar = {
-		poleProfileY: partPar.purlin.profSize.x,
-		poleProfileZ: partPar.purlin.profSize.y,
-		length: partPar.main.len,
-		material: params.materials.metal,
-		partName: 'purlinProf'
+		len: partPar.main.len,
 	};
 	
 	if(params.beamModel == "проф. труба") {
-		purlinPar.length = rafterArrPar.step.z - partPar.rafter.profSize.x;
+		purlinPar.len = rafterArrPar.step.z - partPar.rafter.profSize.x;
 	}
 
 	for(var i=0; i<amt; i++){
@@ -1370,7 +1262,7 @@ function drawRoofCarcas(par){
 			var arrPar = {
 				center: topArc.center,
 				rad: topArc.rad - partPar.purlin.profSize.y, //верхняя плоскость прогона вровень с дугой
-				drawFunction: drawPole3D_4,
+				drawFunction: drawPurlin,
 				startAngle: topArc.endAngle,
 				endAngle: topArc.startAngle,
 				itemAmt: 3,
@@ -1387,10 +1279,10 @@ function drawRoofCarcas(par){
 			var purlinArr = drawArcArray(arrPar).mesh;
 			purlinArr.rotation.y = Math.PI / 2;
 			if(params.beamModel == "проф. труба") {
-				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.length - partPar.main.len / 2 + partPar.rafter.profSize.x;
+				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x;
 			}
 			if(params.carportType == "сдвижной"){
-				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.length - par.len / 2 + partPar.rafter.profSize.x;
+				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - par.len / 2 + partPar.rafter.profSize.x;
 			}
 			purlinArr.setLayer('carcas');
 			if(params.carportType == "односкатный") purlinArr.position.x = 0; //выравниваем вручную
@@ -1420,7 +1312,7 @@ function drawRoofCarcas(par){
 					z: params.roofAng / 180 * Math.PI,
 				},
 				
-				drawFunction: drawPole3D_4,
+				drawFunction: drawPurlin,
 				itemPar: purlinPar,
 			}
 			
@@ -1433,12 +1325,12 @@ function drawRoofCarcas(par){
 			
 			var purlinArr = drawRectArray(purlinArrPar).mesh;
 			if(params.beamModel == "проф. труба") {
-				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.length - partPar.main.len / 2 + partPar.rafter.profSize.x;
+				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x;
 				purlinArr.position.y = partPar.rafter.profSize.y - partPar.purlin.profSize.y
 			}
 			if(params.beamModel != "проф. труба") {				
-				purlinArr.position.y = rafterPar.endPoint.y
-				if(params.carportType == "односкатный") purlinArr.position.x = rafterPar.endPoint.x; //выравниваем вручную
+				purlinArr.position.y = partPar.truss.endPoint.y
+				if(params.carportType == "односкатный") purlinArr.position.x = partPar.truss.endPoint.x; //выравниваем вручную
 			}
 			
 			if(params.carportType == "двухскатный"){
@@ -1461,12 +1353,15 @@ function drawRoofCarcas(par){
 		
 		
 	}
-/*	
-	if(params.beamModel == "проф. труба" && params.roofType != "Арочная" && params.carportType == "односкатный"){
-		par.mesh.rotation.z = params.roofAng / 180 * Math.PI;
-		par.mesh.position.y = params.width / 2 * Math.tan(params.roofAng / 180 * Math.PI)
+
+	//термошайбы по прогонам
+	
+	
+	//термошайбы по дугам
+	if(params.beamModel == "проф. труба"){
+		
 	}
-*/
+	
 	
 	par.topArc = topArc
 	

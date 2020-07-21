@@ -740,7 +740,7 @@ function drawVintTreadShape(par) {
 				amt: 0,
 				area: 0,
 				paintedArea: 0,
-				name: "Ступень " + params.stairType == 'массив' ? params.treadsMaterial : params.stairType,
+				name: "Ступень " + (params.stairType == 'массив' ? params.treadsMaterial : params.stairType),
 				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
@@ -752,6 +752,7 @@ function drawVintTreadShape(par) {
 				specObj[partName].metalPaint = false;
 				specObj[partName].timberPaint = true;
 				specObj[partName].division = "timber";
+				specObj[partName].group = "treads";
 			}
 		}
 		var area = sizeA * sizeB / 1000000;
@@ -1999,7 +2000,7 @@ function drawVintPlatformShape(par) {
 				amt: 0,
 				area: 0,
 				paintedArea: 0,
-				name: "Площадка треугольная " + params.stairType == 'массив' ? params.treadsMaterial : params.stairType,
+				name: "Площадка треугольная " + (params.stairType == 'массив' ? params.treadsMaterial : params.stairType),
 				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
@@ -2010,9 +2011,10 @@ function drawVintPlatformShape(par) {
 				specObj[partName].metalPaint = false;
 				specObj[partName].timberPaint = true;
 				specObj[partName].division = "timber";
+				specObj[partName].group = "treads";
 			}
 		}
-		if (par.platformType == "square") specObj[partName].name = "Площадка прямоугольная " + params.stairType == 'массив' ? params.treadsMaterial : params.stairType;
+		if (par.platformType == "square") specObj[partName].name = "Площадка прямоугольная " + (params.stairType == 'массив' ? params.treadsMaterial : params.stairType);
 
 		var area = sizeA * sizeB / 1000000;
 		var name = Math.round(sizeA) + "x" + Math.round(sizeB);
@@ -3736,7 +3738,7 @@ function drawBotFlanCover(){
 				timberPaint: true,
 				division: "timber",
 				workUnitName: "amt", //единица измерения
-				group: "Ступени",
+				group: "carcas",
 			}
 		}
 		var name = "Ф" + rad * 2;

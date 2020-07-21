@@ -263,6 +263,7 @@ function calcCarportPartPar(){
 		thk: params.trussThk,
 		stripeThk: 4,
 		width: 200,
+		endPoint: {x:0, y:0}, //точка перезаписывается при отрисовке фермы
 	}
 	
 	if(params.roofType == "Арочная") {
@@ -360,7 +361,11 @@ function calcColumnFlanPar(par){
 			p2: newPoint_xy(p0, 120, 1),		
 		},
 		top: {
-			p1: newPoint_xy(p0, 0, partPar.main.arcPar.m1 - 15),
+			p1: newPoint_xy(p0, -80, partPar.truss.endHeight),
+			p2: newPoint_xy(p0, 0, partPar.truss.endHeight),
+		},
+		top_ang: {
+			p1: newPoint_xy(p0, 0, partPar.truss.endHeight - 15),
 		},
 		bot: { //линия на уровне верха колонны
 			p1: newPoint_xy(p0, -1, 0),
@@ -368,7 +373,8 @@ function calcColumnFlanPar(par){
 		},		
 	};
 	
-	lines.top.p2 = polar(lines.top.p1, THREE.Math.degToRad(params.roofAng), 1)
+	lines.top_ang.p2 = polar(lines.top_ang.p1, THREE.Math.degToRad(params.roofAng), 1)
+	
 	//верхний фланец односкатного навеса
 	
 	if(par.isTop) {
@@ -382,8 +388,8 @@ function calcColumnFlanPar(par){
 				p2: newPoint_xy(p0, -partPar.column.profSize.y / 2 + 200, 1),		
 			},
 			top: {
-				p1: newPoint_xy(p0, 0, partPar.main.arcPar.m1 - 15),
-				p2: newPoint_xy(p0, 1, partPar.main.arcPar.m1 - 15),
+				p1: newPoint_xy(p0, 0, partPar.truss.endHeight),
+				p2: newPoint_xy(p0, 1, partPar.truss.endHeight),
 			},
 			bot: { //линия на уровне верха колонны
 				p1: newPoint_xy(p0, -1, 0),
@@ -399,6 +405,8 @@ function calcColumnFlanPar(par){
 		p4: itercectionLines(lines.right, lines.bot),
 	}
 	
+
+	
 	//отверстия для болтов
 	var holeOffset = 25;
 	var holes = [];
@@ -411,6 +419,11 @@ function calcColumnFlanPar(par){
 		bot: parallel(lines.bot.p1, lines.bot.p2, holeOffset),
 	}
 	
+	if(!par.isTop) {
+		centerLines.top_ang = parallel(lines.top_ang.p1, lines.top_ang.p2, -holeOffset);
+	}
+	
+	
 	var holes = [
 		itercectionLines(centerLines.left, centerLines.bot),
 		itercectionLines(centerLines.left, centerLines.top),
@@ -418,10 +431,14 @@ function calcColumnFlanPar(par){
 		itercectionLines(centerLines.right, centerLines.bot),
 	];
 	
+	if(!par.isTop) {
+		holes[1] = itercectionLines(centerLines.left, centerLines.top_ang);
+	}
+/*	
 	if(!par.isTop){
 		holes.push(newPoint_xy(holes[3], 0, 180 - holeOffset * 2));
 	}
-	
+*/	
 	par.lines = lines
 	par.points = points
 	par.holes = holes

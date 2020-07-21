@@ -1431,6 +1431,13 @@ function getPoleSpecParams(par){
 			specObjPart.name = "Ригель нерж.";
 		}
 	}
+	
+	if (partName == 'crossProfile') {
+		specObjPart.name = 'Профиль крестов';
+		specObjPart.division = "metal";
+		specObjPart.group = 'carcas';
+	}
+	
 	if (partName == "ladderBal") {
 		specObjPart.name = "Стойка ограждения с фланцем";
 		specObjPart.metalPaint = true;
@@ -1496,23 +1503,33 @@ function getPoleSpecParams(par){
 		specObjPart.division = "metal";
 		specObjPart.group = "Каркас";
 	}
-	if (partName == 'polyEdgeProf') {
-		specObjPart.name = "Краевой профиль поликарбоната";
-		specObjPart.division = "metal";
-	}
+
 	if (partName == 'carportColumn') {
-		specObjPart.name = "Опора навеса";
+		specObjPart.name = "Колонна навеса";
+		specObjPart.group = 'carcas';
 		specObjPart.division = "metal";
+		specObjPart.metalPaint = true;
 	}
 	
 	if (partName == 'carportBeamLen') {
 		specObjPart.name = "Балка продольная";
+		specObjPart.group = 'carcas';
 		specObjPart.division = "metal";
+		specObjPart.metalPaint = true;
 	}
 	
 	if (partName == 'carportBeam') {
 		specObjPart.name = "Балка поперечная";
+		specObjPart.group = 'carcas';
 		specObjPart.division = "metal";
+		specObjPart.metalPaint = true;
+	}
+	
+	if (partName == 'purlinProf') {
+		specObjPart.name = 'Прогон';
+		specObjPart.division = "metal";
+		specObjPart.group = 'carcas';
+		specObjPart.metalPaint = true;
 	}
 	
 	if (partName == 'polySheet') {
@@ -1524,17 +1541,15 @@ function getPoleSpecParams(par){
 		specObjPart.division = "metal";
 		specObjPart.group = 'carcas';
 	}
-	if (partName == 'crossProfile') {
-		specObjPart.name = 'Профиль крестов';
+	
+	if (partName == 'polyEdgeProf') {
+		specObjPart.name = "Краевой профиль поликарбоната";
 		specObjPart.division = "metal";
-		specObjPart.group = 'carcas';
 	}
 	
-	if (partName == 'purlinProf') {
-		specObjPart.name = 'Прогон';
-		specObjPart.division = "metal";
-		specObjPart.group = 'carcas';
-	}
+
+	
+
 
 	return specObjPart;
 }

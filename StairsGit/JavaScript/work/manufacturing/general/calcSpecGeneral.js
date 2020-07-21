@@ -1469,7 +1469,7 @@ function isPainting(item){
 		if('timberPaint' in item && item.timberPaint && params.timberPaint !== 'нет'){
 			paintType = params.timberPaint;
 		//	if (params.timberPaint == "морилка+лак" || params.timberPaint == "цветное масло") paintType += ", цвет " + params.timberColorNumber;
-			if(params.calcType == "vint") paintType += ", цвет " + params.timberColorNumber;
+			// if(params.calcType == "vint") paintType += ", цвет " + params.timberColorNumber;
 			if(item.group) {
 				var groupColor = params[item.group + "Color"];
 				if(isFinite(groupColor) && groupColor < 10) groupColor = "0" + groupColor;

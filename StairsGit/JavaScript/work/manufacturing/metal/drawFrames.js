@@ -90,9 +90,12 @@ function drawFrames(par){
 				if (par.isBigPlt) {
 					platform.position.z = -(framePar.length / 2 - params.M / 2 + params.stringerThickness) * turnFactor;
 				};
-				if (params.calcType == "vhod") {
-					platform.position.z += (framePar.length / 2 + 3 + 1) * turnFactor; //Не понятно, подогнано
-					if (params.M <= 1100) platform.position.z = frame.position.z//-3 * turnFactor; 
+				if (params.calcType == "vhod") {					
+					platform.position.z = frame.position.z//-3 * turnFactor;
+					if (params.M >= 1100) { //Не понятно, подогнано						
+						platform.position.z += (framePar.length * (calcFrameParams({}).framesAmt - 1) / 2 + 3 + 1) * turnFactor; 
+					}
+					
 					if (par.isBigPlt) {
 						platform.position.z = (params.M / 2 - framePar.length / 2 - params.stringerThickness - 3) * turnFactor;
 					};

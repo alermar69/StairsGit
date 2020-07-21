@@ -358,7 +358,7 @@ function drawRoof(par){
 			
 			sheet.rotation.z = par.topArc.endAngle - extraAngle;
 			if (params.carportType == "односкатный" || params.carportType.indexOf("консольный") != -1){
-				sheet.rotation.z = Math.PI / 2;// - extraAngle;
+				//sheet.rotation.z = Math.PI / 2;// - extraAngle;
 				sheet.position.x = params.width / 2;
 			}
 			
@@ -417,11 +417,13 @@ function drawRoof(par){
 			itemWidth: edgePolyPar.poleProfileY,
 			rot: {y: Math.PI / 2},
 		}
-			
-		//отрисовка массива краевых профилей
+	
+		//отрисовка кругового массива краевых профилей
 		var profArr = drawArcArray(arrPar).mesh;
-		//profArr.rotation.y = -Math.PI / 2;
-	//	profArr.position.y = 0
+	
+		if (params.carportType == "односкатный" || params.carportType.indexOf("консольный") != -1){
+			profArr.position.x = -params.width / 2 + params.sideOffset + partPar.column.profSize.y / 2;
+		}
 		profArr.position.z = par.len;
 		profArr.setLayer('carcas');
 		profArr.setLayer('roof');
@@ -476,15 +478,55 @@ function drawRoof(par){
 				sheetPar.width = par.len - sheetStep * i; //для профлиста
 			} 
 		
+			// левый скат
+			var sheet = sheetDrawFunc(sheetPar).mesh;
+			sheet.rotation.z = roofAng;
+			sheet.position.z = sheetWidth * i;
+
+			//точка на краю фермы
+			var pos = newPoint_xy(partPar.truss.endPoint, -params.width/2 + params.sideOffset + partPar.column.profSize.y / 2, 0)
+			//смещаем на свес поликарбоната
+			pos = polar(pos, THREE.Math.degToRad(params.roofAng), -partPar.roofSheet.overhang)
+			//смещаем на высоту прогона
+			pos = polar(pos, THREE.Math.degToRad(params.roofAng + 90), partPar.purlin.profSize.y)
+			
+			sheet.position.x = pos.x
+			sheet.position.y = pos.y
+
+			sheet.setLayer('roof');
+			roof.add(sheet);
+
+			// Соединительный профиль
+			if (params.roofMat.indexOf("поликарбонат") != -1 &&  i < (sheetAmt - 1)) {
+				var polyProfilePar = {
+					length: sheetLen,
+					thk: params.roofThk + 2,
+					dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+					dxfPrimitivesArr: []
+				}
+				var polyProfile = drawPolyConnectionProfile(polyProfilePar);
+				
+				polyProfile.rotation.z = sheet.rotation.z;
+				polyProfile.position.z = sheet.position.z + sheetStep - 20;
+				polyProfile.position.x = sheet.position.x;
+				polyProfile.position.y = sheet.position.y + params.roofThk / Math.cos(roofAng);
+		
+				polyProfile.setLayer('roof');
+				roof.add(polyProfile);
+			}
+			
+			
 			if (params.carportType == "двухскатный") {
-				// левый скат
+				// правый скат
 				var sheet = sheetDrawFunc(sheetPar).mesh;				
-	
-				//pos = polar(pos, roofAng + Math.PI / 2, stripeThk + par.progonProfY);
-				sheet.rotation.z = -roofAng;
-				sheet.position.x = -params.width / 2;
+				
+				//учитываем переворот листа и смещаем на толщину листа
+				pos = polar(pos, THREE.Math.degToRad(90 - params.roofAng), params.roofThk)
+			
+				sheet.rotation.z = Math.PI - roofAng;
+				sheet.position.x = -pos.x;
 				sheet.position.y = pos.y;
-				sheet.position.z = pos.x;
+				sheet.position.z = sheetWidth * i;
 				
 				sheet.setLayer('roof');
 				roof.add(sheet);
@@ -498,54 +540,70 @@ function drawRoof(par){
 						dxfPrimitivesArr: []
 					}
 					var polyProfile = drawPolyConnectionProfile(polyProfilePar);
-					var conProfilePos = newPoint_xy(pos, sheetStep, 0)
-					polyProfile.position.z = conProfilePos.x - 20;
-					polyProfile.position.y = conProfilePos.y + params.roofThk + 2
+					
+					polyProfile.rotation.z = sheet.rotation.z;
+					polyProfile.position.z = sheet.position.z + sheetStep - 20;
 					polyProfile.position.x = sheet.position.x;
-					polyProfile.rotation.z = -roofAng;
+					polyProfile.position.y = sheet.position.y + params.roofThk / Math.cos(roofAng);
 			
 					polyProfile.setLayer('roof');
 					roof.add(polyProfile);
 				}
 			}
-
-			// правый скат
-			var sheet = sheetDrawFunc(sheetPar).mesh;
-			sheet.rotation.z = roofAng;
-			
-			sheet.position.x = -params.width - partPar.roofSheet.overhang;				
-			sheet.position.y = pos.y - sheetLen * Math.sin(roofAng);
-			sheet.position.z = pos.x;
-			
-			
-			sheet.setLayer('roof');
-			roof.add(sheet);
-
-			// Соединительный профиль
-			if (params.roofMat.indexOf("поликарбонат") != -1 &&  i < (sheetAmt - 1)) {
-				var polyProfilePar = {
-					length: sheetLen,
-					thk: params.roofThk + 2,
-					dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
-					dxfPrimitivesArr: []
-				}
-				var polyProfile = drawPolyConnectionProfile(polyProfilePar);
-				var conProfilePos = newPoint_xy(pos, sheetStep, 0)
-				polyProfile.position.z = conProfilePos.x - 20;
-				polyProfile.position.y = conProfilePos.y + params.roofThk + 2 - sheetLen * Math.sin(roofAng);
-				polyProfile.position.x = sheet.position.x;
-				polyProfile.rotation.z = roofAng;
+		}
 		
-				polyProfile.setLayer('roof');
-				roof.add(polyProfile);
+		//краевой профиль
+		
+		if(params.roofMat.indexOf("поликарбонат") != -1){
+			//параметры профиля
+			var edgePolyPar = {
+				poleProfileY: 10,
+				poleProfileZ: params.roofThk + 2,
+				dxfBasePoint: {x:0,y:0},
+				length: par.len,
+				poleAngle: 0,
+				material: params.materials.metal,
+				dxfArr: [],
+				type: 'rect',
+				partName: 'polyEdgeProf'
+			};
+			
+			var prof = drawPole3D_4(edgePolyPar).mesh;
+			prof.rotation.y = Math.PI / 2
+			prof.position.x = pos.x
+			prof.position.y = pos.y
+			prof.position.z = par.len
+			prof.setLayer('roof');
+			roof.add(prof);
+			
+			//профиль на другой стороне двухскатного навеса
+			var prof = drawPole3D_4(edgePolyPar).mesh;
+			prof.rotation.y = Math.PI / 2
+			prof.position.x = -pos.x
+			prof.position.y = pos.y
+			prof.position.z = par.len
+
+			//профиль наверху односкатного навеса
+			//TODO: сделать тут коньковый профиль для двухскатного или профиль примыкания к стене для односкатного
+			if (params.carportType == "односкатный" || params.carportType.indexOf("консольный") != -1){
+				var pos1 = polar(pos, THREE.Math.degToRad(params.roofAng), sheetLen)
+				prof.position.x = pos1.x
+				prof.position.y = pos1.y
 			}
-		}		
+			
+			prof.setLayer('roof');
+			roof.add(prof);
+			
+		}
+		
 	}
 	
 	
 	//центр массива в точке 0,0
 	var box3 = new THREE.Box3().setFromObject(roof);
-	roof.position.x -= (box3.max.x + box3.min.x) / 2;
+	if (params.carportType != "односкатный" && params.carportType.indexOf("консольный") == -1){
+		roof.position.x -= (box3.max.x + box3.min.x) / 2;
+	}
 	roof.position.z -= (box3.max.z + box3.min.z) / 2;
 
 	return roof;
@@ -904,7 +962,7 @@ function drawRectCarport(par){
 //продольные балки
 	
 	var trussPar = {
-		height: 185,
+		height: partPar.truss.endHeight,
 		thk: params.trussThk,
 		len: columnArrPar.step.z - 16,
 		rackSize: partPar.column.profSize.y,
@@ -1028,7 +1086,7 @@ function drawRectCarport(par){
 			roof.position.y = params.height + partPar.rafter.profSize.y / Math.cos(params.roofAng / 180 * Math.PI)
 		}
 		if(params.beamModel != "проф. труба") {
-			roof.position.y = params.height + partPar.truss.endHeight + partPar.purlin.profSize.y 
+			roof.position.y = params.height
 		}
 		roof.setLayer('roof');
 		carport.add(roof);
