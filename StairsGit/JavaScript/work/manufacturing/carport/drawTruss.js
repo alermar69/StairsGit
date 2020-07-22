@@ -1550,6 +1550,7 @@ function drawArcTubeTruss1(par){
 	return par;
 	
 }
+
 /** функция отрисовывает арочную сварную ферму из проф. трубы
 */
 
@@ -1562,12 +1563,28 @@ function drawArcTubeTruss(par) {
 
 	var beamProfParams = getProfParams(params.beamProf)
 
+	par.len = params.width;
+
 	var ang = partPar.main.roofAng;
 	var p0 = { x: 0, y: 0};
 
 	var sideOffset = params.sideOffset;
 	var profBinding = 20;
 	var sideFactor = 1;
+
+
+	var arcPar = partPar.main.arcPar;
+
+	var botLine = arcPar.botLine;
+	var topArc = arcPar.topArc;
+	var botArc = arcPar.botArc;
+	var rightLine = arcPar.centerLine;
+	var botLine = arcPar.botLine;
+
+	topArc.endAngle = Math.PI / 2; //по умолчанию отрисовываем половину фермы
+
+	topArc.len = topArc.rad * (topArc.startAngle - topArc.endAngle)
+
 
 	var extrudeOptions = {
 		amount: beamProfParams.sizeB,
@@ -1680,8 +1697,6 @@ function drawArcTubeTruss(par) {
 		mesh1 = new THREE.Mesh(geom, params.materials.metal);
 		mesh.add(mesh1)
 
-		var angBrace = calcAngleX1(p1, p4) + Math.PI / 4;
-
 		//крепление--------------------------------------------------------------
 		var p1 = itercectionLineCircle1(line3Out, pc, rad1Top)[0]
 		var p2 = itercectionLineCircle1(line4Out, pc, rad1Top)[0]
@@ -1708,74 +1723,94 @@ function drawArcTubeTruss(par) {
 		mesh.add(bind);
 
 		//Раскосы---------------------------------------------------------------
-		var pLast = itercectionLineCircle1(line4In, pc, rad2Bot)[0];
+		var angBrace = Math.PI / 4;
+		var pLast = itercectionLineCircle1(line1In, pc, rad2Bot)[0];
+
+		//определяем угол сдвига
+		var pt = newPoint_xy(pLast, 0, rad1Top - rad2Bot)
+		var pt1 = itercectionLineCircle(pLast, polar(pLast, angBrace, 100), pc, rad1Top)[0]
+		var line = parallel(pLast, pt1, -bracePar.profY)
+		var pt2 = itercectionLineCircle1(line, pc, rad1Top)[0];
+		var ang1 = Math.abs(calcAngleX1(pt, pt2)) * 2;
 
 		var pEndTop = itercectionLineCircle1(line4Out, pc, rad1Top)[0];
 		var pEndBot = itercectionLineCircle1(line4Out, pc, rad2Bot)[0];
 
+		// определяем угол поворота раскосов, так они начинаются не с середины
+		var ptLast = itercectionLineCircle1(line4In, pc, rad2Bot)[0];
+		var ang2 = calcAngleX1(pc, ptLast) - Math.PI / 2 
+
 		var j = 0;
-		var isBreak = false;
 		while (true) {
 			//первый раскос
 			if (j % 2 == 0) {
 				var points = [];
 				var pb1 = copyPoint(pLast)
-				var pb2 = itercectionLineCircle(pb1, polar(pb1, (angBrace + Math.PI / 2), 100), pc, rad1Top)[0]
-				if (Math.abs(pb2.x) > Math.abs(pEndTop.x)) {
-					pb2 = itercection(pb1, polar(pb1, (angBrace + Math.PI / 2), 100), line4Out.p1, line4Out.p2)
-					isBreak = true;
-				}
+				var pb2 = itercectionLineCircle(pb1, polar(pb1, ((angBrace + j * ang1) + Math.PI / 2), 100), pc, rad1Top)[0]
+				//if (Math.abs(pb2.x) > Math.abs(pEndTop.x)) {
+				//	pb2 = itercection(pb1, polar(pb1, ((angBrace + j * ang1) + Math.PI / 2), 100), line4Out.p1, line4Out.p2)
+				//	isBreak = true;
+				//}
+
+				if (pb2.x < pEndTop.x) break;
+
 				points.push(pb1)
 				points.push(pb2)
 				var line = parallel(pb1, pb2, -bracePar.profY)
 				var pb3 = itercectionLineCircle1(line, pc, rad1Top)[0];
-				if (Math.abs(pb3.x) > Math.abs(pEndTop.x)) {
-					pb3 = itercectionLines(line, line4Out)
-					if (!isBreak) points.push(pEndTop)
-					isBreak = true;
-				}
+				//if (Math.abs(pb3.x) > Math.abs(pEndTop.x)) {
+				//	pb3 = itercectionLines(line, line4Out)
+				//	if (!isBreak) points.push(pEndTop)
+				//	isBreak = true;
+				//}
+
+				if (pb3.x < pEndTop.x) break;
+
 				var pb4 = itercectionLineCircle1(line, pc, rad2Bot)[0];
 				points.push(pb3)
 				points.push(pb4)
 
-				shapeMeshPar.points = points;
+				points = rotatePoints(points, ang2, pc)
+				shapeMeshPar.points =  points;
 				shapeMeshPar.extrudeOptions.amount = bracePar.profZ;
 				mesh.add(createShapeAndMesh(shapeMeshPar))
 
 				var pLast = copyPoint(pb3)
-
-				if (isBreak) break;
 			}
 			//второй раскос (симметричный первому)------------------------------
 			if (j % 2 !== 0) {
 				var points = [];
 				var pb1 = copyPoint(pLast)
-				var pb2 = itercectionLineCircle(pb1, polar(pb1, (angBrace + Math.PI / 2) + Math.PI / 2, 100), pc, rad2Bot)[1]
-				if (Math.abs(pb2.x) > Math.abs(pEndBot.x)) {
-					pb2 = itercection(pb1, polar(pb1, (angBrace + Math.PI / 2) + Math.PI / 2, 100), line4Out.p1, line4Out.p2)
-					isBreak = true;
-				}
+				var pb2 = itercectionLineCircle(pb1, polar(pb1, (angBrace + (j + 1) * ang1) + Math.PI, 100), pc, rad2Bot)[1]
+				//if (Math.abs(pb2.x) > Math.abs(pEndBot.x)) {
+				//	pb2 = itercection(pb1, polar(pb1, ((angBrace + (j + 1) * ang1) + Math.PI / 2) + Math.PI / 2, 100), line4Out.p1, line4Out.p2)
+				//	isBreak = true;
+				//}
+
+				if (pb2.x < pEndBot.x) break;
+
 				points.push(pb1)
 				points.push(pb2)
 				var line = parallel(pb1, pb2, bracePar.profY)
 				var pb3 = itercectionLineCircle1(line, pc, rad2Bot)[1];
-				if (Math.abs(pb3.x) > Math.abs(pEndBot.x)) {
-					pb3 = itercectionLines(line, line4Out)
-					if (!isBreak) points.push(pEndBot)
-					isBreak = true;
-				}
+				//if (Math.abs(pb3.x) > Math.abs(pEndBot.x)) {
+				//	pb3 = itercectionLines(line, line4Out)
+				//	if (!isBreak) points.push(pEndBot)
+				//	isBreak = true;
+				//}
+
+				if (pb3.x < pEndBot.x) break;
+
 				var pb4 = itercectionLineCircle1(line, pc, rad1Top)[1];
 				points.push(pb3)
 				points.push(pb4)
 
-
+				points = rotatePoints(points, ang2, pc)
 				shapeMeshPar.points = points;
 				shapeMeshPar.extrudeOptions.amount = bracePar.profZ;
 				mesh.add(createShapeAndMesh(shapeMeshPar))
 
 				var pLast = copyPoint(pb3)
-
-				if (isBreak) break;
 			}
 			j++;
 		}
@@ -1860,7 +1895,7 @@ function drawArcTubeTruss(par) {
 		mesh.add(bind);
 
 		//Раскосы---------------------------------------------
-		angBrace += Math.PI / 4;
+		var angBrace = Math.PI / 4;
 		for (var i = 0; i < 2; i++) {
 			shapeMeshPar.holes = [];
 			var sideFactor = 1
@@ -1871,6 +1906,13 @@ function drawArcTubeTruss(par) {
 			}
 
 			var pLast = itercectionLineCircle(p0, polar(p0, Math.PI / 2, 100), pc, rad2Bot)[0]
+
+			//определяем угол сдвига
+			var pt = newPoint_xy(pLast, 0, rad1Top - rad2Bot)
+			var pt1 = itercectionLineCircle(pLast, polar(pLast, angBrace, 100), pc, rad1Top)[0]
+			var line = parallel(pLast, pt1, -bracePar.profY)
+			var pt2 = itercectionLineCircle1(line, pc, rad1Top)[0];
+			var ang1 = Math.abs(calcAngleX1(pt, pt2)) * 2;
 
 			var pEndTop = itercectionLineCircle1(lineAUX4, pc, rad1Top)[0];
 			var pEndBot = itercectionLineCircle1(lineAUX4, pc, rad2Bot)[0];
@@ -1886,20 +1928,26 @@ function drawArcTubeTruss(par) {
 				if (j % 2 == 0) {
 					var points = [];
 					var pb1 = copyPoint(pLast)
-					var pb2 = itercectionLineCircle(pb1, polar(pb1, (angBrace* sideFactor + Math.PI / 2) , 100), pc, rad1Top)[0]
-					if (Math.abs(pb2.x) > Math.abs(pEndTop.x)) {
-						pb2 = itercection(pb1, polar(pb1, (angBrace* sideFactor + Math.PI / 2) , 100), lineAUX4.p1, lineAUX4.p2)
-						isBreak = true;
-					}
+					var pb2 = itercectionLineCircle(pb1, polar(pb1, ((angBrace + j * ang1)* sideFactor + Math.PI / 2) , 100), pc, rad1Top)[0]
+					//if (Math.abs(pb2.x) > Math.abs(pEndTop.x)) {
+					//	pb2 = itercection(pb1, polar(pb1, ((angBrace + j * ang1) * sideFactor + Math.PI / 2) , 100), lineAUX4.p1, lineAUX4.p2)
+					//	isBreak = true;
+					//}
+
+					if (Math.abs(pb2.x) > Math.abs(pEndTop.x)) break;
+
 					points.push(pb1)
 					points.push(pb2)
 					var line = parallel(pb1, pb2, -bracePar.profY)
 					var pb3 = itercectionLineCircle1(line, pc, rad1Top)[0];
-					if (Math.abs(pb3.x) > Math.abs(pEndTop.x)) {
-						pb3 = itercectionLines(line, lineAUX4)
-						if (!isBreak) points.push(pEndTop)
-						isBreak = true;
-					}
+					//if (Math.abs(pb3.x) > Math.abs(pEndTop.x)) {
+					//	pb3 = itercectionLines(line, lineAUX4)
+					//	if (!isBreak) points.push(pEndTop)
+					//	isBreak = true;
+					//}
+
+					if (Math.abs(pb3.x) > Math.abs(pEndTop.x)) break;
+
 					var pb4 = itercectionLineCircle1(line, pc, rad2Bot)[0];
 					points.push(pb3)
 					points.push(pb4)
@@ -1916,20 +1964,26 @@ function drawArcTubeTruss(par) {
 				if (j % 2 !== 0) {
 					var points = [];
 					var pb1 = copyPoint(pLast)
-					var pb2 = itercectionLineCircle(pb1, polar(pb1, (angBrace + Math.PI / 2) * sideFactor + Math.PI / 2, 100), pc, rad2Bot)[1]
-					if (Math.abs(pb2.x) > Math.abs(pEndBot.x)) {
-						pb2 = itercection(pb1, polar(pb1, (angBrace + Math.PI / 2) * sideFactor + Math.PI / 2, 100), lineAUX4.p1, lineAUX4.p2)
-						isBreak = true;
-					}
+					var pb2 = itercectionLineCircle(pb1, polar(pb1, ((angBrace + (j + 1) * ang1) + Math.PI / 2) * sideFactor + Math.PI / 2, 100), pc, rad2Bot)[1]
+					//if (Math.abs(pb2.x) > Math.abs(pEndBot.x)) {
+					//	pb2 = itercection(pb1, polar(pb1, ((angBrace + (j + 1) * ang1) + Math.PI / 2) * sideFactor + Math.PI / 2, 100), lineAUX4.p1, lineAUX4.p2)
+					//	isBreak = true;
+					//}
+
+					if (Math.abs(pb2.x) > Math.abs(pEndBot.x)) break;
+
 					points.push(pb1)
 					points.push(pb2)
 					var line = parallel(pb1, pb2, bracePar.profY)
 					var pb3 = itercectionLineCircle1(line, pc, rad2Bot)[1];
-					if (Math.abs(pb3.x) > Math.abs(pEndBot.x)) {
-						pb3 = itercectionLines(line, lineAUX4)
-						if (!isBreak) points.push(pEndBot)
-						isBreak = true;
-					}
+					//if (Math.abs(pb3.x) > Math.abs(pEndBot.x)) {
+					//	pb3 = itercectionLines(line, lineAUX4)
+					//	if (!isBreak) points.push(pEndBot)
+					//	isBreak = true;
+					//}
+
+					if (Math.abs(pb3.x) > Math.abs(pEndBot.x)) break;
+
 					var pb4 = itercectionLineCircle1(line, pc, rad1Top)[1];
 					points.push(pb3)
 					points.push(pb4)
@@ -1978,10 +2032,34 @@ function drawArcTubeTruss(par) {
 	mesh.add(createShapeAndMesh(shapeMeshPar))
 
 
-	var pt = itercection(p0, polar(p0, 0, 100), line2Out.p1, line2Out.p2)
-	var pt1 = itercectionLineCircle1(line2Out, pc, rad1Top)[0]
-	mesh.position.y = distance(pt, pt1)
+	var pt = itercectionLineCircle1(line2Out, pc, rad1Top)[0]
+	var pt1 = newPoint_xy(pt, partPar.column.profSize.x / 2, 0)
+	var pt2 = itercectionLineCircle(pt1, newPoint_xy(pt1, Math.PI / 2, 100), pc, rad2Top)[0]
+	var dy = -pt.y + (partPar.truss.endHeight - distance(pt1, pt2));
+
+
+	mesh.position.y = dy
+	if (params.carportType == 'односкатный') mesh.position.x = params.width / 2 - partPar.column.profSize.x / 2 - params.sideOffset;
 	par.mesh.add(mesh)
+
+	// Выводим переменные для использования дальше
+	var pt = itercectionLineCircle(pc, polar(pc, Math.PI / 2, 100), pc, rad2Top)[0]
+	var pt1 = itercectionLineCircle(pc, polar(pc, Math.PI / 2, 100), pc, rad1Bot)[0]
+	var arcAngle = topArc.startAngle - topArc.endAngle;
+	par.topRad = topArc.rad;
+	par.centerY = pt.y + dy;
+	par.centerYBot = pt1.y + dy;
+	par.arcLength = topArc.rad * arcAngle;
+	par.topArc = topArc;
+	topArc.len = topArc.rad * (topArc.startAngle - topArc.endAngle)
+	par.progonAmt = Math.ceil(topArc.len / params.progonMaxStep);
+
+	//для двухскатных навесов далее используем полную верхнюю дугу
+	if (params.carportType == 'двухскатный') {
+		par.topArc.endAngle = Math.PI - topArc.startAngle;
+		par.progonAmt *= 2;
+	}
+
 
 	//var box3 = new THREE.Box3().setFromObject(truss);
 	//var s = ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
@@ -2011,16 +2089,12 @@ function drawArcTubeTruss(par) {
 	}
 	par.mesh.specId = partName + name;
 
-
-	par.endPoint = copyPoint(p0)
-
 	return par;
 
 }
 
 /** функция отрисовывает сварную ферму из проф. трубы для плоской кровли
 */
-
 function drawTriangleTubeTruss(par) {
 	if (!par) par = {};
 	if (!par.dxfBasePoint) par.dxfBasePoint = { x: 0, y: 0 };
@@ -2031,7 +2105,10 @@ function drawTriangleTubeTruss(par) {
 	var beamProfParams = getProfParams(params.beamProf)
 
 	var ang = partPar.main.roofAng;
-	var p0 = { x: 0, y: 0 };
+
+	par.len = params.width / 2;
+	if (params.carportType == "односкатный") par.len = params.width
+	
 
 	var sideOffset = params.sideOffset;
 	var profBinding = 20;
@@ -2069,6 +2146,7 @@ function drawTriangleTubeTruss(par) {
 		ang: ang,
 	};
 
+	var p0 = { x: 0, y: 0 };
 
 	// вспомогательные прямые
 	{
@@ -2201,8 +2279,12 @@ function drawTriangleTubeTruss(par) {
 
 		//верхний пояс---------------------------------------------------------------
 
+		//var pt = itercectionLines(line1Top, line2Out)
+		//var dy = -pt.y;
 		var pt = itercectionLines(line1Top, line2Out)
-		var dy = -pt.y;
+		var pt1 = newPoint_xy(pt, partPar.column.profSize.x / 2, 0)
+		var pt2 = itercection(pt1, newPoint_xy(pt1, 0, 100), line2Top.p1, line2Top.p2)
+		var dy = -pt.y + (partPar.truss.endHeight - distance(pt1, pt2));
 
 		var p2 = itercectionLines(line2Top, line1Out)
 		var p1 = itercection(line1Top.p1, line1Top.p2, p2, polar(p2, Math.PI / 2 + ang, 100))
@@ -2210,6 +2292,9 @@ function drawTriangleTubeTruss(par) {
 		var p3 = itercection(line2Top.p1, line2Top.p2, p4, polar(p4, Math.PI / 2 + ang, 100))
 
 		var points = [p1, p2, p3, p4];
+
+		partPar.truss.endPoint = newPoint_xy(p2, 0, dy);
+		par.centerY = p3.y + dy;
 
 		shapeMeshPar.points = points;
 		mesh.add(createShapeAndMesh(shapeMeshPar))
@@ -2222,6 +2307,8 @@ function drawTriangleTubeTruss(par) {
 		var p4 = itercectionLines(line1Bot, line4In);
 
 		var points = [p1, p2, p3, p4];
+
+		par.centerYBot = p4.y + dy;
 
 		shapeMeshPar.points = points;
 		mesh.add(createShapeAndMesh(shapeMeshPar))
@@ -2380,7 +2467,9 @@ function drawTriangleTubeTruss(par) {
 			{
 				if (i == 0) {
 					var pt = itercectionLines(line1Top, lineAUX2)
-					var dy = -pt.y;
+					var pt1 = newPoint_xy(pt, partPar.column.profSize.x / 2, 0)
+					var pt2 = itercection(pt1, newPoint_xy(pt1, 0, 100), line2Top.p1, line2Top.p2)
+					var dy = -pt.y + (partPar.truss.endHeight - distance(pt1,pt2));
 				}
 
 				var p2 = itercectionLines(line2Top, lineAUX1)
@@ -2393,6 +2482,11 @@ function drawTriangleTubeTruss(par) {
 					line1Top.p2,
 					pDivide,
 					polar(pDivide, Math.PI / 2 + ang * sideFactor, 100))
+
+				if (i == 0) {
+					partPar.truss.endPoint = newPoint_xy(p2, 0, dy);
+					par.centerY = p3.y + dy;
+				}
 
 				var points = [p1, p2, p3, p4];
 
@@ -2427,6 +2521,10 @@ function drawTriangleTubeTruss(par) {
 					polar(pDivide, Math.PI / 2 + ang * sideFactor, 100))
 
 				var points = [p1, p2, p3, p4];
+
+				if (i == 0) {
+					par.centerYBot = p4.y + dy;
+				}
 
 				shapeMeshPar.points = points;
 				mesh.add(createShapeAndMesh(shapeMeshPar))
@@ -2523,9 +2621,12 @@ function drawTriangleTubeTruss(par) {
 		}
 	}
 
-	
+	//сохраняем точку конец фермы для отрисовки прогонов и кровли
+	partPar.truss.endPoint.x += params.width / 2 - sideOffset - partPar.column.profSize.x / 2
+
 
 	mesh.position.y = dy
+	if (params.carportType == 'односкатный') mesh.position.x = params.width / 2 - partPar.column.profSize.x / 2 - params.sideOffset;
 	par.mesh.add(mesh)
 
 	//var box3 = new THREE.Box3().setFromObject(truss);
@@ -2556,13 +2657,15 @@ function drawTriangleTubeTruss(par) {
 	}
 	par.mesh.specId = partName + name;
 
-
-	par.endPoint = copyPoint(p0)
-
 	return par;
 
 }
 
+/** функция создает shape и mesh
+	*@params: len,dxfBasePoint
+		points: точки shape
+		holes: центры отверстий
+*/
 function createShapeAndMesh(par) {
 	//создаем шейп
 	var shapePar = {
@@ -2585,6 +2688,8 @@ function createShapeAndMesh(par) {
 	return mesh
 }
 
+/** функция отрисовывает крепление сварной фермы из проф. трубы
+*/
 function drawBindingTruss(par) {
 	var holes = []
 	var pt = newPoint_xy(par.points[0], 0, - partPar.column.profSize.x * Math.tan(par.ang))

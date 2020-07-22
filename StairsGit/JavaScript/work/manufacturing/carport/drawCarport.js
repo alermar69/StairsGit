@@ -1056,7 +1056,7 @@ function drawRectCarport(par){
 	
 	var roofCarcas = drawRoofCarcas(roofCarcasPar).mesh;
 	roofCarcas.position.y += params.height
-	//if(params.carportType == "односкатный") roofCarcas.position.x = -params.width / 2 + partPar.column.profSize.x / 2 + params.sideOffset;
+	if(params.carportType == "односкатный") roofCarcas.position.x = -params.width / 2 + partPar.column.profSize.x / 2 + params.sideOffset;
 	if(params.beamModel != "проф. труба") roofCarcas.position.z += 6;
 	carport.add(roofCarcas);
 		
