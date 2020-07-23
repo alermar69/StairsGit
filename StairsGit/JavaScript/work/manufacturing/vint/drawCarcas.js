@@ -97,6 +97,7 @@ function drawDrums(par){
 		//первая бобышка
 		var posY0 = botFlanThk;
 		if (botFloorType == "черновой") posY0 -= params.botFloorsDist;
+		if (params.strightMarsh == "есть") posY0 -= par.strightPartHeight;
 
 		var spacerHeight0 = par.stepHeight - params.treadThickness - posY0;
 		if (par.stairType == "metal") spacerHeight0 = par.stepHeight - posY0 + 4; // 4 - подогнано
@@ -183,6 +184,8 @@ function drawDrums(par){
 
 		var botFlan = flanParams.mesh;
 		if (botFloorType == "черновой") botFlan.position.y -= params.botFloorsDist;
+		if (params.strightMarsh == "есть") botFlan.position.y -= par.strightPartHeight;
+
 		//carcas.push(botFlan);
 		drums.add(botFlan);//, "shims");
 
@@ -256,10 +259,11 @@ function drawDrums(par){
 		var endDist = 5;
 		var extraLen = 70;
 		//общая длина всех стержней
-		var fullLen = params.staircaseHeight + 100 + params.stepAmt * par.regShimThk;
+		var fullLen = par.staircaseHeight + 100 + params.stepAmt * par.regShimThk;
 		if (params.platformPosition == "ниже") fullLen -= maxRise;
 		//корректируем длину нижнего куска при установке на черновой пола
 		if (params.botFloorType == "черновой") fullLen += params.botFloorsDist;
+		if (params.strightMarsh == "есть") fullLen += par.strightPartHeight;
 
 		var rodAmt = Math.ceil(fullLen / maxLen); //число кусков стержня
 		var rodLen0 = fullLen / rodAmt; //номинальная длина куска
@@ -377,6 +381,7 @@ function drawStringers(par){
 			height: stringerParams.height,
 			stairAmt: par.stairAmt,
 			stepHeight: par.stepHeight,
+			staircaseHeight: par.staircaseHeight,
 			dxfBasePoint: {x:4000, y: 0,}
 		}
 		var stringerDXF = drawStringerDXF(dxfStringerPar);
@@ -551,7 +556,7 @@ function drawStringerDXF(par){
 	//угол подъема тетивы
 	var angle = Math.atan(par.stepHeight / stepArcLen);
 
-	var height = params.staircaseHeight;
+	var height = par.staircaseHeight;
 	if(params.platformPosition == "ниже") height -= par.stepHeight
 	
 	var lenX = (params.stepAmt - 1) * stepArcLen;
@@ -617,7 +622,7 @@ function drawStringerDXF(par){
 	//var points = [p0_1,p1_1, p1,p2,p3,p4,p5,p6,p7, p8]
 	
 
-	var divides = calcDivides(par.stepHeight);
+	var divides = calcDivides(par.stepHeight, par.staircaseHeight);
 
 	if (divides.length == 0) {
 		//создаем шейп
@@ -740,7 +745,7 @@ function drawStringerDXF(par){
 	if (params.railingSide == "внешнее" || params.railingSide == "две") {
 		if (params.railingModel == "Ригели" || params.railingModel == "Стекло на стойках") {
 			//считаем длину ограждения
-			var railingLength = Math.sqrt((par.stepAngle * params.staircaseDiam / 2) * (par.stepAngle * params.staircaseDiam / 2) + par.stepHeight * par.stepHeight) * stairAmt;
+			var railingLength = Math.sqrt((par.stepAngle * params.staircaseDiam / 2) * (par.stepAngle * params.staircaseDiam / 2) + par.stepHeight * par.stepHeight) * par.stairAmt;
 			var rackAmt = Math.ceil(railingLength / 900) + 1;
 			var rackDistY = par.stepHeight * (par.stairAmt - 0.3) / (rackAmt - 1);
 			var rackAngleDist = par.stepAngle * (par.stairAmt - 0.3) / (rackAmt - 1);

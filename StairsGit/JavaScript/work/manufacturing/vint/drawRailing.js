@@ -16,6 +16,7 @@ function drawRailing(par){
 		stairAmt: par.stairAmt,
 		banisterPerStep: params.banisterPerStep,
 		treadExtraAngle: par.treadExtraAngle,
+		staircaseHeight: par.staircaseHeight,
 
 		//stepAngle: stepAngle,
 		//treadThickness: treadThickness,
@@ -531,7 +532,7 @@ function drawSpiralRailing(par) {
 				bolzPar.isFirst = false;
 				bolzPar.isRack = false;
 
-				if (i == 0) {
+				if (i == 0 && params.strightMarsh != "есть") {
 					bolzPar.isFirst = true;
 				}
 
@@ -744,6 +745,7 @@ function drawSpiralRailing(par) {
 		posY: longBanisterLength,
 		model: par.model,
 		material: params.materials.handrail,
+		staircaseHeight: par.staircaseHeight,
 		startOffset: 0.25,
 		endOffset: 0.25,
 		partName: "spiralHandrail",
@@ -924,7 +926,7 @@ function drawSpiralRailing(par) {
 			
 			//рассчитываем кол-во кусков с учетом максимальной высоты стапеля
 			var maxHeight = 1800;
-			var partsAmt_h = Math.ceil(params.staircaseHeight / maxHeight);
+			var partsAmt_h = Math.ceil(par.staircaseHeight / maxHeight);
 			
 			var polePartsAmt = Math.max(partsAmt_l, partsAmt_h);
 			

@@ -4,6 +4,7 @@
 	colDist - расстояние между колоннами
 */
 function drawStrightTruss(par){
+
 	if(!par) par = {};
 	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
 	if(!par.dxfArr) par.dxfArr = [];
@@ -101,7 +102,7 @@ function drawStrightTruss(par){
 		holeRad: columnFlanPar.holeDiam / 2,
 		noBolts: true,
 		dxfPrimitivesArr: par.dxfPrimitivesArr,
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, -300, 0),
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -500),
 		roundHoleCenters: [
 			{x: par.flanWidth / 2, y: par.flanWidth / 2},
 			{x: par.flanWidth / 2, y: par.height - par.flanWidth / 2},
@@ -113,6 +114,7 @@ function drawStrightTruss(par){
 	startFlan.position.z = flanPar.width / 2;
 	par.mesh.add(startFlan);
 	
+	flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.len, -500);
 	var endFlan = drawRectFlan2(flanPar).mesh;
 	endFlan.rotation.y = Math.PI / 2;
 	endFlan.position.x = par.len - flanPar.thk;
@@ -261,8 +263,7 @@ function drawTriangleSheetTruss(par){
 		if(params.beamModel == "постоянной ширины"){
 			holeStepX += bridgeWidth
 			holeAmt -=1;
-		}
-		
+		}		
 	}
 	
 	//смещаем крайнее отверстие чтобы было место для фланца крепления к колонне
@@ -277,9 +278,8 @@ function drawTriangleSheetTruss(par){
 		var holeRightLine = parallel(holeLeftLine.p1, holeLeftLine.p2, bridgeWidth)
 		holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, (holeStepX - bridgeWidth))
 		
-		//корректируем левую линию, если она накладывается на левый фланец
-		
-		if(holeLeftLine.p1.x < 120 + 5) {
+		//корректируем левую линию вытянутого отверстия, если она накладывается на левый фланец		
+		if(params.trussHolesType != "круги" && holeLeftLine.p1.x < 120 + 5) {
 			holeLeftLine.p1.x = holeLeftLine.p2.x = 125;
 			if(params.trussHolesType == "круги") break;
 		}
@@ -296,33 +296,37 @@ function drawTriangleSheetTruss(par){
 			holePoints = [ph1, ph3, ph4];
 		}
 		
-		//создаем шейп отверстия
-		var shapePar = {
-			points: holePoints,
-			dxfArr: par.dxfArr,
-			dxfBasePoint: par.dxfBasePoint,
-			radOut: holeCornerRad,
-		}
+		if(params.trussHolesType != "круги"){
+			//создаем шейп отверстия
+			var shapePar = {
+				points: holePoints,
+				dxfArr: par.dxfArr,
+				dxfBasePoint: par.dxfBasePoint,
+				radOut: holeCornerRad,
+			}
 
-		var holeShape = drawShapeByPoints2(shapePar).shape;
+			var holeShape = drawShapeByPoints2(shapePar).shape;
+			par.shape.holes.push(holeShape)
+		}
 		
 		if(params.trussHolesType == "круги"){
 			var holeDiam = distance(ph3, ph4)
+			
 			var center = {
 				x: (ph3.x + ph4.x) / 2,
 				y: (ph3.y + ph4.y) / 2,
 			}
+			
+			//завершаем цикл, если отверстие накладывается на левый фланец		
+			if(center.x - holeDiam / 2 < 120) break;
+			
 			addRoundHole(par.shape, par.dxfArr, center, holeDiam / 2, par.dxfBasePoint)
 		}
-		else{
-			par.shape.holes.push(holeShape)
-		}
-		
 	}
 	
 	//отверстия для болтов
 
-	//фланцы колонн
+	//отверстия под фланцы колонн
 	var flanPar = calcColumnFlanPar();
 	flanPar.holes.forEach(function(center){
 		addRoundHole(par.shape, dxfPrimitivesArr, center, flanPar.holeDiam / 2, par.dxfBasePoint);
@@ -333,7 +337,7 @@ function drawTriangleSheetTruss(par){
 		}
 	})
 	
-	//верхний фланец односкатного навеса	
+	//отверстия под верхний фланец односкатного навеса	
 	if(params.carportType == "односкатный") {
 		var flanPar = calcColumnFlanPar({isTop: true})
 		flanPar.holes.forEach(function(center){
@@ -408,7 +412,7 @@ function drawTriangleSheetTruss(par){
 	//левый фланец крепления к колонне
 	
 	var flanParams = {
-		dxfBasePoint: par.dxfBasePoint,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -500),
 		dxfPrimitivesArr: par.dxfArr,
 	}
 	
@@ -418,7 +422,7 @@ function drawTriangleSheetTruss(par){
 	
 	//правый фланец	
 	if(params.carportType == "односкатный") flanParams.isTop = true;
-
+	flanParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, params.width, -500);
 	var flan = drawColumnFlan(flanParams).mesh;
 	flan.rotation.y = Math.PI
 	flan.position.x = rightLine.p2.x * 2
@@ -439,7 +443,7 @@ function drawTriangleSheetTruss(par){
 			holeRad: 7,
 			noBolts: true,
 			dxfPrimitivesArr: par.dxfPrimitivesArr,
-			dxfBasePoint: newPoint_xy(par.dxfBasePoint, -300, 0),
+			dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.width / 2, -500),
 			roundHoleCenters: [
 				{x: 15, y: 15},
 				{x: 15, y: 45},
@@ -687,7 +691,7 @@ function drawArcSheetTruss(par){
 
 	//отверстия для болтов
 	
-	//фланцы колонн
+	//отверстия под фланцы колонн
 	var flanPar = calcColumnFlanPar();
 	flanPar.holes.forEach(function(center){
 		addRoundHole(par.shape, dxfPrimitivesArr, center, flanPar.holeDiam / 2, par.dxfBasePoint);
@@ -698,7 +702,7 @@ function drawArcSheetTruss(par){
 		}
 	})
 	
-	//верхний фланец односкатного навеса
+	//отверстия под верхний фланец односкатного навеса
 	
 	if(params.carportType == "односкатный") {
 		var flanPar = calcColumnFlanPar({isTop: true})
@@ -789,7 +793,7 @@ function drawArcSheetTruss(par){
 	//левый фланец крепления к колонне
 	
 	var flanParams = {
-		dxfBasePoint: par.dxfBasePoint,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -500),
 		dxfPrimitivesArr: par.dxfArr,
 	}
 	
@@ -799,7 +803,8 @@ function drawArcSheetTruss(par){
 	
 	//правый фланец	
 	if(params.carportType == "односкатный") flanParams.isTop = true;
-
+	
+	flanParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, params.width, -500);
 	var flan = drawColumnFlan(flanParams).mesh;
 	flan.rotation.y = Math.PI
 	flan.position.x = topArc.center.x * 2
@@ -813,7 +818,7 @@ function drawArcSheetTruss(par){
 	//соединительный фланец
 	if(par.hasDivide && params.carportType == "двухскатный"){
 
-		par.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, 400);
+		par.dxfBasePoint = newPoint_xy(par.dxfBasePoint, params.width / 2, -500);
 		var flanParams = {
 			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 300,0),
 			thk: 8,

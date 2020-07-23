@@ -105,13 +105,14 @@ function recalculate() {
 					
 					drawFunc('vl_1', true);
 				}
-				redrawWalls();
-				if (!window.location.href.includes('/railing')) {
-					drawTopFloor();
-				}
 
-				setHiddenLayers(); //скрываем слои в режиме тестирования
-				drawBanister();
+				if($("#calcType").val() == "railing"){
+					redrawConcrete();
+				}
+				else {
+					drawTopFloor();
+					drawBanister();
+				}
 
 				redrawAdditionalObjects();
 
@@ -119,7 +120,8 @@ function recalculate() {
 					calculateSpec();	
 					if(!testingMode) checkSpec();
 				}
-
+				setHiddenLayers(); //скрываем слои в режиме тестирования
+								
 				drawSceneDimensions();
 				
 				createMaterialsList(); // обнуляем список материалов
@@ -133,9 +135,7 @@ function recalculate() {
 				formatNumbers();
 				printDescr();
 				
-				if(params.calcType == "railing"){
-					redrawConcrete();
-				}
+
 				
 				if(params.calcType == "vhod" && !menu.simpleMode){			
 					if(params.staircaseType == 'Готовая') {

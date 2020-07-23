@@ -49,7 +49,7 @@
 					</tr>
 					<tr>
 						<td>Свес ступени:</td>
-						<td><input name="nose" type="number" id="nose" value="20" /></td>
+						<td><input name="nose" type="number" id="nose" value="10" /></td>
 					</tr>
 					<tr>
 						<td>Кол-во подъемов:</td>
@@ -147,27 +147,27 @@
 			</table>
 		</div>
 
-		<!-- <h4>Параметры прямого марша лестницы.</h4>
+		<h4>Параметры прямого марша лестницы.</h4>
 
 		<table class="form_table" id="midHoldersTable">
 			<tbody>
 				<tr>
 					<td>Прямой марш:</td>
 					<td>
-						<select id="strightMars" size="1">
+						<select id="strightMarsh" size="1">
 							<option value="нет">нет</option>
 							<option value="есть">Есть</option>
 						</select>
 					</td>
 				</tr>
 				<tr>
-					<td>Угол относительно конца:</td>
+					<td>Угол прямого марша:</td>
 					<td>
 						<input type="number" id='strightTreadsAngle' value='180'>
 					</td>
 				</tr>
 			</tbody>
-		</table> -->
+		</table>
 
 		<div id='treadsTableWrapper'>
 			<h5>2. Параметры ступеней:</h5>

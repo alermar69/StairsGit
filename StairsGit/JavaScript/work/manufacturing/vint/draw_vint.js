@@ -89,10 +89,45 @@ function drawStaircase(viewportId, isVisible) {
 		midHoldersParams.pos.push(params["holderPos_" + i]);
 	}
 
+	var strightPartHeight = 0;
+	if (params.strightMarsh == "есть") {
+		if (params.platformType == "square") {
+			var vintTreadsAngle = (params.strightTreadsAngle * 1.0) / (params.stepAmt * 1.0 - 1);
+			params.stepAngle = vintTreadsAngle;
+		}
+
+		if (params.platformType == "triangle") {
+			var vintTreadsAngle = (params.strightTreadsAngle * 1.0) / (params.stepAmt * 1.0 - 1);
+			vintTreadsAngle += (90 - platformAngle / 2) / (params.stepAmt * 1.0 - 1);
+			var treadExtraAngle = Math.asin(treadLowRad / (params.staircaseDiam / 2));
+			vintTreadsAngle += THREE.Math.radToDeg(treadExtraAngle) / (params.stepAmt * 1.0 - 1);
+			params.stepAngle = vintTreadsAngle;
+			// 60 - 17.6
+			// 90 - 16.5
+			// console.log(vintTreadsAngle, platformAngle)
+		}
+
+		if (params.platformType == "нет") {
+			var vintTreadsAngle = (params.strightTreadsAngle * 1.0) / (params.stepAmt * 1.0 - 1);
+			params.stepAngle = vintTreadsAngle;
+			var treadAngle = calcTriangleParams().treadAngle;
+			var treadExtraAngle = Math.asin(treadLowRad / (params.staircaseDiam / 2));
+			var edgeAngle = treadAngle - 2 * Math.asin(treadLowRad / (params.staircaseDiam / 2));
+			var vintTreadsAngle = (params.strightTreadsAngle * 1.0) / (params.stepAmt * 1.0 - 1);
+			vintTreadsAngle += THREE.Math.radToDeg(treadExtraAngle) / (params.stepAmt * 1.0 - 1);
+			params.stepAngle = vintTreadsAngle;
+		}
+
+		$("#stepAngle").val(params.stepAngle);
+		
+		strightPartHeight = params.stairAmt1 * params.h1;
+	}
+	var staircaseHeight = params.staircaseHeight - strightPartHeight;
+
 	//расчет подъема ступени
 	var regShimAmt = params.regShimAmt;
 	var regShimThk = 4; //толщина с учетом слоя краски
-	var stepHeight = Math.floor((params.staircaseHeight - 20) / params.stepAmt);
+	var stepHeight = Math.floor((staircaseHeight - 20) / params.stepAmt);
 	var G = (Math.floor((360 - platformAngle) / params.stepAngle) - 1) * stepHeight;
 	if (params.stairType == "рифленая сталь" || params.stairType == "лотки под плитку") {
 		G -= 120;
@@ -186,10 +221,19 @@ function drawStaircase(viewportId, isVisible) {
 		platformPosition: platformPosition,
 		platformLedge: platformLedge,
 		edgeAngle: edgeAngle,
-		platformDepth: platformDepth
+		platformDepth: platformDepth,
+		strightPartHeight: strightPartHeight
 	};
 	var treads = addVintTreads(mainParams).mesh;
 	model.add(treads, 'treads');
+
+	if (params.strightMarsh == "есть") {
+		params.M = params.staircaseDiam / 2;// - columnDiam / 2;
+		$("#M").val(params.M);
+		var treads = addStrightTreads(mainParams);
+		treads.position.y -= strightPartHeight;
+		model.add(treads, 'treads');
+	}
 	
 	var carcas = drawCarcas(mainParams);
 	model.add(carcas, 'carcas');
@@ -246,7 +290,7 @@ function drawStaircase(viewportId, isVisible) {
 		var obj = model.objects[i].obj;
 		//позиционируем
 		obj.position.x += moove.x + params.staircasePosX;
-		obj.position.y += params.staircasePosY;
+		obj.position.y += params.staircasePosY + (strightPartHeight || 0);
 		obj.position.z += moove.z + params.staircasePosZ;
 		obj.rotation.y = moove.rot;
 

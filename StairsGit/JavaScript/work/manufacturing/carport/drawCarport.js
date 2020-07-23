@@ -905,13 +905,8 @@ function drawRectCarport(par){
 //колонны
 	
 	var columnPar = {
-		poleProfileY: partPar.column.profSize.x,
-		poleProfileZ: partPar.column.profSize.y,
-		length: params.height,
-		poleAngle: Math.PI / 2,
-		material: params.materials.metal,
-		type: 'rect',
-		partName: 'carportColumn'
+		len: params.height,
+		isTop: false,
 	};
 	
 	var columnArrPar = {
@@ -927,7 +922,7 @@ function drawRectCarport(par){
 			x: partPar.column.profSize.x,
 			z: partPar.column.profSize.y,
 		},
-		drawFunction: drawPole3D_4,
+		drawFunction: drawCarportColumn,
 		itemPar: columnPar,
 	}
 	
@@ -944,8 +939,13 @@ function drawRectCarport(par){
 			if(params.beamModel == "проф. труба") deltaHeight = partPar.main.arcPar.topArc.height - partPar.rafter.profSize.y - partPar.beam.profSize.y
 		}
 		columnArrPar.modifier = function(counter, itemPar, itemMoove){
-			itemPar.length = params.height;
-			if(counter.x == 1) itemPar.length = params.height + deltaHeight;
+			itemPar.len = params.height;
+			itemPar.isTop = false;
+			
+			if(counter.x == 1) {
+				itemPar.len = params.height + deltaHeight;
+				itemPar.isTop = true;
+			}
 		}
 	}
 
@@ -964,7 +964,7 @@ function drawRectCarport(par){
 	var trussPar = {
 		height: partPar.truss.endHeight,
 		thk: params.trussThk,
-		len: columnArrPar.step.z - 16,
+		len: columnArrPar.step.z - 8 - 4,
 		rackSize: partPar.column.profSize.y,
 		dxfArr: dxfPrimitivesArr,
 		dxfBasePoint: par.dxfBasePoint,
@@ -1050,7 +1050,7 @@ function drawRectCarport(par){
 	//каркас кровли
 
 	var roofCarcasPar = {
-		dxfBasePoint: par.dxfBasePoint,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.width + 500, 0),
 		dxfArr: dxfPrimitivesArr
 	}
 	

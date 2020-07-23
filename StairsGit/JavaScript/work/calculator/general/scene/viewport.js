@@ -976,6 +976,7 @@ function addLedges(wall, n){
 				ledge.material = ledge.material.clone();
 				ledge.material.transparent = true;
 				ledge.material.opacity = 0;
+				ledge.noWireFrames = true;
 			};
 
 			if (wallLedgeWidth > 0 && wallLedgeHeight > 0) {

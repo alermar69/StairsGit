@@ -664,7 +664,7 @@ function checkSpec(callback){
 				
 			}
 
-			if (params.platformTop !== 'нет') {
+			if (params.platformTop !== 'нет' && window.calcPltFrameParams) {
 				var treadAmt = calcPltFrameParams(params.platformLength_3, 0).frameAmt;
 				calcTreadAmt += treadAmt;
 				if (params.M > 1100 && params.calcType == 'vhod') {

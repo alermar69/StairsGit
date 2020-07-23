@@ -57,6 +57,16 @@ function changeFormCarcas(){
 	$(".wallPar").hide();	
 	if(params.wallMat != "нет") $(".wallPar").show();
 	
+	//профили навеса
+	$("#trussThk").closest("tr").show()
+	$("#beamProf").closest("tr").hide()
+	$("#beamProf2").closest("tr").hide()
+
+	if($("#beamModel").val() == "проф. труба"){
+		$("#trussThk").closest("tr").hide()
+		$("#beamProf").closest("tr").show()
+		$("#beamProf2").closest("tr").show()
+	}
 	
 	//текстура пола первого этажа
 	if(!params.floorMat) $("#floorMat").val("road_brick3")

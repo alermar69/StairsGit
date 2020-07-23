@@ -82,6 +82,194 @@ function drawPurlin(par){
 	return par;
 }
 
+/** функция отрисовывает колонну навеса
+	@param len
+	@param isTop
+	верхний фланец колонны отрисовывается вместе с поперечной фермой
+*/
+function drawCarportColumn(par){
+	if(!par) par = {};
+	if(!par.dxfArr) par.dxfArr = [];
+	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
+	par.mesh = new THREE.Object3D();
+	
+	
+	var columnPar = {
+		poleProfileY: partPar.column.profSize.x,
+		poleProfileZ: partPar.column.profSize.y,
+		length: par.len,
+		poleAngle: Math.PI / 2,
+		material: params.materials.metal,
+		type: 'rect',
+	};
+	
+	var pole = drawPole3D_4(columnPar).mesh;
+	pole.position.z = -partPar.column.profSize.x / 2
+	par.mesh.add(pole);
+	
+	var base = drawCarportColumnBase().mesh;
+	base.position.x = -partPar.column.profSize.x / 2
+	par.mesh.add(base);
+	
+	
+	//сохраняем данные для спецификации
+	var partName = 'carportColumn';
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				sumLength: 0,
+				name: 'Колонна навеса',
+				metalPaint: true,
+				timberPaint: false,
+				isModelData: true,
+				division: "metal",
+				purposes: [],
+				workUnitName: "amt",
+				group: "carcas",
+			}
+		}
+		
+		name = params.columnProf + " L=" + Math.round(par.len);
+		if(par.isTop) name += " высокая"
+		
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		specObj[partName]["sumLength"] += par.len;
+		par.mesh.specParams = {specObj: specObj, amt: 1, partName: partName, name: name}
+	}
+	
+	par.mesh.specId = partName + name;
+		
+	return par;
+
+}
+
+/** функция отрисовывает основание колонны навеса
+
+*/
+function drawCarportColumnBase(par){
+	if(!par) par = {};
+	if(!par.dxfArr) par.dxfArr = [];
+	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
+	par.mesh = new THREE.Object3D();
+	
+	var offset = 50;
+	var holeOffset = offset / 2;
+	var flanSize = partPar.column.profSize.x + offset * 2
+
+//горизонтальный фланец	
+	var flanPar = {
+		height: flanSize,
+		width: flanSize,
+		thk: 8,
+		cornerRad: 20,
+		holeRad: 6.5,
+		noBolts: true,
+		dxfPrimitivesArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+		roundHoleCenters: [
+			{x: holeOffset, y: holeOffset},
+			{x: flanSize - holeOffset, y: holeOffset},
+			{x: flanSize - holeOffset, y: flanSize - holeOffset},
+			{x: holeOffset, y: flanSize - holeOffset},
+		],
+	}
+	
+	var startFlan = drawRectFlan2(flanPar).mesh;
+	startFlan.rotation.x = -Math.PI / 2;
+	startFlan.position.x = -flanPar.width / 2;
+	startFlan.position.z = flanPar.width / 2;
+	par.mesh.add(startFlan);
+	
+	//вертикальный фланец
+	var p0 = {x:0,y:0};
+	var p1 = newPoint_xy(p0, flanSize/2 - 10, 0)
+	var p2 = newPoint_xy(p1, 0, 20)
+	var p3 = newPoint_xy(p0, partPar.column.profSize.x / 2 - 2, 100)
+	
+	var points = [p1, p2, p3]
+	for(var i=2; i>=0; i--){
+		var point = copyPoint(points[i])
+		point.x *= -1;
+		points.push(point);
+	}
+	
+	//создаем шейп
+	var shapePar = {
+		points: points,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint
+	}
+	
+	var shape = drawShapeByPoints2(shapePar).shape;
+	
+	var holes = [
+		{x:0, y: 30},
+		{x:0, y: 70},
+	]
+	holes.forEach(function(center){
+		addRoundHole(shape, par.dxfArr, center, 12 / 2 + 1.5, par.dxfBasePoint); 
+	})
+	
+	var extrudeOptions = {
+		amount: 4,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+
+	var flan = new THREE.Mesh(geom, params.materials.metal);
+	flan.position.y = 8
+	flan.position.z = partPar.column.profSize.x / 2
+	par.mesh.add(flan);
+
+	var flan2 = new THREE.Mesh(geom, params.materials.metal);
+	flan2.position.x = flan.position.x
+	flan2.position.y = flan.position.y
+	flan2.position.z = -partPar.column.profSize.x / 2 - 4
+	par.mesh.add(flan2);
+	
+	
+	
+	//сохраняем данные для спецификации
+	var partName = 'carportColumnBase';
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				name: 'Основание колонны навеса',
+				metalPaint: true,
+				timberPaint: false,
+				isModelData: true,
+				division: "stock_2",
+				purposes: [],
+				workUnitName: "amt",
+				group: "carcas",
+			}
+		}
+		
+		name = params.columnProf;
+		
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		par.mesh.specParams = {specObj: specObj, amt: 1, partName: partName, name: name}
+	}
+	
+	par.mesh.specId = partName + name;
+	
+	return par;
+	
+}
+
+
 /** функция отрисовывает термошайбу для крепления поликарбоната
 */
 function drawTermoShim(){
@@ -222,10 +410,11 @@ function drawColumnFlan(par){
 	par = calcColumnFlanPar(par);
 	par.turnFactor = par.turnFactor || 1;// Для разворота болтов
 	par.mesh = new THREE.Object3D();
+	var colGap = 1; //зазор до колонны с одной стороны, чтобы не подтачивать после плазмы
 
 	var p0 = {x:0,y:0};
 	
-	var p1 = newPoint_xy(p0, -partPar.column.profSize.y / 2, 0);
+	var p1 = newPoint_xy(p0, -partPar.column.profSize.y / 2 - colGap, 0);
 	var p2 = newPoint_xy(p1, 0, -50);
 	var p3 = itercection(par.lines.left.p1, par.lines.left.p2, p2, newPoint_xy(p2, 1, 0))
 	var p4 = itercectionLines(par.lines.left, par.lines.top)
@@ -237,7 +426,7 @@ function drawColumnFlan(par){
 
 	var p6 = newPoint_xy(p5, 0, -p5.y);
 
-	var p9 = newPoint_xy(p0, partPar.column.profSize.y / 2, 0);
+	var p9 = newPoint_xy(p0, partPar.column.profSize.y / 2 + colGap, 0);
 	var p8 = newPoint_xy(p9, 0, -150);
 	var p7 = newPoint_xy(p8, 30, 0);
 	
@@ -1399,11 +1588,11 @@ function drawCarportWall(par){
 	
 	var maxStep = 1000;
 	var beamAmt = Math.ceil(sheetPar.poleProfileZ / maxStep) + 1;
-	var beamStep = (sheetPar.poleProfileZ - 40) / (beamAmt - 1)
+	var beamStep = (sheetPar.poleProfileZ - partPar.wall.beam.y) / (beamAmt - 1)
 	
 	var polePar = {
-		poleProfileY: 40,
-		poleProfileZ: 40,
+		poleProfileY: partPar.wall.beam.y,
+		poleProfileZ: partPar.wall.beam.x,
 		dxfBasePoint: {x:0,y:0},
 		length: par.len - partPar.column.profSize.y * 2,
 		material: params.materials.metal,
@@ -1427,10 +1616,10 @@ function drawCarportWall(par){
 	var pillarStep = (par.len - partPar.column.profSize.y * 2) / (pillarAmt + 1)
 	
 	var polePar = {
-		poleProfileY: 40,
-		poleProfileZ: 40,
+		poleProfileY: partPar.wall.pillar.y,
+		poleProfileZ: partPar.wall.pillar.x,
 		dxfBasePoint: {x:0,y:0},
-		length: sheetPar.poleProfileZ - 40 * 2,
+		length: sheetPar.poleProfileZ - partPar.wall.beam.y * 2,
 		material: params.materials.metal,
 		dxfArr: [],
 		type: 'rect',
@@ -1442,7 +1631,7 @@ function drawCarportWall(par){
 		var pillar = drawPole3D_4(polePar).mesh;
 		pillar.rotation.z = Math.PI / 2
 		pillar.position.x = partPar.column.profSize.y + pillarStep * i;
-		pillar.position.y = params.wallBotOffset + 40;
+		pillar.position.y = params.wallBotOffset + partPar.wall.beam.y;
 		par.mesh.add(pillar)
 	}
 	
@@ -1488,6 +1677,8 @@ function drawFronton(par){
 	if(params.roofType == "Арочная"){
 		
 		var topArc = partPar.main.arcPar.topArc;
+		
+		//лист
 		var shape = new THREE.Shape()
 		var p1 = polar(topArc.center, topArc.endAngle, topArc.rad)
 		var p2 = polar(topArc.center, topArc.startAngle, topArc.rad)
@@ -1496,7 +1687,6 @@ function drawFronton(par){
 			y: p2.y,
 		}
 
-		//верхняя дуга
 		addArc2(shape, par.dxfArr, topArc.center, topArc.rad, topArc.startAngle, topArc.endAngle, true, par.dxfBasePoint)
 		if(params.carportType == "односкатный"){
 			addLine(shape, par.dxfArr, p2, p1, par.dxfBasePoint);
@@ -1515,15 +1705,43 @@ function drawFronton(par){
 		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 		var sheet = new THREE.Mesh(geom, params.materials.plastic_roof);
 		par.mesh.add(sheet)
+		
+		//верхняя дуга
+		var midArc = {
+			center: topArc.center,
+			startAngle: topArc.startAngle,
+			endAngle: topArc.endAngle,
+			rad: topArc.rad - 40 / 2,
+		}
+
+		var arcPanelPar = {
+			rad: midArc.rad,
+			height: 40,
+			thk: 20,
+			angle: midArc.startAngle - midArc.endAngle,
+			dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.width * 2 + 500, 0),
+			material: params.materials.metal,
+			partName: 'carportBeam',
+			dxfPrimitivesArr: []
+		}
+
+		var beam = drawArcPanel(arcPanelPar).mesh;
+		beam.rotation.z = midArc.endAngle;
+		beam.position.x = params.width / 2 - params.sideOffset
+		if (params.carportType == "односкатный") beam.position.x += params.width / 2
+		beam.position.y = midArc.center.y
+		beam.position.z = params.wallThk
+		par.mesh.add(beam)
+		
 	}
 	
 	//горизонтальная перемычка
-
+	var beamLen = params.width - params.sideOffset * 2 - partPar.column.profSize.y * 2
 	var polePar = {
-		poleProfileY: 40,
+		poleProfileY: 20,
 		poleProfileZ: 40,
 		dxfBasePoint: {x:0,y:0},
-		length: params.width - params.sideOffset * 2 - partPar.column.profSize.y * 2,
+		length: beamLen,
 		material: params.materials.metal,
 		dxfArr: [],
 		type: 'rect',
@@ -1532,9 +1750,42 @@ function drawFronton(par){
 	
 	var beam = drawPole3D_4(polePar).mesh;
 	beam.position.x = partPar.column.profSize.y;
-	beam.position.y = partPar.truss.endHeight - 40;
+	beam.position.y = partPar.truss.endHeight - 20;
+	beam.position.z = params.wallThk
 	par.mesh.add(beam)
 
+	//вертикальная обрешетка
+	
+	var maxStep = 1000;
+	var pillarAmt = Math.ceil(beamLen / maxStep) - 1;
+	var pillarStep = beamLen / (pillarAmt + 1)
+	
+	var polePar = {
+		poleProfileY: 20,
+		poleProfileZ: 40,
+		dxfBasePoint: {x:0,y:0},
+		length: 100, //пересчитывается в цикле для каждой стойки
+		material: params.materials.metal,
+		dxfArr: [],
+		type: 'rect',
+		partName: 'purlinProf'
+	};
+
+	for(var i=1; i<=pillarAmt; i++){
+		var botPoint = {
+			x: partPar.column.profSize.y + pillarStep * i - 50, //50-подогнано
+			y: partPar.truss.endHeight,
+		}
+		var topPoint = itercectionLineCircle(botPoint, newPoint_xy(botPoint, 0, 1), topArc.center, topArc.rad - 40)[0]
+		polePar.length = distance(botPoint, topPoint)
+		
+		var pillar = drawPole3D_4(polePar).mesh;
+		pillar.rotation.z = Math.PI / 2
+		pillar.position.x = botPoint.x + 60; //60 - подогнано
+		pillar.position.y = botPoint.y;
+		pillar.position.z = params.wallThk
+		par.mesh.add(pillar)
+	}
 	
 	return par;
 }

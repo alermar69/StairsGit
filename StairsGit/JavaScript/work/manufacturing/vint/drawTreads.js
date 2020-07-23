@@ -18,7 +18,7 @@ function addVintTreads(par) {
 	if (params.stairType == "рифленая сталь" || params.stairType == "лотки под плитку" || params.stairType == 'рамки') treadParams.type = "metal";
 	if (treadParams.type == "metal" && params.stairType !== 'рамки') treadParams.material = params.materials.metal;
 	var divides = [];
-	if (!treadParams.isMonoSpiral) divides = calcDivides(par.stepHeight);
+	if (!treadParams.isMonoSpiral) divides = calcDivides(par.stepHeight, par.staircaseHeight);
 
 	//отрисовывамем винтовую ступень
 	var posY = par.stepHeight;
@@ -72,10 +72,11 @@ function addStrightTreads(par){
 
 	// Позицинируем объект
 	var wrapper = new THREE.Object3D();
-	treadsObj.position.x = -getMarshParams(1).len - par.columnDiam;
-	treadsObj.position.z = -params.M / 2 - par.columnDiam / 2;
+	treadsObj.position.x = -getMarshParams(1).len - par.columnDiam / 2 + 10;
+	treadsObj.position.z = (params.M / 2) * turnFactor;
 	wrapper.add(treadsObj)
-	wrapper.rotation.y = par.firstStepAngle + par.startAngle - Math.PI / 2;// + par.stepAngle;
+	wrapper.rotation.y = THREE.Math.degToRad(params.strightTreadsAngle) - Math.PI / 2 * turnFactor;//THREE.Math.degToRad(params.firstStepAngle) + par.startAngle - Math.PI / 2;
+	if (params.platformType == "triangle") wrapper.rotation.y = THREE.Math.degToRad(params.strightTreadsAngle) - Math.PI * turnFactor;
 
 	return wrapper;
 }

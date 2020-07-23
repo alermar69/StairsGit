@@ -128,20 +128,8 @@ function getExportData_com(checkSumm){
 				timberPaint: 0,
 			},
 			treads: {
-				name: "Ступени",
+				name: "Обшивка",
 				price: staircasePrice.treadsFinal,
-				metalPaint: 0,
-				timberPaint: 0,
-			},
-			risers: {
-				name: "Подступенки",
-				price: staircasePrice.risersFinal,
-				metalPaint: 0,
-				timberPaint: 0,
-			},
-			skirting: {
-				name: "Плинтуса",
-				price: staircasePrice.skirtingFinal,
 				metalPaint: 0,
 				timberPaint: 0,
 			},
@@ -310,16 +298,6 @@ function getExportData_com(checkSumm){
 		}
 	}
 
-	if (params.calcType == "railing") {
-		price_data.main = {
-			price: staircasePrice.total,
-			metalPaint: 0,
-			timberPaint: 0,
-			production: staircasePrice.railingFinal,
-			assembling: staircasePrice.assemblingFinal,
-			delivery: staircasePrice.delivery,
-		}
-	}
 	if (window.additional_objects) {
 		price_data.main.additional_objects = staircasePrice.additionalObjectsFinalPrice;
 	}else{
@@ -554,18 +532,19 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		}
 	
 	if(params.calcType != "vint" && params.calcType != "custom" && params.calcType != "slabs" && params.calcType != "carport"){
+
+		//каркас
 		if(params.calcType != "railing"){
-			//каркас
 			if(params.calcType.indexOf("timber") == -1) dept_data.metal += price_data.carcas.production;
 			if(params.calcType.indexOf("timber") != -1) dept_data.timber += price_data.carcas.production;
+		}
+		//ступени
+		if (params.stairType == "рифленый алюминий" || params.stairType == "пресснастил" || params.stairType == "рифленая сталь" || params.stairType == "лотки") {
+			dept_data.metal += price_data.treads.production;
+		}
+		if (params.stairType == "стекло") dept_data.partners += price_data.treads.production;
+		if (calcTreadParams().isTimberPaint || params.stairType == "дпк") dept_data.timber += price_data.treads.production;
 			
-			//ступени
-			if (params.stairType == "рифленый алюминий" || params.stairType == "пресснастил" || params.stairType == "рифленая сталь" || params.stairType == "лотки") 
-				dept_data.metal += price_data.treads.production;
-			if (params.stairType == "стекло") dept_data.partners += price_data.treads.production;
-			if (calcTreadParams().isTimberPaint || params.stairType == "дпк") 
-				dept_data.timber += price_data.treads.production;
-			}
 			
 		//ограждения
 		
@@ -631,9 +610,6 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		dept_data.metal = staircasePrice.carcas;
 		dept_data.partners = staircasePrice.roof;
 		
-	}
-	if(params.calcType == "railing"){
-		dept_data.metal = staircasePrice.railingFinal;
 	}
 	
 	if(params.calcType == "slabs"){		

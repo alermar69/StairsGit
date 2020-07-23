@@ -208,6 +208,7 @@ function calcCarportPartPar(){
 		beam: {}, //продольные балки
 		roofSheet: {}, //листы кровли
 		truss: {},
+		wall: {},
 	}
 
 	par.main.roofAng = params.roofAng / 180 * Math.PI;
@@ -337,6 +338,21 @@ function calcCarportPartPar(){
 	}
 	if(params.beamModel == "ферма постоянной ширины" && params.beamModel == "проф. труба"){
 		arcPar.m1 = par.rafter.profSize.y
+	}
+	
+	//профили стенок
+	var pillarProfPar = getProfParams(params.wallPillarProf);
+	var beamProfPar = getProfParams(params.wallBeamProf);
+	
+	par.wall = {
+		pillar: {
+			x: pillarProfPar.sizeA,
+			y: pillarProfPar.sizeB,
+		},
+		beam: {
+			x: beamProfPar.sizeA,
+			y: beamProfPar.sizeB,
+		},
 	}
 	
 	

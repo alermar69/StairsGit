@@ -174,7 +174,18 @@ function calcRailingModulePrice() {
 
 	// var finalCost = cost.glass + staircaseCost.railing;
 	staircaseCost.railing = railingCost;
+	
+	//распределение цены по цехам
+	staircaseCost.railing_timber = cost.mdf + staircaseCost.railingHandrails + staircaseCost.railingBal + staircaseCost.railingTimberPaint;
+	staircaseCost.railing_glass = cost.glass + staircaseCost.railingGlass;
+	staircaseCost.railing_metal = railingCost - staircaseCost.railing_timber - staircaseCost.railing_glass;
+			
+	staircaseCost.railing_timber_part = staircaseCost.railing_timber / railingCost;
+	staircaseCost.railing_glass_part = staircaseCost.railing_glass / railingCost;
+	if(!staircaseCost.railing_timber_part) staircaseCost.railing_timber_part = 0;
+	if(!staircaseCost.railing_glass_part) staircaseCost.railing_glass_part = 0;
 
+// debugger
 	//подробная себестоимость
 	var text =
 		"Шаблоны: " + Math.round(cost.mdf) + "<br/>" +

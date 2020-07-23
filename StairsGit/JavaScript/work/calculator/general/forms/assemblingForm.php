@@ -251,10 +251,5 @@
 			</tbody> </table>
 		</div>
 
-		<p class="installation_tr" >
-		Ограничения по времени работы на объекте:<br/>  
-		<textarea ID="comments" rows="2" cols="80" class="comments">Работы можно производить в любой день (предварительно согласованный) с 8:00 до 23:00</textarea>
-		</p>
-
 	</div>
 </div>

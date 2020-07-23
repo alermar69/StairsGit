@@ -1380,7 +1380,7 @@ function calcAssemblingWage(){
 	
 	
 
-if(params.calcType != "vint" && params.calcType != "railing"){
+if(params.calcType != "vint"){
 
 	var stepAmt = calcTotalStepAmt();
 	
@@ -1492,6 +1492,58 @@ if(params.calcType != "vint" && params.calcType != "railing"){
 			}
 		wages.carcas.items.push(wage);
 	}
+
+//обшивка бетонных лестниц
+if(params.calcType == "railing" && params.stairType != "нет" && params.isAssembling != "нет"){
+	wages.treads.items = [];
+
+	//фанера
+	if(params.plywoodThk){
+		var wage = {
+			name: "Обшивка ступеней фанерой с выравниванием",
+			amt: stepAmt,
+			unitName: "подъем",
+			unitWage: 800,
+			}
+		wages.treads.items.push(wage);
+		
+		var wage = {
+			name: "Обшивка площадок фанерой с выравниванием",
+			amt: getPartPropVal("platformTread", "area"),
+			unitName: "м2",
+			unitWage: 1000,
+			}
+		wages.treads.items.push(wage);
+	}
+	
+	//шаблонирование
+	if(params.needMockup == "да"){
+		var wage = {
+			name: "Шаблонирование ступеней (рейки)",
+			amt: stepAmt,
+			unitName: "шт",
+			unitWage: 200,
+		}
+		wages.treads.items.push(wage);
+	}
+
+	//укладка
+	var wage = {
+		name: "Установка ступеней",
+		amt: stepAmt,
+		unitName: "подъем",
+		unitWage: 400,
+		}
+	wages.treads.items.push(wage);
+	
+	var wage = {
+		name: "Установка площадок",
+		amt: getPartPropVal("platformTread", "area"),
+		unitName: "м2",
+		unitWage: 800,
+		}
+	wages.treads.items.push(wage);
+}
 		
 	var wage = {
 		name: "Плинтус",
@@ -1507,13 +1559,13 @@ if(params.calcType != "vint" && params.calcType != "railing"){
 		amt: 0,
 		unitName: "подъем",
 		unitWage: 200,
-		}
+	}
 	if(params.stepCutting == "да") wage.amt = stepAmt;
 	if(wage.amt == 0 && calcAll) wage.amt = 1;
 	wages.treads.items.push(wage);
 	
 	var wage = {
-		name: "Подступенки",
+		name: "Установка подступенков",
 		amt: 0,
 		unitName: "подъем",
 		unitWage: 100,
@@ -1525,7 +1577,7 @@ if(params.calcType != "vint" && params.calcType != "railing"){
 	
 //очищаем массивы если нет каркаса или ступеней
 	if(params.stairType == "нет") wages.treads.items = [];
-	if(params.isCarcas == "нет") wages.carcas.items = [];
+	if(params.isCarcas == "нет" || params.calcType == "railing") wages.carcas.items = [];
 	
 // к-ты за сложность
 
@@ -1538,6 +1590,7 @@ if(params.calcType != "vint" && params.calcType != "railing"){
 		
 	if(params.metalPaint != "нет" || calcAll) wage.carcas = 15;
 	if(params.timberPaint != "нет" || calcAll) wage.treads = 15;
+	if(params.calcType != "railing" && params.calcType != "carport" && params.calcType != "veranda")
 	extraWages.push(wage);
 	
 	var wage = {
@@ -2078,7 +2131,11 @@ function calcTotalStepAmt(){
 		if(params.turnType_1 == "забег") stepAmt += 3;
 		if(params.turnType_2 == "площадка") stepAmt += 1;
 		if(params.turnType_2 == "забег") stepAmt += 3;
-		}
+	}
+	
+	if(params.calcType == "railing"){
+		stepAmt = getPartAmt("tread") + getPartAmt("timberTurnTread")
+	}
 
 	return stepAmt;
 } //end of calcTotalStepAmt

@@ -302,10 +302,16 @@ function drawTurn(par){
 				riserPar = drawRectRiser(riserPar);
 				riser = riserPar.mesh;
 				riser.rotation.z = -Math.PI / 2;
-				riser.rotation.y = treadParams.startAngle;
+				riser.rotation.y = treadParams.startAngle;				
 				riser.position.z = -frontLine.p1.y + treadParams.offsetIn;
 				riser.position.y = tread.position.y;
 				riser.position.x = frontLine.p1.x;
+				
+				if(turnFactor == -1) {
+					riser.rotation.y = - treadParams.startAngle;
+					riser.rotation.z = Math.PI / 2;
+					riser.position.y -= par.h - params.treadThickness
+				}
 				par.mesh.add(riser);
 				riser.setLayer('risers');
 			}

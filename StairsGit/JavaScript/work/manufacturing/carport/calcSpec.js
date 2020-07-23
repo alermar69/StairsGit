@@ -52,9 +52,39 @@ function calculateSpec() {
 		sortRestart: true,
 	});
 
-	// showDrawingsLinks();
+	showDrawingsLinks();
 	printPartsAmt(); //функция в файле calcSpecGeneral.js
 	printPoleList(); //функция в файле calcSpecGeneral.js
 
 	if (typeof modelSpec !== 'undefined') modelSpec = partsList;
+	
 } //end of calculateSpec
+
+/** функция выводит на страницу ссылки на типовые чертежи деталей
+*/
+
+function showDrawingsLinks() {
+	var links = "<p>Типовые чертежи:</p>";
+	var path = "/drawings/carport/";
+
+	if(params.carportType == "односкатный" || params.carportType == "двухскатный"){
+		//фермы поперечные
+		var trussName = "truss";
+		if(params.carportType == "двухскатный") trussName += "_double"
+		if(params.carportType == "односкатный") trussName += "single"
+		
+		if(params.roofType == "Плоская") trussName += "_flat"
+		if(params.roofType == "Арочная") trussName += "_arc"
+		
+		links += "<a href='" + path + trussName + ".pdf' target='_blank'>Фермы поперечные</a><br/>";
+		
+		//фермы боковые
+		links += "<a href='" + path + "truss_side.pdf' target='_blank'>Фермы боковые</a><br/>";
+		
+		//колонны основные
+		links += "<a href='" + path + "column.pdf' target='_blank'>Колонны</a><br/>";
+		if(params.carportType == "односкатный") links += "<a href='" + path + "column_top.pdf' target='_blank'>Колонны длинные</a><br/>";
+	}
+
+	$("#drawings").html(links)
+}

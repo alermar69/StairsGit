@@ -4098,7 +4098,7 @@ function drawHolderVintTop() {
 /**
  * Функция вычисляет номера ступеней под которыми надо сделать разделение тетив 
  */
-function calcDivides(stepHeight) {
+function calcDivides(stepHeight, staircaseHeight) {
 	var arr = []
 
 	var typeTread = "timber";
@@ -4106,8 +4106,8 @@ function calcDivides(stepHeight) {
 
 
 	if (params.model != "Винтовая") {
-		var countDivide = Math.ceil((params.staircaseHeight - 20) / 1400);
-		var heightDivide = (params.staircaseHeight - 20) / countDivide;
+		var countDivide = Math.ceil((staircaseHeight - 20) / 1400);
+		var heightDivide = (staircaseHeight - 20) / countDivide;
 
 		var h = -params.treadThickness;
 		if (typeTread == "metal") h -= 30;

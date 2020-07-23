@@ -530,17 +530,18 @@ function calcRailingPrice(par){
 		staircasePrice.railingMetalPaint = metalPaintTotalPrice;
 		staircasePrice.railingTimberPaint = timberPaintTotalPrice;	
 		
-		staircasePrice.railing_timber = Math.round(railing_timber * margin);
-		staircasePrice.railing_glass = Math.round(railing_glass * margin);
-		staircasePrice.railing_metal = totalPrice_0 - staircasePrice.railing_timber - staircasePrice.railing_glass;
-		
-		//доля в общей цене ограждения
-		
-		staircaseCost.railing_timber_part = staircasePrice.railing_timber / totalPrice_0;
-		staircaseCost.railing_glass_part = staircasePrice.railing_glass / totalPrice_0;
-		if(!staircaseCost.railing_timber_part) staircaseCost.railing_timber_part = 0;
-		if(!staircaseCost.railing_glass_part) staircaseCost.railing_glass_part = 0;
+		//доля в общей цене ограждения (для модуля railing рассчитывается внутри ее функции calcRailingModulePrice)
+		if(params.calcType != "railing"){
+			staircasePrice.railing_timber = Math.round(railing_timber * margin);
+			staircasePrice.railing_glass = Math.round(railing_glass * margin);
+			staircasePrice.railing_metal = totalPrice_0 - staircasePrice.railing_timber - staircasePrice.railing_glass;
+				
+			staircaseCost.railing_timber_part = staircasePrice.railing_timber / totalPrice_0;
+			staircaseCost.railing_glass_part = staircasePrice.railing_glass / totalPrice_0;
+			if(!staircaseCost.railing_timber_part) staircaseCost.railing_timber_part = 0;
+			if(!staircaseCost.railing_glass_part) staircaseCost.railing_glass_part = 0;
 		}
+	}
 	
 	if(par.railingName == "балюстрада"){
 		staircasePrice.banister = totalPrice_0;
@@ -856,7 +857,6 @@ function calculateTotalPrice2(){
 		carcas: {name: "Каркас"},
 		treads: {name: "Ступени"},
 		railing: {name: "Ограждения"},
-		wr: {name: "Шкаф"},
 		banister: {name: "Балюстрада"},
 		assembling: {name: "Установка"},
 		delivery: {name: "Доставка"},
@@ -884,13 +884,9 @@ function calculateTotalPrice2(){
 			delivery: {name: "Доставка"},
 		}
 	}
+	
 	if(params.calcType == "railing"){
-		priceObj = {
-			railing: {name: "Ограждения"},
-			treads: {name: "Обшивка"},
-			assembling: {name: "Установка"},
-			delivery: {name: "Доставка"},
-		}
+		priceObj.treads.name = "Обшивка";
 	}
 
 	if (window.additional_objects) {
@@ -983,8 +979,10 @@ function calculateTotalPrice2(){
 
 	if(params.calcType == "railing"){
 		var unitItems = {
-			railing: ["railing"],
-			treads: ["treads", "skirting", "risers"]
+			railing: ["railing"], //в эту позицию входят все остальные, относящиеся к ограждениям
+			treads: ["treads", "skirting", "risers"],
+			assembling: ["assembling"],
+			delivery: ["delivery"]
 		}
 	}
 		
@@ -1092,9 +1090,9 @@ function calculateTotalPrice2(){
 	}
 
 	for(var pricePart in priceObj.total){
-	for(var unit in priceObj){
-		if(unit != "total")	{
-			priceObj["total"][pricePart] += priceObj[unit][pricePart];
+		for(var unit in priceObj){
+			if(unit != "total")	{
+				priceObj["total"][pricePart] += priceObj[unit][pricePart];
 			}
 		}
 	}
@@ -1154,7 +1152,7 @@ function printPrice2(){
 
 	//костыли для совместимости со старыми функциями
 
-	var notStairCalcs = ["tables", "racks", "carport", "veranda", "railing"]
+	var notStairCalcs = ["tables", "racks", "carport", "veranda"]
 	
 	if(notStairCalcs.indexOf(params.calcType) != -1){
 		var railing_timber = 0;
@@ -1174,7 +1172,7 @@ function printPrice2(){
 				finalPrice: priceObj["total"].discountPrice, 
 			}
 		}
-
+/*
 		if (params.calcType == 'railing') {
 			staircasePrice = {
 				railingFinal: priceObj["railing"].discountPrice, // В каркас пишем всю цену
@@ -1188,15 +1186,16 @@ function printPrice2(){
 				skirtingFinal: priceObj["skirting"] ? priceObj["skirting"].discountPrice : 0
 			}
 		}
+*/
 	}
 	else {
+
 		var railing_timber = Math.round(priceObj["railing"].discountPrice * staircaseCost.railing_timber_part);
 		var railing_glass = Math.round(priceObj["railing"].discountPrice * staircaseCost.railing_glass_part);
 		var railing_metal = priceObj["railing"].discountPrice - railing_timber - railing_glass;
 		var banister_timber = Math.round(priceObj["banister"].discountPrice * staircaseCost.banister_timber_part);
 		var banister_glass = Math.round(priceObj["banister"].discountPrice * staircaseCost.banister_glass_part);
 		var banister_metal = priceObj["banister"].discountPrice - banister_timber - banister_glass;
-	
 	
 		staircasePrice = {
 			carcasFinal: priceObj["carcas"].discountPrice,

@@ -89,21 +89,7 @@ $(function () {
 
 	//Пересчитать цены
 	$("#recalculatePrices").click(function(){
-		for (var i = 0; i < params.priceItems.length; i++) {
-			var priceItem = params.priceItems[i];
-			
-			var keys = Object.keys(params.priceItems[i].params);
-			$.each(keys, function(){
-				$('#' + this).val(params.priceItems[i].params[this]);
-			});
-			recalculate().finally(function(){
-				priceItem.price = staircasePrice.finalPrice;				
-				$('.priceItem[data-id="' + i + '"] .price-old').html(' ' + Math.round(priceItem.price / 0.7) + ' ');
-				$('.priceItem[data-id="' + i + '"] .price-new').html(priceItem.price + ' руб.');
-			});
-		}
-		
-		formatNumbers();
+		updatePriceItems();
 	});
 
 	//упорядочить названия	
@@ -146,6 +132,35 @@ $(function () {
 	})
 	
 });
+
+function updatePriceItems(i){
+	if(!i) i = 0;
+	var priceItem = params.priceItems[i];
+	if (priceItem) {
+		updatePriceItem(priceItem).finally(function(resolve){
+			updatePriceItems(i + 1)
+		});
+	}
+}
+
+function updatePriceItem(priceItem){
+	return new Promise(function(resolve){
+		var keys = Object.keys(priceItem.params);
+		$.each(keys, function(){
+			$('#' + this).val(priceItem.params[this]);
+		});
+		recalculate().finally(function(){
+			priceItem.price = staircasePrice.finalPrice;
+			$('.priceItem[data-id="' + i + '"] .price-old').html(' ' + Math.round(priceItem.price / 0.7) + ' ');
+			$('.priceItem[data-id="' + i + '"] .price-new').html(priceItem.price + ' руб.');
+
+			redrawPriceItems();
+			formatNumbers();
+
+			resolve();
+		});
+	});
+}
 
 function applyPriceItem(id){
 	if(id == null) return;

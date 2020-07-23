@@ -324,6 +324,17 @@ getAllInputsValues(params);
 //покраска
 configPaintingInputs();
 
+//удаляем дублирующуюся надпись в комментариях
+var comments_assm = $("#comments_assm").val();
+var rep_string = "Работы можно производить в любой день \(предварительно согласованный\) с 8:00 до 23:00"
+var parts = comments_assm.split(rep_string);
+if (parts[1] !== undefined) comments_assm = parts.slice(0,-1).join('') + rep_string + parts.slice(-1)
+
+//удаляем тройной перенос строки
+comments_assm = comments_assm.replace(/\n\n/g,"\n")
+
+$("#comments_assm").val(comments_assm)
+ 
 }//end of changeFormsGeneral
 
 

@@ -360,11 +360,41 @@
 			</tr>
 			
 			<tr class="wallPar">
-				<td>Соединительные профили:</td>
+				<td>Стойки:</td>
 				<td>
-					<select id="wallProfType">
-						<option value="пластик">пластик</option>
-						<option value="алюминий">алюминий</option>
+					<select id="wallPillarProf">
+						<option value="40х20">40х20</option>
+						<option value="40х40">40х40</option>
+						<option value="60х30">60х30</option>
+						<option value="60х40">60х40</option>
+						<option value="80х40">80х40</option>
+						<option value="100х50">100х50</option>
+						<option value="120х60">120х60</option>
+					</select>
+				</td>
+			</tr>
+			
+			<tr class="wallPar">
+				<td>Ригели:</td>
+				<td>
+					<select id="wallBeamProf">
+						<option value="40х20">40х20</option>
+						<option value="40х40">40х40</option>
+						<option value="60х30">60х30</option>
+						<option value="60х40">60х40</option>
+						<option value="80х40">80х40</option>
+						<option value="100х50">100х50</option>
+						<option value="120х60">120х60</option>
+					</select>
+				</td>
+			</tr>
+			
+			<tr class="wallPar">
+				<td>Соединение профилей:</td>
+				<td>
+					<select id="wallProfConnectors">						
+						<option value="краб-система">краб-система</option>
+						<option value="фланцы">фланцы</option>
 					</select>
 				</td>
 			</tr>
