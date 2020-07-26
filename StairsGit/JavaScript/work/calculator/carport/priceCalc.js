@@ -89,7 +89,7 @@ function calculateCarcasPrice(){
 	
 	//расчетные данные для купольного навеса - удалить после проработки модели
 	
-	if(params.carportType == "купол") {
+	if(params.carportType == "купол"  || params.carportType == "сдвижной") {
 		
 		if(params.roofMat != "нет"){
 			var profMeterPrice = 60; 
@@ -99,6 +99,11 @@ function calculateCarcasPrice(){
 		}
 		
 		boltPrice = 5000; //болты, подшипники, колеса и т.п.
+		
+		//к-т на цену
+		beamCost *= 2;
+		progonCost *= 2;
+		
 	}
 	
 	//расчетные данные для навеса с дугами - удалить после проработки модели

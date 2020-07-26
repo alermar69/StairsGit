@@ -312,7 +312,7 @@
 		$tabs['geom'] = false;
 		$tabs['carcas']['name'] = "Площадка";
 		$tabs['carcas']['url'] = "/calculator/veranda/forms/platform_form.php";
-		$tabs['railing'] = false;
+	//	$tabs['railing'] = false;
 		$tabs['floor_form'] = false;
 		$tabs['walls'] = false;
 		

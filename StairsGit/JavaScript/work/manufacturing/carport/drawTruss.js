@@ -1330,7 +1330,7 @@ function calcRoofArcParams(par){
 	var centerPosX = p0.x - par.columnProf.y / 2 - params.sideOffset + params.width / 2;
 	
 	if(params.carportType == "односкатный" || params.carportType.indexOf("консольный") != -1) centerPosX += params.width / 2;
-	if(params.carportType == "сдвижной") centerPosX = par.botLine.p1.x + par.width / 2;
+	if(params.carportType == "сдвижной") centerPosX = par.width / 2;
 	
 	par.centerLine = {
 		p1: {x: centerPosX, y: 0,}, //временная точка
@@ -1348,6 +1348,10 @@ function calcRoofArcParams(par){
 	//корректируем точки центральной линии
 	par.centerLine.p1 = newPoint_xy(par.topArc.center, 0, par.topArc.rad)
 	par.centerLine.p2 = newPoint_xy(par.centerLine.p1, 0, -par.trussWidth)
+
+	par.topArc.height = par.centerLine.p1.y - p0.y;
+	
+	if(params.carportType == "сдвижной") return par;
 	
 	//крайняя точка фермы
 	par.botLine.p1 = newPoint_xy(p0, -par.columnProf.y / 2 - params.sideOffset, par.m1) //временная точка
@@ -1424,6 +1428,7 @@ console.log(angle(par.botLine.p1, par.botLine.p2) / Math.PI * 180, par.topArc.st
 	if(params.carportType == "односкатный" || params.carportType.indexOf("консольный") != -1){
 		par.topArc.endAngle = Math.PI / 2;
 	}
+	
 	
 	return par;
 		

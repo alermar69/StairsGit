@@ -46,6 +46,7 @@ drawCarport = function (par) {
 	
 	var carport = window.mainObj = drawFunc(params);
 	model.add(carport, "carport");
+	// window.carport = carport;
 
 	for(var i=0; i<model.objects.length; i++){		
 		var obj = model.objects[i].obj;
@@ -86,6 +87,8 @@ function drawSpherePavilion(par){
 	door.rotation.y = -par.fullAngle + (params.overlayAng / 180 * Math.PI)
 	dome.add(door)
 	
+	window.carportColumns = dome;
+		
 	return dome;
 }
 
@@ -528,6 +531,12 @@ function drawRoof(par){
 				sheet.position.y = pos.y;
 				sheet.position.z = sheetWidth * i;
 				
+				if(params.roofMat == "профнастил" || params.roofMat == "металлочерепица"){
+					sheet.rotation.y = Math.PI
+					sheet.rotation.z = roofAng;
+					sheet.position.z += sheetPar.width;
+				}
+				
 				sheet.setLayer('roof');
 				roof.add(sheet);
 	
@@ -549,6 +558,9 @@ function drawRoof(par){
 					polyProfile.setLayer('roof');
 					roof.add(polyProfile);
 				}
+				
+				//коньковый профиль
+				
 			}
 		}
 		
@@ -840,6 +852,7 @@ function drawPolygonSegment(par){
 function drawArcPavilion(par){
 
 	var pavilion = new THREE.Object3D();
+	window.moovableSections = [];
 	
 	//рассчитываем параметры сегмента
 	var sPar = calcSegmentPar(params.width, params.height)
@@ -850,6 +863,8 @@ function drawArcPavilion(par){
 	var extraHeight = height - rad;
 	
 	for(var i=0; i<params.sectAmt; i++){
+		var section = new THREE.Object3D();
+		
 		var rad = topRad - 100 * i;
 		
 		//точки пересечения дуги с горизонтом
@@ -869,7 +884,7 @@ function drawArcPavilion(par){
 
 		var sect = drawRoofCarcas(sectPar).mesh
 		sect.position.z = params.sectLen * i
-		pavilion.add(sect)
+		section.add(sect)
 		
 		//кровля		
 		var roofPar = {
@@ -880,10 +895,60 @@ function drawArcPavilion(par){
 		var roof = drawRoof(roofPar)
 		roof.position.z = sect.position.z - params.sectLen / 2
 		roof.setLayer('roof');
-		pavilion.add(roof);
-	
+		section.add(roof);
+		
+		//направляющие
+		var polePar = {
+			poleProfileY: partPar.purlin.profSize.x,
+			poleProfileZ: partPar.purlin.profSize.y,
+			dxfBasePoint: par.dxfBasePoint,
+			length: params.sectAmt * params.sectLen,
+			material: params.materials.metal,
+			partName: 'purlinProf'
+		};
+		
+		var rail = drawPole3D_4(polePar).mesh;
+		rail.rotation.y = -Math.PI / 2
+		rail.position.x = -width / 2
+		rail.position.z = -params.sectLen / 2
+		pavilion.add(rail);
+		
+		var rail = drawPole3D_4(polePar).mesh;
+		rail.rotation.y = -Math.PI / 2
+		rail.position.x = width / 2
+		rail.position.z = -params.sectLen / 2
+		pavilion.add(rail);
+		
+		//фронтон
+		if(params.wallMat != "нет"){
+			var wallPar = {
+					topArc: sectPar.topArc,
+					width: width,
+				}
+				
+			//передний фронтон
+			if(i == 0 && (params.frontCover == "спереди" || params.frontCover == "две")){				
+				var wall = drawFronton(wallPar).mesh;
+				wall.position.z = -params.sectLen / 2
+				wall.position.x = -params.width / 2
+				section.add(wall)
+			}
+			
+			//задний фронтон
+			if(i == params.sectAmt - 1 && (params.frontCover == "сзади" || params.frontCover == "две")){				
+				var wall = drawFronton(wallPar).mesh;
+				wall.rotation.y = Math.PI
+				wall.position.z = (params.sectAmt - 0.5) * params.sectLen
+				wall.position.x = width / 2
+				section.add(wall)
+			}
+		}
+		pavilion.add(section)
+		window.moovableSections.push(section)
 	}
 	
+
+	window.carportColumns = pavilion;
 	
 	return pavilion;
 }
@@ -901,9 +966,9 @@ function drawRectCarport(par){
 	
 	var carport = new THREE.Object3D();
 	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0,y:0}
-		
-//колонны
-	
+
+	//колонны
+
 	var columnPar = {
 		len: params.height,
 		isTop: false,
@@ -952,6 +1017,7 @@ function drawRectCarport(par){
 	var columnArr = drawRectArray(columnArrPar).mesh;
 	if(params.carportType == "консольный") columnArr.position.x = -params.width / 2 + partPar.column.profSize.x;
 	columnArr.setLayer('racks');
+
 	//учитываем что на односкатном нет свеса сверху
 	if(params.carportType == "односкатный"){
 		columnArr.position.x += params.sideOffset / 2;
@@ -959,7 +1025,9 @@ function drawRectCarport(par){
 	
 	carport.add(columnArr);
 	
-//продольные балки
+	window.carportColumns = columnArr;
+		
+	//продольные балки
 	
 	var trussPar = {
 		height: partPar.truss.endHeight,
@@ -1044,7 +1112,7 @@ function drawRectCarport(par){
 	if(params.beamModel != "проф. труба") {
 		beamArr.position.z += 2;
 	}
-
+	
 	carport.add(beamArr);
 	
 	//каркас кровли
@@ -1073,6 +1141,7 @@ function drawRectCarport(par){
 		
 		roof.setLayer('roof');
 		carport.add(roof);
+		window.carportRoof = roof;
 	}
 	
 	if(params.roofType != "Арочная"){
@@ -1090,12 +1159,15 @@ function drawRectCarport(par){
 		}
 		roof.setLayer('roof');
 		carport.add(roof);
+		window.carportRoof = roof;
 	}
 	
 	//стенки
 	var walls = drawCarportWalls().mesh;
 	walls.setLayer('walls');
 	carport.add(walls);
+
+	window.fullCarport = carport;
 	
 	return carport;
 	

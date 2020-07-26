@@ -122,6 +122,13 @@ $(function () {
 		var result = eval(string);
 		$(this).val(result);
 	})
+	
+	//делаем весь текст из textarea полностью видиымым
+	$('textarea').on('input', function(e) {
+		this.style.height = '1px';
+		this.style.height = (this.scrollHeight + 6) + 'px'; 
+	});
+	
 });
 
 function appendPreview(id, url, isMain){
@@ -334,6 +341,9 @@ if (parts[1] !== undefined) comments_assm = parts.slice(0,-1).join('') + rep_str
 comments_assm = comments_assm.replace(/\n\n/g,"\n")
 
 $("#comments_assm").val(comments_assm)
+
+//выравниваем высоту textarea
+setTextareaHeight();
  
 }//end of changeFormsGeneral
 
@@ -1008,3 +1018,15 @@ function reindexId(tableId){
 
 };
 
+/** функция устанавливает высоту всех textarea по содержимому
+*/
+function setTextareaHeight(){
+	$('textarea').each(function(e) {
+		this.style.height = '1px';
+		this.style.height = (this.scrollHeight + 6) + 'px';
+
+		if (this.scrollHeight == 0 && this.value.split(/\r\n|\r|\n/).length > 0) {
+			this.style.height = (this.value.split(/\r\n|\r|\n/).length * 45 + 6) + 'px';
+		}
+	});
+}

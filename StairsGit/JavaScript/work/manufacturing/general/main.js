@@ -99,12 +99,14 @@ function recalculate() {
 				}
 				getAllInputsValues(params);
 				changeAllForms();
-				if (!window.location.href.includes('/coupe')) {
-					if($("#calcType").val() == "carport") drawFunc = drawCarport;
-					else drawFunc = drawStaircase;
-					
-					drawFunc('vl_1', true);
-				}
+				
+				var drawFunc = function(){};
+				if($("#calcType").val() == "carport") drawFunc = drawCarport;
+				else if($("#calcType").val() == "veranda") drawFunc = drawVeranda;
+				else drawFunc = drawStaircase;
+				
+				drawFunc('vl_1', true);
+				redrawWalls();
 
 				if($("#calcType").val() == "railing"){
 					redrawConcrete();

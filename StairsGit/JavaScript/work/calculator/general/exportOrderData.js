@@ -151,7 +151,7 @@ function getExportData_com(checkSumm){
 		
 	};
 	
-	if(params.calcType == "carport" || params.calcType == "veranda"){
+	if(params.calcType == "carport"){
 		var price_data = {
 			carcas: {
 				name: "Каркас",
@@ -165,9 +165,18 @@ function getExportData_com(checkSumm){
 				metalPaint: 0,
 				timberPaint: 0,
 			},
-		};
-		
+		};		
 	};
+	
+	if(params.calcType == "veranda"){
+		price_data.roof = {
+			name: "Кровля",
+			price: staircasePrice.roof,
+			metalPaint: 0,
+			timberPaint: 0,
+		};			
+	};
+	
 	
 	if(params.calcType == "slabs"){
 		var price_data = {};
@@ -298,9 +307,10 @@ function getExportData_com(checkSumm){
 		}
 	}
 
-	if (window.additional_objects) {
+	if (window.additional_objects && price_data.main.additional_objects) {
 		price_data.main.additional_objects = staircasePrice.additionalObjectsFinalPrice;
-	}else{
+	}
+	else{
 		price_data.main.additional_objects = 0;
 	}
 	

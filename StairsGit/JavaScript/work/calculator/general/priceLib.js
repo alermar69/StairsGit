@@ -885,10 +885,14 @@ function calculateTotalPrice2(){
 		}
 	}
 	
+	if(params.calcType == "veranda"){
+		priceObj.roof = {name: "Кровля"};
+	}
+	
 	if(params.calcType == "railing"){
 		priceObj.treads.name = "Обшивка";
 	}
-
+	
 	if (window.additional_objects) {
 		var calcPriceObjects = additional_objects.filter(function(item){return item.calc_price});
 		if (calcPriceObjects.length > 0) {

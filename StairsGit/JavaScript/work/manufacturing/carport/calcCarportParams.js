@@ -192,6 +192,9 @@ function setCarportProfs(){
 	if(params.roofMat == "монолитный поликарбонат") roofThk = 4;
 	if(params.roofMat == "профнастил") roofThk = 0.7
 	if(params.roofMat == "металлочерепица") roofThk = 0.5
+	
+	if(params.carportType == "купол") roofThk = 4;
+	
 	$("#roofThk").val(roofThk)
 	
 
@@ -312,7 +315,7 @@ function calcCarportPartPar(){
 	
 	if(params.carportType == "двухскатный" && params.roofType != "Арочная"){
 		//кол-во прогонов на одном скате
-		var rafterLen = par.main.width / 2 / Math.cos(params.roofAng / 180 * Math.PI)
+		var rafterLen = params.width / 2 / Math.cos(params.roofAng / 180 * Math.PI)
 		par.purlin.amt = Math.ceil(rafterLen / purlinMaxStep) + 1;
 	}
 
@@ -341,20 +344,21 @@ function calcCarportPartPar(){
 	}
 	
 	//профили стенок
-	var pillarProfPar = getProfParams(params.wallPillarProf);
-	var beamProfPar = getProfParams(params.wallBeamProf);
-	
-	par.wall = {
-		pillar: {
-			x: pillarProfPar.sizeA,
-			y: pillarProfPar.sizeB,
-		},
-		beam: {
-			x: beamProfPar.sizeA,
-			y: beamProfPar.sizeB,
-		},
+	if(params.calcType == "carport"){
+		var pillarProfPar = getProfParams(params.wallPillarProf);
+		var beamProfPar = getProfParams(params.wallBeamProf);
+		
+		par.wall = {
+			pillar: {
+				x: pillarProfPar.sizeA,
+				y: pillarProfPar.sizeB,
+			},
+			beam: {
+				x: beamProfPar.sizeA,
+				y: beamProfPar.sizeB,
+			},
+		}
 	}
-	
 	
 	par.main.arcPar = calcRoofArcParams(arcPar);
 	

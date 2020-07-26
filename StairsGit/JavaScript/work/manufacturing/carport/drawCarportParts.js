@@ -137,7 +137,7 @@ function drawCarportColumn(par){
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
-		specObj[partName]["sumLength"] += par.len;
+		specObj[partName]["sumLength"] += par.len / 1000;
 		par.mesh.specParams = {specObj: specObj, amt: 1, partName: partName, name: name}
 	}
 	
@@ -1300,6 +1300,12 @@ function drawWaveSheet(par){
 		for(var i=0; i<waveAmtLen; i++){
 			var p1 = newPoint_xy(startPoint, waveLen2, waveHeightLen)
 			var p2 = newPoint_xy(p1, waveLen, -waveHeightLen)
+			//последняя короткая волна
+			if(i == waveAmtLen-1){
+				p2 = itercection(p1, p2, newPoint_xy({x:0, y:0}, par.len, 0), newPoint_xy({x:0, y:0}, par.len, 1));
+				if(p2.x < p1.x) break;
+			}
+
 			pointsLen.push(new THREE.Vector3(0, p1.y, p1.x), new THREE.Vector3(0, p2.y, p2.x))
 			startPoint = copyPoint(p2);
 		}
@@ -1676,18 +1682,18 @@ function drawFronton(par){
 	
 	if(params.roofType == "Арочная"){
 		
-		var topArc = partPar.main.arcPar.topArc;
+		if(!par.topArc) par.topArc = partPar.main.arcPar.topArc;
 		
 		//лист
 		var shape = new THREE.Shape()
-		var p1 = polar(topArc.center, topArc.endAngle, topArc.rad)
-		var p2 = polar(topArc.center, topArc.startAngle, topArc.rad)
+		var p1 = polar(par.topArc.center, par.topArc.endAngle, par.topArc.rad)
+		var p2 = polar(par.topArc.center, par.topArc.startAngle, par.topArc.rad)
 		var p3 = {
 			x: p1.x,
 			y: p2.y,
 		}
 
-		addArc2(shape, par.dxfArr, topArc.center, topArc.rad, topArc.startAngle, topArc.endAngle, true, par.dxfBasePoint)
+		addArc2(shape, par.dxfArr, par.topArc.center, par.topArc.rad, par.topArc.startAngle, par.topArc.endAngle, true, par.dxfBasePoint)
 		if(params.carportType == "односкатный"){
 			addLine(shape, par.dxfArr, p2, p1, par.dxfBasePoint);
 			addLine(shape, par.dxfArr, p1, p3, par.dxfBasePoint);
@@ -1707,36 +1713,40 @@ function drawFronton(par){
 		par.mesh.add(sheet)
 		
 		//верхняя дуга
-		var midArc = {
-			center: topArc.center,
-			startAngle: topArc.startAngle,
-			endAngle: topArc.endAngle,
-			rad: topArc.rad - 40 / 2,
-		}
-
-		var arcPanelPar = {
-			rad: midArc.rad,
-			height: 40,
-			thk: 20,
-			angle: midArc.startAngle - midArc.endAngle,
-			dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.width * 2 + 500, 0),
-			material: params.materials.metal,
-			partName: 'carportBeam',
-			dxfPrimitivesArr: []
-		}
-
-		var beam = drawArcPanel(arcPanelPar).mesh;
-		beam.rotation.z = midArc.endAngle;
-		beam.position.x = params.width / 2 - params.sideOffset
-		if (params.carportType == "односкатный") beam.position.x += params.width / 2
-		beam.position.y = midArc.center.y
-		beam.position.z = params.wallThk
-		par.mesh.add(beam)
 		
+		if(params.beamModel == 'сужающаяся' || params.beamModel == 'постоянной ширины') {
+			var midArc = {
+				center: par.topArc.center,
+				startAngle: par.topArc.startAngle,
+				endAngle: par.topArc.endAngle,
+				rad: par.topArc.rad - 40 / 2,
+			}
+
+			var arcPanelPar = {
+				rad: midArc.rad,
+				height: 40,
+				thk: 20,
+				angle: midArc.startAngle - midArc.endAngle,
+				dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.width * 2 + 500, 0),
+				material: params.materials.metal,
+				partName: 'carportBeam',
+				dxfPrimitivesArr: []
+			}
+
+			var beam = drawArcPanel(arcPanelPar).mesh;
+			beam.rotation.z = midArc.endAngle;
+			beam.position.x = params.width / 2 - params.sideOffset
+			if (params.carportType == "односкатный") beam.position.x += params.width / 2
+			if(params.carportType == 'сдвижной') beam.position.x = params.width / 2;
+			beam.position.y = midArc.center.y
+			beam.position.z = params.wallThk
+			par.mesh.add(beam)
+		}
 	}
 	
 	//горизонтальная перемычка
 	var beamLen = params.width - params.sideOffset * 2 - partPar.column.profSize.y * 2
+	if(params.carportType == 'сдвижной') beamLen = par.width;
 	var polePar = {
 		poleProfileY: 20,
 		poleProfileZ: 40,
@@ -1749,8 +1759,12 @@ function drawFronton(par){
 	};
 	
 	var beam = drawPole3D_4(polePar).mesh;
-	beam.position.x = partPar.column.profSize.y;
+	beam.position.x = partPar.column.profSize.y;	
 	beam.position.y = partPar.truss.endHeight - 20;
+	if(params.carportType == 'сдвижной') {
+		beam.position.x = 0;
+		beam.position.y = 100; //подогнано
+	}
 	beam.position.z = params.wallThk
 	par.mesh.add(beam)
 
@@ -1776,7 +1790,11 @@ function drawFronton(par){
 			x: partPar.column.profSize.y + pillarStep * i - 50, //50-подогнано
 			y: partPar.truss.endHeight,
 		}
-		var topPoint = itercectionLineCircle(botPoint, newPoint_xy(botPoint, 0, 1), topArc.center, topArc.rad - 40)[0]
+		if(params.carportType == 'сдвижной') botPoint.y = 100;
+		
+		var topPoint = itercectionLineCircle(botPoint, newPoint_xy(botPoint, 0, 1), par.topArc.center, par.topArc.rad - 40)[0]
+		//TODO: сделать расчет точки для плоской кровли
+		
 		polePar.length = distance(botPoint, topPoint)
 		
 		var pillar = drawPole3D_4(polePar).mesh;
@@ -1785,6 +1803,41 @@ function drawFronton(par){
 		pillar.position.y = botPoint.y;
 		pillar.position.z = params.wallThk
 		par.mesh.add(pillar)
+	}
+	
+	par.mesh.setLayer("walls");
+	
+	//поликарбонат на арочный фронтон
+	if(params.roofType == "Арочная"){
+	
+		var partName = "polySheet";
+		var len = params.width;
+		if(par.width) len = par.width;
+		var width = par.topArc.height;
+		var area = len * width / 1000000;
+		
+		if (typeof specObj != 'undefined') {
+			name = Math.round(len) + "х" + Math.round(width);
+			if (!specObj[partName]) {
+				specObj[partName] = {
+					types: {},
+					amt: 0,
+					area: 0,
+					name: "Поликарбонат " + par.thk + " " + params.roofColor,
+					metalPaint: false,
+					timberPaint: false,
+					division: "metal",
+					workUnitName: "amt",
+					group: "carcas",
+				}
+			}
+			if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+			if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+			specObj[partName]["amt"] += 1;
+			specObj[partName]["area"] += area;
+			par.mesh.specParams = {specObj: specObj, amt: 1, area: area, partName: partName, name: name}
+		}
+		par.mesh.specId = partName + name;
 	}
 	
 	return par;

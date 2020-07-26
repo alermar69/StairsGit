@@ -70,7 +70,12 @@ function changeFormCarcas(){
 	
 	//текстура пола первого этажа
 	if(!params.floorMat) $("#floorMat").val("road_brick3")
-		
+	
+	$('#toggleDomeDoor').hide();
+	if(params.carportType == 'купол' || params.carportType == 'сдвижной') {
+		$('#toggleDomeDoor').show();
+	}
+	
 	getAllInputsValues(params)
 	 
 }

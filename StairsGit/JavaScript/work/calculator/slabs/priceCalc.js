@@ -126,7 +126,7 @@ function calcPrice(){
 		var amt = $row.find(".amt").val()
 		var unitPrice = $row.find(".unitPrice").val();
 		var type = $row.find(".unitType").val();
-		var cost = $row.find(".cost").val() * 1.0;
+		var cost = $row.find("input.cost").val() * 1.0;
 		var metalPart = $row.find(".metalPart").val();
 		var timberPart = $row.find(".timberPart").val();
 		var partnersPart = $row.find(".partnersPart").val();

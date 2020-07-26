@@ -68,6 +68,8 @@ function changeAllForms(){
 	$("#estimate_works").show();
 	if(params.delivery == "нет" && params.isAssembling == "нет") $("#estimate_works").hide();
 	
+	setTextareaHeight();
+	
 }
 
 function configDinamicInputs (){

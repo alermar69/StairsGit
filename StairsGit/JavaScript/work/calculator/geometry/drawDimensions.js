@@ -837,6 +837,207 @@ function draw3DDimensions(par){
 	return par;
 }
 
+/**
+	Отрисовывает размеры Навеса
+
+	@param {object} treadsObj - объект ступеней, нужен чтобы снять точки для рассчета размеров
+
+	@return {mesh} mesh
+*/
+
+function draw3DDimensionsCarport(par){
+	par.mesh = new THREE.Object3D();
+	var offset = 100;// отступ от объекта
+	var viewType = par.view;
+	if (par.view == '3d') viewType = '3d';
+	
+	// размеры по колоннам
+	var columnsObj = carportColumns.clone();
+	var columnsBox = new THREE.Box3().setFromObject(columnsObj);
+
+	if (viewType == 'left' || viewType == '3d') {
+		// Ширина
+		var dimPar = {
+			p1: {
+				x: columnsBox.min.x,
+				y: columnsBox.min.y,
+				z: columnsBox.max.z,
+			},
+			p2: {
+				x: columnsBox.max.x,
+				y: columnsBox.min.y,
+				z: columnsBox.max.z,
+			},
+			offset: offset,
+			basePlane: 'xy',
+			baseAxis: 'x',
+			dimSide: 'спереди',
+			alwaysOnTop: true,
+		}
+		var dim = drawDimension3D_2(dimPar).mesh;
+		par.mesh.add(dim);
+	}
+
+	if (viewType == 'front' || viewType == '3d') {
+		// Длина
+		var dimPar = {
+			p1: {
+				x: columnsBox.max.x,
+				y: columnsBox.min.y,
+				z: columnsBox.max.z,
+			},
+			p2: {
+				x: columnsBox.max.x,
+				y: columnsBox.min.y,
+				z: columnsBox.min.z,
+			},
+			offset: offset,
+			basePlane: 'yz',
+			baseAxis: 'z',
+			dimSide: 'сзади',
+			alwaysOnTop: true,
+		}
+		var dim = drawDimension3D_2(dimPar).mesh;
+		par.mesh.add(dim);
+	}
+
+	if (viewType == 'left' || viewType == '3d') {
+		// Высота
+		var dimPar = {
+			p1: {
+				x: columnsBox.max.x,
+				y: columnsBox.min.y,
+				z: columnsBox.max.z,
+			},
+			p2: {
+				x: columnsBox.max.x,
+				y: columnsBox.max.y,
+				z: columnsBox.max.z,
+			},
+			offset: -300,
+			basePlane: 'xy',
+			baseAxis: 'y',
+			dimSide: 'спереди',
+			alwaysOnTop: true,
+		}
+		var dim = drawDimension3D_2(dimPar).mesh;
+		par.mesh.add(dim);
+	}
+
+	// Размеры крыши
+	
+	if(typeof roofObj == 'undefined') return par;
+		
+	var roofObj = carportRoof.clone();
+	var roofBox = new THREE.Box3().setFromObject(roofObj);
+	
+	if (viewType == 'left' || viewType == '3d') {
+		// Ширина
+		var dimPar = {
+			p1: {
+				x: roofBox.min.x,
+				y: roofBox.min.y,
+				z: roofBox.max.z,
+			},
+			p2: {
+				x: roofBox.max.x,
+				y: roofBox.min.y,
+				z: roofBox.max.z,
+			},
+			offset: roofBox.max.y - roofBox.min.y + 300,
+			basePlane: 'xy',
+			baseAxis: 'x',
+			dimSide: 'спереди',
+			alwaysOnTop: true,
+		}
+		var dim = drawDimension3D_2(dimPar).mesh;
+		par.mesh.add(dim);
+	}
+
+	if (viewType == 'front' || viewType == '3d') {
+		// Длина
+		var dimPar = {
+			p1: {
+				x: roofBox.max.x,
+				y: roofBox.min.y,
+				z: roofBox.max.z,
+			},
+			p2: {
+				x: roofBox.max.x,
+				y: roofBox.min.y,
+				z: roofBox.min.z,
+			},
+			offset: -600,
+			basePlane: 'yz',
+			baseAxis: 'z',
+			dimSide: 'сзади',
+			alwaysOnTop: true,
+		}
+		if (params.carportType == 'односкатный' || params.carportType == 'консольный') {
+			dimPar.p1.x = roofBox.min.x;
+			dimPar.p2.x = roofBox.min.x;
+		}
+		var dim = drawDimension3D_2(dimPar).mesh;
+		par.mesh.add(dim);
+	}
+
+	if (viewType == 'left' || viewType == '3d') {
+		var carportFullObj = new THREE.Object3D();
+		carportFullObj.add(carportRoof.clone());
+		carportFullObj.add(carportColumns.clone());
+		var carportFullBox = new THREE.Box3().setFromObject(carportFullObj);
+		// Общая высота вместе с кровлей
+		var dimPar = {
+			p1: {
+				x: carportFullBox.min.x + (carportFullBox.max.x - carportFullBox.min.x) / 2,
+				y: carportFullBox.min.y,
+				z: carportFullBox.max.z,
+			},
+			p2: {
+				x: carportFullBox.min.x + (carportFullBox.max.x - carportFullBox.min.x) / 2,
+				y: carportFullBox.max.y,
+				z: carportFullBox.max.z,
+			},
+			offset: offset,
+			basePlane: 'xy',
+			baseAxis: 'y',
+			dimSide: 'спереди',
+			alwaysOnTop: true,
+		}
+		if (params.carportType == 'односкатный' || params.carportType == 'консольный') {
+			dimPar.p1.x = carportFullBox.max.x;
+			dimPar.p2.x = carportFullBox.max.x;
+		}
+		
+		var dim = drawDimension3D_2(dimPar).mesh;
+		par.mesh.add(dim);
+		// Высота нижней части кровли
+		var dimPar = {
+			p1: {
+				x: roofBox.min.x,
+				y: roofBox.min.y,
+				z: roofBox.max.z,
+			},
+			p2: {
+				x: roofBox.min.x,
+				y: 0,
+				z: roofBox.max.z,
+			},
+			offset: offset,
+			basePlane: 'xy',
+			baseAxis: 'y',
+			dimSide: 'спереди',
+			alwaysOnTop: true,
+		}
+		if (params.carportType == 'односкатный' || params.carportType == 'консольный') dimPar.offset = -400
+		var dim = drawDimension3D_2(dimPar).mesh;
+		par.mesh.add(dim);
+	}
+
+	return par;
+}
+
+
 function setTreadsDimensions(treadsObj, marshId, viewType){
 	if(!marshId) return;
 	var dimensions = new THREE.Object3D();
@@ -1127,7 +1328,7 @@ function drawFloorHoleDimensions(viewType){
 	Функция устанавливает размеры для одного вида
 */
 function setDimensions(viewportId, viewType, callback, dimensionParams){
-	if(typeof treadsObj == 'undefined' && params.calcType !== 'vint'){
+	if(typeof treadsObj == 'undefined' && params.calcType !== 'vint' && params.calcType !== 'carport'){
 		console.log("Невозможно построить размеры, treadsObj нужно сделать глобальным!");
 		return;
 	}
@@ -1143,7 +1344,12 @@ function setDimensions(viewportId, viewType, callback, dimensionParams){
 		additionalParams: dimensionParams
 	};
 
-	var dimMesh = draw3DDimensions(dimensionsPar).mesh;
+	if (params.calcType == 'carport') {
+		var dimMesh = draw3DDimensionsCarport(dimensionsPar).mesh;
+		
+	}else{
+		var dimMesh = draw3DDimensions(dimensionsPar).mesh;
+	}
 
 	dimMesh.position.x += moove.x;
 	dimMesh.position.y += moove.y;
@@ -1153,8 +1359,10 @@ function setDimensions(viewportId, viewType, callback, dimensionParams){
 	addObjects(viewportId, dimMesh, 'dimensions');
 
 	// Размеры проема
-	var floorHoleDimensions = drawFloorHoleDimensions(viewType);
-	addObjects(viewportId, floorHoleDimensions, 'dimensions');
+	if (params.calcType != 'carport') {
+		var floorHoleDimensions = drawFloorHoleDimensions(viewType);
+		addObjects(viewportId, floorHoleDimensions, 'dimensions');
+	}
 };
 
 /**
@@ -1163,21 +1371,31 @@ function setDimensions(viewportId, viewType, callback, dimensionParams){
 makeDrawings = function(callback, dimensionParams){
 	if(!dimensionParams) dimensionParams = {};
 	$('#geomDrawings').html(null);
-	view.renderer.setClearColor(new THREE.Color(255,255,255));
+	view.renderer.setClearColor(new THREE.Color(0xFFFFFF))
 	// params.dimScale = "2.5";
 	var viewportId = 'vl_1';
 	makeDrawing(viewportId, "front", function(){
 		makeDrawing(viewportId, "left", function(){
-			makeDrawing(viewportId, "top", function(){
-				removeObjects(viewportId, 'dimensions');
+			if (params.calcType == 'carport') {
 				var campos = [-5000, 3000, 5000];
-
+	
 				view.camera = new THREE.PerspectiveCamera(45, view.width / view.height,  100, 100000);
 				view.camera.position.set(...campos);
 				view.orbitControls = new THREE.OrbitControls(view.camera, view.renderer.domElement);
 
 				if(callback) callback();
-			},dimensionParams);
+			}else{
+				makeDrawing(viewportId, "top", function(){
+					removeObjects(viewportId, 'dimensions');
+					var campos = [-5000, 3000, 5000];
+	
+					view.camera = new THREE.PerspectiveCamera(45, view.width / view.height,  100, 100000);
+					view.camera.position.set(...campos);
+					view.orbitControls = new THREE.OrbitControls(view.camera, view.renderer.domElement);
+	
+					if(callback) callback();
+				},dimensionParams);
+			}
 		},dimensionParams);
 	},dimensionParams);
 
@@ -1192,6 +1410,8 @@ makeDrawing = function(viewportId, viewType, callback, dimensionParams){
 	if (typeof treadsObj == 'undefined') {
 		if (params.calcType == 'vint') {
 			var mainObj = window.vintTreads;
+		}else if(params.calcType == 'carport'){
+			var mainObj = window.carportColumns;
 		}else{
 			var mainObj = new THREE.Object3D();
 		}
@@ -1217,7 +1437,7 @@ makeDrawing = function(viewportId, viewType, callback, dimensionParams){
 			floorView = 'front';
 		}
 	}
-	addTopFloorGeom(floorView)
+	if(!params.calcType == 'carport') addTopFloorGeom(floorView)
 	setTimeout(function () {
 		addDrawingsImage(dimensionParams);
 		if (callback) callback();
@@ -1309,7 +1529,7 @@ fitCameraToObject = function ( object, viewType ) {
 	var scale = 1000 / maxDim;
 	if (params.calcType == 'timber_stock') scale = 800 / maxDim;
 	if (params.calcType == 'vint') scale = 800 / maxDim;
-	if (params.calcType == 'carport') scale = 900 / maxDim;
+	if (params.calcType == 'carport') scale = 700 / maxDim;
 	view.camera = new THREE.OrthographicCamera( view.width / - scale, view.width / scale, view.height / scale, view.height / - scale, -20000, 50000);
 
 	//Положения камер отличаются в зависимости от типа лестниц
