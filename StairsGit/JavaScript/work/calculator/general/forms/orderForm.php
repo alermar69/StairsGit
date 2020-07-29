@@ -55,6 +55,7 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 			<option value="Артем Николаев">Артем Николаев</option>
 			<option value="Алексей Степин">Алексей Степин</option>
 			<option value="Шерышев Сергей">Шерышев Сергей</option>
+			<option value="Юркин Александр">Юркин Александр</option>
 			
 			<option value="Константин Симбирев">Константин Симбирев</option>
 			<option value="Кирилл Янкин">Кирилл Янкин</option>

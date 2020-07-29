@@ -128,7 +128,7 @@ function getLayersList(){
 			only_for: ['carport'],
 			group: 'roof'
 		},
-		progon: {
+		purlins: {
 			name: "Прогоны",
 			only_for: ['carport'],
 			group: 'carcas'

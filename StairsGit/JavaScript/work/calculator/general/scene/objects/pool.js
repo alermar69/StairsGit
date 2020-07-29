@@ -171,8 +171,7 @@ function drawPool(par){
 	}
 	
 	var ladder = drawPoolLadder(ladderPar).mesh
-	ladder.position.x = -par.width / 2;
-	if(par.model == "круглый") ladder.position.x = -par.len / 2;
+	ladder.position.x = -par.len / 2;
 	
 	par.mesh.add(ladder);
 	

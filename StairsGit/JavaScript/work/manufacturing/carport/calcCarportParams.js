@@ -313,9 +313,10 @@ function calcCarportPartPar(){
 	if(params.beamModel == "проф. труба") purlinMaxStep = 3000;
 	par.purlin.amt = Math.ceil(par.main.width / purlinMaxStep) + 1;
 	
-	if(params.carportType == "двухскатный" && params.roofType != "Арочная"){
+	if(params.roofType != "Арочная"){
 		//кол-во прогонов на одном скате
-		var rafterLen = params.width / 2 / Math.cos(params.roofAng / 180 * Math.PI)
+		var rafterLen = params.width / Math.cos(params.roofAng / 180 * Math.PI)
+		if(params.carportType == "двухскатный") rafterLen *= 0.5;
 		par.purlin.amt = Math.ceil(rafterLen / purlinMaxStep) + 1;
 	}
 

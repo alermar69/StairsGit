@@ -832,6 +832,7 @@ function drawArcSheetTruss(par){
 		par.mesh.add(flan);
 			
 	}
+	
 	//вторая половинка
 	if(par.hasDivide && params.carportType == "двухскатный"){
 		var truss2 = new THREE.Mesh(geom, params.materials.metal);

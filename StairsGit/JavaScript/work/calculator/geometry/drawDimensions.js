@@ -850,6 +850,7 @@ function draw3DDimensionsCarport(par){
 	var offset = 100;// отступ от объекта
 	var viewType = par.view;
 	if (par.view == '3d') viewType = '3d';
+	if (!window.carportColumns || !window.carportRoof)  return par;
 	
 	// размеры по колоннам
 	var columnsObj = carportColumns.clone();
@@ -1410,7 +1411,7 @@ makeDrawing = function(viewportId, viewType, callback, dimensionParams){
 	if (typeof treadsObj == 'undefined') {
 		if (params.calcType == 'vint') {
 			var mainObj = window.vintTreads;
-		}else if(params.calcType == 'carport'){
+		}else if(params.calcType == 'carport' && window.carportColumns){
 			var mainObj = window.carportColumns;
 		}else{
 			var mainObj = new THREE.Object3D();
