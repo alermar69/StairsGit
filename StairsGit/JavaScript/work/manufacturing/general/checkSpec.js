@@ -584,6 +584,8 @@ function checkSpec(callback){
 	
 	var isTestOk = true;
 	var localResult = "";
+
+	var marshPar = getMarshParams(1);
 	
 //ищем ошибочный текст в спецификации
 	var isErrWords = false;
@@ -639,7 +641,7 @@ function checkSpec(callback){
 			if(params.stairModel == "Г-образная с площадкой") {
 				var treadAmt = calcPltFrameParams(params.M + 25, 0).frameAmt;
 				calcTreadAmt += treadAmt;
-				if (params.M > 1100 && params.calcType == 'vhod') calcTreadAmt += treadAmt * Math.floor(params.M / 1100);
+				if (marshPar.isMiddleStringer) calcTreadAmt += treadAmt * Math.floor(params.M / 1100);
 			}
 
 			if(params.stairModel == "Прямая с промежуточной площадкой" || params.stairModel == "Прямая горка") {
@@ -667,7 +669,7 @@ function checkSpec(callback){
 			if (params.platformTop !== 'нет' && window.calcPltFrameParams) {
 				var treadAmt = calcPltFrameParams(params.platformLength_3, 0).frameAmt;
 				calcTreadAmt += treadAmt;
-				if (params.M > 1100 && params.calcType == 'vhod') {
+				if (marshPar.isMiddleStringer) {
 					calcTreadAmt += treadAmt * Math.floor(params.M / 1100); // Когда больше 1100 на площадка делится косоуром
 				}
 				if (params.platformWidth_3 > params.M && params.platformTop == 'увеличенная') {

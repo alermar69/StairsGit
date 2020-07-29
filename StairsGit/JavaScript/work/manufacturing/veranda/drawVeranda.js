@@ -82,6 +82,28 @@ drawVeranda = function (par) {
 
 	model.add(carcasObj.mesh, "carcas");
 	model.add(carcasObj.angles, "angles");
+
+
+	/***  ОГРАЖДЕНИЯ НА ВСЕ ЛЕСТНИЦЫ  ***/
+
+	var railingPar = {
+		dxfBasePoint: {
+			x: 0,
+			y: 20000
+		},
+		treadsObj: treadsObj,
+		stringerParams: carcasPar.stringerParams,
+	};
+
+	var railingObj = drawRailing(railingPar);
+
+	railingObj.mesh.isStaircasePart = true;
+	railingObj.forgedParts.isStaircasePart = true;
+	railingObj.handrails.isStaircasePart = true;
+
+	model.add(railingObj.mesh, "railing");
+	model.add(railingObj.forgedParts, "forge");
+	model.add(railingObj.handrails, "handrails");
 	
 	
 	
@@ -138,6 +160,8 @@ function drawPlatform(par){
 	par.mesh.add(plt)
 	
 	//покрытие площадки
+
+	var decking = new THREE.Object3D();
 	
 	var plateParams = {
 			len: params.pltLen,
@@ -147,16 +171,40 @@ function drawPlatform(par){
 			thk: params.treadThickness,
 			material: params.materials.tread,
 			partName: "dpc",
-		};
-		
-	var decking = new THREE.Object3D();
+	};
 
-	var deckAmt = Math.round((params.pltWidth - params.dpcDst) / (params.dpcWidth + params.dpcDst));
+	var width = params.pltWidth;
+
+	if (params.floorCoverDir == 'по ширине') {
+		plateParams.len = params.pltWidth;
+		width = params.pltLen;
+	}
+
+	var step = params.dpcWidth + params.dpcDst;
+
+	var deckAmt = Math.ceil((width - params.dpcDst) / step);
+
+	var offset = step * deckAmt - width;
+
+	var lastWidth = plateParams.width - offset + params.dpcDst;
+
+	if (plateParams.width - offset <= 45) {
+		deckAmt -= 1;
+		lastWidth += plateParams.width + params.dpcDst
+	}
 
 	for (var j = 0; j < deckAmt; j++) {
+		if (j == (deckAmt - 1)) plateParams.width = lastWidth
+
 		var treadPlank = drawPlate(plateParams).mesh;
+
 		treadPlank.position.z = (params.dpcWidth + params.dpcDst) * j
 		treadPlank.rotation.x = Math.PI / 2
+		if (params.floorCoverDir == 'по ширине') {
+			treadPlank.rotation.z = Math.PI / 2
+			treadPlank.position.z = 0
+			treadPlank.position.x = step * j + plateParams.width
+		}
 		decking.add(treadPlank);
 	}
 	

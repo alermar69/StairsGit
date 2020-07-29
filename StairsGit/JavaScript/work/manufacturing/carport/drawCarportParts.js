@@ -1171,6 +1171,7 @@ function drawRectArray(par){
 	if(!par.moove) par.moove = {};
 	
 	par.pos0 = {};
+	par.posItems = [];
 	
 	//перебираем все оси
 	$.each(axis, function(){
@@ -1203,6 +1204,7 @@ function drawRectArray(par){
 					if(counter[this] > 0) par.itemPar.dxfArr = par.itemPar.dxfPrimitivesArr = []
 				})
 				par.mesh.add(item);
+				par.posItems.push({ x: item.position.x, y: item.position.y, z: item.position.z, })
 			}
 		}
 	}
@@ -1480,7 +1482,10 @@ function drawRoofCarcas(par){
 				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - par.len / 2 + partPar.rafter.profSize.x;
 			}
 			purlinArr.setLayer('carcas');
-			if(params.carportType == "односкатный") purlinArr.position.x = 0; //выравниваем вручную
+			if (params.carportType == "односкатный") purlinArr.position.x = 0; //выравниваем вручную
+
+			purlinArr.position.z += (params.frontOffset - params.backOffset) / 2;
+
 			par.mesh.add(purlinArr)
 
 		}
@@ -1539,7 +1544,8 @@ function drawRoofCarcas(par){
 					purlinArr.position.y += moove.y
 				}
 			}
-			
+
+			purlinArr.position.z += (params.frontOffset - params.backOffset) / 2;
 			
 			purlinArr.setLayer('carcas');
 			par.mesh.add(purlinArr);
@@ -1561,9 +1567,11 @@ function drawRoofCarcas(par){
 	par.topArc = topArc
 	
 	//центр массива в точке 0,0
-	var box3 = new THREE.Box3().setFromObject(par.mesh);
-	par.mesh.position.x -= (box3.max.x + box3.min.x) / 2;
-	par.mesh.position.z -= (box3.max.z + box3.min.z) / 2;
+	//var box3 = new THREE.Box3().setFromObject(par.mesh);
+	//par.mesh.position.x -= (box3.max.x + box3.min.x) / 2;
+	//par.mesh.position.z -= (box3.max.z + box3.min.z) / 2;
+
+	//purlinArr.position.z += (params.frontOffset - params.backOffset) / 2;
 	
 	return par;
 	

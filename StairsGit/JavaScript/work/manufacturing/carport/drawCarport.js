@@ -1026,6 +1026,7 @@ function drawRectCarport(par){
 	carport.add(columnArr);
 	
 	window.carportColumns = columnArr;
+	window.carportPosCoumns = columnArrPar.posItems;
 		
 	//продольные балки
 	
@@ -1064,7 +1065,7 @@ function drawRectCarport(par){
 		var beamPar = {
 			poleProfileY: partPar.beam.profSize.x,
 			poleProfileZ: partPar.beam.profSize.y,
-			length: params.sectLen * params.sectAmt + params.frontOffset * 2,
+			length: params.sectLen * params.sectAmt + params.frontOffset + params.backOffset,
 			poleAngle: 0,
 			material: params.materials.metal,
 			type: 'rect',
@@ -1112,7 +1113,7 @@ function drawRectCarport(par){
 	if(params.beamModel != "проф. труба") {
 		beamArr.position.z += 2;
 	}
-	
+
 	carport.add(beamArr);
 	
 	//каркас кровли
@@ -1138,6 +1139,7 @@ function drawRectCarport(par){
 		
 		var roof = drawRoof(roofPar)
 		roof.position.y = params.height
+		roof.position.z += (params.frontOffset - params.backOffset) / 2;
 		
 		roof.setLayer('roof');
 		carport.add(roof);
@@ -1157,6 +1159,7 @@ function drawRectCarport(par){
 		if(params.beamModel != "проф. труба") {
 			roof.position.y = params.height
 		}
+		roof.position.z += (params.frontOffset - params.backOffset) / 2;
 		roof.setLayer('roof');
 		carport.add(roof);
 		window.carportRoof = roof;
@@ -1166,6 +1169,8 @@ function drawRectCarport(par){
 	var walls = drawCarportWalls().mesh;
 	walls.setLayer('walls');
 	carport.add(walls);
+
+	carport.rotation.y = params.carportAng / 180 * Math.PI
 
 	window.fullCarport = carport;
 	

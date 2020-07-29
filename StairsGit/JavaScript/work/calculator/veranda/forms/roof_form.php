@@ -94,6 +94,13 @@
 					<input type="number" id="roofAng" value="32">
 				</td>
 			</tr>
+
+			<tr>
+				<td>Угол поворота навеса:</td>
+				<td>
+					<input type="number" id="carportAng" value="0">
+				</td>
+			</tr>
 			
 			<tr class="dome">
 				<td>Поворотный сектор, град.:</td>
@@ -253,8 +260,13 @@
 			</tr>
 		
 			<tr>
-				<td>Свес спереди/сзади:</td>
+				<td>Свес спереди:</td>
 				<td><input type="number" id="frontOffset" value="100"></td>
+			</tr>
+
+			<tr>
+				<td>Свес сзади:</td>
+				<td><input type="number" id="backOffset" value="100"></td>
 			</tr>
 			
 			<tr class="roofPar">

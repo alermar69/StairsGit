@@ -217,7 +217,7 @@ function calcCarportPartPar(){
 	par.main.roofAng = params.roofAng / 180 * Math.PI;
 
 	//общая длина навеса
-	par.main.len = params.sectAmt * params.sectLen + params.frontOffset * 2;
+	par.main.len = params.sectAmt * params.sectLen + params.frontOffset + params.backOffset;
 	par.main.width = params.width / Math.cos(par.main.roofAng * Math.PI);
 
 

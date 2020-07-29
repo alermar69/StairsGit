@@ -232,7 +232,7 @@ function drawTrussCarport(par){
 		poleProfileY: progonProfPar.sizeB,
 		poleProfileZ: progonProfPar.sizeA,
 		dxfBasePoint: {x:0,y:0},
-		length: params.sectLen * params.sectAmt + params.frontOffset * 2,
+		length: params.sectLen * params.sectAmt + params.frontOffset + params.backOffset,
 		material: params.materials.metal,
 		dxfArr: [],
 	};
@@ -358,7 +358,7 @@ function drawBeamCarport(par){
 	var progonProfPar = getProfParams(par.progonProf);
 	var beamProfParams = getProfParams(params.beamProf)
 	
-	var fullLen = params.frontOffset * 2 + params.sectAmt * params.sectLen;
+	var fullLen = params.frontOffset + params.backOffset + params.sectAmt * params.sectLen;
 	
 	
 	//продольные балки

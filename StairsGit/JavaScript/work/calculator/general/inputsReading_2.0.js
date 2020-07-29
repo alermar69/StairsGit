@@ -133,6 +133,8 @@ function showOptions(selectId, compatibleOptions) {
 /**функция возвращает параметры марша по номеру марша
 */
 function getMarshParams(marshId) {
+
+	if (!marshId) marshId = 1
 	
 	if (marshId < 1) marshId = 1;
 	if (marshId > 3) marshId = 3;
@@ -175,6 +177,13 @@ function getMarshParams(marshId) {
 	par.marshName = 'нижний';
 
 	par.nose = par.a - par.b;
+
+	//наличие промежуточного косоура
+	par.isMiddleStringer = false;
+	if (params.M > 1100) {
+		if (params.calcType == "vhod") par.isMiddleStringer = true;
+		if (params.calcType == "veranda") par.isMiddleStringer = true;
+	}
 
 	//является ли текущий марш последним
 	par.lastMarsh = false;

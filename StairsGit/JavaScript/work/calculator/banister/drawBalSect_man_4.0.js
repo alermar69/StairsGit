@@ -240,8 +240,6 @@ function drawBalSection(par) {
 	};
 
 	/* стойки */
-
-
 	if (railingModel == "Ригели" || railingModel == "Стекло на стойках" || railingModel == "Экраны лазер") {
 
 		rackPosition = [];
@@ -270,7 +268,8 @@ function drawBalSection(par) {
 		var rackDist = sectionLength / (rackAmt - 1);
 		for (i = 0; i < rackAmt; i++) {
 			rackParams.len = rackLength - 70 - 2; //70 - высота кронштейна 2 - толщина кронштейна
-			if (i == 0 && par.type == "секция площадки") rackParams.len -= 4; //стойки разной длины для винтовой лестницы
+			if (i == 0 && par.type == "секция площадки"
+			) rackParams.len -= 4; //стойки разной длины для винтовой лестницы
 			var pos = {
 				x: offsetLeft + 20 + rackDist * i,
 				y: -60,
@@ -284,11 +283,10 @@ function drawBalSection(par) {
 			rack.position.x = pos.x;
 			rack.position.y = pos.y;
 			rack.position.z = pos.z;
-			railingSection.add(rack);
+			if (params.calcType !== 'veranda') railingSection.add(rack);
 			rackPosition.push(rack.position);
 		}
 	}
-
 
 	/* ригели */
 	

@@ -249,7 +249,7 @@ function drawMarshRailing(par, marshId) {
 	if (params.calcType == 'mono') {
 		if (params.railingModel == "Самонесущее стекло") drawRailingSection = drawGlassSection;
 	}
-	if (params.calcType == 'metal' || params.calcType == 'vhod') {
+	if (params.calcType == 'metal' || params.calcType == 'vhod' || params.calcType == 'veranda') {
 		if (params.railingModel == "Самонесущее стекло") drawRailingSection = drawRailingSectionGlass;
 		if (params.railingModel == "Трап") drawRailingSection = drawLadderHandrail;
 	}
@@ -1204,7 +1204,7 @@ function drawRailingSectionNewel2(par) {
 		if (turnFactor === -1) railingPositionZ = -40;
 	}
 
-	if (params.calcType === 'metal' || params.calcType === 'vhod' || params.calcType === 'bolz') {
+	if (params.calcType === 'metal' || params.calcType === 'vhod' || params.calcType === 'bolz' || params.calcType === 'veranda') {
 		//адаптация к единой функции drawMarshRailing
 
 		par.racks = [];
@@ -1393,7 +1393,7 @@ function drawRailingSectionNewel2(par) {
 			if (rigelAmt == 3) rigelMooveY = 50;
 			if (rigelAmt == 4) rigelMooveY = -120;
 		};
-		if (params.calcType === 'metal' || params.calcType === 'vhod') rigelMooveY = par.b / 2 * Math.tan(parRacks.angMarsh);
+		if (params.calcType === 'metal' || params.calcType === 'vhod' || params.calcType === 'veranda') rigelMooveY = par.b / 2 * Math.tan(parRacks.angMarsh);
 		if (isNaN(rigelMooveY)) rigelMooveY = 0;
 		var rigelDist = (rackLength - 50 - rigelMooveY) / (rigelAmt + 1);
 
@@ -1405,7 +1405,7 @@ function drawRailingSectionNewel2(par) {
 
 
 		//формируем массив базовых точек для ригелей
-		if (params.calcType === 'metal' || params.calcType === 'vhod' || params.calcType === 'bolz') {
+		if (params.calcType === 'metal' || params.calcType === 'vhod' || params.calcType === 'bolz' || params.calcType === 'veranda') {
 			var rigelBasePoints = [];
 
 			if (parRacks.marsh1First) rigelBasePoints.push(copyPoint(parRacks.marsh1First));
@@ -2662,7 +2662,7 @@ function drawRailingSectionForge2(par) {
 	//рассчитываем необходимые параметры и добавляем в объект par
 	setRailingParams(par) //функция в файле calcRailingParams.js
 
-	if (params.calcType == 'metal' || params.calcType === 'vhod') {
+	if (params.calcType == 'metal' || params.calcType === 'vhod' || params.calcType === 'veranda') {
 		//выделяем из массива racks первые и последние стойки поворотов и марша
 		//адаптация к единой функции drawMarshRailing
 		if (par.stringerParams) par.racks = par.stringerParams[par.marshId].elmIns[par.key].racks;
@@ -3401,7 +3401,7 @@ function drawRailingSectionForge2(par) {
 
 		if (parRacks.marshLast.noDraw) polePar.endFlan = true;
 
-		if (params.calcType == 'vhod' && par.marshId == 1) {
+		if ((params.calcType == 'vhod' || params.calcType === 'veranda') && par.marshId == 1) {
 			polePar.startFlan = false;
 		}
 
@@ -4014,7 +4014,7 @@ function drawRailingSectionForge2(par) {
 		topPoint3 = polar(topPoint3, parRacks.angMarsh, extraLen);
 	}
 	if (topPoint3) {
-		if (params.calcType == 'vhod' && params.stairModel == 'Прямая') {
+		if ((params.calcType == 'vhod' || params.calcType === 'veranda') && params.stairModel == 'Прямая') {
 			topPoint3 = polar(topPoint3, parRacks.angMarsh, 40);
 		}
 		handrailPoints.push(topPoint3);
@@ -4489,7 +4489,7 @@ function drawForgedFramePart2(par) {
 
 		//стойки лт и ко
 
-		if (params.calcType == 'metal' || params.calcType == 'vhod' || par.isBanister || params.calcType == 'bolz') {
+		if (params.calcType == 'metal' || params.calcType == 'vhod' || par.isBanister || params.calcType == 'bolz' || params.calcType === 'veranda') {
 			var p3 = newPoint_xy(p0, par.poleProfileY / 2, 0);
 			var p4 = newPoint_xy(p3, -par.poleProfileY, 0);
 			points.push(p3, p4);

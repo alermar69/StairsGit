@@ -340,6 +340,10 @@
 			'url' => '/manufacturing/veranda/drawVeranda.js',
 			'only_for' => ['veranda'],
 		],
+		[
+			'url' => '/manufacturing/veranda/personalScripts.js',
+			'only_for' => ['veranda'],
+		],
 	]);
 
 	if ($calc_type != 'wardrobe_2' && $calc_type != 'objects') {

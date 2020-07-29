@@ -152,7 +152,7 @@ function drawColArray(par){
 	var stepLen = par.len / (par.amtLen - 1);
 	var stepWidth = par.width / (par.amtWidth - 1);
 	if(par.amtLen < 2) stepLen = 0
-	if(par.amtWidth < 2) stepWidth = 0
+	if (par.amtWidth < 2) stepWidth = 0
 
 	for(var i=0; i<par.amtLen; i++){
 		for(var j=0; j<par.amtWidth; j++){

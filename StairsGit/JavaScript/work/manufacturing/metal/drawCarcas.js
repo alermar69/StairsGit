@@ -10,7 +10,6 @@ function drawCarcas(par){
 
 	if (params.calcType == 'console') drawMarshStringers = drawMarshStringersConsole;
 
-
 	// Каркас нижнего марша
 	par.stringerParams[1] = drawMarshStringers(par, 1);	
 	par.mesh.add(par.stringerParams[1].mesh);
@@ -283,6 +282,7 @@ function drawMiddleStringers(par, marshId){
 				par.dxfBasePoint.x += stringerParams.lenX;
 				par.dxfBasePoint.x += 2000;
 				var framePar = {
+					marshId: marshId,
 					holes: stringerParams.carcasHoles,
 					dxfBasePoint: par.dxfBasePoint,
 				}
@@ -569,7 +569,7 @@ function drawMarshStringers(par, marshId){
 				//нет болтов на внутренней стороне
 				bridgePar.noBoltsOnBridge = false;
 				if (stringerParams.elmIns[key].bridges[i].noBoltsOnBridge) bridgePar.noBoltsOnBridge = true;
-				if (params.M > 1100 && params.calcType == "vhod") bridgePar.noBoltsOnBridge1 = true;
+				if (marshParams.isMiddleStringer) bridgePar.noBoltsOnBridge1 = true;
 
 				var bridge = drawBridge_2(bridgePar).mesh;
 				bridge.rotation.y = -Math.PI / 2;
@@ -586,7 +586,7 @@ function drawMarshStringers(par, marshId){
 				bridgePar.dxfBasePoint.x += params.M + 200;
 
 				//для входных если есть средняя тетива делаем дополнительную перемычку
-				if (params.M > 1100 && params.calcType == "vhod") {
+				if (marshParams.isMiddleStringer) {
 					//нет болтов на внутренней стороне
 					bridgePar.noBoltsOnBridge1 = false;
 					bridgePar.noBoltsOnBridge2 = true;
@@ -651,7 +651,7 @@ function drawMarshStringers(par, marshId){
 		var frames = drawFrames(framePar);
 
 		frames.position.x = -stringerParams.treadFrontOverHang;
-		if (params.calcType == 'vhod') {//Свдигаем к крайнему каркасу для того чтобы не пересечься с средним
+		if (params.calcType == 'vhod' || params.calcType == 'veranda') {//Свдигаем к крайнему каркасу для того чтобы не пересечься с средним
 			frames.position.z = params.M / 2 - params.stringerThickness - framePar.length / 2;
 		}
 		angles.add(frames)
@@ -681,8 +681,7 @@ function drawMarshStringers(par, marshId){
 
 
 // промежуточные косоуры широкого марша
-	
-	if (params.M > 1100 && params.calcType == "vhod") {
+	if (marshParams.isMiddleStringer) {
 		var middleStringers = drawMiddleStringers(par, marshId);
 		mesh.add(middleStringers.mesh);
 		angles.add(middleStringers.angles);

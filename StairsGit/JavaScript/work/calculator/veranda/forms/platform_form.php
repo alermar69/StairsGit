@@ -93,6 +93,16 @@
 				</td>
 			</tr>
 
+			<tr>
+				<td>Боковые балки:</td>
+				<td>
+					<select id="floorCoverDir" size="1">
+						<option value="профиль">профиль</option>
+						<option value="тетива">тетива</option>
+					</select>
+				</td>
+			</tr>
+
 			</tbody>
 	</table>
 	

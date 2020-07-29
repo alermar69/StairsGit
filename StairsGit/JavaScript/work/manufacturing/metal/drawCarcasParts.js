@@ -556,6 +556,8 @@ function drawCarcasPart(par, len) {
 	par.carcasHoles = [];
 	par.elmIns = {};
 
+	var marshPar = getMarshParams(par.marshId);
+
 	par.key = "front";
 
 	if (!par.keyPoints) par.keyPoints = {};
@@ -687,7 +689,7 @@ function drawCarcasPart(par, len) {
 					center1.noZenk = center2.noZenk = true;
 				}
 				if (params.platformTop == 'увеличенная') {
-					if (params.calcType == "vhod" && params.M > 1100)
+					if (marshPar.isMiddleStringer)
 						center1.isPltPFrame = center2.isPltPFrame = true;
 					if (params.stairModel == "Г-образная с площадкой" && turnFactor == 1) {
 						center1.noBoltsIn = center2.noBoltsIn = true;
@@ -887,6 +889,8 @@ function drawTopPltStringer(par) {
 	
 	par.carcasHoles = [];
 	par.key = "rear";
+
+	var marshPar = getMarshParams(par.marshId);
 	
 	if (!par.keyPoints) par.keyPoints = {};
 	if (!par.keyPoints[par.key]) par.keyPoints[par.key] = {};
@@ -973,7 +977,7 @@ function drawTopPltStringer(par) {
 	}
 
 	// отверстия под крепежный уголок промежуточного косоура широкого марша
-	if (params.M > 1100 && params.calcType == "vhod") {
+	if (marshPar.isMiddleStringer) {
 		var center1 = newPoint_xy(p0, params.M /2 + params.stringerThickness / 2 - shiftHoleX, shiftHoleY);
 		if (turnFactor == 1) center1 = newPoint_xy(p3, -params.M /2 - params.stringerThickness / 2 + shiftHoleX, shiftHoleY);
 		var center2 = newPoint_xy(center1, 0.0, -60.0);
@@ -1907,6 +1911,8 @@ function drawBridge_2(par) {
 	noBoltsOnBridge
 	*/
 
+	var marshPar = getMarshParams(par.marshId);
+
 	par.mesh = new THREE.Object3D();
 	
 	
@@ -1925,7 +1931,7 @@ function drawBridge_2(par) {
 	var holeRad = 6.5;
 	par.width = 105.0;
 	par.len = params.M - 2 * params.stringerThickness;
-	if (params.M > 1100 && params.calcType == "vhod") {
+	if (marshPar.isMiddleStringer) {
 		par.len = par.len / 2 - params.stringerThickness / 2;
 	}
 	if (params.model == "ко") par.len -= params.sideOverHang * 2;

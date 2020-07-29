@@ -5,6 +5,8 @@ function drawFrames(par){
 	var frames = new THREE.Object3D;
 	// if(menu.simpleMode) return frames;
 
+	var marshPar = getMarshParams(par.marshId);
+
 	var isFrameHole = function(hole){
 		return (hole.hasAngle == undefined && hole.wndFrame == undefined);
 	}
@@ -31,7 +33,7 @@ function drawFrames(par){
 
 
 			//для средней тетивы входной лестницы убираем болты
-			if (params.calcType == "vhod" && params.M > 1100) {
+			if (marshPar.isMiddleStringer) {
 				if (framePar.isPltPFrame) {
 					framePar.isFrameSideNoBolts2 = true;
 					framePar.isPltPFrame = false;
@@ -90,9 +92,10 @@ function drawFrames(par){
 				if (par.isBigPlt) {
 					platform.position.z = -(framePar.length / 2 - params.M / 2 + params.stringerThickness) * turnFactor;
 				};
-				if (params.calcType == "vhod") {					
+				if (params.calcType == "vhod" || params.calcType == "veranda") {					
 					platform.position.z = frame.position.z//-3 * turnFactor;
-					if (params.M >= 1100) { //Не понятно, подогнано						
+					//if (params.M >= 1100) { //Не понятно, подогнано						
+					if (marshPar.isMiddleStringer) { //Не понятно, подогнано						
 						platform.position.z += (framePar.length * (calcFrameParams({}).framesAmt - 1) / 2 + 3 + 1) * turnFactor; 
 					}
 					
@@ -2471,7 +2474,7 @@ function calcFrameParams(par){
 	//длина рамки
 	par.length = params.M - params.stringerThickness * 2;
 	
-	if (params.calcType == 'vhod') {
+	if (params.calcType == 'vhod' || params.calcType == 'veranda') {
 		var stringerThickness = params.stringerThickness;
 		var treadWidth = params.M - 2 * stringerThickness;
 		var treadSideOffset = 0;

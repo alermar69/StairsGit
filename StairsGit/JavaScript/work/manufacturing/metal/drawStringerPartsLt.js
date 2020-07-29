@@ -2557,7 +2557,7 @@ console.log(par.marshId, par.pointsShape[par.pointsShape.length-1])
 			par.pointsHole.push(center2);
 			par.pointsHole.push(center1);
 
-			if (params.M > 1100 && params.calcType == "vhod") {
+			if (par.marshPar.isMiddleStringer) {
 				center1 = newPoint_xy(p2,
 					-turnParams.topMarshOffsetZ + (params.M + params.stringerThickness) / 2 + 30,
 					par.carcasAnglePosY);
