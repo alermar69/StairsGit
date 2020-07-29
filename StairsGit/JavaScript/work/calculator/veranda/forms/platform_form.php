@@ -12,7 +12,16 @@
 					</select>
 				</td>
 			</tr>
-			
+
+			<tr>
+				<td>Тип:</td>
+				<td>
+					<select id="pltType">
+						<option value="отдельная">отдельная</option>
+						<option value="единая с лестницей">единая с лестницей</option>
+					</select>
+				</td>
+			</tr>
 			
 			<tr>
 				<td>Длина:</td>
@@ -96,7 +105,7 @@
 			<tr>
 				<td>Боковые балки:</td>
 				<td>
-					<select id="floorCoverDir" size="1">
+					<select id="pltSideBeam" size="1">
 						<option value="профиль">профиль</option>
 						<option value="тетива">тетива</option>
 					</select>

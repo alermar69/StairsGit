@@ -148,8 +148,13 @@ function drawColArray(par){
 		dxfArr: [],
 		dxfBasePoint: {x:0, y:0},
 	}
+
+	var offset = 0;
+	if (par.offset) offset = par.offset
+
+	par.posCoumns = []
 	
-	var stepLen = par.len / (par.amtLen - 1);
+	var stepLen = (par.len - offset * 2) / (par.amtLen - 1);
 	var stepWidth = par.width / (par.amtWidth - 1);
 	if(par.amtLen < 2) stepLen = 0
 	if (par.amtWidth < 2) stepWidth = 0
@@ -158,11 +163,12 @@ function drawColArray(par){
 		for(var j=0; j<par.amtWidth; j++){
 			var column = drawColumn2(colParams).mesh;
 			
-			column.position.x = stepLen * i;
+			column.position.x = stepLen * i + offset;
 			column.position.y = par.length; //в функции отрисовки ноль колонны - центр верхнего отверстия
 			column.position.z = stepWidth * j;
 			par.mesh.add(column);
 		}
+		par.posCoumns.push(column.position.x + profPar.sizeA / 2)
 	}
 	
 	

@@ -178,73 +178,126 @@ function drawMetalPlatform(par){
 	var thk_front = 0;
 	var thk_rear = 0;
 
-	//передняя балка
-	if(par.beamProf_front != "нет"){
-		var profPar = getProfParams(par.beamProf_front);
-		var poleParams = {
-			poleProfileY: profPar.sizeA,
-			poleProfileZ: profPar.sizeB,
-			length: par.len,
-			partName: 'platformBeam_front'
+	// боковые стороны из профиля
+	if (!par.isSideStringer) {
+		//передняя балка
+		if (par.beamProf_front != "нет") {
+			var profPar = getProfParams(par.beamProf_front);
+			var poleParams = {
+				poleProfileY: profPar.sizeA,
+				poleProfileZ: profPar.sizeB,
+				length: par.len,
+				partName: 'platformBeam_front'
 
+			}
+			var pole = drawPole3D_4(poleParams).mesh
+			pole.rotation.y = Math.PI / 2;
+			pole.position.y = -profPar.sizeA;
+			par.mesh.add(pole);
+			thk_front = profPar.sizeB;
 		}
-		var pole = drawPole3D_4(poleParams).mesh
-		pole.rotation.y = Math.PI / 2;
-		pole.position.y = -profPar.sizeA;
-		par.mesh.add(pole);
-		thk_front = profPar.sizeB;
-	}
-	
-	//задняя балка
-	if(par.beamProf_rear != "нет"){
-		var profPar = getProfParams(par.beamProf_rear);
-		var poleParams = {
-			poleProfileY: profPar.sizeA,
-			poleProfileZ: profPar.sizeB,
-			length: par.len,
-			partName: 'platformBeam_rear'
+
+		//задняя балка
+		if (par.beamProf_rear != "нет") {
+			var profPar = getProfParams(par.beamProf_rear);
+			var poleParams = {
+				poleProfileY: profPar.sizeA,
+				poleProfileZ: profPar.sizeB,
+				length: par.len,
+				partName: 'platformBeam_rear'
+			}
+			var pole = drawPole3D_4(poleParams).mesh
+			pole.rotation.y = Math.PI / 2;
+			pole.position.x = par.width - profPar.sizeB;
+			pole.position.y = -profPar.sizeA;
+			par.mesh.add(pole);
+			thk_rear = profPar.sizeB;
 		}
-		var pole = drawPole3D_4(poleParams).mesh
-		pole.rotation.y = Math.PI / 2;
-		pole.position.x = par.width - profPar.sizeB;
-		pole.position.y = -profPar.sizeA;
-		par.mesh.add(pole);
-		thk_rear = profPar.sizeB;
-	}
-	
-	//правая балка
-	if(par.beamProf_right != "нет"){
-		var profPar = getProfParams(par.beamProf_right);
-		var poleParams = {
-			poleProfileY: profPar.sizeA,
-			poleProfileZ: profPar.sizeB,
-			length: par.width - thk_front - thk_rear,
-			partName: 'platformBeam_right'
+
+		//правая балка
+		if (par.beamProf_right != "нет") {
+			var profPar = getProfParams(par.beamProf_right);
+			var poleParams = {
+				poleProfileY: profPar.sizeA,
+				poleProfileZ: profPar.sizeB,
+				length: par.width - thk_front - thk_rear,
+				partName: 'platformBeam_right'
+			}
+			var pole = drawPole3D_4(poleParams).mesh
+			pole.position.x = thk_front;
+			pole.position.y = -profPar.sizeA;
+			pole.position.z = - profPar.sizeB;
+			par.mesh.add(pole);
 		}
-		var pole = drawPole3D_4(poleParams).mesh
-		pole.position.x = thk_front;
-		pole.position.y = -profPar.sizeA;
-		pole.position.z = - profPar.sizeB;
-		par.mesh.add(pole);
-	}
-	
-	//левая балка
-	if(par.beamProf_left != "нет"){
-		var profPar = getProfParams(par.beamProf_left);
-		var poleParams = {
-			poleProfileY: profPar.sizeA,
-			poleProfileZ: profPar.sizeB,
-			length: par.width - thk_front - thk_rear,
-			partName: 'platformBeam_left'
+
+		//левая балка
+		if (par.beamProf_left != "нет") {
+			var profPar = getProfParams(par.beamProf_left);
+			var poleParams = {
+				poleProfileY: profPar.sizeA,
+				poleProfileZ: profPar.sizeB,
+				length: par.width - thk_front - thk_rear,
+				partName: 'platformBeam_left'
+			}
+			var pole = drawPole3D_4(poleParams).mesh
+			pole.position.x = thk_front;
+			pole.position.y = -profPar.sizeA;
+			pole.position.z = -par.len;
+			par.mesh.add(pole);
 		}
-		var pole = drawPole3D_4(poleParams).mesh
-		pole.position.x = thk_front;
-		pole.position.y = -profPar.sizeA;
-		pole.position.z = -par.len;
-		par.mesh.add(pole);
 	}
-	
-	
+
+	// боковые стороны в виде тетив
+	if (par.isSideStringer) {
+		var profPar = getProfParams(par.beamProf_mid);
+
+		//передняя тетива
+		var stringerPar = {
+			stringerThickness: par.stringerThickness,
+			stringerWidth: par.stringerWidth,
+			length: par.len + par.stringerThickness * 2,
+			dxfBasePoint: par.dxfBasePoint,
+			posCoumns: par.posCoumns,
+			profileY: profPar.sizeA,
+			isHoleColumn: true,
+			isFront: true,
+		}
+
+		var stringer = drawSideStringerPlt(stringerPar).mesh
+		stringer.rotation.y = Math.PI / 2;
+		stringer.position.y = -par.stringerWidth + params.treadThickness;
+		stringer.position.x = -par.stringerThickness;
+		stringer.position.z = par.stringerThickness;
+		par.mesh.add(stringer);
+
+
+		//задняя тетива
+		stringerPar.isRear = true;
+
+		var stringer = drawSideStringerPlt(stringerPar).mesh
+		stringer.rotation.y = Math.PI / 2;
+		stringer.position.y = -par.stringerWidth + params.treadThickness;
+		stringer.position.x = par.width;
+		stringer.position.z = par.stringerThickness;
+		par.mesh.add(stringer);
+
+		//правая тетива
+		stringerPar.length = par.width;
+		stringerPar.isHoleColumn = false;
+		stringerPar.isFront = false;
+		stringerPar.isRear = false;
+
+		var stringer = drawSideStringerPlt(stringerPar).mesh
+		stringer.position.y = -par.stringerWidth + params.treadThickness;
+		par.mesh.add(stringer);
+
+		//левая тетива
+		var stringer = drawSideStringerPlt(stringerPar).mesh
+		stringer.position.y = -par.stringerWidth + params.treadThickness;
+		stringer.position.z = -par.len - par.stringerThickness;
+		par.mesh.add(stringer);
+	}
+
 	//перемычки
 	var profPar = getProfParams(par.beamProf_mid);
 	var poleParams = {

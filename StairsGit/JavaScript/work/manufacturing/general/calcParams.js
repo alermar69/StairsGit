@@ -304,6 +304,11 @@ function calcStaircaseMoove(lastMarshEnd){
 		}
 	}
 
+	// если для веранды конструктив входной лестницы, тогда сдвигаем лестницу по оси Х на глубину площадки
+	if (params.calcType == "vhod" && params.pltType == 'единая с лестницей') {
+		moove.x += params.platformLength_3;
+	}
+
 	//модифицируем смещение с учетом выбора базовой кромки
 	if(params.floorHoleBaseSide == 1){
 		if (turnFactor == 1) {

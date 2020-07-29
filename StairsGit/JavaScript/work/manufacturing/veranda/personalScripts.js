@@ -10,6 +10,7 @@ $("#M").val(1200);
 	//$("#beamModel").val("ферма постоянной ширины");
 	//$("#roofAng").val(15);
 
+$("#pltSideBeam").val("тетива");
 $("#railingModel").val("Ригели");
 	//$("#railingModel").val("Самонесущее стекло");
 	//$("#railingModel").val("Стекло на стойках");

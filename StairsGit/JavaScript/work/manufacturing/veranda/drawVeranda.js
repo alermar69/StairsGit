@@ -41,9 +41,11 @@ drawVeranda = function (par) {
 	model.add(axis);
 	
 	//площадка
-	var plt = drawPlatform().mesh;
-	plt.position.z = params.pltLen
-	model.add(plt, "plt");
+	if (params.pltType == 'отдельная') {
+		var plt = drawPlatform().mesh;
+		plt.position.z = params.pltLen
+		model.add(plt, "plt");
+	}
 
 	//навес
 	
@@ -53,8 +55,17 @@ drawVeranda = function (par) {
 	carport.position.x = params.pltWidth / 2
 	carport.position.y = params.pltHeight
 	carport.position.z = params.pltLen / 2
+	if (params.pltType == 'единая с лестницей') carport.position.y = (params.stairAmt1 + 1) * params.h1
 	
 	model.add(carport, "carport");
+
+	if (params.pltType == 'единая с лестницей') {
+		params.calcType = 'vhod';
+		params.platformTop = 'увеличенная';
+		params.platformLength_3 = params.pltWidth;
+		params.platformWidth_3 = params.pltLen
+
+	}
 	
 	
 	//ступени лестницы
@@ -140,7 +151,29 @@ drawVeranda = function (par) {
 function drawPlatform(par){
 	if(!par) par = {};
 	par.mesh = new THREE.Object3D();
-	
+
+	//столбы
+	var profParmas = getProfParams(params.columnProf);
+	var columnsPar = {
+		length: params.pltHeight - 20 - params.treadThickness - getProfParams(params.pltBeamProf).sizeA,
+		columnProf: params.columnProf,
+		len: params.pltLen - profParmas.sizeA,
+		amtLen: params.colAmt,
+		width: params.pltWidth - profParmas.sizeB,
+		amtWidth: params.colAmtWid,
+	}
+
+	if (params.pltSideBeam == 'тетива') {
+		columnsPar.offset = 80; // отступ колонн с краю, чтобы поместились уголки соединения тетив
+	}
+
+	var columns = drawColArray(columnsPar).mesh;
+	columns.rotation.y = Math.PI / 2
+	columns.position.x = profParmas.sizeB / 2
+	columns.position.z = -profParmas.sizeA
+	columns.setLayer('racks');
+	par.mesh.add(columns);
+
 	//каркас площадки
 	var pltPar = {
 		len: params.pltLen,
@@ -152,6 +185,14 @@ function drawPlatform(par){
 		beamProf_right: params.pltBeamProf,
 		beamProf_mid: params.pltBeamMidProf,
 		coverType: "нет",		
+	}
+
+	if (params.pltSideBeam == 'тетива') {
+		pltPar.stringerWidth = 200;
+		pltPar.stringerThickness = 8;
+		pltPar.isSideStringer = true;
+		pltPar.dxfBasePoint = par.dxfBasePoint;
+		pltPar.posCoumns = columnsPar.posCoumns;
 	}
 	
 	var plt = drawMetalPlatform(pltPar).mesh;
@@ -214,24 +255,110 @@ function drawPlatform(par){
 	par.mesh.add(decking)
 	
 	
-	//столбы
-	var profParmas = getProfParams(params.columnProf);
-	var columnsPar = {
-		length: params.pltHeight - 20 - params.treadThickness - getProfParams(params.pltBeamProf).sizeA,
-		columnProf: params.columnProf,
-		len: params.pltLen - profParmas.sizeA,
-		amtLen: params.colAmt,
-		width: params.pltWidth - profParmas.sizeB,
-		amtWidth: params.colAmtWid,
+	
+	
+	
+	return par;
+}
+
+
+/** функция отрисовывает боковую тетиву площадки  **/
+function drawSideStringerPlt(par) {
+	par.mesh = new THREE.Object3D();
+	var angles = new THREE.Object3D();
+
+	var p0 = { "x": 0, "y": 0.0 };
+	var p1 = copyPoint(p0);
+	var p2 = newPoint_xy(p1, 0, par.stringerWidth);
+	var p3 = newPoint_xy(p2, par.length, 0);
+	var p4 = newPoint_xy(p1, par.length, 0);
+
+	var points = [p1, p2, p3, p4];
+
+	//создаем шейп
+	var shapePar = {
+		points: points,
+		dxfArr: dxfPrimitivesArr,
+		dxfBasePoint: par.dxfBasePoint,
 	}
-	
-	var columns = drawColArray(columnsPar).mesh;
-	columns.rotation.y = Math.PI / 2
-	columns.position.x = profParmas.sizeB / 2
-	columns.position.z = -profParmas.sizeA
-	columns.setLayer('racks');
-	par.mesh.add(columns);
-	
-	
+
+	par.stringerShape = drawShapeByPoints2(shapePar).shape;
+
+	// отверстия под колонны
+	if (par.isHoleColumn) {
+		par.pointsHole = [];
+		var offsetY = params.treadThickness + par.profileY + 20; //отступ снизу тетивы до верха колонны
+
+		for (var i = 0; i < par.posCoumns.length; i++) {
+			var center1 = newPoint_xy(p2, par.posCoumns[i] + par.stringerThickness, -offsetY);
+			var center2 = newPoint_xy(center1, 0, -60);
+			par.pointsHole.push(center1, center2);
+		}
+
+		drawStringerHoles(par);
+	}
+
+	//отверстия под уголки соединения тетив
+	var offsetY = 20; //отступ снизу тетивы до уголка
+	par.pointsHole = [];
+	var center1 = newPoint_xy(p1, 30, 20 + offsetY);
+	if (par.isFront || par.isRear) center1.x += par.stringerThickness;
+	var center2 = newPoint_xy(center1, 0, 60);
+	var center3 = newPoint_xy(p4, -30, 20 + offsetY);
+	if (par.isFront || par.isRear) center3.x -= par.stringerThickness;
+	var center4 = newPoint_xy(center3, 0, 60);
+	par.pointsHole.push(center1, center2, center3, center4);
+
+	drawStringerHoles(par);
+
+
+	var extrudeOptions = {
+		amount: par.stringerThickness - 0.01,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+	//тетива
+	var geom = new THREE.ExtrudeGeometry(par.stringerShape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var stringer = new THREE.Mesh(geom, params.materials.metal);
+	par.mesh.add(stringer);
+
+	// уголки соединения тетив
+	if (par.isFront || par.isRear) {
+
+		var anglePar = {
+			model: "У4-60х60х100",
+		}
+
+		// левый уголок
+		var angle = drawAngleSupport(anglePar)
+		angle.rotation.z = Math.PI / 2;
+		angle.rotation.y = Math.PI / 2;
+		angle.position.x = par.stringerThickness;
+		angle.position.y = offsetY;
+		angle.position.z = par.stringerThickness;
+		if (par.isRear) {
+			angle.rotation.y += Math.PI / 2;
+			angle.position.z = 0;
+		}
+		angles.add(angle);
+
+		// правый уголок
+		var angle = drawAngleSupport(anglePar)
+		angle.rotation.z = Math.PI / 2;
+		angle.position.x = par.length - par.stringerThickness;
+		angle.position.y = offsetY;
+		angle.position.z = par.stringerThickness;
+		if (par.isRear) {
+			angle.rotation.y = -Math.PI / 2;
+			angle.position.z = 0;
+		}
+		angles.add(angle);
+
+		angles.setLayer('angles');
+		par.mesh.add(angles);
+	}
+
 	return par;
 }
