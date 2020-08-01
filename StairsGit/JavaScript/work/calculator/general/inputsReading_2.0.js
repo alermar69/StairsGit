@@ -239,6 +239,11 @@ function getMarshParams(marshId) {
 	par.prevMarshId = 1;
 	if (params.stairModel == "П-образная трехмаршевая" && marshId == 3) par.prevMarshId = 2;
 
+	if (params.calcType == 'vint') {
+		par.botTurn = "пол";
+		par.topTurn = "пол";
+	}
+
 	//угол наклона марша
 	par.ang = Math.atan(par.h / par.b);
 

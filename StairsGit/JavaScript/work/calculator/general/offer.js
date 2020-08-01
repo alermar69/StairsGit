@@ -42,6 +42,14 @@ $(function () {
 		if($(".priceItem").length == 0) $("#priceEditionsHeader").addClass('noPrint');
 		updatePriceItemsSelect()
 	});
+
+	//пересохранить данные с этой комплектацией
+	$("#resaveWithData").click(function(){
+		var id = $(".priceItem.selected").data('id');
+		applyPriceItem(id, function(){
+			rewriteOffer();
+		});
+	});
 	
 	//заменить блок текущей информацией
 	$("#replacePriceItem").click(function(){
@@ -98,6 +106,41 @@ $(function () {
 		updatePriceItemsSelect()
 	});
 	
+	$('#updateAllItems').click(function(){
+		$("#editionsChangeModal").modal('show');
+		$("#editionsChangeModal #formsContent").html('');
+		$.each($('.editionsChangeForm'), function(){
+			var title = $(this).find('h4').html();
+			if (!title) $(this).find('h3').html();
+			if (!title) $(this).find('h2').html();
+
+			$("#editionsChangeModal #formsContent").append('<div><input type="checkbox" class="selectEditionsFormToChange" data-form_name="' + $(this).attr('id') + '">'+title+'</div>');
+		});
+	});
+
+	var changingForms = [];
+	$('body').on('change', '.selectEditionsFormToChange', function(){
+		if ($(this).is(':checked')) {
+			changingForms.push($(this).attr('data-form_name'));
+		}else{
+			changingForms.splice(changingForms.indexOf($(this).attr('data-form_name')),1);
+		}
+	})
+
+	$('#deleteAllItems').click(function(){
+		if (confirm('Вы уверены что хотите удалить все комплектации?')) {
+			params.priceItems = [];
+			redrawPriceItems();
+		}
+	});
+
+	$('#acceptEditionsChanges').click(function (e) {
+		if (confirm('Во всех комплектациях будут заменены следующие группы параметров:'+changingForms.join('\n - ')+'\nВы уверены?')) {
+			$("#editionsChangeModal").modal('hide');
+			updateAllPriceItems();
+		}
+	})
+
 	//не печатать параметры лестницы
 	$(".print-btn").click(function(){
 		$(this).toggleClass("grey");
@@ -133,6 +176,35 @@ $(function () {
 	
 });
 
+/**
+ * Функция массового редактирования комплектаций
+ */
+function updateAllPriceItems(){
+	if (params.priceItems && params.priceItems.length > 0) {
+		$.each(params.priceItems, function(){
+			var par = this.params;
+			// Выбираем таблицы правого меню, которые необходимо применить
+			var tablesSelector = "#carcasTableWrapper, #treadsTableWrapper, #startTreads";
+			if (params.calcType == 'vint') tablesSelector = "#carcasTableWrapper, #treadsTableWrapper";
+			var elements = $(tablesSelector).find('input[type!=file]:visible,select:visible,textarea:visible');
+			$.each(elements, function(){
+				var val = $(this);
+				var value = val.val()
+				if(val.attr('type') == 'radio'  || val.attr('type') == 'checkbox'){
+					value = val.prop('checked')?'checked':'unchecked';
+				}
+				if(val.attr('type') == 'number') value = val.val() * 1.0;
+				par[this.id] = value;
+			});
+		});
+		alert('Конфигурации обновлены, цены будут пересчитаны.')
+		updatePriceItems();
+		redrawPriceItems(true);
+		return
+	}
+	alert('Комплектации не найдены');
+}
+
 function updatePriceItems(i){
 	if(!i) i = 0;
 	var priceItem = params.priceItems[i];
@@ -147,7 +219,9 @@ function updatePriceItem(priceItem){
 	return new Promise(function(resolve){
 		var keys = Object.keys(priceItem.params);
 		$.each(keys, function(){
-			$('#' + this).val(priceItem.params[this]);
+			if (this && this != '') {
+				$('#' + this).val(priceItem.params[this]);
+			}
 		});
 		recalculate().finally(function(){
 			priceItem.price = staircasePrice.finalPrice;
@@ -162,29 +236,35 @@ function updatePriceItem(priceItem){
 	});
 }
 
-function applyPriceItem(id){
+function applyPriceItem(id, callback){
 	if(id == null) return;
 
 	var priceItem = getArrItemByProp(params.priceItems, 'id', id);
 	var keys = Object.keys(priceItem.params);
 	$.each(keys, function(){
-		if(this != "") $('#' + this).val(priceItem.params[this]);
+		if(this != "" && ['order_comment', 'product_descr','summ'].indexOf(this) == -1) $('#' + this).val(priceItem.params[this]);
 	});
 
 	changeAllForms();
-	recalculate();
-
+	recalculate().finally(function(){
+		if (callback) callback();
+	});
 }
 
-function redrawPriceItems(){
+/**
+ * Перерисовка комплектаций
+ * @param {bool} forceUpdate принудительно обновить описания
+ */
+function redrawPriceItems(forceUpdate){
 	$("#priceItemsWrap").html("");	
 	if (params.priceItems && params.priceItems.length > 0) {
 		for (var i = 0; i < params.priceItems.length; i++) {
 			var priceItem = params.priceItems[i];
 			var priceBlockTextPar = {
 				id: priceItem.id, 
-				priceItem: priceItem
-				};
+				priceItem: priceItem,
+				forceUpdate: forceUpdate,
+			};
 			var text = getPriceBlockText(priceBlockTextPar);			
 			$("#priceItemsWrap").append(text);			
 		}
@@ -215,7 +295,7 @@ function getPriceBlockText(par){
 	var id = par.id;
 	par.name = getPriceBlockName(id);
 	
-	if (!par.priceItem) {
+	if (!par.priceItem || par.forceUpdate) {
 		var units = staircaseHasUnit();
 	
 		//каркас
@@ -269,7 +349,7 @@ function getPriceBlockText(par){
 	
 		var price = staircasePrice.finalPrice;
 	}
-	if (par.priceItem) {
+	if (par.priceItem && !par.forceUpdate) {
 		var carcasDescr = par.priceItem.carcasDescr;
 		var treadsDescr = par.priceItem.treadsDescr;
 		var railingDescr = par.priceItem.railingDescr;
@@ -321,6 +401,14 @@ function getPriceBlockText(par){
 			price: price
 		}
 	}
+
+	if (par.priceItem && par.forceUpdate) {
+		par.priceItem.carcasDescr = carcasDescr;
+		par.priceItem.treadsDescr = treadsDescr;
+		par.priceItem.railingDescr = railingDescr;
+		par.priceItem.assemblingDescr = assemblingDescr;
+		par.priceItem.price = price;
+	}
 	return text;//{text: text, item: priceItem};
 }
 
@@ -344,7 +432,7 @@ function addPriceBlock(noPrint){
 
 	var priceBlockTextPar = {
 		id: id,		
-		};
+	};
 	var text = getPriceBlockText(priceBlockTextPar);
 
 	if(!noPrint) {
@@ -356,6 +444,12 @@ function addPriceBlock(noPrint){
 	var params_copy = Object.assign({}, params);
 	delete params_copy.materials;//Удаляем материалы
 	delete params_copy.priceItems;
+	delete params_copy.currentOrderId;
+	delete params_copy.order_comment;
+	delete params_copy.product_descr;
+	delete params_copy.summ;
+	delete params_copy.starcasePos;
+	delete params_copy.params;
 
 	var priceItem = {
 		id: id,

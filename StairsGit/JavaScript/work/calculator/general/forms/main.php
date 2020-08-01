@@ -65,7 +65,6 @@
 	}
 	
 	if($template != 'customers') {
-
 		if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
 			//Форма параметров заказа
 			include $GLOBALS['ROOT_PATH']."/calculator/general/forms/orderForm.php";
@@ -656,7 +655,7 @@
 
 	//вывод на страницу
 	if($template != 'customers'){
-		echo $data_nav . $data_body;
+		echo '<div>'.$data_nav . $data_body.'</div>';
 		echo
 			'<div class="panelWrap">
 				<div class="panelResizer d-none"></div>
@@ -686,6 +685,7 @@
 	}
 
 	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/forgedBals.php";
+	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/updateEditions.php";
 	if ($template != 'customers') {
 		include $GLOBALS['ROOT_PATH']."/calculator/general/modals/timberBals.php";
 		include $GLOBALS['ROOT_PATH']."/calculator/general/modals/timberNewells.php";
@@ -1035,3 +1035,22 @@
 		cursor: pointer;
 	}
 </style>
+
+<!--диалоговое окно-->
+<div class="modal fade" id="editionsChangeForm">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Модификация комплектаций</h4>
+      </div>
+	  
+      <div class="modal-body">
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+        
+      </div>
+    </div><!-- /.модальное окно-Содержание -->  
+  </div><!-- /.модальное окно-диалог -->  
+</div><!-- /.модальное окно --> 

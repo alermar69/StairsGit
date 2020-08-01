@@ -1,4 +1,4 @@
-<div class='table-content' style='overflow: scroll; height: calc(100% - 40px)'>
+<div class='table-content noSave' style='overflow: scroll; height: calc(100% - 40px)'>
 	<h1>Дополнительные объекты</h1>
 	<table class="form_table objectsTable" id='objectsTable'>
 		<thead>
@@ -17,7 +17,7 @@
 <button id='addAdditionalObject'>Добавить объект</button>
 <button id='redrawAdditionalObjects'>Обновить</button>
 
-<div class="modal fade" id="additionalObjectProperties">
+<div class="modal noSave fade" id="additionalObjectProperties">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<input type="hidden" name="additionalObjectId" id='additionalObjectId'>

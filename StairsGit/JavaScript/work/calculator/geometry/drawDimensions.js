@@ -561,7 +561,7 @@ function draw3DDimensions(par){
 
 	//Размеры для 3д
 	if (viewType == '3d') {
-		if (params.stairModel == 'Прямая') {
+		if (params.stairModel == 'Прямая' && treadsObj && treadsObj.treads) {
 			if (!additionalParams.hideTreadDimensions) {
 				//Размеры ступени
 				var treadDimensions = setTreadsDimensions(treadsObj, 1, "3d");
@@ -1041,6 +1041,8 @@ function draw3DDimensionsCarport(par){
 
 function setTreadsDimensions(treadsObj, marshId, viewType){
 	if(!marshId) return;
+	if(!window.treadsObj) return;
+	if(!window.treadsObj.treads) return;
 	var dimensions = new THREE.Object3D();
 
 	var marshParams = getMarshParams(marshId);
@@ -1339,8 +1341,11 @@ function setDimensions(viewportId, viewType, callback, dimensionParams){
 	}else{
 		var moove = calcStaircaseMoove(treadsObj.lastMarshEnd);
 	}
+
+	var treadsObjWrapper = window.treadsObj;
+	if(params.calcType == 'vint') treadsObjWrapper = undefined;
 	var dimensionsPar = {
-		treadsObj: window.treadsObj,
+		treadsObj: treadsObjWrapper,
 		view: viewType,
 		additionalParams: dimensionParams
 	};

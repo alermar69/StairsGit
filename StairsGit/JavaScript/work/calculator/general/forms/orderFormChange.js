@@ -106,7 +106,7 @@ $(function () {
 	});
 
 	//инпут для текстового имени тестовых расчетов
-	$("#status").change(function(){
+	$("#offerNameForm input, #offerNameForm select, #offerNameForm textarea").change(function(){
 		configOfferNameInputs();
 	})
 	
@@ -137,4 +137,12 @@ function configOfferNameInputs(){
 	
 	if($("#status").val() == "тест") $("#offerName_test").closest("div").show()
 	else $("#offerNameTab").show();
+
+	// Обновляем описание, если автообновление
+	if ($("#offerDataDescriptionUpdate").val() == 'авто') {
+		$('#product_descr').attr('readonly', true);
+		$("#product_descr").val(getExportData_com().product_descr);
+	}else{
+		$('#product_descr').attr('readonly', false);
+	}
 }

@@ -193,8 +193,20 @@ if (params.platformTop == "площадка") {
 	$(".topFixParams").hide();
 	}
 	
-if(params.calcType == "vint" && params.platformType != "нет"){
-	$(".topPlt").show();
+if(params.calcType == "vint"){
+	$('.marsh1').hide();
+	$('.marsh3').hide();
+	$('.treadsTableWrapper').hide();
+	if (params.strightMarsh != "нет") {
+		$('.treadsTableWrapper').show();
+		if (params.strightMarsh == "снизу" || params.strightMarsh == "сверху и снизу") $('.marsh1').show();
+		if (params.strightMarsh == "сверху" || params.strightMarsh == "сверху и снизу"){
+			$('.marsh3').show();
+			$('#platformType').val('нет');
+			params.platformType = 'нет';
+		} 
+	}
+	if (params.platformType != "нет") $(".topPlt").show();
 }
 
 //параметры креплений
@@ -338,7 +350,7 @@ var parts = comments_assm.split(rep_string);
 if (parts[1] !== undefined) comments_assm = parts.slice(0,-1).join('') + rep_string + parts.slice(-1)
 
 //удаляем тройной перенос строки
-comments_assm = comments_assm.replace(/\n\n/g,"\n")
+comments_assm = comments_assm.replace(/\n\n/g,"\n");
 
 $("#comments_assm").val(comments_assm)
 

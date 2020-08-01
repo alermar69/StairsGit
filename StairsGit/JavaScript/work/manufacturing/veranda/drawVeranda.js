@@ -52,10 +52,11 @@ drawVeranda = function (par) {
 	//параметры всех деталей
 	partPar = calcCarportPartPar();
 	var carport = drawRectCarport(params);
-	carport.position.x = params.pltWidth / 2
-	carport.position.y = params.pltHeight
-	carport.position.z = params.pltLen / 2
-	if (params.pltType == 'единая с лестницей') carport.position.y = (params.stairAmt1 + 1) * params.h1
+	carport.rotation.y = THREE.Math.degToRad(params.carportRot);
+	carport.position.x = params.pltWidth / 2 + params.carportPosX
+	carport.position.y = params.pltHeight + params.carportPosY
+	carport.position.z = params.pltLen / 2 + params.carportPosZ
+	if (params.pltType == 'единая с лестницей') carport.position.y = (params.stairAmt1 + 1) * params.h1 + params.carportPosY
 	
 	model.add(carport, "carport");
 
@@ -153,10 +154,10 @@ function drawPlatform(par){
 	par.mesh = new THREE.Object3D();
 
 	//столбы
-	var profParmas = getProfParams(params.columnProf);
+	var profParmas = getProfParams(params.pltColumnProf);
 	var columnsPar = {
 		length: params.pltHeight - 20 - params.treadThickness - getProfParams(params.pltBeamProf).sizeA,
-		columnProf: params.columnProf,
+		columnProf: params.pltColumnProf,
 		len: params.pltLen - profParmas.sizeA,
 		amtLen: params.colAmt,
 		width: params.pltWidth - profParmas.sizeB,

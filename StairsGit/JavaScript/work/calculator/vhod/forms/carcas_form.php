@@ -2,7 +2,7 @@
 	<h2 class="raschet">Характеристики лестницы</h2>
 	<div id="carcasForm" class="toggleDiv">
 
-		<div id="carcasTableWrapper">
+		<div id="carcasTableWrapper" class='editionsChangeForm'>
 			<h4>1. Общие характеристики:</h4>
 			<table class="form_table">
 				<tbody>
@@ -179,7 +179,7 @@
 			</table>
 		</div>
 
-		<div id="treadsTableWrapper">
+		<div id="treadsTableWrapper" class='editionsChangeForm'>
 			<h4>2. Параметры ступеней:</h4>
 			<table class="form_table">
 				<tbody>

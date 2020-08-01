@@ -1,3 +1,4 @@
+//
 function drawRailing(par){
 	var railingMesh = new THREE.Object3D();
 
@@ -23,7 +24,7 @@ function drawRailing(par){
 		startAngle: par.startAngle,
 		stairType: par.stairType,
 	}
-	if (params.stairType == 'рамки') railingParams.rad -= params.nose
+	if (params.stairType == 'рамки') railingParams.rad -= params.vintNose
 
 	if (params.model != "Винтовая") railingParams.base = "stringer";
 
@@ -531,8 +532,7 @@ function drawSpiralRailing(par) {
 
 				bolzPar.isFirst = false;
 				bolzPar.isRack = false;
-
-				if (i == 0 && params.strightMarsh != "есть") {
+				if (i == 0 && params.strightMarsh == "нет") {
 					bolzPar.isFirst = true;
 				}
 
@@ -778,6 +778,7 @@ function drawSpiralRailing(par) {
 
 		var stairAmt = params.stepAmt - 1;
 		if (params.platformPosition == "ниже") stairAmt = params.stepAmt - 2;
+		if (params.platformType == 'нет') stairAmt += 1;
 		var banisterBottomOverhang = 36; //выступ балясини ниже нижней поверхности ступени
 		var botLedge = banisterBottomOverhang + params.treadThickness; //выступ балясины ниже верхней поверхности ступени
 

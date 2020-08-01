@@ -114,11 +114,12 @@ function drawCarportColumn(par){
 	var pole = drawPole3D_4(columnPar).mesh;
 	pole.position.z = -partPar.column.profSize.x / 2
 	par.mesh.add(pole);
-	
-	var base = drawCarportColumnBase().mesh;
-	base.position.x = -partPar.column.profSize.x / 2
-	par.mesh.add(base);
-	
+
+	if(params.calcType != "veranda"){	
+		var base = drawCarportColumnBase().mesh;
+		base.position.x = -partPar.column.profSize.x / 2
+		par.mesh.add(base);
+	}
 	
 	//сохраняем данные для спецификации
 	var partName = 'carportColumn';

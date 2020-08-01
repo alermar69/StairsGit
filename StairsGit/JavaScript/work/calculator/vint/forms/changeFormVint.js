@@ -136,6 +136,9 @@ function changeFormVint(){
 		$("#regShimAmt").val(params.stepAmt - 1);
 		params.regShimAmt = params.stepAmt - 1
 	}
+
+	$("#a1").val(params.b1 + params.nose);
+	$("#a3").val(params.b3 + params.nose);
 }
 
 function setTreadThk(){

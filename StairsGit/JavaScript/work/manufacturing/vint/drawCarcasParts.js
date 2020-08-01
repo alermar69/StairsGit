@@ -1,3 +1,4 @@
+//
 
 function drawBanisterAngle_(par) {
 	par.mesh = new THREE.Object3D();
@@ -361,7 +362,7 @@ function drawVintTreadShape(par) {
 	var type = par.type;
 	var stairRad = staircaseDiam / 2;
 	// Уменьшаем рамку чтобы получить свес
-	if (par.isFrameTop && params.stairType == 'рамки') stairRad -= params.nose;
+	if (par.isFrameTop && params.stairType == 'рамки') stairRad -= params.vintNose;
 
 	var overlayAngle = calcTriangleParams().treadOverlayAngle;
 
@@ -496,9 +497,9 @@ function drawVintTreadShape(par) {
 
 		// Добавляем свес
 		if (!par.isFrameTop && params.stairType == 'рамки'){
-			p2 = polar(p21, Math.PI / 2 + edgeAngle, 5 + params.nose);
-			p1 = polar(p11, -Math.PI / 2, 5 + params.nose);
-			extraAngle -= Math.asin(params.nose / stairRad);
+			p2 = polar(p21, Math.PI / 2 + edgeAngle, 5 + params.vintNose);
+			p1 = polar(p11, -Math.PI / 2, 5 + params.vintNose);
+			extraAngle -= Math.asin(params.vintNose / stairRad);
 		}
 		
 		var p3 = {
@@ -518,7 +519,7 @@ function drawVintTreadShape(par) {
 
 		var stairRadAngle = extraAngle;
 		if (!par.isFrameTop && params.stairType == 'рамки'){
-			p4.y -= params.nose;
+			p4.y -= params.vintNose;
 		} 
 
 		/*вычерчиваем конутр ступени*/

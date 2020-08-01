@@ -61,7 +61,15 @@ $(function () {
 	createMaterialsList(); //в файле /calculator/general/materials.js
 	
 	//пересчитываем лестницу
-	recalculate();
+	// recalculate();
+
+	if (window.loadedData) {
+		setLoadedData(window.loadedData, true);
+	}else{
+		recalculate();
+	}
+	
+
 	//изменение формы
 	$('.form_table,.tabs').delegate('input,select,textarea', 'click', recalculate);
 	

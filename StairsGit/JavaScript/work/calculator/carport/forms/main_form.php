@@ -114,7 +114,7 @@
 			<tr>
 				<td>Покраска металла:</td>
 				<td>
-					<select id="metalPaint" size="1">
+					<select id="carportMetalPaint" size="1">
 						<option value="порошок">порошок</option>
 					</select>
 				</td>
@@ -123,7 +123,7 @@
 			<tr>
 				<td>Цвет металла:</td>
 				<td>
-					<select id="carcasColor" size="1">
+					<select id="carportMetalColor" size="1">
 						<!-- варианты цвета металла -->
 						<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalColors.php" ?>
 					</select>
@@ -304,8 +304,12 @@
 			</tr>
 		
 			<tr>
-				<td>Свес спереди/сзади:</td>
+				<td>Свес спереди:</td>
 				<td><input type="number" id="frontOffset" value="1000"></td>
+			</tr>
+			<tr>
+				<td>Свес сзади:</td>
+				<td><input type="number" id="backOffset" value="1000"></td>
 			</tr>
 			
 		</tbody>

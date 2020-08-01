@@ -50,7 +50,7 @@
 		],
 		[
 			'url' => '/manufacturing/metal/drawCarcasParts.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
+			'only_for' => ['metal', 'vint', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawCarcasPartsLib_2.0.js',
@@ -62,23 +62,23 @@
 		],
 		[
 			'url' => '/manufacturing/metal/drawStringerPartsLt.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
+			'only_for' => ['metal', 'vint', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawStringerPartsKo.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
+			'only_for' => ['metal', 'vint', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawCarcas.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
+			'only_for' => ['metal', 'vint', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawFrames.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod', 'vint', 'geometry','veranda'],
+			'only_for' => ['metal', 'vint', 'bolz', 'console', 'vhod', 'vint', 'geometry','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawStringers.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
+			'only_for' => ['metal', 'vint', 'bolz', 'console', 'vhod','veranda'],
 		],
 		[
 			'url' => '/manufacturing/metal/testing.js',
@@ -330,18 +330,10 @@
 			'url' => '/manufacturing/carport/testing.js',
 			'only_for' => ['carport'],
 		],
-		[
-			'url' => '/manufacturing/carport/personalScripts.js',
-			'only_for' => ['carport'],
-		],
 		
 		// veranda
 		[
 			'url' => '/manufacturing/veranda/drawVeranda.js',
-			'only_for' => ['veranda'],
-		],
-		[
-			'url' => '/manufacturing/veranda/personalScripts.js',
 			'only_for' => ['veranda'],
 		],
 	]);

@@ -1,3 +1,4 @@
+//
 function showDrawingsLinks() {
 	var stapelStepHeight = stairParams.stepHeight * 12.857 / params.stepAngle; //12.857 - угол между стойками стапеля, град.
 	stapelStepHeight = Math.round(stapelStepHeight)

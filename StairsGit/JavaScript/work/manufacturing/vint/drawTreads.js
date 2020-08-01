@@ -56,27 +56,19 @@ function addVintTreads(par) {
 	return par;
 }
 
-function addStrightTreads(par){
+function addStrightTreads(par, marshId){
 	var treadsObj = new THREE.Object3D();
 	var treadParams = {
-		marshId: 1,
+		marshId: marshId,
 		dxfBasePoint: {x:0,y:0}
 	}
 	var marshObj = drawMarshTreads2(treadParams)
     var marshTreads = marshObj.treads;
     var marshRisers = marshObj.risers;
-	marshTreads.marshId = 1;
+	marshTreads.marshId = marshId;
 
 	treadsObj.add(marshTreads);
 	treadsObj.add(marshRisers);
 
-	// Позицинируем объект
-	var wrapper = new THREE.Object3D();
-	treadsObj.position.x = -getMarshParams(1).len - par.columnDiam / 2 + 10;
-	treadsObj.position.z = (params.M / 2) * turnFactor;
-	wrapper.add(treadsObj)
-	wrapper.rotation.y = THREE.Math.degToRad(params.strightTreadsAngle) - Math.PI / 2 * turnFactor;//THREE.Math.degToRad(params.firstStepAngle) + par.startAngle - Math.PI / 2;
-	if (params.platformType == "triangle") wrapper.rotation.y = THREE.Math.degToRad(params.strightTreadsAngle) - Math.PI * turnFactor;
-
-	return wrapper;
+	return treadsObj;
 }

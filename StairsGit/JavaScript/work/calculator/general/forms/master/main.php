@@ -23,7 +23,7 @@
 		$steps[] = '/calculator/general/forms/master/steps/equipment_step_timber.php';
 	}
 ?>
-<div class='modal' id='master_modal'>
+<div class='modal noSave' id='master_modal'>
 	<div class="stair-master">
 		<ul class="nav nav-pills mb-3" id="masterTab" role="tablist">
 			<li class="nav-item">

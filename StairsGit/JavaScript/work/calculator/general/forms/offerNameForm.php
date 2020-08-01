@@ -35,7 +35,7 @@
 			</tr>
 			</tbody></table>
 			
-			<button type="button" class="btn btn-primary" id="saveOffer">Сохранить</button>
+			<!-- <button type="button" class="btn btn-primary" id="saveOffer">Сохранить</button> -->
 			
 			</br>
 			Статус расчета 
@@ -54,8 +54,12 @@
 			<textarea id="order_comment" class='offerData'></textarea>
 			</br>
 			Описание лестницы
+			<select id="offerDataDescriptionUpdate">
+				<option value="авто">авто</option>
+				<option value="вручную">ввести вручную</option>
+			</select>
 			<textarea id="product_descr" class='offerData'></textarea>
-
+			<br>
 			</br>
 			Общая сумма
 			<input id='summ' type='number' class='offerData' readonly>
@@ -64,14 +68,14 @@
 			</br>
 			</br>
 			
-			<button type="button" class="btn btn-success" id="saveOfferData">Сохранить описание</button>
+			<!-- <button type="button" class="btn btn-success" id="saveOfferData">Сохранить описание</button> -->
 			
 		
 		</p>
       </div>
       <div class="modal-footer">
+		<button type="button" class="btn btn-success" id="saveOffer">Сохранить</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-        
       </div>
     </div><!-- /.модальное окно-Содержание -->  
   </div><!-- /.модальное окно-диалог -->  

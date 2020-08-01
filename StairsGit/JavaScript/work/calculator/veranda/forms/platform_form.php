@@ -12,7 +12,7 @@
 					</select>
 				</td>
 			</tr>
-
+			
 			<tr>
 				<td>Тип:</td>
 				<td>
@@ -58,22 +58,10 @@
 				</td>
 			</tr>
 			
-			
-			
-			
-			<tr>
-				<td>Покраска металла:</td>
-				<td>
-					<select id="metalPaintPlt" size="1">
-						<option value="порошок">порошок</option>
-					</select>
-				</td>
-			</tr>
-			
 			<tr>
 				<td>Крепление:</td>
 				<td>
-					<select id="fixType">
+					<select id="pltFixType">
 						<option value="фланцы">фланцы</option>
 						<option value="бетон">заливка бетоном</option>
 						<option value="винтовые сваи">винтовые сваи</option>
@@ -81,17 +69,7 @@
 				</td>
 			</tr>
 			
-			<tr>
-				<td>Покрытие:</td>
-				<td>
-					<select id="stairType" size="1">
-						<option value="дпк">дпк</option>
-						<option value="лиственница тер.">лиственница тер.</option>
-						<option value="нет">нет</option>
-					</select>
-				</td>
-			</tr>
-			
+		
 			<tr>
 				<td>Укаладка доски:</td>
 				<td>
@@ -101,7 +79,7 @@
 					</select>
 				</td>
 			</tr>
-
+			
 			<tr>
 				<td>Боковые балки:</td>
 				<td>
@@ -111,6 +89,8 @@
 					</select>
 				</td>
 			</tr>
+			
+			pltSideBeam 
 
 			</tbody>
 	</table>
@@ -121,7 +101,7 @@
 			<tr>
 				<td>Сечения:</td>
 				<td>
-					<select id="profTypes">
+					<select id="pltProfTypes">
 						<option value="расчетные">расчетные</option>
 						<option value="задаются">задаются</option>
 					</select>
@@ -157,7 +137,7 @@
 			<tr>
 				<td>Столбы:</td>
 				<td>
-					<select id="columnProf">
+					<select id="pltColumnProf">
 						<option value="60х60">60х60</option>
 						<option value="80х80">80х80</option>
 						<option value="100х100">100х100</option>
@@ -171,26 +151,5 @@
 	</table>
 			
 			
-		<h3>6. Технологические параметры:</h3>
-
-		<table class="form_table">
-			<tbody>
-
-				<tr class="custom">
-					<td>Толщина доски:</td>
-					<td><input id="treadThickness" type="number" value="20"></td>
-				</tr>
-
-				<tr>
-					<td>Ширина доски:</td>
-					<td><input id="dpcWidth" type="number" value="145"></td>
-				</tr>
-				<tr>
-					<td>Зазор между досками:</td>
-					<td><input id="dpcDst" type="number" value="5"></td>
-				</tr>
-
-			</tbody>
-		</table>
 
 </div>

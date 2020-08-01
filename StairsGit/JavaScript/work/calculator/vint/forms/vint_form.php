@@ -48,8 +48,8 @@
 						</td>
 					</tr>
 					<tr>
-						<td>Свес ступени:</td>
-						<td><input name="nose" type="number" id="nose" value="10" /></td>
+						<td>Свес ступеней винтовой части:</td>
+						<td><input name="vintNose" type="number" id="vintNose" value="10" /></td>
 					</tr>
 					<tr>
 						<td>Кол-во подъемов:</td>
@@ -156,9 +156,15 @@
 					<td>
 						<select id="strightMarsh" size="1">
 							<option value="нет">нет</option>
-							<option value="есть">Есть</option>
+							<option value="снизу">Снизу</option>
+							<option value="сверху">Сверху</option>
+							<option value="сверху и снизу">Сверху и снизу</option>
 						</select>
 					</td>
+				</tr>
+				<tr>
+					<td>Свес ступени:</td>
+					<td><input name="nose" type="number" id="nose" value="20" /></td>
 				</tr>
 				<tr>
 					<td>Угол прямого марша:</td>
@@ -183,8 +189,14 @@
 					<tr class="marsh1">
 						<td><input id="stairAmt1" type="number" value="5"></td>
 						<td><input id="h1" type="number" value="180"></td>
-						<td><input id="b1" type="number" value="260"></td>
+						<td><input id="b1" type="number" value="290"></td>
 						<td><input id="a1" type="number" value="300"></td>
+					</tr>
+					<tr class="marsh3">
+						<td><input id="stairAmt3" type="number" value="5"></td>
+						<td><input id="h3" type="number" value="180"></td>
+						<td><input id="b3" type="number" value="290"></td>
+						<td><input id="a3" type="number" value="300"></td>
 					</tr>
 				</tbody>
 			</table>

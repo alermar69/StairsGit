@@ -1,8 +1,9 @@
+//
 /**
  * Вызывает функции для отрисовки каркаса
  * @param par общие параметры
  */
-function drawCarcas(par){
+function drawVintCarcas(par){
 	var mesh = new THREE.Object3D();
 
 	var drums = drawDrums(par);
@@ -12,6 +13,56 @@ function drawCarcas(par){
 	mesh.add(stringers);
 
 	return mesh
+}
+
+function drawStrightMarsh(par, marshId){
+	var marsh = new THREE.Object3D();
+
+	var treads = addStrightTreads(par, marshId);
+	marsh.add(treads);
+
+	var carcasParams = {
+		marshId: marshId,
+		dxfBasePoint: {x:0,y:0},
+		addStringerWidth: 70,
+		treadsObj: {
+			turnEnd: {x:0,y:0},
+			lastMarshEnd: {x:0,y:100},
+			unitsPos: {
+				marsh3:{x:0,y:0,z:0}
+			}
+		}
+	};
+	params.stringerThickness = 8;
+	params.stairModel = 'Прямая';
+	var oldModel = params.model;
+	params.model = "ко";
+	params.sideOverHang = 70;
+	params.stringerMoove_1 = 0;
+	var carcas = drawMarshStringers(carcasParams, marshId).mesh;
+	marsh.add(carcas);
+
+	params.model = oldModel;
+	
+	// Позицинируем объект
+	var wrapper = new THREE.Object3D();
+	if (marshId == 1) {
+		marsh.position.x = -getMarshParams(1).len - par.columnDiam / 2 + 10;
+		marsh.position.z = (params.M / 2) * turnFactor;
+		wrapper.add(marsh)
+		wrapper.rotation.y = THREE.Math.degToRad(params.strightTreadsAngle) - Math.PI / 2 * turnFactor;//THREE.Math.degToRad(params.firstStepAngle) + par.startAngle - Math.PI / 2;
+		if (params.platformType == "triangle") wrapper.rotation.y = THREE.Math.degToRad(params.strightTreadsAngle) - Math.PI * turnFactor;
+	}
+
+	if (marshId == 3) {
+		marsh.position.z = (params.M / 2) * turnFactor;
+		marsh.position.x = par.columnDiam / 2 + 11.5 - params.nose; //Подогнано ///////////
+		//
+		wrapper.add(marsh)
+		wrapper.rotation.y = -Math.PI / 2 * turnFactor;
+	}
+
+	return wrapper;
 }
 
 /**
@@ -97,7 +148,7 @@ function drawDrums(par){
 		//первая бобышка
 		var posY0 = botFlanThk;
 		if (botFloorType == "черновой") posY0 -= params.botFloorsDist;
-		if (params.strightMarsh == "есть") posY0 -= par.strightPartHeight;
+		if (params.strightMarsh == "снизу" || params.strightMarsh == "сверху и снизу") posY0 -= par.strightPartHeight;
 
 		var spacerHeight0 = par.stepHeight - params.treadThickness - posY0;
 		if (par.stairType == "metal") spacerHeight0 = par.stepHeight - posY0 + 4; // 4 - подогнано
@@ -184,7 +235,7 @@ function drawDrums(par){
 
 		var botFlan = flanParams.mesh;
 		if (botFloorType == "черновой") botFlan.position.y -= params.botFloorsDist;
-		if (params.strightMarsh == "есть") botFlan.position.y -= par.strightPartHeight;
+		if (params.strightMarsh == "снизу" || params.strightMarsh == "сверху и снизу") botFlan.position.y -= par.strightPartHeight;
 
 		//carcas.push(botFlan);
 		drums.add(botFlan);//, "shims");
@@ -263,7 +314,7 @@ function drawDrums(par){
 		if (params.platformPosition == "ниже") fullLen -= maxRise;
 		//корректируем длину нижнего куска при установке на черновой пола
 		if (params.botFloorType == "черновой") fullLen += params.botFloorsDist;
-		if (params.strightMarsh == "есть") fullLen += par.strightPartHeight;
+		if (params.strightMarsh == "снизу" || params.strightMarsh == "сверху и снизу") fullLen += par.strightPartHeight;
 
 		var rodAmt = Math.ceil(fullLen / maxLen); //число кусков стержня
 		var rodLen0 = fullLen / rodAmt; //номинальная длина куска

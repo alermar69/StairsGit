@@ -1,3 +1,4 @@
+<div>
 <? $url = $_SERVER['REQUEST_URI'];
 	//не показываем блок в разделе view
 	if(!strpos($url, "view") && !strpos($url, "installation") && !strpos($url, "customers")){ ?>
@@ -95,3 +96,4 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 
 <!--скрипт обработки формы -->
 <script type="text/javascript" src="/calculator/general/forms/orderFormChange.js"></script>
+</div>
