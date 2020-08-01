@@ -613,10 +613,18 @@ function drawRoof(par){
 	
 	//центр массива в точке 0,0
 	var box3 = new THREE.Box3().setFromObject(roof);
-	if (params.carportType != "односкатный" && params.carportType.indexOf("консольный") == -1){
+
+	//var isAlignment = true;
+	//if (params.carportType == "односкатный" && params.carportType.indexOf("консольный") !== -1) isAlignment = false
+	////if (params.frontOffset !== params.backOffset) isAlignment = false //если свес спереди и сзади не одинаковый, то выравниваем кровлю и прогоны вручную
+
+	//if (isAlignment) roof.position.x -= (box3.max.x + box3.min.x) / 2;
+	if (params.carportType == "односкатный" && params.carportType.indexOf("консольный") !== -1) {
 		roof.position.x -= (box3.max.x + box3.min.x) / 2;
 	}
 	roof.position.z -= (box3.max.z + box3.min.z) / 2;
+
+	if (params.frontOffset !== params.backOffset) roof.position.z +=  (params.frontOffset - params.backOffset) / 2
 
 	return roof;
 }
@@ -1026,6 +1034,7 @@ function drawRectCarport(par){
 	carport.add(columnArr);
 	
 	window.carportColumns = columnArr;
+	window.carportPosCoumns = columnArrPar.posItems;
 		
 	//продольные балки
 	
@@ -1064,7 +1073,7 @@ function drawRectCarport(par){
 		var beamPar = {
 			poleProfileY: partPar.beam.profSize.x,
 			poleProfileZ: partPar.beam.profSize.y,
-			length: params.sectLen * params.sectAmt + params.frontOffset * 2,
+			length: params.sectLen * params.sectAmt + params.frontOffset + params.backOffset,
 			poleAngle: 0,
 			material: params.materials.metal,
 			type: 'rect',
@@ -1125,7 +1134,9 @@ function drawRectCarport(par){
 	var roofCarcas = drawRoofCarcas(roofCarcasPar).mesh;
 	roofCarcas.position.y += params.height
 	if(params.carportType == "односкатный") roofCarcas.position.x = -params.width / 2 + partPar.column.profSize.x / 2 + params.sideOffset;
-	if(params.beamModel != "проф. труба") roofCarcas.position.z += 6;
+	if (params.beamModel != "проф. труба") roofCarcas.position.z += 6;
+	if (params.frontOffset !== params.backOffset)
+		roofCarcas.position.z += (params.frontOffset - params.backOffset) / 2;
 	carport.add(roofCarcas);
 		
 	//кровля
@@ -1168,7 +1179,7 @@ function drawRectCarport(par){
 		walls.setLayer('walls');
 		carport.add(walls);
 	}
-	
+
 	window.fullCarport = carport;
 	
 	return carport;

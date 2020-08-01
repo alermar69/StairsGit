@@ -48,7 +48,7 @@ drawVeranda = function (par) {
 	}
 
 	//навес
-	
+
 	//параметры всех деталей
 	partPar = calcCarportPartPar();
 	var carport = drawRectCarport(params);
@@ -56,16 +56,15 @@ drawVeranda = function (par) {
 	carport.position.x = params.pltWidth / 2 + params.carportPosX
 	carport.position.y = params.pltHeight + params.carportPosY
 	carport.position.z = params.pltLen / 2 + params.carportPosZ
-	if (params.pltType == 'единая с лестницей') carport.position.y = (params.stairAmt1 + 1) * params.h1 + params.carportPosY
 	
 	model.add(carport, "carport");
 
 	if (params.pltType == 'единая с лестницей') {
 		params.calcType = 'vhod';
-		params.platformTop = 'увеличенная';
-		params.platformLength_3 = params.pltWidth;
-		params.platformWidth_3 = params.pltLen
-
+		//params.platformTop = 'площадка';
+		//if (params.pltLen !== params.M) params.platformTop = 'увеличенная';
+		//params.platformLength_3 = params.pltWidth;
+		//params.platformWidth_3 = params.pltLen
 	}
 	
 	

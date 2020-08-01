@@ -1593,6 +1593,8 @@ function drawRoofCarcas(par){
 			}
 			purlinArr.setLayer('carcas');
 			if(params.carportType == "односкатный") purlinArr.position.x = 0; //выравниваем вручную
+			if (params.frontOffset !== params.backOffset)
+				purlinArr.position.z += (params.frontOffset - params.backOffset) / 2; //выравниваем вручную
 			
 			purlinArr.setLayer('purlins');
 			
@@ -1654,6 +1656,8 @@ function drawRoofCarcas(par){
 					purlinArr.position.y += moove.y
 				}
 			}
+			if (params.frontOffset !== params.backOffset)
+				purlinArr.position.z += (params.frontOffset - params.backOffset) / 2; //выравниваем вручную
 			
 			purlinArr.setLayer('purlins');
 			par.mesh.add(purlinArr);

@@ -58,17 +58,40 @@ function drawForgeFrame2(par) {
 	if (par.firstRackDelta) rackPar.len -= par.firstRackDelta;
 	var firstRackPosition = newPoint_xy(basePoint, 0, -150);
 	rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, firstRackPosition.x, firstRackPosition.y);
-	//4 максимально возможное кол-во секций марша
-	rackPar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'rack', pos: copyPoint(firstRackPosition), len: rackPar.len, key: 'balustrade' };
-	var rack = drawForgedFramePart2(rackPar).mesh;
-	rack.position.x = firstRackPosition.x;
-	rack.position.y = firstRackPosition.y;
-	rack.position.z = railingPositionZ;
-	if (par.firstRackDelta) {
-		rack.position.y += par.firstRackDelta;
-		rackPar.len += par.firstRackDelta;
+
+	if (!par.noDrawFirstRack) {
+		//4 максимально возможное кол-во секций марша
+		rackPar.drawing = {
+			marshId: svgMarshId,
+			poleId: svgPoleId,
+			group: 'forged_railing',
+			elemType: 'rack',
+			pos: copyPoint(firstRackPosition),
+			len: rackPar.len,
+			key: 'balustrade'
+		};
+		var rack = drawForgedFramePart2(rackPar).mesh;
+		rack.position.x = firstRackPosition.x;
+		rack.position.y = firstRackPosition.y;
+		rack.position.z = railingPositionZ;
+		if (par.firstRackDelta) {
+			rack.position.y += par.firstRackDelta;
+			rackPar.len += par.firstRackDelta;
+		}
+		mesh.add(rack);
 	}
-	mesh.add(rack);
+	if (par.noDrawFirstRack) {
+		polePar.len = height - par.shortLegLength - polePar.poleProfileY;
+		polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'side', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
+
+		var rack = drawForgedFramePart2(polePar).mesh;
+		rack.position.x = firstRackPosition.x - par.offsetFirstRack;
+		rack.position.y = firstRackPosition.y + par.shortLegLength + polePar.poleProfileY;
+		rack.position.z = railingPositionZ;
+		rack.rotation.z = Math.PI / 2;
+		mesh.add(rack);
+	}
+
 
 	var shortLegsAmt = Math.round((sectionLength - rackProfile) / 800) - 1;
 	if (shortLegsAmt < 0) shortLegsAmt = 0;
@@ -88,14 +111,35 @@ function drawForgeFrame2(par) {
 	}
 
 	//последняя стойка
-	if (!par.hiddenLastRack) {
-		pos = newPoint_xy(firstRackPosition, sectionLength - rackProfile, 0);
-		rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
-		rackPar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'rack', pos: copyPoint(pos), len: rackPar.len, key: 'balustrade' };
-		var rack = drawForgedFramePart2(rackPar).mesh;
-		rack.position.x = pos.x;
-		rack.position.y = pos.y;
+	if (!par.noDrawLastRack) {
+		if (!par.hiddenLastRack) {
+			pos = newPoint_xy(firstRackPosition, sectionLength - rackProfile, 0);
+			rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
+			rackPar.drawing = {
+				marshId: svgMarshId,
+				poleId: svgPoleId,
+				group: 'forged_railing',
+				elemType: 'rack',
+				pos: copyPoint(pos),
+				len: rackPar.len,
+				key: 'balustrade'
+			};
+			var rack = drawForgedFramePart2(rackPar).mesh;
+			rack.position.x = pos.x;
+			rack.position.y = pos.y;
+			rack.position.z = railingPositionZ;
+			mesh.add(rack);
+		}
+	}
+	if (par.noDrawLastRack) {
+		polePar.len = height - par.shortLegLength - polePar.poleProfileY;
+		polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'side', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
+
+		var rack = drawForgedFramePart2(polePar).mesh;
+		rack.position.x = firstRackPosition.x + par.offsetLastRack + sectionLength - polePar.poleProfileY;
+		rack.position.y = firstRackPosition.y + par.shortLegLength + polePar.poleProfileY;
 		rack.position.z = railingPositionZ;
+		rack.rotation.z = Math.PI / 2;
 		mesh.add(rack);
 	}
 
@@ -107,6 +151,15 @@ function drawForgeFrame2(par) {
 		x: firstRackPosition.x - rackProfile / 2,
 		y: firstRackPosition.y + height,
 	}
+
+	if (par.noDrawFirstRack) {
+		polePar.len += par.offsetFirstRack;
+		pos.x -= par.offsetFirstRack
+	}
+	if (par.noDrawLastRack) {
+		polePar.len += par.offsetLastRack;
+	}
+
 	polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
 	polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'top', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
 	var pole = drawForgedFramePart2(polePar).mesh;
@@ -118,6 +171,13 @@ function drawForgeFrame2(par) {
 	//нижняя перемычка
 	polePar.len = sectionLength - rackProfile * 2;
 	pos = newPoint_xy(firstRackPosition, rackProfile / 2, par.shortLegLength);
+	if (par.noDrawFirstRack) {
+		polePar.len += par.offsetFirstRack + rackProfile;
+		pos.x -= par.offsetFirstRack + rackProfile
+	}
+	if (par.noDrawLastRack) {
+		polePar.len += par.offsetLastRack + rackProfile;
+	}
 	polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
 	polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'bot', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
 	var pole = drawForgedFramePart2(polePar).mesh;
@@ -283,7 +343,14 @@ function drawBalSection(par) {
 			rack.position.x = pos.x;
 			rack.position.y = pos.y;
 			rack.position.z = pos.z;
-			if (params.calcType !== 'veranda') railingSection.add(rack);
+
+			var isDrawRack = true;
+			if (params.calcType == 'veranda') {
+				if (i == 0 && (par.flans == 'две стороны' || par.flans == 'начало')) isDrawRack = false;
+				if (i == (rackAmt - 1) && (par.flans == 'две стороны' || par.flans == 'конец')) isDrawRack = false;
+			}
+			if (isDrawRack) railingSection.add(rack);
+
 			rackPosition.push(rack.position);
 		}
 	}
@@ -315,6 +382,16 @@ function drawBalSection(par) {
 		var y0 = 0;
 		var rigelLength = platformLength - offsetLeft - offsetRight + 60;
 		var z0 = 0;
+		if (params.calcType == 'veranda') {
+			if (par.flans == 'две стороны' || par.flans == 'начало') {
+				x0 = 0;
+				rigelLength += offsetRight - 30
+			}
+			if (par.flans == 'две стороны' || par.flans == 'конец') {
+				rigelLength += offsetLeft - 30
+			}
+		}
+		
 
 		rigelAmt = Number(rigelAmt);
 		var rigelDist = (rackLength - rackOffsetY) / (rigelAmt + 1);
@@ -339,7 +416,7 @@ function drawBalSection(par) {
 
 		for (var i = 1; i < rigelAmt + 1; i++) {
 			var pole = drawPole3D_4(poleParams).mesh;
-			pole.position.x = offsetLeft - 30;
+			pole.position.x = x0;
 			pole.position.y = rigelDist * i;
 			pole.position.z = z0;
 			railingSection.add(pole);
@@ -415,6 +492,10 @@ function drawBalSection(par) {
 		for (i = 0; i < rackPosition.length - 1; i++) {
 			glassParams.p1 = newPoint_xy(rackPosition[i], 0, 10); //10 - подогнано
 			glassParams.p2 = newPoint_xy(rackPosition[i + 1], 0, 10);
+			if (params.calcType == 'veranda') {
+				if (i == 0 && (par.flans == 'две стороны' || par.flans == 'начало')) glassParams.p1.x -= 40 + offsetRight;
+				if (i == (rackPosition.length - 2) && (par.flans == 'две стороны' || par.flans == 'конец')) glassParams.p2.x += 40 + offsetLeft;
+			}
 			var glass = drawGlassNewell(glassParams).mesh;
 			glass.position.z = railingPositionZ * 2 + 16;
 			railingSection.add(glass);
@@ -544,7 +625,7 @@ function drawBalSection(par) {
 			var sectLen = sectionLength / sectionsCount + 40; //40 - размер стойки
 			
 			var sectBaseX = (sectLen - 40) * (j - 1); //Базовая точка секции по оси X
-			
+
 			var svgMarshId = 4 + par.sectId;
 			var svgPoleId = j;
 
@@ -566,6 +647,23 @@ function drawBalSection(par) {
 				basePoint: { x: offsetLeft + sectBaseX, y: 0 },
 				svgMarshId: svgMarshId,
 				svgPoleId: svgPoleId,
+				noDrawFirstRack: false,
+				offsetLastRack: false,
+				offsetFirstRack: 0,
+				offsetLastRack: 0,
+			}
+
+			if (params.calcType == 'veranda') {
+				frameParams.noDrawFirstRack = false;
+				frameParams.offsetLastRack = false;
+				if (j == 1 && (par.flans == 'две стороны' || par.flans == 'начало')) {
+					frameParams.noDrawFirstRack = true;
+					frameParams.offsetFirstRack = offsetRight - 20;
+				}
+				if (j == sectionsCount && (par.flans == 'две стороны' || par.flans == 'конец')) {
+					frameParams.noDrawLastRack = true;
+					frameParams.offsetLastRack = offsetRight - 20;
+				}
 			}
 
 			if (params.handrailFixType_bal == "паз") frameParams.height += 15; // 15 чтобы поручень оделся на сварную секцию
@@ -581,12 +679,12 @@ function drawBalSection(par) {
 
 			//балясины
 			if (railingModel == "Кованые балясины") {
-				var frameLengthIn = sectLen - frameParams.legProf * 2;
+				var frameLengthIn = sectLen - frameParams.legProf * 2 + frameParams.offsetFirstRack + frameParams.offsetLastRack;
 				var balAmt = Math.round(frameLengthIn / balDist[0])
 				balDist[1] = frameLengthIn / balAmt;
 				var balLength = frameParams.height - frameParams.shortLegLength - frameParams.botProf - frameParams.topProf;
 	
-				var insertPoint = [offsetLeft + sectBaseX + frameParams.legProf, frameParams.botProf - 50, -26];
+				var insertPoint = [offsetLeft + sectBaseX + frameParams.legProf - frameParams.offsetFirstRack , frameParams.botProf - 50, -26];
 				insertPoint[0] += balDist[1];
 				insertPoint[0] -= 20; //подогнано
 				var balAmt1 = 0;
