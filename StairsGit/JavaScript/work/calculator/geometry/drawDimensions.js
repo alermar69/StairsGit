@@ -858,25 +858,50 @@ function draw3DDimensionsCarport(par){
 
 	if (viewType == 'left' || viewType == '3d') {
 		// Ширина
-		var dimPar = {
-			p1: {
-				x: columnsBox.min.x,
-				y: columnsBox.min.y,
-				z: columnsBox.max.z,
-			},
-			p2: {
-				x: columnsBox.max.x,
-				y: columnsBox.min.y,
-				z: columnsBox.max.z,
-			},
-			offset: offset,
-			basePlane: 'xy',
-			baseAxis: 'x',
-			dimSide: 'спереди',
-			alwaysOnTop: true,
+		// var dimPar = {
+		// 	p1: {
+		// 		x: columnsBox.min.x,
+		// 		y: columnsBox.min.y,
+		// 		z: columnsBox.max.z,
+		// 	},
+		// 	p2: {
+		// 		x: columnsBox.max.x,
+		// 		y: columnsBox.min.y,
+		// 		z: columnsBox.max.z,
+		// 	},
+		// 	offset: offset,
+		// 	basePlane: 'xy',
+		// 	baseAxis: 'x',
+		// 	dimSide: 'спереди',
+		// 	alwaysOnTop: true,
+		// }
+		// var dim = drawDimension3D_2(dimPar).mesh;
+		// par.mesh.add(dim);
+		if (params.carportType == 'односкатный' || params.carportType == 'двухскатный') {
+			// Ширина
+			var dimPar = {
+				p1: {
+					x: -params.width / 2 + params.sideOffset + partPar.column.profSize.x,
+					y: 100,
+					z: (params.sectLen * params.sectAmt) / 2,
+				},
+				p2: {
+					x: params.width / 2 - params.sideOffset - partPar.column.profSize.x,
+					y: 100,
+					z: (params.sectLen * params.sectAmt) / 2,
+				},
+				offset: offset,
+				basePlane: 'xy',
+				baseAxis: 'x',
+				dimSide: 'спереди',
+				alwaysOnTop: true,
+			}
+			if (params.carportType == 'односкатный') {
+				dimPar.p2.x = params.width / 2 - partPar.column.profSize.x;
+			}
+			var dim = drawDimension3D_2(dimPar).mesh;
+			par.mesh.add(dim);
 		}
-		var dim = drawDimension3D_2(dimPar).mesh;
-		par.mesh.add(dim);
 	}
 
 	if (viewType == 'front' || viewType == '3d') {
@@ -925,9 +950,36 @@ function draw3DDimensionsCarport(par){
 		par.mesh.add(dim);
 	}
 
+	// Фермы
+	var carportTrussObj = carportTruss.clone();
+	var carportTrussBox = new THREE.Box3().setFromObject(carportTrussObj);
+	
+	if (viewType == 'left' || viewType == '3d') {
+		// Ширина
+		var dimPar = {
+			p1: {
+				x: carportTrussBox.min.x,
+				y: params.height,
+				z: carportTrussBox.max.z,
+			},
+			p2: {
+				x: carportTrussBox.max.x,
+				y: params.height,
+				z: carportTrussBox.max.z,
+			},
+			offset: 100,
+			basePlane: 'xy',
+			baseAxis: 'x',
+			dimSide: 'спереди',
+			alwaysOnTop: true,
+		}
+		var dim = drawDimension3D_2(dimPar).mesh;
+		par.mesh.add(dim);
+	}
+
 	// Размеры крыши
 	
-	if(typeof roofObj == 'undefined') return par;
+	if(typeof carportRoof == 'undefined') return par;
 		
 	var roofObj = carportRoof.clone();
 	var roofBox = new THREE.Box3().setFromObject(roofObj);

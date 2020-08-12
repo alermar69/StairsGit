@@ -24,7 +24,9 @@
 
 <div class='noPrint'>
 	<button id='addBanisterSect'>Добавить секцию</button>
+	<button id='insertBanisterSect'>Вставить</button>
 	<button id='redrawBanister'>Обновить</button>
+
 </div>
 
 <div id="banisterСonstructFormWrap">

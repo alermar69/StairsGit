@@ -71,3 +71,116 @@
 		</div>
 	</div>
 </script>
+
+<script id="zamerBlocks" type="text/html">
+	<div class="container zamer-blocks">
+		<div class='description-title'>Так будет проходить замер вашей лестницы</div>
+		<div class="row">
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild6637-6665-4634-b739-323862643432/photo.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Приедет специалист</b> в области проектирования и дизайна лестниц. Рассчитает удобную геометрию, подберет материалы.</div>
+				</div>
+			</div>
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild6334-6636-4133-b362-343030616264/photo.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Привезет с собой образцы</b> цветов и материалов.</div>
+				</div>
+			</div>
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild3965-3433-4338-b261-636237323266/_3D.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Сделает 3D модель</b> лестницы в специальной программе за 10-15 минут, рассчитает максимально удобную геометрию.</div>
+				</div>
+			</div>
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild3933-3231-4164-b536-613962653135/photo.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Снимет необходимые размеры</b><br> для производства.</div>
+				</div>
+			</div>
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild6233-3666-4062-a163-646361373330/photo.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Рассчитает</b> несколько вариантов цены.</div>
+				</div>
+			</div>
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild6331-6364-4262-b636-326638643666/photo.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Даст рекомендации </b> для дальнейшего строительства дома и лестницы.</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</script>
+
+
+<script id="zamerBlocksCarport" type="text/html">
+	<div class="container zamer-blocks">
+		<div class='description-title'>Так будет проходить замер вашего навеса</div>
+		<div class="row">
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild6637-6665-4634-b739-323862643432/photo.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Приедет специалист</b> в области проектирования и дизайна навесов. Рассчитает удобную геометрию, подберет материалы.</div>
+				</div>
+			</div>
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild6334-6636-4133-b362-343030616264/photo.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Привезет с собой образцы</b> цветов и материалов.</div>
+				</div>
+			</div>
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild3965-3433-4338-b261-636237323266/_3D.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Сделает 3D модель</b> навеса в специальной программе за 10-15 минут, спроектирует навес под ваши размеры с конструкцией, подходящей под снеговые и ветровые нагрузки.</div>
+				</div>
+			</div>
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild3933-3231-4164-b536-613962653135/photo.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Снимет необходимые размеры</b><br> для производства.</div>
+				</div>
+			</div>
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild6233-3666-4062-a163-646361373330/photo.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Рассчитает</b> несколько вариантов цены.</div>
+				</div>
+			</div>
+			<div class="col-4 zamer-block">
+				<div class="row">
+					<div class='col-12'>
+						<div style='max-width: 100px;'><img src="https://static.tildacdn.com/tild6331-6364-4262-b636-326638643666/photo.svg" alt=""></div>
+					</div>
+					<div class="col-12"><b>Даст рекомендации</b> по наилучшему расположению навеса, габаритам и углу наклона</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</script>

@@ -1,6 +1,6 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetTitle("Шаблон КП на столешницы и подоконники"); 
+$APPLICATION->SetTitle("КП на столешницы и подоконники"); 
 ?> 
 
 <link href="styles.css" type="text/css" rel="stylesheet" />
@@ -52,11 +52,11 @@ include $GLOBALS['ROOT_PATH']."/orders/calcs/getOrderData.php";
 </div>
 
 <!-- главная форма -->
-<?php include "forms/mainForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/slabs/forms/mainForm.php" ?>
 
 
 <!--себестоимость-->
-<?php include "forms/costForm.php" ?>
+<?php include $GLOBALS['ROOT_PATH']."/calculator/slabs/forms/costForm.php" ?>
 
 <!-- общие библиотеки -->
 <?php include $GLOBALS['ROOT_PATH']."/calculator/general/libs_man.php";
@@ -71,10 +71,10 @@ include $GLOBALS['ROOT_PATH']."/orders/calcs/getOrderData.php";
 
 
 <!--расчет цены-->
-<script type="text/javascript" src="priceCalc.js"></script>
+<script type="text/javascript" src="/calculator/slabs/priceCalc.js"></script>
 
 <!--оболочки-->
-<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript" src="/calculator/slabs/main.js"></script>
 
 <!--обработчик формы монтажа-->
 <script type="text/javascript" src="/calculator/general/forms/assemblingFormChange.js"></script>

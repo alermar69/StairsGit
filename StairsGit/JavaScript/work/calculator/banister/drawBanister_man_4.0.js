@@ -156,9 +156,7 @@ $(function(){
 					
 						section.name = 'banisterSections';
 						sectionArr.push(section);					
-						topRailing.push(section);
-						
-						console.log(section)
+						topRailing.push(section);						
 					
 				}
 
@@ -247,7 +245,7 @@ $(function(){
 			handrailOffsetStart = offsetStart + handrailWidth/2;
 			handrailOffsetEnd = offsetEnd - handrailWidth/2;
 		}
-
+		
 		var railingSide = "right";
 		var scale = 1;
 		// turnFactor = 1;

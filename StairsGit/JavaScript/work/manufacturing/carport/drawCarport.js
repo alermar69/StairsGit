@@ -730,26 +730,28 @@ function drawPolygonPavilion(par) {
 	}
 
 	//пол---------------------------------------
-	var floor = new THREE.Object3D();
+	if(params.floorType == "граненый"){
+		var floor = new THREE.Object3D();
 
-	for (var i = 0; i < params.edgeAmt; i++) {
-		var segment = drawPolygonSegmentFloor(segmentPar).mesh
-		segment.rotation.y = edgeAng * i
-		floor.add(segment)
+		for (var i = 0; i < params.edgeAmt; i++) {
+			var segment = drawPolygonSegmentFloor(segmentPar).mesh
+			segment.rotation.y = edgeAng * i
+			floor.add(segment)
+		}
+		
+		//центральная опора
+		var floorRackPar = {
+			ang: edgeAng,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: { x: 2000, y: 0 },
+		}
+
+		var middleRack = drawMiddleRackFloor(floorRackPar).mesh;
+		floor.add(middleRack);
+
+		obj.add(floor)
 	}
-
-	//центральная опора
-	var floorRackPar = {
-		ang: edgeAng,
-		dxfArr: dxfPrimitivesArr,
-		dxfBasePoint: { x: 2000, y: 0 },
-	}
-
-	var middleRack = drawMiddleRackFloor(floorRackPar).mesh;
-	floor.add(middleRack);
-
-	obj.add(floor)
-
+	
 	//неподвижная часть---------------------------
 	var pavilion = new THREE.Object3D();
 
@@ -781,15 +783,17 @@ function drawPolygonPavilion(par) {
 	pavilion.add(bowlBot);
 
 	//стол
-	var tablePar = {
-		ang: edgeAng,
-		dxfArr: dxfPrimitivesArr,
-		dxfBasePoint: { x: 2000, y: 0 },
+	if(params.tableType != "нет"){
+		var tablePar = {
+			ang: edgeAng,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: { x: 2000, y: 0 },
+		}
+
+		var table = drawTable(tablePar).mesh;
+		pavilion.add(table);
 	}
-
-	var table = drawTable(tablePar).mesh;
-	pavilion.add(table);
-
+	
 	pavilion.position.y = params.heightFloor;
 
 	obj.add(pavilion)
@@ -925,7 +929,7 @@ function drawPolygonSegment(par) {
 
 
 	//скамейка
-	if (par.i !== 0) {
+	if (params.benchType != "нет" && par.i !== 0) {
 		var benchPar = {
 			ang: par.angle,
 			dxfArr: dxfPrimitivesArr,
@@ -960,7 +964,10 @@ function drawPolygonSegment(par) {
 		section.position.z = -par.minRad + 60;
 		section.position.x = -sectionParams.length / 2;
 		section.position.y = 155;
+		section.setLayer('walls');
 		par.mesh.add(section);
+		
+		
 
 		params.calcType = 'carport'
 	}
@@ -1118,6 +1125,7 @@ function drawRectCarport(par){
 		isTop: false,
 	};
 	
+	
 	var columnArrPar = {
 		amt: {
 			x: 2,
@@ -1170,7 +1178,6 @@ function drawRectCarport(par){
 	carport.add(columnArr);
 	
 	window.carportColumns = columnArr;
-	window.carportPosCoumns = columnArrPar.posItems;
 		
 	//продольные балки
 	
@@ -1182,6 +1189,7 @@ function drawRectCarport(par){
 		dxfArr: dxfPrimitivesArr,
 		dxfBasePoint: par.dxfBasePoint,
 	}
+	if(trussPar.height > 300) trussPar.height = 300;
 	
 	var beamArrPar = {
 		amt: {
@@ -1239,10 +1247,11 @@ function drawRectCarport(par){
 		}
 	}
 	
-	if(params.beamModel != "проф. труба") {
+	if(params.beamModel != "проф. труба" && params.beamModel != "ферма постоянной ширины") {
 		beamArrPar.arrSize.x -= 185;
 		if(params.carportType == "односкатный") beamArrPar.arrSize.x += 95;
 	}
+	
 	
 	var beamArr = drawRectArray(beamArrPar).mesh;
 	beamArr.position.y = params.height
@@ -1250,6 +1259,10 @@ function drawRectCarport(par){
 		beamArr.position.x = -params.width / 2// + partPar.column.profSize.x;
 		beamArr.position.y -= trussPar.height;
 	}
+	if(params.beamModel == "ферма постоянной ширины") {
+		beamArr.position.y -= trussPar.height 
+	}
+	
 	beamArr.setLayer('racks');
 	if(params.carportType == "односкатный"){
 		beamArr.position.x = -params.width / 2 + params.sideOffset + partPar.column.profSize.x / 2 + 120 - 25; //120 - размер фланца, 25 - отступ отверстия
@@ -1269,6 +1282,14 @@ function drawRectCarport(par){
 	
 	var roofCarcas = drawRoofCarcas(roofCarcasPar).mesh;
 	roofCarcas.position.y += params.height
+	
+	if(params.beamModel == "проф. труба" && params.carportType != "сдвижной") {
+		roofCarcas.position.y += partPar.beam.profSize.y
+	}
+	
+	
+	
+	
 	if(params.carportType == "односкатный") roofCarcas.position.x = -params.width / 2 + partPar.column.profSize.x / 2 + params.sideOffset;
 	if (params.beamModel != "проф. труба") roofCarcas.position.z += 6;
 	if (params.frontOffset !== params.backOffset)
@@ -1285,6 +1306,9 @@ function drawRectCarport(par){
 		
 		var roof = drawRoof(roofPar)
 		roof.position.y = params.height
+		if(params.beamModel == "проф. труба" && params.carportType != "сдвижной") {
+			roof.position.y += partPar.beam.profSize.y
+		}
 		
 		roof.setLayer('roof');
 		carport.add(roof);

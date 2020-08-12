@@ -1,6 +1,6 @@
 <!-- визуализация -->
 <div id="visualisation">
-    <h2 class="raschet" onclick="recalculate();">Общий вид лестницы:</h2>
+    <h2 class="raschet" onclick="recalculate();">Общий вид:</h2>
     <div id="Stats-output" style="display: none;"></div>
 
     <div id="WebGL-output"><canvas>Для отображения содержимого откройте страницу в Гугл Хром</canvas></div>

@@ -182,7 +182,7 @@
 			</table>
 		</div>
 
-		<div id="assembling_inputs">
+		<div id="assembling_inputs" class='editionsChangeForm'>
 			<div id="equipment_inputs">
 
 				<!-- Пригласительные ступени -->
@@ -324,7 +324,7 @@
 		</div>
 
 
-		<div id="manufacturing_inputs">
+		<div id="manufacturing_inputs" class='editionsChangeForm'>
 			<h4>7. Технологические параметры:</h4>
 
 			<table class="form_table">

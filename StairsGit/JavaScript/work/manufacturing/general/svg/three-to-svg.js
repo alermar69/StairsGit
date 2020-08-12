@@ -7,9 +7,14 @@ http://0s.o53xo.nvqxey3jn52c4y3pnu.cmle.ru/blog-demos/three-to-svg/
 */
 
 $(function(){
-	$("#toSvg").click(function(){
-		svgSnapshot();
-		$("#svg").append('<button id="saveSvg">Сохранить SVG</button><button id="saveDxf">Сохранить DXF</button>');
+	$('#makeSnapshot').click(function(){
+		$('#snapshotModal').modal('show');
+	})
+	$("#makeSVGFromViewport").click(function(){
+		$('#snapshotModal').modal('hide');
+		var viewType = $('#snapshotModal .svgViewType').val()
+		$('#svg').show();
+		svgSnapshot(viewType);
 	})
 	
 	$("#svg").delegate("#saveSvg", "click", function(){
@@ -18,8 +23,10 @@ $(function(){
 	})
 	
 	$("#svg").delegate("#saveDxf", "click", function(){
-		var text = $("#svg svg")[0].outerHTML;
-		saveDxfFile(text);
+		setTimeout(() => {
+			var paths = $("#svg svg path")
+			saveDxfFile(paths);
+		}, 1000);
 	})
 
 })
@@ -28,30 +35,17 @@ $(function(){
 и выводит его на страницу в блок #svg
 */
 
-function svgSnapshot() {
-	var scene = view.scene
-	var camera = view.camera;
-	
-	//формируем новую сцену чтобы туда попали только ребра объектов
-	
-	var scene_wf = new THREE.Scene();
-	$.each(scene.children, function(){
-		if(this.type == "Object3D"){
-			var obj = this.clone();
-			scene_wf.add(obj);
-		}
-	})
-	
+function svgSnapshot(viewType) {
 	/** функция удаляет из сцены все кроме LineSegments
 	при этом структура вложенных объектов сохраняется чтобы сохранилась позиция
 	*/
-	
 	function removeMeshes(obj){
 		for(var i=0; i<obj.children.length; i++){
 			var child = obj.children[i];
 			
-			if(child.type != "LineSegments" && child.type != "Object3D"){
+			if(child.type != "LineSegments" && child.type != "Object3D" || child.visible == false ){
 				obj.children.splice(i, 1)
+				// if(child.material) child.material.color = new THREE.Color(255,255,255)
 				i--;
 			}
 			if(child.type == "Object3D") removeMeshes(child);
@@ -63,35 +57,56 @@ function svgSnapshot() {
 			}
 		}
 	}
+	
+	menu.perspective = false;
 
+	view.width = 1000;
+	view.height = 1000;
+	view.renderer.setSize( view.width, view.height );
+	switchCamera(viewType);
+	view.camera.aspect = 1;
+	view.camera.zoom = 0.5;
+	view.camera.updateProjectionMatrix();
+	// Ожидаем смены камеры
+	setTimeout(function(){
+		//формируем новую сцену чтобы туда попали только ребра объектов
+		removeObjects('vl_1', 'measure');
+		removeObjects('vl_1', 'dimensions');
 
-	$.each(scene_wf.children, function(){
-		removeMeshes(this);
-	})
+		window.scene_wf = view.scene.clone();
+
+		// $.each(view.scene.children, function(){
+		// 	if(this instanceof THREE.Object3D){
+		// 		try {
+		// 			var obj = this.clone();
+		// 			scene_wf.add(obj);
+		// 		} catch (error) {
+		// 			console.log('ignore broken object')
+		// 		}
+		// 	}
+		// })
+
+		$.each(scene_wf.children, function(){
+			removeMeshes(this);
+		})
+
+		window.svgRenderer = new THREE.SVGRenderer();
+		svgRenderer.setClearColor( 0xffffff );
+		svgRenderer.setSize(1000, 1000 );
+		svgRenderer.setQuality( 'high' );
+		
+		svgRenderer.render( scene_wf, view.camera );
+		setTimeout(() => {
+			$("#svg .image_container").html(svgRenderer.domElement)
+			$("#svg svg").attr({"xmlns": "http://www.w3.org/2000/svg"});
+			window.panZoomSvgPreview = svgPanZoom('#svg svg', {
+				zoomScaleSensitivity: 0.5,
+				minZoom: 0.5,
+				maxZoom: 100,
+			});
+		}, 0);
 	
-	
-	var width = 800
-	var height = 600
-	
-	svgRenderer = new THREE.SVGRenderer();
-	svgRenderer.setClearColor( 0xffffff );
-	svgRenderer.setSize(width, height );
-	svgRenderer.setQuality( 'high' );
-	
-	svgRenderer.render( scene_wf, camera );
-	
-	/* The following discussion shows how to scale an SVG to fit its contained
-	 *
-	 *  http://stackoverflow.com/questions/4737243/fit-svg-to-the-size-of-object-container
-	 *
-	 * Another useful primer is here
-	 *  https://sarasoueidan.com/blog/svg-coordinate-systems/
-	 */
-	//var text = svgRenderer.domElement.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"')
-	
-	$("#svg").html(svgRenderer.domElement)
-	$("#svg svg").attr({"xmlns": "http://www.w3.org/2000/svg"})
-	
+	}, 1000);
 }
 
 /** функция создает файл svg на основе текста svg
@@ -114,48 +129,38 @@ function saveSvgFile(text) {
 L (line) и M(moove)
 */
 
-function saveDxfFile(text){
-
-	var startPos = text.indexOf('d="') + 3;
-	var endPos = text.indexOf('style="fill') - 2; 
-	var commands = [];
-	var dxfArr = [];
-	var trashShape = new THREE.Shape();
-	var dxfBasePoint = {x: 0, y: 0,}
-	var curPoint = {x: 0, y: 0,}
-	for(var i=startPos; i<endPos; i++){
-		if(text[i] == "M" || text[i] == "L"){
-			var command = {
-				pos: i,
-				name: text[i],
+function saveDxfFile(data){
+	initMakerJs(function(){
+		var models = {};
+		$.each(data, function(i){
+			var d = $(this).attr('d');
+			if (d) {
+				console.log(i);
+				models[i] = makerjs.importer.fromSVGPathData(d);
+				makerjs.model.scale(models[i], 16);
 			}
-			var j = i+1;
-			
-			while(text[j] != ","&& j < endPos){
-				j++;
-			}
-			command.x = text.substring(i+1, j);
-			i = j;
-			
-			while(text[j] != "M" && text[j] != "L" && j < endPos){
-				j++;
-			}
-			command.y = text.substring(i+1, j);
-			commands.push(command);
-			i = j-1; //пропускаем параметры команды
-			
-			if(command.name == "M"){
-				curPoint.x = command.x;
-				curPoint.y = -command.y;
-			} 
-			
-			if(command.name == "L"){
-				addLine(trashShape, dxfArr, curPoint, {x: command.x, y: -command.y}, dxfBasePoint) //функция в файле drawPrimitives
-			} 
-			
-		}
-	}
-	exportToDxf(dxfArr) //функция в файле dxfFileMaker.js
-	
+		})
+		var dxf = makerjs.exporter.toDXF({models: models});
+		
+		var byteCharacters = unicodeToWin1251_UrlEncoded(dxf);
+		var byteArray = new Uint8Array(byteCharacters);
+		
+		var BB = window.Blob;
+		var fileName = "draw.dxf";
+		saveAs(
+			new BB([byteArray], {type: "application/octet-stream"}), 
+			fileName
+		);
+	})
 }
 
+function initMakerJs(callback){
+	if (!window.makerjs) {
+		$.getScript('/calculator/general/libs/browser.maker.js', function(){
+			window.makerjs = require('makerjs');
+			callback();
+		})
+	}else{
+		callback();
+	}
+}

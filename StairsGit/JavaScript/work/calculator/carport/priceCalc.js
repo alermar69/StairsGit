@@ -73,10 +73,28 @@ function calculateCarcasPrice(){
 		
 	//полоса по верху фермы
 	widthCost += getPartPropVal('trussLine', 'area') * list4mmPrice;
-
+	
 	// Продольные фермы
 	var trussLenCost = getPartPropVal('trussSide', 'area') * trussListPrice;
 	
+	//сварные фермы из профилей
+	if(params.beamModel == "ферма постоянной ширины"){
+		//примерный расчет стоимости ферм
+		var chordMeterCost = getProfParams(params.chordProf).unitCost
+		var webMeterCost = getProfParams(params.webProf).unitCost
+		
+		//продольные фермы
+		widthCost = params.width / 1000 * 2 * (chordMeterCost + webMeterCost);
+		
+		//поперечные фермы
+		trussLenCost = params.sectAmt * params.sectLen / 1000 * 2 * 2 * (chordMeterCost + webMeterCost);
+		
+		//учитываем работу по изготовлению
+		widthCost *= 2;
+		trussLenCost *= 2;
+		
+	}
+
 	// Фланцы
 	var flanPrice = getPartPropVal("rackFlan", "area") * list8mmPrice + getPartPropVal("trussFlan", "area") * list8mmPrice + getPartPropVal("arcTrussFlan", "area") * list8mmPrice;
 
@@ -147,5 +165,5 @@ function calculateCarcasPrice(){
 		+ staircaseCost.roof
 		+ staircaseCost.roofProf
 		+ staircaseCost.roofShim;
-		
+
 };

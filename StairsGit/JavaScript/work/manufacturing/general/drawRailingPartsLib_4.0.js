@@ -562,7 +562,13 @@ function drawPlug(par){
 		if(params.carcasColor == "белый") plugColor = "БЕЛАЯ";
 	}
 	if (par.width == 50 && par.height == 100) plugColor = "ЧЕРНАЯ";
-
+	
+	var sizeA = par.height;
+	var sizeB = par.width;
+	if(sizeB > sizeA) {
+		sizeB = par.height;
+		sizeA = par.width;
+	}
 	var partName = "plug"
 	if (typeof specObj != 'undefined') {
 		if (!specObj[partName]) {
@@ -584,13 +590,13 @@ function drawPlug(par){
 			if (specObj[partName].purposes.indexOf(par.description) == -1) specObj[partName].purposes.push(par.description);
 		}
 
-		var name =  "пласт. "+ par.height + "х" + par.width + " " + plugColor;
+		var name =  "пласт. "+ sizeA + "х" + sizeB + " " + plugColor;
 		if(par.type == "inox"){
-			name = "нерж. "+ par.width + "х" + par.height;
-			if(par.isCirclePlug) name = "нерж. Ф" + par.width;
+			name = "нерж. "+ sizeB + "х" + sizeA;
+			if(par.isCirclePlug) name = "нерж. Ф" + sizeB;
 		}
 		if(par.type == "timber"){
-			name = "дер. грибок для отв.Ф" + par.width + " " + getTimberPlugType(params.handrailsMaterial);
+			name = "дер. грибок для отв.Ф" + sizeB + " " + getTimberPlugType(params.handrailsMaterial);
 		}
 		if (par.type == "ПВХ") {
 			name = "внешняя для поручня ПВХ";

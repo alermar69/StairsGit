@@ -12,12 +12,7 @@ function changeFormCarcas(){
 		$(".dome").show()
 	}
 	
-	//количество граней для многогранной геометрии
-	$("#edgeAmt").closest("tr").hide();
-	if(params.carportType == "многогранник") {
-		$("#columnProf").closest("tr").show();
-		
-	}
+
 	
 	//угол наклона кровли
 	if(params.roofType == "Арочная" && 
@@ -53,6 +48,19 @@ function changeFormCarcas(){
 		$("#beamModel").val("проф. труба");
 	}
 	
+	//количество граней для многогранной геометрии
+	$("#edgeAmt").closest("tr").hide();
+	if(params.carportType == "многогранник") {
+		$("#edgeAmt").closest("tr").show();
+	}
+	
+	//поворотный сектор
+	$("#doorAng").closest("tr").hide();
+	if(params.carportType == "купол") {
+		$("#doorAng").closest("tr").show();
+	}
+	
+	
 	//параметры стенок
 	$(".wallPar").hide();	
 	if(params.wallMat != "нет") $(".wallPar").show();
@@ -61,12 +69,25 @@ function changeFormCarcas(){
 	$("#trussThk").closest("tr").show()
 	$("#beamProf").closest("tr").hide()
 	$("#beamProf2").closest("tr").hide()
+	$("#webProf").closest("tr").hide()
+	$("#chordProf").closest("tr").hide()
 
 	if($("#beamModel").val() == "проф. труба"){
 		$("#trussThk").closest("tr").hide()
 		$("#beamProf").closest("tr").show()
 		$("#beamProf2").closest("tr").show()
 	}
+	
+	if($("#beamModel").val() == "ферма постоянной ширины"){
+		$("#chordProf").closest("tr").show()
+		$("#webProf").closest("tr").show()
+		$("#trussThk").closest("tr").hide()
+	}
+	
+	if(params.carportType == "многогранник") {
+		$("#columnProf").closest("tr").show();
+	}
+	
 	
 	//текстура пола первого этажа
 	if(!params.floorMat) $("#floorMat").val("road_brick3")

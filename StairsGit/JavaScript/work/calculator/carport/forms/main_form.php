@@ -185,6 +185,30 @@
 				</td>
 			</tr>
 			
+			<tr>
+				<td>Пояса:</td>
+				<td>
+					<select id="chordProf">
+						<option value="40х40">40х40</option>
+						<option value="60х60">60х60</option>
+						<option value="80х80">80х80</option>
+						<option value="100х100">100х100</option>
+						<option value="120х120">120х120</option>
+					</select>
+				</td>
+			</tr>
+			
+			<tr>
+				<td>Раскосы:</td>
+				<td>
+					<select id="webProf">
+						<option value="20х20">20х20</option>
+						<option value="40х40">40х40</option>
+						<option value="60х60">60х60</option>
+					</select>
+				</td>
+			</tr>
+			
 			<tr class="truss">
 				<td>Продольные балки:</td>
 				<td>
@@ -319,7 +343,7 @@
 	<table class="form_table">
 		<tbody>
 			<tr>
-				<td>Тип пола:</td>
+				<td>Пол:</td>
 				<td>
 					<select id="floorType">
 						<option value="граненый">граненый</option>
@@ -337,7 +361,7 @@
 				<td><input type="number" id="thkFloor" value="20"></td>
 			</tr>
 			<tr>
-				<td>Геометрия стола:</td>
+				<td>Стол:</td>
 				<td>
 					<select id="tableType">
 						<option value="многогранник">многогранник</option>
@@ -356,8 +380,19 @@
 			</tr>
 			<tr>
 				<td>Толщина стола:</td>
-				<td><input type="number" id="thkTable" value="20"></td>
+				<td><input type="number" id="thkTable" value="40"></td>
 			</tr>
+			
+			<tr>
+				<td>Скамейки:</td>
+				<td>
+					<select id="benchType">
+						<option value="есть">есть</option>
+						<option value="нет">нет</option>
+					</select>
+				</td>
+			</tr>
+			
 			<tr>
 				<td>Высота скамейки:</td>
 				<td><input type="number" id="heightBench" value="450"></td>

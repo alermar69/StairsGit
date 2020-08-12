@@ -8,10 +8,30 @@
 		changeAllForms();
     });
 	
+	//кнопка обновить балюстраду
 	$('#redrawBanister').click(function(){
 		changeAllForms();
 		drawBanister();		
 	});
+	
+	//дублирование секции
+	$("#insertBanisterSect").click(function(){
+		var $selectedRow = $(".balSectRow.selected")
+		if(!$selectedRow.length){
+			alert("Выберите секцию для копирования")
+			return;
+		}
+		var $newRow = $selectedRow.clone()
+		$newRow.removeClass("selected")
+		
+		$selectedRow.after($newRow)
+		
+        //переиндексируем Id
+        reindexId('balSectTable');
+		changeAllForms();
+    });
+	
+	
 });
 
 /** функция проставляет соединения секций

@@ -12,7 +12,7 @@
 		
 		//модуль
 
-		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'curve', 'wardrobe_2', 'objects', 'carport', 'veranda'];
+		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'curve', 'wardrobe_2', 'objects', 'carport', 'veranda', 'slabs', 'table'];
 
 		$calc_type = '';
 		foreach($calc_types as $item){
@@ -323,6 +323,10 @@
 			'only_for' => ['veranda'],
 		],
 		[
+			'url' => '/calculator/slabs/forms/mainFormChange.js',
+			'only_for' => ['slabs'],
+		],
+		[
 			'url' => '/calculator/carport/modelActions.js',
 			'only_for' => ['carport'],
 		],
@@ -336,6 +340,23 @@
 			'url' => '/manufacturing/veranda/drawVeranda.js',
 			'only_for' => ['veranda'],
 		],
+		
+		// slabs
+		[
+			'url' => '/manufacturing/slabs/slabs.js',
+			'only_for' => ['slabs'],
+		],
+		
+		//table
+		[
+			'url' => '/manufacturing/table/drawTable.js',
+			'only_for' => ['table'],
+		],
+		[
+			'url' => '/manufacturing/table/drawCarcas.js',
+			'only_for' => ['table'],
+		],
+		
 	]);
 
 	if ($calc_type != 'wardrobe_2' && $calc_type != 'objects') {
@@ -424,6 +445,7 @@
 			'dimensions' => ["/calculator/general/forms/dimensionsFormChange.js"],
 			'objects' => ["/calculator/general/forms/objects/objectsFormChange.js"],
 			'assembling' => ["/calculator/general/forms/assemblingFormChange.js"],
+			'banister' => ["/calculator/banister/forms/banister_construct_form_change.js", "/calculator/banister/forms/changeFormBanister.js"],
 		];
 	}
 	

@@ -346,9 +346,14 @@ function getCarportRoofDescr(){
 */
 
 function printDescr() {
-	
-	var text = "<div class='description-title'>Основные особенности Вашей лестницы</div>";
-	if (params.calcType == 'carport') var text = "<div class='description-title'>Основные особенности Вашего навеса</div>";
+	var text = ""
+	if(params.calcType != 'carport') text += $('#zamerBlocks').html();
+	if(params.calcType == 'carport') text += $('#zamerBlocksCarport').html();
+	if (params.calcType == 'carport') {
+		text += "<div class='description-title'>Основные особенности Вашего навеса</div>";
+	}else{
+		text += "<div class='description-title'>Основные особенности Вашей лестницы</div>";
+	}
 	var blocks = [];
 	var units = staircaseHasUnit();
 	//каркас

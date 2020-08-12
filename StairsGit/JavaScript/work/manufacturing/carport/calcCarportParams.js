@@ -6,13 +6,14 @@ profTypes
 /** функция возвращает сечения элементов полученные на основании прочностных расчетов
 названия элементов кровли на русском 6692035.ru/drawings/carport/roof_parts_rus.jpg
 названия элементов кровли на английском 6692035.ru/drawings/carport/roof_parts_eng.jpg
+названия элементов фермы на английском 6692035.ru/drawings/carport/truss_parts.jpg
 все профили со стенкой 3мм
 */
 
 
 function setCarportProfs(){
 	
-	if (params.sectLen > 3000 && params.carportType !== "четырехскатный"){
+	if (params.sectLen > 3000 && params.carportType !== "четырехскатный" && params.beamModel != "ферма постоянной ширины"){
 		alert("Прочность фермы не позволяет сделать длину секции более 3000 мм. Была установлена длина секции 3000 мм.")
 		$("#sectLen").val(3000)
 	}
@@ -33,6 +34,7 @@ function setCarportProfs(){
 	if(params.sectLen > 2100) progonProf = "60х40"; 
 	if(params.sectLen > 3100) progonProf = "80х40";
 	if(params.beamModel == "проф. труба") progonProf = "40х20"; //макс. шаг стропил 700мм
+	if(params.roofMat == "металлочерепица") progonProf = "40х40"
 	$("#progonProf").val(progonProf)
 	
 	//параметры навеса с стропилами из проф. трубы
@@ -157,6 +159,7 @@ function setCarportProfs(){
 			if(params.domeDiam > 3000) beamProf = "60х30"
 			if(params.domeDiam > 4000) beamProf = "80х40"
 			if(params.domeDiam > 5000) beamProf = "100х50"
+			columnProf = "80х80"
 		}
 		
 		$("#beamProf").val(beamProf)
@@ -170,6 +173,34 @@ function setCarportProfs(){
 	var trussThk = 4;
 	if(params.width >= 5000) trussThk = 8;
 	$("#trussThk").val(trussThk)
+	
+	//пояса и раскосы сварных ферм из профиля
+	var chordProf = "40х40"
+	var webProf = "20х20"
+	
+	//нагрузка на одну ферму в тоннах
+	var load = params.sectLen * params.width / 1000000 * 0.18;
+	
+	//приблизительные параметры фермы в зависимости от нагрузки. Надо перепроверить прочностным расчетом
+	if(load > 1.5) {
+		chordProf = "60х60"
+		webProf = "40х40"
+	}
+	if(load > 3) {
+		chordProf = "80х80"
+		webProf = "40х40"
+	}
+	
+	if(load > 5) {
+		chordProf = "100х100"
+		webProf = "60х60"
+	}
+	
+	$("#chordProf").val(chordProf)
+	$("#webProf").val(webProf)
+	
+	
+	
 	
 	//шаг прогонов
 	var progonMaxStep = 800;
@@ -297,9 +328,31 @@ function calcCarportPartPar(){
 		par.truss.endHeight = 250;
 	}
 	if(params.beamModel == "постоянной ширины") par.truss.midHeight = par.truss.endHeight 
-		
+	if(params.beamModel == "ферма постоянной ширины") {		
+		par.truss.endHeight = Math.floor(params.width/100) * 10; //формула подогнана		
+		if(par.truss.endHeight < 200) par.truss.endHeight = 200;		
+	}
+	
+	
+	//Раскосы фермы
+	var webProfPar = getProfParams(params.webProf);
+	par.truss.web = {
+		profSize: {
+			x: webProfPar.sizeB,
+			y: webProfPar.sizeA,
+		}
+	}
+	
+	//пояса фермы
+	var chordProfPar = getProfParams(params.chordProf);
+	par.truss.chord = {
+		profSize: {
+			x: chordProfPar.sizeB,
+			y: chordProfPar.sizeA,
+		}
+	}
+	
 
-		
 	
 	//прогоны
 	var purlinProfPar = getProfParams(params.progonProf);
@@ -310,6 +363,7 @@ function calcCarportPartPar(){
 		}
 	}
 	var purlinMaxStep = 800;
+	if(params.roofMat == "металлочерепица") purlinMaxStep = 350;
 	if(params.beamModel == "проф. труба") purlinMaxStep = 3000;
 	par.purlin.amt = Math.ceil(par.main.width / purlinMaxStep) + 1;
 	
@@ -340,8 +394,8 @@ function calcCarportPartPar(){
 		if(params.width > 4000) arcPar.m1 = 200
 		if(params.width > 5800) arcPar.m1 = 250
 	}
-	if(params.beamModel == "ферма постоянной ширины" && params.beamModel == "проф. труба"){
-		arcPar.m1 = par.rafter.profSize.y
+	if(params.beamModel == "проф. труба"){
+		arcPar.beamHeight = par.rafter.profSize.y
 	}
 	
 	//профили стенок

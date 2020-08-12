@@ -7,7 +7,7 @@
 	<h2>Результаты проверки спецификации</h2>
 	<div id="specCheckResult" class="toggleDiv"></div>
 	
-	<h2 id='specHeader'>Спецификация лестницы</h2>
+	<h2 id='specHeader'>Спецификация</h2>
 	
 	<button id="saveSpecData" class="btn btn-primary">
 		<i class="glyphicon glyphicon-floppy-disk"></i>

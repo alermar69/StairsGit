@@ -1,3 +1,61 @@
+$(function () {
+	
+	//добавление строки в таблицу сметы
+	$(".addRow").click(function(){
+		var estimateId = $(this).closest('.estimate').attr("id");
+		addRow(estimateId);
+		reindexTable()
+		recalculate();
+		if($("#cost").is(":visible")) $(".cost").show();
+	});
+	
+	//удаление строки в таблицу сметы
+	$(".estimateForm").delegate(".removeRow", "click", function(){
+		reindexTable();
+		recalculate();
+	})
+	
+	//обработка изменения параметров
+	$(".estimate").delegate("input,select,textarea", "change", function(){
+
+		var $row = $(this).closest("tr")
+		configParamsInputs($row)
+		//меняем название при смене типа
+		if($(this).hasClass("unitType")){
+			if($(this).val() != "другое") $row.find(".name").val($(this).val())
+			else $row.find(".name").val("")
+		} 
+		recalculate();
+	})
+
+	$("#headerType").change(function(){
+		$(".header").hide();
+		$(".footerText").hide();
+		
+		$("." + $(this).val()).show()
+	})
+
+	$(".setWorksPrice").click(function(){
+		setWorksPrice();
+	})
+})
+
+/** функция конфигурирует данные в строках таблицы
+*/
+
+function changeSlabsForm(){
+	$("tr.estimateItem").each(function(){
+		$row = $(this)
+		configParamsInputs($row)
+	})
+	
+	//скрываем таблицу работ если нет ни доставки ни сборки
+	$("#estimate_works").show();
+	if(params.delivery == "нет" && params.isAssembling == "нет") $("#estimate_works").hide();
+	
+	setTextareaHeight();
+}
+
 
 /** функция инициализирует таблицы при загрузке данных из базы
 */

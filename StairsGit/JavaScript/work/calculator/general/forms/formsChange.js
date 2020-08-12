@@ -795,7 +795,14 @@ function configPaintingInputs(){
 	}
 	if(!hasUnit.dopMetal){
 		$("#colorsFormTable #additionalObjectsMetalParams").hide();
-	} 
+	}
+	
+	//невозможны поручни из шпона
+	if(params.handrailsMaterial == "шпон"){
+		$("#handrailsMaterial").val("дуб ц/л");
+		params.handrailsMaterial = "дуб ц/л";
+		alert("Изготовление шпонированных поручней невозможно. Был установлен материал поручня дуб ц/л")
+	}
 	
 }; //end of configPaintingInputs
 
@@ -963,8 +970,9 @@ function changeAllForms() {
 	if(typeof changeFormAssembling == 'function') changeFormAssembling();
 	if(typeof changeFormBanisterConstruct == 'function' && params.calcType != 'railing') changeFormBanisterConstruct();
 	
-	if($("#calcType").val() != "vint" && $("#calcType").val() != "railing"){
-		changeFormCarcas();
+	var notStairs = ["vint", "railing", "slabs", "table"]
+	if(notStairs.indexOf($("#calcType").val()) == -1){
+		if(typeof changeFormCarcas == 'function') changeFormCarcas();
 		if(typeof changeFormRailing == 'function') changeFormRailing();		
 		if(typeof changeFormStartTreads == 'function') changeFormStartTreads();
 		if(typeof changeGeometryForms == 'function') changeGeometryForms();
@@ -982,17 +990,26 @@ function changeAllForms() {
 		changeFormTreads();
 	}
 	
+	if($("#calcType").val() == "slabs"){
+		changeSlabsForm()
+	}
+	 
+	
 	textureManager = getTextureMangerInstance()
 	if (textureManager) {
 		textureManager.updateMaterials();
 	}
 }
+
 function configDinamicInputs() {
 	
 	if($("#calcType").val() == "railing") {
 		addConcreteRows();
 		addRailingRows();
 		addRutelRows();		
+	}
+	else if($("#calcType").val() == "slabs"){
+		configEstimateForms()
 	}
 	else {
 		if(typeof changeFormBanister == 'function') changeFormBanister();

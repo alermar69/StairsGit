@@ -71,7 +71,7 @@ function getInputValue(inputId) {
 
 /*функци¤ получает значени¤ всех инпутов на странице и записывает в объект*/
 
-function getAllInputsValues(params) {
+function getAllInputsValues(par) {
 	/*
 	var paramNamesArr = document.getElementsByTagName("input");
 	for(var i=0; i<paramNamesArr.length; i++){
@@ -85,11 +85,11 @@ function getAllInputsValues(params) {
 	}
 */
 	$("input, select, textarea").each(function () {
-		params[this.id] = getInputValue(this.id);
+		par[this.id] = getInputValue(this.id);
 	})
 	
-	if(!params.floorThickness) params.floorThickness = 200;
-	if(!params.floorOffsetBot) params.floorOffsetBot = 0;
+	if(!params.floorThickness) par.floorThickness = 200;
+	if(!params.floorOffsetBot) par.floorOffsetBot = 0;
 }
 
 

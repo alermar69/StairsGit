@@ -10,7 +10,7 @@
 <script type="text/javascript" src="/calculator/general/forms/formsChange.js" /></script>
 <script type="text/javascript" src="/orders/files/getLinks.js" /></script>
 <script type="text/javascript" src="/calculator/general/modals/main.js" /></script>
-<script type="text/javascript" src="/calculator/general/offer.js" /></script>
+<script type="text/javascript" src="/calculator/general/editions.js" /></script>
 
 <!--графика
 

@@ -1322,6 +1322,12 @@ function calcRoofArcParams(par){
 	//нижняя линия
 	var p0 = {x: 0, y: 0} //точка на оси колонны
 	var pt = newPoint_xy(p0, 0, par.m1) //точка на верхней дуге над осью колонны
+	
+	//для проф. трубы базовая точка над краем колонны
+	if(params.beamModel == "проф. труба" && params.carportType != "сдвижной") {
+		pt = newPoint_xy(p0, - par.columnProf.y / 2 - params.sideOffset, 0) 
+	}
+	
 	par.botLine = {
 		p2: newPoint_xy(p0, -par.sideOffset, 0),
 	} 
@@ -1352,88 +1358,108 @@ function calcRoofArcParams(par){
 
 	par.topArc.height = par.centerLine.p1.y - p0.y;
 	
-	if(params.carportType == "сдвижной") return par;
 	
-	//крайняя точка фермы
-	par.botLine.p1 = newPoint_xy(p0, -par.columnProf.y / 2 - params.sideOffset, par.m1) //временная точка
-	par.botLine.p1 = itercectionLineCircle(par.botLine.p1, newPoint_xy(par.botLine.p1, 0, 100), par.topArc.center, par.topArc.rad)[0]
-	
-	par.topArc.startAngle = angle(par.botLine.p1, par.topArc.center) + Math.PI;
-		
-	//дополнительная точка для большого свеса
-
-	if(angle(par.botLine.p1, par.botLine.p2) > par.topArc.startAngle - Math.PI){
-		par.botLine.p11 = polar(par.botLine.p1, par.topArc.startAngle, -50)
-		if(par.botLine.p11.y > -20) par.botLine.p11 = itercection(par.botLine.p11, par.botLine.p1, par.botLine.p2, newPoint_xy(par.botLine.p2, 1,0))
-	}
-	
-console.log(angle(par.botLine.p1, par.botLine.p2) / Math.PI * 180, par.topArc.startAngle * 180 / Math.PI - 180)
-
-	
-	//нижняя линия
-
-	//точка на внутреннем краю колонны
-	par.botLine.p3 = newPoint_xy(par.botLine.p1, params.sideOffset + par.columnProf.y, -par.botLine.p1.y);
-	
-	if(params.beamModel == "сужающаяся"){
-	
-		if(params.trussBotLedge){
-			par.botLine.p31 = newPoint_xy(par.botLine.p3, 0, -params.trussBotLedge);
-			par.botLine.p32 = newPoint_xy(par.botLine.p31, 50, 0);
-		}
-		else{
-			par.botLine.p3 = newPoint_xy(par.botLine.p2, 200, 0);
-		}
-		
-		par.botLine.p4 = polar(par.botLine.p3, par.a3, par.m2)
-		
-		//рассчитываем параметры сегмента
-		var sWidth = (par.centerLine.p2.x - par.botLine.p4.x) * 2;
-		var sHeight = par.centerLine.p2.y - par.botLine.p4.y;
-		var sPar = calcSegmentPar(sWidth, sHeight)
-		
-		par.botArc = {
-			center: newPoint_xy(par.centerLine.p2, 0, -sPar.rad),
-			rad: sPar.rad,			
-			endAngle: Math.PI / 2,
-		}
-		par.botArc.startAngle = angle(par.botArc.center, par.botLine.p4) + Math.PI;
-		
-		if(params.trussBotLedge){
-			par.botLine.p4 = newPoint_xy(par.botLine.p32, 50, 200); //меняем точку для более красивого вида опуска
+	if(params.beamModel == "проф. труба") {
+		if(params.carportType != "сдвижной"){
+			//корректируем позицию центра по Y, чтобы нижняя дуга всегда лежала на балке
+			var botArc = {
+				center: par.topArc.center,
+				startAngle: par.topArc.startAngle,
+				endAngle: par.topArc.endAngle,
+				rad: par.topArc.rad - par.beamHeight,
+			}
+			
+			//Точка над краем колонны
+			var pt2 = newPoint_xy(p0, -par.columnProf.y / 2, 0)
+			pt2 = itercectionLineCircle(pt2, newPoint_xy(pt2, 0, 10), botArc.center, botArc.rad)[0]
+			par.topArc.center.y -= pt2.y
 		}
 		
 	}
 	
-	if(params.beamModel == "постоянной ширины"){
+	if(params.beamModel != "проф. труба") {
+		//крайняя точка фермы
+		par.botLine.p1 = newPoint_xy(p0, -par.columnProf.y / 2 - params.sideOffset, par.m1) //временная точка
+		par.botLine.p1 = itercectionLineCircle(par.botLine.p1, newPoint_xy(par.botLine.p1, 0, 100), par.topArc.center, par.topArc.rad)[0]
+		
+		par.topArc.startAngle = angle(par.botLine.p1, par.topArc.center) + Math.PI;
+			
+		//дополнительная точка для большого свеса
 
-		par.botArc = {
-			center: copyPoint(par.topArc.center),
-			rad: par.topArc.rad - par.trussWidth,			
-			endAngle: Math.PI / 2,			
-		}
-		par.botLine.p4 = itercectionLineCircle(par.botLine.p2, par.botLine.p3, par.botArc.center, par.botArc.rad)[1];
-		
-		if(params.trussBotLedge){
-			par.botLine.p31 = newPoint_xy(par.botLine.p3, 0, -params.trussBotLedge);
-			par.botLine.p32 = newPoint_xy(par.botLine.p31, 50, 0);
-			par.botLine.p4 = newPoint_xy(par.botLine.p32, 50, 200); //меняем точку для более красивого вида опуска
+		if(angle(par.botLine.p1, par.botLine.p2) > par.topArc.startAngle - Math.PI){
+			par.botLine.p11 = polar(par.botLine.p1, par.topArc.startAngle, -50)
+			if(par.botLine.p11.y > -20) par.botLine.p11 = itercection(par.botLine.p11, par.botLine.p1, par.botLine.p2, newPoint_xy(par.botLine.p2, 1,0))
 		}
 		
-		par.botArc.startAngle = angle(par.botArc.center, par.botLine.p4) + Math.PI;
+		
+		//нижняя линия
+
+		//точка на внутреннем краю колонны
+		par.botLine.p3 = newPoint_xy(par.botLine.p1, params.sideOffset + par.columnProf.y, -par.botLine.p1.y);
+		
+		if(params.beamModel == "сужающаяся"){
+		
+			if(params.trussBotLedge){
+				par.botLine.p31 = newPoint_xy(par.botLine.p3, 0, -params.trussBotLedge);
+				par.botLine.p32 = newPoint_xy(par.botLine.p31, 50, 0);
+			}
+			else{
+				par.botLine.p3 = newPoint_xy(par.botLine.p2, 200, 0);
+			}
+			
+			par.botLine.p4 = polar(par.botLine.p3, par.a3, par.m2)
+			
+			//рассчитываем параметры сегмента
+			var sWidth = (par.centerLine.p2.x - par.botLine.p4.x) * 2;
+			var sHeight = par.centerLine.p2.y - par.botLine.p4.y;
+			var sPar = calcSegmentPar(sWidth, sHeight)
+			
+			par.botArc = {
+				center: newPoint_xy(par.centerLine.p2, 0, -sPar.rad),
+				rad: sPar.rad,			
+				endAngle: Math.PI / 2,
+			}
+			par.botArc.startAngle = angle(par.botArc.center, par.botLine.p4) + Math.PI;
+			
+			if(params.trussBotLedge){
+				par.botLine.p4 = newPoint_xy(par.botLine.p32, 50, 200); //меняем точку для более красивого вида опуска
+			}
+			
+		}
+		
+		if(params.beamModel == "постоянной ширины"){
+
+			par.botArc = {
+				center: copyPoint(par.topArc.center),
+				rad: par.topArc.rad - par.trussWidth,			
+				endAngle: Math.PI / 2,			
+			}
+			par.botLine.p4 = itercectionLineCircle(par.botLine.p2, par.botLine.p3, par.botArc.center, par.botArc.rad)[1];
+			
+			if(params.trussBotLedge){
+				par.botLine.p31 = newPoint_xy(par.botLine.p3, 0, -params.trussBotLedge);
+				par.botLine.p32 = newPoint_xy(par.botLine.p31, 50, 0);
+				par.botLine.p4 = newPoint_xy(par.botLine.p32, 50, 200); //меняем точку для более красивого вида опуска
+			}
+			
+			par.botArc.startAngle = angle(par.botArc.center, par.botLine.p4) + Math.PI;
+		}
+		
+		
+		par.topArc.height = par.centerLine.p1.y - p0.y;
+		
 	}
-	
-	
-	par.topArc.height = par.centerLine.p1.y - p0.y;
 	
 	if(params.carportType == "односкатный" || params.carportType.indexOf("консольный") != -1){
 		par.topArc.endAngle = Math.PI / 2;
 	}
-	
-	
+
 	return par;
 		
 } //end of calcRoofArcParams
+
+/** старая функция - нигде не ипользуется
+*/
 
 function drawArcTubeTruss1(par){
 	if(!par) par = {};
@@ -1441,13 +1467,11 @@ function drawArcTubeTruss1(par){
 	if(!par.len) par.len = params.width;
 	par.mesh = new THREE.Object3D();
 	
-	var beamProfParams = getProfParams(params.beamProf)
-	
 	//нижний пояс
 
 	var polePar = {
-		poleProfileY: beamProfParams.sizeA,
-		poleProfileZ: beamProfParams.sizeB,
+		poleProfileY: partPar.truss.chord.profSize.y,
+		poleProfileZ: partPar.truss.chord.profSize.x,
 		dxfBasePoint: par.dxfBasePoint,
 		length: par.len,
 		poleAngle: 0,
@@ -1471,13 +1495,13 @@ function drawArcTubeTruss1(par){
 		center: arcPar.topArc.center,
 		startAngle: arcPar.topArc.startAngle,
 		endAngle: arcPar.topArc.endAngle,
-		rad: arcPar.topArc.rad - beamProfParams.sizeA / 2,
+		rad: arcPar.topArc.rad - partPar.truss.chord.profSize.y / 2,
 	}
 
 	var arcPanelPar = {
 		rad: midArc.rad,
-		height: beamProfParams.sizeB,
-		thk: beamProfParams.sizeA,
+		height: partPar.truss.chord.profSize.x,
+		thk: partPar.truss.chord.profSize.y,
 		angle: midArc.startAngle - midArc.endAngle,
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
 		material: params.materials.metal,
@@ -1496,8 +1520,8 @@ function drawArcTubeTruss1(par){
 	
 	//раскосы
 	var bracePar = {
-		poleProfileY: 20,
-		poleProfileZ: 20,
+		profY: partPar.truss.web.profSize.x,
+		profZ: partPar.truss.web.profSize.y,
 		dxfBasePoint: par.dxfBasePoint,
 		length: 1000,
 		poleAngle: 0,
@@ -1572,8 +1596,6 @@ function drawArcTubeTruss(par) {
 	par.mesh = new THREE.Object3D();
 	var mesh = new THREE.Object3D();
 
-	var beamProfParams = getProfParams(params.beamProf)
-
 	par.len = params.width;
 
 	var ang = partPar.main.roofAng;
@@ -1598,7 +1620,7 @@ function drawArcTubeTruss(par) {
 
 
 	var extrudeOptions = {
-		amount: beamProfParams.sizeB,
+		amount: partPar.truss.chord.profSize.x,
 		bevelEnabled: false,
 		curveSegments: 60,
 		steps: 1
@@ -1615,8 +1637,8 @@ function drawArcTubeTruss(par) {
 
 
 	var bracePar = {//раскосы
-		profY: 20,
-		profZ: 20,
+		profY: partPar.truss.web.profSize.x,
+		profZ: partPar.truss.web.profSize.y,
 		stepBrace: 5, // расстояние между раскосами
 		stepBraceDivide: 20,// расстояние между раскосами на разделение фермы
 	};
@@ -1658,12 +1680,12 @@ function drawArcTubeTruss(par) {
 
 		var pc = newPoint_xy(p0, pt1In.x, -rad);
 
-		var rad1Top = rad - beamProfParams.sizeA / 2;
-		var rad2Top = rad + beamProfParams.sizeA / 2;
-		var rad1Bot = rad2Top - partPar.truss.width;
-		var rad2Bot = rad1Bot + beamProfParams.sizeA;
+		var rad1Top = rad - partPar.truss.chord.profSize.x / 2;
+		var rad2Top = rad + partPar.truss.chord.profSize.x / 2;
+		var rad1Bot = rad2Top - partPar.truss.endHeight;
+		var rad2Bot = rad1Bot + partPar.truss.chord.profSize.x;
 
-		//верхний пояс---------------------------------------------------------------
+		//верхний пояс
 		var shape = new THREE.Shape();
 		var p2 = itercectionLineCircle1(line1Out, pc, rad2Top)[0]
 		var p1 = itercectionLineCircle(p2, polar(p2, Math.PI / 2 + ang, 100), pc, rad1Top)[0]
@@ -1685,7 +1707,7 @@ function drawArcTubeTruss(par) {
 
 		var angBrace = calcAngleX1(p1, itercectionLineCircle(p0, polar(p0, Math.PI / 2, 100), pc, rad1Top)[0])
 
-		//нижний пояс---------------------------------------------------------------
+		//нижний пояс
 		var shape = new THREE.Shape();
 		var p2 = itercectionLineCircle1(line4Out, pc, rad2Top)[0]
 		var p1 = itercectionLineCircle(p2, polar(p2, Math.PI / 2 + ang, 100), pc, rad1Top)[0]
@@ -1708,7 +1730,7 @@ function drawArcTubeTruss(par) {
 		mesh1 = new THREE.Mesh(geom, params.materials.metal);
 		mesh.add(mesh1)
 
-		//крепление--------------------------------------------------------------
+		//крепление
 		var p1 = itercectionLineCircle1(line3Out, pc, rad1Top)[0]
 		var p2 = itercectionLineCircle1(line4Out, pc, rad1Top)[0]
 		var p3 = newPoint_xy(p1, profBinding, -550)
@@ -1720,7 +1742,6 @@ function drawArcTubeTruss(par) {
 		var bind = drawBindingTruss(bindingTrussPar);
 		mesh.add(bind);
 
-		//----------------------------------------
 		var p1 = itercectionLineCircle1(line3In, pc, rad1Top)[0]
 		var p2 = itercectionLineCircle1(line4In, pc, rad1Top)[0]
 		var p3 = newPoint_xy(p1, -profBinding, -550)
@@ -1733,7 +1754,7 @@ function drawArcTubeTruss(par) {
 		var bind = drawBindingTruss(bindingTrussPar);
 		mesh.add(bind);
 
-		//Раскосы---------------------------------------------------------------
+		//Раскосы
 		var angBrace = Math.PI / 4;
 		var pLast = itercectionLineCircle1(line1In, pc, rad2Bot)[0];
 
@@ -1758,10 +1779,6 @@ function drawArcTubeTruss(par) {
 				var points = [];
 				var pb1 = copyPoint(pLast)
 				var pb2 = itercectionLineCircle(pb1, polar(pb1, ((angBrace + j * ang1) + Math.PI / 2), 100), pc, rad1Top)[0]
-				//if (Math.abs(pb2.x) > Math.abs(pEndTop.x)) {
-				//	pb2 = itercection(pb1, polar(pb1, ((angBrace + j * ang1) + Math.PI / 2), 100), line4Out.p1, line4Out.p2)
-				//	isBreak = true;
-				//}
 
 				if (pb2.x < pEndTop.x) break;
 
@@ -1769,11 +1786,6 @@ function drawArcTubeTruss(par) {
 				points.push(pb2)
 				var line = parallel(pb1, pb2, -bracePar.profY)
 				var pb3 = itercectionLineCircle1(line, pc, rad1Top)[0];
-				//if (Math.abs(pb3.x) > Math.abs(pEndTop.x)) {
-				//	pb3 = itercectionLines(line, line4Out)
-				//	if (!isBreak) points.push(pEndTop)
-				//	isBreak = true;
-				//}
 
 				if (pb3.x < pEndTop.x) break;
 
@@ -1793,10 +1805,6 @@ function drawArcTubeTruss(par) {
 				var points = [];
 				var pb1 = copyPoint(pLast)
 				var pb2 = itercectionLineCircle(pb1, polar(pb1, (angBrace + (j + 1) * ang1) + Math.PI, 100), pc, rad2Bot)[1]
-				//if (Math.abs(pb2.x) > Math.abs(pEndBot.x)) {
-				//	pb2 = itercection(pb1, polar(pb1, ((angBrace + (j + 1) * ang1) + Math.PI / 2) + Math.PI / 2, 100), line4Out.p1, line4Out.p2)
-				//	isBreak = true;
-				//}
 
 				if (pb2.x < pEndBot.x) break;
 
@@ -1804,11 +1812,6 @@ function drawArcTubeTruss(par) {
 				points.push(pb2)
 				var line = parallel(pb1, pb2, bracePar.profY)
 				var pb3 = itercectionLineCircle1(line, pc, rad2Bot)[1];
-				//if (Math.abs(pb3.x) > Math.abs(pEndBot.x)) {
-				//	pb3 = itercectionLines(line, line4Out)
-				//	if (!isBreak) points.push(pEndBot)
-				//	isBreak = true;
-				//}
 
 				if (pb3.x < pEndBot.x) break;
 
@@ -1833,10 +1836,10 @@ function drawArcTubeTruss(par) {
 	
 		var pc = newPoint_xy(p0, 0, -rad);
 
-		var rad1Top = rad - beamProfParams.sizeA / 2;
-		var rad2Top = rad + beamProfParams.sizeA / 2;
-		var rad1Bot = rad2Top - partPar.truss.width;
-		var rad2Bot = rad1Bot + beamProfParams.sizeA;
+		var rad1Top = rad - partPar.truss.chord.profSize.x
+		var rad2Top = rad; //врехний радиус верхнего пояса
+		var rad1Bot = rad2Top - partPar.truss.endHeight;
+		var rad2Bot = rad1Bot + partPar.truss.chord.profSize.x;
 
 		//верхний пояс---------------------------------------------------------------
 		var shape = new THREE.Shape();
@@ -2014,7 +2017,7 @@ function drawArcTubeTruss(par) {
 		}
 
 	}
-
+/*
 	//раскос крепления---------------------------------------------------------------
 	var offset = 200
 	var pEndBot = itercectionLineCircle1(line4Out, pc, rad1Bot)[0];
@@ -2041,25 +2044,27 @@ function drawArcTubeTruss(par) {
 	shapeMeshPar.points = points;
 	shapeMeshPar.extrudeOptions.amount = bracePar.profZ;
 	mesh.add(createShapeAndMesh(shapeMeshPar))
-
+*/
 
 	var pt = itercectionLineCircle1(line2Out, pc, rad1Top)[0]
 	var pt1 = newPoint_xy(pt, partPar.column.profSize.x / 2, 0)
 	var pt2 = itercectionLineCircle(pt1, newPoint_xy(pt1, Math.PI / 2, 100), pc, rad2Top)[0]
-	var dy = -pt.y + (partPar.truss.endHeight - distance(pt1, pt2));
+	var dy = -pt.y //+ (partPar.truss.endHeight - distance(pt1, pt2));
 
 
-	mesh.position.y = dy
+	mesh.position.y = dy + 100 // 100 - подогнано
 	if (params.carportType == 'односкатный') mesh.position.x = params.width / 2 - partPar.column.profSize.x / 2 - params.sideOffset;
 	par.mesh.add(mesh)
+	
+
 
 	// Выводим переменные для использования дальше
 	var pt = itercectionLineCircle(pc, polar(pc, Math.PI / 2, 100), pc, rad2Top)[0]
 	var pt1 = itercectionLineCircle(pc, polar(pc, Math.PI / 2, 100), pc, rad1Bot)[0]
 	var arcAngle = topArc.startAngle - topArc.endAngle;
 	par.topRad = topArc.rad;
-	par.centerY = pt.y + dy;
-	par.centerYBot = pt1.y + dy;
+	par.centerY = dy;
+	par.centerYBot = dy;
 	par.arcLength = topArc.rad * arcAngle;
 	par.topArc = topArc;
 	topArc.len = topArc.rad * (topArc.startAngle - topArc.endAngle)
@@ -2072,6 +2077,12 @@ function drawArcTubeTruss(par) {
 	}
 
 
+	//для двухскатных навесов далее используем полную верхнюю дугу
+	if (params.carportType == 'двухскатный') {
+		par.topArc.endAngle = Math.PI - topArc.startAngle;
+		par.progonAmt *= 2;
+	}
+	
 	//var box3 = new THREE.Box3().setFromObject(truss);
 	//var s = ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
 	var s = 0
@@ -2113,7 +2124,7 @@ function drawTriangleTubeTruss(par) {
 	par.mesh = new THREE.Object3D();
 	var mesh = new THREE.Object3D();
 
-	var beamProfParams = getProfParams(params.beamProf)
+	var beamProfParams = getProfParams(params.chordProf)
 
 	var ang = partPar.main.roofAng;
 
@@ -2126,7 +2137,7 @@ function drawTriangleTubeTruss(par) {
 	var sideFactor = 1;
 
 	var extrudeOptions = {
-		amount: beamProfParams.sizeB,
+		amount: partPar.truss.chord.profSize.x,
 		bevelEnabled: false,
 		curveSegments: 12,
 		steps: 1
@@ -2143,8 +2154,8 @@ function drawTriangleTubeTruss(par) {
 
 	
 	var bracePar = {//раскосы
-		profY: 20,
-		profZ: 20,
+		profY: partPar.truss.web.profSize.x,
+		profZ: partPar.truss.web.profSize.y,
 		stepBrace: 5, // расстояние между раскосами
 		stepBraceDivide: 20,// расстояние между раскосами на разделение фермы
 	};
@@ -2184,10 +2195,10 @@ function drawTriangleTubeTruss(par) {
 	if (params.carportType == 'односкатный') {
 
 		var line1Top = { p1: copyPoint(p0), p2: polar(p0, ang, 100) }
-		var line2Top = parallel(line1Top.p1, line1Top.p2, beamProfParams.sizeA)
+		var line2Top = parallel(line1Top.p1, line1Top.p2, partPar.truss.chord.profSize.y)
 
-		var line1Bot = parallel(line1Top.p1, line1Top.p2, -(partPar.truss.width - beamProfParams.sizeA))
-		var line2Bot = parallel(line1Bot.p1, line1Bot.p2, beamProfParams.sizeA) 
+		var line1Bot = parallel(line1Top.p1, line1Top.p2, -(partPar.truss.endHeight - partPar.truss.chord.profSize.y))
+		var line2Bot = parallel(line1Bot.p1, line1Bot.p2, partPar.truss.chord.profSize.y) 
 
 		//Раскосы
 		var pEndTop = itercectionLines(line1Top, line4Out);
@@ -2366,10 +2377,10 @@ function drawTriangleTubeTruss(par) {
 			}
 
 			var line1Top = { p1: copyPoint(p0), p2: polar(p0, ang * sideFactor, 100) }
-			var line2Top = parallel(line1Top.p1, line1Top.p2, beamProfParams.sizeA)
+			var line2Top = parallel(line1Top.p1, line1Top.p2, partPar.truss.chord.profSize.y)
 
-			var line1Bot = parallel(line1Top.p1, line1Top.p2, -(partPar.truss.width - beamProfParams.sizeA))
-			var line2Bot = parallel(line1Bot.p1, line1Bot.p2, beamProfParams.sizeA)
+			var line1Bot = parallel(line1Top.p1, line1Top.p2, -(partPar.truss.width - partPar.truss.chord.profSize.y))
+			var line2Bot = parallel(line1Bot.p1, line1Bot.p2, partPar.truss.chord.profSize.y)
 			var p0Bot = itercection(line1Bot.p1, line1Bot.p2, p0, polar(p0, Math.PI / 2, 100))
 
 			var pc = itercection(line2Bot.p1, line2Bot.p2, p0Bot, polar(p0Bot, Math.PI / 2, 100))
@@ -2502,7 +2513,7 @@ function drawTriangleTubeTruss(par) {
 				var points = [p1, p2, p3, p4];
 
 				shapeMeshPar.points = points;
-				shapeMeshPar.extrudeOptions.amount = beamProfParams.sizeB;
+				shapeMeshPar.extrudeOptions.amount = partPar.truss.chord.profSize.x;
 				mesh.add(createShapeAndMesh(shapeMeshPar))
 
 				//-------------------------
@@ -2514,7 +2525,7 @@ function drawTriangleTubeTruss(par) {
 				var points = [p1, p2, p3, p4];
 
 				shapeMeshPar.points = points;
-				shapeMeshPar.extrudeOptions.amount = beamProfParams.sizeB;
+				shapeMeshPar.extrudeOptions.amount = partPar.truss.chord.profSize.x;
 				mesh.add(createShapeAndMesh(shapeMeshPar))
 			}
 
@@ -2568,8 +2579,8 @@ function drawTriangleTubeTruss(par) {
 
 			//Фланец соединения фермы------------
 			{
-				var width = beamProfParams.sizeB;
-				var height = partPar.truss.width - beamProfParams.sizeA * 2;
+				var width = partPar.truss.chord.profSize.y;
+				var height = partPar.truss.width - partPar.truss.chord.profSize.x * 2;
 				var thk = 4;
 
 				var p1 = copyPoint(p0);
@@ -2642,6 +2653,7 @@ function drawTriangleTubeTruss(par) {
 
 	//var box3 = new THREE.Box3().setFromObject(truss);
 	//var s = ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
+	
 	var s = 0
 	var lenTruss = distance(pt3Out, pt3In)
 	var partName = "truss";

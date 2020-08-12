@@ -211,7 +211,6 @@ function getExportData_com(checkSumm){
 		
 	};
 
-	
 	//исправляем пустые значения
 	for(var unit in price_data){
 		if(!price_data[unit]['price']) price_data[unit]['price'] = 0;	
@@ -307,7 +306,7 @@ function getExportData_com(checkSumm){
 		}
 	}
 
-	if (window.additional_objects && price_data.main.additional_objects) {
+	if (window.additional_objects && staircasePrice.additionalObjectsFinalPrice) {
 		price_data.main.additional_objects = staircasePrice.additionalObjectsFinalPrice;
 	}
 	else{
@@ -635,7 +634,7 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 			dept_data.partners += sum * $(this).find(".partnersPart").val() / 100;
 		})
 	}
-
+	
 	//проверка
 	var deptsSum = dept_data.metal + dept_data.timber + dept_data.partners;
 

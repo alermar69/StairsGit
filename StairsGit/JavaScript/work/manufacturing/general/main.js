@@ -12,7 +12,6 @@ var balPartsParams = {
 	handrails: [],
 	rigels: [],
 	};
-
 var workList = {}; //сдельные расценки для цеха
 var isDoorsOpened = false;
 var wrPrice = {}; //глобальный массив цен элементов шкафа
@@ -47,7 +46,7 @@ $(function () {
 	//добавляем стены
 	addWalls('vl_1', false);//параметры viewportId, isVisible
 	
-	if($("#calcType").val() != "railing"){
+	if($("#calcType").val() != "railing" && $("#calcType").val() != "slabs"){
 		//добавляем балюстраду
 		addBanister('vl_1');
 
@@ -67,12 +66,23 @@ $(function () {
 	//создаем номенклатуру материалов
 	createMaterialsList(); //в файле /calculator/general/materials.js
 
-	//вешаем перерисовку стен на измененние инпутов формы параметров стен
-    $('.tabs').delegate('input,select,textarea', 'change', function(){
+	//перерисовка стен при измененнии инпутов формы параметров стен
+    $('#nav-walls').delegate('input,select', 'change', function(){
 		getAllInputsValues(params);
-		drawTopFloor();
-		redrawWalls();
+		if($("#calcType").val() != "railing"){
+			drawTopFloor();
+			redrawWalls();
+		}
+		
 		drawSceneDimensions();
+	});
+	
+	//перерисовка балюстрады при измененнии инпутов формы параметров стен
+    $('#nav-banister').delegate('input,select', 'change', function(){
+		getAllInputsValues(params);
+		if($("#calcType").val() != "railing" && typeof drawBanister == "function"){
+			drawBanister();
+		}
 	});
 	
 	$('#makeDrawings').click(function(){
@@ -84,6 +94,10 @@ $(function () {
 		setLoadedData(window.loadedData, true);
 	}else{
 		recalculate();
+	}
+
+	if (params.calcType == 'slabs') {
+		dxfBasePoint = {};
 	}
 
 });
@@ -103,6 +117,7 @@ function recalculate() {
 				var drawFunc = function(){};
 				if($("#calcType").val() == "carport") drawFunc = drawCarport;
 				else if($("#calcType").val() == "veranda") drawFunc = drawVeranda;
+				else if($("#calcType").val() == "slabs" || $("#calcType").val() == "table") drawFunc = drawTable;
 				else drawFunc = drawStaircase;
 				
 				drawFunc('vl_1', true);
@@ -111,7 +126,7 @@ function recalculate() {
 				if($("#calcType").val() == "railing"){
 					redrawConcrete();
 				}
-				else {
+				else if($("#calcType").val() != "slabs") {
 					drawTopFloor();
 					drawBanister();
 				}

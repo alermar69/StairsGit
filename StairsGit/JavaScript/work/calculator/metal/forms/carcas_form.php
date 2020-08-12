@@ -390,7 +390,7 @@
 			</div>
 		</div>
 
-		<div id="assembling_inputs">
+		<div id="assembling_inputs" class='editionsChangeForm'>
 
 			<h4>6. Крепление лестницы.</h4>
 			<!-- параметры крепления лестницы к стенам-->
@@ -646,7 +646,7 @@
 
 
 
-		<div id="manufacturingParams">
+		<div id="manufacturingParams" class='editionsChangeForm'>
 			<h4>7. Технологические параметры:</h4>
 
 			<table class="form_table">

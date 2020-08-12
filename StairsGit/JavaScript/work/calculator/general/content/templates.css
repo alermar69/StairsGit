@@ -123,3 +123,7 @@
 	height: 500px;
     overflow: scroll;
 }
+
+.zamer-blocks .zamer-block{
+	margin-top: 20px;
+}

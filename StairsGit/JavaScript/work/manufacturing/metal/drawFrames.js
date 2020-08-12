@@ -411,7 +411,7 @@ par.frameParams = {
 		points: outLine.points,
 		dxfArr: dxfPrimitivesArr,
 		dxfBasePoint: par.dxfBasePoint,
-		markPoints: true, //пометить точки в dxf для отладки
+	//	markPoints: true, //пометить точки в dxf для отладки
 	};
 
 		

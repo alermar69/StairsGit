@@ -11,6 +11,7 @@ class AdditionalObject extends THREE.Object3D {
 
 	constructor(par) {
 		super();
+		if(!par) return;
 
 		this.objId = par.id;
 		this.par = par.meshParams;

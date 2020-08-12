@@ -1417,6 +1417,7 @@ function isPainting(item){
 		
 		//детали каркаса
 		paintType = params.metalPaint;
+		if(params.calcType == "carport") paintType = params.carportMetalPaint;
 		var paintColor = false;
 		if(params.metalPaint !== 'нет') paintColor  = params.carcasColor || 'не указано';	
 		

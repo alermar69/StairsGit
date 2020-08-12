@@ -1,4 +1,4 @@
-<div id='geometry_form' class='noPrint'>
+<div id='geometry_form' class='noPrint editionsChangeForm'>
 	<h4>Рассчет геометрии</h4>
 	
 	<table class='form_table'>

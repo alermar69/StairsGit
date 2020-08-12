@@ -8,7 +8,7 @@ $scripts[] = ["url" => "/calculator/general/forms/formsChange.js"];
 $scripts[] = ["url" => "/calculator/general/layers.js"];
 $scripts[] = ["url" => "/orders/files/getLinks.js"];
 $scripts[] = ["url" => "/calculator/general/modals/main.js"];
-$scripts[] = ["url" => "/calculator/general/offer.js"];
+$scripts[] = ["url" => "/calculator/general/editions.js"];
 $scripts[] = ["url" => "/calculator/general/content/description.js"];
 
 //<!--графика-->

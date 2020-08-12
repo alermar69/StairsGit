@@ -1,6 +1,6 @@
 <?
-  require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-  $APPLICATION->SetTitle("Расчет лестниц");
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+$APPLICATION->SetTitle("Столы, столешницы, подоконники");
 ?>
 
 <!-- все формы -->

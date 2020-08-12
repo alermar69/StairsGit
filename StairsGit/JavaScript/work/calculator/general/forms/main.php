@@ -5,7 +5,8 @@
 		$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 	
 		//модуль
-		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda'];
+		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda', 'slabs', 'table'];
+		
 		$calc_type = '';
 		foreach($calc_types as $item){
 			if (strpos($url,'/'.$item) !== false) $calc_type = $item;
@@ -41,6 +42,8 @@
 	if($calc_type == 'objects') $title = "Расчет объектов";
 	if($calc_type == 'carport') $title = "Расчет навеса";
 	if($calc_type == 'veranda') $title = "Расчет веранды";
+	if($calc_type == 'table') $title = "Расчет стола";
+	if($calc_type == 'slabs') $title = "Коммерческое предложение";
 
 	//тип расчета и версия
 	echo '
@@ -59,7 +62,7 @@
 	};
 
 	//пошаговый конфигуратор лестницы и менеджер картинок
-	$ignor_calc_types = ['railing', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects'];
+	$ignor_calc_types = ['railing', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'slabs'];
 	if ($template == 'calculator' && !in_array($calc_type, $ignor_calc_types) && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
 		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/main.php";
 	}
@@ -88,7 +91,13 @@
 				<h2 class="raschet" onclick="recalculate();">Общий вид:</h2>
 				<div id="Stats-output" style="display: none;"></div>
 				<div id="WebGL-output"><canvas>Для отображения содержимого откройте страницу в Гугл Хром</canvas></div>
-			</div>';
+			</div>
+			<div id="svg" style="display: none;width: 1000px;height:1050px;position: relative;">
+				<div class="image_container" style="position: absolute;width: 1000px;height: 1000px;margin-top: 50px;;left: 0;top: 0;"></div>
+				<button id="saveSvg" class="btn btn-outline-primary">Сохранить SVG</button>
+				<button id="saveDxf" class="btn btn-outline-primary">Сохранить DXF</button>
+			</div>
+			';
 
 		echo "<div class='dropdown-menu dropdown-menu-sm' id='objectContextMenu'></div>";
 
@@ -135,7 +144,6 @@
 					<button id="toggleAll">Развернуть</button>
 				</div>';
 		};
-
 
 	};
 
@@ -282,9 +290,9 @@
 	};
 	if($calc_type == 'vint'){
 		$tabs['geom'] = false;
-		$tabs['carcas']['url']  = "/calculator/vint/forms/vint_form.php";
+		$tabs['carcas']['url']  = "/calculator/vint/forms/vint_carcas_form.php";
 		$tabs['carcas']['scripts'] = ["/calculator/vint/forms/changeFormVint.js"];
-		$tabs['railing'] = false;
+		$tabs['railing']['url']  = "/calculator/vint/forms/vint_railing_form.php";
 	};
 
 	if($calc_type == 'geometry'){
@@ -301,7 +309,7 @@
 		$tabs['geom'] = false;
 		$tabs['carcas']['name'] = "Навес";
 		$tabs['carcas']['url'] = "/calculator/carport/forms/main_form.php";
-		//$tabs['banister'] = false;
+		$tabs['banister']['url'] = "/calculator/banister/forms/banister_construct_form.php";
 		$tabs['railing'] = false;
 		$tabs['floor_form'] = false;
 		$tabs['walls'] = false;
@@ -330,6 +338,43 @@
 		];
 		
 	};
+	
+	
+		
+	if ($calc_type == 'slabs') {
+		$tabs['geom'] = false;
+		$tabs['carcas'] = false;
+		$tabs['banister'] = false;
+		$tabs['railing'] = false;
+		$tabs['banister'] = false;
+		$tabs['railing'] = false;
+		$tabs['floor_form'] = false;
+		$tabs['walls'] = false;
+		$tabs['assembling'] = false;
+		
+		//главная форма
+		$tabs['geom'] = [
+			'name' => 'Изделия',
+			'url' => '/calculator/slabs/forms/mainForm.php',
+			'group' => 'data', //выводим в теле страницы
+		];
+	};
+	
+	if ($calc_type == 'table') {
+		$tabs['geom'] = false;
+		$tabs['carcas']['name'] = "Стол";
+		$tabs['carcas']['url'] = "/calculator/table/forms/mainForm.php";
+		$tabs['banister'] = false;
+		$tabs['railing'] = false;
+		$tabs['banister'] = false;
+		$tabs['railing'] = false;
+		$tabs['floor_form'] = false;
+		$tabs['walls'] = false;
+	};
+	
+	
+	
+	
 
 
 		
@@ -547,8 +592,10 @@
 			]
 		];
 	}
-
-	if ($calc_type != 'carport' && $calc_type != 'objects' && $calc_type != 'wardrobe_2' && $calc_type != 'wardrobe') {
+	
+	$ignor_calc_types = ['geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'slabs'];
+	
+	if (!in_array($calc_type, $ignor_calc_types) ) {
 		$tabs["materials"] = [
 			'name' => 'Материалы',
 			'url' => "/calculator/general/forms/materialsForm.php",
@@ -591,7 +638,7 @@
 			<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Действия</a>
 			<div class="dropdown-menu">
 				<span class="dropdown-item" id="createConstructionTask">Стр. задание</span>
-				<span class="dropdown-item"  id="toSvg">Снимок</span>
+				<span class="dropdown-item" id="makeSnapshot">Снимок</span>
 				<span class="dropdown-item"  id="validate">Проверить</span>
 				<span class="dropdown-item"  id="compareModalShow">Сравнить с другим</span>';
 
@@ -686,6 +733,8 @@
 
 	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/forgedBals.php";
 	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/updateEditions.php";
+	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/snapshotModal.php";
+
 	if ($template != 'customers') {
 		include $GLOBALS['ROOT_PATH']."/calculator/general/modals/timberBals.php";
 		include $GLOBALS['ROOT_PATH']."/calculator/general/modals/timberNewells.php";

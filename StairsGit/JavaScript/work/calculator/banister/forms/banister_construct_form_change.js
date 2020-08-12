@@ -4,7 +4,7 @@ var par = {};
 $("#banisterСonstructFormWrap").show();
 if(params.banisterSectionAmt == 0) $("#banisterСonstructFormWrap").hide();
 
-if(params.banisterSectionAmt != 0 && params.railingModel_bal == "нет" && !testingMode)
+if(params.banisterSectionAmt != 0 && params.railingModel_bal == "нет" && !testingMode && params.calcType != "carport")
 	alertTrouble('ВНИМАНИЕ! Есть секции балюстрады, но тип ограждения балюстрады выбран "нет" \nУдалите секции или выберите тип ограждения!')
 
 //параметры поручня

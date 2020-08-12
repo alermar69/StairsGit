@@ -1,4 +1,4 @@
-function calcTablePrice(){
+function calculateCarcasPrice(){
 	staircaseCost = {};
 	
 	//столешница

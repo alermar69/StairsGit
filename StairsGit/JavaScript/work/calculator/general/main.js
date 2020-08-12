@@ -45,7 +45,7 @@ $(function () {
 	//добавляем стены
 	addWalls('vl_1', false);//параметры viewportId, isVisible
 	
-	if($("#calcType").val() != "railing"){
+	if($("#calcType").val() != "railing" && $("#calcType").val() != "slabs"){
 		//добавляем балюстраду
 		addBanister('vl_1');
 
@@ -61,12 +61,6 @@ $(function () {
 		if(layers[layer]['only_for'] && layers[layer]['only_for'].indexOf(params.calcType) == -1) needAdd = false;
 		if(needAdd) addLayer(layer, layers[layer]['name']);
 	}
-	
-	//конфигурируем правое меню
-	$(".tabs").lightTabs();
-	
-	//конфигурируем табы в трудоемкости
-	$("#wageInfo").lightTabs();
 	
 	//создаем номенклатуру материалов
 	createMaterialsList(); //в файле /calculator/general/materials.js
@@ -146,6 +140,7 @@ function recalculate() {
 				var drawFunc = function(){};
 				if($("#calcType").val() == "carport") drawFunc = drawCarport;
 				else if($("#calcType").val() == "veranda") drawFunc = drawVeranda;
+				else if($("#calcType").val() == "slabs" || $("#calcType").val() == "table") drawFunc = drawTable;
 				else drawFunc = drawStaircase;
 				
 				drawFunc('vl_1', true);
@@ -154,7 +149,7 @@ function recalculate() {
 				if($("#calcType").val() == "railing"){
 					redrawConcrete();
 				}
-				else {
+				else if($("#calcType").val() != "slabs") {
 					drawTopFloor();
 					drawBanister();
 				}
@@ -171,7 +166,9 @@ function recalculate() {
 
 				drawSceneDimensions();
 				
-				if($("#calcType").val() != "railing" && $("#calcType").val() != "carport" && $("#calcType").val() != "veranda"){
+				var ignorCals = ["railing", "carport", "veranda", "table", "slabs"]
+				
+				if(ignorCals.indexOf($("#calcType").val()) == -1){
 					printGeomDescr();
 				}
 			

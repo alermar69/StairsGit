@@ -1,5 +1,5 @@
 <div id="openingFormWrap">
-	<div id="openingForm">
+	<div id="openingForm" class='editionsChangeForm'>
 		<h4>Проем</h4>
 		<table class="form_table w-100">
 			<tbody>

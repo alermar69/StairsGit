@@ -311,7 +311,8 @@ function compareOffers(){
 } //end of compareOffers
 
 function printCompareOffer(data){
-	printCompareResult(data);
+	var text = compareParams(data).text;
+	$("#offersCompareResult").html(text);
 	//выделяем цветом
 	$("#offersCompareResult tr").each(function(){
 		var cell = $(this).find("td:last");
@@ -324,44 +325,52 @@ function printCompareOffer(data){
 	})
 }
 
-function printCompareResult(data){
-	if(!data) {
+function compareParams(params1, params2){
+	if(!params1) {
 		alert("Неверные данные. Сравнение не удалось");
 		return;
-		}
+	}
 	var text = "<table class='tab_2'><tbody><tr><th>параметр</th><th>название</th><th>текущий</th><th>другой</th><th>результат</th></tr>"
 	
-	var ignorList = ["label", "version", "calcType", "calcVersion", "offerDescription", "orderName", "orderDate", "comments", "imageSize"];
+	var ignoreList = getServiceInputsIds();//["label", "version", "calcType", "calcVersion", "offerDescription", "orderName", "orderDate", "comments", "imageSize"];
 	
-	if(data.calcType != $("#calcType").val()){
-		ignorList.push("staircaseType", "G_min", "angleType")
-		}
+	// if(data.calcType != $("#calcType").val()){
+	// 	ignorList.push("staircaseType", "G_min", "angleType")
+	// }
 	
 	//добавляем инпуты служебных форм в игнор-лист
-	$("#testingInputs, #newBugForm, #offerNameForm").find('input,select,textarea').each(function(){
-		ignorList.push(this.id);
-		});
-
-	$.each(data, function(key){	
-		if(ignorList.indexOf(key) == -1){
+	// $("#testingInputs, #newBugForm, #offerNameForm").find('input,select,textarea').each(function(){
+	// 	ignorList.push(this.id);
+	// });
+	var isEqual = true;
+	$.each(params1, function(key){	
+		if(ignoreList.indexOf(key) == -1 && key){
 			var name = $("#" + key).closest('tr').find("td").eq(0).text();
 			name = name.replace(':','');
 			if(!name) name = "";
 			var res = "совпадает"
-			if($("#" + key).val() != this) res = "РАЗНЫЕ"
+			if (params2) {
+				var val = params2[key];
+			}else{
+				var val = getInputValue(key)
+			}
+			if(val != this) {
+				res = "РАЗНЫЕ";
+				isEqual = false;
+			}
 			
 			text += "<tr>" + 
 				"<td>" + key + "</td>" + 
 				"<td>" + name + "</td>" + 
-				"<td>" + $("#" + key).val() + "</td>" + 
+				"<td>" + val + "</td>" + 
 				"<td>" + this + "</td>" + 
 				"<td>" + res + "</td>" + 
 				"</tr>"
 		}
 	});
+
 	
 	text += "</tbody></table>"
 	
-	$("#offersCompareResult").html(text);
-
+	return {isEqual: isEqual, text: text}
 }

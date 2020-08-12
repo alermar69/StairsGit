@@ -726,6 +726,8 @@ function drawBalSection(par) {
 					shapesList.push(fakeShape);
 				}
 			}
+			
+			//заполнение - кресты
 			if (railingModel == 'Кресты') {
 				var crossHeight = frameParams.height;
 				var crossProfParams = getProfParams(params.crossProfileBal);
@@ -733,7 +735,7 @@ function drawBalSection(par) {
 				var crossProfileY = crossProfParams.sizeB;
 
 				var crossFillParams = {
-					sectLen: sectLen - 80,
+					sectLen: sectLen - 40 * 2, //40 - толщина стойки
 					ang: 0,
 					height: crossHeight - 140,
 					dxfBasePoint: par.dxfBasePoint,
@@ -742,11 +744,21 @@ function drawBalSection(par) {
 					profileX: crossProfileX,
 					profileY: crossProfileY
 				}
-
+				
 				var crossFillPos = {
 					x: offsetLeft + sectBaseX + frameParams.legProf - 20,
 					y: frameParams.botProf - 50,
 				};
+				
+				if(params.calcType == "veranda"){
+					if(par.flans == "начало" || par.flans == "две стороны"){						
+						crossFillParams.sectLen += par.handrailOffsetStart
+						crossFillPos.x -= par.handrailOffsetStart;
+					}
+					if(par.flans == "конец" || par.flans == "две стороны") {						
+						crossFillParams.sectLen += par.handrailOffsetEnd
+					}
+				}
 
 				crossFillParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, crossFillPos.x, crossFillPos.y);
 
@@ -758,16 +770,13 @@ function drawBalSection(par) {
 			}
 		}
 
-		if (railingModel == "Кованые балясины") {
+		if (railingModel == "Кованые балясины" || railingModel == "Кресты") {
 			//подпись
-			var text = "Кованая секция балюстрады " + (par.sectId + 1);
+			var text = "Сварная секция балюстрады " + (par.sectId + 1);
 			if (par.type == "секция площадки") text = "Секция ограждения площадки";
 			var textHeight = 30;
 			var textBasePoint = newPoint_xy(par.dxfBasePoint, 100, -100)
 			addText(text, textHeight, dxfPrimitivesArr, textBasePoint)
-		}
-		if (railingModel == 'Кресты') {
-
 		}
 
 		//кронштейны поручня
@@ -874,7 +883,7 @@ function drawBalSection(par) {
 				if (par.angleStart == 0) handrailLength += -handrailProfileZ / 2
 			}
 
-			if (railingModel == "Решетка" || railingModel == "Кованые балясины") handrailLength -= 40;
+			if (railingModel == "Кованые балясины" || railingModel == "Кресты") handrailLength -= 40;
 
 			var handrailParams = {
 				partName: "handrails",
@@ -993,7 +1002,7 @@ function drawBalSection(par) {
 				if ((par.connection == 'начало' || par.connection == 'нет') && i == (partsAmt - 1)) handrailParams.endPlug = true;
 				handrailParams.length = length / partsAmt;
 
-				if (params.railingModel_bal == "Кованые балясины" && params.handrailFixType_bal == "паз") handrailParams.hasSilicone = true;
+				if ((railingModel == "Кованые балясины" || railingModel == "Кресты") && params.handrailFixType_bal == "паз") handrailParams.hasSilicone = true;
 				if (params.railingModel_bal == 'Самонесущее стекло' && params.handrailFixType_bal == "паз") handrailParams.hasSilicone = true;
 				var pole = drawHandrail_4(handrailParams).mesh;
 
@@ -1040,7 +1049,7 @@ function drawBalSection(par) {
 
 		} //конец поручня кроме деревянных ограждений
 
-		if (pos) {
+		if (params.calcType != "veranda" && pos) {
 			var flanPar = {
 				type: handrailPar.handrailModel,
 			}
@@ -1310,7 +1319,7 @@ function drawBalSection(par) {
 
 	//сохраняем данные для спецификации
 
-	if (railingModel == "Кованые балясины") {
+	if (railingModel == "Кованые балясины" || railingModel == "Кресты") {
 
 		var partName = "forgedSection";
 		if (typeof specObj != 'undefined') {
@@ -1320,7 +1329,7 @@ function drawBalSection(par) {
 					amt: 0,
 					sumArea: 0,
 					sumLength: 0,
-					name: "Кованая секция ",
+					name: "Сварная секция ",
 					metalPaint: true,
 					timberPaint: false,
 					division: "metal",
