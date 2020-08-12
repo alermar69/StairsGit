@@ -314,6 +314,65 @@
 			
 		</tbody>
 	</table>
+
+	<h3>Беседка</h3>
+	<table class="form_table">
+		<tbody>
+			<tr>
+				<td>Тип пола:</td>
+				<td>
+					<select id="floorType">
+						<option value="граненый">граненый</option>
+						<option value="параллельные доски">параллельные доски</option>
+						<option value="нет">нет</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Высота пола:</td>
+				<td><input type="number" id="heightFloor" value="200"></td>
+			</tr>
+			<tr>
+				<td>Толщина доски пола:</td>
+				<td><input type="number" id="thkFloor" value="20"></td>
+			</tr>
+			<tr>
+				<td>Геометрия стола:</td>
+				<td>
+					<select id="tableType">
+						<option value="многогранник">многогранник</option>
+						<option value="круглый">круглый</option>
+						<option value="нет">нет</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Диаметр стола:</td>
+				<td><input type="number" id="diamTable" value="2500"></td>
+			</tr>
+			<tr>
+				<td>Высота стола:</td>
+				<td><input type="number" id="heightTable" value="750"></td>
+			</tr>
+			<tr>
+				<td>Толщина стола:</td>
+				<td><input type="number" id="thkTable" value="20"></td>
+			</tr>
+			<tr>
+				<td>Высота скамейки:</td>
+				<td><input type="number" id="heightBench" value="450"></td>
+			</tr>
+			<tr>
+				<td>Ширина скамейки:</td>
+				<td><input type="number" id="widthBench" value="300"></td>
+			</tr>
+			<tr>
+				<td>Толщина скамейки:</td>
+				<td><input type="number" id="thkBench" value="20"></td>
+			</tr>
+			
+		</tbody>
+	</table>
 	
 	<h3>Стены</h3>
 	<table class="form_table">

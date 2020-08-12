@@ -301,7 +301,7 @@
 		$tabs['geom'] = false;
 		$tabs['carcas']['name'] = "Навес";
 		$tabs['carcas']['url'] = "/calculator/carport/forms/main_form.php";
-		$tabs['banister'] = false;
+		//$tabs['banister'] = false;
 		$tabs['railing'] = false;
 		$tabs['floor_form'] = false;
 		$tabs['walls'] = false;

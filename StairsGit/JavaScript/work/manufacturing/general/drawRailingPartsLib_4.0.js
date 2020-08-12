@@ -1546,7 +1546,22 @@ function getPoleSpecParams(par){
 		specObjPart.name = "Краевой профиль поликарбоната";
 		specObjPart.division = "metal";
 	}
-	
+
+	if (partName == 'roofRafter') {
+		specObjPart.name = 'Стропильная нога';
+		specObjPart.division = "metal";
+		specObjPart.group = 'carcas';
+	}
+	if (partName == "tableLeg") {
+		specObjPart.name = "Ножка стола";
+		specObjPart.division = "metal";
+		specObjPart.group = "Каркас";
+	}
+	if (partName == "benchBridge") {
+		specObjPart.name = "Перемычка скамейки";
+		specObjPart.division = "metal";
+		specObjPart.group = "Каркас";
+	}
 
 	
 

@@ -435,6 +435,18 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 		var ang = Math.atan(y / x);
 		}
 		return ang;
+}
+
+	function angleXY3d(p1, p2) {
+	/*возвращает угол между плоскостью XY и направляющим вектором
+	  p1 - вектор нормали
+	  p2 - направляющий вектор
+	 */
+
+		var ang = Math.abs(p1.x * p2.x + p1.y * p2.y + p1.z * p2.z) / Math.sqrt(p1.x * p1.x + p1.y * p1.y + p1.z * p1.z) / Math.sqrt(p2.x * p2.x + p2.y * p2.y + p2.z * p2.z)
+
+		ang = Math.asin(ang);
+		return ang;
 	}
 	
 	function toRadians(angle){

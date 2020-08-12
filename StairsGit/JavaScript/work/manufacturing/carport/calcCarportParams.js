@@ -12,7 +12,7 @@ profTypes
 
 function setCarportProfs(){
 	
-	if(params.sectLen > 3000){
+	if (params.sectLen > 3000 && params.carportType !== "четырехскатный"){
 		alert("Прочность фермы не позволяет сделать длину секции более 3000 мм. Была установлена длина секции 3000 мм.")
 		$("#sectLen").val(3000)
 	}
