@@ -345,7 +345,7 @@ function drawBalSection(par) {
 			rack.position.z = pos.z;
 
 			var isDrawRack = true;
-			if (params.calcType == 'veranda') {
+			if (params.calcType == 'veranda' || params.calcType == 'carport') {
 				if (i == 0 && (par.flans == 'две стороны' || par.flans == 'начало')) isDrawRack = false;
 				if (i == (rackAmt - 1) && (par.flans == 'две стороны' || par.flans == 'конец')) isDrawRack = false;
 			}
@@ -382,7 +382,7 @@ function drawBalSection(par) {
 		var y0 = 0;
 		var rigelLength = platformLength - offsetLeft - offsetRight + 60;
 		var z0 = 0;
-		if (params.calcType == 'veranda') {
+		if (params.calcType == 'veranda' || params.calcType == 'carport') {
 			if (par.flans == 'две стороны' || par.flans == 'начало') {
 				x0 = 0;
 				rigelLength += offsetRight - 30
@@ -492,7 +492,7 @@ function drawBalSection(par) {
 		for (i = 0; i < rackPosition.length - 1; i++) {
 			glassParams.p1 = newPoint_xy(rackPosition[i], 0, 10); //10 - подогнано
 			glassParams.p2 = newPoint_xy(rackPosition[i + 1], 0, 10);
-			if (params.calcType == 'veranda') {
+			if (params.calcType == 'veranda' || params.calcType == 'carport') {
 				if (i == 0 && (par.flans == 'две стороны' || par.flans == 'начало')) glassParams.p1.x -= 40 + offsetRight;
 				if (i == (rackPosition.length - 2) && (par.flans == 'две стороны' || par.flans == 'конец')) glassParams.p2.x += 40 + offsetLeft;
 			}
@@ -653,7 +653,7 @@ function drawBalSection(par) {
 				offsetLastRack: 0,
 			}
 
-			if (params.calcType == 'veranda') {
+			if (params.calcType == 'veranda' || params.calcType == 'carport') {
 				frameParams.noDrawFirstRack = false;
 				frameParams.offsetLastRack = false;
 				if (j == 1 && (par.flans == 'две стороны' || par.flans == 'начало')) {
@@ -750,7 +750,7 @@ function drawBalSection(par) {
 					y: frameParams.botProf - 50,
 				};
 				
-				if(params.calcType == "veranda"){
+				if (params.calcType == "veranda" || params.calcType == "carport"){
 					if(par.flans == "начало" || par.flans == "две стороны"){						
 						crossFillParams.sectLen += par.handrailOffsetStart
 						crossFillPos.x -= par.handrailOffsetStart;

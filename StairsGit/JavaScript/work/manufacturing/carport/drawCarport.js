@@ -931,7 +931,7 @@ function drawPolygonSegment(par) {
 	//скамейка
 	if (params.benchType != "нет" && par.i !== 0) {
 		var benchPar = {
-			ang: par.angle,
+			ang: (Math.PI - par.angle) / 2,
 			dxfArr: dxfPrimitivesArr,
 			dxfBasePoint: { x: 2000, y: 0 },
 			isLast: false,
@@ -947,8 +947,6 @@ function drawPolygonSegment(par) {
 
 	//ограждение
 	if (par.i !== 0) {
-		params.calcType = 'veranda'
-
 		var sectionParams = {
 			length: edgeLen - columnProfPar.sizeA * Math.sin(par.angle) * 2,
 			connection: "нет",
@@ -966,10 +964,6 @@ function drawPolygonSegment(par) {
 		section.position.y = 155;
 		section.setLayer('walls');
 		par.mesh.add(section);
-		
-		
-
-		params.calcType = 'carport'
 	}
 
 	//листы кровли
@@ -1514,10 +1508,10 @@ function drawPolygonSegmentFloor(par) {
 	if (!par.dxfBasePoint) par.dxfBasePoint = { x: 0, y: 0 };
 	if (!par.extraRad) par.extraRad = 0;
 
-	par.rad = params.domeDiam / 2 - 200;
+	par.rad = params.domeDiam / 2;
 
-	var beamProfY = 60
-	var beamProfZ = 40
+	var beamProfY = partPar.beam.profSize.y
+	var beamProfZ = partPar.beam.profSize.x
 
 	//радиус вписанной окружности
 	par.minRad = par.rad * Math.cos(par.angle / 2)
@@ -1573,7 +1567,7 @@ function drawPolygonSegmentFloor(par) {
 
 	//доски пола и балки
 	var floorPar = {
-		ang: par.angle,
+		ang: (Math.PI - par.angle) /2,
 		beamProfY: beamProfY,
 		beamProfZ: beamProfZ,
 		dxfBasePoint: par.dxfBasePoint,

@@ -96,6 +96,9 @@ function changeFormCarcas(){
 	if(params.carportType == 'купол' || params.carportType == 'сдвижной') {
 		$('#toggleDomeDoor').show();
 	}
+
+	//угол наклона кровли
+	if (params.floorType == "нет") $("#heightFloor").val(0)
 	
 	getAllInputsValues(params)
 	 

@@ -2350,7 +2350,7 @@ function drawPolygonRoofSectorBowl(par) {
 
 	//запоминаем нижнее ребро чаши для отрисовки нижней пластины чаши
 	par.botEdgeBowl = botEdgeBowl
-	par.botBowlY = pt1.y + partPar.rafter.profSize.y * Math.cos(params.roofAng / 180 * Math.PI)
+	par.botBowlY = pt1.y * Math.sin(params.roofAng / 180 * Math.PI)
 
 	//создаем шейп
 	var shapePar = {
@@ -2383,7 +2383,11 @@ function drawPolygonRoofSectorBowl(par) {
 	return par;
 }
 
-/* функция отрисовывает нижнюю пластину чашки каркаса кровли многоугольного павильона из поликарбоната */
+/** функция отрисовывает нижнюю пластину чашки каркаса кровли многоугольного павильона
+	@param ang // полный угол сектора
+	@param dxfArr: dxfPrimitivesArr,
+	@param dxfBasePoint: {x: 2000, y:0},
+*/
 function drawPolygonRoofSectorBowlBot(par) {
 
 	par.mesh = new THREE.Object3D();
@@ -2394,7 +2398,7 @@ function drawPolygonRoofSectorBowlBot(par) {
 
 	var points = []
 	for (var i = 0; i < params.edgeAmt; i++) {
-		points.push(polar(p0, par.ang * i, botEdgeBowl))
+		points.push(polar(p0, par.ang * i + (par.ang / 2 - Math.PI / 2), botEdgeBowl))
 	}
 
 	//создаем шейп
@@ -2418,7 +2422,7 @@ function drawPolygonRoofSectorBowlBot(par) {
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 
 	var frame = new THREE.Mesh(geom, params.materials.metal)
-	frame.rotation.x = -Math.PI / 2
+	frame.rotation.x = Math.PI / 2
 	par.mesh.add(frame);
 
 	par.mesh.setLayer('carcas');
@@ -2764,7 +2768,7 @@ function drawPyramidalRafters(par) {
 
 
 /** функция отрисовывает скамейку многоугольного павильона
-	@param ang // угол между гранями листа, примыкающими к шпилю
+	@param ang // угол грани
 	@param dxfArr: dxfPrimitivesArr,
 	@param dxfBasePoint: {x: 2000, y:0},
 	@param isLast - первая скамейка
@@ -2799,7 +2803,7 @@ function drawPolygonRoofSectorBench(par) {
 	//var p1 = newPoint_xy(p0, -edgeLen, 0)
 
 	var p1 = polar(p0, par.ang, -(params.domeDiam / 2 - (partPar.column.profSize.y + offset) / Math.sin(par.ang)))
-	var p2 = polar(p1, par.ang, widthBench)
+	var p2 = polar(p1, par.ang, widthBench / Math.sin(par.ang))
 	var p3 = copyPoint(p2)
 	var p4 = copyPoint(p1)
 	p3.x *= -1;
@@ -2922,7 +2926,7 @@ function drawPolygonRoofSectorBench(par) {
 }
 
 /** функция отрисовывает стол многоугольного павильона
-	@param ang // угол между гранями листа, примыкающими к шпилю
+	@param ang // полный угол сектора
 	@param dxfArr: dxfPrimitivesArr,
 	@param dxfBasePoint: {x: 2000, y:0},
 */
@@ -2950,7 +2954,7 @@ function drawTable(par) {
 	if (params.tableType == 'многогранник') {
 		var points = []
 		for (var i = 0; i < params.edgeAmt; i++) {
-			points.push(polar(p0, par.ang * i, rad))
+			points.push(polar(p0, par.ang * i + (par.ang / 2 - Math.PI / 2), rad))
 		}
 
 		//создаем шейп
@@ -2994,7 +2998,7 @@ function drawTable(par) {
 	par.mesh.add(prof);
 
 	//основание
-	profPar.length = (rad * Math.sin(par.ang) - 100) * 2
+	profPar.length = (rad * Math.cos(par.ang / 2) - 100) * 2
 	profPar.poleProfileY = 40
 	profPar.poleProfileZ = 40
 
@@ -3043,7 +3047,7 @@ function drawTable(par) {
 }
 
 /** функция отрисовывает доски и балки пола многоугольного павильона
-	@param ang // угол между гранями листа, примыкающими к шпилю
+	@param ang // угол грани
 	@param dxfArr: dxfPrimitivesArr,
 	@param dxfBasePoint: {x: 2000, y:0},
 	@param beamProfY: размер по Y балки,
@@ -3053,7 +3057,7 @@ function drawPolygonSectorFloorRafters(par) {
 
 	par.mesh = new THREE.Object3D();
 
-	var crossbeamProfY = 80
+	var crossbeamProfY = partPar.beam.profSize.y + params.thkFloor
 	var crossbeamProfZ = 30
 
 	var extrudeOptions = {
@@ -3069,7 +3073,7 @@ function drawPolygonSectorFloorRafters(par) {
 		dxfArr: par.dxfArr,
 		dxfBasePoint: par.dxfBasePoint,
 		extrudeOptions: extrudeOptions,
-		material: params.materials.tread,
+		material: params.materials.metal,
 	}
 
 	var p0 = { x: 0, y: 0 }
@@ -3080,13 +3084,14 @@ function drawPolygonSectorFloorRafters(par) {
 	var pt3 = itercection(pt1, pt2, p0, polar(p0, Math.PI / 2, 100))
 
 
-	var radIn = 100;
+	var radIn = 120;
 	
 
 	var line = { p1: p0, p2: pt1 }
 	var line1 = parallel(line.p1, line.p2, -par.beamProfZ / 2)
 	var line2 = parallel(p0, pt1, par.beamProfZ / 2)
 
+	//угловой профиль секции под доски
 	var p1 = itercection(pt1, pt2, line1.p1, line1.p2)
 	var p2 = itercection(pt1, polar(pt1, par.ang + Math.PI / 2, 100), line2.p1, line2.p2)
 
@@ -3104,7 +3109,7 @@ function drawPolygonSectorFloorRafters(par) {
 	par.mesh.add(beam);
 
 
-	//------------------------
+	//средний профиль секции под доски
 	var p1 = newPoint_xy(pt3, par.beamProfZ / 2, 0)
 	var p2 = newPoint_xy(pt3, -par.beamProfZ / 2, 0)
 
@@ -3123,7 +3128,7 @@ function drawPolygonSectorFloorRafters(par) {
 
 	
 
-	//--------------------------------
+	//фасадная доска--------------------------------
 
 	var p1 = polar(p0, par.ang, -params.domeDiam / 2)
 	var p2 = copyPoint(pt1)
@@ -3136,6 +3141,7 @@ function drawPolygonSectorFloorRafters(par) {
 
 	shapeMeshPar.points = points;
 	shapeMeshPar.extrudeOptions.amount = crossbeamProfY;
+	shapeMeshPar.material = params.materials.tread;
 
 	var beam = createShapeAndMesh(shapeMeshPar)
 	beam.rotation.x = Math.PI / 2
@@ -3143,7 +3149,7 @@ function drawPolygonSectorFloorRafters(par) {
 	par.mesh.add(beam);
 
 
-	//---------------------------------------------------
+	//доски---------------------------------------------------
 
 	var widthTread = 200;
 	var offset = 5;
@@ -3187,7 +3193,7 @@ function drawPolygonSectorFloorRafters(par) {
 }
 
 /** функция отрисовывает центральную опору пола многоугольного павильона
-	@param ang // угол между гранями листа, примыкающими к шпилю
+	@param ang // полный угол сектора
 	@param dxfArr: dxfPrimitivesArr,
 	@param dxfBasePoint: {x: 2000, y:0},
 */
@@ -3207,7 +3213,7 @@ function drawMiddleRackFloor(par) {
 
 	var p0 = { x: 0, y: 0 }
 
-	var len = 200
+	var len = 300
 
 	var p1 = newPoint_xy(p0, -len / 2, - len / 2);
 	var p2 = newPoint_xy(p1, 0, len);
@@ -3230,7 +3236,7 @@ function drawMiddleRackFloor(par) {
 
 	var table = new THREE.Mesh(geom, params.materials.metal)
 	table.rotation.x = Math.PI / 2
-	table.position.y = params.heightFloor - params.thkFloor;
+	table.position.y = params.heightFloor - params.thkFloor - partPar.beam.profSize.y;
 	par.mesh.add(table);
 
 	table.setLayer('carcas');
@@ -3240,7 +3246,7 @@ function drawMiddleRackFloor(par) {
 		poleProfileY: 100,
 		poleProfileZ: 100,
 		dxfBasePoint: par.dxfBasePoint,
-		length: params.heightFloor - params.thkFloor - extrudeOptions.amount,
+		length: params.heightFloor - params.thkFloor - extrudeOptions.amount - partPar.beam.profSize.y,
 		poleAngle: 0,
 		material: params.materials.metal,
 		dxfArr: [],
