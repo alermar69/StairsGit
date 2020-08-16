@@ -9,7 +9,7 @@
 			<br/>
 			<br/>
 	
-	<table class="tab_2"><tbody>
+	<table class="form_table"><tbody>
 		<tr><th>Объект</th><th>Текстура</th><th>Цвет</th><th>Масштаб</th></tr>
 		<tr>
 			<td>Стены</td>

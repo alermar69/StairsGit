@@ -125,6 +125,18 @@
 						<input type="number" id="beamPosZ" value="0" step="10">
 					</td>
 				</tr>
+				<tr class="">
+					<td>Состав верхнего перекрытия:</td>
+					<td>
+						<textarea id="topFloorStructure" rows="1" cols="40" class="comments" style="height: 51px;"></textarea>
+					</td>
+				</tr>
+				<tr class="">
+					<td>Состав нижнего перекрытия:</td>
+					<td>
+						<textarea id="botFloorStructure" rows="1" cols="40" class="comments" style="height: 51px;"></textarea>
+					</td>
+				</tr>
 			</tbody>
 		</table>
 	</div>

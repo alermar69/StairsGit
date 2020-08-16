@@ -1181,7 +1181,7 @@ function drawHorPlate(par) {
 	}
 
 
-	if (par.type == "treadPlate" && params.treadPlatePockets !== "нет" && !par.isBotPlatform && !par.isPlt) {
+	if (par.type == "treadPlate" && (params.treadPlatePockets !== "нет" || params.treadLigts !== 'нет') && !par.isBotPlatform && !par.isPlt) {
 		var treadPar = {
 			marshId: par.marshId,
 			length: params.M,
@@ -1195,6 +1195,7 @@ function drawHorPlate(par) {
 		var tread = drawTreadNotchMono(treadPar);
 		//tread.position.x = -params.nose;// par.frontOffset;
 		tread.position.y = params.treadPlateThickness - treadPar.thk;
+		if (params.treadPlatePockets == "нет") tread.position.y += 10;
 		tread.setLayer('treads');
 		par.mesh.add(tread);
 	}
@@ -1544,7 +1545,7 @@ function drawHorPlates(par) {
 		}
 
 
-		if (par.type == "treadPlate" && params.treadPlatePockets !== "нет") {
+		if (par.type == "treadPlate" && (params.treadPlatePockets !== "нет" || params.treadLigts !== 'нет')) {
 
 			if (j == 0) {
 				var length = params.M;
@@ -1580,23 +1581,25 @@ function drawHorPlates(par) {
 				var shapeTread = drawShapeByPoints2(shapePar).shape;
 			}
 
-			//добавляем отверстия под подложки
-			var pointsHole = points.concat();
-			//plate.position.x += (par.height + gapPlates) * j;
-			if (j > 0) {
-				var basePoint = { x: 0, y: (par.height + gapPlates) * j + par.frontOffset};
-				pointsHole = moovePoints(pointsHole, basePoint);
-				//plate.position.x += par.frontOffset;
-			}
+			if (params.treadPlatePockets !== "нет") {
+				//добавляем отверстия под подложки
+				var pointsHole = points.concat();
+				//plate.position.x += (par.height + gapPlates) * j;
+				if (j > 0) {
+					var basePoint = { x: 0, y: (par.height + gapPlates) * j + par.frontOffset };
+					pointsHole = moovePoints(pointsHole, basePoint);
+					//plate.position.x += par.frontOffset;
+				}
 
-			var holeParams = {
-				vertexes: pointsHole,
-				cornerRad: par.cornerRad,
-				dxfPrimitivesArr: par.dxfArr,
-				dxfBasePoint: par.dxfBasePoint
-			}
+				var holeParams = {
+					vertexes: pointsHole,
+					cornerRad: par.cornerRad,
+					dxfPrimitivesArr: par.dxfArr,
+					dxfBasePoint: par.dxfBasePoint
+				}
 
-			shapeTread.holes.push(topCoverCentralHole(holeParams));
+				shapeTread.holes.push(topCoverCentralHole(holeParams));
+			}
 
 			if (params.treadLigts !== 'нет' && j == 0) {
 				var holeParams = {
@@ -1612,36 +1615,38 @@ function drawHorPlates(par) {
 				drawHoleTreadLigts(holeParams);
 			}
 
-			if (j == count - 1) {
-				if (params.stairModel !== "П-образная с площадкой") {
+			if (params.treadPlatePockets !== "нет") {
+				if (j == count - 1) {
+					if (params.stairModel !== "П-образная с площадкой") {
 
-					var len = params.M / 2 - par.width / 2 - 5 - gap;
+						var len = params.M / 2 - par.width / 2 - 5 - gap;
 
-					var p0 = { x: 0, y: 0 };
-					var p1 = newPoint_xy(p0, 0, par.width / 2);
-					var p2 = newPoint_xy(p1, len, 0);
-					var p3 = newPoint_xy(p2, 0, -par.width);
-					var p4 = newPoint_xy(p1, 0, -par.width);
-					var pointsHole = [p1, p2, p3, p4]
+						var p0 = { x: 0, y: 0 };
+						var p1 = newPoint_xy(p0, 0, par.width / 2);
+						var p2 = newPoint_xy(p1, len, 0);
+						var p3 = newPoint_xy(p2, 0, -par.width);
+						var p4 = newPoint_xy(p1, 0, -par.width);
+						var pointsHole = [p1, p2, p3, p4]
 
-					
-					basePoint = newPoint_xy(p0,
-						params.M / 2 - len - gap,
-						(turnParams.turnLengthTop - turnParams.topMarshOffsetX) / 2 - 5);
-					if (turnFactor == -1) {
-						basePoint.x *= -1;
-						basePoint.x -= len;						
+
+						basePoint = newPoint_xy(p0,
+							params.M / 2 - len - gap,
+							(turnParams.turnLengthTop - turnParams.topMarshOffsetX) / 2 - 5);
+						if (turnFactor == -1) {
+							basePoint.x *= -1;
+							basePoint.x -= len;
+						}
+						pointsHole = moovePoints(pointsHole, basePoint);
+
+						var holeParams = {
+							vertexes: pointsHole,
+							cornerRad: par.cornerRad,
+							dxfPrimitivesArr: par.dxfArr,
+							dxfBasePoint: par.dxfBasePoint
+						}
+						if (turnFactor == -1) holeParams.clockwise = false;
+						shapeTread.holes.push(topCoverCentralHole(holeParams));
 					}
-					pointsHole = moovePoints(pointsHole, basePoint);
-
-					var holeParams = {
-						vertexes: pointsHole,
-						cornerRad: par.cornerRad,
-						dxfPrimitivesArr: par.dxfArr,
-						dxfBasePoint: par.dxfBasePoint
-					}
-					if (turnFactor == -1) holeParams.clockwise =false;
-					shapeTread.holes.push(topCoverCentralHole(holeParams));
 				}
 			}
 
@@ -1664,6 +1669,7 @@ function drawHorPlates(par) {
 				tread.add(plate);
 
 				tread.position.y = params.treadPlateThickness - extrudeOptions.amount;
+				if (params.treadPlatePockets == "нет") tread.position.y += 10;
 				tread.setLayer('treads');
 				par.mesh.add(tread);
 			}
@@ -2237,7 +2243,7 @@ function drawHorPlatesPlatformBot(par) {
 	} //конец цикла перебора деталей
 
 	//пластина лотка или часть ступени с отверстиями под подложки
-	if (par.type == "treadPlate" && (params.treadPlatePockets !== "нет" || params.stairType == 'лотки')) {
+	if (par.type == "treadPlate" && (params.treadPlatePockets !== "нет" || params.treadLigts !== 'нет' || params.stairType == 'лотки')) {
 		var length = params.M;
 		if (params.stairType == 'лотки') length -= par.thk * 2;
 		var width = turnParams.turnLengthTop;
@@ -2279,16 +2285,19 @@ function drawHorPlatesPlatformBot(par) {
 
 
 		if (params.stairType !== 'лотки') {
+
 			//добавляем отверстия под подложки
-			var holeParams = {
-				vertexes: [],
-				cornerRad: par.cornerRad,
-				dxfPrimitivesArr: par.dxfArr,
-				dxfBasePoint: par.dxfBasePoint
-			}
-			for (var i = 0; i < pointsHoleTreadPlate.length; i++) {
-				holeParams.vertexes = pointsHoleTreadPlate[i];
-				shapeTread.holes.push(topCoverCentralHole(holeParams));
+			if (params.treadPlatePockets !== "нет") {
+				var holeParams = {
+					vertexes: [],
+					cornerRad: par.cornerRad,
+					dxfPrimitivesArr: par.dxfArr,
+					dxfBasePoint: par.dxfBasePoint
+				}
+				for (var i = 0; i < pointsHoleTreadPlate.length; i++) {
+					holeParams.vertexes = pointsHoleTreadPlate[i];
+					shapeTread.holes.push(topCoverCentralHole(holeParams));
+				}
 			}
 
 			if (par.isPltBot) {
@@ -2314,14 +2323,16 @@ function drawHorPlatesPlatformBot(par) {
 				}
 				pointsHole = moovePoints(pointsHole, basePoint);
 
-				var holeParams = {
-					vertexes: pointsHole,
-					cornerRad: par.cornerRad,
-					dxfPrimitivesArr: par.dxfArr,
-					dxfBasePoint: par.dxfBasePoint
+				if (params.treadPlatePockets !== "нет") {
+					var holeParams = {
+						vertexes: pointsHole,
+						cornerRad: par.cornerRad,
+						dxfPrimitivesArr: par.dxfArr,
+						dxfBasePoint: par.dxfBasePoint
+					}
+					//if (turnFactor == 1) holeParams.clockwise = false;
+					shapeTread.holes.push(topCoverCentralHole(holeParams));
 				}
-				//if (turnFactor == 1) holeParams.clockwise = false;
-				shapeTread.holes.push(topCoverCentralHole(holeParams));
 
 				if (params.treadLigts !== 'нет') {
 					var holeParams = {
@@ -2398,7 +2409,10 @@ function drawHorPlatesPlatformBot(par) {
 		plate.rotation.z = -Math.PI / 2;
 		tread.add(plate);
 
-		if (params.stairType !== 'лотки') tread.position.y = params.treadPlateThickness - extrudeOptions.amount;
+		if (params.stairType !== 'лотки') {
+			tread.position.y = params.treadPlateThickness - extrudeOptions.amount;
+			if (params.treadPlatePockets == "нет") tread.position.y += 10;
+		}
 		tread.setLayer('treads');
 		mesh1.add(tread);
 
@@ -3032,7 +3046,7 @@ function drawTurnPlate1(par) {
 	}
 	par.mesh.specId = partName + name;
 
-	if (params.treadPlatePockets !== "нет") {
+	if (params.treadPlatePockets !== "нет" || params.treadLigts !== 'нет') {
 		var tread = new THREE.Object3D();
 
 		if (treadsObj.wndPar) var treadsPar = treadsObj.wndPar.params[1];
@@ -3057,15 +3071,16 @@ function drawTurnPlate1(par) {
 
 		var shape = drawShapeByPoints2(shapePar).shape;
 
+		if (params.treadPlatePockets !== "нет") {
+			var holeParams = {
+				vertexes: points,
+				cornerRad: par.cornerRad,
+				dxfPrimitivesArr: par.dxfArr,
+				dxfBasePoint: par.dxfBasePoint
+			}
 
-		var holeParams = {
-			vertexes: points,
-			cornerRad: par.cornerRad,
-			dxfPrimitivesArr: par.dxfArr,
-			dxfBasePoint: par.dxfBasePoint
+			shape.holes.push(topCoverCentralHole(holeParams));
 		}
-
-		shape.holes.push(topCoverCentralHole(holeParams));
 
 		if (params.treadLigts !== 'нет') {
 			var holeParams = {
@@ -3097,6 +3112,7 @@ function drawTurnPlate1(par) {
 		tread.add(plate);
 
 		tread.position.y = params.treadPlateThickness - thk;
+		if (params.treadPlatePockets == "нет") tread.position.y += 10;
 		tread.setLayer('treads');
 		par.mesh.add(tread);
 
@@ -3307,7 +3323,7 @@ function drawTurnPlate3(par){
 	}
 	par.mesh.specId = partName + name;
 
-	if (params.treadPlatePockets !== "нет") {
+	if (params.treadPlatePockets !== "нет" || params.treadLigts !== 'нет') {
 		var tread = new THREE.Object3D();
 
 		if (treadsObj.wndPar) var treadsPar = treadsObj.wndPar.params[3];
@@ -3332,15 +3348,16 @@ function drawTurnPlate3(par){
 
 		var shape = drawShapeByPoints2(shapePar).shape;
 
+		if (params.treadPlatePockets !== "нет") {
+			var holeParams = {
+				vertexes: points,
+				cornerRad: par.cornerRad,
+				dxfPrimitivesArr: par.dxfArr,
+				dxfBasePoint: par.dxfBasePoint
+			}
 
-		var holeParams = {
-			vertexes: points,
-			cornerRad: par.cornerRad,
-			dxfPrimitivesArr: par.dxfArr,
-			dxfBasePoint: par.dxfBasePoint
+			shape.holes.push(topCoverCentralHole(holeParams));
 		}
-
-		shape.holes.push(topCoverCentralHole(holeParams));
 
 		if (params.treadLigts !== 'нет') {
 			var holeParams = {
@@ -3372,6 +3389,7 @@ function drawTurnPlate3(par){
 		tread.add(plate);
 
 		tread.position.y = params.treadPlateThickness - thk;
+		if (params.treadPlatePockets == "нет") tread.position.y += 10;
 		tread.setLayer('treads');
 		par.mesh.add(tread);
 	}
@@ -3646,7 +3664,7 @@ function drawTurnPlate2(par) {
 	}
 	par.mesh.specId = partName + name;
 
-	if (params.treadPlatePockets !== "нет") {
+	if (params.treadPlatePockets !== "нет" || params.treadLigts !== 'нет') {
 		var tread = new THREE.Object3D();
 
 		if (treadsObj.wndPar) var treadsPar = treadsObj.wndPar.params[2];
@@ -3677,15 +3695,16 @@ function drawTurnPlate2(par) {
 
 		var shape = drawShapeByPoints2(shapePar).shape;
 
+		if (params.treadPlatePockets !== "нет") {
+			var holeParams = {
+				vertexes: points,
+				cornerRad: par.cornerRad,
+				dxfPrimitivesArr: par.dxfArr,
+				dxfBasePoint: par.dxfBasePoint
+			}
 
-		var holeParams = {
-			vertexes: points,
-			cornerRad: par.cornerRad,
-			dxfPrimitivesArr: par.dxfArr,
-			dxfBasePoint: par.dxfBasePoint
+			shape.holes.push(topCoverCentralHole(holeParams));
 		}
-
-		shape.holes.push(topCoverCentralHole(holeParams));
 
 		if (params.treadLigts !== 'нет') {
 			var holeParams = {
@@ -3721,6 +3740,7 @@ function drawTurnPlate2(par) {
 		tread.add(plate);
 
 		tread.position.y = params.treadPlateThickness - thk;
+		if (params.treadPlatePockets == "нет") tread.position.y += 10;
 		tread.setLayer('treads');
 		par.mesh.add(tread);
 	}
@@ -4438,8 +4458,9 @@ function drawMonoFlan(par) {
 
 		flanPar.noBolts = true; //болты не добавляются
 
-		flanPar.isFixPart = true; // болты крепления к стенам
+		
 		flanPar.fixPar = getFixPart(0, 'botFloor'); // параметры крепления к стенам
+		if (flanPar.fixPar.fixPart !== 'нет') flanPar.isFixPart = true; // болты крепления к стенам
 		flanPar.fixPar.diamHole = 15;
 
 		flanPar.roundHoleCenters = [];
@@ -8420,15 +8441,16 @@ function drawTreadNotchMono(par) {
 
 	var shape = drawShapeByPoints2(shapePar).shape;
 
+	if (params.treadPlatePockets !== "нет") {
+		var holeParams = {
+			vertexes: par.pointsHole,
+			cornerRad: par.cornerRad,
+			dxfPrimitivesArr: par.dxfArr,
+			dxfBasePoint: par.dxfBasePoint
+		}
 
-	var holeParams = {
-		vertexes: par.pointsHole,
-		cornerRad: par.cornerRad,
-		dxfPrimitivesArr: par.dxfArr,
-		dxfBasePoint: par.dxfBasePoint
+		if (par.pointsHole.length > 0) shape.holes.push(topCoverCentralHole(holeParams));
 	}
-
-	if (par.pointsHole.length > 0) shape.holes.push(topCoverCentralHole(holeParams));
 
 	if (params.treadLigts !== 'нет') {
 		var holeParams = {
@@ -8457,8 +8479,10 @@ function drawTreadNotchMono(par) {
 	var plate = new THREE.Mesh(geom, params.materials.tread);
 	plate.rotation.x = -Math.PI / 2;
 	plate.rotation.z = -Math.PI / 2;
+	plate.setLayer('treads');
 
 	mesh.add(plate);
+	
 
 	return mesh;
 

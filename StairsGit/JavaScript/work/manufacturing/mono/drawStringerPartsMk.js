@@ -117,7 +117,7 @@ function drawStringerMk(par) {
 			if (par.key == "in") shapePar.drawing.in = true;
 
 			// если длина косоура больше 4 метров делаем разделение косоура
-			if (distance(par.pointsShape[0], par.pointsShape[par.pointsShape.length - 1]) > 4000 &&
+			if (distance(par.keyPoints.botPoint, par.keyPoints.topPoint) > 4000 &&
 				params.model == "сварной") {
 				var index = 0;
 				for (var i = 0; i < par.pointsShape.length; i++) {

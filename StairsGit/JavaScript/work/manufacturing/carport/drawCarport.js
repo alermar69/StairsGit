@@ -1351,16 +1351,19 @@ function drawPyramidalPavilion(par) {
 	if (!par.dxfBasePoint) par.dxfBasePoint = { x: 0, y: 0 };
 	if (!par.extraRad) par.extraRad = 0;
 
+	par.lengthPavilion = params.sectLen * params.sectAmt;
+
 	var ridgePar = {
 		poleProfileY: partPar.rafter.profSize.y,
 		poleProfileZ: partPar.rafter.profSize.x,
 		dxfBasePoint: par.dxfBasePoint,
-		length: params.sectLen,
+		length: par.lengthPavilion,
 		poleAngle: 0,
 		material: params.materials.metal,
 		dxfArr: [],
 		type: 'rect',
-		partName: 'topRoofProf'
+		partName: 'topRoofProf',
+		lengthPavilion: par.lengthPavilion, 
 	};
 
 	//высота кровли от мауэрлата до конька
@@ -1384,7 +1387,8 @@ function drawPyramidalPavilion(par) {
 		material: params.materials.metal,
 		dxfArr: [],
 		type: 'rect',
-		partName: 'carportColumn'
+		partName: 'carportColumn',
+		lengthPavilion: par.lengthPavilion,
 	};
 
 	calcParColon(columnPar);
@@ -1433,13 +1437,13 @@ function drawPyramidalPavilion(par) {
 
 	//боковые стороны
 	for (var i = 0; i < 2; i++) {
-		horBeamPar.length = distance(columnPar.pointsColon.sideL[0], columnPar.pointsColon.sideL[columnPar.pointsColon.sideL.length - 1]) + columnPar.poleProfileY
+		horBeamPar.length = distance(columnPar.pointsColon.front[0], columnPar.pointsColon.rear[0]) + columnPar.poleProfileY
 
 		var horBeam = drawPole3D_4(horBeamPar).mesh;
 
-		horBeam.position.x = columnPar.pointsColon.sideL[0].y - columnPar.poleProfileY / 2;
-		horBeam.position.z = columnPar.pointsColon.sideL[0].x - columnPar.poleProfileY / 2;
-		if (i == 1) horBeam.position.z = columnPar.pointsColon.sideR[0].x - columnPar.poleProfileY / 2;
+		horBeam.position.x = columnPar.pointsColon.front[0].y - columnPar.poleProfileY / 2;
+		horBeam.position.z = columnPar.pointsColon.front[0].x - columnPar.poleProfileY / 2;
+		if (i == 1) horBeam.position.z = columnPar.pointsColon.front[columnPar.pointsColon.front.length-1].x - columnPar.poleProfileY / 2;
 		horBeam.position.y = params.height;
 
 		horBeam.setLayer('racks');
@@ -1467,7 +1471,8 @@ function drawPyramidalPavilion(par) {
 		material: params.materials.metal,
 		dxfArr: [],
 		type: 'rect',
-		partName: 'carportBeam'
+		partName: 'carportBeam',
+		lengthPavilion: par.lengthPavilion,
 	};
 
 	var rafter = drawPyramidalRafters(rafterPar).mesh
@@ -1484,6 +1489,7 @@ function drawPyramidalPavilion(par) {
 		roofHeight: par.roofHeight,
 		dxfArr: dxfPrimitivesArr,
 		dxfBasePoint: { x: 2000, y: 0 },
+		lengthPavilion: par.lengthPavilion,
 	}
 
 	var sheet = drawPyramidalRoof(roofSegmentPar).mesh

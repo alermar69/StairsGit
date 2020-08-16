@@ -127,6 +127,14 @@
 					<option value="нет">нет</option>
 				</select>
 			</td></tr>
+			
+			<tr class=""><td>Вертикальный поручень:</td> <td> 
+				<select id="handrailHor_bal" size="1" onchange="">
+					<option value="нет">нет</option>
+					<option value="начало">начало</option>		
+					<option value="все секции">все секции</option>		
+				</select>
+			</td></tr>
 
 			<!--параметры стекла-->
 			<tr class="glass_bal"><td>Тип стекла:</td> <td> 

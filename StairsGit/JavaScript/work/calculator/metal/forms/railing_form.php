@@ -1,7 +1,7 @@
 <div id="perilaFormWrap">
 	<h2 class="raschet">Характеристики ограждений</h2>
 	<div id="perilaForm"  class="toggleDiv">
-		<table class="form_table" ><tbody>
+		<table class="form_table"><tbody>
 
 		<!-- параметры расположения ограждений по маршам -->
 		<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/railing.php" ?>
@@ -84,6 +84,11 @@
 			<td>Удлиннение верхнего поручня:</td> 
 			<td><input id="topHandrailExtraLength" type="number" value="0" step="10"></td>
 		</tr> 
+		
+		<tr class="railing_tr glass_tr">
+			<td>Высота стекла:</td> 
+			<td><input id="glassHeight" type="number" value="1300" step="10"></td>
+		</tr>
 		
 		<tr class="railing_tr glass_tr">
 			<td>Удлиннение последнего стекла:</td>

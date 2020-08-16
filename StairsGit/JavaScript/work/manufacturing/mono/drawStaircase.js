@@ -70,7 +70,7 @@ drawStaircase = function(viewportId, isVisible) {
 		params.treadThickness = 40;
 	}
 	
-	if (params.treadPlatePockets == "есть") {
+	if (params.treadPlatePockets !== "нет" || params.treadLigts !== 'нет') {
 		params.treadThickness -= 10;
 	}
 	

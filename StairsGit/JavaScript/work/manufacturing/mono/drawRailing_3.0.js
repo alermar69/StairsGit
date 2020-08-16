@@ -583,7 +583,7 @@ function drawGlassSection(par){
 	var treadOffset = par.treadOffset;
 	var glassOffsetZ = treadOffset;
 	var holeRad = 9;
-	var sectionHeight = 800;
+	var sectionHeight = params.glassHeight - glassOffsetY;
 
 	if (par.key == "rear" && par.marshId == 2) {
 		if (nextMarshPar.hasRailing.out) {
@@ -662,7 +662,7 @@ function drawGlassSection(par){
 		}
 
 		//коррекция последнего стекла последнего марша
-		if (par.marshPar.topTurn == 'пол' && i == (par.glassPoints.length - 1)){			
+		if (par.marshPar.topTurn == 'пол' && i == (par.glassPoints.length - 1)){
 			//уменьшение длины стекла
 			if(params.topGlassExtraLength < 0){
 				glassPar.width += params.topGlassExtraLength;
@@ -674,6 +674,9 @@ function drawGlassSection(par){
 				glassPar.extraLengthOverlap = (params.topGlassExtraLength) / Math.cos(marshPar.ang);
 				glassPar.overlapCutHeight = -marshPar.h + sectionHeight + par.glassPoints[0].y - (par.glassPoints[0].x - params.nose) * Math.tan(glassPar.angleTop) - 10;
 			}
+			
+			//горизонтальный срез сверху
+			if(params.handrailEndHor == "да") glassPar.topCutHeight = -params.handrailEndHeight
 		}
 			
 		glassPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.glassPoints[i].x, par.glassPoints[i].y);
@@ -919,14 +922,14 @@ function drawGlassAngle2(par){
 	//ширина, высота части прилегающей к стеклу
 	var bw1 = 100;
 	var bh1 = 190;
-	var smallDiam1 = 18;
+	var smallDiam1 = 13;
 	var smallCenterTopOffset1 = 20;
 	var bigDiam1 = 60;
 
 	//ширина, высота части прилегающей к площадке
 	var bw2 = bw1 - 2 * thk;
 	var bh2 = 150 - thk;
-	var smallDiam2 = 7;
+	var smallDiam2 = 9;
 	var smallCenterOffset2 = 15;
 
 	//ширина, высота треугольных частей

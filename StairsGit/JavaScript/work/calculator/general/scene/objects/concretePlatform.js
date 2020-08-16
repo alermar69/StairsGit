@@ -1,6 +1,7 @@
 class ConcretePlatform extends AdditionalObject{
 	constructor(par){
 		super(par);
+		if(!par) return;
 		var size = this.par.size;
 		
 		var sectParams = {

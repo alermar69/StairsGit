@@ -5023,6 +5023,16 @@ function drawGlass2(par){
         steps: 1
 		};
 
+	par.mesh = new THREE.Object3D();
+
+	var glassMaterial = new THREE.MeshLambertMaterial({ opacity: 0.6, color: 0x3AE2CE, transparent: true });
+	var extrudeOptions = {
+		amount: par.thk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
 	//четырехугольник без срезов
 	var p1 = {x: 0, y: 0};
 	var p2 = newPoint_xy(p1, 0, par.heightLeft);
@@ -5038,53 +5048,48 @@ function drawGlass2(par){
 		botY = p12.y;
 		}
 
-	//срез сверху
-	var topY = p3.y;
-	if(par.topCutHeight != 0) {
-		var p31 = newPoint_y(p1,  -par.topCutHeight, par.angleTop);
-		var p32 = newPoint_xy(p3, 0, -par.topCutHeight);
-		topY = p32.y;
-		}
-
 	//вырез для нахлеста на верхнее перекрытие
+	var topY = p3.y;
 	if (par.hasTopOverlap) {
-		var p31 = polar(p3, par.angleTop, par.extraLengthOverlap);
-		var p41 = newPoint_xy(p3, 0, -par.overlapCutHeight);
-		var p32 = itercection(p41, polar(p41, 0, 100), p31, polar(p31, Math.PI / 2, 100));
-		topY = p31.y;
+		var p41 = newPoint_xy(p3, 0, -par.overlapCutHeight); //Угол выреза
+		p3 = polar(p3, par.angleTop, par.extraLengthOverlap);
+		var p42 = itercection(p41, newPoint_xy(p41, 10, 0), p3, newPoint_xy(p3, 0, 10));
+		
+		par.topCutHeight += p3.y - topY;
+	}
+	
+	//срез сверху	
+	if(par.topCutHeight != 0) {			
+		var p32 = newPoint_xy(p3, 0, -par.topCutHeight);
+		var p31 = itercection(p2, p3, p32, newPoint_xy(p32, 10, 0))
+		topY = p32.y;
 	}
 
-	var shape = new THREE.Shape();
+	var points = []
+	
+	//левый нижний
+	if(par.botCutHeight != 0) points.push(p11, p12)
+	else points.push(p1)
 
-	//начинаем с 4 точки
-	if(par.botCutHeight == 0){
-		addLine(shape, par.dxfArr, p4, p1, par.dxfBasePoint);
-		addLine(shape, par.dxfArr, p1, p2, par.dxfBasePoint);
-		}
-	if(par.botCutHeight != 0){
-		addLine(shape, par.dxfArr, p4, p11, par.dxfBasePoint);
-		addLine(shape, par.dxfArr, p11, p12, par.dxfBasePoint);
-		addLine(shape, par.dxfArr, p12, p2, par.dxfBasePoint);
-		}
+	//левый верхний
+	points.push(p2)
+	
+	//правый верхний
+	if(par.topCutHeight != 0) points.push(p31, p32)
+	else points.push(p3)
+	
+	//правый нижний
+	if(par.hasTopOverlap) points.push(p42, p41)
+	points.push(p4)
+	
+	//создаем шейп
+	var shapePar = {
+		points: points,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+	}
 
-	//начинаем с 2 точки
-	if (par.hasTopOverlap) {
-		addLine(shape, par.dxfArr, p2, p31, par.dxfBasePoint);
-		addLine(shape, par.dxfArr, p31, p32, par.dxfBasePoint);
-		addLine(shape, par.dxfArr, p32, p41, par.dxfBasePoint);
-		addLine(shape, par.dxfArr, p41, p4, par.dxfBasePoint);
-	}
-	else {
-		if (par.topCutHeight == 0) {
-			addLine(shape, par.dxfArr, p2, p3, par.dxfBasePoint);
-			addLine(shape, par.dxfArr, p3, p4, par.dxfBasePoint);
-		}
-		if (par.topCutHeight != 0) {
-			addLine(shape, par.dxfArr, p2, p31, par.dxfBasePoint);
-			addLine(shape, par.dxfArr, p31, p32, par.dxfBasePoint);
-			addLine(shape, par.dxfArr, p32, p4, par.dxfBasePoint);
-		}
-	}
+	var shape = drawShapeByPoints2(shapePar).shape;
 
 
 	//длина стекла справа (для расчета длины слева следующего стекла)

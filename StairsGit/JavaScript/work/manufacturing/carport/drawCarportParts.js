@@ -1027,7 +1027,7 @@ function drawPyramidalRoof(par) {
 
 	var sideOffset = params.sideOffset + partPar.rafter.profSize.y * Math.sin(partPar.main.roofAng)
 
-	var pt1 = newPoint_xy(p0, -params.sectLen / 2 - sideOffset, -params.width / 2 - sideOffset) //точка угла секции
+	var pt1 = newPoint_xy(p0, -par.lengthPavilion / 2 - sideOffset, -params.width / 2 - sideOffset) //точка угла секции
 	var pt2 = newPoint_xy(p0, -par.ridgeLen / 2, 0) // точка края конька
 
 	var pt = polar(pt2, calcAngleX1(pt1, pt2), -distance(pt1, pt2) / Math.cos(partPar.main.roofAng))
@@ -2457,20 +2457,18 @@ function drawPolygonRoofSectorBowlBot(par) {
 }
 
 /* функция рассчитывает центры колонн четырехскатного павильона*/
-function calcParColon(par) {
-
-	var stepLen = 2000;
+function calcParColon(par) {	
 
 	par.points = []
-	par.pointsColon = { 'front': [], 'rear': [], 'sideL': [], 'sideR': []}
+	par.pointsColon = { 'front': [], 'rear': []}
 
 	var p0 = { x: 0, y: 0 }
 
 	//точки контура
-	var p1 = newPoint_xy(p0, -params.sectLen / 2, -params.width / 2)
-	var p2 = newPoint_xy(p0, -params.sectLen / 2, params.width / 2)
-	var p3 = newPoint_xy(p0, params.sectLen / 2, params.width / 2)
-	var p4 = newPoint_xy(p0, params.sectLen / 2, -params.width / 2)
+	var p1 = newPoint_xy(p0, -par.lengthPavilion / 2, -params.width / 2)
+	var p2 = newPoint_xy(p0, -par.lengthPavilion / 2, params.width / 2)
+	var p3 = newPoint_xy(p0, par.lengthPavilion / 2, params.width / 2)
+	var p4 = newPoint_xy(p0, par.lengthPavilion / 2, -params.width / 2)
 
 	//осевые точки колонн
 	p1 = newPoint_xy(p1, par.poleProfileZ / 2, par.poleProfileY / 2)
@@ -2481,44 +2479,22 @@ function calcParColon(par) {
 	par.points.push(p1, p2, p3, p4)
 	par.pointsColon.front.push(p1)
 	par.pointsColon.rear.push(p2)
-	par.pointsColon.sideL.push(p1)
-	par.pointsColon.sideR.push(p4)
 
 	//определяем дополнительные колонны
 	//front, rear
-	var len = distance(p1, p4);
-	var count = Math.floor(len / stepLen)
-	var step = len / (count + 1)
 
-	for (var i = 1; i <= count; i++) {
-		var pt = newPoint_xy(p1, step * i, 0);
+	for (var i = 1; i < params.sectAmt; i++) {
+		var pt = newPoint_xy(p1, params.sectLen * i, 0);
 		par.points.push(pt)
 		par.pointsColon.front.push(pt)
 
-		var pt = newPoint_xy(p2, step * i, 0);
+		var pt = newPoint_xy(p2, params.sectLen * i, 0);
 		par.points.push(pt)
 		par.pointsColon.rear.push(pt)
 	}
 
-	//sideL, sideR
-	var len = distance(p1, p2);
-	var count = Math.floor(len / stepLen)
-	var step = len / (count + 1)
-
-	for (var i = 1; i <= count; i++) {
-		var pt = newPoint_xy(p1, 0, step * i);
-		par.points.push(pt)
-		par.pointsColon.sideL.push(pt)
-
-		var pt = newPoint_xy(p4, 0, step * i);
-		par.points.push(pt)
-		par.pointsColon.sideR.push(pt)
-	}
-
 	par.pointsColon.front.push(p4)
 	par.pointsColon.rear.push(p3)
-	par.pointsColon.sideL.push(p2)
-	par.pointsColon.sideR.push(p3)
 
 	return par;
 }
@@ -2536,14 +2512,14 @@ function drawPyramidalRafters(par) {
 
 	var p0 = { x: 0, y: 0 }
 
-	var pt1 = newPoint_xy(p0, -params.sectLen / 2 - params.sideOffset, -params.width / 2 - params.sideOffset) //точка угла секции
+	var pt1 = newPoint_xy(p0, -par.lengthPavilion / 2 - params.sideOffset, -params.width / 2 - params.sideOffset) //точка угла секции
 	var pt2 = newPoint_xy(p0, -par.ridgeLen / 2, 0) // точка края конька
 
 	// Угловые стропильные ноги----------------------------------------------------------
 
 	// определяем угол наклона угловых стропильных ног
 	var p3d1 = { x: 0, y: 0, z: 100 }
-	var p3d2 = { x: params.sectLen / 2 - par.ridgeLen / 2, y: params.width / 2, z: par.roofHeight - partPar.beam.profSize.y - partPar.rafter.profSize.y}
+	var p3d2 = { x: par.lengthPavilion / 2 - par.ridgeLen / 2, y: params.width / 2, z: par.roofHeight - partPar.beam.profSize.y - partPar.rafter.profSize.y}
 	var angCornerRafter = angleXY3d(p3d1, p3d2)
 
 	// длина угловых стропильных ног
@@ -2608,7 +2584,7 @@ function drawPyramidalRafters(par) {
 			poleProfileY: partPar.rafter.profSize.y,
 			poleProfileZ: partPar.rafter.profSize.x,
 			dxfBasePoint: par.dxfBasePoint,
-			length: (params.sectLen / 2 - par.ridgeLen / 2 + params.sideOffset + partPar.rafter.profSize.y * Math.sin(partPar.main.roofAng)) / Math.cos(partPar.main.roofAng),
+			length: (par.lengthPavilion / 2 - par.ridgeLen / 2 + params.sideOffset + partPar.rafter.profSize.y * Math.sin(partPar.main.roofAng)) / Math.cos(partPar.main.roofAng),
 			poleAngle: 0,
 			angEnd: partPar.main.roofAng,
 			material: params.materials.metal,
@@ -2716,7 +2692,7 @@ function drawPyramidalRafters(par) {
 		//расчет кол-ва и шаг вспомогательных ног от края конька до края стороны
 		var line = parallel(pt1, pt2, -rafterPar.poleProfileZ / 2)// линия угловой ноги
 		var step1 = 600
-		var len1 = params.sectLen / 2 - par.ridgeLen / 2 - partPar.beam.profSize.x
+		var len1 = par.lengthPavilion / 2 - par.ridgeLen / 2 - partPar.beam.profSize.x
 		var count1 = Math.floor(len1 / step1)
 		var step1 = len1 / (count1 + 1)
 

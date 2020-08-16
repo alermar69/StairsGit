@@ -401,7 +401,7 @@ function drawTreads() {
     lastMarshEnd.x += topStepDelta * Math.cos(lastMarshEnd.rot);
     lastMarshEnd.z += topStepDelta * Math.sin(-lastMarshEnd.rot);
 
-	if (params.treadPlatePockets == "есть") {
+	if (params.treadPlatePockets !== 'нет' || params.treadLigts !== 'нет') {
 		var pocketDepth = 10;
 
 		treadsGroup.traverse(function(node){
@@ -410,6 +410,10 @@ function drawTreads() {
 				node.scale.z = (params.treadThickness - pocketDepth) / params.treadThickness;				
 				//выравниваем забежные ступени по высоте
 				if (node.specId && node.specId.indexOf('wndTread') != -1) {					
+					node.position.y += pocketDepth;
+					//if (params.treadPlatePockets == 'нет') node.position.y += pocketDepth;
+				}
+				if (node.specId && params.treadPlatePockets == 'нет') {
 					node.position.y += pocketDepth;
 				}
 			}
@@ -657,7 +661,8 @@ function drawMarshTreads2(par) {
 				
 				if (params.calcType == "mono" && marshPar.lastMarsh) {
 					if (params.lastRiser !== "есть" && params.topAnglePosition == "над ступенью") {
-						var notchWidth = 280;
+						var notchWidth = 300 + 2;
+						if (params.model == "сварной" || params.model == "гнутый") notchWidth = params.stringerThickness + 110 + 2;
 						var depth = 10;
 						var riserSideOffset = (plateParams.len - notchWidth) / 2;
 						plateParams.width = par.a - depth;
@@ -3678,8 +3683,7 @@ function drawNotchedPlate(par){
     if(p13.x != p14.x || p13.y != p14.y) addLine(shape, par.dxfArr, p13, p14, par.dxfBasePoint);
     if(p14.x != p15.x || p14.y != p15.y) addLine(shape, par.dxfArr, p14, p15, par.dxfBasePoint);
     if(p15.x != p16.x || p15.y != p16.y) addLine(shape, par.dxfArr, p15, p16, par.dxfBasePoint);
-    if(p16.x != p17.x || p16.y != p17.y) addLine(shape, par.dxfArr, p16, p17, par.dxfBasePoint);
-
+	if (p16.x != p17.x || p16.y != p17.y) addLine(shape, par.dxfArr, p16, p17, par.dxfBasePoint);
 
     var extrudeOptions = {
         amount: par.thk,
@@ -4469,7 +4473,7 @@ function drawRectRiser(par) {
 				if(!testingMode) par.mesh.add(screw);
     }
 
-	if (params.treadLigts == 'есть') {
+	if (params.treadLigts !== 'нет') {
 		//Светодиодная лента
 		var lightWidth = 10;
 		var material = new THREE.MeshBasicMaterial({side: THREE.BackSide, metalness: -5});

@@ -251,7 +251,7 @@ function calcHandrailPoints(par, parRacks) {
 			var glassThickness = 12 //толщина стекла
 			var platformStringerWidth = 150; //ширина тетивы площадки
 		var platformGlassMaxLength = 800 //максимальная длина стекла по горизонтали
-		var glassHeight = 1300; //1400;
+		var glassHeight = params.glassHeight;
 		var handrailPoints = [];
 		var handrailSlotDepth = 15;
 		var railingZOffset = 20 //зазор от стекла до торца марша
@@ -401,7 +401,7 @@ function calcHandrailPoints(par, parRacks) {
 			//Отрисовка стекла нижнего поворота
 			glassPar.key = par.key;
 			glassPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, glassPos.x, glassPos.y);
-			var glass = drawGlass_ko(glassPar).mesh;
+			var glass = drawGlass2(glassPar).mesh;
 			glass.position.x = glassPos.x;
 			glass.position.y = glassPos.y;
 			glass.position.z = railingZOffset;
@@ -590,7 +590,7 @@ function calcHandrailPoints(par, parRacks) {
 				}
 	
 			//коррекция последнего стекла последнего марша
-			if (par.marshPar.topTurn == 'пол' && i == (glassLengths.length - 1)){			
+			if (par.marshPar.topTurn == 'пол' && i == (glassLengths.length - 1)){
 				//уменьшение длины стекла
 				if(params.topGlassExtraLength < 0){
 					glassPar.width += params.topGlassExtraLength;
@@ -602,13 +602,16 @@ function calcHandrailPoints(par, parRacks) {
 					glassPar.extraLengthOverlap = (params.topGlassExtraLength) / Math.cos(par.marshPar.ang);
 					glassPar.overlapCutHeight = glassHeight - par.marshPar.h - 250//250 - подогнано
 				}
+				
+				//горизонтальный срез сверху
+				if(params.handrailEndHor == "да") glassPar.topCutHeight = -params.handrailEndHeight
 			}
 	
 			//отрисовка стекла марша
 	
 			glassPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, glassPos.x, glassPos.y);
 			glassPar.key = par.key;
-			var glass = drawGlass_ko(glassPar).mesh;
+			var glass = drawGlass2(glassPar).mesh;
 			glass.position.x = glassPos.x;
 			glass.position.y = glassPos.y;
 			glass.position.z = railingZOffset;
@@ -669,7 +672,7 @@ function calcHandrailPoints(par, parRacks) {
 				//Отрисовка стекла верхнего поворота
 				glassPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, glassPos.x, glassPos.y);
 				glassPar.key = par.key;
-				var glass = drawGlass_ko(glassPar).mesh;
+				var glass = drawGlass2(glassPar).mesh;
 				glass.position.x = glassPos.x;
 				glass.position.y = glassPos.y;
 				glass.position.z = railingZOffset;
@@ -762,7 +765,7 @@ function calcHandrailPoints(par, parRacks) {
 	
 					glassPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, glassPos.x, glassPos.y);
 					glassPar.key = par.key;
-					var glass = drawGlass_ko(glassPar).mesh;
+					var glass = drawGlass2(glassPar).mesh;
 					glass.position.x = glassPos.x;
 					glass.position.y = glassPos.y;
 					glass.position.z = railingZOffset;
@@ -872,7 +875,7 @@ function calcHandrailPoints(par, parRacks) {
 			//Отрисовка стекла верхнего поворота
 			glassPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, glassPos.x, glassPos.y);
 			glassPar.key = par.key;
-			var glass = drawGlass_ko(glassPar).mesh;
+			var glass = drawGlass2(glassPar).mesh;
 			glass.position.x = glassPos.x;
 			glass.position.y = glassPos.y;
 			glass.position.z = railingZOffset;
@@ -1065,169 +1068,6 @@ function calcHandrailPoints(par, parRacks) {
 	
 	}//end of drawRailingSectionGlass
 	
-	
-	
-	
-	function drawGlass_ko(par){
-		console.log(par)
-		/* ссылка на чертеж 6692035.ru/drawings/railing/glassParams_ko.pdf
-		angleTop
-		heightLeft
-		width
-		thk
-		botCutHeight
-		angleBot
-		holes
-		*/
-		
-		par.mesh = new THREE.Object3D();
-
-		var glassMaterial = new THREE.MeshLambertMaterial({ opacity: 0.6, color: 0x3AE2CE, transparent: true });
-		var extrudeOptions = {
-			amount: par.thk,
-			bevelEnabled: false,
-			curveSegments: 12,
-			steps: 1
-		};
-	
-		//четырехугольник без срезов
-		var p1 = {x: 0, y: 0};
-		var p2 = newPoint_xy(p1, 0, par.heightLeft);
-		var p3 = newPoint_x1(p2, par.width, par.angleTop);
-		var p4 = newPoint_x1(p1, par.width, par.angleBot);
-	
-	
-		//срез снизу
-		var botY = p1.y;
-		if(par.botCutHeight != 0) {
-			var p11 = newPoint_y(p1,  par.botCutHeight, par.angleBot);
-			var p12 = newPoint_xy(p1, 0, par.botCutHeight);
-			botY = p12.y;
-			}
-	
-		//срез сверху
-		var topY = p3.y;
-		if(par.topCutHeight != 0) {
-			var p31 = newPoint_y(p1,  -par.topCutHeight, par.angleTop);
-			var p32 = newPoint_xy(p3, 0, -par.topCutHeight);
-			topY = p32.y;
-			}
-			
-		//вырез для нахлеста на верхнее перекрытие
-		if (par.hasTopOverlap) {
-			var p31 = polar(p3, par.angleTop, par.extraLengthOverlap);
-			var p41 = newPoint_xy(p3, 0, -par.overlapCutHeight);
-			var p32 = itercection(p41, polar(p41, 0, 100), p31, polar(p31, Math.PI / 2, 100));
-			topY = p31.y;
-		}
-	
-		var shape = new THREE.Shape();
-	
-		//начинаем с 4 точки
-		if(par.botCutHeight == 0){
-			addLine(shape, par.dxfArr, p4, p1, par.dxfBasePoint);
-			addLine(shape, par.dxfArr, p1, p2, par.dxfBasePoint);
-			}
-		if(par.botCutHeight != 0){
-			addLine(shape, par.dxfArr, p4, p11, par.dxfBasePoint);
-			addLine(shape, par.dxfArr, p11, p12, par.dxfBasePoint);
-			addLine(shape, par.dxfArr, p12, p2, par.dxfBasePoint);
-			}
-	
-		//начинаем с 2 точки
-		//начинаем с 2 точки
-		if (par.hasTopOverlap) {
-			addLine(shape, par.dxfArr, p2, p31, par.dxfBasePoint);
-			addLine(shape, par.dxfArr, p31, p32, par.dxfBasePoint);
-			addLine(shape, par.dxfArr, p32, p41, par.dxfBasePoint);
-			addLine(shape, par.dxfArr, p41, p4, par.dxfBasePoint);
-		}
-		else {
-			if(par.topCutHeight == 0){
-				addLine(shape, par.dxfArr, p2, p3, par.dxfBasePoint);
-				addLine(shape, par.dxfArr, p3, p4, par.dxfBasePoint);
-			}
-			if(par.topCutHeight != 0){
-				addLine(shape, par.dxfArr, p2, p31, par.dxfBasePoint);
-				addLine(shape, par.dxfArr, p31, p32, par.dxfBasePoint);
-				addLine(shape, par.dxfArr, p32, p4, par.dxfBasePoint);
-			}
-		}
-	
-	
-		//длина стекла справа (для расчета длины слева следующего стекла)
-		par.heightRight = p3.y - p4.y;
-	
-		//базовые точки для поручней
-		par.p1 = copyPoint(p2);
-		par.p2 = copyPoint(p3);
-	
-		//отверстия стекла
-		for(var i = 0; i < par.holes.length; ++i){
-			addRoundHole(shape, dxfPrimitivesArr, par.holes[i], par.holes[i].rad, par.dxfBasePoint);
-
-			var rutel = drawGlassRutel();
-			rutel.rotation.x = Math.PI / 2;
-			if(par.key == 'in') rutel.rotation.x *= -1;
-			rutel.rotation.x *= turnFactor;
-			
-			rutel.position.x = par.holes[i].x;
-			rutel.position.y = par.holes[i].y;
-			rutel.position.z = 125 / 2 - 2;
-			if(par.key == 'in') rutel.position.z = -125 / 2 + 2;
-			if (par.key == 'in' && turnFactor == 1) rutel.position.z += par.thk;
-			if (par.key == 'out' && turnFactor == -1) rutel.position.z -= par.thk;
-			rutel.position.z *= turnFactor;
-
-			if(!testingMode) par.mesh.add(rutel);
-		}
-	
-	
-		if (!shape.drawing) shape.drawing = {};
-		shape.drawing.group = 'glass';
-		shape.drawing.keyPoints = {topP1: p2, topP2: p3, botP1: p4, botP2: p1};
-		if (p11) {
-			shape.drawing.keyPoints.botP2 = p11;
-			shape.drawing.keyPoints.botP3 = p12;
-		}
-		shapesList.push(shape);
-	
-		var geometry = new THREE.ExtrudeGeometry(shape, extrudeOptions);
-		geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-		var glass = new THREE.Mesh(geometry, glassMaterial);
-	
-		par.mesh.add(glass);
-	
-		//сохраняем данные для спецификации
-		var glassHeight2 = topY - botY;
-		var partName = "glasses";
-		if(typeof specObj !='undefined'){
-			if(!specObj[partName]){
-				specObj[partName] = {
-					types: {},
-					amt: 0,
-					sumArea: 0,
-					area: 0,
-					name: "Стекло",
-					metalPaint: false,
-					timberPaint: false,
-					division: "stock_2",
-					workUnitName: "amt", //единица измерения
-					}
-				}
-			var name = Math.round(par.width) + "x" + Math.round(glassHeight2);
-			var area = Math.round(par.width * glassHeight2 / 10000)/100;
-			if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
-			if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
-			specObj[partName]["amt"] += 1;
-			specObj[partName]["area"] += area;
-			specObj[partName]["sumArea"] += area;
-		}
-		par.mesh.specId = partName + name;
-	
-		return par;
-	} //end of drawGlass_ko
-
 	/**функция определяет из массива стоек racks начальную и конечную стойки марша и площадок,
 		и задает длину стоек
 		*/
