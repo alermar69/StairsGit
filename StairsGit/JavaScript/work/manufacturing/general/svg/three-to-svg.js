@@ -137,6 +137,7 @@ function saveDxfFile(data){
 			if (d) {
 				console.log(i);
 				models[i] = makerjs.importer.fromSVGPathData(d);
+				models[i].layer = $(this).attr('data-layer');
 				makerjs.model.scale(models[i], 16);
 			}
 		})

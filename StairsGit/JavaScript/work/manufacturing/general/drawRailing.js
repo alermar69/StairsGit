@@ -247,10 +247,10 @@ function drawMarshRailing(par, marshId) {
 	if (params.railingModel == "Кованые балясины" || params.railingModel == "Кресты") drawRailingSection = drawRailingSectionForge2;
 	
 	if (params.calcType == 'mono') {
-		if (params.railingModel == "Самонесущее стекло") drawRailingSection = drawGlassSection;
+		if (params.railingModel == "Самонесущее стекло") drawRailingSection = drawGlassSectionMono;
 	}
 	if (params.calcType == 'metal' || params.calcType == 'vhod' || params.calcType == 'veranda') {
-		if (params.railingModel == "Самонесущее стекло") drawRailingSection = drawRailingSectionGlass;
+		if (params.railingModel == "Самонесущее стекло") drawRailingSection = drawGlassSectionMetal;
 		if (params.railingModel == "Трап") drawRailingSection = drawLadderHandrail;
 	}
 
@@ -1739,16 +1739,16 @@ function drawPolylineHandrail(par) {
 				var point = itercection(line1.p1, line1.p2, points[i], polar(points[i], Math.PI / 2, 100))
 				//var point = itercection(points[i - 1], polar(points[i - 1], handrailAngle, 100), points[i], polar(points[i], Math.PI / 2, 100))
 
-				if (params.handrailEndHor == "нет" || !marshPar.lastMarsh) {
-					//удлиннение поручня за конечную точку
-					point = polar(point, handrailAngle, par.extraLengthEnd)
-					point = polar(point, handrailAngle, -10 / Math.cos(handrailAngle))
-					//if (params.handrailEndType == "под углом") point = polar(point, handrailAngle, meterHandrailPar.profY)
-					if (params.calcType == "mono") point = polar(point, handrailAngle, -0.1)
-				}
 
+				//удлиннение поручня за конечную точку
+				point = polar(point, handrailAngle, par.extraLengthEnd)
+				point = polar(point, handrailAngle, -10 / Math.cos(handrailAngle))
+				if (params.calcType == "mono") point = polar(point, handrailAngle, -0.1)
+				
+				//горизонтальный участок в конце
 				if (params.handrailEndHor == "да" && marshPar.lastMarsh) {
 					point = newPoint_y(point, params.handrailEndHeight, handrailAngle);
+					
 					points1.push(point);
 					var point = newPoint_xy(point, params.handrailEndLen, 0)
 				}
@@ -5057,7 +5057,7 @@ function drawGlass2(par){
 		p3 = polar(p3, par.angleTop, par.extraLengthOverlap);
 		var p42 = itercection(p41, newPoint_xy(p41, 10, 0), p3, newPoint_xy(p3, 0, 10));
 		
-		par.topCutHeight += p3.y - topY;
+		//par.topCutHeight += p3.y - topY;
 	}
 	
 	//срез сверху	
@@ -5737,4 +5737,5 @@ function getLastPointsMarsh(treadsObj) {
 		topPoints[marshId].out = treadsObj.unitsPos.marsh3.x + turnParams.turnLengthTop;
 	}
 	return { botPoints: botPoints, topPoints: topPoints};
-}		
+}
+

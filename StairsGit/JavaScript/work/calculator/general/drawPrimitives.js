@@ -1826,3 +1826,15 @@ function calcSegmentPar(width, height){
 
 	return par;
 }
+
+/** функция инициализирует стандартные поля в объекте параметров для всех функций отрисовки чего-нибудь
+*/
+
+function initPar(par){
+	if(!par) par = {};
+	if(!par.dxfArr) par.dxfArr = [];
+	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
+	par.mesh = new THREE.Object3D();
+	
+	return par;
+}

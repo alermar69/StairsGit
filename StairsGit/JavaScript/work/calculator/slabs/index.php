@@ -44,12 +44,17 @@ include $GLOBALS['ROOT_PATH']."/orders/calcs/getOrderData.php";
 <?php include $GLOBALS['ROOT_PATH']."/orders/files/orderFiles.php" ?>
 </div>
 
-
+<div id="descr"></div>
 
 <div id="totalResultWrap">
 	<h2 class="raschet" onclick='recalculate()'>Общая стоимость</h2>
 	<div id="totalResult" class="toggleDiv number"></div>
 </div>
+
+<!-- Информация по технологическим ограничениям -->
+<?php include $GLOBALS['ROOT_PATH']."/calculator/slabs/forms/techInfo.php" ?>
+
+
 
 <!-- главная форма -->
 <?php include $GLOBALS['ROOT_PATH']."/calculator/slabs/forms/mainForm.php" ?>
@@ -72,6 +77,9 @@ include $GLOBALS['ROOT_PATH']."/orders/calcs/getOrderData.php";
 
 <!--расчет цены-->
 <script type="text/javascript" src="/calculator/slabs/priceCalc.js"></script>
+
+<!--описание-->
+<script type="text/javascript" src="/calculator/slabs/change_offer.js"></script>
 
 <!--оболочки-->
 <script type="text/javascript" src="/calculator/slabs/main.js"></script>

@@ -501,7 +501,11 @@ function staircaseHasUnit() {
 	if (params.skirting_1 && params.skirting_1 != "нет") par.skirting = true;
 	if (params.skirting_3 && params.stairModel != "Прямая" && params.skirting_3 != "нет") par.skirting = true;
 	if (params.skirting_2 && params.stairModel != "П-образная трехмаршевая" && params.skirting_2 != "нет") par.skirting = true;
-	if (params.calcType == 'railing') par.skirting = true;
+	if (params.calcType == 'railing') {
+		$(".concreteParRow").each(function(){
+			if($(this).find(".skirtingType").val() != "нет") par.skirting = true;
+		})
+	}
 
 	//ограждения
 	if (params.railingSide_1 != "нет") par.railing = true;
@@ -511,7 +515,10 @@ function staircaseHasUnit() {
 	if (params.stairModel == "П-образная с площадкой" && params.backRailing_1 != "нет") par.railing = true;
 	if (params.stairModel == "П-образная с забегом" && params.backRailing_2 != "нет") par.railing = true;
 	if (params.calcType == "vint") par.railing = true;
-	if (params.calcType == "railing") par.railing = true;
+	if (params.calcType == "railing") {
+		par.railing = false;
+		if(params.railingSectAmt > 0) par.railing = true;		
+	}
 
 	//балюстрада
 	if (params.banisterSectionAmt > 0) par.banister = true;
@@ -523,8 +530,8 @@ function staircaseHasUnit() {
 	if (params.stairModel != "Прямая" && params.handrailSide_3 != "нет") par.sideHandrails = true;
 	if (params.stairModel == "П-образная с площадкой" && params.backHandrail_1 != "нет") par.sideHandrails = true;
 	if (params.stairModel == "П-образная с забегом" && params.backHandrail_2 != "нет") par.sideHandrails = true;
-
-
+	if (params.calcType == "railing") par.sideHandrails = false;
+	
 	//наличие поручней на ограждениях или пристенных
 	par.handrail = false;
 	if ((par.railing && params.handrail != "нет") || par.sideHandrails) par.handrail = true;
@@ -558,6 +565,7 @@ function staircaseHasUnit() {
 		if (params.railingModel == "Кованые балясины" ||
 			params.railingModel == "Решетка" ||
 			params.railingModel == "Дерево с ковкой" ||
+			params.railingModel == "Кресты" ||
 			params.railingModel == "Экраны лазер") par.railingMetalPaint = true;
 
 		if (params.railingModel == "Ригели" || params.railingModel == "Стекло на стойках") {
@@ -668,14 +676,18 @@ function staircaseHasUnit() {
 				}
 				if (this.className == "Shelf") {
 					par.dopTimber = true;
+					par.dopMetal = true;
 				}
 				if(this.className == "MetalPlatform" || this.className == "Column" || this.className == "Canopy"){
+					par.dopMetal = true;
+				}
+				if (this.className == "Canopy") {
 					par.dopMetal = true;
 				}
 			}
 		})
 	}
-		
+	if(par.dopMetal) par.carcasMetalPaint = true;
 
 	return par;
 

@@ -550,8 +550,7 @@ function drawMarshTreads2(par) {
 
 			var railingStartIndex = startIndex;
 			if (par.marshId == 1) {
-				if (params.firstNewellPos == "на первой ступени") railingStartIndex += 1;
-				if (params.firstNewellPos == "на второй ступени") railingStartIndex += 2;
+				railingStartIndex += (params.railingStart + 1);
 				if (params.startTreadAmt) railingStartIndex -= params.startTreadAmt;
 			}
 			//нестандартная первая ступень

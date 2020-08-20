@@ -66,6 +66,7 @@
 		<select id="handrailEndHor" size="1">	
 			<option value="нет">нет</option>
 			<option value="да">да</option>
+			<option value="гусек">гусек</option>
 		</select>
 	</td>
 </tr>

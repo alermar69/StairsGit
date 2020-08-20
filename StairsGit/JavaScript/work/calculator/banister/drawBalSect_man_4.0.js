@@ -1,197 +1,6 @@
 
-function drawForgeFrame2(par) {
-	var mesh = new THREE.Object3D();
-	var basePoint = par.basePoint;//{x:0, y: 0};
-
-	var sectionLength = par.length;
-	var pos = { x: 0, y: 0 };
-	var railingPositionZ = -par.legProf;
-	var rackProfile = par.legProf;
-	var height = par.height - 20;	
-
-	var svgMarshId = par.svgMarshId || 0;
-	var svgPoleId = par.svgPoleId || 0;
-	var material = par.material || params.materials.metal_railing;
-
-	var polePar = {
-		type: "pole",
-		poleProfileY: 20,
-		poleProfileZ: 40,
-		dxfBasePoint: par.dxfBasePoint,
-		len: sectionLength,
-		poleAngle: 0,
-		vertEnds: true,
-		material: material,
-		dxfArr: dxfPrimitivesArr,
-		marshId: 'balustrade_' + 111,
-		sectText: 'balustrade_' + 111,
-	}
-
-	var rackPar = {
-		type: "rack",
-		poleProfileY: 40,
-		poleProfileZ: 40,
-		dxfBasePoint: par.dxfBasePoint,
-		len: height,
-		angTop: 0,
-		material: material,
-		dxfArr: dxfPrimitivesArr,
-		marshId: 'balustrade_' + 111,
-		sectText: 'balustrade_' + 111,
-		isBanister: true,
-	}
-
-	var shortRackPar = {
-		type: "rack",
-		poleProfileY: 40,
-		poleProfileZ: 40,
-		dxfBasePoint: par.dxfBasePoint,
-		len: par.shortLegLength,
-		angTop: 0,
-		material: material,
-		dxfArr: dxfPrimitivesArr,
-		marshId: 'balustrade_' + 111,
-		sectText: 'balustrade_' + 111,
-		isBanister: true,
-	}
-
-	if (par.firstRackDelta) rackPar.len -= par.firstRackDelta;
-	var firstRackPosition = newPoint_xy(basePoint, 0, -150);
-	rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, firstRackPosition.x, firstRackPosition.y);
-
-	if (!par.noDrawFirstRack) {
-		//4 максимально возможное кол-во секций марша
-		rackPar.drawing = {
-			marshId: svgMarshId,
-			poleId: svgPoleId,
-			group: 'forged_railing',
-			elemType: 'rack',
-			pos: copyPoint(firstRackPosition),
-			len: rackPar.len,
-			key: 'balustrade'
-		};
-		var rack = drawForgedFramePart2(rackPar).mesh;
-		rack.position.x = firstRackPosition.x;
-		rack.position.y = firstRackPosition.y;
-		rack.position.z = railingPositionZ;
-		if (par.firstRackDelta) {
-			rack.position.y += par.firstRackDelta;
-			rackPar.len += par.firstRackDelta;
-		}
-		mesh.add(rack);
-	}
-	if (par.noDrawFirstRack) {
-		polePar.len = height - par.shortLegLength - polePar.poleProfileY;
-		polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'side', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
-
-		var rack = drawForgedFramePart2(polePar).mesh;
-		rack.position.x = firstRackPosition.x - par.offsetFirstRack;
-		rack.position.y = firstRackPosition.y + par.shortLegLength + polePar.poleProfileY;
-		rack.position.z = railingPositionZ;
-		rack.rotation.z = Math.PI / 2;
-		mesh.add(rack);
-	}
-
-
-	var shortLegsAmt = Math.round((sectionLength - rackProfile) / 800) - 1;
-	if (shortLegsAmt < 0) shortLegsAmt = 0;
-	var shortLegDst = (sectionLength - rackProfile) / (shortLegsAmt + 1);
-	var shortBasePoint = newPoint_xy(firstRackPosition, shortLegDst, 0);
-
-	for (var i = 0; i < shortLegsAmt; i++) {
-		shortRackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, shortBasePoint.x, shortBasePoint.y);
-		shortRackPar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'rack', pos: copyPoint(shortBasePoint), len: shortRackPar.len, key: 'balustrade' };
-		var rack = drawForgedFramePart2(shortRackPar).mesh;
-		rack.position.x = shortBasePoint.x;
-		rack.position.y = shortBasePoint.y;
-		rack.position.z = railingPositionZ;
-		mesh.add(rack)
-
-		shortBasePoint = newPoint_xy(shortBasePoint, shortLegDst, 0);
-	}
-
-	//последняя стойка
-	if (!par.noDrawLastRack) {
-		if (!par.hiddenLastRack) {
-			pos = newPoint_xy(firstRackPosition, sectionLength - rackProfile, 0);
-			rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
-			rackPar.drawing = {
-				marshId: svgMarshId,
-				poleId: svgPoleId,
-				group: 'forged_railing',
-				elemType: 'rack',
-				pos: copyPoint(pos),
-				len: rackPar.len,
-				key: 'balustrade'
-			};
-			var rack = drawForgedFramePart2(rackPar).mesh;
-			rack.position.x = pos.x;
-			rack.position.y = pos.y;
-			rack.position.z = railingPositionZ;
-			mesh.add(rack);
-		}
-	}
-	if (par.noDrawLastRack) {
-		polePar.len = height - par.shortLegLength - polePar.poleProfileY;
-		polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'side', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
-
-		var rack = drawForgedFramePart2(polePar).mesh;
-		rack.position.x = firstRackPosition.x + par.offsetLastRack + sectionLength - polePar.poleProfileY;
-		rack.position.y = firstRackPosition.y + par.shortLegLength + polePar.poleProfileY;
-		rack.position.z = railingPositionZ;
-		rack.rotation.z = Math.PI / 2;
-		mesh.add(rack);
-	}
-
-	//верхняя перемычка
-	polePar.len = sectionLength;
-	if (par.hiddenLastRack) polePar.len -= 40;
-	polePar.poleAngle = 0;
-	pos = {
-		x: firstRackPosition.x - rackProfile / 2,
-		y: firstRackPosition.y + height,
-	}
-
-	if (par.noDrawFirstRack) {
-		polePar.len += par.offsetFirstRack;
-		pos.x -= par.offsetFirstRack
-	}
-	if (par.noDrawLastRack) {
-		polePar.len += par.offsetLastRack;
-	}
-
-	polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
-	polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'top', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
-	var pole = drawForgedFramePart2(polePar).mesh;
-	pole.position.x = pos.x;
-	pole.position.y = pos.y;
-	pole.position.z = railingPositionZ;
-	mesh.add(pole)
-
-	//нижняя перемычка
-	polePar.len = sectionLength - rackProfile * 2;
-	pos = newPoint_xy(firstRackPosition, rackProfile / 2, par.shortLegLength);
-	if (par.noDrawFirstRack) {
-		polePar.len += par.offsetFirstRack + rackProfile;
-		pos.x -= par.offsetFirstRack + rackProfile
-	}
-	if (par.noDrawLastRack) {
-		polePar.len += par.offsetLastRack + rackProfile;
-	}
-	polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
-	polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'bot', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
-	var pole = drawForgedFramePart2(polePar).mesh;
-	pole.position.x = pos.x;
-	pole.position.y = pos.y;
-	pole.position.z = railingPositionZ;
-	mesh.add(pole);
-
-	par.mesh = mesh;
-	return par;
-
-
-}
-
+/** функция отрисовывает секцию балюстрады
+*/
 function drawBalSection(par) {
 
 	if (par.type != "секция" && par.type != "секция площадки" && par.type != "секция railing") return;
@@ -882,6 +691,8 @@ function drawBalSection(par) {
 			if (railingModel == "Самонесущее стекло") {
 				handrailLength = sectionLength + 15 * 2;
 				if (par.angleStart == 0) handrailLength += -handrailProfileZ / 2
+				//вертикальный участок в начале
+				if(par.sectId == 0 && params.handrailVert_bal == "начало") handrailLength = sectionLength;
 			}
 
 			if (railingModel == "Кованые балясины" || railingModel == "Кресты") handrailLength -= 40;
@@ -982,7 +793,7 @@ function drawBalSection(par) {
 			if (railingModel == "Самонесущее стекло") {
 				handrailParams.fixType = params.handrailFixType_bal;
 				pos.z = 30;
-				if (params.handrailFixType_bal == 'паз' && par.connection !== 'начало' && par.connection !== 'две стороны') pos.x -= 10;
+				if (params.handrailFixType_bal == 'паз' && par.connection !== 'начало' && par.connection !== 'две стороны' && !(par.sectId == 0 && params.handrailVert_bal == "начало")) pos.x -= 10;
 				if (params.handrailFixType_bal == "кронштейны") pos.z = -30; //подогнано
 			}
 
@@ -1079,7 +890,27 @@ function drawBalSection(par) {
 				railingSection.add(flan);
 			}
 		}
-
+		
+		//поручень в начале секции
+		if(par.sectId == 0 && params.handrailVert_bal == "начало"){
+			handrailParams.length = pos.y + 150;
+			if(params.railingModel_bal == "Самонесущее стекло"){
+				if(params.glassFix_bal == "рутели") handrailParams.length += 200;
+				if(params.glassFix_bal == "профиль") handrailParams.length -= 100;
+			}
+			handrailParams.poleAngle = -Math.PI / 2
+			var pole = drawHandrail_4(handrailParams).mesh;
+			/*
+			pole.position.x = handrailPos.x;
+			pole.position.y = handrailPos.y;
+			if (testingMode) pole.position.y += 2; //2 подогнано чтобы не было пересечений
+			*/
+			pole.position.y = pos.y;
+			pole.position.x = 0;
+			pole.position.z = pos.z;
+			railingSection.add(pole);
+		}
+	
 	}; //конец поручня
 
 	function drawTimberPlatformRailing_nav() { } //пустая функция для навигации
@@ -1401,4 +1232,199 @@ function drawHandrailFlan(par) {
 	return par;
 } //end of drawHandrailFlan
 
+/** функция отрисовывает рамку кованой секции балюстрады
+*/
+
+function drawForgeFrame2(par) {
+
+	var mesh = new THREE.Object3D();
+	var basePoint = par.basePoint;//{x:0, y: 0};
+
+	var sectionLength = par.length;
+	var pos = { x: 0, y: 0 };
+	var railingPositionZ = -par.legProf;
+	var rackProfile = par.legProf;
+	var height = par.height - 20;	
+
+	var svgMarshId = par.svgMarshId || 0;
+	var svgPoleId = par.svgPoleId || 0;
+	var material = par.material || params.materials.metal_railing;
+
+	var polePar = {
+		type: "pole",
+		poleProfileY: 20,
+		poleProfileZ: 40,
+		dxfBasePoint: par.dxfBasePoint,
+		len: sectionLength,
+		poleAngle: 0,
+		vertEnds: true,
+		material: material,
+		dxfArr: dxfPrimitivesArr,
+		marshId: 'balustrade_' + 111,
+		sectText: 'balustrade_' + 111,
+	}
+
+	var rackPar = {
+		type: "rack",
+		poleProfileY: 40,
+		poleProfileZ: 40,
+		dxfBasePoint: par.dxfBasePoint,
+		len: height,
+		angTop: 0,
+		material: material,
+		dxfArr: dxfPrimitivesArr,
+		marshId: 'balustrade_' + 111,
+		sectText: 'balustrade_' + 111,
+		isBanister: true,
+	}
+
+	var shortRackPar = {
+		type: "rack",
+		poleProfileY: 40,
+		poleProfileZ: 40,
+		dxfBasePoint: par.dxfBasePoint,
+		len: par.shortLegLength,
+		angTop: 0,
+		material: material,
+		dxfArr: dxfPrimitivesArr,
+		marshId: 'balustrade_' + 111,
+		sectText: 'balustrade_' + 111,
+		isBanister: true,
+	}
+
+	if (par.firstRackDelta) rackPar.len -= par.firstRackDelta;
+	var firstRackPosition = newPoint_xy(basePoint, 0, -150);
+	rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, firstRackPosition.x, firstRackPosition.y);
+
+	if (!par.noDrawFirstRack) {
+		//4 максимально возможное кол-во секций марша
+		rackPar.drawing = {
+			marshId: svgMarshId,
+			poleId: svgPoleId,
+			group: 'forged_railing',
+			elemType: 'rack',
+			pos: copyPoint(firstRackPosition),
+			len: rackPar.len,
+			key: 'balustrade'
+		};
+		var rack = drawForgedFramePart2(rackPar).mesh;
+		rack.position.x = firstRackPosition.x;
+		rack.position.y = firstRackPosition.y;
+		rack.position.z = railingPositionZ;
+		if (par.firstRackDelta) {
+			rack.position.y += par.firstRackDelta;
+			rackPar.len += par.firstRackDelta;
+		}
+		mesh.add(rack);
+	}
+	if (par.noDrawFirstRack) {
+		polePar.len = height - par.shortLegLength - polePar.poleProfileY;
+		polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'side', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
+
+		var rack = drawForgedFramePart2(polePar).mesh;
+		rack.position.x = firstRackPosition.x - par.offsetFirstRack;
+		rack.position.y = firstRackPosition.y + par.shortLegLength + polePar.poleProfileY;
+		rack.position.z = railingPositionZ;
+		rack.rotation.z = Math.PI / 2;
+		mesh.add(rack);
+	}
+
+
+	var shortLegsAmt = Math.round((sectionLength - rackProfile) / 800) - 1;
+	if (shortLegsAmt < 0) shortLegsAmt = 0;
+	var shortLegDst = (sectionLength - rackProfile) / (shortLegsAmt + 1);
+	var shortBasePoint = newPoint_xy(firstRackPosition, shortLegDst, 0);
+
+	for (var i = 0; i < shortLegsAmt; i++) {
+		shortRackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, shortBasePoint.x, shortBasePoint.y);
+		shortRackPar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'rack', pos: copyPoint(shortBasePoint), len: shortRackPar.len, key: 'balustrade' };
+		var rack = drawForgedFramePart2(shortRackPar).mesh;
+		rack.position.x = shortBasePoint.x;
+		rack.position.y = shortBasePoint.y;
+		rack.position.z = railingPositionZ;
+		mesh.add(rack)
+
+		shortBasePoint = newPoint_xy(shortBasePoint, shortLegDst, 0);
+	}
+
+	//последняя стойка
+	if (!par.noDrawLastRack) {
+		if (!par.hiddenLastRack) {
+			pos = newPoint_xy(firstRackPosition, sectionLength - rackProfile, 0);
+			rackPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
+			rackPar.drawing = {
+				marshId: svgMarshId,
+				poleId: svgPoleId,
+				group: 'forged_railing',
+				elemType: 'rack',
+				pos: copyPoint(pos),
+				len: rackPar.len,
+				key: 'balustrade'
+			};
+			var rack = drawForgedFramePart2(rackPar).mesh;
+			rack.position.x = pos.x;
+			rack.position.y = pos.y;
+			rack.position.z = railingPositionZ;
+			mesh.add(rack);
+		}
+	}
+	if (par.noDrawLastRack) {
+		polePar.len = height - par.shortLegLength - polePar.poleProfileY;
+		polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'side', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
+
+		var rack = drawForgedFramePart2(polePar).mesh;
+		rack.position.x = firstRackPosition.x + par.offsetLastRack + sectionLength - polePar.poleProfileY;
+		rack.position.y = firstRackPosition.y + par.shortLegLength + polePar.poleProfileY;
+		rack.position.z = railingPositionZ;
+		rack.rotation.z = Math.PI / 2;
+		mesh.add(rack);
+	}
+
+	//верхняя перемычка
+	polePar.len = sectionLength;
+	if (par.hiddenLastRack) polePar.len -= 40;
+	polePar.poleAngle = 0;
+	pos = {
+		x: firstRackPosition.x - rackProfile / 2,
+		y: firstRackPosition.y + height,
+	}
+
+	if (par.noDrawFirstRack) {
+		polePar.len += par.offsetFirstRack;
+		pos.x -= par.offsetFirstRack
+	}
+	if (par.noDrawLastRack) {
+		polePar.len += par.offsetLastRack;
+	}
+
+	polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
+	polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'top', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
+	var pole = drawForgedFramePart2(polePar).mesh;
+	pole.position.x = pos.x;
+	pole.position.y = pos.y;
+	pole.position.z = railingPositionZ;
+	mesh.add(pole)
+
+	//нижняя перемычка
+	polePar.len = sectionLength - rackProfile * 2;
+	pos = newPoint_xy(firstRackPosition, rackProfile / 2, par.shortLegLength);
+	if (par.noDrawFirstRack) {
+		polePar.len += par.offsetFirstRack + rackProfile;
+		pos.x -= par.offsetFirstRack + rackProfile
+	}
+	if (par.noDrawLastRack) {
+		polePar.len += par.offsetLastRack + rackProfile;
+	}
+	polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
+	polePar.drawing = { marshId: svgMarshId, poleId: svgPoleId, group: 'forged_railing', elemType: 'pole', place: 'bot', pos: copyPoint(pos), key: 'balustrade', len: polePar.len, ang: polePar.poleAngle };
+	var pole = drawForgedFramePart2(polePar).mesh;
+	pole.position.x = pos.x;
+	pole.position.y = pos.y;
+	pole.position.z = railingPositionZ;
+	mesh.add(pole);
+
+	par.mesh = mesh;
+	return par;
+
+}
 

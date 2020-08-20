@@ -563,15 +563,6 @@ function drawStrightStringer(par){
 
 		par.keyPoints.botPoint = topLineP0;
 		par.keyPoints.topPoint = botLineP1;
-		//сохраняем точки для столбов ограждений
-		// par.keyPoints.rack1Pos = newPoint_xy(topLineP0, - params.rackSize/2, 0);
-		// if(par.botEnd == "пол" && params.riserType == "есть") par.keyPoints.rack1Pos.x -= params.riserThickness;
-		// if(par.botEnd == "столб") par.keyPoints.rack1Pos.x += newellSlotDepth;
-		// if(par.botEnd == "пол" && params.firstNewellPos == "на первой ступени") par.keyPoints.rack1Pos = newPoint_xy(par.keyPoints.rack1Pos, params.rackSize, h);
-		// if(par.botEnd == "пол" && params.firstNewellPos == "на второй ступени") par.keyPoints.rack1Pos = newPoint_xy(par.keyPoints.rack1Pos, params.rackSize + a, h * 2);
-
-		// par.keyPoints.rack2Pos = newPoint_xy(botLineP1, params.rackSize/2, 0);
-		// if(par.topEnd == "столб") par.keyPoints.rack2Pos.x -= newellSlotDepth;
 
 		if (par.slots) {
 			var columns = new THREE.Object3D();
@@ -704,7 +695,7 @@ function drawStrightStringer(par){
 			par.excerptDepth = 100;
 		}
 
-		if (params.firstNewellPos !== 'на полу' && par.hasRailing && par.marshId == 1) {
+		if (params.railingStart > 0 && par.hasRailing && par.marshId == 1) {
 			var notchPar = {
 				points: topLine,
 				notchCenterX: par.keyPoints.marshFirst.x,//par.keyPoints.rack2Pos.x,
@@ -873,7 +864,7 @@ function drawStrightStringer(par){
 				}
 
 				var slotHole = drawHolePath(holePar).path;
-				if (i == 0 || (i == 1 && params.firstNewellPos == 'на первой ступени' && par.marshId == 1)){
+				if (i == 0 || (i == 1 && params.railingStart == 0 && par.marshId == 1)){
 					stringerHoles.push(slotHole);
 				}else{
 					stringerShape.holes.push(slotHole);

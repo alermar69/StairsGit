@@ -503,14 +503,11 @@ if(params.handrail == "сосна" ||
 	$("#handrailColor").closest("tr").hide();
 	if(params.handrail == "ПВХ") $("#handrailColor").closest("tr").show();
 	
-	if(railingModel == "Деревянные балясины" || railingModel == "Стекло" || railingModel == "Дерево с ковкой") 
-		$("#handrailEndHor").closest("tr").hide();
-	
 	//горизонтальный участок в конце
 	$("#handrailEndHeight").closest("tr").hide();
 	$("#handrailEndLen").closest("tr").hide();
 	$("#topHandrailExtraLength").closest("tr").show();
-	if(params.handrailEndHor == "да"){
+	if(params.handrailEndHor != "нет"){
 		$("#handrailEndHeight").closest("tr").show();
 		$("#handrailEndLen").closest("tr").show();
 		$("#topHandrailExtraLength").closest("tr").hide();
@@ -561,7 +558,7 @@ function configPaintingInputs(){
 	
 	//показваем тип покраски металла каркаса если он есть
 	$('#metalPaint').closest("tr").hide();
-	if(isUnit.carcas || params.calcType == "vint" || params.calcType == "carport") {
+	if(isUnit.carcas || isUnit.dopMetal || params.calcType == "vint" || params.calcType == "carport") {
 		$('#metalPaint').closest("tr").show();
 	}
 
@@ -637,7 +634,6 @@ function configPaintingInputs(){
 	var hasRigels = false;
 	var hasNewells = false;
 	var hasTimberBal = false;
-	var hasMetalBal = false;
 
 	if(params.calcType == "timber" && params.stairModel == "Прямая") hasNewells = true;
 
@@ -655,15 +651,9 @@ function configPaintingInputs(){
 			params.railingModel == "Стекло на стойках" ||
 			params.railingModel == "Экраны лазер"){
 			if(params.banisterMaterial == "40х40 нерж+дуб") hasTimberBal = true;
-			if(params.banisterMaterial == "40х40 черн.") hasMetalBal = true;
 		}
-		
-		if(params.railingModel == "Дерево с ковкой") hasMetalBal = true;
-		
-		if(params.railingModel == "Кованые балясины") hasMetalBal = true;
 		if(params.railingModel == "Реечные") {
 			if(params.racksType == "массив" || params.racksType == "шпон") hasTimberBal = true;
-			if(params.racksType == "металл") hasMetalBal = true;
 		}
 	}
 
@@ -681,14 +671,8 @@ function configPaintingInputs(){
 			params.railingModel_bal == "Стекло на стойках" ||
 			params.railingModel_bal == "Экраны лазер"){
 			if(params.banisterMaterial_bal == "40х40 нерж+дуб") hasTimberBal = true;
-			if(params.banisterMaterial_bal == "40х40 черн.") hasMetalBal = true;
 		}
 		
-		if(params.railingModel_bal == "Дерево с ковкой") hasMetalBal = true;
-		
-		if(params.railingModel_bal == "Кованые балясины") hasMetalBal = true;
-		
-			
 	}
 
 	//поручни
@@ -724,7 +708,7 @@ function configPaintingInputs(){
 	if(!hasRigels) $("#colorsFormTable #rigelsParams").hide();
 	if(!hasNewells) $("#colorsFormTable #newellsParams").hide();
 	if(!hasTimberBal) $("#colorsFormTable #timberBalParams").hide();
-	if(!hasMetalBal || params.metalPaint_railing == "нет") $("#colorsFormTable #metalBalParams").hide();
+	if(!hasUnit.railingMetalPaint || params.metalPaint_railing == "нет") $("#colorsFormTable #metalBalParams").hide();
 	if(params.calcType == "vint" && params.metalPaint == "порошок") $("#colorsFormTable #metalBalParams").show();
 	if(params.calcType != "timber") $("#carcasMaterial").val("констр. сталь");
 
@@ -746,7 +730,7 @@ function configPaintingInputs(){
 	//цвет покраски
 	$(".lakColor").hide();
 	$(".oilColor").hide();
-	console.log(params.timberPaint)
+
 	if(params.timberPaint == "морилка+лак" || params.timberPaint == "морилка+патина+лак") $(".lakColor").show();
 	if(params.timberPaint == "цветное масло") $(".oilColor").show();
 	

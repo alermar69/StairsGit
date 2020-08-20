@@ -238,19 +238,20 @@ function addUnitParamsInputs($row){
 		values: [
 			'не указано',
 			'щит',
+			'шпон',
 			'слэб цельный',
 			'слэб со склейкой',
 			'слэб + стекло',
 			'слэб + смола непрозр.',
 			'слэб + смола прозр.',
-			'шпон',
+			
 		],
 		name: "Модель",
 		classNames: 'countertop',
 	};
 	props.push(prop);
 	
-	//порода дерева
+	//порода дерева для щита
 	var prop = {
 		id: "timberType",
 		values: [
@@ -339,11 +340,18 @@ function addUnitParamsInputs($row){
 			"не указано",
 			"скругление R3",
 			"скругление R6",
-			"фаска 3х45гр",
+			"скругление R12",
+			"скругление R25",
+			"фигурная Ф-1",
+			"фигурная Ф-2",
+			"фигурная Ф-3",
+			"фигурная Ф-4",
+			"фигурная Ф-5",
+			"фигурная Ф-6",
+			"фигурная Ф-7",
+			"фигурная Ф-8",
 			"фаска 6х45гр",
-			"калевка R10",
-			"фигурная №1",
-			"фигурная №2",
+			"фаска 12х45гр",
 		],
 		name: "Ребра",
 		classNames: 'countertop',
@@ -390,31 +398,49 @@ function addUnitParamsInputs($row){
 		id: "baseModel",
 		values: [
 			'не указано',
-			'труба крашенная',
-			'труба нерж.',
-			'лист',
-			'короб',
+			'D-1',
+			'S-1',
+			'S-2',
+			'S-3',
+			'S-4',
+			'S-5',
+			'S-6',
+			'S-7',
+			'S-8',
+			'S-9',
+			'T-1',
+			'T-2',
+			'T-3',
+			'T-4',
+			'T-5',
+			'T-6',
+			'T-7',
+			'T-8',
+			'T-9',
+			'T-10',
+			'T-11',
+			'T-12',
+			'T-13',
+			'T-14',
+			'T-15',
+			'T-16',
+			'T-17',
+			'T-18',
 		],
 		name: "Модель",
 		classNames: 'tableBase',
 	};
 	props.push(prop);
 	
-	//профиль
+	//типоразмер подстолья
 	var prop = {
-		id: "prof",
+		id: "tableGeom",
 		values: [
 			'не указано',
-			'40х20',
-			'40х40',
-			'60х30',
-			'60х40',
-			'60х60',
-			'80х40',
-			'100х40',
-			'100х50',
+			'прямоугольный',
+			'круглый',
 		],
-		name: "Профиль",
+		name: "Форма стола",
 		classNames: 'tableBase',
 	};
 	props.push(prop);
@@ -466,29 +492,43 @@ function configParamsInputs($row){
 	
 	$row.find(".main").show();
 	
-	if(type == "столешница" || type == "подоконник" || type == "изготовление столешницы") {
+	if(type == "столешница" || type == "подоконник") {
+		$row.find(".countertop").show();
+		var model = $row.find(".model").val();
+		if(model.indexOf("слэб") != -1){
+			alertTrouble("Изделия из слэбов необходимо считать отдельно слэб, отдельно изготовление.")
+		}
+		if(model == "щит"){
+			var timberType = $row.find(".timberType").val();
+			if(timberType == "дуб натур" || timberType == "карагач натур") $row.find(".timberType").val("дуб паркет.");
+		}
+		
+		if(model == "шпон"){
+			var timberType = $row.find(".timberType").val();
+			if(timberType != "дуб ц/л" && timberType != "лиственница ц/л") $row.find(".timberType").val("дуб ц/л");
+		}
+	}
+	
+	if(type == "изготовление столешницы") {
 		$row.find(".countertop").show();
 		var model = $row.find(".model").val();
 		if(model == "слэб + смола непрозр." || model == "слэб + смола прозр.") $row.find(".resin").show();			
 		if(model == "слэб + стекло") $row.find(".glass").show();
-		//толщина слэбов
-		if(model.indexOf("слэб") != -1){
-			if(model == "слэб цельный") {
-				$row.find(".thk").val(60);
-			}
-			else {
-				$row.find(".thk").val(40);
-			}
-		}
 	}
 	
-	if(type == "подстолье") $row.find(".tableBase").show();
+	if(type == "подстолье") {
+		$row.find(".tableBase").show();
+		var baseModel = $row.find(".baseModel").val();
+		if(baseModel == "S-9" || baseModel == "T-17") $row.find(".tableGeom").val("круглый");
+	}
 	
 	//слэбы
 	if(type == "слэб") {
 		$row.find(".len").closest('span').show();
 		$row.find(".thk").closest('span').show();
 		$row.find(".timberType").closest('span').show();
+		
+		
 	}
 	
 	if(type == "изготовление столешницы") {

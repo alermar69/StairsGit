@@ -116,44 +116,41 @@ function calculateGlassPoints(par){
 			y: 0,//marshPar.h + marshPar.h_topWnd,
 		};
 	}
-	//сдвигаем точку на внешней стороне
-	//if (par.key == 'in' && marshPar.topTurn !== 'нет' && !marshPar.lastMarsh) {
-	//	var deltaX = marshTurnParams.pltExtraLen - par.treadOffset - par.glassThickness - 20;
-	//	lastMarshPoint = newPoint_xy(lastMarshPoint, deltaX, marshPar.ang * deltaX);
-	//}
-	var handrailPoint = copyPoint(lastMarshPoint);	
 
+	var handrailPoint = copyPoint(lastMarshPoint);	
+	
+	// стыковка с вертикальным поручнем следующей секции на внутренней стороне марша
 	if (par.key == 'in' && marshPar.topTurn !== 'нет' && !marshPar.lastMarsh) {
-		var deltaX = marshTurnParams.pltExtraLen - par.treadOffset - par.glassThickness - 20;
+		//поручень сдвинут на 5мм относительно края ступени
+		var deltaX = 5; //marshTurnParams.pltExtraLen - par.treadOffset - par.glassThickness - 20;
+		/*
 		if (nextMarshPar.hasRailing.in) {
 			deltaX = 60 - marshTurnParams.pltExtraLen;
 			if (~params.stairModel.indexOf("Г-образная") || params.stairModel == 'П-образная трехмаршевая')
 				deltaX -= par.handrailSlotDepth / 2;
 		}
 		//if (nextMarshPar.hasRailing.in) deltaX = - params.nose + marshTurnParams.pltExtraLen - 40;
-		lastMarshPoint = newPoint_xy(lastMarshPoint, deltaX, Math.tan(marshPar.ang) * deltaX);
+		*/
+		handrailPoint = newPoint_xy(lastMarshPoint, deltaX, Math.tan(marshPar.ang) * deltaX);
 		
-		var handrailPoint = copyPoint(lastMarshPoint);
-
+		/*
 		//Стекло с нижнего марша не вставляется в вертикальный поручень, поэтому лучше там сделать технологический зазор в 5мм.
 		if (nextMarshPar.hasRailing.in) lastMarshPoint = newPoint_x1(lastMarshPoint, -5, marshPar.ang);
+		*/
 	}
-
+/*
 	if((par.key == "out" || (par.key == 'in' && marshPar.lastMarsh)) && marshPar.topTurn !== 'пол'){
-		lastMarshPoint.x += marshPar.b * 0.5;
-		lastMarshPoint.y += marshPar.h * 0.5;
-
-		var handrailPoint = copyPoint(lastMarshPoint);
+		handrailPoint.x += marshPar.b * 0.5;
+		handrailPoint.y += marshPar.h * 0.5;
 	}	
-
-
-	if (marshPar.stairAmt > 0) {
+/*
+//коррекция последней точки поручня
+	if (marshPar.stairAmt > 0 && !marshPar.lastMarsh) {
 		var ang = calcAngleX1(handrailPoints[handrailPoints.length - 1], handrailPoint);
 		if (par.key == 'out' && marshPar.topTurn !== 'пол'){
 			handrailPoint = polar(handrailPoint, ang, -10);
 		}
-		if (params.startVertHandrail == "есть" && params.handrailFixType == "паз" && params.handrailEndType == 'под углом') {
-			
+		if (params.startVertHandrail == "есть" && params.handrailFixType == "паз" && params.handrailEndType == 'под углом') {			
 			handrailPoint = polar(handrailPoint, ang, (meterHandrailPar.profY) * Math.tan(ang));
 		}
 
@@ -163,7 +160,7 @@ function calculateGlassPoints(par){
 			}
 		}
 	}
-
+*/
 	//центральные точки марша
 	for (var i = 0; i < rackPos.length; i++) {
 		var prevPosition = parseInt(rackPos[i] - 1);
@@ -174,11 +171,11 @@ function calculateGlassPoints(par){
 		};
 		glassPoints.push(itercection(marshFirst, lastMarshPoint, pt, polar(pt, Math.PI / 2, 100)));
 	}
-
+/*
 	if (par.key == 'in' && marshPar.topTurn == 'пол' && params.handrailFixType == "паз") {
 		handrailPoint = polar(handrailPoint, marshPar.ang, 50);
 	}
-	
+*/	
 	if(!(params.stairModel == 'П-образная с забегом' && par.marshId == 2)) handrailPoints.push(handrailPoint);
 	glassPoints.push(lastMarshPoint);
 
@@ -195,7 +192,9 @@ function calculateGlassPoints(par){
 				}
 			}
 		}
-		if (marshPar.topTurn == 'пол' && params.startVertHandrail == "есть") isShiftLastMarshPoint = true;
+		
+		//не делаем последний вертикальный участок
+		if (marshPar.topTurn == 'пол' && params.startVertHandrail == "есть") isShiftLastMarshPoint = false;
 
 		if (isShiftLastMarshPoint) {
 			handrailPoints.pop();
@@ -563,16 +562,22 @@ function calcGlassHoles(marshId, key){
 	return par;
 } //end of calcGlassHoles
 
-function drawGlassSection(par){
+/** функция отрисовывает секцию ограждения лестницы с самонесущим стеклом 
+**/
+
+function drawGlassSectionMono(par){
 
 	var section = new THREE.Object3D();
 	var handrails = new THREE.Object3D();
+	
 	/** Задаем параметры для рассчета стекол */
-	par.handrailSlotDepth = 15;
-	par.treadOffset = 14;
+
+
 	par.glassThickness = 12;
 
-	setRailingParams(par);
+	//рассчитываем необходимые параметры и добавляем в объект par
+	setRailingParams(par) //функция в файле calcRailingParams.js
+		
 	var marshPar = getMarshParams(par.marshId);
 	var nextMarshPar = getMarshParams(marshPar.nextMarshId);
 	var prevMarshPar = getMarshParams(marshPar.prevMarshId);
@@ -580,8 +585,7 @@ function drawGlassSection(par){
 	var glassThickness = par.glassThickness;
 	var glassOffsetY = par.glassOffsetY = marshPar.h * 2;
 	var rackProfile = 40;
-	var treadOffset = par.treadOffset;
-	var glassOffsetZ = treadOffset;
+
 	var holeRad = 9;
 	var sectionHeight = params.glassHeight - glassOffsetY;
 
@@ -600,22 +604,22 @@ function drawGlassSection(par){
 	calculateGlassPoints(par);
 
 	if(params.turnSide == 'левое'){
-		glassOffsetZ *= -1;
+		par.glassOffsetZ *= -1;
 	}
 	if((par.key == 'in' && params.stairModel !== "Прямая") || (par.key == 'out' && params.stairModel == "Прямая")){
-		if(params.turnSide == 'левое') glassOffsetZ -= glassThickness;
+		if(params.turnSide == 'левое') par.glassOffsetZ -= glassThickness;
 	}
 	if((par.key == 'out' && params.stairModel !== "Прямая") || (par.key == 'in' && params.stairModel == "Прямая")){
 		if(params.turnSide == 'левое'){
-			glassOffsetZ = - glassOffsetZ;
+			par.glassOffsetZ = - par.glassOffsetZ;
 		} else {
-			glassOffsetZ = - glassThickness - glassOffsetZ;
+			par.glassOffsetZ = - glassThickness - par.glassOffsetZ;
 		}
 	}
 	if(par.marshId == "topPlt"){
 		glassOffsetY = par.glassOffsetY = 270;
 		sectionHeight += 90;
-		glassOffsetZ = par.treadOffset;
+		par.glassOffsetZ = par.glassOffsetZ;
 	}
 	if (par.key == "rear" && par.marshId == 2) {
 		if (!(prevMarshPar.hasRailing.out || nextMarshPar.hasRailing.out)) {
@@ -623,7 +627,7 @@ function drawGlassSection(par){
 			sectionHeight += 90;
 		}
 		
-		glassOffsetZ = par.treadOffset;
+		par.glassOffsetZ = par.glassOffsetZ;
 	}
 
 	var holes = calcGlassHoles(par.marshId, par.key).holes;
@@ -683,7 +687,7 @@ function drawGlassSection(par){
 		var glass = drawGlass2(glassPar).mesh;
 		glass.position.x = par.glassPoints[i].x;
 		glass.position.y = par.glassPoints[i].y - glassOffsetY;
-		glass.position.z = glassOffsetZ;
+		glass.position.z = par.glassOffsetZ;
 		section.add(glass);
 
 		//отрисовка сварных кронштейнов
@@ -772,17 +776,30 @@ function drawGlassSection(par){
 			handrailParams.extraLengthEnd = 0;
 		}
 
-		//удлинение поручня для нахлеста на верхнее перекрытие
+		//удлиннение поручня в конце
+		
+		//последний марш
 		if (marshPar.lastMarsh) {
-			handrailParams.extraLengthEnd += 10;
-			handrailParams.extraLengthEnd += params.topHandrailExtraLength / Math.cos(marshPar.ang);
+			if(params.handrailEndHor != "да") handrailParams.extraLengthEnd += params.topHandrailExtraLength;
+			//удлиннение последнего стекла
+			handrailParams.extraLengthEnd += params.topGlassExtraLength / Math.cos(marshPar.ang);
+		}
+		else{
+			//стыковка с вертикальным поручнем следующего марша
+			handrailParams.extraLengthEnd += par.glassDist / Math.cos(marshPar.ang);
+		}
+		
+		//компенсируем наклонный срез поручня
+		if (params.handrailFixType == "паз" && params.handrailEndType == 'под углом' && !(marshPar.lastMarsh && params.handrailEndHor == "да")) {
+			handrailParams.extraLengthEnd += meterHandrailPar.profY * Math.tan(marshPar.ang)// par.handrailSlotDepth;
 		}
 
 		if (par.key == 'rear' && par.marshId == 2) {
-			if (prevMarshPar.hasRailing.out)handrailParams.extraLengthEnd = treadOffset + glassThickness / 2 + meterHandrailPar.profZ / 2;
-			if (nextMarshPar.hasRailing.out)handrailParams.extraLengthStart = treadOffset + glassThickness / 2 + meterHandrailPar.profZ / 2;
+			if (prevMarshPar.hasRailing.out)handrailParams.extraLengthEnd = par.glassOffsetZ + glassThickness / 2 + meterHandrailPar.profZ / 2;
+			if (nextMarshPar.hasRailing.out)handrailParams.extraLengthStart = par.glassOffsetZ + glassThickness / 2 + meterHandrailPar.profZ / 2;
 		}
 
+/*
 		// делаем стык поручня с поворотной стойкой под углом
 		if (par.key == 'in' && marshPar.topTurn !== 'нет' && !marshPar.lastMarsh) {
 			if (~params.stairModel.indexOf("Г-образная") || params.stairModel == 'П-образная трехмаршевая')
@@ -791,7 +808,7 @@ function drawGlassSection(par){
 					handrailParams.isHandrailEndAng = true; // верхний конец поручня под углом
 				}
 		}
-
+*/
 
 		handrailParams = drawPolylineHandrail(handrailParams);
 		var handrail = handrailParams.mesh;
@@ -804,15 +821,16 @@ function drawGlassSection(par){
 				if (par.key == 'out') key = 'in';
 			}
 
-			if(key == 'out') handrail.position.z = -((treadOffset - 10) + 40 + 20 + glassThickness / 2);
-			if(key == 'in') handrail.position.z = (treadOffset - 10) + 40 + 20 + glassThickness / 2;
-			if (key == 'rear' && par.marshId == 2) handrail.position.z = -30 - meterHandrailPar.profZ / 2 + treadOffset + glassThickness / 2;
+			if(key == 'out') handrail.position.z = (par.glassOffsetZ + glassThickness / 2) - 50; // 50 - подогнано
+			if(key == 'in') handrail.position.z = (par.glassOffsetZ - 10) + 40 + 20 + glassThickness / 2;
+			if (key == 'rear' && par.marshId == 2) handrail.position.z = -30 - meterHandrailPar.profZ / 2 + par.glassOffsetZ + glassThickness / 2;
 			if(params.turnSide == 'левое'){
-				if(key == 'in') handrail.position.z = -((treadOffset - 10) + 40 + 20 + glassThickness / 2);
-				if(key == 'out') handrail.position.z = ((treadOffset - 10) + 40 + 20 + glassThickness / 2);
+				if(key == 'in') handrail.position.z = (par.glassOffsetZ + glassThickness / 2) - 50; // 50 - подогнано
+				if(key == 'out') handrail.position.z = ((par.glassOffsetZ - 10) + 40 + 20 + glassThickness / 2);
 			}
 			
 		}
+		
 		handrails.add(handrail);
 
 		if(key == 'in' && marshPar.botTurn == 'забег') {
@@ -2333,25 +2351,7 @@ function calcHandrailPoints(par, parRacks) {
 	if(!parRacks.topLast){
 		var p1 = polar(marshLast, parRacks.marshLast.holderAng, pointOffset);
 		if(parRacks.marshLast.noDraw){
-			//var temp = {
-			//	x: parRacks.marshLast.x - 25, //rackProfile / 2
-			//	y: marshLast.y
-			//}
-			//p1 = itercection(marshFirst, p1, parRacks.marshLast, temp);
-
 			var temp = newPoint_xy(parRacks.marshLast, -par.rackProfile / 2, 0);
-			//if (params.handrailEndType == "под углом") {
-			//	var meterHandrailPar = {
-			//		prof: params.handrailProf,
-			//		sideSlots: params.handrailSlots,
-			//		handrailType: params.handrail,
-			//		metalPaint: params.metalPaint_railing,
-			//		timberPaint: params.timberPaint_perila,
-			//	}
-			//	meterHandrailPar = calcHandrailMeterParams(meterHandrailPar);
-			//	//temp.x -= meterHandrailPar.profY * Math.tan(parRacks.angMarsh) * Math.sin(parRacks.angMarsh);
-			//	temp = polar(temp, parRacks.angMarsh, -meterHandrailPar.profY);
-			//}
 			p1 = itercection(marshFirst, p1, temp, polar(temp, Math.PI / 2, 100));
 		}
 		handrailPoints.push(p1);

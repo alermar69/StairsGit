@@ -460,7 +460,9 @@ function getExportData_com(checkSumm){
 		}
 	
 	if(params.calcType == "railing"){
-		description = "Ограждения";
+		description = "";
+		if(params.railingSectAmt > 0) description = "Ограждения";
+		
 		var types = {};
 		for(var i=0; i<params.railingSectAmt; i++){
 			var inputId = "railingType" + i;
@@ -471,15 +473,16 @@ function getExportData_com(checkSumm){
 					amt: 0,
 					len: 0,
 					};
-				}
+			}
 			types[type].amt += 1;
 			types[type].len += Math.round(params["len" + i] / Math.cos(params["angle" + i] * Math.PI / 180) / 1000 * 10) / 10;			
-			}
+		}
 		
 		for(var type in types){
 			description += " " + type + " " + Math.round(types[type].len * 10) / 10 + " м.п. (" + types[type].amt + " секц.)";
-			}
 		}
+		
+	}
 		
 	if(params.calcType == "slabs"){
 		description = "";
@@ -517,7 +520,27 @@ function getExportData_com(checkSumm){
 	
 			
 	if(staircaseHasUnit().banister) description += ", Балюстрада " + params.railingModel_bal + " " + calcBanisterLen() + "м.п. ";
+	
+	//доп. объекты
+	if(description != "" && additional_objects.length > 0) description += ". Объекты: "
+	
+	$.each(additional_objects, function(i){		
+		if(this.calc_price){
+			var className = this.className
+			
+			var classes = AdditionalObject.getAvailableClasses()
+			var descr = classes.find(item => item.className === className).title;
+			
+			//используем метод класса если есть
+			var getDescr =  eval(className + ".getDescr")
+			if(typeof getDescr == "function") descr = getDescr(this.meshParams)
 
+			if(i > 0) description += ", "
+			description += descr;
+		}
+	})
+			
+	
 	//установка
 	if(params.isAssembling == "нет") description += ". Без монтажа"
 	if(params.isAssembling == "есть") {

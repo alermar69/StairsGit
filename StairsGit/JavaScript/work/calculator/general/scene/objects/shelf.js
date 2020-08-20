@@ -242,4 +242,13 @@ class Shelf extends AdditionalObject {
 			]
 		}
 	}
+	
+	/** возвращает описание объекта.
+	@param - meshParams из объекта additional_objects
+	*/
+	
+	static getDescr(par) {
+		var text = "Стеллаж " + par.shelfAmt + " пол. " + par.height + "х" + par.width + "х" + par.depth + "мм"
+		return text;
+	}
 }

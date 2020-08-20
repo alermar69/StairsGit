@@ -16,7 +16,6 @@ function setStockParams(){
 		timberBalTopEnd: "квадрат",
 		timberBalBotEnd: "квадрат",
 		//newellTopType: "плоское",
-		//firstNewellPos: "на первой ступени",
 		//timberBalModel: "10",
 		//timberRackModel: "01",
 		//балюстрада
@@ -31,7 +30,6 @@ function setStockParams(){
 		timberBalTopEnd_bal: "квадрат",
 		timberBalBotEnd_bal: "квадрат",
 		//newellTopType_bal: "плоское",
-		//firstNewellPos_bal: "на первой ступени",
 		//timberBalModel_bal: "10",
 		//timberRackModel_bal: "01",
 		//rackBottom_bal: "сверху с крышкой",

@@ -964,8 +964,9 @@ function addLedges(wall, n){
 				wallLedgeRotY = $('#wallLedgeRotY' + i).val(),
 				wallLedgeRotZ = $('#wallLedgeRotZ' + i).val(),
 				wallLedgeBase = $('#wallLedgeBase' + i).val();
-
-			if (wallLedgeType == 'проем') wallLedgeDepth = d;
+			
+		
+		//if (wallLedgeType == 'проем') wallLedgeDepth = d; //проем на всю глубину стены
 			
 			var geometry = new THREE.CubeGeometry(wallLedgeWidth, wallLedgeHeight, wallLedgeDepth),
 				ledge = new THREE.Mesh(geometry, params.materials.wall);

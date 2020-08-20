@@ -209,7 +209,6 @@ function getParamsStock() {
 	  "timberBalBotEnd": "квадрат",
 	  "banisterSize": 50,
 	  "newellTopType": "плоское",
-	  "firstNewellPos": "на полу",
 	  "banister1": "bal_9",
 	  "banister2": "bal_9",
 	  "glassType": "прозрачное",

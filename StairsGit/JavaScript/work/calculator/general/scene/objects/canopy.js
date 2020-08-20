@@ -143,6 +143,15 @@ class Canopy extends AdditionalObject {
 			]
 		}
 	}
+	
+	/** возвращает описание объекта.
+	@param - meshParams из объекта additional_objects
+	*/
+	
+	static getDescr(par) {
+		var text = "Козырек " + par.holderType + " " + par.width + " мм"
+		return text;
+	}
 }
 
 /** функция отрисовывает козырек

@@ -152,6 +152,23 @@ function setRailingParams(par) {
 	//П-образная с площадкой
 	if (par.botEnd == "площадка" && !isTopPlt && params.stairModel == "П-образная с площадкой")
 		par.platformLengthBottom = params.platformLength_1 + 40;
+	
+	//параметры для самонесущего стекла
+	
+	par.handrailSlotDepth = 15; //глубина паза под стекло в поручнях
+	
+	//зазор от стекла до торца марша
+	if(params.calcType == "mono") par.glassOffsetZ = 14;
+	if(params.calcType != "mono"){
+		par.glassOffsetZ = 20
+		if (params.model == "ко") {
+			par.glassOffsetZ = 5;
+			if (params.handrailFixType == "паз" && params.startVertHandrail == "есть") par.glassOffsetZ = 14;
+		}
+	}
+	
+	par.glassThickness = 12;
+	par.glassDist = 10;
 
 }; //end of setRailingParams
 

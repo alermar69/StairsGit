@@ -128,8 +128,8 @@
 				</select>
 			</td></tr>
 			
-			<tr class=""><td>Вертикальный поручень:</td> <td> 
-				<select id="handrailHor_bal" size="1" onchange="">
+			<tr><td>Вертикальный поручень:</td> <td> 
+				<select id="handrailVert_bal" size="1" onchange="">
 					<option value="нет">нет</option>
 					<option value="начало">начало</option>		
 					<option value="все секции">все секции</option>		
@@ -323,6 +323,3 @@
 		-->
 	</div>
 </div>
-
-<!--Обработчик формы--> 
-<script type="text/javascript" src="/calculator/banister/forms/banister_construct_form_change.js"></script>

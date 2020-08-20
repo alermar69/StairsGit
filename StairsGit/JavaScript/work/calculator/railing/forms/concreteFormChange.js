@@ -112,7 +112,7 @@ function addConcreteInputs(){
 					'3 <input type="checkbox" id="thirdSkirting' + (rowAmt + 1) +'"><br>' +
 					'4 <input type="checkbox" id="fourthSkirting' + (rowAmt + 1) +'"><br>' +
 					'</span>' +
-					'<span class="marshParams turnParams">Плинтус: <select id="skirtingType' + (rowAmt-1) + '" size="1">' +
+					'<span class="marshParams turnParams">Плинтус: <select id="skirtingType' + (rowAmt-1) + '" class="skirtingType" size="1">' +
 						'<option value="нет">нет</option>' +
 						'<option class="turnParams" value="да">да</option>' +
 						'<option class="marshParams" value="слева">слева</option>' +

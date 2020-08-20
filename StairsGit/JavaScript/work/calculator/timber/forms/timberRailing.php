@@ -75,10 +75,11 @@
 	<select id="lastNewellType" size="1" onchange="">		
 		<option value="как на лестнице">как на лестнице</option>
 		<option value="резной">объемный резной</option>
+		<option value="нет">нет</option>
 	</select>
 </td></tr>
 
-<tr class='startNewell'><td>Модель стартового/заверщающего столба:</td> <td> 
+<tr class='startNewell'><td>Модель резных столбов:</td> <td> 
 	<input id="startNewellModel" type="text" value="01">
 	<button class="showModal noPrint" data-modal="startNewellModal">эскизы</button>
 </td></tr>
@@ -89,17 +90,9 @@
 	Поворот: <input id="startNewellRot" type="text" value="0">
 </td></tr>
 
-<tr class='startNewell'><td>Сдвиг завершающего столба:</td> <td> 
-	X: <input id="lastNewellMooveX" type="text" value="0">
-	Z: <input id="lastNewellMooveZ" type="text" value="0"><br/>
+<tr class='timber_tr railing_tr timber_kovka_tr'><td>Сдвиг завершающего столба:</td> <td> 
+	X: <input id="lastNewellMooveX" type="text" value="0"><br>
+	Z: <input id="lastNewellMooveZ" type="text" value="0"><br>
 	Поворот: <input id="lastNewellRot" type="text" value="0">
 </td></tr>
 
-<tr class="timber_tr timber_kovka_tr timber_glass_tr railing_tr"><td>Стартовый столб:</td> <td> 
-	<select id="firstNewellPos" size="1" onchange="">		
-		<option value="на первой ступени">на первой ступени</option>
-		<option value="на второй ступени">на второй ступени</option>
-		<option value="на третьей ступени">на третьей ступени</option>
-		<option value="на полу" style='display: none'>на полу</option>
-	</select>
-</td></tr>

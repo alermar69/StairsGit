@@ -44,6 +44,7 @@ function calcPrice(){
 			var timberType = $row.find(".timberType").val();
 			var m3Cost = calcTimberParams(timberType).m3Price;
 			if(model == "слэб цельный") m3Cost = 200000;
+			if(model == "шпон") m3Cost = 100000;
 			
 			
 			var timberCost = vol * m3Cost;
@@ -103,9 +104,8 @@ function calcPrice(){
 			var width = $row.find(".width").val() * 1.0;
 			var cost = 5000;
 			var model = $row.find(".baseModel").val();
-			if(model == "труба нерж.") cost = 15000;
-			if(model == "лист") cost = 7500;
-			if(model == "короб") cost = 15000;
+			if(model.indexOf("S") != -1) cost = 7500;
+			if(model.indexOf("D") != -1) cost = 15000;
 			
 			//учитываем размеры
 			var profLen = (height + width) * 2;

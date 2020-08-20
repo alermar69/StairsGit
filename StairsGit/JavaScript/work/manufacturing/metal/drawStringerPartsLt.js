@@ -2305,7 +2305,7 @@ function drawTopStepLt_floor(par) {
  */
 
 function drawTopStepLt_pltG(par) {
-console.log(par.marshId, par.pointsShape[par.pointsShape.length-1])
+
 	if (par.isMiddleStringer) {
 		par.stringerWidthPlatform -= params.treadThickness + par.stringerLedge;
 		par.stringerWidth -= params.treadThickness + par.stringerLedge;

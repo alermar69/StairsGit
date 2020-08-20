@@ -107,9 +107,7 @@ function drawPurlin(par){
 */
 function drawCarportColumn(par){
 	if(!par) par = {};
-	if(!par.dxfArr) par.dxfArr = [];
-	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
-	par.mesh = new THREE.Object3D();
+	initPar(par)
 	
 	
 	var columnPar = {
@@ -171,9 +169,7 @@ function drawCarportColumn(par){
 */
 function drawCarportColumnBase(par){
 	if(!par) par = {};
-	if(!par.dxfArr) par.dxfArr = [];
-	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
-	par.mesh = new THREE.Object3D();
+	initPar(par)
 	
 	var offset = 50;
 	var holeOffset = offset / 2;
@@ -823,11 +819,8 @@ function drawDomeTopFlan(par){
 */
 
 function drawPurlinFlan(par){
-	
 	if(!par) par = {};
-	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
-	if(!par.dxfArr) par.dxfArr = [];
-	par.mesh = new THREE.Object3D();
+	initPar(par)
 	
 	par.flanWidth = 40;
 
@@ -1342,11 +1335,8 @@ function drawPolygonRoofSectorFrame(par){
 ноль - середина по X на уровне низа профиля
 */
 function drawCarportBeam(par){
-	
 	if(!par) par = {};
-	if(!par.dxfBasePoint) par.dxfBasePoint = {x: 0, y: 0};
-	if(!par.len) par.len = params.width;
-	par.mesh = new THREE.Object3D();
+	initPar(par)
 	
 	var beamProfParams = getProfParams(params.beamProf)
 	
@@ -1612,10 +1602,9 @@ function drawRectArray(par){
 
 function drawWaveSheet(par){
 	if(!par) par = {};
-	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0,}
-	if(!par.dxfArr) par.dxfArr = [];
+	initPar(par)
+	
 	if(!par.len) par.len = 1000;
-	par.mesh = new THREE.Object3D();
 	
 	par.waveWidth = 70;
 	par.waveHeight = 35;
@@ -2047,9 +2036,7 @@ function drawCarportWall(par){
 /* функция отрисовывает лист обшивки фронтона */
 function drawFronton(par){
 	if(!par) par = {};
-	par.mesh = new THREE.Object3D();
-	if(!par.dxfArr) par.dxfArr = [];
-	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
+	initPar(par)
 	
 	
 	if(params.roofType == "Плоская"){

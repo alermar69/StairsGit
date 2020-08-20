@@ -178,12 +178,7 @@ $(function() {
         reindexId('topFloorForm', 'topFloorAmt');
     };
 	
-		changeFormLedges = function(){
-        removeLedges();
-        var amt = $('#wallLedgeAmt').val();
-        for(var i = 0; i < amt; i++)
-            appendLedges(i);
-    };
+
     removeLedges = function(){
         var inputs = $('table tr').filter(function(){
             return $(this).find('[id^=wallLedge]').length > 0;

@@ -13,23 +13,18 @@ function calculateCarcasPrice(){
 	staircaseCost.topTimberPaint = paintedArea * paintPriceM2;
 	
 	//подстолье
-	var legPar = getProfParams(params.legProf)
-	var legTubeLen = (params.height - params.countertopThk) * 2 + (params.depth - params.frontOverhang) * 2;
 	
-	staircaseCost.carcas = legPar.unitCost * legTubeLen / 1000 * 2; //2 опоры
+	var cost = 5000;
+	if(params.baseModel.indexOf("S") != -1) cost = 7500;
+	if(params.baseModel.indexOf("D") != -1) cost = 15000;
 	
-	//царги
-	var bridgePar = getProfParams(params.bridgeProf)
-	var bridgeTubeLen = (params.width - params.sideOverhang * 2 - legPar.sizeA * 2) * 2;
-	staircaseCost.carcas += bridgePar.unitCost * bridgeTubeLen / 1000;
+	//учитываем размеры
+	var profLen = (params.height + params.width) * 2;
+	var nominalProfLen = (700 + 600) * 2;
 	
-	//порошковая покраска подстолья - упрощенно равна цене металла
-	staircaseCost.carcas *= 2;
+	cost = cost * 0.7 + (cost * 0.3 * profLen / nominalProfLen);
+			
+	staircaseCost.carcas = cost
 	
-	
-	
-	//ящики
-	
-
 }
 

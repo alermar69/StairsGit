@@ -16,6 +16,7 @@ $(function () {
 function recalculate(){	
 	changeAllForms();
 	calcPrice();
+	changeOffer()
 }
 
 function changeAllForms(){

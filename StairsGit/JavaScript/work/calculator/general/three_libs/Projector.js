@@ -267,6 +267,7 @@ THREE.Projector = function () {
 				_line.renderOrder = object.renderOrder;
 
 				_line.material = object.material;
+				_line.layer = getLayer(object);
 
 				if ( object.material.vertexColors === THREE.VertexColors ) {
 
@@ -281,7 +282,7 @@ THREE.Projector = function () {
 
 		}
 
-		function pushTriangle( a, b, c, material ) {
+		function pushTriangle( a, b, c, material, layer ) {
 
 			var v1 = _vertexPool[ a ];
 			var v2 = _vertexPool[ b ];
@@ -321,6 +322,7 @@ THREE.Projector = function () {
 				_face.vertexNormalsLength = 3;
 
 				_face.material = material;
+				_face.layer = layer;
 
 				if ( material.vertexColors === THREE.FaceColors ||  material.vertexColors === THREE.VertexColors ) {
 
@@ -546,7 +548,7 @@ THREE.Projector = function () {
 
 								for ( var i = group.start, l = group.start + group.count; i < l; i += 3 ) {
 
-									renderList.pushTriangle( indices[ i ], indices[ i + 1 ], indices[ i + 2 ], material );
+									renderList.pushTriangle( indices[ i ], indices[ i + 1 ], indices[ i + 2 ], material, getLayer(object) );
 
 								}
 
@@ -556,7 +558,7 @@ THREE.Projector = function () {
 
 							for ( var i = 0, l = indices.length; i < l; i += 3 ) {
 
-								renderList.pushTriangle( indices[ i ], indices[ i + 1 ], indices[ i + 2 ], material );
+								renderList.pushTriangle( indices[ i ], indices[ i + 1 ], indices[ i + 2 ], material, getLayer(object) );
 
 							}
 
@@ -578,7 +580,7 @@ THREE.Projector = function () {
 
 								for ( var i = group.start, l = group.start + group.count; i < l; i += 3 ) {
 
-									renderList.pushTriangle( i, i + 1, i + 2, material );
+									renderList.pushTriangle( i, i + 1, i + 2, material, getLayer(object) );
 
 								}
 
@@ -588,7 +590,7 @@ THREE.Projector = function () {
 
 							for ( var i = 0, l = positions.length / 3; i < l; i += 3 ) {
 
-								renderList.pushTriangle( i, i + 1, i + 2, material );
+								renderList.pushTriangle( i, i + 1, i + 2, material, getLayer(object) );
 
 							}
 
@@ -976,6 +978,10 @@ THREE.Projector = function () {
 		return _facePool[ _faceCount ++ ];
 
 
+	}
+
+	function getLayer(object){
+		return object.layerName;
 	}
 
 	function getNextLineInPool() {

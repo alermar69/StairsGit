@@ -76,7 +76,7 @@ if(isRailing) {
 		$(".timber_kovka_tr").show();
 	}
 	
-	if(params.model == "тетивы" && params.firstNewellPos != "на полу"){
+	if(params.model == "тетивы" && params.railingStart > 0){
 		alertTrouble("ВНИМАНИЕ!\nДля лестницы на тетивах установить первый столб ограждения возможно только на полу. Измените тип каркаса или позицию первого столба.")
 	}
 
@@ -85,11 +85,6 @@ if(isRailing) {
 //скрываем неактуальные параметры поручней (стыковка всегда через столбы)
 $("#handrailEndType").closest("tr").hide();
 $("#handrailConnectionType").closest("tr").hide();
-
-//установка столба на пол
-var option = $("#firstNewellPos option[value='на полу']");
-option.hide();
-if(params.model == "тетивы") option.show();
 
 
 } //end of changeForm

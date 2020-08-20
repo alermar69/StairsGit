@@ -1,10 +1,10 @@
-//глобальные переменные для тестирования
+//РіР»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
 var testingMode = false;
 var boltDiam = 10;
 var boltBulge = 8;
 var boltLen = 30;
-var anglesHasBolts = true; //отрисовывать болты уголков
-var drawLongBolts = true; //отрисовывать длинные болты, соединяющие два уголка через тетиву насквозь
+var anglesHasBolts = true; //РѕС‚СЂРёСЃРѕРІС‹РІР°С‚СЊ Р±РѕР»С‚С‹ СѓРіРѕР»РєРѕРІ
+var drawLongBolts = true; //РѕС‚СЂРёСЃРѕРІС‹РІР°С‚СЊ РґР»РёРЅРЅС‹Рµ Р±РѕР»С‚С‹, СЃРѕРµРґРёРЅСЏСЋС‰РёРµ РґРІР° СѓРіРѕР»РєР° С‡РµСЂРµР· С‚РµС‚РёРІСѓ РЅР°СЃРєРІРѕР·СЊ
 var turnFactor = 1;
 var treadsObj;
 
@@ -25,41 +25,58 @@ drawTable = function (viewportId, isVisible) {
 			},
 		};
 	
-	//обнуляем счетчики спецификации
+	//РѕР±РЅСѓР»СЏРµРј СЃС‡РµС‚С‡РёРєРё СЃРїРµС†РёС„РёРєР°С†РёРё
 	partsAmt = {};
-	specObj = partsAmt; //задаем объект, куда будут сохраняться данные для спецификации
+	specObj = partsAmt; //Р·Р°РґР°РµРј РѕР±СЉРµРєС‚, РєСѓРґР° Р±СѓРґСѓС‚ СЃРѕС…СЂР°РЅСЏС‚СЊСЃСЏ РґР°РЅРЅС‹Рµ РґР»СЏ СЃРїРµС†РёС„РёРєР°С†РёРё
 	poleList = {};
 
-	/*удаляем контуры*/
+	/*СѓРґР°Р»СЏРµРј РєРѕРЅС‚СѓСЂС‹*/
 	dxfPrimitivesArr = [];
 	
-		/*** КАРКАС ***/
 	
-	var carcasPar = {
+	var basePar = {
 		dxfBasePoint: {x: 0, y: 0},
-		}
+		model: params.baseModel,
+		width: params.width - params.sideOverhang * 2,
+		height: params.height - params.countertopThk,
+		len: params.len - params.frontOverhang * 2,
+	}
 		
-	var carcasObj = drawCarcas(carcasPar);
-	model.add(carcasObj.carcas, "carcas");
-	model.add(carcasObj.panels, "panels");
-	model.add(carcasObj.countertop, "countertop");
+	var base = drawTableBase(basePar).mesh;
+	model.add(base, "carcas");
+	
+	var topPar = {
+		dxfBasePoint: {x: 2000, y: 0},
+		geom: params.tableGeom,
+		model: params.countertopModel,
+		cornerRad: params.cornerRad,
+		width: params.width,
+		len: params.len,
+		thk: params.countertopThk,
+		partsGap: params.partsGap,
+	}
+	
+	var top = drawCountertop(topPar).mesh;
+	top.position.y = params.height
+	model.add(top, "countertop");
 	
 	
 		
 	
-//размеры
+//СЂР°Р·РјРµСЂС‹
 	
 	for(var i=0; i<model.objects.length; i++){
 		var obj = model.objects[i].obj;
-		//добавляем белые ребра
+		//РґРѕР±Р°РІР»СЏРµРј Р±РµР»С‹Рµ СЂРµР±СЂР°
 		if(model.objects[i].layer != "dimensions" && model.objects[i].layer != "dimensions2") addWareframe(obj, obj);
-		//добавляем в сцену
+		//РґРѕР±Р°РІР»СЏРµРј РІ СЃС†РµРЅСѓ
 		addObjects(viewportId, obj, model.objects[i].layer);
 		}
 
-	//измерение размеров на модели
+	//РёР·РјРµСЂРµРЅРёРµ СЂР°Р·РјРµСЂРѕРІ РЅР° РјРѕРґРµР»Рё
 	addMeasurement(viewportId);
 	
 	if (typeof staircaseLoaded !== undefined) staircaseLoaded();
 	
 };
+

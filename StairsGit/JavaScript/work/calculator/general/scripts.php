@@ -353,7 +353,7 @@
 			'only_for' => ['table'],
 		],
 		[
-			'url' => '/manufacturing/table/drawCarcas.js',
+			'url' => '/manufacturing/table/drawTableParts.js',
 			'only_for' => ['table'],
 		],
 		

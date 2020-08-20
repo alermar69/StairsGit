@@ -33,6 +33,7 @@ var holeMooveParams = []; //массив данных для смещения о
 var modelSpec = {};//Сюда попадает итоговая спецификация
 var calculatedSpec = {};//Сюда попадает итоговая спецификация
 var boltDiamNoTest = typeof boltDiam != 'undefined' ? boltDiam : 10;
+var additional_objects = [];
 
 $(function () {
 	getAllInputsValues(params);

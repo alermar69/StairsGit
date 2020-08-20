@@ -99,7 +99,6 @@ function calcBotStepPoints(par){
 			x: -par.slotsOffset,
 			y: 0,
 			}
-		if(par.hasRailing && marshPar.stairAmt > 0 && params.firstNewellPos == 'на полу') topLineP0.x = par.bottomRackNotch;
 
 		//корректируем точки если внизу столб
 		if(par.botEnd == "столб") {

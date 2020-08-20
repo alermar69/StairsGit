@@ -42,7 +42,7 @@ THREE.SVGRenderer = function () {
 		_svgPathPool = [],
 		_svgNode, _pathCount = 0,
 
-		_currentPath, _currentStyle,
+		_currentPath, _currentStyle, _currentLayer,
 
 		_quality = 1, _precision = null;
 
@@ -178,6 +178,7 @@ THREE.SVGRenderer = function () {
 
 		_currentPath = '';
 		_currentStyle = '';
+		_currentLayer = '';
 
 		for ( var e = 0, el = _elements.length; e < el; e ++ ) {
 
@@ -365,6 +366,7 @@ THREE.SVGRenderer = function () {
 
 		var path = 'M' + convert( v1.x - scaleX * 0.5 ) + ',' + convert( v1.y - scaleY * 0.5 ) + 'h' + convert( scaleX ) + 'v' + convert( scaleY ) + 'h' + convert( - scaleX ) + 'z';
 		var style = "";
+		if (element.layer) style += 'layer: ' + element.layer + ';';
 
 		if ( material.isSpriteMaterial || material.isPointsMaterial ) {
 
@@ -372,7 +374,7 @@ THREE.SVGRenderer = function () {
 
 		}
 
-		addPath( style, path );
+		addPath( style, path, element.layer );
 
 	}
 
@@ -383,14 +385,14 @@ THREE.SVGRenderer = function () {
 		if ( material.isLineBasicMaterial ) {
 
 			var style = 'fill:none;stroke:' + material.color.getStyle() + ';stroke-opacity:' + material.opacity + ';stroke-width:' + material.linewidth + ';stroke-linecap:' + material.linecap;
-
+			if (element.layer) style += ';layer: ' + element.layer + ';';
 			if ( material.isLineDashedMaterial ) {
 
 				style = style + ';stroke-dasharray:' + material.dashSize + "," + material.gapSize;
 
 			}
 			if (path.indexOf('NaN') == -1) {
-				addPath( style, path );
+				addPath( style, path, element.layer );
 			}
 
 		}
@@ -404,7 +406,7 @@ THREE.SVGRenderer = function () {
 
 		var path = 'M' + convert( v1.positionScreen.x ) + ',' + convert( v1.positionScreen.y ) + 'L' + convert( v2.positionScreen.x ) + ',' + convert( v2.positionScreen.y ) + 'L' + convert( v3.positionScreen.x ) + ',' + convert( v3.positionScreen.y ) + 'z';
 		var style = '';
-
+		if (element.layer) style += 'layer: ' + element.layer + ';';
 		if ( material.isMeshBasicMaterial ) {
 
 			_color.copy( material.color );
@@ -451,7 +453,7 @@ THREE.SVGRenderer = function () {
 
 		}
 
-		addPath( style, path );
+		addPath( style, path,element.layer );
 
 	}
 
@@ -473,11 +475,12 @@ THREE.SVGRenderer = function () {
 
 	}
 
-	function addPath( style, path ) {
+	function addPath( style, path, layer ) {
 
 		if ( _currentStyle === style ) {
 
 			_currentPath += path;
+			_currentLayer = layer;
 
 		} else {
 
@@ -485,6 +488,7 @@ THREE.SVGRenderer = function () {
 
 			_currentStyle = style;
 			_currentPath = path;
+			_currentLayer = layer;
 
 		}
 
@@ -497,12 +501,14 @@ THREE.SVGRenderer = function () {
 			_svgNode = getPathNode( _pathCount ++ );
 			_svgNode.setAttribute( 'd', _currentPath );
 			_svgNode.setAttribute( 'style', _currentStyle );
+			_svgNode.setAttribute( 'data-layer', _currentLayer );
 			_svg.appendChild( _svgNode );
 
 		}
 
 		_currentPath = '';
 		_currentStyle = '';
+		_currentLayer = '';
 
 	}
 

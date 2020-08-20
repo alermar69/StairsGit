@@ -6,15 +6,6 @@
 
 		<table class="form_table" ><tbody>
 
-			<tr><td>Назначение:</td> <td> 
-				<select id="tableType" size="1">
-					<option value="обеденный">обеденный</option>
-					<option value="письменный">письменный</option>
-					<option value="журнальный">журнальный</option>
-					<option value="барный">барный</option>
-				</select>
-			</td></tr>
-			
 			<tr><td>Форма:</td> <td> 
 				<select id="tableGeom" size="1">
 					<option value="прямоугольный">прямоугольный</option>
@@ -26,12 +17,12 @@
 
 			<tr>
 				<td>Ширина:</td> 
-				<td><input id="width" type="number" value="1200"></td>
+				<td><input id="width" type="number" value="600"></td>
 			</tr>
 			
 			<tr>
-				<td>Глубина:</td> 
-				<td><input id="depth" type="number" value="600"></td>
+				<td>Длина:</td> 
+				<td><input id="len" type="number" value="1200"></td>
 			</tr>
 			
 			<tr>
@@ -46,7 +37,7 @@
 		<table class="form_table" ><tbody>
 
 			<tr><td>Тип:</td> <td> 
-				<select id="countertopType" size="1">
+				<select id="countertopModel" size="1">
 					<option value="цельная">цельная</option>
 					<option value="двойная">двойная</option>
 					<option value="двойная с вставкой">двойная с вставкой</option>
@@ -81,80 +72,48 @@
 		<table class="form_table" ><tbody>
 
 			<tr><td>Модель:</td> <td> 
-				<input id="legsModel" type="text" value="05">
+				<select id="baseModel">
+					<option value="не указано">не указано</option>
+					<option value="D-1">D-1</option>
+					<option value="S-1">S-1</option>
+					<option value="S-2">S-2</option>
+					<option value="S-3">S-3</option>
+					<option value="S-4">S-4</option>
+					<option value="S-5">S-5</option>
+					<option value="S-6">S-6</option>
+					<option value="S-7">S-7</option>
+					<option value="S-8">S-8</option>
+					<option value="S-9">S-9</option>
+					<option value="T-1" selected>T-1</option>
+					<option value="T-2">T-2</option>
+					<option value="T-3">T-3</option>
+					<option value="T-4">T-4</option>
+					<option value="T-5">T-5</option>
+					<option value="T-6">T-6</option>
+					<option value="T-7">T-7</option>
+					<option value="T-8">T-8</option>
+					<option value="T-9">T-9</option>
+					<option value="T-10">T-10</option>
+					<option value="T-11">T-11</option>
+					<option value="T-12">T-12</option>
+					<option value="T-13">T-13</option>
+					<option value="T-14">T-14</option>
+					<option value="T-15">T-15</option>
+					<option value="T-16">T-16</option>
+					<option value="T-17">T-17</option>
+					<option value="T-18">T-18</option>
+				</select>
 				<button class="showModal noPrint" data-modal="sideModal">эскизы</button>
 			</td></tr>
 			
-			<tr><td>Ноги:</td> <td> 
-				<select id="legProf" size="1">
-					<option value="40х40">40х40</option>
-					<option value="60х60">60х60</option>
-					<option value="80х80">80х80</option>
-					<option value="100х100">100х100</option>
-					<option value="60х30">60х30</option>
-					<option value="80х40" selected>80х40</option>
-					<option value="100х40">100х40</option>
-					<option value="100х50">100х50</option>
-				</select>
-			</td></tr>
-			
-			<tr><td>Царги:</td> <td> 
-				<select id="bridgeProf" size="1">
-					<option value="60х30">60х30</option>
-					<option value="40х80">40х80</option>
-					<option value="80х40">80х40</option>
-					<option value="40х100">40х100</option>
-					<option value="нет">нет</option>
-				</select>
-			</td></tr>
-			
-			<tr><td>Полка:</td> <td> 
-				<select id="shelf" size="1">
-					<option value="нет">нет</option>
-					<option value="есть">есть</option>
-				</select>
-			</td></tr>
-			
-			<tr>
-				<td>Расстояние от полки до столешницы:</td> 
-				<td><input id="shelfOffset" type="number" value="150"></td>
-			</tr>
-			
-			<tr>
-				<td>Задняя панель:</td>
-				<td> 
-					<select id="rearPanel" size="1">
-						<option value="нет">нет</option>
-						<option value="есть">есть</option>
-					</select>
-				</td>
-			</tr>
-			
-			<tr>
-				<td>Боковые пенели:</td>
-				<td> 
-					<select id="sidePanel" size="1">
-						<option value="нет">нет</option>
-						<option value="левая">левая</option>
-						<option value="правая">правая</option>
-						<option value="две">две</option>
-					</select>
-				</td>
-			</tr>
-			
-			<tr>
-				<td>Высота задней пенели:</td>
-				<td><input id="rearPanelHeight" type="number" value="300"></td>
-			</tr>
-			
 			<tr>
 				<td>Свес столешницы боковой:</td>
-				<td><input id="sideOverhang" type="number" value="20"></td>
+				<td><input id="sideOverhang" type="number" value="50"></td>
 			</tr>
 			
 			<tr>
 				<td>Свес столешницы передний/задний:</td>
-				<td><input id="frontOverhang" type="number" value="20"></td>
+				<td><input id="frontOverhang" type="number" value="100"></td>
 			</tr>
 			
 			<tr><td>Покраска металла:</td> <td> 
@@ -172,66 +131,6 @@
 			</td></tr>
 			
 		</tbody></table>
-		
-		<h4>3. Тумбы:</h4>
-
-		<table class="form_table" ><tbody>
-		
-			<tr><td>Тип:</td> <td> 
-				<select id="drawersPosVert" size="1">
-					<option value="нет">нет</option>
-					<option value="подвесная">подвесная</option>
-					<option value="напольная">напольная</option>
-					<option value="на колесиках">на колесиках</option>					
-				</select>
-			</td></tr>
-			
-			<tr><td>Расположение:</td> <td> 
-				<select id="drawersPosHor" size="1">
-					<option value="слева">слева</option>
-					<option value="справа">справа</option>
-					<option value="две">две</option>					
-				</select>
-			</td></tr>
-			
-			<tr>
-				<td>Отступ от столешницы:</td> 
-				<td><input id="drawerOffset" type="number" value="150"></td>
-			</tr>
-
-			<tr>
-				<td>Ширина тумбы полная:</td> 
-				<td><input id="drawerWidth" type="number" value="400"></td>
-			</tr>
-			
-			<tr>
-				<td>Высота тумбы полная:</td> 
-				<td><input id="drawerHeight" type="number" value="400"></td>
-			</tr>
-			
-			<tr>
-				<td>Количество ящиков:</td> 
-				<td><input id="drawerAmt" type="number" value="3"></td>
-			</tr>
-
-			
-			<tr><td>Тип ящиков:</td> <td> 
-				<select id="drawersType" size="1">
-					<option value="нет">нет</option>
-					<option value="деревянные эконом">деревянные эконом</option>
-					<option value="металлические эконом">металлические эконом</option>
-					<option value="металлические премиум">металлические премиум</option>
-					<option value="металлические премиум">металлические премиум</option>
-				</select>
-			</td></tr>
-			
-			<tr><td>Тип ручек:</td><td>
-				<input id="handleModel" type="text" value="05">
-				<button class="showModal noPrint" data-modal="sideModal">эскизы</button>
-			</td></tr>
-			
-		</tbody></table>
-
 	</div>
 </div>
 		

@@ -652,9 +652,11 @@ function reindexPriceItems(){
 	redrawPriceItems();
 }
 
-function setTreadDescr(){
+function setTreadDescr(par){
+	
 	var stairType = params.stairType;
 	if(stairType == "массив") stairType = params.treadsMaterial;
+	if(par.timberType) stairType = par.timberType;
 
 	$("#stairsDiv").show();
 	if (stairType =="нет") $("#stairsDiv").hide();
@@ -697,6 +699,18 @@ function setTreadDescr(){
 		stairsHeader = "Ступени из 100% массива дуба класса Экстра";
 		stairMaterial = "дерево";
 		stairsImage = "004.jpg";
+	}
+	
+	if (stairType =="дуб натур") {
+		stairsHeader = "Ступени из слэбов дуба";
+		stairMaterial = "дерево";
+		stairsImage = "oak_slab.jpg";
+	}
+	
+	if (stairType =="карагач натур") {
+		stairsHeader = "Ступени из слэбов карагача";
+		stairMaterial = "дерево";
+		stairsImage = "elm_slab.jpg";
 	}
 
 	if (stairType =="рифленая сталь") {
@@ -778,9 +792,13 @@ function setTreadDescr(){
 		if (metalPaint == "порошок") stairsText_4 = "Рамки ступеней покрываются красивой, прочной и долговечной порошковой краской;";
 		if (metalPaint == "автоэмаль") stairsText_4 = "Рамки ступеней шпаклюются, шлифуются и покрываются высокоглянцевой автомобильной эмалью;";
 	}
-
+	
+	par.imgLink = "/calculator/images/stairs/" + stairsImage;
+	
+	if(params.calcType == "slabs") return par
+	
 	$('#stairsHeader').html(stairsHeader);
-	$('#stairsImage').html("<a href='/calculator/images/stairs/" + stairsImage + "' rel='fancy'><img src='/calculator/images/stairs/" + stairsImage + "' width='300px'></a>");
+	$('#stairsImage').html("<a href='" + par.imgLink + "' rel='fancy'><img src='" + par.imgLink + "' width='300px'></a>");
 	$('#stairsText_1').html(stairsText_1); 
 	$('#stairsText_2').html(stairsText_2);
 	$('#stairsText_3').html(stairsText_3);

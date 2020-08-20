@@ -8,14 +8,6 @@
 			<!-- варианты поручней -->
 			<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/handrailParams.php" ?>
 
-			
-			<tr class="railing_tr handrailParams_tr"><td>Материал поручня:</td> <td> 
-				<select id="handrailsMaterial" size="1" onchange="">
-					<!-- варианты пород дерева -->
-					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberTypes.php" ?>
-				</select>
-			</td></tr>
-			
 			<tr class="railing_tr" id="banisterMaterial_tr"><td>Материал стоек:</td> <td> 
 				<select id="banisterMaterial" size="1" onchange="">
 					<option value="40х40 черн.">40х40 черн.</option>
@@ -174,34 +166,6 @@
 					<option value="дуб">дуб</option>
 				</select>
 			</td></tr>
-
-			<tr class='railingMetalColor railingMetalPaint_tr'>
-				<td>Цвет покраски металла:</td> 
-				<td> 
-					<select id="metalBalColor" size="1" onchange="">
-					<!-- варианты цветов морилки -->
-						<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalColors.php" ?>
-					</select>
-			</td></tr>
-
-			<tr class='railingMetalColor railingMetalPaint_tr'>
-				<td>Комментарий к цвету металла:</td> 
-				<td><textarea id="metalBalComment" rows="1" cols="30" class="comments"></textarea></td>
-			</tr>
-
-			<tr class='railingTimberColor railingTimberPaint_tr'>
-				<td>Морилка:</td> 
-				<td> 
-					<select id="handrailsColor" size="1" onchange="">
-					<!-- варианты цветов морилки -->
-							<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/timberColors.php" ?>
-					</select>
-			</td></tr>
-
-			<tr class='railingTimberColor railingTimberPaint_tr'>
-				<td>Комментарий к цвету дерева</td> 
-				<td><textarea id="handrailsComment" rows="1" cols="30" class="comments">как на лестнице</textarea></td>
-			</tr>
 
 			</tbody> </table>
 

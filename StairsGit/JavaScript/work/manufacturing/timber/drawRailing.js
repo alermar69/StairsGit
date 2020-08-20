@@ -22,14 +22,10 @@ function calcRailingRacks(par) {
 	if (!rackSize) rackSize = 95;
 
 	var stepMooveAmt = 0;
-	if (par.marshId == 1 && params.firstNewellPos == 'на второй ступени') stepMooveAmt = 1;
-	if (par.marshId == 1 && params.firstNewellPos == "на третьей ступени") stepMooveAmt = 2;
-
-	if (model == 'тетива' && par.marshId == 1 && params.firstNewellPos == "на первой ступени") stepMooveAmt = 1;
-	if (model == 'тетива' && par.marshId == 1 && params.firstNewellPos == "на второй ступени") stepMooveAmt = 2;
-	if (model == 'тетива' && par.marshId == 1 && params.firstNewellPos == "на третьей ступени") stepMooveAmt = 3;
-
-
+	if (par.marshId == 1) {
+		stepMooveAmt = params.railingStart
+		if (model == 'тетива') stepMooveAmt += 1;
+	}
 
 	if (side == 'in' || params.stairModel == 'Прямая') {
 		var marshFirst = {
@@ -521,9 +517,7 @@ function drawRailingSection_4(par) {
 		if (stringerParams.keyPoints.topLastRailingPoint) var topLastRailingPoint = stringerParams.keyPoints.topLastRailingPoint;
 
 		if (par.marshId == 1) {
-			var stepMooveAmt = 0;
-			if (params.firstNewellPos == "на первой ступени") stepMooveAmt = 1;
-			if (params.firstNewellPos == "на второй ступени") stepMooveAmt = 2;
+			var stepMooveAmt = params.railingStart + 1
 			if (stepMooveAmt) {
 				//marshFirst = newPoint_xy(stringerParams.keyPoints.marshFirst, par.b * stepMooveAmt, par.h * stepMooveAmt);
 				marshFirstRailingPoint = newPoint_xy(stringerParams.keyPoints.marshFirstRailingPoint, par.b * stepMooveAmt, par.h * stepMooveAmt);
@@ -600,7 +594,7 @@ function drawRailingSection_4(par) {
 	if (topFirstRailingPoint && topLastRailingPoint) hasTop = true;
 	if (par.marshId == 1) {
 		if (marshPar.stairAmt < 2) hasMarsh = false;
-		if (marshPar.stairAmt == 2 && params.firstNewellPos == 'на второй ступени') hasMarsh = false;
+		if (marshPar.stairAmt == 2 && params.railingStart > 0) hasMarsh = false;
 	}
 	if (params.stairModel == 'П-образная с забегом' && par.marshId == 2) {
 		hasMarsh = false;
@@ -1150,15 +1144,6 @@ function drawRailingSection_4(par) {
 						rot: (params.startNewellRot * 1) * 180 / Math.PI,
 					}
 				}
-				// if(params.firstNewellPos == "на первой ступени") {
-				// 	insetPar.basePoint.x = params.b1 / 2;
-				// 	insetPar.basePoint.y = params.h1;
-				// }
-
-				// if(params.firstNewellPos == "на второй ступени") {
-				// 	insetPar.basePoint.x = params.b1 * 1.5;
-				// 	insetPar.basePoint.y = params.h1 * 2;
-				// }
 
 				insetPar.basePoint.x += newellXOffset; // Корректировка для прилегания столба к поручню
 
@@ -1551,7 +1536,7 @@ function drawRailingSection_4(par) {
 				}
 
 				//В случае если стартовый столб не на первой ступени убавяем кол-во ступеней для марша
-				if (params.firstNewellPos == 'на второй ступени' && par.marshId == 1) {
+				if (params.railingStart > 0 && par.marshId == 1) {
 					balParams.extraBanisterBot = true;
 				}
 

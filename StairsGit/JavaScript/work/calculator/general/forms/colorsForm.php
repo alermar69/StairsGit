@@ -82,7 +82,7 @@
 	];
 	$meta[] = $item;
 	
-	//детали лестницы и ограждения
+//детали лестницы и ограждения
 	
 	$elements = array();
 	
@@ -98,7 +98,7 @@
 		'name' => 'Каркас',
 		'material' => "metal",
 	];
-	if($calcType != "timber") $elements[] = $item;
+	if($calcType != "timber" && $calcType != "railing") $elements[] = $item;
 	
 	$item = [
 		'id' => 'treads',
@@ -195,7 +195,7 @@
 		'material' => "timber",
 	];
 	$elements[] = $item;
-
+/*
 	if ($calcType == 'railing') {
 		$elements = array_filter($elements, function($v, $k) {
 			return $v['id'] == 'treads' || $v['id'] == 'risers' || $v['id'] == 'skirting';
@@ -207,7 +207,7 @@
 			return $v['id'] == 'railing' || $v['id'] == 'treads' || $v['id'] == 'carcas' || $v['id'] == 'additionalObjectsMetal' || $v['id'] == 'additionalObjectsTimber';
 		}, ARRAY_FILTER_USE_BOTH);
 	}
-	
+*/	
 	//заголовки таблицы
 	$formText = "<tr><th>Элемент</th>";	
 	foreach($meta as $item){
