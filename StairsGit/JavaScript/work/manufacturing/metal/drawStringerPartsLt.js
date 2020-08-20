@@ -3880,7 +3880,7 @@ function drawTopStepLt_wndOut(par) {
 		if (par.isWndP) p2s = newPoint_xy(p5s, -100, 0)
 		if (par.stairAmt == 0 && par.botEnd == "floor") {
 			p2s = copyPoint(p2)
-			p4s = copyPoint(p4)
+			var p4s = copyPoint(p4)
 		}
 		}
 
@@ -3898,7 +3898,7 @@ function drawTopStepLt_wndOut(par) {
 		//if(par.isWndP) par.pointsShape.pop();
 		par.pointsShape.pop();
 		par.pointsShape.push(p2s);
-		if (p4s) par.pointsShape.push(p4s);
+		if(p4s) par.pointsShape.push(p4s);
 		par.pointsShape.push(p5s);
 		}
 	par.pointsShape.push(botLineP1);

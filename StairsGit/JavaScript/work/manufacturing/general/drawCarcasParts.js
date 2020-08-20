@@ -2543,6 +2543,8 @@ function getFixPart(marshId, wall = 'wall') {
 		fixPar.len = 60;
 	}
 
+	//если лестница без монтажа, тогда крепежа не надо
+	if (params.isAssembling == 'нет') fixPar.fixPart = "нет";
 
 	//проставка
 	if (fixPar.fixPart != "не указано" && fixPar.fixPart != "нет" &&
@@ -2563,6 +2565,7 @@ function getFixPart(marshId, wall = 'wall') {
 
 	fixPar.diamHole = fixPar.diam + 5;
 	if (fixPar.fixType == 'дерево') fixPar.diamHole = fixPar.diam + 3;
+
 
 	return fixPar;
 }

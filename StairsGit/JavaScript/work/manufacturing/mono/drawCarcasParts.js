@@ -8538,7 +8538,6 @@ function drawTreadNotchMono(par) {
 	plate.setLayer('treads');
 
 	mesh.add(plate);
-	
 
 	return mesh;
 
@@ -8660,6 +8659,7 @@ function drawTreadFrameLotok(par) {
 
 	//сохраняем данные для спецификации
 	if (!par.partName) par.partName = "tread";
+	if (par.isPlt) par.partName = "platformPlate";
 	if (par.isTurn1 || par.isTurn3) par.partName = "wndTread";
 	var treadPar = getTreadParams(); //функция в файле calcSpecGeneral.js
 	if (typeof specObj != 'undefined') {
