@@ -5,7 +5,7 @@
 		$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 	
 		//модуль
-		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda', 'slabs', 'table'];
+		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda', 'slabs', 'table', 'sill'];
 		
 		$calc_type = '';
 		foreach($calc_types as $item){
@@ -43,6 +43,7 @@
 	if($calc_type == 'carport') $title = "Расчет навеса";
 	if($calc_type == 'veranda') $title = "Расчет веранды";
 	if($calc_type == 'table') $title = "Расчет стола";
+	if($calc_type == 'sill') $title = "Расчет подоконников";
 	if($calc_type == 'slabs') $title = "Коммерческое предложение";
 
 	//тип расчета и версия
@@ -364,6 +365,18 @@
 		$tabs['geom'] = false;
 		$tabs['carcas']['name'] = "Стол";
 		$tabs['carcas']['url'] = "/calculator/table/forms/mainForm.php";
+		$tabs['banister'] = false;
+		$tabs['railing'] = false;
+		$tabs['banister'] = false;
+		$tabs['railing'] = false;
+		$tabs['floor_form'] = false;
+		$tabs['walls'] = false;
+	};
+	
+	if ($calc_type == 'sill') {
+		$tabs['geom'] = false;
+		$tabs['carcas']['name'] = "Подоконники";
+		$tabs['carcas']['url'] = "/calculator/sill/forms/mainForm.php";
 		$tabs['banister'] = false;
 		$tabs['railing'] = false;
 		$tabs['banister'] = false;

@@ -35,6 +35,7 @@ class Window extends AdditionalObject {
 	}
 
 	drawWindow(translatePos) {
+		/*
 		var wndWidth = this.par.width / (this.par.windowsCount * 1.0);
 
 		var borderWidth = 70;
@@ -74,7 +75,11 @@ class Window extends AdditionalObject {
 		windowInner.position.y = this.par.height / 2 + this.par.windowsillThickness / 2;
 		windowInner.position.z = 20;
 		wnd.add(windowInner);
-
+		*/
+		
+		this.par.mat = this.material;
+		var wnd = drawWindow(this.par).mesh
+		
 		if (translatePos) {
 			var wndWrapper = new THREE.Object3D();
 			wnd.position.x -= wndWidth;
@@ -175,4 +180,52 @@ class Window extends AdditionalObject {
 			]
 		}
 	}
+}
+
+/** функция отрисовывает окно
+*/
+function drawWindow(par){
+	initPar(par);
+	if(!par.windowsillThickness) par.windowsillThickness = 0
+	
+	var wndWidth = par.width / (par.windowsCount * 1.0);
+
+	var borderWidth = 70;
+
+	var borderSideGeometry = new THREE.BoxGeometry(borderWidth, par.height - borderWidth * 2 - par.windowsillThickness, 40);
+
+	var borderLeft = new THREE.Mesh(borderSideGeometry, par.mat);
+	borderLeft.position.x = borderWidth / 2;
+	borderLeft.position.y = par.height / 2 + par.windowsillThickness / 2;
+	borderLeft.position.z = 20;
+	par.mesh.add(borderLeft);
+
+	var borderRight = new THREE.Mesh(borderSideGeometry, par.mat);
+	borderRight.position.x = wndWidth - borderWidth / 2;
+	borderRight.position.y = par.height / 2 + par.windowsillThickness / 2;
+	borderRight.position.z = 20;
+	par.mesh.add(borderRight);
+
+	var borderTopGeometry = new THREE.BoxGeometry(wndWidth, borderWidth, 40);
+	var borderTop = new THREE.Mesh(borderTopGeometry, par.mat);
+	borderTop.position.x = wndWidth / 2;
+	borderTop.position.y = par.height - borderWidth / 2;
+	borderTop.position.z = 20;
+	par.mesh.add(borderTop);
+
+	var borderTopGeometry = new THREE.BoxGeometry(wndWidth, borderWidth, 40);
+	var borderTop = new THREE.Mesh(borderTopGeometry, par.mat);
+	borderTop.position.x = wndWidth / 2;
+	borderTop.position.y = borderWidth / 2 + par.windowsillThickness;
+	borderTop.position.z = 20;
+	par.mesh.add(borderTop);
+
+	var windowInnerGeometry = new THREE.BoxGeometry(wndWidth - borderWidth * 2, par.height - borderWidth * 2 - par.windowsillThickness, 20);
+	var windowInner = new THREE.Mesh(windowInnerGeometry, params.materials.glass);
+	windowInner.position.x = (wndWidth - borderWidth * 2) / 2 + borderWidth;
+	windowInner.position.y = par.height / 2 + par.windowsillThickness / 2;
+	windowInner.position.z = 20;
+	par.mesh.add(windowInner);
+	
+	return par
 }

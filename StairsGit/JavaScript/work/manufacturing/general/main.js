@@ -119,6 +119,7 @@ function recalculate() {
 				if($("#calcType").val() == "carport") drawFunc = drawCarport;
 				else if($("#calcType").val() == "veranda") drawFunc = drawVeranda;
 				else if($("#calcType").val() == "slabs" || $("#calcType").val() == "table") drawFunc = drawTable;
+				else if($("#calcType").val() == "sill") drawFunc = drawSills;
 				else drawFunc = drawStaircase;
 				
 				drawFunc('vl_1', true);

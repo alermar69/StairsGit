@@ -954,7 +954,7 @@ function changeAllForms() {
 	if(typeof changeFormAssembling == 'function') changeFormAssembling();
 	if(typeof changeFormBanisterConstruct == 'function' && params.calcType != 'railing') changeFormBanisterConstruct();
 	
-	var notStairs = ["vint", "railing", "slabs", "table"]
+	var notStairs = ["vint", "railing", "slabs", "table", "sill"]
 	if(notStairs.indexOf($("#calcType").val()) == -1){
 		if(typeof changeFormCarcas == 'function') changeFormCarcas();
 		if(typeof changeFormRailing == 'function') changeFormRailing();		

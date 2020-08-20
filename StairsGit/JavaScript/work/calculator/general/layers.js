@@ -151,6 +151,19 @@ function getLayersList(){
 			group: 'carcas'
 		},
 		
+		//слои для подоконников
+		env: {
+			name: "Обстановка",
+			only_for: ['sill'],
+			group: 'walls'
+		},
+		
+		sill: {
+			name: "Подоконник",
+			only_for: ['sill'],
+			group: 'carcas'
+		},
+		
 		//общие слои
 		walls: {
 			name: "Стенки",
@@ -163,6 +176,7 @@ function getLayersList(){
 		}
 		
 	}
+	
 	
 return layers;
 	

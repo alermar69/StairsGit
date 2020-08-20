@@ -12,7 +12,7 @@
 		
 		//модуль
 
-		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'curve', 'wardrobe_2', 'objects', 'carport', 'veranda', 'slabs', 'table'];
+		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'curve', 'wardrobe_2', 'objects', 'carport', 'veranda', 'slabs', 'table', 'sill'];
 
 		$calc_type = '';
 		foreach($calc_types as $item){
@@ -355,6 +355,16 @@
 		[
 			'url' => '/manufacturing/table/drawTableParts.js',
 			'only_for' => ['table'],
+		],
+		
+		//sill
+		[
+			'url' => '/manufacturing/sill/drawSill.js',
+			'only_for' => ['sill'],
+		],
+		[
+			'url' => '/manufacturing/sill/drawSillParts.js',
+			'only_for' => ['sill'],
 		],
 		
 	]);

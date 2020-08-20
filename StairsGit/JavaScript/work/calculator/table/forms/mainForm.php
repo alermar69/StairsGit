@@ -45,6 +45,13 @@
 				</select>
 			</td></tr>
 			
+			<tr><td>Края:</td> <td> 
+				<select id="sideEdges" size="1">
+					<option value="прямые">прямые</option>
+					<option value="живые">живые</option>
+				</select>
+			</td></tr>
+			
 			<tr>
 				<td>Толщина:</td> 
 				<td><input id="countertopThk" type="number" value="40"></td>
@@ -116,20 +123,7 @@
 				<td><input id="frontOverhang" type="number" value="100"></td>
 			</tr>
 			
-			<tr><td>Покраска металла:</td> <td> 
-				<select id="metalPaint" size="1" >
-					<!-- варианты покраски металла -->
-					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalPaint.php" ?>
-				</select>
-			</td></tr>
-			
-			<tr><td>Цвет металла:</td> <td> 
-				<select id="metalColor" size="1" >
-					<!-- варианты покраски металла -->
-					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/metalColors.php" ?>
-				</select>
-			</td></tr>
-			
+
 		</tbody></table>
 	</div>
 </div>
