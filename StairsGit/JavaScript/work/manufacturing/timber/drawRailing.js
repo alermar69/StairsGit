@@ -1046,7 +1046,7 @@ function drawRailingSection_4(par) {
 			section.add(handrail);
 		}
 
-		if (params.stairModel == 'П-образная с площадкой' && par.marshId == 1 && getMarshParams(marshPar.nextMarshId).hasRailing.in && side == 'in') {
+		if (params.stairModel == 'П-образная с площадкой' && par.marshId == 1 && getMarshParams(marshPar.nextMarshId).hasRailing.in && side == 'in' && params.marshDist > 0) {
 			var handrailLength = params.marshDist - 0.05;
 			if (params.calcType == 'timber') {
 				handrailLength = params.marshDist - 27.5 * 2 - 0.05; // 27.5 насколько столб ограждения выступает за марш, число статичное
@@ -1640,7 +1640,7 @@ function drawRailingSection_4(par) {
 				}
 			}
 
-			if (params.stairModel == 'П-образная с площадкой' && par.marshId == 1 && getMarshParams(marshPar.nextMarshId).hasRailing.in && side == 'in') {
+			if (params.stairModel == 'П-образная с площадкой' && par.marshId == 1 && getMarshParams(marshPar.nextMarshId).hasRailing.in && side == 'in' && params.marshDist > 0) {
 				var balParams = {
 					basePoint: { x: 0, y: 0 },
 					lenX: params.marshDist - 0.05,

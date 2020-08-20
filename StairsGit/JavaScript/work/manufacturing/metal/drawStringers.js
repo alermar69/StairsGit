@@ -491,10 +491,10 @@ function drawStringer(par){
 			//stringerHolesParams.keyPoints = par.keyPoints;
 			stringerHolesParams.topPoint = divideP1;
 			stringerHolesParams.botPoint = par.keyPoints.botPoint;
-			stringerHolesParams.isDivideBot = true;
+			if (params.stringerType !== "ломаная") stringerHolesParams.isDivideBot = true;
 			if (i > 0) {
 				stringerHolesParams.isDivideBot = false;
-				stringerHolesParams.isDivideTop = true;
+				if (params.stringerType !== "ломаная") stringerHolesParams.isDivideTop = true;
 				stringerHolesParams.topPoint = par.keyPoints.topPoint;
 				stringerHolesParams.botPoint = divideP2;
 			}

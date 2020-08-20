@@ -2047,6 +2047,9 @@ function drawTreadFrame2(par){
 		flanPar.hasScrews = false;
 		flanPar.boltParams = null;
 	}
+	if (params.stairType == 'нет') {
+		flanPar.hasScrews = false;
+	}
 
 	flanPar.dxfBasePoint = newPoint_xy(flanPar.dxfBasePoint, 0, flanPar.height + 150);
 

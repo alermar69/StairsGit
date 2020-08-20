@@ -968,7 +968,8 @@ function drawHorPlate(par) {
 		par.cornerRad = 0;
 		par.frontOffset = -params.nose + par.thk; //нависание подложки над косоуром
 		par.width = params.M - par.thk * 2;
-		par.height = marshPar.a - par.thk*2
+		par.height = marshPar.a - par.thk * 2
+		if (par.isTopLast && params.topAnglePosition == 'над ступенью') par.height -= 8; //уменьшаем на толщину фланца
 	}
 
 	par.mesh = new THREE.Object3D();
@@ -1015,7 +1016,7 @@ function drawHorPlate(par) {
             group: "carcasFlans",
             marshId: par.marshId,
         }
-        if (par.isBotPlatform) shapePar.drawing.name = "Подложка площадки: кол-во 1шт.";
+		if (par.isBotPlatform || par.isTopPlatform) shapePar.drawing.name = "Подложка площадки: кол-во 1шт.";
 		if (par.isTopLast) shapePar.drawing.name = "Последняя подложка верхнего марша: кол-во 1шт.";
     }
 
@@ -1041,9 +1042,11 @@ function drawHorPlate(par) {
 	}
 
 	//второй прямогуольный вырез в пластине для закрепления фланца
-	if (par.type == "carcasPlate" && par.isBotPlatform) {
-		holesPar.isTurn2Top = par.isBotPlatform;
-		holesPar.dStep = -50;
+	if (par.type == "carcasPlate") {
+		if (par.isBotPlatform)holesPar.isBotPlatform = par.isBotPlatform;
+		if (par.isTopPlatform) holesPar.isTopPlatform = par.isTopPlatform;
+		holesPar.height = par.height;
+		//holesPar.dStep = -50;
 	}
 
 	if (par.basePointShiftX) {
@@ -1135,6 +1138,7 @@ function drawHorPlate(par) {
 			thk: par.thk,
 			dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.M + 100, 0),
 		}
+		if (par.isTopLast && params.topAnglePosition == 'над ступенью') framePar.width -= 8; //уменьшаем на толщину фланца
 		var frame = drawTreadFrameLotok(framePar);
 		frame.position.x = par.frontOffset;
 		frame.setLayer('treads');
@@ -1747,6 +1751,8 @@ function drawHorPlatesPlatformBot(par) {
 
 	if (par.type == "treadPlate" && params.stairType !== 'лотки')
 		length = lenParts1 - gapPlates;
+	if (par.type == "carcasPlate" && par.stringerLedge)
+		length += par.stringerLedge;
 
 
 	par.mesh = new THREE.Object3D();
@@ -1853,6 +1859,7 @@ function drawHorPlatesPlatformBot(par) {
 
 
 			holesPar.basePoint = newPoint_xy(p0, 0, lenParts1 / 2 + lenParts1 * j);
+
 			if (par.type == "treadPlate" && params.stairType !== 'лотки')
 				holesPar.basePoint = newPoint_xy(p0, 0, length / 2);
 			if (turnFactor == -1) holesPar.basePoint.x *= -1;
@@ -1861,6 +1868,36 @@ function drawHorPlatesPlatformBot(par) {
 
 			for (var i = 0; i < holesPar.holes.length; i++) {
 				shape.holes.push(holesPar.holes[i]);
+			}
+
+			//прямоугольное отверстия для закручивания гаек
+			if (par.type == "carcasPlate" && j == count1 - 1) {
+				var dist = length - (holesPar.basePoint.y + holesPar.lengthRectHole / 2)
+				if (dist > 100) {
+
+					var holeOfsset1 = 20;
+					var holesPar1 = {
+						holeRad: 6.5,
+						dxfArr: par.dxfArr,
+						dxfBasePoint: dxfBasePoint,
+						lengthRectHole: dist - holeOfsset1 * 2,
+						holesCenter: [],
+						isNotHolesBolt: true,
+						isNotHolesTriangle: true,
+					}
+
+					if (holesPar1.lengthRectHole > 100) holesPar1.lengthRectHole = 100;
+
+					holesPar1.basePoint = newPoint_xy(p0, 0, length - holeOfsset1 - holesPar1.lengthRectHole / 2);
+
+					if (turnFactor == -1) holesPar1.basePoint.x *= -1;
+
+					drawTreadPlateHoles1(holesPar1);
+
+					for (var i = 0; i < holesPar1.holes.length; i++) {
+						shape.holes.push(holesPar1.holes[i]);
+					}
+				}
 			}
 
 
@@ -2378,8 +2415,8 @@ function drawHorPlatesPlatformBot(par) {
 			}
 
 			if (par.isPltBot) {
-				holesPar.lengthRectHole = turnParams.topMarshOffsetX + params.M / 2 - params.M / 2 / 2 - 5 - holeOffset * 2 - params.nose - params.metalThickness;
-				holesPar.basePoint = newPoint_xy(p0, -params.M / 2 / 2 - 5 - holesPar.lengthRectHole / 2 - holeOffset, params.M / 2);
+				holesPar.lengthRectHole = turnParams.topMarshOffsetX + params.M / 2 - params.M / 2 / 2 - holeOffset * 2 - params.nose - params.metalThickness;
+				holesPar.basePoint = newPoint_xy(p0, -params.M / 2 / 2 - holesPar.lengthRectHole / 2 - holeOffset, params.M / 2);
 				if (turnFactor == -1) holesPar.basePoint.x *= -1;
 				holesPar.isRotate = true;
 
@@ -3827,12 +3864,25 @@ function drawTreadPlateHoles(par) {
 	par.holes.push(topCoverCentralHole(holeParams));
 
 	//второй прямогуольный вырез в пластине второй забежной ступени для закрепления фланца
-	if (par.isTurn2Top) {
+	if (par.isTurn2Top || par.isBotPlatform || par.isTopPlatform) {
 		var pt = newPoint_xy(p0, 0, par.step - 20);
 		if (par.dStep) pt.y += par.dStep;
 		var len = 100;
 		//if ((center1.y - pt.y) < 120) len = center1.y - pt.y - 20;
 		if ((pt.y - center2.y) < 120) len = pt.y - center2.y - 20;
+
+		if (par.isBotPlatform) {
+			var len = 100;
+			var pt = newPoint_xy(center1, 0, -20);
+			if (pt.y < 120) len = pt.y - 20;
+			pt = newPoint_xy(p0, 0, 20 + len);
+		}
+		if (par.isTopPlatform) {
+			var len = 100;
+			var pt = newPoint_xy(center2, 0, 20);
+			if (par.height - pt.y < 120) len = par.height - pt.y - 20;
+			pt = newPoint_xy(p0, 0, par.height - 20);
+		}
 
 		if (len > 50) {
 			var pH1 = itercection(pt, polar(pt, 0, 100), pH1, polar(pH1, Math.PI / 2, 100));
@@ -3870,68 +3920,74 @@ function drawTreadPlateHoles1(par) {
 
 	var p0 = { x: 0, y: 0 };
 
-	//отверстия для болтов
-	var center1 = newPoint_xy(p0, -widthBoltHole / 2, - lenBoltHole / 2);
-	var center2 = newPoint_xy(center1, 0, lenBoltHole);
-	var center3 = newPoint_xy(center2, widthBoltHole, 0);
-	var center4 = newPoint_xy(center1, widthBoltHole, 0);
-
-	var holesCenterBolt = [center1, center2, center3, center4];
-
 	var basePoint = { x: 0, y: 0 };
 	if (par.basePoint) basePoint = par.basePoint;
 
-	if (par.isRotate) holesCenterBolt = rotatePoints(holesCenterBolt, -Math.PI / 2);
-	if (turnFactor == -1)
-		holesCenterBolt = mirrowPointsMiddleX(holesCenterBolt);
-	holesCenterBolt = moovePoints(holesCenterBolt, basePoint);
-
-	par.holesCenter.push(...holesCenterBolt);
-
 	par.holes = [];
 
-	for (var i = 0; i < holesCenterBolt.length; i++) {
-		addRoundHole(par, par.dxfArr, holesCenterBolt[i], par.holeRad, par.dxfBasePoint);
+	//отверстия для болтов
+	if (!par.isNotHolesBolt) {
+		var center1 = newPoint_xy(p0, -widthBoltHole / 2, - lenBoltHole / 2);
+		var center2 = newPoint_xy(center1, 0, lenBoltHole);
+		var center3 = newPoint_xy(center2, widthBoltHole, 0);
+		var center4 = newPoint_xy(center1, widthBoltHole, 0);
+
+		var holesCenterBolt = [center1, center2, center3, center4];
+
+		if (par.isRotate) holesCenterBolt = rotatePoints(holesCenterBolt, -Math.PI / 2);
+		if (turnFactor == -1)
+			holesCenterBolt = mirrowPointsMiddleX(holesCenterBolt);
+		holesCenterBolt = moovePoints(holesCenterBolt, basePoint);
+
+		par.holesCenter.push(...holesCenterBolt);
+
+		for (var i = 0; i < holesCenterBolt.length; i++) {
+			addRoundHole(par, par.dxfArr, holesCenterBolt[i], par.holeRad, par.dxfBasePoint);
+		}
 	}
 
 	//добавляем  вырез в виде треугольника 10х10 для направления сборки
-	var hole = new THREE.Path();
-	var center = newPoint_xy(p0, 0, - lenBoltHole / 2 * turnFactor);
-	var p1 = { x: center.x, y: center.y + 10 / Math.sqrt(3) * turnFactor };
-	var p2 = polar(p1, -Math.PI / 3 * turnFactor, 10);
-	var p3 = polar(p2, Math.PI, 10);
-	var points = [p1, p2, p3];
-	if (par.isRotate) points = rotatePoints(points, -Math.PI / 2);
-	points = moovePoints(points, basePoint);
-	p1 = points[0];
-	p2 = points[1];
-	p3 = points[2];
-	addLine(hole, dxfPrimitivesArr, p1, p2, par.dxfBasePoint);
-	addLine(hole, dxfPrimitivesArr, p2, p3, par.dxfBasePoint);
-	addLine(hole, dxfPrimitivesArr, p3, p1, par.dxfBasePoint);
-	par.holes.push(hole);
-
-	//прямогуольный вырез в центре детали
-	var pH1 = newPoint_xy(p0, -widthRectHole / 2, - lengthRectHole / 2);
-	var pH2 = newPoint_xy(pH1, 0, lengthRectHole);
-	var pH3 = newPoint_xy(pH2, widthRectHole, 0);
-	var pH4 = newPoint_xy(pH1, widthRectHole, 0);
-
-	var arr = [pH1, pH2, pH3, pH4];
-
-	if (par.isRotate) arr = rotatePoints(arr, -Math.PI / 2);
-	if (turnFactor == -1)
-		arr = mirrowPointsMiddleX(arr);
-	arr = moovePoints(arr, basePoint);
-
-	var holeParams = {
-		vertexes: arr,
-		cornerRad: 10.0,
-		dxfPrimitivesArr: par.dxfArr,
-		dxfBasePoint: par.dxfBasePoint
+	if (!par.isNotHolesTriangle) {
+		var hole = new THREE.Path();
+		var center = newPoint_xy(p0, 0, - lenBoltHole / 2 * turnFactor);
+		var p1 = { x: center.x, y: center.y + 10 / Math.sqrt(3) * turnFactor };
+		var p2 = polar(p1, -Math.PI / 3 * turnFactor, 10);
+		var p3 = polar(p2, Math.PI, 10);
+		var points = [p1, p2, p3];
+		if (par.isRotate) points = rotatePoints(points, -Math.PI / 2);
+		points = moovePoints(points, basePoint);
+		p1 = points[0];
+		p2 = points[1];
+		p3 = points[2];
+		addLine(hole, dxfPrimitivesArr, p1, p2, par.dxfBasePoint);
+		addLine(hole, dxfPrimitivesArr, p2, p3, par.dxfBasePoint);
+		addLine(hole, dxfPrimitivesArr, p3, p1, par.dxfBasePoint);
+		par.holes.push(hole);
 	}
 
-	par.holes.push(topCoverCentralHole(holeParams));
+	//прямогуольный вырез в центре детали
+	if (!par.isNotHolesRect) {
+		var pH1 = newPoint_xy(p0, -widthRectHole / 2, - lengthRectHole / 2);
+		var pH2 = newPoint_xy(pH1, 0, lengthRectHole);
+		var pH3 = newPoint_xy(pH2, widthRectHole, 0);
+		var pH4 = newPoint_xy(pH1, widthRectHole, 0);
+
+		var arr = [pH1, pH2, pH3, pH4];
+
+		if (par.isRotate) arr = rotatePoints(arr, -Math.PI / 2);
+		if (turnFactor == -1)
+			arr = mirrowPointsMiddleX(arr);
+		arr = moovePoints(arr, basePoint);
+
+		var holeParams = {
+			vertexes: arr,
+			cornerRad: 10.0,
+			dxfPrimitivesArr: par.dxfArr,
+			dxfBasePoint: par.dxfBasePoint
+		}
+
+		par.holes.push(topCoverCentralHole(holeParams));
+	}
 
 	return par;
 } //end of drawTreadPlateHoles
@@ -4490,7 +4546,7 @@ function drawMonoFlan(par) {
 		}
 		var flanPar = {
 			width: params.stringerThickness - 2 * params.metalThickness, //ширина фланца
-			height: pEnd.x - pStart.x - 2 * params.metalThickness, //длина фланца (высота при вертикальном расположении)
+			height: pEnd.x - pStart.x - 2 * params.metalThickness - 2, //длина фланца (высота при вертикальном расположении)
 			holeRad: 6.5,
 			cornerRad: 0,
 			holeX: 50,
@@ -4543,8 +4599,8 @@ function drawMonoFlan(par) {
 
 		var marshIdFix = par.marshId;
 		if (par.marshIdFix) marshIdFix = par.marshIdFix;
-		flanPar.isFixPart = true; // болты крепления к стенам
 		flanPar.fixPar = getFixPart(marshIdFix); // параметры крепления к стенам
+		if (flanPar.fixPar.fixPart !== 'нет') flanPar.isFixPart = true; // болты крепления к стенам
 		flanPar.fixPar.diamHole = 15;
 
 	    flanPar.drawing = {
@@ -4629,7 +4685,7 @@ function drawMonoFlan(par) {
 			holeRad: 6.5,
 			cornerRad: 0,
 			holeX: 20,
-			holeY: 20,
+			holeY: 20 - 1,
             dxfBasePoint: par.dxfBasePoint,
 			mirrowBolts: true,
         };
@@ -4716,8 +4772,8 @@ function drawMonoFlan(par) {
 
 		var marshIdFix = par.marshId;
 		if (par.marshIdFix) marshIdFix = par.marshIdFix;
-		flanPar.isFixPart = true; // болты крепления к стенам
 		flanPar.fixPar = getFixPart(marshIdFix); // параметры крепления к стенам
+		if (flanPar.fixPar.fixPart !== 'нет') flanPar.isFixPart = true; // болты крепления к стенам
 
 
 		flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -flanPar.width - 100);
@@ -4771,8 +4827,8 @@ function drawMonoFlan(par) {
 		};
 		flanPar.noBolts = true; //болты не добавляются
 
-		flanPar.isFixPart = true; // болты крепления к стенам
 		flanPar.fixPar = getFixPart(0, 'topFloor'); // параметры крепления к стенам
+		if (flanPar.fixPar.fixPart !== 'нет') flanPar.isFixPart = true; // болты крепления к стенам
 		flanPar.fixPar.diamHole = 15;
 
 		if (params.platformTop != "площадка") {
@@ -4822,17 +4878,17 @@ function drawMonoFlan(par) {
 	if (par.type == "topStub") {
 		var flanPar = {
 			width: params.stringerThickness - 2 * params.metalThickness, //ширина фланца
-			height: params.stringerThickness - 2 * params.metalThickness - 5, //длина фланца (высота при вертикальном расположении)
+			height: params.stringerThickness - 2 * params.metalThickness - 5 - 2, //длина фланца (высота при вертикальном расположении)
 			holeRad: 6.5,
 			cornerRad: 0,
-			holeX: 20,
+			holeX: 20 - 1,
 			holeY: 50,
             dxfBasePoint: par.dxfBasePoint,
 			mirrowBolts: true,
 		};
 
 		if (params.platformTop != "площадка") {
-			flanPar.height = par.pointsShape[par.pointsShape.length - 2].y - par.pointsShape[par.pointsShape.length - 1].y - 2 * params.metalThickness - 5;
+			flanPar.height = par.pointsShape[par.pointsShape.length - 2].y - par.pointsShape[par.pointsShape.length - 1].y - 2 * params.metalThickness - 5 - 2;
 		}
 
 		if (par.pointCurrentSvg) {
@@ -4872,7 +4928,7 @@ function drawMonoFlan(par) {
 
 		var flan = drawRectFlan2(flanPar).mesh;
 		flan.position.z = flanPar.width / 2;
-		flan.position.y = -flanPar.height - 5 - params.metalThickness;
+		flan.position.y = -flanPar.height - 5 - params.metalThickness - 1;
 		flan.rotation.y = Math.PI / 2;
 
 		boltBulge = boltBulgeTemp;
@@ -4899,8 +4955,8 @@ function drawMonoFlan(par) {
 		//flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -flanPar.width - 100);
 		flanPar.dxfBasePoint.y -= flanPar.width + 100;
 
-		flanPar.isFixPart = true; // болты крепления к стенам
 		flanPar.fixPar = getFixPart(0, 'botFloor'); // параметры крепления к стенам
+		if (flanPar.fixPar.fixPart !== 'нет') flanPar.isFixPart = true; // болты крепления к стенам
 
 		//добавляем  отверстия по краям
 		flanPar.roundHoleCenters = [];

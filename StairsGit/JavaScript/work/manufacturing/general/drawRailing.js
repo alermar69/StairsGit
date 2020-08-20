@@ -1171,7 +1171,7 @@ function drawRackTopPole(par){
 				specObj[partName].group = "Ограждения";
 			}
 		}
-		var name = Math.round(par.poleProfileZ) + "x" + Math.round(par.poleProfileY) + "х" + Math.round(par.length);
+		var name = Math.round(par.holeProfileZ) + "x" + Math.round(par.holeProfileX) + "х" + Math.round(par.length);
 
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
@@ -1836,7 +1836,8 @@ function drawPolylineHandrail(par) {
 				if ((params.handrailEndType == "под углом" || par.isHandrailEndAng) && p2.x != p1.x) {
 					endAngle = Math.PI / 2 - handrailAngle;
 				}
-				var length = distance(p1, p2);
+				//var length = distance(p1, p2);
+				var length = distance(p1, p2) + meterHandrailPar.profY * Math.tan(Math.PI / 2 - endAngle) - meterHandrailPar.profY * Math.tan(Math.PI / 2 - startAngle);
 				if (params.startVertHandrail == "есть" && params.handrailFixType == "паз") {
 					length -= meterHandrailPar.profY * Math.tan(Math.PI / 2 - startAngle)
 				}
@@ -3195,6 +3196,7 @@ function drawRailingSectionForge2(par) {
 			parRacks.marshLen = distance(topPoint2, pt);
 			parRacks.lastRackDeltaLength = pt.y - topPoint3.y;
 			topPoint3 = copyPoint(pt);
+			if (topPoint4 && parRacks.angTop == 0) topPoint4.y = topPoint3.y;
 		}
 
 		rackPar.angTop = parRacks.angMarsh;

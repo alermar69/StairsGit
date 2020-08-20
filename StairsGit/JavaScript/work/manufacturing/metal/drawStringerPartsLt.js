@@ -2212,7 +2212,7 @@ function drawTopStepLt_floor(par) {
 						center1 = newPoint_x1(center1, mooveX, par.marshAng);
 					}
 					if (params.topAnglePosition == "под ступенью") {
-						var mooveX = topLineP1.x - center1.x - 40;
+						var mooveX = topLineP1.x - center1.x - 50;
 						if (params.stairType == "лотки" ||
 							params.stairType == "дпк" ||
 							params.stairType == "рифленая сталь") mooveX -= 45;
@@ -3877,7 +3877,11 @@ function drawTopStepLt_wndOut(par) {
 		var p2s = polar(p2, par.marshAng, 100);
 		var p5s = newPoint_xy(p5, 0, 100);
 		p5s.filletRad = 0;
-		if(par.isWndP) p2s = newPoint_xy(p5s, -100, 0)
+		if (par.isWndP) p2s = newPoint_xy(p5s, -100, 0)
+		if (par.stairAmt == 0 && par.botEnd == "floor") {
+			p2s = copyPoint(p2)
+			p4s = copyPoint(p4)
+		}
 		}
 
 	//сохраняем точки контура
@@ -3894,6 +3898,7 @@ function drawTopStepLt_wndOut(par) {
 		//if(par.isWndP) par.pointsShape.pop();
 		par.pointsShape.pop();
 		par.pointsShape.push(p2s);
+		if (p4s) par.pointsShape.push(p4s);
 		par.pointsShape.push(p5s);
 		}
 	par.pointsShape.push(botLineP1);

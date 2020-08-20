@@ -672,7 +672,7 @@ function drawTimberPlug(plugDiam){
 	}
 
 	plug.specId = partName + name;
-	plug.setLayer('plugs');
+	plug.setLayer('metis');
 	return plug;
 }
 
@@ -2897,6 +2897,7 @@ function drawRutelShims(diam){
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 	}
+	rutel.setLayer('metis');
 
 	return rutel
 }

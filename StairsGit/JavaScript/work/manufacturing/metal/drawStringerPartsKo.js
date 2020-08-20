@@ -1592,7 +1592,7 @@ function drawTopStepKo_pltG(par) {
 				if(par.hasPltRailing){
 					//стойка ближе к углу площадки
 					center1 = newPoint_xy(pt2, -80, par.stepHoleY);
-					if (params.rackBottom == "сверху с крышкой") center1.x -= 80;
+					//if (params.rackBottom == "сверху с крышкой") center1.x -= 80;
 					railingHolesTop.push(center1);
 					}
 				}

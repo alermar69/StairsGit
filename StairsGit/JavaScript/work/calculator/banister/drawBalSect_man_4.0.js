@@ -722,6 +722,7 @@ function drawBalSection(par) {
 						pos: pos,
 						balLen: balLength,
 						//banisterType: balType,
+						banisterType: balPar.type,
 					};
 					shapesList.push(fakeShape);
 				}

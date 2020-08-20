@@ -67,7 +67,7 @@ drawStaircase = function(viewportId, isVisible) {
 	
 	//корректируем толщину ступеней для коробчатых ступеней
 	if (params.stairType == 'короб') {
-		params.treadThickness = 40;
+		//params.treadThickness = 40;
 	}
 	
 	if (params.treadPlatePockets !== "нет" || params.treadLigts !== 'нет') {

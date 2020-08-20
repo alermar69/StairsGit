@@ -401,6 +401,7 @@ function drawTreads() {
     lastMarshEnd.x += topStepDelta * Math.cos(lastMarshEnd.rot);
     lastMarshEnd.z += topStepDelta * Math.sin(-lastMarshEnd.rot);
 
+    if (!params.treadPlatePockets) params.treadPlatePockets = 'нет';
 	if (params.treadPlatePockets !== 'нет' || params.treadLigts !== 'нет') {
 		var pocketDepth = 10;
 
