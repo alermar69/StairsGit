@@ -7,6 +7,7 @@ var anglesHasBolts = true; //отрисовывать болты уголков
 var drawLongBolts = true; //отрисовывать длинные болты, соединяющие два уголка через тетиву насквозь
 var turnFactor = 1;
 var treadsObj;
+var radTreadLigts = 25 / 2; //радиус отверстия для прокладывания провода подсветки ступеней внутри каркаса
 
 drawStaircase = function(viewportId, isVisible) {
 	if (params.model == "труба") {

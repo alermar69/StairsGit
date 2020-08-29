@@ -1838,3 +1838,46 @@ function initPar(par){
 	
 	return par;
 }
+
+
+/** функция создает mesh по точкам
+	*@params: 
+		points - точки shape
+		holes - центры отверстий //не обязательный
+		thk - толщина выдавливания
+*/
+function drawMesh(par) {
+
+	if (!par.material) par.material = params.materials.metal
+	if (!par.dxfArr) par.dxfArr = [];
+	if (!par.dxfBasePoint) par.dxfBasePoint = { x: 0, y: 0 };
+
+	//создаем шейп
+	var shapePar = {
+		points: par.points,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+	}
+
+	par.shape = drawShapeByPoints2(shapePar).shape;
+
+	if (par.holes) {
+		for (var i = 0; i < par.holes.length; i++) {
+			addRoundHole(par.shape, par.dxfArr, par.holes[i], par.holes[i].rad, par.dxfBasePoint);
+		}
+	}
+
+	var extrudeOptions = {
+		amount: par.thk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var geom = new THREE.ExtrudeGeometry(par.shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	par.mesh = new THREE.Mesh(geom, par.material);
+
+
+	return par
+}

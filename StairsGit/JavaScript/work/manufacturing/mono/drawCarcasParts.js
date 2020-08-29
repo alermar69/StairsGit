@@ -4523,6 +4523,10 @@ function drawMonoFlan(par) {
 
 		//добавляем  отверстия в центре
 		flanPar.roundHoleCenters = flanCentralHoles(pEnd.x - pStart.x + 10);
+		//отверстие в центре если есть подсветка ступеней, для прокладывания провода подсветки
+		if (params.treadLigts !== 'нет') {
+			flanPar.roundHoleCenters.push({ x: 0, y: 0, rad: radTreadLigts})
+		}
 		mooveFlanHoles(flanPar);
 
 		//добавляем  отверстия по краям
@@ -4571,9 +4575,13 @@ function drawMonoFlan(par) {
 		flanPar.roundHoleCenters = [];
 		//добавляем  отверстия в центре
 		flanPar.roundHoleCenters = flanCentralHoles(pEnd.x - pStart.x + 10);
+		//отверстие в центре если есть подсветка ступеней, для прокладывания провода подсветки
+		if (params.treadLigts !== 'нет') {
+			flanPar.roundHoleCenters.push({ x: 0, y: 0, rad: radTreadLigts, noBolt: true })
+		}
 		mooveFlanHoles(flanPar);
 
-        flanPar.dxfBasePoint = newPoint_xy(flanPar.dxfBasePoint, 0, -flanPar.height - 100);
+		flanPar.dxfBasePoint = newPoint_xy(flanPar.dxfBasePoint, 0, -flanPar.height - 100);
 
 		var flan = drawRectFlan2(flanPar).mesh;
 		flan.position.z = flanPar.width / 2;
@@ -4628,6 +4636,11 @@ function drawMonoFlan(par) {
 			var c3 = newPoint_xy(p0, width / 2 - 20, -len / 2 + 20);
 			var c4 = newPoint_xy(p0, width / 2 - 20, len / 2 - 20);
 			flanPar.roundHoleCenters = [c1, c2, c3, c4];
+		}
+
+		//отверстие в центре если есть подсветка ступеней, для прокладывания провода подсветки
+		if (params.treadLigts !== 'нет') {
+			flanPar.roundHoleCenters.push({ x: flanPar.width / 2, y: (flanPar.height - 5) / 2, rad: radTreadLigts, noBolt: true})
 		}
 
 		//добавляем  отверстия по краям
@@ -4719,6 +4732,10 @@ function drawMonoFlan(par) {
 		}
 
 		flanPar.roundHoleCenters = [];
+		//отверстие в центре если есть подсветка ступеней, для прокладывания провода подсветки
+		if (params.treadLigts !== 'нет') {
+			flanPar.roundHoleCenters.push({ x: flanPar.width / 2, y: flanPar.height / 2, rad: radTreadLigts, noBolt: true })
+		}
 		//добавляем  отверстия по краям
 		addHolesMonoFlan(flanPar);
 
@@ -4850,6 +4867,10 @@ function drawMonoFlan(par) {
 		flanPar.holOffY += -holOffZapTop / 2;
 		flanPar.roundHoleCenters =
 			flanCentralHoles(par.pointsShape[par.pointsShape.length - 2].y - par.pointsShape[par.pointsShape.length - 1].y, 10);
+		//отверстие в центре если есть подсветка ступеней, для прокладывания провода подсветки
+		if (params.treadLigts !== 'нет') {
+			flanPar.roundHoleCenters.push({ x: 0, y: 0, rad: radTreadLigts, noBolt: true })
+		}
 		mooveFlanHoles(flanPar);
 
 		flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint,
@@ -4859,7 +4880,7 @@ function drawMonoFlan(par) {
 
 		if (params.topAnglePosition == "под ступенью") {			
 			//добавляем  отверстия по краям			
-			addHolesMonoFlan(flanPar);			
+			addHolesMonoFlan(flanPar);
 			var flan = drawRectFlan2(flanPar).mesh;
 		}
 		if (params.topAnglePosition == "над ступенью") {
@@ -4903,6 +4924,10 @@ function drawMonoFlan(par) {
 		flanPar.roundHoleCenters = [];
 		//добавляем  отверстия в центре
 		flanPar.roundHoleCenters = flanCentralHoles(par.pointsShape[par.pointsShape.length - 2].y - par.pointsShape[par.pointsShape.length - 1].y, 10);
+		//отверстие в центре если есть подсветка ступеней, для прокладывания провода подсветки
+		if (params.treadLigts !== 'нет') {
+			flanPar.roundHoleCenters.push({ x: 0, y: 0, rad: radTreadLigts, noBolt: true })
+		}
 		mooveFlanHoles(flanPar);
 
 		flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -flanPar.height);
@@ -5190,22 +5215,23 @@ function drawPlateBolts(par) {
 			}
 
 			//задаем длину болтов
-			par.holesCenter[0].boltLen = 40; //болт в пластину
-			par.holesCenter[1].boltLen = 40;
-			par.holesCenter[2].boltLen = 40; 
-			par.holesCenter[3].boltLen = 40;
+			//par.holesCenter[0].boltLen = 40; //болт в пластину
+			//par.holesCenter[1].boltLen = 40;
+			//par.holesCenter[2].boltLen = 40; 
+			//par.holesCenter[3].boltLen = 40;
 
 			for (var i = 0; i < par.holesCenter.length; i++) {
-				boltPar.len = par.holesCenter[i].boltLen
-				var bolt = drawBolt(boltPar).mesh;
+				//boltPar.len = par.holesCenter[i].boltLen
+				if (!par.holesCenter[i].noBolt) {
+					var bolt = drawBolt(boltPar).mesh;
 
-				bolt.rotation.x = Math.PI / 2;
-				bolt.position.x = par.holesCenter[i].x;
-				bolt.position.y = par.holesCenter[i].y;
-				bolt.position.z = -boltPar.len / 2 + 25;
+					bolt.rotation.x = Math.PI / 2;
+					bolt.position.x = par.holesCenter[i].x;
+					bolt.position.y = par.holesCenter[i].y;
+					bolt.position.z = -boltPar.len / 2 + 25;
 
-
-				par.mesh.add(bolt);
+					par.mesh.add(bolt);
+				}
 			}
 
 		}

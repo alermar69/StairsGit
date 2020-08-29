@@ -1038,6 +1038,7 @@ function drawMarshTreads2(par) {
 		if (params.topAnglePosition == "над ступенью") {
 			drawPlateRiser = drawNotchRiser;
 			plateParams.notchWidth = 280;
+			if (params.calcType == "mono") plateParams.notchWidth = 315;
 			plateParams.depth = 20;
 		}
 

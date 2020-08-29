@@ -91,7 +91,7 @@ function calculateGlassPoints(par){
 		}
 		if (marshPar.botTurn == 'площадка' && par.key == 'in') {
 			var startPoint = newPoint_xy(marshFirst, 0, -par.glassHeight);
-			if (prevMarshPar.hasRailing.in) startPoint.y = -par.sectionHeight - prevMarshPar.h * 2 - 15;
+			if (prevMarshPar.hasRailing.in && params.stairModel !== "П-образная с площадкой") startPoint.y = -par.sectionHeight - prevMarshPar.h * 2 - 15;
 			handrailPoints.push(startPoint);
 		}
 	}
@@ -543,6 +543,9 @@ function calcGlassHoles(marshId, key){
 			x: par.b * (i - 1) + par.a - holeOffset,
 			y: par.h * i - treadOffset
 		});
+		if (par.topTurn == 'пол' && i == par.stairAmt && params.lastRiser == 'есть') {
+			par.holes[par.holes.length - 1].x -= 40;
+		}
 		par.holes.push({
 			x: par.b * (i - 1) + holeOffset,
 			y: par.h * i - treadOffset

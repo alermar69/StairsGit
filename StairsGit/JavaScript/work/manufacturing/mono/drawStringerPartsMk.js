@@ -487,13 +487,17 @@ function drawBotStepMk_pltG(par) {
             var center2 = newPoint_xy(p, params.stringerThickness / 2 - 20 - params.metalThickness, -params.stringerThickness / 2 + 20 + params.metalThickness);
             var center3 = newPoint_xy(p, -params.stringerThickness / 2 + 20 + params.metalThickness, params.stringerThickness / 2 - 20 - params.metalThickness - 5);
             var center4 = newPoint_xy(p, -params.stringerThickness / 2 + 20 + params.metalThickness, -params.stringerThickness / 2 + 20 + params.metalThickness);
-            var center5 = newPoint_xy(p, 0, params.stringerThickness / 2 - 20 - params.metalThickness);
 
-			par.pointsHole.push(center1);
+            par.pointsHole.push(center1);
 			par.pointsHole.push(center2);
 			par.pointsHole.push(center3);
 			par.pointsHole.push(center4);
-			par.pointsHole.push(center5);
+
+			if (params.treadLigts !== 'нет') {
+				var center5 = newPoint_xy(p, 0, - 5 / 2);
+				center5.rad = radTreadLigts;
+				par.pointsHole.push(center5);
+			}
 		}
 	}
 
@@ -969,14 +973,20 @@ function drawTopStepMk_pltG(par) {
 		    var center2 = newPoint_xy(p, params.stringerThickness / 2 - 20 - params.metalThickness, -params.stringerThickness / 2 + 20 + params.metalThickness);
 		    var center3 = newPoint_xy(p, -params.stringerThickness / 2 + 20 + params.metalThickness, params.stringerThickness / 2 - 20 - params.metalThickness - 5);
 		    var center4 = newPoint_xy(p, -params.stringerThickness / 2 + 20 + params.metalThickness, -params.stringerThickness / 2 + 20 + params.metalThickness);
-		    var center5 = newPoint_xy(p, 0, params.stringerThickness / 2 - 20 - params.metalThickness);
+		    
+		    
 
-
-			par.pointsHole.push(center1);
+		    par.pointsHole.push(center1);
 			par.pointsHole.push(center2);
 			par.pointsHole.push(center3);
 			par.pointsHole.push(center4);
-			par.pointsHole.push(center5);
+			
+
+			if (params.treadLigts !== 'нет') {
+				var center5 = newPoint_xy(p, 0, - 5 / 2);
+				center5.rad = radTreadLigts;
+				par.pointsHole.push(center5);
+			}
 		}
 	}
 
@@ -1230,6 +1240,12 @@ function drawTopStepMk_wnd(par) {
 			par.pointsHole.push(center2);
 			par.pointsHole.push(center3);
 			par.pointsHole.push(center4);
+
+			if (params.treadLigts !== 'нет') {
+				var center5 = newPoint_xy(p, 0, 0);
+				center5.rad = radTreadLigts;
+				par.pointsHole.push(center5);
+			}
 		}
 	}
 

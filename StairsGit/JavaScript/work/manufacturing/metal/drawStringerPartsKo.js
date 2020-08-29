@@ -310,7 +310,8 @@ if (par.prevMarshPar.stairAmt == 0 && par.prevMarshPar.botTurn == "пол") par.
 			}
 
 			// отверстия для уголков крепления щитов площадки
-			if (params.M > 750) {
+			//if (params.M > 750) {
+			if (true) {
 				var pv3 = newPoint_xy(pt3, 60, 0)
 				var pv4 = newPoint_xy(pt4, -60, 0)
 				var pvc = newPoint_xy(pv3, -(pv3.x - pv4.x) / 2, 0);
@@ -753,9 +754,34 @@ function drawBotStepKo_wndIn(par){
 		par.pointsShape.push(p2);
 		par.pointsShape.push(p3);
 	}
-	par.pointsShape.push(p4);		
-	par.pointsShape.push(p5);
-	par.pointsShape.push(p6);
+	par.pointsShape.push(p4);
+
+	// если ограждение дерево, тогда вырез под вторую ступень уменьшаем до столба ограждения
+	var flag = true
+	if (params.railingModel == 'Деревянные балясины' || params.railingModel == 'Дерево с ковкой') {
+		if (par.marshPar.hasRailing.in || par.prevMarshPar.hasRailing.in) {
+			var len = 72 - distance(p6, p7)
+			if (params.riserType == "есть") len += params.riserThickness;
+			if (len > 0) {
+				var pt5 = copyPoint(p5);
+				var pt6 = copyPoint(p6);
+				pt5.x -= len;
+				pt6.x -= len;
+				pt5.filletRad = pt6.filletRad = 0;
+				par.pointsShape.push(pt5);
+				par.pointsShape.push(pt6);
+				flag = false
+			}
+			
+		}
+	}
+
+	if (flag) {
+		
+		par.pointsShape.push(p5);
+		par.pointsShape.push(p6);
+	}
+
 	par.pointsShape.push(p7);
 	if (par.stairAmt > 0) par.pointsShape.push(p8);
 	//if (params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && params.stairAmt2 == 0 && par.topEnd == "winder")
@@ -2337,7 +2363,7 @@ function drawTopStepKo_wndOut(par){
 		if(botLineP3.y < par.pointsShape[0].y) botLineP3.y = par.pointsShape[0].y
 		
 		botLinePoints.push(botLineP2, botLineP3);
-		if(par.stairAmt > 1) botLinePoints.push(botLineP4, botLineP5);
+		if(par.stairAmt > 0) botLinePoints.push(botLineP4, botLineP5);
 		}
 
 	//сохраняем точки контура

@@ -101,12 +101,12 @@ function calcRailingRacks(par) {
 
 		/** Резные столбы */
 		if (marshParams.botTurn == 'пол') {
-			if (params.startNewellType == "резной") {
+			if (params.startNewellType !== "нет") {
 				railingParams.marshFirst.x += params.startNewellMooveX * 1;
 			}
 		}
 		if (marshParams.topTurn == 'пол') {
-			if (params.lastNewellType == "резной") {
+			if (params.lastNewellType !== "нет") {
 				railingParams.marshLast.x += params.lastNewellMooveX * 1;
 			}
 		}
@@ -1256,7 +1256,7 @@ function drawRailingSection_4(par) {
 					rackPar.y -= marshLast.deltaY;
 				}
 				rackPar.y += 1;
-				racks.push(rackPar);
+				if (params.lastNewellType !== "нет") racks.push(rackPar);
 			}
 			//последний резной столб
 			if (params.lastNewellType == "резной") {
@@ -1275,7 +1275,7 @@ function drawRailingSection_4(par) {
 				}
 
 				if (par.unit == "balustrade") insetPar.name = params.timberRackModel_bal;
-				drawMeshInset(insetPar);
+				if (params.lastNewellType !== "нет") drawMeshInset(insetPar);
 			}
 		}
 
@@ -2889,7 +2889,7 @@ function drawBanistersWndArr(par) {
 	}
 
 	//рейка в поручень
-	if(params.timberBalTopEnd == "квадрат"){
+	if (params.timberBalTopEnd == "квадрат" && params.railingModel !== "Дерево с ковкой"){
 
 		var polePar = {
 			type: "rect",

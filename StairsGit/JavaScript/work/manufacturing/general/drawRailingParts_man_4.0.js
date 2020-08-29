@@ -3162,10 +3162,21 @@ function drawForgedBanister_5(par) {
 		var bal = drawMeshBal(balPar);
 		par.mesh.add(bal);
 
-		//основание
+		
 		if (railingModel == "Дерево с ковкой") {
+			//основание
 			var baseBal = drawBaseBal();
 			if (!testingMode) par.mesh.add(baseBal);
+
+			//крепление к поручню
+			var holderParams = {
+				angTop: par.topAng,
+				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+				isForge: true,
+			}
+			var holder = drawBalHolder(holderParams).mesh;
+			holder.position.y = par.len - 2 / Math.cos(holderParams.angTop);
+			par.mesh.add(holder)
 		}
 	}
 	//балясина из svg
@@ -3225,10 +3236,21 @@ function drawForgedBanister_5(par) {
 			shapesList.push(fakeShape);
 		}
 
-		//основание
+		
 		if (railingModel == "Дерево с ковкой") {
+			//основание
 			var baseBal = drawBaseBal();
 			if (!testingMode) par.mesh.add(baseBal);
+
+			//крепление к поручню
+			var holderParams = {
+				angTop: par.topAng,
+				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+				isForge: true,
+			}
+			var holder = drawBalHolder(holderParams).mesh;
+			holder.position.y = botLen + 740 - 2 / Math.cos(holderParams.angTop);;
+			par.mesh.add(holder)
 		}
 	}
 	
@@ -3255,6 +3277,11 @@ function drawForgedBanister_5(par) {
 		}
 		
 		var name = par.type + " L=" + Math.round(par.len);
+		if (railingModel == "Дерево с ковкой") {
+			if (specObj.unit == "banister") name += ' с прямой лодочкой';
+			else name += ' с шарниром';
+		}
+		
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		if(par.type == params.banister1) specObj[partName]["amt1"] += 1;
@@ -3392,4 +3419,50 @@ function drawBaseBal() {
 	obj3D.specId = partName;
 
 	return obj3D;
+}
+
+// функция возвращает крепление кованых балясин к поручню для Дерево с ковкой
+function drawBalHolder(par) {
+
+	par.mesh = new THREE.Object3D();
+	if (typeof testingMode == "undefined") testingMode = false;
+	var railingModel = params.railingModel;
+	if (par.railingModel) railingModel = par.railingModel;
+
+	var flan = drawHolderFlan({ railingModel: railingModel, type: 'balHolder' }).mesh;
+
+	flan.rotation.x = -Math.PI / 2;
+	flan.rotation.y = -par.angTop;
+
+
+	par.mesh.add(flan)
+
+	if (specObj.unit !== "banister") {
+		var nutParams = {
+			diam: 4,
+			len: 7,
+			shimThk: 1,
+		}
+
+		var nut = drawNutEricson(nutParams).mesh;
+		nut.rotation.x = -Math.PI / 2;
+		nut.position.y = -10;
+		nut.position.z = 12 / 2;
+		if (!testingMode) par.mesh.add(nut)
+
+		//
+		var vintPar = {
+			id: 'vint_M4x10',
+			description: "Крепление лодочки к балясине",
+			group: "Ограждения",
+		}
+		var vint = drawVint(vintPar).mesh;
+		vint.position.y = -10;
+		vint.rotation.x = -Math.PI / 2;
+		if (!testingMode) par.mesh.add(vint);
+	}
+
+	par.mesh.setLayer("metis");
+
+	return par;
 }

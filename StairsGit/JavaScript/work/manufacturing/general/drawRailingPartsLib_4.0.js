@@ -923,7 +923,7 @@ function drawRackHolder(par) {
 				timberPaint: false,
 				division: "metal",
 				workUnitName: "amt",
-				group: "Ограждения",
+				//group: "Ограждения",
 			}
 		}
 
@@ -2526,22 +2526,27 @@ function drawHolderFlan(par){
 	screw2.rotation.x = Math.PI / 2;
 	par.mesh.add(screw2);
 
-	var vintId = "vint_M6x10";
-	if (params.railingModel == "Кованые балясины") vintId = "vint_M6x70";
-	if (par.railingModel == "Кованые балясины") vintId = "vint_M6x70";
-	var vintPar = {
-		id: vintId,
-		description: "Крепление лодочки к штырю",
-		group: "Ограждения"
-	}
+	if (par.type !== 'balHolder') {
+		var vintId = "vint_M6x10";
+		if (params.railingModel == "Кованые балясины") vintId = "vint_M6x70";
+		if (par.railingModel == "Кованые балясины") vintId = "vint_M6x70";
+		var vintPar = {
+			id: vintId,
+			description: "Крепление лодочки к штырю",
+			group: "Ограждения"
+		}
 
-	var midpoint = {x: Math.floor((holeCenter1.x + holeCenter2.x) / 2), y: Math.floor((holeCenter1.y + holeCenter2.y) / 2)};
-	var vint = drawVint(vintPar).mesh;
-	vint.position.x = midpoint.x;
-	// vint.position.z = midpoint.y;
-	vint.position.z = -vintPar.len / 2 + 2;
-	vint.rotation.x = Math.PI / 2;
-	par.mesh.add(vint);
+		var midpoint = {
+			x: Math.floor((holeCenter1.x + holeCenter2.x) / 2),
+			y: Math.floor((holeCenter1.y + holeCenter2.y) / 2)
+		};
+		var vint = drawVint(vintPar).mesh;
+		vint.position.x = midpoint.x;
+		// vint.position.z = midpoint.y;
+		vint.position.z = -vintPar.len / 2 + 2;
+		vint.rotation.x = Math.PI / 2;
+		par.mesh.add(vint);
+	}
 
 	// item = {
 	// 	id:  par.holderFlanId,
@@ -2552,9 +2557,11 @@ function drawHolderFlan(par){
 	// 	};
 	// if(item.amt > 0) par.items.push(item);
 
+
 	//сохраняем данные для спецификации
 	var partName = par.holderFlanId + "_model";
-	if (typeof specObj != 'undefined') {
+	if (par.type == 'balHolder' && specObj.unit !== "banister") partName = 'balHolder_model';
+	if (typeof specObj != 'undefined' && !(par.type == 'balHolder' && specObj.unit == "banister")) {
 		if (!specObj[partName]) {
 			specObj[partName] = {
 				types: {},
@@ -2574,6 +2581,11 @@ function drawHolderFlan(par){
 			}
 			if (partName == "handrailHolderFlanPlane_model") specObj[partName].name = "Лодочка под плоский поручень нерж.";
 			if (partName == "handrailHolderFlanArc_model") specObj[partName].name = "Лодочка под круглый поручень";
+
+			if (partName == "balHolder_model") {
+				specObj[partName].name = "Лодочка с ухом черн.";
+				specObj[partName].purposes = ["Крепление поручня к балясинам"];
+			}
 		}
 		var name = 0;
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;

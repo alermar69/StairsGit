@@ -213,10 +213,10 @@ function drawWindow(par){
 	borderTop.position.z = 20;
 	par.mesh.add(borderTop);
 
-	var borderTopGeometry = new THREE.BoxGeometry(wndWidth, borderWidth, 40);
+	var borderTopGeometry = new THREE.BoxGeometry(wndWidth, borderWidth - 0.5, 40);
 	var borderTop = new THREE.Mesh(borderTopGeometry, par.mat);
 	borderTop.position.x = wndWidth / 2;
-	borderTop.position.y = borderWidth / 2 + par.windowsillThickness;
+	borderTop.position.y = (borderWidth + 0.5) / 2 + par.windowsillThickness;
 	borderTop.position.z = 20;
 	par.mesh.add(borderTop);
 

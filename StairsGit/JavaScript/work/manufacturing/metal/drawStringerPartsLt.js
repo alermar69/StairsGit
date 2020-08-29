@@ -2156,13 +2156,15 @@ function drawTopStepLt_floor(par) {
 		// отверстия под верхний крепежный уголок
 		var angleOffset;
 
-		if (params.topAnglePosition == "под ступенью" || par.isMiddleStringer)
+		if (params.topAnglePosition == "под ступенью" || par.isMiddleStringer) {
 			angleOffset =
 				-(par.stringerLedge +
 					params.treadThickness +
-					calcTreadFixHeight() +
+					calcFrameParams({ marshId: par.marshId }).profHeight +
 					20 +
 					topLedgeHeight); //20 - отступ отверстия от края уголка
+			if (par.isMiddleStringer) angleOffset += par.stringerLedge + params.treadThickness;
+		}
 		if (params.topAnglePosition == "над ступенью" && !par.isMiddleStringer) angleOffset = 85 - topLedgeHeight;
 		if (params.topAnglePosition == "вертикальная рамка")
 			angleOffset =
@@ -2757,7 +2759,7 @@ function drawTopStepLt_pltG(par) {
 
 							//отверстия для крепления поворотной стойки следущего марша
 							//var center2 = newPoint_xy(p0, par.b + par.turnBotParams.topMarshOffsetX - 40 / 2 + 5, par.stepHoleY);
-							var center2 = newPoint_xy(p2, 15, par.carcasAnglePosY);
+							var center2 = newPoint_xy(p2, 15, par.rackTopHoleY);
 							center2.y -=
 								setTurnRacksParams(par.marshPar.nextMarshId, par.key)
 								.shiftBotFrame; //сдвиг кронштейна вниз чтобы не попадал на крепление рамки

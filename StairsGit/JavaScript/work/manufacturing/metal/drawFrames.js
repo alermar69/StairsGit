@@ -424,6 +424,8 @@ par.frameParams = {
 			p2: shapePar.points[3],
 		},
 		mirrow: true,
+		frameId: par.frameId,
+		marshId: par.wndPar.botMarshId,
 	}
 	
 	if(par.frameId == 3) {
@@ -598,6 +600,7 @@ par.frameParams = {
 		type: "1_hole",
 		frameId: par.frameId,
 		dxfBasePoint: flanDxfBasePoint,
+		marshId: par.wndPar.botMarshId,
 	}
 
 	flanParams = drawWndTreadFlan(flanParams);
@@ -639,6 +642,7 @@ par.frameParams = {
 		type: "2_holes",
 		frameId: par.frameId,
 		dxfBasePoint: flanDxfBasePoint,
+		marshId: par.wndPar.botMarshId,
 	}
 
 
@@ -706,6 +710,7 @@ par.frameParams = {
 		type: "riser_holes",
 		frameId: par.frameId,
 		dxfBasePoint: flanDxfBasePoint,
+		marshId: par.wndPar.botMarshId,
 	}
 	if (params.stairType == "рифленая сталь" || params.stairType == "лотки") flanParams.flanHeight = 50;
 	if (par.frameId == 3 && turnFactor > 0) flanParams.line = outLine.rear;
@@ -742,6 +747,7 @@ par.frameParams = {
 			type: "no_holes",
 			frameId: par.frameId,
 			dxfBasePoint: flanDxfBasePoint,
+			marshId: par.wndPar.botMarshId,
 		}
 		if (params.stairType == "рифленая сталь" || params.stairType == "лотки") flanParams.flanHeight = 50;
 		if (par.frameId == 3 && turnFactor > 0) flanParams.line = outLine.front;
@@ -956,6 +962,8 @@ function drawWndFrame2(par){
 			p2: shapePar.points[5],
 		},
 		mirrow: true,
+		frameId: 2,
+		marshId: par.wndPar.botMarshId,
 	}
 	if (!sideOut2) {
 		shapePar.drawing.baseLine.p1 = shapePar.points[3]
@@ -1123,6 +1131,7 @@ function drawWndFrame2(par){
 		type: "1_hole",
 		frameId: 2,
 		dxfBasePoint: flanDxfBasePoint,
+		marshId: par.wndPar.botMarshId,
 		}
 	flanParams = drawWndTreadFlan(flanParams);
 	var frontFlan = flanParams.mesh;
@@ -1150,6 +1159,7 @@ function drawWndFrame2(par){
 		type: "riser_holes",
 		frameId: 2,
 		dxfBasePoint: flanDxfBasePoint,
+		marshId: par.wndPar.botMarshId,
 		}
 	if(params.stairType == "рифленая сталь" || params.stairType == "лотки") flanParams.flanHeight = 50;
 	flanParams = drawWndTreadFlan(flanParams);
@@ -1168,6 +1178,7 @@ function drawWndFrame2(par){
 		type: params.model == "лт" ? "2_holes" : "1_hole",
 		frameId: 2,
 		dxfBasePoint: flanDxfBasePoint,
+		marshId: par.wndPar.botMarshId,
 		}
 
 	flanParams = drawWndTreadFlan(flanParams);
@@ -1197,6 +1208,7 @@ function drawWndFrame2(par){
 		type: "no_holes",
 		frameId: 2,
 		dxfBasePoint: flanDxfBasePoint,
+		marshId: par.wndPar.botMarshId,
 		}
 	if(params.stairType == "рифленая сталь" || params.stairType == "лотки") flanParams.flanHeight = 50;
 	
@@ -1220,6 +1232,7 @@ function drawWndFrame2(par){
 			type: "no_holes",
 			frameId: 2,
 			dxfBasePoint: flanDxfBasePoint,
+			marshId: par.wndPar.botMarshId,
 		}
 		if (params.model == "ко") flanParams.line = outLine.sideOut2;
 		if(params.stairType == "рифленая сталь" || params.stairType == "лотки") flanParams.flanHeight = 50;
@@ -1239,6 +1252,7 @@ function drawWndFrame2(par){
 		type: params.model == "лт" ? "2_holes" : "1_hole",
 		frameId: 2,
 		dxfBasePoint: flanDxfBasePoint,
+		marshId: par.wndPar.botMarshId,
 		}
 	
 	flanParams = drawWndTreadFlan(flanParams);
@@ -1460,7 +1474,10 @@ function drawWndTreadFlan(par){
 	if (!par.drawing) {
 		flanPar.drawing = {
 			name: "Фланец",
-			group: "Flans",
+			//group: "FlansWnd",
+			group: "wndFrames",
+			frameId: par.frameId,
+			marshId: par.marshId,
 		}
 	}
 

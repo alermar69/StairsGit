@@ -89,7 +89,9 @@ function getAllInputsValues(par) {
 	})
 	
 	if(!params.floorThickness) par.floorThickness = 200;
-	if(!params.floorOffsetBot) par.floorOffsetBot = 0;
+	if (!params.floorOffsetBot) par.floorOffsetBot = 0;
+	if (!params.railingStart) par.railingStart = 0;
+	if (!params.startTreadAmt) par.startTreadAmt = 0;
 }
 
 

@@ -65,6 +65,7 @@ function drawRectFlan2(par) {
 			shapePar.drawing.pointStartSvg = par.drawing.pointStartSvg;
 			shapePar.drawing.pointCurrentSvg = par.drawing.pointCurrentSvg;
 		}
+		if (par.drawing.frameId) shapePar.drawing.frameId = par.drawing.frameId;
 	}
 
 	par.shape = drawShapeByPoints2(shapePar).shape;
@@ -122,17 +123,19 @@ function drawRectFlan2(par) {
 		};
 		if (par.roundHoleCenters) {
 			for (var i = 0; i < par.roundHoleCenters.length; i++) {
-				var bolt = drawBolt(boltPar).mesh;
-				bolt.rotation.x = Math.PI / 2;
-				bolt.position.x = par.roundHoleCenters[i].x;
-				bolt.position.y = par.roundHoleCenters[i].y;
-				bolt.position.z = boltPar.len / 2 - boltBulge;
-				if (par.mirrowBolts) {
-					bolt.rotation.x = -Math.PI / 2;
-					bolt.position.z = -boltPar.len / 2 + boltBulge + par.thk;
+				if (!par.roundHoleCenters[i].noBolt) {
+					var bolt = drawBolt(boltPar).mesh;
+					bolt.rotation.x = Math.PI / 2;
+					bolt.position.x = par.roundHoleCenters[i].x;
+					bolt.position.y = par.roundHoleCenters[i].y;
+					bolt.position.z = boltPar.len / 2 - boltBulge;
+					if (par.mirrowBolts) {
+						bolt.rotation.x = -Math.PI / 2;
+						bolt.position.z = -boltPar.len / 2 + boltBulge + par.thk;
+					}
+					if (par.dzBolt) bolt.position.z += par.dzBolt;
+					par.mesh.add(bolt);
 				}
-				if (par.dzBolt) bolt.position.z += par.dzBolt;
-				par.mesh.add(bolt);
 			}
 		}
 	}
@@ -160,20 +163,22 @@ function drawRectFlan2(par) {
 	if (par.boltParams) {
 		if (par.roundHoleCenters) {
 			for (var i = 0; i < par.roundHoleCenters.length; i++) {
-				var bolt = drawBolt(par.boltParams).mesh;
-				bolt.rotation.x = Math.PI / 2;
-				bolt.position.x = par.roundHoleCenters[i].x;
-				bolt.position.y = par.roundHoleCenters[i].y;
-				bolt.position.z = par.boltParams.len / 2;
-				if (par.mirrowBolts) {
-					bolt.rotation.x = -Math.PI / 2;
-					bolt.position.z = -par.boltParams.len / 2 + par.thk;
+				if (!par.roundHoleCenters[i].noBolt) {
+					var bolt = drawBolt(par.boltParams).mesh;
+					bolt.rotation.x = Math.PI / 2;
+					bolt.position.x = par.roundHoleCenters[i].x;
+					bolt.position.y = par.roundHoleCenters[i].y;
+					bolt.position.z = par.boltParams.len / 2;
+					if (par.mirrowBolts) {
+						bolt.rotation.x = -Math.PI / 2;
+						bolt.position.z = -par.boltParams.len / 2 + par.thk;
+					}
+					if (par.boltParams.offsetY) {
+						bolt.position.z -= par.boltParams.offsetY;
+					}
+					if (par.dzBolt) bolt.position.z += par.dzBolt;
+					par.mesh.add(bolt);
 				}
-				if (par.boltParams.offsetY) {
-					bolt.position.z -= par.boltParams.offsetY;
-				}
-				if (par.dzBolt) bolt.position.z += par.dzBolt;
-				par.mesh.add(bolt);
 			}
 		}
 	}
@@ -810,6 +815,110 @@ function drawNut(par){
 
 }
 
+/** функция отрисовывает гайку Эриксона
+	diam
+	len
+*/
+function drawNutEricson(par) {
+	par.mesh = new THREE.Object3D();
+	if (menu.simpleMode) return par;
+	//головка гайки
+	par.shimThk = par.diam * 0.2;
+	par.radIn = par.diam / 2 + 0.5;
+	par.radOut = par.diam * 1.1;
+
+	var extrudeOptions = {
+		amount: par.shimThk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var shape = new THREE.Shape();
+
+	var center = { x: 0, y: 0 };
+	var dxfBasePoint = { x: 0, y: 0 };
+	var dxfArr = [];
+
+	addCircle(shape, [], { x: 0, y: 0 }, par.diam, { x: 0, y: 0 })
+
+	//шестигранное отверстие
+	var polygonParams = {
+		cornerRad: 0,
+		vertexAmt: 6,
+		edgeLength: par.diam * 0.4,
+		basePoint: { x: 0, y: 0 },
+		type: "path",
+		dxfPrimitivesArr: [],
+		dxfBasePoint: { x: 0, y: 0 },
+	}
+
+	var path = drawPolygon(polygonParams).path;
+	shape.holes.push(path)
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var shim = new THREE.Mesh(geom, params.materials.bolt);
+	shim.rotation.x = -Math.PI / 2;
+	par.mesh.add(shim);
+
+	//ножка гайки
+	par.legThk = par.len;
+	par.radIn = par.diam / 2 + 0.5;
+	par.radOut = par.diam / 2 + 1.5;
+
+	var extrudeOptions = {
+		amount: par.legThk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var shape = new THREE.Shape();
+
+	var center = { x: 0, y: 0 };
+	var dxfBasePoint = { x: 0, y: 0 };
+	var dxfArr = [];
+	addCircle(shape, dxfArr, center, par.radOut, dxfBasePoint);
+
+	var hole = new THREE.Path();
+	addCircle(hole, dxfArr, center, par.radIn, dxfBasePoint);
+	shape.holes.push(hole);
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var leg = new THREE.Mesh(geom, params.materials.bolt);
+	leg.position.y = par.shimThk;
+	leg.rotation.x = -Math.PI / 2;
+	par.mesh.add(leg);
+
+	//сохраняем данные для спецификации
+	par.partName = "nutEric_"
+	if (typeof specObj != 'undefined' && par.partName) {
+		if (!specObj[par.partName]) {
+			specObj[par.partName] = {
+				types: {},
+				amt: 0,
+				name: "Гайка Эриксона",
+				metalPaint: false,
+				timberPaint: false,
+				division: "stock_1",
+				workUnitName: "amt",
+				group: "Метизы",
+			}
+		}
+		var name = "М" + par.diam + 'x' + par.len;
+		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
+		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
+		specObj[par.partName]["amt"] += 1;
+	}
+
+	par.legThk += par.shimThk;
+	par.mesh.specId = par.partName + name;
+	par.mesh.setLayer("metis");
+	return par;
+}
+
 /** функция отрисовывает стандартную метрическую шайбу
 	diam
 */
@@ -982,7 +1091,8 @@ function drawAngleSupport(par, parDop) {
 
 	//болты в грани 1
 	if (!par.noBoltsInSide1) par.noBoltsInSide1 = false;	//болты есть
-	if (angleModel == "У4-70х70х100" || angleModel == "У5-60х60х100") par.noBoltsInSide1 = true;
+	if (angleModel == "У5-60х60х100") par.noBoltsInSide1 = true;
+	if (angleModel == "У4-70х70х100" && params.topFlan == 'нет') par.noBoltsInSide1 = true;
 	
 	if (angleModel == "У4-70х70х100" && params.calcType == 'vhod' && params.staircaseType == 'Готовая' && params.platformRearStringer !== "нет" && params.platformTop !== 'нет') {
 		par.noBoltsInSide1 = false;
@@ -1170,29 +1280,31 @@ function drawAngleSupport(par, parDop) {
 	/* болты крепления к нижнему или верхнему перекрытию */
 	if (typeof isFixPats != "undefined" && isFixPats && (angleModel !== "У5-60х60х100" && params.bottomAngleType !== "регулируемая опора") && !testingMode) { //глобальная переменная
 		if (par.pos) {
-			var fixPar = getFixPart(0, par.pos);
+			if (!(par.pos == 'topFloor' && params.topFlan == "есть")) {
+				var fixPar = getFixPart(0, par.pos);
 
-			var fix = drawFixPart(fixPar).mesh;
-			fix.position.x = (partParams.width - partParams.holeDist2) / 2;
-			fix.position.y = 0;
-			fix.position.z = partParams.height - partParams.hole2Y;
-			fix.rotation.x = 0;
-			if (turnFactor == -1) {
-				fix.rotation.x = Math.PI;
-				fix.position.y += partParams.metalThickness;
-			}
-			complexObject1.add(fix);
+				var fix = drawFixPart(fixPar).mesh;
+				fix.position.x = (partParams.width - partParams.holeDist2) / 2;
+				fix.position.y = 0;
+				fix.position.z = partParams.height - partParams.hole2Y;
+				fix.rotation.x = 0;
+				if (turnFactor == -1) {
+					fix.rotation.x = Math.PI;
+					fix.position.y += partParams.metalThickness;
+				}
+				complexObject1.add(fix);
 
-			var fix = drawFixPart(fixPar).mesh;
-			fix.position.x = (partParams.width + partParams.holeDist2) / 2;
-			fix.position.y = 0;
-			fix.position.z = partParams.height - partParams.hole2Y;
-			fix.rotation.x = 0;
-			if (turnFactor == -1) {
-				fix.rotation.x = Math.PI;
-				fix.position.y += partParams.metalThickness;
+				var fix = drawFixPart(fixPar).mesh;
+				fix.position.x = (partParams.width + partParams.holeDist2) / 2;
+				fix.position.y = 0;
+				fix.position.z = partParams.height - partParams.hole2Y;
+				fix.rotation.x = 0;
+				if (turnFactor == -1) {
+					fix.rotation.x = Math.PI;
+					fix.position.y += partParams.metalThickness;
+				}
+				complexObject1.add(fix);
 			}
-			complexObject1.add(fix);
 		}
 	}
 
@@ -1362,6 +1474,7 @@ function drawVint(par){
 
 	par.len = 10;
 	par.diam = 6;
+	
 	var vintName = "Винт М" + par.diam + "x" + par.len;
 	if (par.id == "vint_M6x10") {
 		vintName = "Винт М6х12 потай крест";
@@ -1369,6 +1482,10 @@ function drawVint(par){
 	if (par.id == "vint_M6x70") {
 		vintName = "Винт М6х70 потай крест";
 		par.len = 50;
+	}
+	if (par.id == "vint_M4x10") {
+		vintName = "Винт М4х10 полусфера";
+		par.diam = 4;
 	}
 	
 	var shape = new THREE.Shape();

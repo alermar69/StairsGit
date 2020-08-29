@@ -356,6 +356,10 @@
 			'url' => '/manufacturing/table/drawTableParts.js',
 			'only_for' => ['table'],
 		],
+		[
+			'url' => '/manufacturing/table/personalScripts.js',
+			'only_for' => ['table'],
+		],
 		
 		//sill
 		[

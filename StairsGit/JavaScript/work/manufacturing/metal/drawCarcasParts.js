@@ -2315,6 +2315,27 @@ function drawTopFixFlans(par){
 	}
 	flan2.position.z += 0.01;
 	par.mesh.add(flan2);
+
+	if (marshParams.isMiddleStringer) {
+		var stringerThickness = params.stringerThickness;
+		var treadWidth = params.M - 2 * stringerThickness;
+		var midStringerAmt = Math.floor(treadWidth / 1090);
+		var midstringerBetweenLen = (treadWidth - stringerThickness * midStringerAmt) / (midStringerAmt + 1);
+		for (i = 1; i <= midStringerAmt; i++) {
+			var flan = drawTopFixFlan(par.flanLen, dxfBasePoint).mesh;
+			flan.position.x = params.M / 2 - 100 - sideOffset - (midstringerBetweenLen + stringerThickness) * i;
+			if (turnFactor == -1) flan.position.x += calcStringerMoove(3).stringerOutMoove
+			flan.position.y = flan1.position.y;
+			if (marshParams.stairAmt == 0 && marshParams.botTurn == "забег") {
+				if (params.model == "лт") flan.position.z += params.lastWinderTreadWidth - marshParams.nose;
+				if (params.model == "ко") flan.position.z += params.lastWinderTreadWidth - 55;
+			}
+			flan.position.z += 0.01;
+			par.mesh.add(flan);
+
+			dxfBasePoint.x += 300;
+		}
+	}
 	
 	return par;
 }
@@ -2393,6 +2414,25 @@ function drawTopFixFlan(length, dxfBasePoint) {
 	//mesh.position.y = -length;
 
 	flanParams.mesh.add(mesh);
+
+/* болты крепления к нижнему или верхнему перекрытию */
+	var fixPar = getFixPart(0, "topFloor");
+	if (typeof isFixPats != "undefined" && isFixPats && fixPar.fixPart !== 'нет' && !testingMode) { //глобальная переменная
+
+		var fix = drawFixPart(fixPar).mesh;
+		fix.rotation.x = -Math.PI / 2 * turnFactor;
+		fix.position.x = flanParams.hole2X;
+		fix.position.z = -thickness * (1 - turnFactor) * 0.5;
+		fix.position.y = flanParams.height - flanParams.hole2Y;
+		flanParams.mesh.add(fix);
+
+		var fix = drawFixPart(fixPar).mesh;
+		fix.rotation.x = -Math.PI / 2 * turnFactor;
+		fix.position.x = flanParams.width - flanParams.hole3X;
+		fix.position.y = flanParams.height - flanParams.hole3Y;
+		fix.position.z = -thickness * (1 - turnFactor) * 0.5;
+		flanParams.mesh.add(fix);
+	}
 
 	//болты
 	//if (typeof anglesHasBolts != "undefined" && anglesHasBolts) { //глобальная переменная

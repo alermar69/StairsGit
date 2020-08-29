@@ -255,6 +255,7 @@ function drawGlassSectionMetal(par) {
 	var platformStringerWidth = 150; //ширина тетивы площадки
 	var platformGlassMaxLength = 800 //максимальная длина стекла по горизонтали
 	var glassHeight = params.glassHeight;
+	if (!glassHeight) glassHeight = 1300;
 	var handrailPoints = [];
 
 

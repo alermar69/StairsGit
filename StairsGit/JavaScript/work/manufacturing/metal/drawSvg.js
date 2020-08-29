@@ -20,7 +20,7 @@ function makeSvg(){
 	var sortedShapes = {};
 	
 	//Группы которые отрисовываются отдельно
-	var customDrawingGroups = ["glass", "handrails", "forged_railing", "timber_railing"]
+	var customDrawingGroups = ["glass", "handrails", "forged_railing", "timber_railing", "wndFrames"]
 	
 	// выводим только уникальные шейпы. Для повторяющихся считаем кол-во
 	var shapesAmtList = [];
@@ -114,6 +114,24 @@ function makeSvg(){
 
 		var a4Params = {
 			elements: handrails,
+			basePoint: basePoint,
+			orientation: 'hor',
+			posOrientation: 'hor',
+			draw: draw,
+		}
+		var lists = setA4(a4Params);
+		basePoint = newPoint_xy(a4Params.basePoint, 0, -a4Params.height - 100);
+	}
+
+	if (sortedShapes.wndFrames) {
+		var wndFramesPar = {
+			draw: draw,
+			shapes: sortedShapes.wndFrames,
+		}
+		var wndFrames = drawSVGWndFrames(wndFramesPar);
+
+		var a4Params = {
+			elements: wndFrames,
 			basePoint: basePoint,
 			orientation: 'hor',
 			posOrientation: 'hor',
@@ -405,4 +423,84 @@ function makeSvg(){
 	}
 
 	printLayersControls(svgLayers)
+}
+
+
+/**
+ * Отрисовывает рамки забежных ступеней
+ * @param {object} par 
+ */
+function drawSVGWndFrames(par) {
+	var draw = par.draw;
+	var handrailShapes = par.shapes;
+
+	var sets = [];
+	var partsBasePoint = { x: 0, y: -100 };
+
+	$.each(handrailShapes, function () {
+		var shape = this;
+		var par = this.drawing;
+		var set = sets.find(s => s.marshId == par.marshId && s.frameId == par.frameId);
+		if (!set) {
+			set = draw.set();
+			set.marshId = par.marshId;
+			set.frameId = par.frameId;
+
+			var listText = "Рамка " + set.frameId + " забежной ступени марш " + par.marshId;
+			set.listText = listText;
+			set.wndFrame = draw.set();
+			sets.push(set);
+
+			partsBasePoint = { x: 0, y: -100 };
+		}
+
+		var obj = makeSvgFromShape(shape, draw);
+		obj.setClass("wndFrames");
+
+		//зеркалим объект если это есть в его параметрах
+		if (this.drawing && this.drawing.mirrow) mirrow(obj, "y");
+		if (this.drawing && this.drawing.mirrow) obj.setClass("parts is_mirrored");
+
+		//угол поворота
+		var ang = 0;
+		var isBaseLine = false;
+		if (this.drawing.baseLine) {
+			if (this.drawing.baseLine.p1 && this.drawing.baseLine.p2) isBaseLine = true;
+		}
+		if (this.drawing && isBaseLine) {
+			ang = angle(this.drawing.baseLine.p1, this.drawing.baseLine.p2) / Math.PI * 180;
+		};
+
+		rotate(obj, ang);
+		moove(obj, partsBasePoint);
+
+		obj.params = par;
+
+		set.wndFrame.push(obj);
+
+		var bbox = obj.getBBox();
+
+		var dimPar = {
+			obj: obj,
+			draw: draw,
+			//isNotFrame: true,
+		}
+		var dimSet = drawDimensions(dimPar).set;
+		dimSet.setClass("dimensions");
+		set.wndFrame.push(dimSet);
+
+		partsBasePoint.y -= bbox.height + 100;
+	});
+
+	$.each(sets, function () {
+		if (this.wndFrame) {
+
+			var bbox = this.wndFrame.getBBox();
+			moove(this.wndFrame, { x: 0, y: bbox.height });
+
+			this.push(this.wndFrame);
+		}
+	});
+
+	return sets;
 }
