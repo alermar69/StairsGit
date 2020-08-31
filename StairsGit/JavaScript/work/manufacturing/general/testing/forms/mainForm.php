@@ -20,9 +20,6 @@
 	<button id="nextConfig" class='btn btn-success groupTesting'>Следующая</button>
 	<button id="stopTesting" class='btn btn-danger groupTesting'>Стоп</button>
 	
-		<!--модальные окна для сравнения с версией инженера-->
-	<?php include $GLOBALS['ROOT_PATH']."/calculator/general/modals/checkSpec.php" ?>
-	
 	<br/>
 	
 	Перебор конфигураций: 
@@ -80,6 +77,9 @@
 		<br/>
 	</div>
 	
+	<br>
+	<!--модальные окна для сравнения с версией инженера-->
+	<?php include $GLOBALS['ROOT_PATH']."/calculator/general/modals/checkSpec.php" ?>
 
 	
 	<h4>Результаты теста: </h4>

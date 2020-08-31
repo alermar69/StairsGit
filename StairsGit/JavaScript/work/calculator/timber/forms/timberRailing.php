@@ -95,4 +95,3 @@
 	Z: <input id="lastNewellMooveZ" type="text" value="0"><br>
 	Поворот: <input id="lastNewellRot" type="text" value="0">
 </td></tr>
-

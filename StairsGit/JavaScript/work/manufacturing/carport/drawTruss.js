@@ -9,7 +9,8 @@ function drawStrightTruss(par){
 	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
 	if(!par.dxfArr) par.dxfArr = [];
 	par.mesh = new THREE.Object3D();
-	par.flanWidth = 50;
+	var stripeWidth = 60;
+	par.flanWidth = stripeWidth - partPar.truss.thk;
 	
 
 	//внешний контур
@@ -89,6 +90,38 @@ function drawStrightTruss(par){
 	if(par.isLeft) truss.position.z = par.flanWidth / 2
 	par.mesh.add(truss);
 	truss.setLayer('carcas');
+	
+	//полки швеллера
+	var posZ = truss.position.z
+	if(par.isLeft) posZ -= stripeWidth - partPar.truss.thk
+
+	var stripeParTop = {
+		poleProfileY: 4,
+		poleProfileZ: stripeWidth,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -100),
+		length: par.len,
+		poleAngle: 0,
+		material: params.materials.metal,
+		dxfArr: [],
+		type: 'rect',
+	};
+	
+	
+	var stripe = drawPole3D_4(stripeParTop).mesh;
+	stripe.position.x = 0
+	stripe.position.y = 0
+	stripe.position.z = posZ
+	par.mesh.add(stripe);
+	stripe.setLayer('carcas');
+	
+	var stripe = drawPole3D_4(stripeParTop).mesh;
+	stripe.position.x = 0
+	stripe.position.y = par.height
+	stripe.position.z = posZ
+	par.mesh.add(stripe);
+	stripe.setLayer('carcas');
+	
+	
 
 //фланцы крепления к колоннам
 
@@ -570,7 +603,9 @@ function drawArcSheetTruss(par){
 
 	//делаем ферму цельной если длина меньше 4000мм
 	par.hasDivide = true;
-	if(rightLine.p1.x - botLine.p1.x <= 2000){
+	var widthLimit = 2000;
+	if (params.calcType == 'veranda') widthLimit = 1000;
+	if(rightLine.p1.x - botLine.p1.x <= widthLimit){
 		par.hasDivide = false;
 		var botLine2 = {};
 		for(var pointName in botLine){

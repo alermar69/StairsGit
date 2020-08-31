@@ -16,7 +16,8 @@
 				$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 			
 				//модуль
-				$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects'];
+				$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda'];
+				
 				$calc_type = '';
 				foreach($calc_types as $item){
 					if (strpos($url,'/'.$item) !== false) $calc_type = $item;
@@ -37,11 +38,6 @@
 						<td>Перила:</td>
 						<td><input id="railingCostFactor" type="number" value="1"></td>
 						<td><input id="railingPriceFactor" type="number" value="1"></td>
-					</tr>
-					<tr>
-						<td>Шкаф:</td>
-						<td><input id="wrCostFactor" type="number" value="1"></td>
-						<td><input id="wrPriceFactor" type="number" value="1"></td>
 					</tr>';
 				};
 				
@@ -54,6 +50,13 @@
 						</tr>
 						<tr>
 							<td>Кровля:</td>
+							<td><input id="roofCostFactor" type="number" value="1"></td>
+							<td><input id="roofPriceFactor" type="number" value="1"></td>
+						</tr>';
+				};
+				if ($calc_type == 'veranda') {
+					echo '<tr>
+							<td>Навес:</td>
 							<td><input id="roofCostFactor" type="number" value="1"></td>
 							<td><input id="roofPriceFactor" type="number" value="1"></td>
 						</tr>';
@@ -112,29 +115,49 @@
 	<div id="total_cost">
 		<p>Расчет еще не произведен</p>
 	</div>
+	
+<?php
 
-	<div id='vint_cost' style='display: none;'>
-		<h3>Себестоимость лестницы</h3>
-		<div id="cost_staircase" class="toggleDiv">
+	if ($calc_type == 'vint') {
+		echo "
+		<div id='vint_cost'>
+			<h3>Себестоимость лестницы</h3>
+			<div id='cost_staircase' class='toggleDiv'>
+				<p>Расчет еще не произведен</p>
+			</div>
+		</div>";
+	};
+	
+	if ($calc_type != 'carport' && $calc_type != 'railing') {
+		echo "
+		<h3>Себестоимость каркаса и ступеней</h3>
+		<div id='cost_carcas' class='toggleDiv'>
+			<p>Расчет еще не произведен</p>
+		</div>";
+	};
+	
+
+	
+	if ($calc_type == 'carport' || $calc_type == 'veranda') {
+		echo "
+		<h3>Себестоимость навеса</h3>
+		<div id='cost_carport' class='toggleDiv'>
+			<p>Расчет еще не произведен</p>
+		</div>";
+	};
+	if ($calc_type != 'carport'){
+		echo "
+		<h3>Себестоимость ограждений лестницы</h3>
+		<div id='cost_perila' class='toggleDiv'>
 			<p>Расчет еще не произведен</p>
 		</div>
-	</div>
 
-	<h3>Себестоимость каркаса и ступеней</h3>
-	<div id="cost_carcas" class="toggleDiv">
-		<p>Расчет еще не произведен</p>
-	</div>
-
-	<h3>Себестоимость ограждений лестницы</h3>
-	<div id="cost_perila" class="toggleDiv">
-		<p>Расчет еще не произведен</p>
-	</div>
-
-	<h3>Себестоимость балюстрады</h3>
-	<div id="cost_banister" class="toggleDiv">
-		<p>Расчет еще не произведен</p>
-	</div>
-
+		<h3>Себестоимость балюстрады</h3>
+		<div id='cost_banister' class='toggleDiv'>
+			<p>Расчет еще не произведен</p>
+		</div>";
+	};
+?>
 	<h3>Себестоимость доставки, сборки</h3>
 	<div id="cost_assembling" class="toggleDiv">
 		<p>Расчет еще не произведен</p>

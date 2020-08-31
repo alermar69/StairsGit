@@ -37,8 +37,8 @@ drawVeranda = function (par) {
 	
 	//параметры всех деталей
 	
-	var axis = new THREE.AxisHelper( 2000 );
-	model.add(axis);
+	//var axis = new THREE.AxisHelper( 2000 );
+	//model.add(axis);
 	
 	//площадка
 	if (params.pltType == 'отдельная') {

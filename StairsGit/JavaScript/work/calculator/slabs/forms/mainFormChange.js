@@ -224,6 +224,7 @@ function addUnitParamsInputs($row){
 			"не указано",
 			"прямоугольник",
 			"по чертежу",
+			"по шаблону",
 		],
 		name: "Геометрия",
 		classNames: 'countertop facade',
@@ -367,6 +368,7 @@ function addUnitParamsInputs($row){
 			"3 ребра",
 			"все ребра",
 			"по чертежу",
+			"по шаблону",
 			"нет",
 		],
 		name: "Фаска сверху",
@@ -374,7 +376,7 @@ function addUnitParamsInputs($row){
 	};
 	props.push(prop);
 
-	//геометрия фаски на верхней стороне
+	//геометрия фаски на нижней стороне
 	var prop = {
 		id: "edgeGeomBot",
 		values: [
@@ -383,9 +385,23 @@ function addUnitParamsInputs($row){
 			"3 ребра",
 			"все ребра",
 			"по чертежу",
+			"по шаблону",
 			"нет",
 		],
 		name: "Фаска снизу",
+		classNames: 'countertop',
+	};
+	props.push(prop);
+	
+	//доклейка по толщине
+	var prop = {
+		id: "extraThk",
+		values: [
+			"не указано",
+			"нет",
+			"по чертежу",
+		],
+		name: "Доклейка по толщине",
 		classNames: 'countertop',
 	};
 	props.push(prop);

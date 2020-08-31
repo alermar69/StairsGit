@@ -6,9 +6,23 @@ $(function () {
 
 function showDxfPrv(){
 
+	var svgText = makeSvgFromDxf(dxfPrimitivesArr)
+	
+	$("#dxfPrv").html(svgText);
+	
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	var panZoomTiger = svgPanZoom('#dxfPrv svg', {
+		zoomScaleSensitivity: 0.5,
+		minZoom: 0.5,
+		maxZoom: 100,
+	});
+
+}
+
+function makeSvgFromDxf(dxfArray){
 	var svgText = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1000 -3000 10000 6000" width="1000" height="800" style="background-color: rgb(255, 255, 255);">'
 	var lineWeight = 2;
-	$.each(dxfPrimitivesArr, function(){
+	$.each(dxfArray, function(){
 		
 		var command = parseDxf(this);
 
@@ -46,20 +60,12 @@ function showDxfPrv(){
 		};
 	})
 	
-	svgText += '</svg>'
-	
-	$("#dxfPrv").html(svgText);
-	
-	//применяем зум и сдвиг мышкой
-	var panZoomTiger = svgPanZoom('#dxfPrv svg', {
-		zoomScaleSensitivity: 0.5,
-		minZoom: 0.5,
-		maxZoom: 100,
-		});
+	svgText += '</svg>';
 
+	return svgText
 }
 
-/** функция распарсивает примитив dxf в виде строки в объект
+/** пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ dxf пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 */
 
 function parseDxf(prim){

@@ -536,3 +536,6 @@
 		</tbody>
 	</table>
 </div>
+
+<!-- Фикс ошибки -->
+<input type="hidden" id="floorOffsetBot">

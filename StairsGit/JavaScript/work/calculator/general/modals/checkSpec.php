@@ -30,22 +30,22 @@
 	<div class="modal-dialog spec-list-modal" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<div class='row'>
-					<div class='col-md-11'>
-						<h5 class="modal-title">Список доступных спецификаций</h5>
-					</div>
-					<div class='col-1 text-right'>
-						<button type="button" class="btn btn-secondary" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-					</div>
-				</div>
+				<h4 class="modal-title">Сохраненные спецификации</h4>
 			</div>
-			<div class="modal-body">
-				<div class='specs-search'>
-					<span><b>Поиск спецификаций</b></span><br>
-					<input type="text" id='searchOfferId' placeholder="Введите номер заказа"> <button class="btn btn-secondary" id='searchSpecs'>Поиск</button>
-				</div>
-				<div id='specsList'></div>
+		  
+			<button id="refresh" class="btn btn-primary">
+					<i class="glyphicon glyphicon-refresh"></i>
+					<span>Обновить</span>
+				</button>
+			<div class="modal-body" id="docsList">
+				По данному заказу не найдено сохраненных спецификаций.
 			</div>
+			
+			<div class="modal-footer">				
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+				<button type="button" class="btn btn-primary" id="applySpec" >Применить</button>
+			</div>
+			
 		</div>
 	</div>
 </div>

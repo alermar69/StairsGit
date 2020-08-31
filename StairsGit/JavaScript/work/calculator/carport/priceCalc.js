@@ -1,6 +1,11 @@
+/** функия обертка для совместимости с общей структурой **/
 function calculateCarcasPrice(){
-	var width = params.width;
-		
+	calcCarportCost()
+};
+
+
+/** функция рассчитывает себестоимость навеса **/
+function calcCarportCost(){
 	//колонны
 	var profParmas = getProfParams(params.columnProf);
 	var amt = getPartPropVal('carportColumn', "sumLength")
@@ -145,6 +150,7 @@ function calculateCarcasPrice(){
 		roofCoverCost = roofProfPrice = roofShimPrice = 0;
 	}
 
+
 	staircaseCost.truss = Math.round(widthCost + trussLenCost);
 	staircaseCost.beams = Math.round(beamCost);
 	staircaseCost.columns = Math.round(columnsCost);
@@ -165,5 +171,5 @@ function calculateCarcasPrice(){
 		+ staircaseCost.roof
 		+ staircaseCost.roofProf
 		+ staircaseCost.roofShim;
-
-};
+	
+}

@@ -50,6 +50,15 @@
 				<option value="2-2">2-2</option>
 			</select>
 		</td></tr>
+
+		<tr class="railing_tr"><td>Начало ограждения:</td> <td> 
+			<select id="railingStart" size="1" onchange="">
+				<option value="0">первая ступень</option>
+				<option value="1">вторая ступень</option>
+				<option value="2">третья ступень</option>
+				<option value="3">четвертая ступень</option>
+			</select>
+		</td></tr>
 			
 
 

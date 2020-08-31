@@ -9,22 +9,48 @@
 			<tr><td>Место установки:</td> <td> 
 				<select id="geom" size="1">
 					<option value="стена">стена</option>
-					<option value="угол">угол</option>
-					<option value="эркер">эркер</option>
 					<option value="балконное окно">балконное окно</option>
 					<option value="подоконный блок">подоконный блок</option>
+					<option value="эркер">эркер</option>					
 				</select>
 			</td></tr>
 			
-			<tr><td>Сторона:</td> <td> 
+			<tr class="wallPar"><td>Сторона:</td> <td> 
 				<select id="geomSide" size="1">
 					<option value="правая">правая</option>
 					<option value="левая">левая</option>
 				</select>
 			</td></tr>
 			
+			<tr class="orielPar">
+				<td id="orielType_img"><img src="/drawings/sill/oriel/01.png" width="250px"></td>
+				<td>
+					Тип эркера:
+					<select id="orielType" size="1" onchange="">
+						<option value="01">Тип 1</option>
+						<option value="02">Тип 2</option>
+						<option value="03">Тип 3</option>
+					</select>
+					<br>
+					Размеры:
+					<br>
+					A: <input id="orielSizeA" type="number" value="2000"><br>
+					B: <input id="orielSizeB" type="number" value="1000"><br>
+					C: <input id="orielSizeC" type="number" value="1000"><br>
 
-			<tr>
+				</td>
+			</tr>
+					
+			<tr class="wallPar"><td>Угловая стена:</td> <td> 
+				<select id="sideWall" size="1">
+					<option value="нет">нет</option>
+					<option value="справа">справа</option>
+					<option value="слева">слева</option>
+					<option value="две">две стороны</option>
+				</select>
+			</td></tr>
+			
+			<tr class="wallPar">
 				<td>Ширина окна:</td> 
 				<td><input id="windowWidth" type="number" value="1000"></td>
 			</tr>
@@ -34,9 +60,9 @@
 				<td><input id="windowHeight" type="number" value="1600"></td>
 			</tr>
 			
-			<tr>
+			<tr class="wallPar">
 				<td>Скос откоса:</td> 
-				<td><input id="wallSideBevel" type="number" value="50"></td>
+				<td><input id="wallSideBevel" type="number" value="30"></td>
 			</tr>
 			
 			<tr>
@@ -55,14 +81,24 @@
 				<td><input id="windowPosZ" type="number" value="200"></td>
 			</tr>
 			
-			<tr>
-				<td>Отступ окна от угла:</td> 
-				<td><input id="windowOffset" type="number" value="200"></td>
+			<tr class="wallPar">
+				<td>Отступ окна справа:</td> 
+				<td><input id="windowOffsetRight" type="number" value="500"></td>
 			</tr>
 			
-			<tr>
+			<tr class="wallPar">
+				<td>Отступ окна слева:</td> 
+				<td><input id="windowOffsetLeft" type="number" value="500"></td>
+			</tr>
+			
+			<tr class="wallPar">
 				<td>Кол-во створок окна:</td> 
 				<td><input id="windowSectAmt" type="number" value="1"></td>
+			</tr>
+			
+			<tr class="wallPar">
+				<td>Ширина двери:</td> 
+				<td><input id="doorWidth" type="number" value="1000"></td>
 			</tr>
 			
 			<tr>
@@ -77,14 +113,15 @@
 
 		<table class="form_table" id="sillPar"><tbody>
 
-			<tr><td>Тип:</td> <td> 
-				<select id="countertopModel" size="1">
-					<option value="цельная">цельная</option>
-					<option value="двойная">двойная</option>
-					<option value="двойная с вставкой">двойная с вставкой</option>
-					<option value="нет">нет</option>
-				</select>
-			</td></tr>
+			<tr class="orielPar">
+				<td>Тип:</td>
+				<td> 
+					<select id="sillGeom" size="1">
+						<option value="подоконник">подоконник</option>
+						<option value="столешница">столешница</option>
+					</select>
+				</td>
+			</tr>
 			
 			<tr><td>Передний край:</td> <td> 
 				<select id="frontEdge" size="1">
@@ -112,7 +149,12 @@
 				<td>Свес слева:</td> 
 				<td><input id="leftNose" type="number" value="50"></td>
 			</tr>
-
+			
+			<tr class="orielPar">
+				<td>Глубина столешницы:</td> 
+				<td><input id="countertopDepth" type="number" value="500"></td>
+			</tr>
+			
 			<tr>
 				<td>Радиус справа:</td> 
 				<td><input id="cornerRadRight" type="number" value="20"></td>

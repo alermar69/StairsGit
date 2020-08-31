@@ -145,6 +145,11 @@
 				<option value="сбоку">сбоку</option>
 			</select>
 		</td></tr>
+		
+		<tr class="railing_tr glass_tr">
+			<td>Высота стекла:</td> 
+			<td><input id="glassHeight" type="number" value="1300" step="10"></td>
+		</tr>
 
 		<tr class="railing_tr glass_tr"><td>Тип стекла:</td> <td> 
 			<select id="glassType" size="1" onchange="">

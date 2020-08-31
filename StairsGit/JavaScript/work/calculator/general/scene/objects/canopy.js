@@ -132,12 +132,14 @@ class Canopy extends AdditionalObject {
 					key: 'priceFactor',
 					title: 'К-т на цену',
 					default: 1,
+					hidden: true,
 					type: 'number'
 				},
 				{
 					key: 'costFactor',
 					title: 'К-т на себестоимость',
 					default: 1,
+					hidden: true,
 					type: 'number'
 				},
 			]
@@ -147,10 +149,21 @@ class Canopy extends AdditionalObject {
 	/** возвращает описание объекта.
 	@param - meshParams из объекта additional_objects
 	*/
-	
+
 	static getDescr(par) {
+		console.log(this)
+		if(!this) return {html: '', text: ''};
+		var meta = this.getMeta();
 		var text = "Козырек " + par.holderType + " " + par.width + " мм"
-		return text;
+		var html = "<h3>Параметры " + meta.title + "</h3>";
+		html += '<table class="form_table" style="max-width: 40%"><tbody>'
+		meta.inputs.forEach(function(input){
+			if (input && par[input.key] && !input.hidden) {
+				html += '<tr><td>' + input.title + '</td><td>' + par[input.key] + '</td></tr>';
+			}
+		});
+		html += '</tbody></table>'
+		return {html: html, text: text};
 	}
 }
 

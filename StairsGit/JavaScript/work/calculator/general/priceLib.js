@@ -886,7 +886,7 @@ function calculateTotalPrice2(){
 	}
 	
 	if(params.calcType == "veranda"){
-		priceObj.roof = {name: "Кровля"};
+		priceObj.cannopy = {name: "Навес"};
 	}
 	
 	if(params.calcType == "railing"){
@@ -979,6 +979,12 @@ function calculateTotalPrice2(){
 			carcas: ["truss", "beams", "columns", "flans", "progon", "bolts", "carcasMetalPaint"],
 			roof: ["roof", "roofProf", "roofShim"],
 		}
+	}
+	
+	if(params.calcType == "veranda"){
+		unitItems.carcas.push("platform")
+		unitItems.cannopy = ["truss", "beams", "columns", "flans", "progon", "bolts", "carcasMetalPaint", "roof", "roofProf", "roofShim"];
+	
 	}
 
 	if(params.calcType == "railing"){
@@ -1156,7 +1162,7 @@ function printPrice2(){
 
 	//костыли для совместимости со старыми функциями
 
-	var notStairCalcs = ["tables", "racks", "carport", "veranda"]
+	var notStairCalcs = ["tables", "racks", "carport"]
 	
 	if(notStairCalcs.indexOf(params.calcType) != -1){
 		var railing_timber = 0;
@@ -1166,7 +1172,7 @@ function printPrice2(){
 		var banister_glass = 0;
 		var banister_metal = 0;
 
-		if (params.calcType == 'carport' || params.calcType == 'veranda') {
+		if (params.calcType == 'carport') {
 			staircasePrice = {
 				carcas: priceObj["carcas"].discountPrice,
 				roof: priceObj["roof"].discountPrice,
@@ -1176,21 +1182,6 @@ function printPrice2(){
 				finalPrice: priceObj["total"].discountPrice, 
 			}
 		}
-/*
-		if (params.calcType == 'railing') {
-			staircasePrice = {
-				railingFinal: priceObj["railing"].discountPrice, // В каркас пишем всю цену
-				carcasMetalPaint: 0,
-				delivery: priceObj["delivery"].discountPrice,
-				finalPrice: priceObj["total"].discountPrice + priceObj["assembling"].discountPrice + priceObj["delivery"].discountPrice, 
-				assemblingFinal: priceObj["assembling"].discountPrice,
-				delivery: priceObj["delivery"].discountPrice,
-				treadsFinal: priceObj["treads"] ? priceObj["treads"].discountPrice : 0,
-				risersFinal: priceObj["risers"] ? priceObj["risers"].discountPrice : 0,
-				skirtingFinal: priceObj["skirting"] ? priceObj["skirting"].discountPrice : 0
-			}
-		}
-*/
 	}
 	else {
 
@@ -1222,6 +1213,7 @@ function printPrice2(){
 			banister_timber: banister_timber,
 			banister_glass: banister_glass,
 		}
+		if(params.calcType == "veranda") staircasePrice.cannopy = priceObj["cannopy"].discountPrice;
 	}
 
 	if (window.additional_objects) {
@@ -1362,6 +1354,7 @@ function printCost2(){
 			"Больцы: " + Math.round(staircaseCost.bolz) +  " руб; <br/>" + 
 			"Рамки: " + Math.round(staircaseCost.frames) +  " руб; <br/>"+
 			"Колонны: " + Math.round(staircaseCost.columns) +  " руб; <br/>" + 
+			"Площадка: " + Math.round(staircaseCost.platform) +  " руб; <br/>" + 
 			"<b>Итого каркас: " + Math.round(staircaseCost.carcas) +  " руб; </b><br/>" + 
 			"Ступени: " + Math.round(staircaseCost.treads) +  " руб; <br/>" +
 			"Покраска металла: " + Math.round(staircaseCost.carcasMetalPaint) +  " руб; <br/>" + 	
@@ -1424,10 +1417,8 @@ function printCost2(){
 		$("#" + assemblingCostDivId).html(text);
 	};
 	
-	if(params.calcType == "carport"){
-		var carcasCostDivId = "cost_carcas";
-		var railingCostDivId = "cost_perila";
-		var banisterCostDivId = "cost_banister";
+	if(params.calcType == "carport" || params.calcType == "veranda"){
+		var carcasCostDivId = "cost_carport";
 		var assemblingCostDivId = "cost_assembling";
 
 		//себестоимость лестницы
@@ -1454,6 +1445,8 @@ function printCost2(){
 		
 		$("#" + assemblingCostDivId).html(text);
 	};
+	
+	
 	
 	//подсветка
 	if (params.calcType != 'carport' && params.calcType != 'railing') {
@@ -2732,6 +2725,9 @@ function calcTreadParams(){
 	var topPpltShieldPartAmt = Math.ceil((params.platformLength_3 / 1000) / pltShieldWidth);
 	var topPltShieldArea = pltShieldWidth * pltWidth * topPpltShieldPartAmt;
 	
+	if(params.calcType == "veranda"){
+		topPltShieldArea = params.pltLen * params.pltWidth / 1000000
+	}
 	
 //подсчет количества деталей повротов
 	var turnPar = getTurnPar();
@@ -2753,7 +2749,7 @@ function calcTreadParams(){
 		}
 
 //верхняя площадка
-	if (params.platformTop == "площадка" || params.platformTop == "увеличенная") {
+	if (params.platformTop == "площадка" || params.platformTop == "увеличенная" || params.calcType == "veranda") {
 		treadShieldArea += topPltShieldArea;
 		paintedArea += topPltShieldArea * 2;
 		if(params.riserType != "нет"){

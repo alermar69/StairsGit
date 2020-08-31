@@ -1435,34 +1435,35 @@ function drawCarportBeam(par){
 	}
 	
 	//фланцы
-	var flanPar = {
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 2000, 2000),
-		dxfArr: dxfPrimitivesArr,
-	}
-	var flan = drawPoleBeamFlan(flanPar).mesh
-	flan.position.x = -params.width / 2 + params.sideOffset + partPar.column.profSize.y / 2
-	flan.position.z = -8
-	par.mesh.add(flan);
-	
-	var flan = drawPoleBeamFlan(flanPar).mesh
-	flan.position.x = -params.width / 2 + params.sideOffset + partPar.column.profSize.y / 2
-	flan.position.z = partPar.rafter.profSize.x
-	par.mesh.add(flan);
-	
-	
-	
-	var flan = drawPoleBeamFlan(flanPar).mesh
-	if (params.carportType == "двухскатный") flan.rotation.y = Math.PI
-	flan.position.x = params.width / 2 - params.sideOffset - partPar.column.profSize.y / 2
-	flan.position.z = 0
-	par.mesh.add(flan);
-	
-	var flan = drawPoleBeamFlan(flanPar).mesh	
-	if (params.carportType == "двухскатный") flan.rotation.y = Math.PI
-	flan.position.x = params.width / 2 - params.sideOffset - partPar.column.profSize.y / 2
-	flan.position.z = partPar.rafter.profSize.x + 8
-	par.mesh.add(flan);
-	
+	if (params.carportType != "сдвижной"){
+		var flanPar = {
+			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 2000, 2000),
+			dxfArr: dxfPrimitivesArr,
+		}
+		var flan = drawPoleBeamFlan(flanPar).mesh
+		flan.position.x = -params.width / 2 + params.sideOffset + partPar.column.profSize.y / 2
+		flan.position.z = -8
+		par.mesh.add(flan);
+		
+		var flan = drawPoleBeamFlan(flanPar).mesh
+		flan.position.x = -params.width / 2 + params.sideOffset + partPar.column.profSize.y / 2
+		flan.position.z = partPar.rafter.profSize.x
+		par.mesh.add(flan);
+		
+		
+		
+		var flan = drawPoleBeamFlan(flanPar).mesh
+		if (params.carportType == "двухскатный") flan.rotation.y = Math.PI
+		flan.position.x = params.width / 2 - params.sideOffset - partPar.column.profSize.y / 2
+		flan.position.z = 0
+		par.mesh.add(flan);
+		
+		var flan = drawPoleBeamFlan(flanPar).mesh	
+		if (params.carportType == "двухскатный") flan.rotation.y = Math.PI
+		flan.position.x = params.width / 2 - params.sideOffset - partPar.column.profSize.y / 2
+		flan.position.z = partPar.rafter.profSize.x + 8
+		par.mesh.add(flan);
+		}
 	
 	return par;
 }

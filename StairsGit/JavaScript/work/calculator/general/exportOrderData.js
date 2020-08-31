@@ -169,9 +169,9 @@ function getExportData_com(checkSumm){
 	};
 	
 	if(params.calcType == "veranda"){
-		price_data.roof = {
-			name: "Кровля",
-			price: staircasePrice.roof,
+		price_data.cannopy = {
+			name: "Навес",
+			price: staircasePrice.cannopy,
 			metalPaint: 0,
 			timberPaint: 0,
 		};			
@@ -522,23 +522,25 @@ function getExportData_com(checkSumm){
 	if(staircaseHasUnit().banister) description += ", Балюстрада " + params.railingModel_bal + " " + calcBanisterLen() + "м.п. ";
 	
 	//доп. объекты
-	if(description != "" && additional_objects.length > 0) description += ". Объекты: "
+	if (window.additional_objects) {
+		if(description != "" && additional_objects.length > 0) description += ". Объекты: "
+		
+		$.each(additional_objects, function(i){		
+			if(this.calc_price){
+				var className = this.className
+				
+				var classes = AdditionalObject.getAvailableClasses()
+				var descr = classes.find(item => item.className === className).title;
+				
+				//используем метод класса если есть
+				var AdditionalObjectClass =  eval(className);
+				if(AdditionalObjectClass) descr = AdditionalObjectClass.getDescr(this.meshParams).text
 	
-	$.each(additional_objects, function(i){		
-		if(this.calc_price){
-			var className = this.className
-			
-			var classes = AdditionalObject.getAvailableClasses()
-			var descr = classes.find(item => item.className === className).title;
-			
-			//используем метод класса если есть
-			var getDescr =  eval(className + ".getDescr")
-			if(typeof getDescr == "function") descr = getDescr(this.meshParams)
-
-			if(i > 0) description += ", "
-			description += descr;
-		}
-	})
+				if(i > 0) description += ", "
+				description += descr;
+			}
+		})
+	}
 			
 	
 	//установка
@@ -641,6 +643,11 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 	if(params.calcType == "carport"){
 		dept_data.metal = staircasePrice.carcas;
 		dept_data.partners = staircasePrice.roof;
+		
+	}
+	
+	if(params.calcType == "veranda"){
+		dept_data.metal += price_data.cannopy.production;
 		
 	}
 	

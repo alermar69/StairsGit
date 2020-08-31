@@ -2,6 +2,11 @@ var costMarkup = 1.3; //07.05 было 1.25;
 var priceObj = {};
 
 function calculateCarcasPrice(){
+	calMetalStairCost()
+}
+
+
+function calMetalStairCost(){
 
 //тетивы
 var stringerMeterPrice = 4000; //цена тетивы из листа за м2

@@ -77,6 +77,12 @@ $APPLICATION->SetTitle("");
 		<td><a href="/calculator/carport/" target="_blank">Открыть</a></td>
 		<td><a href="/manufacturing/carport/" target="_blank">Открыть</a></td>
 	</tr>
+	
+	<tr>
+		<td class="left">Веранды</td>
+		<td><a href="/calculator/veranda/" target="_blank">Открыть</a></td>
+		<td><a href="/manufacturing/veranda/" target="_blank">Открыть</a></td>
+	</tr>
 
 	<tr>
 		<td class="left">Полностью деревянные (архив)</td>

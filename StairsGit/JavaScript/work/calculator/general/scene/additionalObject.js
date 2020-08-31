@@ -100,6 +100,25 @@ class AdditionalObject extends THREE.Object3D {
 		}
 	}
 
+	/** возвращает описание объекта.
+	@param - meshParams из объекта additional_objects
+	*/
+	static getDescr(par){
+		if(!this) return {html: '', text: ''};
+		var meta = this.getMeta();
+		var html = "<h3>Параметры " + meta.title + "</h3>";
+		html += '<table class="form_table" style="max-width: 40%"><tbody>'
+		var text = meta.title;
+		meta.inputs.forEach(function(input){
+			if (input && par[input.key] && !input.hidden) {
+				html += '<tr><td>' + input.title + '</td><td>' + par[input.key] + '</td></tr>';
+				// text += '' + input.title + ': ' + par[input.key] + ',';
+			}
+		});
+		html += '</tbody></table>'
+		return {html: html, text: text};
+	}
+
 	static calcPrice(par){
 		return {
 			name: this.getMeta().title,

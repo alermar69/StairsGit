@@ -89,9 +89,13 @@ function getAllInputsValues(par) {
 	})
 	
 	if(!params.floorThickness) par.floorThickness = 200;
-	if(!params.floorOffsetBot && params.calcType != 'carport') par.floorOffsetBot = 0;
+<<<<<<< HEAD
+	if (!params.floorOffsetBot) par.floorOffsetBot = 0;
 	if (!params.railingStart) par.railingStart = 0;
 	if (!params.startTreadAmt) par.startTreadAmt = 0;
+=======
+	if(!params.floorOffsetBot && params.calcType != 'carport') par.floorOffsetBot = 0;
+>>>>>>> 11a318d4f26b4039f6c97c5bda9adbb935ba2c3b
 }
 
 

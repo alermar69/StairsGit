@@ -145,7 +145,11 @@ function drawBalSection(par) {
 				z: -40,
 			}
 			if (i == 0 && par.type == "секция площадки") pos.y += 4;
-
+			if (params.rackBottom_bal == "боковое") {
+				rackParams.isBotFlan = false;
+				pos.y -= 150;
+			}
+				
 			rackParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
 
 			var rack = drawRack3d_4(rackParams).mesh;
@@ -307,6 +311,7 @@ function drawBalSection(par) {
 			}
 			var glass = drawGlassNewell(glassParams).mesh;
 			glass.position.z = railingPositionZ * 2 + 16;
+			if (params.rackBottom_bal == "боковое") glass.position.y += 150;
 			railingSection.add(glass);
 			if (par.type == "секция") balPartsParams.glassAmt += 1;
 		}
@@ -540,7 +545,12 @@ function drawBalSection(par) {
 			//заполнение - кресты
 			if (railingModel == 'Кресты') {
 				var crossHeight = frameParams.height;
-				var crossProfParams = getProfParams(params.crossProfileBal);
+				var crossProf = params.crossProfileBal
+				if(!crossProf) crossProf = params.crossProfile
+				if(!crossProf) crossProf = "20х20"
+				var crossProfParams = getProfParams(crossProf);
+				
+				
 				var crossProfileX = crossProfParams.sizeA;
 				var crossProfileY = crossProfParams.sizeB;
 

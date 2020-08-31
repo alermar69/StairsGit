@@ -5,17 +5,17 @@ function getLayersList(){
 	var layers = {
 		treads: {
 			name: "Ступени",
-			not_for: ['carport', 'table'],
+			not_for: ['carport', 'table', 'sill'],
 			group: 'treads'
 			},
 		risers: {
 			name: "Подступенки",
-			not_for: ['vint', 'carport', 'table'],
+			not_for: ['vint', 'carport', 'table', 'sill'],
 			group: 'treads'
 			},
 		angles: {
 			name: "Уголки/рамки",
-			not_for: ['railing', 'mono', 'timber', 'timber_stock', 'geometry', 'table'],
+			not_for: ['railing', 'mono', 'timber', 'timber_stock', 'geometry', 'table', 'sill'],
 			group: 'carcas'
 			},
 		carcas: {
@@ -25,47 +25,47 @@ function getLayersList(){
 			},
 		carcas1: {
 			name: "Каркас1",
-			not_for: ['railing', 'vint', 'carport', 'table'],
+			not_for: ['railing', 'vint', 'carport', 'table', 'sill'],
 			group: 'carcas'
 			},
 		railing: {
 			name: "Ограждения лестницы",
-			not_for: ['geometry', 'carport', 'table'],
+			not_for: ['geometry', 'carport', 'table', 'sill'],
 			group: 'railing'
 			},
 		topRailing: {
 			name: "Балюстрада",
-			not_for: ['railing', 'carport', 'table'],
+			not_for: ['railing', 'carport', 'table', 'sill'],
 			group: 'railing'
 			},
 		forge: {
 			name: "Ковка",
-			not_for: ['railing', 'geometry', 'carport', 'table'],
+			not_for: ['railing', 'geometry', 'carport', 'table', 'sill'],
 			group: 'railing'
 			},
 		handrails: {
 			name: "Поручни",
-			not_for: ['geometry', 'carport', 'table'],
+			not_for: ['geometry', 'carport', 'table', 'sill'],
 			group: 'railing'
 			},
 		newel: {
 			name: "Столбы",
-			not_for: ['geometry', 'carport', 'table'],
+			not_for: ['geometry', 'carport', 'table', 'sill'],
 			group: 'carcas'
 			},
 		newel1: {
 			name: "Столбы_1",
-			only_for: ['timber', 'timber_stock', 'table'],
+			only_for: ['timber', 'timber_stock',],
 			group: 'carcas'
 			},
 		newel2: {
 			name: "Столбы_2",
-			only_for: ['timber', 'timber_stock', 'table'],
+			only_for: ['timber', 'timber_stock',],
 			group: 'carcas'
 			},
 		newel3: {
 			name: "Столбы_3",
-			only_for: ['timber', 'timber_stock', 'table'],
+			only_for: ['timber', 'timber_stock',],
 			group: 'carcas'
 			},
 		metis: {
@@ -81,10 +81,7 @@ function getLayersList(){
 			name: "Размеры",
 			not_for: [],
 			},
-		labels: {
-			name: "Номера стен",
-			not_for: ['carport'],
-			},
+
 		//специальные слои для монокосоуров
 		treadPlates: {
 			name: "Подложки",

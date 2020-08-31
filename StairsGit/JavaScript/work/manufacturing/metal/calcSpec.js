@@ -51,9 +51,9 @@ function showDrawingsLinks() {
 		fileNameWndTread += "_risers";
 		fileNameRectTread += "_risers";
 	}
-	fileNameWndTread += ".pdf";
-	fileNameRectTread += ".pdf";
-	fileNamePlatformHalf += ".pdf";
+	fileNameWndTread += ".dxf";
+	fileNameRectTread += ".dxf";
+	fileNamePlatformHalf += ".dxf";
 
 	var isPlatform = false;
 	var isWinder = false;

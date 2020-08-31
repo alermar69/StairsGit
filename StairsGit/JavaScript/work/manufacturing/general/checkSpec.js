@@ -15,49 +15,32 @@ $(function () {
 	
 	})
 	
-	//При открытии модального окна проверяем спецификации и загружаем данные
-	$('#openSpecCompareModal').click(function(){
-		getSpecsByOrder($('#orderId').val(), function(data){
-			if (data.length > 0) {
-				fillSpecsList(data);
-				var currentOfferData = data.find(function(elem){return elem.offername == $("#orderName").val() && elem.status == "в работу"});
-				if (currentOfferData) {
-					prepareOffer(currentOfferData);
-					return
-				}
-			}
-			alert("Не найдена подходящая спецификация, вы можете сделать это вручную.");
-			$('#specListModal').modal('show');
+	//При открытии модального окна загружаем из базы спецификации по номеру заказа
+	$('#openSpecCompareModal').click(function(){		
+		loadOrderSpecs(function(){
+			printSpecsList(specs);
+			$("#dbModal").modal("show");			
+			$("#specListModal").modal("show");			
 		});
 	});
-
-
-	//Выбор и загрузка спецификации из списка
-	$('body').on('click', '.spec-list__spec', function() {
-		var index = this.dataset.index;
-		prepareOffer(currentSpecList[index]);
-		$('#specListModal').modal('hide');
+	
+	//кнопка применить в модальном окне со списком сохраненных спецификаций
+	$('#applySpec').click(function(){
+		var selectedSpecId = $("#docsList .selected").attr("data-specid");
+		console.log(selectedSpecId)
+		if(!selectedSpecId){
+			alert("Выберите спецификацию")
+			return
+		}
+		
+		var spec = getArrItemByProp(specs, "id", selectedSpecId)
+		prepareOffer(spec);
+		$("#specListModal").modal("hide");	
 	});
-
+	
 	$('body').on('click', '.showSpecItemOnModel', function() {
 		var articul = $(this).html();
 		showSpecItem(articul);
-	});
-
-	//Выполняет поиск спецификаций по введенным данным
-	$('#searchSpecs').click(function(){
-		var searchOfferId = $('#searchOfferId').val();
-		getSpecsByOrder(searchOfferId, function(data){
-			fillSpecsList(data);
-			if (data.length == 0) {
-				alert("Спецификации не найдены.");
-			}
-		});
-	});
-
-	//Очищаем вывод при закрытии модального окна
-	$('#specCompareModal').on('hidden.bs.modal', function () {
-		$('#specCompareResult').html(null);//Очищаем блок вывода
 	});
 	
 	$('body').on('click', '.compareToggleDiv', function() {
@@ -73,49 +56,7 @@ $(function () {
 	});
 });
 
-/**
- * Функция заполняет список доступных спецификаций в попапе с выбором спецификаций
- * @param {array} specs 
- */
-function fillSpecsList(specs){
-	currentSpecList = specs;
 
-	var tableHeaders = [
-		{name: "ID", key: "id"},
-		{name: "Номер заказа", key: "orderid"},
-		{name: "Номер предложения", key: "offername"},
-		{name: "Статус", key: "status"},
-		{name: "Создал", key: "user"},
-		{name: "Комментарий", key: "comment"},
-		{name: "Дата", key: "createdate"},
-		{name: "Ошибки", key: "has_errors"},
-		{name: "Изменения", key: "has_changes"},
-		
-	]
-
-	var specListHtml = "<div class='specs-list'>";
-
-	specListHtml += "<table class='compare-table'>"
-	specListHtml += getTableHeaders(tableHeaders);
-
-	$.each(currentSpecList, function(key,value){
-		specListHtml += "<tr class='spec-list__spec' data-index=" + key + ">" +
-			"<td class=''><a href='" + '/orders/spec?orderName=' + value.orderid + '&spec_id=' + value.id + "' target='_blank'>" + value.id + "</a></td>" +
-			"<td class=''>" + value.orderid + "</td>" +
-			"<td class=''>" + value.offername + "</td>" +
-			"<td class='spec-status'>" + value.status + "</td>" +
-			"<td class=''>" + value.user + "</td>" +
-			"<td class=''>" + value.comment + "</td>" +
-			"<td class=''>" + formatDate(value.createdate, "dd.MM_hh.mm") + "</td>" + 
-			"<td class=''>" + value.has_errors + "</td>" +
-			"<td class=''>" + value.has_changes + "</td>" +
-		"</tr>";
-	});
-
-	specListHtml += "</table>"
-	specListHtml += "</div>";
-	$('#specsList').html(specListHtml);
-}
 
 function checkModelItemsCount(){
 
@@ -176,28 +117,6 @@ function prepareOffer(loadedSpec){
 	compareSpecs(currentSpec, loadedSpec);//Вызываем функцию сравнения спецификаций
 }
 
-/**
- * Функция обращается к серверу и получает спецификации на основе номера заказа
- * @param {string} orderId Номер заказа
- * @param {function} callback функция, вызываемая после получения ответа с сервера
- */
-function getSpecsByOrder(orderId, callback){
-	//Получаем спецификации
-	$.ajax({
-		url: "/orders/spec-controller/action-get-data",
-		type: "GET",
-		dataType: 'json',
-		data: {orderId: orderId},
-		success: function (data) {
-			if(callback) callback(data); // Вызываем переданную нам функцию
-		},
-		error: function (jqXhr, textStatus, errorThrown) {
-			alert('Ошибка на сервере ' + errorThrown);
-			console.log(jqXhr, textStatus, errorThrown)
-			if(callback) callback(false); // Вызываем переданную нам функцию
-		}
-	});
-}
 
 /**
  * Функция отвечает за сравнение и вывод специфакций в блок #specCompareResult

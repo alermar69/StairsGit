@@ -9,13 +9,14 @@
 					<option value="Стекло на стойках">Стекло на стойках</option>
 					<option value="Самонесущее стекло">Самонесущее стекло</option>
 					<option value="Кованые балясины">Кованые балясины</option>
+					<option value="Кресты">Кресты</option>
 					<option value="Деревянные балясины" >Деревянные балясины</option>
 					<option value="Стекло">Модерн</option>
 					<option value="Дерево с ковкой">Дерево с ковкой</option>
 					<option value="Частые стойки" style="display: none;">Частые стойки</option>
 					<option value="Решетка">Решетка из профиля</option>
 					<option value="Экраны лазер">Экраны лазер</option>
-					
+				
 					<option value="нет">нет</option> 
 				</select>
 			</td></tr>

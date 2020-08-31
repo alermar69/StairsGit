@@ -247,6 +247,11 @@
 			'url' => '/manufacturing/vhod/calcSpec.js',
 			'only_for' => ['vhod'],
 		],
+		[
+			'url' => '/calculator/metal/priceCalc.js',
+			'only_for' => ['vhod', 'veranda'],
+		],
+			
 		//vint
 		[
 			'url' => '/manufacturing/vint/draw_vint.js',
@@ -339,6 +344,10 @@
 		[
 			'url' => '/manufacturing/veranda/drawVeranda.js',
 			'only_for' => ['veranda'],
+		],		
+		[
+			'url' => '/calculator/carport/priceCalc.js',
+			'only_for' => ['veranda'],
 		],
 		
 		// slabs
@@ -356,10 +365,6 @@
 			'url' => '/manufacturing/table/drawTableParts.js',
 			'only_for' => ['table'],
 		],
-		[
-			'url' => '/manufacturing/table/personalScripts.js',
-			'only_for' => ['table'],
-		],
 		
 		//sill
 		[
@@ -370,7 +375,15 @@
 			'url' => '/manufacturing/sill/drawSillParts.js',
 			'only_for' => ['sill'],
 		],
-		
+		[
+			'url' => '/calculator/sill/forms/mainFormChange.js',
+			'only_for' => ['sill'],
+		],
+
+		//knowledge
+		[
+			'url' => '/calculator/general/content/knowledge.js'
+		]
 	]);
 
 	if ($calc_type != 'wardrobe_2' && $calc_type != 'objects') {
@@ -387,10 +400,6 @@
 			];
 		$scripts[] = [
 				'url' => '/calculator/'.$calc_type.'/forms/templates.js',
-			];
-		$scripts[] = [
-				'url' => '/calculator/metal/priceCalc.js',
-				'only_for' => ['vhod'],
 			];
 	};
 
@@ -512,6 +521,10 @@
 			}
 		};
 	};
+	
+	if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
+		echo '<link rel="stylesheet" href="/calculator/general/styles.css">';
+	}
 	
 
 

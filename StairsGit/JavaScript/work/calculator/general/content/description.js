@@ -347,6 +347,11 @@ function getCarportRoofDescr(){
 
 function printDescr() {
 	var text = ""
+	if (window.additional_objects && window.additional_objects.length > 0) {
+		window.additional_objects.forEach(function(obj){
+			text += eval(obj.className).getDescr(obj.meshParams).html;
+		})
+	}
 	if(params.calcType != 'carport') text += $('#zamerBlocks').html();
 	if(params.calcType == 'carport') text += $('#zamerBlocksCarport').html();
 	if (params.calcType == 'carport') {

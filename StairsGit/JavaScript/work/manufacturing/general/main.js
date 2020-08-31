@@ -154,7 +154,7 @@ function recalculate() {
 				formatNumbers();
 				printDescr();
 				
-
+				if (window.updateDxfLinks) updateDxfLinks();
 				
 				if(params.calcType == "vhod" && !menu.simpleMode){			
 					if(params.staircaseType == 'Готовая') {

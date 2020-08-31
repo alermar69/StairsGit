@@ -437,6 +437,11 @@
 			'url' => '/calculator/general/content/description.php',
 			'group' => 'data',
 		];
+		$tabs['knowledge_previews'] = [
+			'name' => 'Примеры работ',
+			'url' => '/calculator/general/content/knowledge_previews.php',
+			'group' => 'data',
+		];
 	};
 	if ($calc_type != 'wardrobe_2' && $calc_type != 'objects') {
 		include $GLOBALS['ROOT_PATH']."/calculator/general/content/templates.php";
@@ -645,6 +650,7 @@
 				<a class="dropdown-item" href="#" id="manLink" target="_blank">Производство</a>
 				<a class="dropdown-item" href="#" id="montLink" target="_blank">Монтаж</a>
 				<a class="dropdown-item" href="#" id="docLink" target="_blank">Договор</a>
+				<a class="dropdown-item" href="#" id="filesLink" target="_blank">Файлы</a>
 			</div>
 		</span>
 		<span class="nav-item dropdown">
@@ -747,6 +753,9 @@
 	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/forgedBals.php";
 	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/updateEditions.php";
 	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/snapshotModal.php";
+
+	# Модалка предпросмотра dxf -  в ней подгружаются все скрипты
+	include $_SERVER["DOCUMENT_ROOT"].'/orders/dxf-preview/modal.php';
 
 	if ($template != 'customers') {
 		include $GLOBALS['ROOT_PATH']."/calculator/general/modals/timberBals.php";
@@ -883,220 +892,6 @@
   <div class="toast-body" id='notifyContent'>
   </div>
 </div>
-
-<style>
-
-	.toast.show, .toast.showing{
-		display: block !important;
-	}
-	.panelWrap{
-		position: fixed;
-		top: 5px;
-		right: 0;
-		height: 0;
-		z-index: 1030;
-		float: right;
-		display:inline-block;
-		height: 98vh;
-		padding: 10px;
-		border-radius: 5px;
-		/*overflow: hidden;*/
-	}
-
-	.panelWrap.visible{
-		border: 1px solid grey;
-		background-color: white;
-	}
-
-	.panelWrap nav{
-		position: relative;
-		background-color: aliceblue;
-		padding: 5px;
-		border-radius: 5px;
-		margin: 10px 0;
-		width: 100%;
-		font-size: 0.8em;
-	}
-
-	.panelBody {
-		max-width: 600px;
-		width: 90vw;
-		height: 97%;
-	}
-
-
-	.mainForm{
-		width: 100%;
-		height: 75%;
-		overflow: scroll;
-		min-height: 200px;
-		padding-bottom: 100px;
-	}
-
-	.new-menu-wrapper{
-		/* position: fixed;
-		top: 100px;
-		right: 10px;
-		width: 300px;
-		border: 1px solid rgba(0,0,0,0.3);
-		border-radius: 5px;
-		overflow: auto;
-		height: 80vh; */
-	}
-
-	.new-menu-wrapper .menu-item{
-		padding: 0 10px;
-		border: 1px solid rgba(0,0,0,0.3);
-		display: flex;
-		height: 30px;
-	}
-
-	.new-menu-wrapper .menu-item > *{
-		/* line-height: 25px; */
-		flex: 1;
-		height: 20px;
-		font-size: 13px;
-		margin: auto;
-	}
-
-	.new-menu-wrapper .menu-item.menu-item__clickable{
-		cursor:pointer;
-	}
-
-	.new-menu-wrapper .menu-item.menu-item__clickable:hover{
-		background-color: rgb(230,230,230);
-	}
-
-	.new-menu-wrapper .menu-item span{
-		height: 30px;
-		flex: 3;
-		display: flex;
-		align-items: center;
-	}
-
-	.new-menu-wrapper .menu-item[data-menu_delimeter], .new-menu-wrapper .menu-item[data-menu_folder]{
-		background-color: cornflowerblue;
-		color: white;
-		font-size: 18px;
-		cursor: pointer;
-	}
-
-	.new-menu-wrapper .menu-item[data-menu_checkbox]{
-		background-color: cornflowerblue;
-		color: white;
-		font-size: 18px;
-		cursor: pointer;
-	}
-
-
-	/* .new-menu-wrapper .menu-group .menu-item:not([data-menu_delimeter]){
-		padding-left: 20px;
-	} */
-
-	.new-menu-wrapper .menu-group .menu-group__content{
-		padding-left: 10px;
-	}
-
-
-	.dg.ac {
-		z-index: 1200;
-	}
-
-	.panelResizer{
-		width: 5px;
-		height: 100px;
-		background-color: #d0d0d0;
-		float: left;
-		cursor: w-resize;
-		font-size: 20px;
-		position: absolute;
-		top: 100px;
-		left: -5px;
-	}
-
-	/*стили печати*/
-	.print .panelWrap{
-		position: relative!important;
-		width: 100%!important;
-		height: 100%!important;
-		border: none!important;
-		height: auto!important;
-	}
-
-	.print .panelHeader{
-		display: none;
-	}
-
-
-	.print nav{
-		display: none;
-	}
-
-	.print .panelBody{
-		width: 100%;
-		display: block!important;
-		height: auto!important;
-	}
-
-	.print .mainForm{
-		overflow: visible;
-		height: auto!important;
-	}
-
-
-	.print .mainForm>.tab-pane {
-		display: block;
-		opacity: 100;
-	}
-
-	.print .mainForm>.tab-pane.noPrint {
-		display: none;
-	}
-
-	.printBlock {
-		margin: 5px;
-	}
-
-	.print .printBlock:hover {
-		border: 1px solid red;
-	}
-
-	.print .noPrint {
-		display: none;
-		border: 1px solid lightgrey;
-	}
-
-	.print .panelResizer {
-		display: none;
-	}
-
-	.togglePrint{
-		display: none;
-		padding: 10px;
-		position: absolute;
-		right: 20;
-		font-size: 1.5em;
-		cursor: pointer;
-		z-index: 1;
-	}
-
-	.togglePrint:hover{
-		background-color: lavender;
-		border-radius: 5px;
-	}
-
-	.print .togglePrint {
-		display: block;
-	}
-
-	.grey{
-		color: lightgrey;
-	}
-
-	.dropdown-item{
-		cursor: pointer;
-	}
-</style>
 
 <!--диалоговое окно-->
 <div class="modal fade" id="editionsChangeForm">

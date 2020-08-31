@@ -16,7 +16,7 @@ class TextureManager{
 	constructor(texturesOn){
 		this.createTextureLoader();
 
-		this.texturesEnabled = !!texturesOn
+		this.texturesEnabled = !!texturesOn;
 		this.materialsConfigs = getMaterialsConfigs();
 		params.materials = this.createMaterials();
 
@@ -256,6 +256,7 @@ class TextureManager{
 			banister: balMaterial,
 			handrail: handrailMaterial,
 			bolt: boltMaterial,
+			whitePlastic: this.createMaterial({name: 'whitePlastic',color: new THREE.Color(255,255,255)}),
 			stringerCover: stringerCoverMaterial,
 			ceil: ceilMaterial,
 			topFloor: topFloorMaterial,
@@ -451,6 +452,9 @@ class TextureManager{
 		if (material_name == 'plastic_roof') {
 			color_name = params.roofPlastColor;
 			texture_name = 'plastic_roof';
+		}
+		if (material_name == 'whitePlastic') {
+			texture_name = 'whitePlastic';
 		}
 		if (material_name == 'metal_railing') {
 			if (params.metalPaint_railing == "нет" || params.metalPaint_railing == "не указано") color_name = 'черный';
