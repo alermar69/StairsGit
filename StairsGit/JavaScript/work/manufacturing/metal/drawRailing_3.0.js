@@ -630,6 +630,7 @@ function drawGlassSectionMetal(par) {
 
 		//отрисовка стекла марша
 
+		glassPar.holeCenters = glassPar.holes;
 		glassPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, glassPos.x, glassPos.y);
 		glassPar.key = par.key;
 		var glass = drawGlass2(glassPar).mesh;

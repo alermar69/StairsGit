@@ -706,6 +706,12 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 		"21" + "\n" + (endPoint.y + dxfBasePoint.y) + "\n" + 
 		"31" + "\n" + "0.0" + "\n"; 
 	}
+
+	function addLines(shape, dxfArr, points, dxfBasePoint, layer) {
+		for (var i = 0; i < points.length - 1; i++) {
+			addLine(shape, dxfArr, points[i], points[i + 1], dxfBasePoint, layer)
+		}
+	}
 	
 	function addArc(shape, dxfArr, centerPoint, radius, startAngle, endAngle, dxfBasePoint, layer){
 		if(!layer) layer = "parts";

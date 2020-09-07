@@ -804,6 +804,11 @@ function drawRailingSection_4(par) {
 				marshId: par.marshId,
 				hasFixings: true
 			}
+			if (par.topEnd == "нет" && params.lastNewellType == "нет" && params.handrailEndHor !== "нет") {
+				handrailParams.endAngle += handrailAngle / 2
+				handrailParams.length += params.handrailEndHeight / Math.sin(handrailAngle);
+				handrailLength += params.handrailEndHeight / Math.sin(handrailAngle);
+			}
 			var basePoint = newPoint_xy(marshFirstRailingPoint, 0, handrailPosY);
 			if (model == "косоур") {
 				var hDelta = (200 - par.h) / 2; //Фикс поручня, подогнано
@@ -884,6 +889,12 @@ function drawRailingSection_4(par) {
 					marshId: par.marshId,
 					hasFixings: true
 				}
+				if (par.topEnd == "нет" && params.lastNewellType == "нет" && params.handrailEndHor !== "нет") {
+					if (i == splitStairs.length) {
+						handrailParams.endAngle += handrailAngle / 2;
+						handrailParams.length += params.handrailEndHeight / Math.sin(handrailAngle);
+					}
+				}
 
 				handrailParams.dxfBasePoint = newPoint_xy(stringerParams.dxfBasePoint, handrailBasePoint.x, handrailBasePoint.y)
 				if (!(params.stairModel == 'П-образная с забегом' && par.marshId == 2)) {
@@ -920,6 +931,40 @@ function drawRailingSection_4(par) {
 				handrailPos: handrailPos,
 				handrailEndPos: handrailEndPos,
 				handrailHeight: handrailPos.y - startPoint.y,
+			}
+
+			if (par.topEnd == "нет" && params.lastNewellType == "нет" && params.handrailEndHor !== "нет") {
+				var handrailParams = {
+					model: params.handrail,
+					length: params.handrailEndLen,
+					dxfArr: dxfPrimitivesArr,
+					dxfBasePoint: stringerParams.dxfBasePoint,
+					startAngle: Math.PI / 2 + handrailAngle / 2,
+					endAngle: Math.PI / 2,// - handrailAngle,
+					fixType: "нет",
+					side: "out",
+					poleAngle: 0,
+					startChamfer: "R3",
+					endChamfer: "R3",
+					marshId: par.marshId,
+					hasFixings: false
+				}
+				var basePoint = newPoint_xy(par.handrailParams.handrailEndPos, meterHandrailPar.profY * Math.tan(handrailAngle / 2), -meterHandrailPar.profY);
+				handrailParams.dxfBasePoint = newPoint_xy(stringerParams.dxfBasePoint, basePoint.x, basePoint.y)
+				handrailParams.drawing = {
+					group: "timber_railing",
+					type: "handrail",
+					rot: handrailParams.poleAngle,
+					pos: basePoint,
+					marshId: par.marshId,
+					key: side
+				};
+
+				var handrail = drawHandrail_4(handrailParams).mesh;
+				handrail.position.x = basePoint.x;
+				handrail.position.y = basePoint.y;
+				handrail.position.z = posZ - handrailParams.wallOffset;
+				section.add(handrail);
 			}
 		}
 
