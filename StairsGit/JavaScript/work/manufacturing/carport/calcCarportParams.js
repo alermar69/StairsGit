@@ -243,13 +243,14 @@ function calcCarportPartPar(){
 		roofSheet: {}, //листы кровли
 		truss: {},
 		wall: {},
+		movableSections: {},
 	}
 
 	par.main.roofAng = params.roofAng / 180 * Math.PI;
 
 	//общая длина навеса
 	par.main.len = params.sectAmt * params.sectLen + params.frontOffset + params.backOffset;
-	par.main.width = params.width / Math.cos(par.main.roofAng * Math.PI);
+	par.main.width = params.width / Math.cos(par.main.roofAng); //длина вдоль ската кровли
 
 
 	//стропила
@@ -293,46 +294,79 @@ function calcCarportPartPar(){
 		}
 	}
 	
+	if(params.beamModel != "проф. труба"){
+		par.beam = {
+			profSize: {
+				x: 60,
+				y: 180,
+			},
+			holeDist: 180 - 60,
+		}
+	}
+	
 	//фермы
 	par.truss = {
 		thk: params.trussThk,
 		stripeThk: 4,
 		width: 200,
 		endPoint: {x:0, y:0}, //точка перезаписывается при отрисовке фермы
+		sideWidth: 60, //Отступ отверстия от края
+		bridgeWidth: 60, //минимальная ширина перемычки между отверстиями
 	}
 	
+	//высота в середине фермы
+	
 	if(params.roofType == "Арочная") {
-		//высота в середине фермы
-		if(params.beamModel == "сужающаяся"){
-			par.truss.width = 250
-			if(params.width > 3900) par.truss.width = 300
-			if(params.width > 4900) par.truss.width = 400
-			if(params.width > 5900) par.truss.width = 450
+		par.truss.midHeight = 250
+		if(params.beamModel == "сужающаяся"){			
+			if(params.width > 3900) par.truss.midHeight = 300
+			if(params.width > 4900) par.truss.midHeight = 400
+			if(params.width > 5900) par.truss.midHeight = 450
 			
-			if(params.carportType == "односкатный") par.truss.width *= 1.1;
+			if(params.carportType == "односкатный") par.truss.midHeight *= 1.1;
 		}
 		
 		if(params.beamModel == "постоянной ширины"){
-			if(params.width > 3900) par.truss.width = 250
-			if(params.width > 4900) par.truss.width = 300
-			if(params.width > 5900) par.truss.width = 350
+			if(params.width > 3900) par.truss.midHeight = 250
+			if(params.width > 4900) par.truss.midHeight = 300
+			if(params.width > 5900) par.truss.midHeight = 350
 		}
 	}
 	
-
-	par.truss.midHeight = 400; // высота фермы в середине
-	par.truss.endHeight = 200; // высота фермы на краю над колонной
-	
-	if(params.width > 4900){
-		par.truss.midHeight = 500
-		par.truss.endHeight = 250;
+	if(params.roofType == "Плоская") {
+		par.truss.midHeight = 350
+		if(params.beamModel == "сужающаяся"){
+			if(params.width > 3900) par.truss.midHeight = 400
+			if(params.width > 4900) par.truss.midHeight = 500
+			if(params.width > 5900) par.truss.midHeight = 550
+			par.truss.midHeight *= 1 / Math.cos(params.roofAng / 180 * Math.PI);
+		}
+		if(params.beamModel == "постоянной ширины"){
+			par.truss.midHeight = 200
+			if(params.width > 3900) par.truss.midHeight = 250
+			if(params.width > 4900) par.truss.midHeight = 300
+			if(params.width > 5900) par.truss.midHeight = 350
+		}
 	}
-	if(params.beamModel == "постоянной ширины") par.truss.midHeight = par.truss.endHeight 
+	
+	//высота фермы над колонной
+	par.truss.endHeight = 200;
+	if(params.width > 4900) par.truss.endHeight = 250;
+
+	
 	if(params.beamModel == "ферма постоянной ширины") {		
 		par.truss.endHeight = Math.floor(params.width/100) * 10; //формула подогнана		
 		if(par.truss.endHeight < 200) par.truss.endHeight = 200;		
 	}
 	
+	//параметры отвертсий для ферм из листа
+		par.truss.sideWidth = 60
+		par.truss.bridgeWidth = 80
+	if(params.width > 4900){
+		par.truss.sideWidth = 80
+		par.truss.bridgeWidth = 100
+	}
+	if(params.roofType == "Арочная") par.truss.bridgeWidth = 100;
 	
 	//Раскосы фермы
 	var webProfPar = getProfParams(params.webProf);
@@ -362,18 +396,22 @@ function calcCarportPartPar(){
 			y: purlinProfPar.sizeA,
 		}
 	}
-	var purlinMaxStep = 800;
-	if(params.roofMat == "металлочерепица") purlinMaxStep = 350;
-	if(params.beamModel == "проф. труба") purlinMaxStep = 3000;
-	par.purlin.amt = Math.ceil(par.main.width / purlinMaxStep) + 1;
+	par.purlin.maxStep = 800;
+	if(params.roofMat == "металлочерепица") par.purlin.maxStep = 350;
+	if(params.beamModel == "проф. труба") par.purlin.maxStep = 3000;
+	par.purlin.amt = Math.ceil(par.main.width / par.purlin.maxStep) + 1;
 	
 	if(params.roofType != "Арочная"){
 		//кол-во прогонов на одном скате
 		var rafterLen = params.width / Math.cos(params.roofAng / 180 * Math.PI)
 		if(params.carportType == "двухскатный") rafterLen *= 0.5;
-		par.purlin.amt = Math.ceil(rafterLen / purlinMaxStep) + 1;
+		par.purlin.amt = Math.ceil(rafterLen / par.purlin.maxStep) + 1;
 	}
-
+	
+	//шаг по горизонтали для плоской кровли
+	par.purlin.holeStepX = (params.width - par.purlin.profSize.x) / (par.purlin.amt - 1);
+	console.log(par.purlin.holeStepX)
+	
 	//листы кровли
 	par.roofSheet.overhang = 50;
 	
@@ -383,17 +421,11 @@ function calcCarportPartPar(){
 	var arcPar = {
 		a1: (params.roofAng + 90) / 180 * Math.PI, //угол вектора на центр внешней дуги и точку p1
 		sideOffset: 80, //расстояние от нулевой точки к точке botLine.p2
-		m1: 200, //высота фермы над центром колонны
-		trussWidth: par.truss.width,
 		columnProf: par.column.profSize,
+		endHeight: par.truss.endHeight,
+		midHeight: par.truss.midHeight,
 	}
 	
-	if(params.width > 5000) arcPar.m1 = 250;
-	
-	if(params.beamModel == "постоянной ширины"){
-		if(params.width > 4000) arcPar.m1 = 200
-		if(params.width > 5800) arcPar.m1 = 250
-	}
 	if(params.beamModel == "проф. труба"){
 		arcPar.beamHeight = par.rafter.profSize.y
 	}
@@ -416,6 +448,13 @@ function calcCarportPartPar(){
 	}
 	
 	par.main.arcPar = calcRoofArcParams(arcPar);
+	
+	//кол-во сдвигаемых прямоугольного навеса для бассейна
+	par.movableSections = {
+		left: params.sectAmt,
+	}
+	//сдвиг в две стороны
+	if(params.sectAmt > 3) par.movableSections.left = Math.ceil(params.sectAmt / 2)
 	
 	return par;	
 }
@@ -463,8 +502,8 @@ function calcColumnFlanPar(par){
 				p2: newPoint_xy(p0, -partPar.column.profSize.y / 2 + 200, 1),		
 			},
 			top: {
-				p1: newPoint_xy(p0, 0, partPar.truss.endHeight),
-				p2: newPoint_xy(p0, 1, partPar.truss.endHeight),
+				p1: newPoint_xy(p0, 0, partPar.beam.profSize.y),
+				p2: newPoint_xy(p0, 1, partPar.beam.profSize.y),
 			},
 			bot: { //линия на уровне верха колонны
 				p1: newPoint_xy(p0, -1, 0),
@@ -483,7 +522,7 @@ function calcColumnFlanPar(par){
 
 	
 	//отверстия для болтов
-	var holeOffset = 25;
+	var holeOffset = 30;
 	var holes = [];
 	
 	//линии, на которых расположены центры отверстий	
@@ -509,11 +548,14 @@ function calcColumnFlanPar(par){
 	if(!par.isTop) {
 		holes[1] = itercectionLines(centerLines.left, centerLines.top_ang);
 	}
-/*	
-	if(!par.isTop){
-		holes.push(newPoint_xy(holes[3], 0, 180 - holeOffset * 2));
-	}
-*/	
+	
+	//смещаем левое верхнее отверстие
+	if(distance(holes[0], holes[1]) > partPar.beam.holeDist || par.isTop) holes[1] = newPoint_xy(holes[0], 0, partPar.beam.holeDist);
+	
+
+	//смещаем правое верхнее отверстие
+	holes[2] = newPoint_xy(holes[3], 0, partPar.beam.holeDist);
+
 	par.lines = lines
 	par.points = points
 	par.holes = holes

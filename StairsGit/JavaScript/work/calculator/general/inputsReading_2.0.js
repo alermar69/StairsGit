@@ -72,26 +72,9 @@ function getInputValue(inputId) {
 /*функци¤ получает значени¤ всех инпутов на странице и записывает в объект*/
 
 function getAllInputsValues(par) {
-	/*
-	var paramNamesArr = document.getElementsByTagName("input");
-	for(var i=0; i<paramNamesArr.length; i++){
-		var paramName = paramNamesArr[i].id;
-		params[paramName] = getInputValue(paramName);
-		}
-	var paramNamesArr = document.getElementsByTagName("select");
-	for(var i=0; i<paramNamesArr.length; i++){
-		var paramName = paramNamesArr[i].id;
-		params[paramName] = getInputValue(paramName);
-	}
-*/
 	$("input, select, textarea").each(function () {
 		par[this.id] = getInputValue(this.id);
 	})
-	
-	if(!params.floorThickness) par.floorThickness = 200;
-	if(!params.floorOffsetBot && params.calcType != 'carport') par.floorOffsetBot = 0;
-	if (!params.railingStart) par.railingStart = 0;
-	if (!params.startTreadAmt) par.startTreadAmt = 0;
 }
 
 
@@ -685,6 +668,9 @@ function staircaseHasUnit() {
 				}
 				if (this.className == "Canopy") {
 					par.dopMetal = true;
+				}
+				if (this.className == "Sill") {
+					par.dopTimber = true;
 				}
 			}
 		})

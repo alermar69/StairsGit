@@ -35,6 +35,11 @@
 		</div>
 	</div>
 	
+	<button class='btn btn-primary float-right noPrint' id='printWorksTab-btn'>
+		<i class='fa fa-print'></i>
+		Печать
+	</button>
+	
 	<div id="materialNeed"></div>
 	<div id="manInfo"></div>
 	<div id="assemblingInfo"></div>

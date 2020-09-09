@@ -34,6 +34,8 @@ $scripts[] = ["url" => "/calculator/general/three_libs/MTLLoader.js"];
 
 $scripts[] = ["url" => "/calculator/general/content/facts_generator.js"];
 
+$scripts[] = ["url" => "/manufacturing/sill/drawSillParts.js"];
+
 $scripts[] = ["url" => "/calculator/general/scene/additionalObject.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/sofa.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/table.js"];
@@ -60,6 +62,9 @@ $scripts[] = ["url" => "/calculator/general/scene/objects/canopy.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/transport.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/shelf.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/pool.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/sill.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/roof.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/fence.js"];
 $scripts[] = ["url" => "/calculator/rack/drawCarcas.js"];
 
 $scripts[] = ['url' => "/calculator/general/jsviews.min.js"];

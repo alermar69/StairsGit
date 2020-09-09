@@ -4,24 +4,19 @@ $(function(){
 		redrawAdditionalObjects();
 	});
 
-	$('body').on('click', '.additionalObjectPropertiesEdit', function(){
-		var id = $(this).parents('.additionalObjectRow').data('object_id');
-		additionalObjectModalShow(id);
-	});
-
 	$('body').on('click', '.removeAdditionalItem', function(){
 		var id = $(this).parents('.additionalObjectRow').data('object_id');
 		removeAdditionalItem(id);
 	});
 
-	//кнопка применить в модальном окне
+	//кнопка применить параметры объекта
 	$('#applyObjProps').click(function (e) {
 		var $form = $("#additionalObjectProperties")
 		var id = $form.find('#additionalObjectId').val();
 		var item = getAdditionalObject(id);
 		if (item) {
-			$.each($form.find('.meshParam'), function(){
-				var key = $(this).attr('name');
+			$.each($form.find('input,select,textarea'), function(){
+				var key = $(this).attr('data-propid');
 				if (key) {
 					if ($(this).attr('type') == 'checkbox') {
 						item.meshParams[key] = $(this).is(':checked');
@@ -41,8 +36,28 @@ $(function(){
 
 	$('#redrawAdditionalObjects').click(function(){
 		redrawAdditionalObjects();
-	})
+	});
 
+	$('#additionalObjectProperties').on('change', 'input,select,checkbox,textarea', function(){
+		var $form = $("#additionalObjectProperties")
+		var id = $form.find('#additionalObjectId').val();
+		var item = getAdditionalObject(id);
+		if (item) {
+			var classItem = eval(item.className);
+			if (classItem && classItem.formChange) {
+				classItem.formChange($form, item)
+			}
+		}
+	});
+	
+	//выделение строки в таблице списка объектов
+	$("#nav-objects").on('click', '.additionalObjectRow', function(){		
+		var id = $(this).attr('data-object_id');
+		additionalObjectParamsShow(id)
+		$('.additionalObjectRow').removeClass("selected")
+		$(this).addClass('selected');
+	});
+	
 	$('body').on('change', '.additionalObjectCalcPrice', function(){
 		var id = $(this).parents('.additionalObjectRow').data('object_id');
 		var item = getAdditionalObject(id);
@@ -116,12 +131,12 @@ $(function(){
 
 	// addContextMenu();
 
-	$('body').on('click', '.editObject', function(){
-		if (window.selectedObject) {
-			AdditionalObject.selectIfItemIsChild(window.selectedObject);
-			additionalObjectModalShow(window.selectedObject.objId);
-		}
-	})
+	// $('body').on('click', '.editObject', function(){
+	// 	if (window.selectedObject) {
+	// 		AdditionalObject.selectIfItemIsChild(window.selectedObject);
+	// 		additionalObjectParamsShow(window.selectedObject.objId);
+	// 	}
+	// })
 
 	$('body').on('click', '.moveObject', function(){
 		if (window.selectedObject) {
@@ -335,9 +350,6 @@ function addAdditionalObjectTable(par){
 				<button class="btn btn-outline-dark setPosition" style="margin: 2px" data-toggle="tooltip" title="Вставить" data-original-title="Вставить">\
 					<i class="fa fa-arrows-alt actionIcon"></i>\
 				</button>\
-				<button class="btn btn-outline-dark additionalObjectPropertiesEdit" style="margin: 2px" data-toggle="tooltip" title="Редкатировать свойства" data-original-title="Редкатировать свойства">\
-					<i class="fa fa-edit actionIcon"></i>\
-				</button>\
 				<button class="btn btn-outline-danger removeAdditionalItem" style="margin: 2px" data-toggle="tooltip" title="Удалить" data-original-title="Удалить">\
 					<i class="fa fa-trash-o actionIcon"></i>\
 				</button>\
@@ -371,47 +383,69 @@ function getAdditionalObject(id){
 	return window.additional_objects.find(item => item.id == id);
 }
 
-function additionalObjectModalShow(id){
-	var className = $(".additionalObjectRow[data-object_id=" + id + "] .additionalObjectClass").val();
-	var itemMeta = eval(className + '.getMeta()');
-	$('#additionalObjectTitle').html(itemMeta.title);
-	$('#additionalObjectId').val(id);
-	var text = "";
-	var item = getAdditionalObject(id);
-	if (!item) return;
-	$.each(itemMeta.inputs, function(){
-		text += '<div>';
-		if (this.type == 'delimeter') {
-			text += "<div style='margin: 15px;width: 100%;border: 1px solid gray;'></div>";
-		}
-		if (this.type == 'text') {
-			text += this.title + ' <input class="meshParam" type="text" name="' + this.key + '" value="' + item.meshParams[this.key] + '">';
-		}
-		if (this.type == 'number') {
-			text += this.title + ' <input class="meshParam" type="number" name="' + this.key + '" value="' + item.meshParams[this.key] + '">';
-		}
-		if (this.type == 'boolean') {
-			text += this.title + ' <input class="meshParam" type="checkbox" name="' + this.key + '" ' + (item.meshParams[this.key] ? 'checked' : '') + '>';
-		}
-		if (this.type == 'select') {
-			text += this.title + ' <select class="meshParam" name="' + this.key + '">';
-			var key = this.key;
-			this.values.forEach(function(value){
-				text += '<option class="meshParam" value="' + value.value + '" ' + ((item.meshParams[key] == value.value) ? 'selected' : '') + ' >' + value.title + '</option>';
-			});
-			text += '</select>';
-		}
-		if (this.type == 'image') {
-			text += this.title + ' <div class="meshParam meshParam_custom_parent imageSelector" name="' + this.key + '" type="custom_input">';
-			var key = this.key;
-			this.values.forEach(function(value){
-				text += '<image width="64px" height="64px" style="margin: 5px;" class="meshParam_custom ' + ((item.meshParams[key] == value.value) ? 'selected' : '') + '" data-value="' + value.value + '" src="' + value.preview + '">';
-			});
-			text += '</div>';
-		}
-		text += '</div>';
-	});
-	$('#additionalObjectBody').html(text);
+function additionalObjectParamsShow(id){
+	$('#additionalObjectBody').html("");
+	if (id) {
+		var className = $(".additionalObjectRow[data-object_id=" + id + "] .additionalObjectClass").val();
+		var itemMeta = eval(className + '.getMeta()');
+		$('#additionalObjectTitle').html(itemMeta.title);
+		$('#additionalObjectId').val(id);
+		var text = "";
+		var item = getAdditionalObject(id);
+		if (!item) return;
+		text += '<div><table class="form_table"><tbody>';
+		$.each(itemMeta.inputs, function(){
+			if (this.type == 'delimeter') {
+				// text += "<tr style='margin: 15px;width: 100%;border: 1px solid gray;'></tr>";
+				// text += "</tbody></table><h1>"+this.title+"</h1><table class='form_table'><tbody>";
+				text += '<tr><td colspan="2"><h1>'+this.title+'</h1></td></tr>'
+			}
+			if (this.type == 'row_start') {
+				text += '<tr class="'+(this.class || "")+'" ><td style="width: 30%"></td><td>';
+			}
+			if (this.type == 'row_end') {
+				text += '</td></tr>';
+			}
 
-	$('#additionalObjectProperties').modal('show');
+			if (['text', 'number', 'boolean', 'select'].indexOf(this.type) != -1) {
+				var propParams = {
+					prop: {
+						id: this.key,
+						values: this.type,
+					},
+					val: item.meshParams[this.key] == undefined ? this.default : item.meshParams[this.key]
+				}
+				if (this.type == 'select') propParams.prop.values = this.values
+				if (!this.not_row) {
+					text += '<tr class="'+(this.class || "")+'" ><td style="width: 30%">' + this.title + '</td><td>' + printEditableProp(propParams) + '</td></tr>';
+				}else{
+					text += '<div class="'+(this.class || "")+'">' + this.title + ': ' + printEditableProp(propParams) + '</div>';
+				}
+			}
+			
+			if (this.type == 'image') {
+				text += this.title + '<tr class="'+(this.class || "")+'" ><td> <div class="meshParam meshParam_custom_parent imageSelector" data-propid="' + this.key + '" type="custom_input">';
+				var key = this.key;
+				this.values.forEach(function(value){
+					text += '<image width="64px" height="64px" style="margin: 5px;" class="meshParam_custom ' + ((item.meshParams[key] == value.value) ? 'selected' : '') + '" data-value="' + value.value + '" src="' + value.preview + '">';
+				});
+				text += '</div></td></tr>';
+			}
+			if (this.type == 'wrapper') {
+				text += '<tr class="'+(this.class || "")+'" ><td></td></tr>';
+			}
+		});
+		text += '</tbody></table></div>';
+		$('#additionalObjectBody').html(text);
+
+		var $form = $("#additionalObjectProperties")
+		var id = $form.find('#additionalObjectId').val();
+		var item = getAdditionalObject(id);
+		if (item) {
+			var classItem = eval(item.className);
+			if (classItem && classItem.formChange) {
+				classItem.formChange($form, item)
+			}
+		}
+	}
 }

@@ -4,6 +4,28 @@ $(function () {
 	$("#production_data, #orderOffers").delegate(".deptTime", "click", function(){
 		$(this).find(".deptTimeInfo").slideToggle('200');
 	})
+	
+	//печать активной вкладки с расчетом трудоемкости/расценок
+	$("#production_data").delegate("#printWorksTab-btn", "click", function(){
+		var text = $("#production_data .tab-pane.active").html();
+		console.log(text)
+		
+		var docHeader = "<!DOCTYPE html><html><head><title>Расчет трудоемкости заказа " + params.orderName + "</title><link rel='stylesheet' type='text/css' href='/bitrix/templates/calc/styles.css'></head><body>" + 
+		"<div class='documentDiv'>\
+			<h2>Расчет трудоемкости заказа " + params.orderName + "</h2>";
+		var docFooter = "</body></html>"
+		
+		var mywindow = window.open('', '_blank'); 
+		mywindow.document.write(docHeader); 
+		mywindow.document.write(text); 
+		mywindow.document.write(docFooter);
+		mywindow.document.close(); // necessary for IE >= 10 
+		mywindow.focus(); // necessary for IE >= 10 
+		mywindow.setTimeout(mywindow.print, 1000);
+		
+	})
+	
+	
 });
 
 
@@ -521,7 +543,7 @@ workList = {
 	
 //малярка
 	{
-	var paintingFactor = 1.2; //к-т на покраску с морилкой
+	var paintingFactor = 1.25; //к-т на покраску с морилкой
 	if(params.timberPaint && params.timberPaint.indexOf("патина") != -1) paintingFactor = 1.4;
 	var timeFactor = 0.7; //поправочный коэффициент
 	
@@ -532,7 +554,7 @@ workList = {
 		startTime: 40 * timeFactor,
 		unitTime: 40 * timeFactor,
 		amt: 0,
-		unitWage: 250,
+		unitWage: 60,
 		paintingFactor: 0,
 		}
 		
@@ -554,7 +576,7 @@ workList = {
 		startTime: 5 * timeFactor,
 		unitTime: 60 * timeFactor,
 		amt: 0,
-		unitWage: 500,
+		unitWage: 100,
 		paintingFactor: 0,
 		}
 		
@@ -576,7 +598,7 @@ workList = {
 		startTime: 10 * timeFactor,
 		unitTime: 12 * timeFactor,
 		amt: 0,
-		unitWage: 90,
+		unitWage: 20,
 		paintingFactor: 0,
 		}
 		
@@ -598,7 +620,7 @@ workList = {
 		startTime: 5 * timeFactor,
 		unitTime: 12 * timeFactor,
 		amt: 0,
-		unitWage: 70,
+		unitWage: 15,
 		paintingFactor: 0,
 		}
 	
@@ -621,7 +643,7 @@ workList = {
 		startTime: 5 * timeFactor,
 		unitTime: 25 * timeFactor,
 		amt: 0,
-		unitWage: 150,
+		unitWage: 20,
 		paintingFactor: 0,
 		}
 	
@@ -643,7 +665,7 @@ workList = {
 		startTime: 5 * timeFactor,
 		unitTime: 10 * timeFactor,
 		amt: 0,
-		unitWage: 100,
+		unitWage: 25,
 		paintingFactor: 0,
 		}
 		
@@ -665,7 +687,7 @@ workList = {
 		startTime: 5 * timeFactor,
 		unitTime: 15 * timeFactor,
 		amt: 0,
-		unitWage: 120,
+		unitWage: 40,
 		paintingFactor: 0,
 		}
 		
@@ -1259,6 +1281,8 @@ function printTimberPaintWage(list){
 	
 	var dept = "painting";
 	var standartUnitsTotal = 0;
+	list[dept].totalWage = 0;
+	
 	//цикл перебора работ цеха
 	for(var work in list[dept]){
 		
@@ -1323,7 +1347,11 @@ function printTimberPaintWage(list){
 
 	paintLayers.base.amt = Math.round((standartUnitsTotal - paintLayers.color.amt - paintLayers.patina.amt) * 0.4 * 10) / 10;
 	paintLayers.finish.amt = Math.round((standartUnitsTotal - paintLayers.color.amt - paintLayers.patina.amt - paintLayers.base.amt) * 10) / 10;
-
+	
+	if(typeof params != "undefined" && params.timberPaint && params.timberPaint.indexOf("масло") != -1){
+		paintLayers.base.amt = Math.round(standartUnitsTotal / 2 * 10) / 10;
+		paintLayers.finish.amt = paintLayers.base.amt;
+	}
 	
 	
 	

@@ -1416,10 +1416,13 @@ function isPainting(item){
     if('metalPaint' in item && item.metalPaint){
 		
 		//детали каркаса
-		paintType = params.metalPaint;
-		if(params.calcType == "carport") paintType = params.carportMetalPaint;
+		paintType = params.metalPaint;		
 		var paintColor = false;
-		if(params.metalPaint !== 'нет') paintColor  = params.carcasColor || 'не указано';	
+		if(params.metalPaint !== 'нет') paintColor  = params.carcasColor || 'не указано';
+		if(params.calcType == "carport") {
+			paintType = params.carportMetalPaint;
+			paintColor  = params.carportMetalColor || 'не указано';
+		}
 		
 		//детали ограждений		
 		if(params.calcType != 'vint' && (item.group == "Ограждения" || item.group == "handrails" || item.group == "Балюстрада")){

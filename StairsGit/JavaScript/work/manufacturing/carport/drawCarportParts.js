@@ -2,13 +2,16 @@
 	@param len
 */
 function drawPurlin(par){
-	par.mesh = new THREE.Object3D();
+	
+	if(!par) par = {};
+	initPar(par)
+	
+	var purlinSectAmt = Math.ceil(par.len / 4100);
 
 	var polePar = {
 		poleProfileY: partPar.purlin.profSize.x,
 		poleProfileZ: partPar.purlin.profSize.y,
-		dxfBasePoint: par.dxfBasePoint,
-		length: par.len,
+		length: par.len / purlinSectAmt,
 		material: params.materials.metal,
 		partName: 'purlinProf'
 	};
@@ -19,9 +22,19 @@ function drawPurlin(par){
 		polePar.poleProfileZ = partPar.purlin.profSize.x 
 	}
 	
-	var purlin = drawPole3D_4(polePar).mesh;
-	purlin.setLayer('purlins');
-	par.mesh.add(purlin);
+	for(var i=0; i<purlinSectAmt; i++){
+		var purlin = drawPole3D_4(polePar).mesh;
+		purlin.position.x = polePar.length * i;
+		purlin.setLayer('purlins');
+		par.mesh.add(purlin);
+		
+		if(i>0){
+			var connector = drawPurlinConnector().mesh;
+			connector.position.x = purlin.position.x;
+			connector.setLayer('purlins');
+			par.mesh.add(connector);
+		}
+	}
 
 //термошайбы и саморезы на прогонах
 
@@ -60,11 +73,16 @@ function drawPurlin(par){
 	
 	if(params.beamModel != "проф. труба") {
 		//фланцы для крепления к фермам
+		var flanPar = {
+			dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.sectLen + 1000, -500)
+		}
 		for(var i=0; i<=params.sectAmt; i++){
-			var flan = drawPurlinFlan().mesh
+			var flan = drawPurlinFlan(flanPar).mesh
+			if(params.roofType == "Плоская") flan.rotation.x = -Math.PI / 2;
 			flan.position.x = params.frontOffset + (partPar.column.profSize.y - 40) / 2 + (params.sectLen - partPar.column.profSize.y / params.sectAmt) * i
 			flan.setLayer('carcas');
 			par.mesh.add(flan);
+			flanPar.dxfBasePoint = false;
 		}
 		
 		//заглушки
@@ -97,6 +115,7 @@ function drawPurlin(par){
 		par.mesh.add(endPlug);
 	}
 	
+
 	return par;
 }
 
@@ -293,6 +312,12 @@ function drawCarportColumnBase(par){
 		par.mesh.add(nut)
 	})
 	
+	//винтовая свая
+	if(params.fixType == "винтовые сваи"){
+		var pile = drawVintPile().mesh;
+	//	pile.rotation.x = Math.PI / 2;
+		par.mesh.add(pile)
+	}
 	
 
 	
@@ -819,6 +844,7 @@ function drawDomeTopFlan(par){
 */
 
 function drawPurlinFlan(par){
+
 	if(!par) par = {};
 	initPar(par)
 	
@@ -831,14 +857,14 @@ function drawPurlinFlan(par){
 		//cornerRad: 20,
 		holeRad: 4,
 		noBolts: true,
-		dxfPrimitivesArr: par.dxfPrimitivesArr,
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -500),
+		dxfPrimitivesArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
 		roundHoleCenters: [
 			{x: 10, y: 10},
 			{x: 30, y: partPar.purlin.profSize.y - 10},
 		],
 	}
-	
+
 	var startFlan = drawRectFlan2(flanPar).mesh;
 	startFlan.rotation.x = Math.PI / 2;
 //	startFlan.position.z = flanPar.width / 2;
@@ -1397,7 +1423,8 @@ function drawCarportBeam(par){
 			var arcPar = {
 				a1: par.a1, //угол вектора на центр внешней дуги и точку p1
 				sideOffset: 0, //расстояние от нулевой точки к точке botLine.p2
-				m1: partPar.rafter.profSize.y, //расстояние от точки botLine.p2 до botLine.p1
+				endHeight: partPar.rafter.profSize.y,
+				midHeight: partPar.rafter.profSize.y,
 				width: par.len,
 				columnProf: {},				
 			}
@@ -1605,6 +1632,8 @@ function drawWaveSheet(par){
 	if(!par) par = {};
 	initPar(par)
 	
+	par.dxfArr = []; //Не выводим в dxf
+	
 	if(!par.len) par.len = 1000;
 	
 	par.waveWidth = 70;
@@ -1722,7 +1751,7 @@ function drawWaveSheet(par){
 				types: {},
 				amt: 0,
 				area: 0,
-				name: "Профлист " + par.thk + " " + params.roofColor,
+				name: "Профлист " + params.roofThk + "мм " + params.roofMetalColor,
 				metalPaint: false,
 				timberPaint: false,
 				division: "metal",
@@ -3252,5 +3281,411 @@ function drawMiddleRackFloor(par) {
 	}
 	par.mesh.specId = partName + name;
 
+	return par;
+}
+
+
+/** функция отрисовывает водосток - лоток и трубу
+	@param height
+	@param offset
+	@param size
+	@param topOffset
+	@param len
+	@param pipeOffset
+	@param side			
+Базовая точка - центр верха желоба
+**/
+
+function drawDrain(par){
+	if(!par) par = {};
+	initPar(par)
+	
+	par.gutterRad = par.size / 2 + 40 //радиус лотка
+	
+	var sideFactor = 1
+	if(par.side == "right") sideFactor = -1
+	
+	//параметры
+	par.turnSize = 20; //размер отвода по прямой от точки пересечения осей
+	
+	var p0 = {x:0, y:0,}
+	
+	//сечение водостока
+	var pt1 = newPoint_xy(p0, -par.size / 2, -par.size / 2)
+	var pt2 = newPoint_xy(p0, -par.size / 2, par.size / 2)
+	var pt3 = newPoint_xy(p0, par.size / 2, par.size / 2)
+	var pt4 = newPoint_xy(p0, par.size / 2, -par.size / 2)
+	
+	//создаем шейп
+	var shapePar = {
+		points: [pt1, pt2, pt3, pt4],
+		dxfArr: [],
+		dxfBasePoint: par.dxfBasePoint,
+		radOut: 20,
+	}
+	
+	var shape = drawShapeByPoints2(shapePar).shape;
+	
+	if(params.gutter == "круглый"){
+		var shape = new THREE.Shape();
+		shape.absarc(0, 0, par.size / 2, 0, 2 * Math.PI, true)
+	}
+	
+	
+	//точки на оси трубы без учета отводов
+	var p1 = newPoint_xy(p0, 0, -par.gutterRad * 0.8);
+	var p2 = newPoint_xy(p1, 0, -par.turnSize - par.topOffset);	
+	var p3 = newPoint_xy(p2, par.offset * sideFactor, -par.offset);		
+	var p4 = newPoint_xy(p1, par.offset * sideFactor, -par.height + par.turnSize + par.gutterRad * 0.8);		
+	var p5 = newPoint_xy(p4, -(par.turnSize + 50) * sideFactor, -par.turnSize - 50);
+	
+	//точки концов отводов
+	var p21 = newPoint_xy(p2, 0, par.turnSize);
+	var p22 = polar(p2, angleX(p2, p3), par.turnSize * sideFactor);
+	var p31 = polar(p3, angle(p2,p3), -par.turnSize * sideFactor);
+	var p32 = newPoint_xy(p3, 0, -par.turnSize);
+	var p41 = newPoint_xy(p4, 0, par.turnSize);
+	var p42 = polar(p4, angle(p4, p5) + Math.PI, par.turnSize * sideFactor);
+	var p51 = polar(p5, angle(p4, p5) + Math.PI, -50 * sideFactor);
+	
+	//вспомогательные точки на прямом участке чтобы он был ровный
+	var p33 = newPoint_xy(p32, 0, -10);
+	var p40 = newPoint_xy(p41, 0, 10);
+	
+	var points = [p1, p21, p22, p31, p32, p33, p40, p41, p42, p51, p5];
+	
+	//преобразуем точки в векторы
+	var vectorPoints = []
+	points.forEach(function(point, i){
+		var pt = new THREE.Vector3(point.x, point.y, 0);
+		vectorPoints.push(pt)
+	});
+	
+	var path = new THREE.CatmullRomCurve3(vectorPoints);
+	
+	var extrudeSettings = {
+		steps: 200,
+		bevelEnabled: false,
+		extrudePath: path,
+	};
+
+	var geom = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
+	var pipe = new THREE.Mesh(geom, params.materials.metal);
+	pipe.position.z = par.pipeOffset
+	par.mesh.add(pipe);
+	
+	var thk = 1;
+	
+	//лоток круглый
+	
+	if(params.gutter == "круглый"){
+		var arcPanelPar = {
+			rad: par.gutterRad,
+			height: par.len,
+			thk: thk,
+			angle: Math.PI,
+			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+			material: params.materials.metal,
+			dxfPrimitivesArr: par.dxfPrimitivesArr
+		}		
+		var gutter = drawArcPanel(arcPanelPar).mesh;
+		gutter.rotation.z = Math.PI
+		par.mesh.add(gutter);
+	}
+	
+	//лоток квадратный
+	
+	if(params.gutter == "квадратный"){
+		
+		//сечение лотка
+		var pt1 = newPoint_xy(p0, -par.gutterRad / 2, 0)
+		var pt2 = newPoint_xy(p0, -par.gutterRad / 2, -par.gutterRad * 0.8)
+		var pt3 = newPoint_xy(p0, par.gutterRad / 2, -par.gutterRad * 0.8)
+		var pt4 = newPoint_xy(p0, par.gutterRad / 2, 0)
+		
+		var pt41 = newPoint_xy(pt4, -thk, 0)
+		var pt31 = newPoint_xy(pt3, -thk, thk)
+		var pt21 = newPoint_xy(pt2, thk, thk)
+		var pt11 = newPoint_xy(pt1, thk, 0)
+		
+		pt2.filletRad = pt21.filletRad = pt3.filletRad = pt31.filletRad = 10;
+	
+		//создаем шейп
+		var shapePar = {
+			points: [pt1, pt2, pt3, pt4, pt41, pt31, pt21, pt11],
+			dxfArr: [],
+			dxfBasePoint: par.dxfBasePoint,
+			//radOut: 20,
+		}
+		
+		var shape = drawShapeByPoints2(shapePar).shape;
+		
+		var extrudeOptions = {
+			amount: par.len,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+		
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+
+		var gutter = new THREE.Mesh(geom, params.materials.metal);
+		par.mesh.add(gutter);
+		
+	}
+	
+	//данные для спецификации
+	
+
+	return par;
+}
+
+
+/** функция отрисовывает коньковый профиль
+**/
+
+function drawRidge(par){
+	if(!par) par = {};
+	initPar(par)
+	
+	if(!par.len) par.len = partPar.main.len + 50 * 2;
+	
+	par.size = 50;
+	par.thk = 12;
+	par.mat = params.materials.plastic_roof;
+	if(params.roofMat == "профнастил" || params.roofMat == "металлочерепица"){
+		par.size = 200;
+		par.thk = 1;
+		par.mat = params.materials.metal_roof;
+	}
+	
+	
+	//сечение профиля
+	var p0 = {x:0, y:0}
+	
+	var p1 = copyPoint(p0)
+	var p2 = polar(p1, params.roofAng / 180 * Math.PI + Math.PI, par.size)
+	var p3 = polar(p1, -params.roofAng / 180 * Math.PI, par.size)
+
+	
+	var p11 = newPoint_xy(p1, 0, -par.thk * Math.cos(params.roofAng / 180 * Math.PI))
+	var p21 = polar(p2, params.roofAng / 180 * Math.PI - Math.PI / 2, par.thk)
+	var p31 = polar(p3, -params.roofAng / 180 * Math.PI - Math.PI / 2, par.thk)
+
+	
+	p1.filletRad = p11.filletRad = 10;
+
+	//создаем шейп
+	var shapePar = {
+		points: [p1, p2, p21, p11, p31, p3],
+		dxfArr: [],
+		dxfBasePoint: par.dxfBasePoint,
+		//radOut: 20,
+	}
+	
+	var shape = drawShapeByPoints2(shapePar).shape;
+	
+	var extrudeOptions = {
+		amount: par.len,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+	
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	
+	
+	
+	var gutter = new THREE.Mesh(geom, par.mat);
+	
+	//подогнано
+	if(params.roofMat == "профнастил" || params.roofMat == "металлочерепица"){
+		var offsetTop = 40;
+		if(params.roofMat == "металлочерепица") offsetTop = 50;
+		gutter.position.y += offsetTop * Math.cos(params.roofAng / 180 * Math.PI)
+	}
+		
+	par.mesh.add(gutter);
+		
+	//данные для спецификации
+	var partName = "ridgeProf"
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				sumLength: 0,
+				name: "Коньковый профиль ",
+				metalPaint: false,
+				timberPaint: false,
+				division: "metal",
+				workUnitName: "amt",
+				group: "roof",
+			}
+		}
+		name = par.size + " L=" + par.len;
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		specObj[partName]["sumLength"] += Math.round(par.len);
+		par.mesh.specParams = { specObj: specObj, amt: 1, sumLength: Math.round(par.len), partName: partName, name: name }
+	}
+	par.mesh.specId = partName + name;
+
+	return par;
+}
+
+/** функция отрисовывает винтовую сваю **/
+function drawVintPile(par){
+	if(!par) par = {};
+	initPar(par)
+	
+	if(!par.len) par.len = 2000;
+	if(!par.diam) par.diam = 89;
+	if(!par.vintDiam) par.vintDiam = 300;
+	
+	//тело сваи
+	var polePar = {
+		poleProfileY: par.diam,
+		poleProfileZ: par.diam,
+		length: par.len,
+		poleAngle: Math.PI / 2,
+		type: "round",
+		material: params.materials.metal,
+	};
+	
+	var pile = drawPole3D_4(polePar).mesh;
+	//pile.rotation.x = Math.PI / 2;
+	pile.position.x = par.diam / 2;
+	pile.position.y = -par.len;
+	pile.position.z = -par.diam / 2;
+	pile.setLayer('carcas');
+	par.mesh.add(pile);
+	
+	//винт
+	var polePar = {
+		poleProfileY: par.vintDiam,
+		poleProfileZ: par.vintDiam,
+		poleAngle: Math.PI / 2,
+		length: 8,
+		type: "round",
+		material: params.materials.metal,
+	};
+	
+	var vint = drawPole3D_4(polePar).mesh;
+	vint.setLayer('carcas');
+	vint.position.y = -par.len + 300;
+	vint.position.x = par.vintDiam / 2;
+	vint.position.z = -par.vintDiam / 2;
+	par.mesh.add(vint);
+	
+	//сохраняем данные для спецификации
+	var partName = 'vintPile';
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				name: 'Винтовая свая',
+				metalPaint: false,
+				timberPaint: false,
+				isModelData: true,
+				division: "stock_2",
+				purposes: [],
+				workUnitName: "amt",
+				group: "carcas",
+			}
+		}
+		
+		name = "Ф" + par.diam + "х" + par.len;
+		
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		par.mesh.specParams = {specObj: specObj, amt: 1, partName: partName, name: name}
+	}
+	
+	par.mesh.specId = partName + name;
+	
+	return par;
+}
+
+/** функция отрисовывает соединитель прогона **/
+
+function drawPurlinConnector(par){
+	if(!par) par = {};
+	initPar(par)
+	
+	if(!par.len) par.len = 300;
+	if(!par.height) par.height = 60;
+	if(!par.width) par.width = 40;
+	par.gap = 5;
+	
+	var polePar = {
+		poleProfileY: par.height - par.gap,
+		poleProfileZ: par.width - par.gap,
+		dxfBasePoint: par.dxfBasePoint,
+		length: par.len,
+		material: params.materials.metal,
+	};
+	
+	var pole = drawPole3D_4(polePar).mesh;
+	pole.position.x = -par.len / 2
+	pole.position.y = par.gap / 2
+	pole.position.z = par.gap / 2
+	pole.setLayer('carcas');
+	par.mesh.add(pole);
+	
+
+	var boltPar = {
+		diam: 6,
+		len: 50,
+		headType: "пол. гол. крест",
+		headShim: true,
+		headNut: true,
+	}
+	
+	
+	for(var i=0; i<4; i++){
+		var bolt = drawBolt(boltPar).mesh;
+		bolt.position.x =  -par.len / 2 + 50 + (par.len - 50 * 2) / 3 * i;
+		bolt.position.y = par.height / 2;
+		bolt.position.z = 18;
+		bolt.rotation.x = -Math.PI / 2;
+		par.mesh.add(bolt);
+	}
+	
+		
+	
+	//сохраняем данные для спецификации
+	var partName = 'purlinConnector';
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				name: 'Соединитель прогона',
+				metalPaint: false,
+				timberPaint: false,
+				isModelData: true,
+				division: "stock_2",
+				purposes: [],
+				workUnitName: "amt",
+				group: "carcas",
+			}
+		}
+		
+		name = par.height + "х" + par.width;
+		
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		par.mesh.specParams = {specObj: specObj, amt: 1, partName: partName, name: name}
+	}
+	
+	par.mesh.specId = partName + name;
+	
 	return par;
 }

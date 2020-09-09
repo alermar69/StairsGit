@@ -72,6 +72,149 @@
 	</div>
 </script>
 
+<script id='sillDescriptionTempalte' type='text/html'>
+	<div class='container sillDescr'>
+		<div>
+			<div class='text-center h2 mt-5'>Коммерческое предложение</div>
+			<div class='text-center h3 mt-5'>Для {{:clientName}}</div>
+			<div class='text-center h3 mt-5'>Красивые и удобные подоконники из натурального дерева по вашим размерам</div>
+		</div>
+		<div>
+			<div class='text-center h3 mt-5'>Используемые материалы</div>
+			<div class='row'>
+				{{for materials}}
+					{{if #get("array").data.length > 1}}
+						<div class="col-6 card-wrapper">
+							<div class="card">
+								<img class="card-img-top" src="{{:image}}" alt="Card image cap">
+								<div class="card-body">
+									<h5 class="card-title">{{:title}}</h5>
+									<p class="card-text">{{:description}}</p>
+								</div>
+							</div>
+						</div>
+					{{else}}
+						<div class='col-6'>
+							<div class="h4 mt-2">{{:title}}</div>
+							<div class="mt-3">{{:description}}</div>
+						</div>
+						<div class="col-6">
+							<img class="card-img-top" src="{{:image}}" alt="">
+						</div>
+					{{/if}}
+				{{/for}}
+			</div>
+		</div>
+		<div>
+			<div class='text-center h3 mt-5'>Отделка дерева</div>
+			<div class='mt-3'>За счет  специальной обработки - искусственного старения или брашировки,  красивая структура дерева дополнительно подчеркивается и становится более ярко выраженной. После этого изделие покрывается высококачественным маслом, немецкого производства. Масло надежно защищает древесину от гниения, благодаря глубокому проникновению в структуру. Не расслаивается и не отшелушивается. Масло абсолютно безвредно для человека.</div>
+			<div class='row mt-4'>
+				<div class="col-6" style='height: 300px; overflow:hidden'><img style='max-width: 100%;' src="/calculator/images/sill/timber_work_1.jpg" alt=""></div>
+				<div class="col-6" style='height: 300px; overflow:hidden'><img style='max-width: 100%;' src="/calculator/images/sill/timber_work_2.jpg" alt=""></div>
+			</div>
+			<div>
+				
+			</div>
+		</div>
+		<div>
+			<div class='text-center h3 mt-5'>Покраска металла</div>
+			<div class='mt-3'>В специальном покрасочном цехе мы окрашиваем все металлические детали долговечной износостойкой порошковой краской с нулевой эмиссией летучих веществ. А так же обеспечиваем контроль толщины слоя.</div>
+			<div class='row mt-4'>
+				<div class="col-6" style='height: 300px; overflow:hidden'><img style='max-width: 100%;' src="/calculator/images/sill/metal_paint_1.jpg" alt=""></div>
+				<div class="col-6" style='height: 300px; overflow:hidden'><img style='max-width: 100%;' src="/calculator/images/sill/metal_paint_2.jpg" alt=""></div>
+			</div>
+			<div>
+				
+			</div>
+		</div>
+		<div>
+			<div class='text-center h3 mt-5'>Особенности конструкции</div>
+			<div class='row mt-4'>
+				{{for construction}}
+					{{if #get("array").data.length > 1}}
+						<div class="col-6 card-wrapper">
+							<div class="card">
+								<img class="card-img-top" src="{{:image}}" alt="Card image cap">
+								<div class="card-body">
+									<h5 class="card-title">{{:title}}</h5>
+									<p class="card-text">{{:description}}</p>
+								</div>
+							</div>
+						</div>
+					{{else}}
+						<div class='col-6'>
+							<div class="h4 mt-2">{{:title}}</div>
+							<div class="mt-3">{{:description}}</div>
+						</div>
+						<div class="col-6">
+							<img class="card-img-top" src="{{:image}}" alt="">
+						</div>
+					{{/if}}
+				{{/for}}
+			</div>
+		</div>
+		<div>
+			<div class='text-center h3 mt-5'>Используемая технология - шаблонирование</div>
+			<div class='mt-3'>Для того чтобы подоконник идеально вписался в проем, мы сперва изготавливаем шаблоны из фанеры по вашим размерам. После чего следует предварительная примерка и при необходимости, корректировка шаблонов. После того, как шаблоны идеально подходят по размерам, по ним изготавливается сам подоконник. В результате подоконник нужно будет подпиливать по месту и он встанет, как влитой.</div>
+			<div class='row mt-4'>
+				<div class="col-6" style='height: 300px; overflow:hidden'><img style='max-width: 100%;' src="/calculator/images/sill/technology_1.png" alt=""></div>
+				<div class="col-6" style='height: 300px; overflow:hidden'><img style='max-width: 100%;' src="/calculator/images/sill/technology_2.png" alt=""></div>
+			</div>
+			<div>
+				
+			</div>
+		</div>
+		<div>
+			<div class='text-center h3 mt-5'>Как будет происходить доставка и монтаж</div>
+			<div class='row mt-4'>
+				{{for assembling}}
+					<div class="col-4">
+						<div class='card-img'><img style='max-width: 100%;' src="{{:image}}" alt=""></div>
+						<div>{{:text}}</div>
+					</div>
+				{{/for}}
+			</div>
+			<div>
+				
+			</div>
+		</div>
+		<div>
+			<div class='text-center h3 mt-5'>Как будет выглядеть весь процесс работы </div>
+			<div class='row mt-4'>
+				{{for work_process}}
+					<div class="col-4">
+						<div class='card-img'><img style='max-width: 100%;' src="{{:image}}" alt=""></div>
+						<div>{{:text}}</div>
+					</div>
+				{{/for}}
+			</div>
+			<div>
+				
+			</div>
+		</div>
+		<div>
+			<div class='text-center h3 mt-5'>Посмотрите работы, которые мы уже выполнили</div>
+			<div class='row mt-4'>
+				{{for examples}}
+					<div class="col-3">
+						<img class='gallery-img' src="{{:}}" alt="">
+					</div>
+				{{/for}}
+			</div>
+		</div>
+		<div>
+			<div class='text-center h3 mt-5'>На этом производстве мы будет делать ваш подоконник</div>
+			<div class='row mt-4'>
+				{{for factory}}
+					<div class="col-3">
+						<img class='gallery-img' src="{{:}}" alt="">
+					</div>
+				{{/for}}
+			</div>
+		</div>
+	</div>
+</script>
+
 <script id="zamerBlocks" type="text/html">
 	<div class="container zamer-blocks">
 		<div class='description-title'>Так будет проходить замер вашей лестницы</div>

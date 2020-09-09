@@ -2,6 +2,7 @@
 /** функция отрисовывает прямую ферму из листа с отверстиями
 	*@params: height,len,dxfBasePoint
 	colDist - расстояние между колоннами
+	базовая точка по X - центр отверстия
 */
 function drawStrightTruss(par){
 
@@ -9,9 +10,9 @@ function drawStrightTruss(par){
 	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0, y:0};
 	if(!par.dxfArr) par.dxfArr = [];
 	par.mesh = new THREE.Object3D();
-	var stripeWidth = 60;
+	var stripeWidth = partPar.beam.profSize.x
 	par.flanWidth = stripeWidth - partPar.truss.thk;
-	
+	par.height = partPar.beam.profSize.y
 
 	//внешний контур
 	var p1 = {x: 0, y: 0}
@@ -49,33 +50,14 @@ function drawStrightTruss(par){
 			points: [ph1, ph2, ph3, ph4],
 			dxfArr: par.dxfArr,
 			dxfBasePoint: par.dxfBasePoint,
-			radOut:20,
+			radOut: 20,
 		}
 
 		var holeShape = drawShapeByPoints2(shapePar).shape;
 		
 		shape.holes.push(holeShape)
 	}
-/*	
-	//отверстия для болтов
-	var holeOffset = 20;
-	var holeRad = 6.5;
 	
-	var boltCenters = [];
-	
-	var center = newPoint_xy(p1, holeOffset, holeOffset)
-	boltCenters.push(center)
-	var center = newPoint_xy(p2, holeOffset, -holeOffset)
-	boltCenters.push(center)
-	var center = newPoint_xy(p3, -holeOffset, -holeOffset)
-	boltCenters.push(center)
-	var center = newPoint_xy(p4, -holeOffset, holeOffset)
-	boltCenters.push(center)
-	
-	boltCenters.forEach(function(center){
-		addRoundHole(shape, par.dxfArr, center, holeRad, par.dxfBasePoint); 
-	})
-*/	
 	var extrudeOptions = {
 		amount: partPar.truss.thk, 
 		bevelEnabled: false,
@@ -126,7 +108,8 @@ function drawStrightTruss(par){
 //фланцы крепления к колоннам
 
 	var columnFlanPar = calcColumnFlanPar();
-
+	var holeOffset = (par.height - partPar.beam.holeDist) / 2;
+	
 	var flanPar = {
 		height: par.height,
 		width: par.flanWidth,
@@ -137,8 +120,8 @@ function drawStrightTruss(par){
 		dxfPrimitivesArr: par.dxfPrimitivesArr,
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -500),
 		roundHoleCenters: [
-			{x: par.flanWidth / 2, y: par.flanWidth / 2},
-			{x: par.flanWidth / 2, y: par.height - par.flanWidth / 2},
+			{x: par.flanWidth / 2, y: holeOffset},
+			{x: par.flanWidth / 2, y: par.height - holeOffset},
 		],
 	}
 	
@@ -201,12 +184,12 @@ function drawTriangleSheetTruss(par){
 	if(params.carportType == "односкатный") par.len = params.width
 	
 	//параметры
-	par.midHeight = partPar.truss.midHeight; // высота фермы в середине
+	par.midHeight = partPar.truss.midHeight// высота фермы в середине по вертикали
 	par.endHeight = partPar.truss.endHeight; 
 	par.columnBase = 200;
 	par.topAng = params.roofAng;
 	par.flanThk = 8;
-	
+
 
 	//внешний контур
 	var p0 = {x: 0, y: 0}
@@ -233,7 +216,12 @@ function drawTriangleSheetTruss(par){
 	
 	//пересчитываем точку нижней линии для большого свеса
 	var temp = itercection(topLine.p1, polar(topLine.p1, (par.topAng - 90) / 180 * Math.PI, 1), botLine.p1, botLine.p2);
+	//если высота фермы на краю получается меньше 70 - делаем 70
+	if(distance(temp, topLine.p1) < 70) temp = polar(topLine.p1, (par.topAng - 90) / 180 * Math.PI, 70);
 	if(temp.x < botLine.p1.x) botLine.p1 = temp;
+	
+	//добавляем еще одну точку если конец фермы ниже уровня верха колонны
+	if(botLine.p1.y < botLine.p2.y) botLine.p21 = newPoint_xy(botLine.p2, -par.columnBase, 0)
 	
 	//правая линия
 	var rightLine = {
@@ -246,7 +234,7 @@ function drawTriangleSheetTruss(par){
 	rightLine.p2 = newPoint_xy(rightLine.p1, 0, -par.midHeight)
 	
 	if(params.beamModel == "постоянной ширины"){
-		rightLine.p2 = itercection(rightLine.p1, rightLine.p2, botLine.p2, polar(botLine.p2, par.topAng / 180 * Math.PI, 100))
+		botLine.p2 = itercection(rightLine.p2, polar(rightLine.p2, par.topAng / 180 * Math.PI, 1), botLine.p2, newPoint_xy(botLine.p2, 1, 0))
 	}
 	
 	//горизонтальная полка под колонну сверху на односкатном навесе
@@ -258,58 +246,57 @@ function drawTriangleSheetTruss(par){
 	
 	//делаем ферму цельной если длина меньше 4000мм
 	par.hasDivide = true;
-
+	var points = [botLine.p1, topLine.p1, rightLine.p1, rightLine.p2];
+	if(rightLine.p3) points.push(rightLine.p3, rightLine.p4)
+	points.push(botLine.p2)
+	if(botLine.p21) points.push(botLine.p21)
+		
 	//создаем шейп
 	var shapePar = {
-		points: [botLine.p1, topLine.p1, rightLine.p1, rightLine.p2, botLine.p2],
+		points: points,
 		dxfArr: par.dxfArr,
 		dxfBasePoint: par.dxfBasePoint,
 		radOut: 0,
 	}
 	
-	if(rightLine.p3) {
-		shapePar.points = [botLine.p1, topLine.p1, rightLine.p1, rightLine.p2, rightLine.p3, rightLine.p4, botLine.p2]
-	}
+
 		
 	par.shape = drawShapeByPoints2(shapePar).shape;
 
 	//большие отверстия
-	var holeStep = 500;
-	var sideWidth = 60;
-	var bridgeWidth = 60;
-	var holeCornerRad = 20
-	
-	var holeAmt = Math.floor(distance(topLine.p1, rightLine.p1) / holeStep)
-	var holeStepX = par.len / holeAmt;
-
+	var holeCornerRad = 40	
+	var holeAmt = partPar.purlin.amt * 2
+	var holeStepX = partPar.purlin.holeStepX / 2
+	if(params.carportType == "двухскатный") holeStepX *= 0.5
+	if(params.roofMat == "металлочерепица") holeStepX *= 2
 
 	//строим отверстия справа налево
 	var holeLeftLine = rightLine;
-	var holeBotLine = parallel(rightLine.p2, botLine.p2, bridgeWidth)
-	var holeTopLine = parallel(topLine.p1, topLine.p2, -bridgeWidth)
+	var holeBotLine = parallel(rightLine.p2, botLine.p2, partPar.truss.bridgeWidth)
+	var holeTopLine = parallel(topLine.p1, topLine.p2, -partPar.truss.bridgeWidth)
 
-	
+
 	if(params.trussHolesType == "круги"){
-		var maxHoleDiam = distance(rightLine.p1, rightLine.p2) - sideWidth * 2;
-		holeAmt = Math.floor(par.len / (maxHoleDiam + bridgeWidth))
-		holeStepX = par.len / holeAmt;
-		if(params.beamModel == "постоянной ширины"){
-			holeStepX += bridgeWidth
-			holeAmt -=1;
-		}		
+		var maxHoleDiam = distance(rightLine.p1, rightLine.p2) * Math.cos(partPar.main.roofAng) - partPar.truss.sideWidth * 2;		
+		holeStepX = maxHoleDiam + partPar.truss.bridgeWidth;
+		holeAmt = Math.floor(params.width / holeStepX)
+		holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, maxHoleDiam / 2 +  partPar.truss.bridgeWidth)
 	}
 	
 	//смещаем крайнее отверстие чтобы было место для фланца крепления к колонне
 	if(params.carportType == "односкатный") {
-		holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, 150)
+		holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, holeStepX - partPar.truss.bridgeWidth / 2)
 		if(params.trussHolesType == "круги") holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, maxHoleDiam / 2)
+		holeAmt -= 2;
 	}
 
 	par.progonAmt = Math.floor(distance(topLine.p1, rightLine.p1) / params.progonMaxStep) + 2;
 	
-	for(var i = 0; i < holeAmt; i++ ){
-		var holeRightLine = parallel(holeLeftLine.p1, holeLeftLine.p2, bridgeWidth)
-		holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, (holeStepX - bridgeWidth))
+	var counter = 0
+	while(holeLeftLine.p1.x > 150 + holeStepX + partPar.truss.bridgeWidth && counter < holeAmt){
+		var holeRightLine = parallel(holeLeftLine.p1, holeLeftLine.p2, partPar.truss.bridgeWidth)		
+		holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, (holeStepX))
+
 		
 		//корректируем левую линию вытянутого отверстия, если она накладывается на левый фланец		
 		if(params.trussHolesType != "круги" && holeLeftLine.p1.x < 120 + 5) {
@@ -355,6 +342,7 @@ function drawTriangleSheetTruss(par){
 			
 			addRoundHole(par.shape, par.dxfArr, center, holeDiam / 2, par.dxfBasePoint)
 		}
+		counter++;
 	}
 	
 	//отверстия для болтов
@@ -603,9 +591,7 @@ function drawArcSheetTruss(par){
 
 	//делаем ферму цельной если длина меньше 4000мм
 	par.hasDivide = true;
-	var widthLimit = 2000;
-	if (params.calcType == 'veranda') widthLimit = 1000;
-	if(rightLine.p1.x - botLine.p1.x <= widthLimit){
+	if(rightLine.p1.x - botLine.p1.x <= 2000 && params.carportType == "двухскатный"){
 		par.hasDivide = false;
 		var botLine2 = {};
 		for(var pointName in botLine){
@@ -706,8 +692,8 @@ function drawArcSheetTruss(par){
 	if(!par.hasDivide) par.progonAmt *= 0.5; //кол-во прогонов на половину фермы
 	
 	var holePar = {
-		sideWidth: 70, //ширина верхнего и нижнего поясов
-		bridgeWidth: 100, //ширина перемычки по верхней дуге
+		sideWidth: partPar.truss.sideWidth, //ширина верхнего и нижнего поясов
+		bridgeWidth: partPar.truss.bridgeWidth, //ширина перемычки по верхней дуге
 		topArc: topArc, //объект с параметрами верхней дуги фермы
 		botArc: botArc, //объект с параметрами нижней дуги фермы		
 		shape: par.shape,
@@ -1066,8 +1052,8 @@ partPar.main.arcPar.topArc = topArc;
 	//большие отверстия
 	par.progonAmt = Math.ceil(topArc.len / params.progonMaxStep)
 	var holePar = {
-		sideWidth: 60, //ширина верхнего и нижнего поясов
-		bridgeWidth: 100, //ширина перемычки по верхней дуге
+		sideWidth: partPar.truss.sideWidth, //ширина верхнего и нижнего поясов
+		bridgeWidth: partPar.truss.bridgeWidth, //ширина перемычки по верхней дуге
 		topArc: topArc, //объект с параметрами верхней дуги фермы
 		botArc: botArc, //объект с параметрами нижней дуги фермы		
 		shape: par.shape,
@@ -1346,17 +1332,18 @@ function addTrussHoles(par){
 /** функция рассчитывает параметры верхней дуги кровли арочного навеса
 	a1 - //угол вектора на центр внешней дуги и точку p1
 	sideOffset - расстояние от нулевой точки к точке botLine.p2
-	m1 - расстояние от точки botLine.p2 до botLine.p1 по вертикали
+	endHeight - высота над центром колонны
+	midHeight - высота на центральной линии фермы
 */
 function calcRoofArcParams(par){
-	
+	console.log(par)
 	//параметры опорного узла
 	par.a3 = 58 / 180 * Math.PI//угол на точку p4
 	par.m2 = 110 //расстояние до точки p4
 	
 	//нижняя линия
 	var p0 = {x: 0, y: 0} //точка на оси колонны
-	var pt = newPoint_xy(p0, 0, par.m1) //точка на верхней дуге над осью колонны
+	var pt = newPoint_xy(p0, 0, par.endHeight) //точка на верхней дуге над осью колонны
 	
 	//для проф. трубы базовая точка над краем колонны
 	if(params.beamModel == "проф. труба" && params.carportType != "сдвижной") {
@@ -1389,7 +1376,7 @@ function calcRoofArcParams(par){
 
 	//корректируем точки центральной линии
 	par.centerLine.p1 = newPoint_xy(par.topArc.center, 0, par.topArc.rad)
-	par.centerLine.p2 = newPoint_xy(par.centerLine.p1, 0, -par.trussWidth)
+	par.centerLine.p2 = newPoint_xy(par.centerLine.p1, 0, -par.midHeight)
 
 	par.topArc.height = par.centerLine.p1.y - p0.y;
 	
@@ -1414,7 +1401,7 @@ function calcRoofArcParams(par){
 	
 	if(params.beamModel != "проф. труба") {
 		//крайняя точка фермы
-		par.botLine.p1 = newPoint_xy(p0, -par.columnProf.y / 2 - params.sideOffset, par.m1) //временная точка
+		par.botLine.p1 = newPoint_xy(p0, -par.columnProf.y / 2 - params.sideOffset, 1) //временная точка
 		par.botLine.p1 = itercectionLineCircle(par.botLine.p1, newPoint_xy(par.botLine.p1, 0, 100), par.topArc.center, par.topArc.rad)[0]
 		
 		par.topArc.startAngle = angle(par.botLine.p1, par.topArc.center) + Math.PI;
@@ -1466,7 +1453,7 @@ function calcRoofArcParams(par){
 
 			par.botArc = {
 				center: copyPoint(par.topArc.center),
-				rad: par.topArc.rad - par.trussWidth,			
+				rad: par.topArc.rad - par.midHeight,			
 				endAngle: Math.PI / 2,			
 			}
 			par.botLine.p4 = itercectionLineCircle(par.botLine.p2, par.botLine.p3, par.botArc.center, par.botArc.rad)[1];

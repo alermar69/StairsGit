@@ -9,14 +9,10 @@
 */
 function drawRectFlan2(par) {
 
-	par.mesh = new THREE.Object3D();
+	if(!par) par = {};
+	initPar(par)
 
-	var dxfArr = par.dxfPrimitivesArr || dxfPrimitivesArr;
-	//если не задана базовая точка, в dxf контур не выводим
-	if (!par.dxfBasePoint) {
-		dxfArr = [];
-		par.dxfBasePoint = { x: 0, y: 0, }
-	}
+
 	if (!par.thk) par.thk = 8;
 	if (!par.material) par.material = params.materials.metal2
 
@@ -44,7 +40,7 @@ function drawRectFlan2(par) {
 	//создаем шейп
 	var shapePar = {
 		points: points,
-		dxfArr: dxfArr,
+		dxfArr: par.dxfArr,
 		dxfBasePoint: par.dxfBasePoint,
 	}
 	if (par.cornerRad) {
@@ -76,6 +72,7 @@ function drawRectFlan2(par) {
 		var holesPar = {
 			holeArr: par.roundHoleCenters,
 			dxfBasePoint: par.dxfBasePoint,
+			dxfPrimitivesArr: par.dxfArr,
 			shape: par.shape,
 		}
 
@@ -563,14 +560,14 @@ function drawBolt(par) {
         par.mesh.add(cyl);
 
     }
-    if (par.headShim && !testingMode) {
+    if (par.headShim && !testingMode && menu.boltHead) {
         //шайба
         var shimParams = { diam: par.diam }
         var shim = drawShim(shimParams).mesh;
         shim.position.y = -par.len / 2 + 2;
         par.mesh.add(shim);
     }
-    if (!par.noNut && !testingMode) {
+    if (!par.noNut && !testingMode && menu.boltHead) {
 
         //гайка
         var nutParams = { diam: par.diam, isCap: par.hasCapNut }
@@ -594,7 +591,7 @@ function drawBolt(par) {
         //nut.position.y = shim.position.y + shimParams.shimThk;
         //par.mesh.add(nut);
     }
-    if (par.hasRivet && !testingMode) {
+    if (par.hasRivet && !testingMode && menu.boltHead) {
         var rivetParams = { diam: par.diam }
         var rivet = drawRivet(rivetParams).mesh;
 		//rivet.position.y = par.len / 2 - rivetParams.rivetThk - 1;

@@ -468,6 +468,7 @@
 			'dimensions' => ["/calculator/general/forms/dimensionsFormChange.js"],
 			'objects' => ["/calculator/general/forms/objects/objectsFormChange.js"],
 			'assembling' => ["/calculator/general/forms/assemblingFormChange.js"],
+			'walls' => ["/calculator/walls/forms/walls_form_change.js"],
 			'banister' => ["/calculator/banister/forms/banister_construct_form_change.js", "/calculator/banister/forms/changeFormBanister.js"],
 		];
 	}
@@ -477,6 +478,7 @@
 			'dimensions' => ["/calculator/general/forms/dimensionsFormChange.js"],
 			'objects' => ["/calculator/general/forms/objects/objectsFormChange.js"],
 			'assembling' => ["/calculator/general/forms/assemblingFormChange.js"],
+			'walls' => ["/calculator/walls/forms/walls_form_change.js"],
 			'banister' => ["/calculator/banister/forms/banister_construct_form_change.js", "/calculator/banister/forms/changeFormBanister.js"],
 		];
 	}

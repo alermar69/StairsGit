@@ -313,7 +313,7 @@
 		$tabs['banister']['url'] = "/calculator/banister/forms/banister_construct_form.php";
 		$tabs['railing'] = false;
 		$tabs['floor_form'] = false;
-		$tabs['walls'] = false;
+		//$tabs['walls'] = false;
 	};
 
 	if ($calc_type == 'veranda') {
@@ -375,14 +375,15 @@
 	
 	if ($calc_type == 'sill') {
 		$tabs['geom'] = false;
-		$tabs['carcas']['name'] = "Подоконники";
-		$tabs['carcas']['url'] = "/calculator/sill/forms/mainForm.php";
+		$tabs['carcas'] = false;
+		// $tabs['carcas']['name'] = "Подоконники";
+		// $tabs['carcas']['url'] = "/calculator/sill/forms/mainForm.php";
 		$tabs['banister'] = false;
 		$tabs['railing'] = false;
 		$tabs['banister'] = false;
 		$tabs['railing'] = false;
-		$tabs['floor_form'] = false;
-		$tabs['walls'] = false;
+		// $tabs['floor_form'] = false;
+		// $tabs['walls'] = false;
 	};
 	
 	

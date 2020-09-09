@@ -2185,7 +2185,10 @@ par.railing = [];
 		}
 
 	//учитываем начало ограждений не с первой ступени
-	if (par.marshId == 1) stairAmt -= params.railingStart + params.startTreadAmt;
+	if (par.marshId == 1){
+		if(params.railingStart) stairAmt -= params.railingStart
+		if(params.startTreadAmt) stairAmt -= params.startTreadAmt
+	}
 
 	if (params.railingModel == "Самонесущее стекло"){
 		if (stairAmt == 3) par.railing = [3];

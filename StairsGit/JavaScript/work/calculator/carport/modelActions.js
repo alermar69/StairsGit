@@ -41,17 +41,31 @@ function toggleDomeDoor(state){
 			if(state != undefined) window.domeDoorOpen = state;
 			var fakeContext = {
 				animationProgress: function(animationName, progress){
+					var fullLen = (params.sectAmt - 1) * params.sectLen;
 					switch (animationName) {
 						case 'openDoor':
+							
 							$.each(window.moovableSections, function(i){
-								var mooveLen = (params.sectAmt - i - 1) * params.sectLen;
-								this.position.z = mooveLen * progress;
+								//секции слева
+								var mooveLen = i * params.sectLen;
+								this.position.z = -mooveLen * progress;
+								//секции справа
+								if(i >= partPar.movableSections.left) {
+									var mooveLen = fullLen - mooveLen;
+									this.position.z = mooveLen * progress;
+								}
 							})							
 							break;
 						case 'closeDoor':
 							$.each(window.moovableSections, function(i){
-								var mooveLen = (params.sectAmt - i - 1) * params.sectLen;
-								this.position.z = mooveLen * (1 - progress);
+								//секции слева
+								var mooveLen = i * params.sectLen;
+								this.position.z = -mooveLen * (1 - progress);
+								//секции справа
+								if(i >= partPar.movableSections.left) {
+									mooveLen = fullLen - mooveLen;
+									this.position.z = mooveLen * (1 - progress);
+								}
 							})	
 							break;
 					}

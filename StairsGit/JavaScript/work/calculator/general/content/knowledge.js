@@ -40,7 +40,6 @@ $(function(){
 							iterator++;
 							regex.test(filesHtml);
 							files.push({url: RegExp.$1, text: item.name});
-							// files.push({url: RegExp.$1.replace("https://6692035", "https://egorov.6692035"), text: item.name});
 							filesHtml = filesHtml.replace(regex, '');
 						} while (regex.test(filesHtml) && iterator < 100);
 					}
@@ -107,7 +106,7 @@ function getKnowledgeData(type, callback){
 			var items = data.responseJSON;
 			if (items && items.length > 0) {
 				var goodItems = items.filter(function(item){
-					var goodItem = true;
+					var goodItem = false;
 					// if (item.type !== type) return false
 					if (item.sort_condition && item.sort_condition != '') {
 						try {

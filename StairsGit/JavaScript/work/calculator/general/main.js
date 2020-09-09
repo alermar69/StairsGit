@@ -108,6 +108,18 @@ $(function () {
 		setInputValue("wallLength_3", params.staircaseDiam);
 	}
 	
+	if($("#calcType").val() == "carport"){
+		$("#wallPositionX_1").val(-2500);
+		$("#wallPositionX_2").val(-2500);
+		$("#wallPositionX_3").val(2500);
+		$("#wallPositionX_4").val(-2500);
+		
+		$("#wallPositionZ_1").val(-2500);
+		$("#wallPositionZ_2").val(2500);
+		$("#wallPositionZ_3").val(-2500);
+		$("#wallPositionZ_4").val(-2500);
+	}
+	
 	if(params.calcType == "mono") {
 		if(params.discountMode == "процент") $("#discountFactor").val(20);
 	}

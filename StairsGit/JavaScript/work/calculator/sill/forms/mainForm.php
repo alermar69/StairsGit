@@ -165,6 +165,40 @@
 				<td><input id="cornerRadLeft" type="number" value="20"></td>
 			</tr>
 			
+			<tr><td>Отверстия:</td> <td> 
+				<select id="ventHoles" size="1">
+					<option value="нет">нет</option>
+					<option value="круглые">круглые</option>
+					<option value="овальные вдоль">овальные вдоль</option>
+					<option value="овальные поперек">овальные поперек</option>
+				</select>
+			</td></tr>
+			
+			<tr>
+				<td>Размер отверстий:</td> 
+				<td><input id="ventHolesSize" type="number" value="20"></td>
+			</tr>
+			
+			<tr>
+				<td>Длина отверстий:</td> 
+				<td><input id="ventHolesLen" type="number" value="50"></td>
+			</tr>
+			
+			<tr>
+				<td>Макс. шаг отверстий:</td> 
+				<td><input id="ventHolesStep" type="number" value="100"></td>
+			</tr>
+			
+			<tr>
+				<td>Отступ отверстий спереди:</td> 
+				<td><input id="ventHolesFrontOffset" type="number" value="100"></td>
+			</tr>
+			
+			<tr>
+				<td>Отступ отверстий сбоку:</td> 
+				<td><input id="ventHolesSideOffset" type="number" value="100"></td>
+			</tr>
+			
 		
 		</tbody></table>
 		

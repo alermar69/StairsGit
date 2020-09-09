@@ -346,12 +346,25 @@ function getCarportRoofDescr(){
 */
 
 function printDescr() {
-	var text = ""
+	// if (params.calcType == 'sill') {
+	// 	return printDescrSill();
+	// }
+	var text = "";
+	var additionalObjectsText = ""
 	if (window.additional_objects && window.additional_objects.length > 0) {
 		window.additional_objects.forEach(function(obj){
-			text += eval(obj.className).getDescr(obj.meshParams).html;
+			if (obj.calc_price) {
+				additionalObjectsText += eval(obj.className).getDescr(obj.meshParams).html;
+			}
 		})
 	}
+
+	if (window.location.href.indexOf('/customers') != -1) {
+		$('#additionalObjectsParams').html(additionalObjectsText);
+	}else{
+		text += additionalObjectsText;
+	}
+
 	if(params.calcType != 'carport') text += $('#zamerBlocks').html();
 	if(params.calcType == 'carport') text += $('#zamerBlocksCarport').html();
 	if (params.calcType == 'carport') {
@@ -425,4 +438,126 @@ function printDescr() {
 	
 	
 
+}
+
+function printDescrSill() {
+
+	var template = $.templates("#sillDescriptionTempalte");
+	var html = template.render({
+		clientName: 'Тестова Теста Тестовича',
+		materials: [
+			{
+				'image': '/calculator/images/sill/oak.jpg',
+				'title': 'Щит дуба паркетной склейки',
+				'description': 'Дуб исключительно крепкий от природы материал с красивой однородной текстурой, сохраняет стабильность форм и размеров при перепадах температур и изменении уровня влажности. При покраске приобретает благородный равномерный оттенок. Не деформируется, вынослив, сохраняет эстетические показатели в течение десятилетий.'
+			},
+			{
+				'image': '/calculator/images/sill/oak.jpg',
+				'title': 'Слэб карагача',
+				'description': 'Клеится из длинных брусков, которые идут на всю длину изделия. Такой подоконник более устойчив к надломам и выглядит изготовленным из цельного куска дерева.'
+			},
+			{
+				'image': '/calculator/images/sill/oak.jpg',
+				'title': 'Эпоксидная смола',
+				'description': 'За счет  специальной обработки - искусственного старения или браширования,  красивая структура дерева дополнительно подчеркивается и становится более ярко выраженной.'
+			}
+		],
+		construction: [
+			{
+				image: '/calculator/images/sill/construction_1.png',
+				title: 'Фаска',
+				description: 'Фаска облагораживают внешний вид изделия, снижает до минимума риск травмироваться о кромку и устраняет возможность скола или расщепления подоконника.'
+			},
+			{
+				image: '/calculator/images/sill/construction_2.jpg',
+				title: 'Вентиляционное отверстие над радиатором',
+				description: 'Клеится из длинных брусков, которые идут на всю длину изделия. Такой подоконник более устойчив к надломам и выглядит изготовленным из цельного куска дерева.'
+			},
+			{
+				image: '/calculator/images/sill/construction_3.jpeg',
+				title: 'Река из смолы',
+				description: 'Пространство между 2мя слэбами заполнено эпоксидной смолой. В итоге получается так называемая “река”. Эпоксидная смола может иметь любой цвет, быть прозрачной или непрозрачной (затуманенной). Так же в нее можно добавить различные мелочи для декора (ракушки, камушки, металлические предметы). В итоге вы получаете эксклюзивное изделие неординарной красоты.'
+			}
+		],
+		assembling:[
+			{
+				image: '/calculator/images/sill/assembling_1.png',
+				text: 'Доставка и монтаж готового изделия осуществляется в удобный для вас день и время.'
+			},
+			{
+				image: '/calculator/images/sill/assembling_2.jpg',
+				text: 'Перед отправкой изделия мы надежно упаковываем его в плотную пленку для безопасной транспортировки.'
+			},
+			{
+				image: '/calculator/images/sill/assembling_3.jpeg',
+				text: 'Монтаж подоконника занимает не более 2х часов. После окончания работ, монтажники уберут за собой весь мусор.'
+			},
+		],
+		work_process: [
+			{
+				image: '/calculator/images/sill/process_1.jpg',
+				text: 'Заключение договора, внесения аванса'
+			},
+			{
+				image: '/calculator/images/sill/process_2.jpg',
+				text: 'Согласование цветов и материалов'
+			},
+			{
+				image: '/calculator/images/sill/process_3.png',
+				text: 'Шаблонирование'
+			},
+			{
+				image: '/calculator/images/sill/process_4.png',
+				text: 'Производство'
+			},
+			{
+				image: '/calculator/images/sill/process_5.jpg',
+				text: 'Доставка/установка (подрезка по месту)'
+			},
+			{
+				image: '/calculator/images/sill/process_6.jpg',
+				text: 'Оплата по окончанию работ'
+			}
+		],
+		examples: [
+			'/calculator/images/sill/construction_2.jpg', '/calculator/images/sill/construction_2.jpg', '/calculator/images/sill/construction_2.jpg',
+			'/calculator/images/sill/construction_2.jpg', '/calculator/images/sill/construction_2.jpg', '/calculator/images/sill/construction_2.jpg'
+		],
+		factory: [
+			'/calculator/images/sill/construction_2.jpg', '/calculator/images/sill/construction_2.jpg', '/calculator/images/sill/construction_2.jpg',
+			'/calculator/images/sill/construction_2.jpg', '/calculator/images/sill/construction_2.jpg', '/calculator/images/sill/construction_2.jpg'
+		]
+	});
+	$("#description").html(html);
+
+	// var text = "";
+
+	// if (window.location.href.indexOf('/customers') != -1) {
+	// 	$('#additionalObjectsParams').html(additionalObjectsText);
+	// }else{
+	// 	text += additionalObjectsText;
+	// }
+
+
+	// if ($("#descriptionTempalte").length > 0) {
+	// 	var template = $.templates("#descriptionTempalte");
+	// 	var html = template.render(blocks);
+	// 	text += html;
+
+
+
+
+
+
+
+
+	// 	$("#description").html(text);
+	
+	// 	if ($('#previewImages').length > 0) {
+	// 		var images = getPreviewImages('preview');
+	// 		var template = $.templates("#previewsTemplate");
+	// 		var html = template.render({images: images});
+	// 		$('#previewImages').html(html);
+	// 	}
+	// }
 }

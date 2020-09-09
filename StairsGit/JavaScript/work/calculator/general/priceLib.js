@@ -977,13 +977,13 @@ function calculateTotalPrice2(){
 	if(params.calcType == "carport"){
 		var unitItems = {
 			carcas: ["truss", "beams", "columns", "flans", "progon", "bolts", "carcasMetalPaint"],
-			roof: ["roof", "roofProf", "roofShim"],
+			roof: ["roof", "roofProf", "roofShim", "drain"],
 		}
 	}
 	
 	if(params.calcType == "veranda"){
 		unitItems.carcas.push("platform")
-		unitItems.cannopy = ["truss", "beams", "columns", "flans", "progon", "bolts", "carcasMetalPaint", "roof", "roofProf", "roofShim"];
+		unitItems.cannopy = ["truss", "beams", "columns", "flans", "progon", "bolts", "carcasMetalPaint", "roof", "roofProf", "roofShim", "drain"];
 	
 	}
 
@@ -1432,6 +1432,7 @@ function printCost2(){
 			"Листы кровли: " + staircaseCost.roof +  " руб; <br/>" + 
 			"Профили кровли: " + staircaseCost.roofProf +  " руб; <br/>" + 
 			"Термошайбы: " + staircaseCost.roofShim +  " руб; <br/>" + 
+			"Водосток: " + staircaseCost.drain +  " руб; <br/>" + 
 			"<b>Итого: " + staircaseCost.total +  " руб; </b><br/>" + 
 			"Покраска металла: " + staircaseCost.staircaseMetalPaint +  " руб; <br/>";
 		

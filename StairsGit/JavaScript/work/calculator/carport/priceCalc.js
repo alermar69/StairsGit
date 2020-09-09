@@ -150,6 +150,19 @@ function calcCarportCost(){
 		roofCoverCost = roofProfPrice = roofShimPrice = 0;
 	}
 
+	//водосток - заменить на данные с модели
+	
+	var drainCost = 0;
+	if(params.gutter != "нет"){
+		//труба
+		var drainCost = 500 + 100 * 3 + 100 * 3; //труба 3м + 3 колена + 3 крепления
+
+		//лоток
+		drainCost += Math.ceil(partPar.main.len / 3000) * 500 + 100 * Math.ceil(partPar.main.len / 600) + 200 + 100 * 2; //лоток по 3м, крепления, воронка, 2 заглушки
+		
+		if(params.carportType == "двухскатный") drainCost *= 2;
+		if(params.gutter == "круглый") drainCost *= 1.5;
+	}
 
 	staircaseCost.truss = Math.round(widthCost + trussLenCost);
 	staircaseCost.beams = Math.round(beamCost);
@@ -160,6 +173,7 @@ function calcCarportCost(){
 	staircaseCost.roof = Math.round(roofCoverCost);
 	staircaseCost.roofProf = Math.round(roofProfPrice)
 	staircaseCost.roofShim = Math.round(roofShimPrice)
+	staircaseCost.drain = Math.round(drainCost)
 
 	staircaseCost.total = 
 		staircaseCost.truss
@@ -170,6 +184,7 @@ function calcCarportCost(){
 		+ staircaseCost.bolts
 		+ staircaseCost.roof
 		+ staircaseCost.roofProf
+		+ staircaseCost.drain
 		+ staircaseCost.roofShim;
 	
 }

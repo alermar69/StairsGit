@@ -127,3 +127,33 @@
 .zamer-blocks .zamer-block{
 	margin-top: 20px;
 }
+
+#forms-section .tab-content{
+	margin-bottom: 5px;
+}
+
+.sillDescr .card-wrapper{
+	/* padding: 20px; */
+	margin-top: 20px;
+	width: 100%;
+}
+
+.sillDescr .card-img-top{
+	height: 300px;
+}
+
+.sillDescr .card-wrapper .card{
+	width: 100%;
+	/* height: 100%;
+	position: absolute; */
+}
+
+.sillDescr .card-img{
+	height: 300px;
+}
+
+.sillDescr .gallery-img{
+	max-width: 100%;
+	height: 200px;
+	margin-top: 20px;
+}

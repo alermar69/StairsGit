@@ -1,3 +1,5 @@
+
+<input type="hidden" id='floorThickness' value='300'>
 <div id="carcasFormWrap">
 	
 	<h3>Общие параметры</h3>
@@ -334,6 +336,17 @@
 			<tr>
 				<td>Свес сзади:</td>
 				<td><input type="number" id="backOffset" value="1000"></td>
+			</tr>
+			
+			<tr>
+				<td>Водосток:</td>
+				<td>
+					<select id="gutter">
+						<option value="нет">нет</option>
+						<option value="квадратный">квадратный</option>
+						<option value="круглый">круглый</option>
+					</select>
+				</td>
 			</tr>
 			
 		</tbody>

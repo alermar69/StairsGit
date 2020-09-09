@@ -42,7 +42,6 @@ class AdditionalObject extends THREE.Object3D {
 		var actions = this.getActions();
 
 		var text = "\
-			<a class='dropdown-item editObject'>Редактировать</a>\
 			<a class='dropdown-item moveObject'>Переместить</a>\
 			<a class='dropdown-item setObjectInHole'>Вставить в проем</a>\
 			<a class='dropdown-item copyObjectContext'>Копировать</a>\
@@ -142,6 +141,16 @@ class AdditionalObject extends THREE.Object3D {
 		}
 	}
 
+	/**
+	 * Обрабатывает данные формы
+	 * @param form - дом элемент JQuery (например -  $('#form'))
+	 * @param data - параметры объекта
+	 */
+	static formChange(form, data){
+		// console.log(data);
+		// form.find('input').hide();
+	}
+
 	static onClick(item, event) {
 		var parent = AdditionalObject.isChild(item);
 		if (parent) {
@@ -215,6 +224,10 @@ class AdditionalObject extends THREE.Object3D {
 			{
 				className: 'Winder',
 				title: 'Забег бетон'
+			},
+			{
+				className: 'Sill',
+				title: 'Подоконник'
 			},
 			{
 				className: 'RackWall',
@@ -308,6 +321,14 @@ class AdditionalObject extends THREE.Object3D {
 			{
 				className: 'Pool',
 				title: 'Бассейн'
+			},
+			{
+				className: 'Roof',
+				title: 'Крыша'
+			},
+			{
+				className: 'Fence',
+				title: 'Забор'
 			}
 		]
 	}

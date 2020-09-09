@@ -85,11 +85,7 @@ $(function () {
 				var id = $(this).attr('data-id');
 				var selector = $(this).attr('data-object_selector');
 
-				view.scene.traverse(function(node){
-					if (node.objectRowClass == selector && node.objectRowId == id) {
-						selectObject(node);
-					}
-				})
+				selectObjectByRow(selector, id);
 			}
 		}
 	});
@@ -602,6 +598,14 @@ function showSpecInfo(selectedObj, e) {
 // 	selectedSpecObj = null;
 // }
 
+function selectObjectByRow(rowClass, rowId){
+	view.scene.traverse(function(node){
+		if (node.objectRowClass == rowClass  && node.objectRowId == rowId) {
+			selectObject(node);
+		}
+	})
+}
+
 var selectedObject = null
 
 /**
@@ -609,13 +613,21 @@ var selectedObject = null
  * @param object - выделяемый объект
  */
 function selectObject(object){
+	console.log(object)
 	if (selectedObject) unselectObject();
 	selectedObject = findNearestObject3D(object);
 	if (selectedObject) {
 		selectedObject.traverse(function (node) {
-			if (node.type != "LineSegments" && node.material && !node.oldMaterial) {
+			// Если не линии, есть материал, нету предыдущего материала(oldMaterial)(туда убирается актуальный если есть выделение) и если включено выделение(только для доп объектов)
+			if (node.type != "LineSegments" && node.material && !node.oldMaterial && ((selectedObject.objectRowClass == 'additionalObjectRow' && !window.objectSelectionHidden) || selectedObject.objectRowClass != 'additionalObjectRow')) {
 				node.oldMaterial = node.material;
 				node.material = selectMaterial;
+			}
+
+			if (node.material == selectMaterial && selectedObject.objectRowClass == 'additionalObjectRow' && window.objectSelectionHidden) {
+				node.material = node.oldMaterial;
+				delete node.oldMaterial;
+				node.oldMaterial = null;
 			}
 		});
 
@@ -627,6 +639,10 @@ function selectObject(object){
 				$('.specRow').removeClass('selected');
 				$('.specRow[data-articul="' + selectedObject.specId + '"').addClass('selected');
 			}
+		}
+
+		if (selectedObject.objectRowClass == 'additionalObjectRow' && window.additionalObjectParamsShow) {
+			additionalObjectParamsShow(selectedObject.objectRowId);
 		}
 	}
 }
@@ -670,9 +686,10 @@ function unselectAllObjects(){
 				if (node.material.opacityDefaultState != undefined) node.material.opacity = node.material.opacityDefaultState;
 				node.material.transparentDefaultState = node.material.opacityDefaultState = undefined;
 			}
-			if (node.objectRowClass) $('.' + node.objectRowClass).removeClass('selected');
+			// if (node.objectRowClass) $('.' + node.objectRowClass).removeClass('selected');
 		});
-		$('.specRow').removeClass('selected');
+		// $('.specRow').removeClass('selected');
+		// if (window.additionalObjectParamsShow) additionalObjectParamsShow(0);
 		allSpecsShowed = false;
 	}
 }
@@ -767,7 +784,9 @@ function addLayer(layerName, title) {
 
 function addFloorPlane(viewportId, isVisible) {
 	isVisible = isVisible || false;
-	drawFloorPlane(params.floorThickness - params.floorOffsetBot, params.floorOffsetBot, isVisible, viewportId, 0xaaaaaa);
+	var floorThk = params.floorThickness - params.floorOffsetBot;
+	if(!floorThk) floorThk = 200;
+	drawFloorPlane(floorThk, params.floorOffsetBot, isVisible, viewportId, 0xaaaaaa);
 	if (params.floorOffsetBot > 0) {
 		drawFloorPlane(params.floorOffsetBot, 0, isVisible, viewportId, 0xcccccc);
 	}
@@ -1232,6 +1251,10 @@ function redrawAdditionalObjects(){
 		addAdditionalObjectTable(this);
 		addAdditionalObject(this);
 	});
+
+	if (window.selectedObject && selectedObject.objectRowClass == "additionalObjectRow") {
+		selectObjectByRow(selectedObject.objectRowClass, selectedObject.objectRowId);
+	}
 }
 
 function drawParMeshWrapper(par){
