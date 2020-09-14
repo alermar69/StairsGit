@@ -9,7 +9,7 @@ $(function () {
 	//$("#beamModel").val("ферма постоянной ширины");
 	//$("#roofAng").val(15);
 
-	$("#baseModel").val("S-9");
+	$("#baseModel").val("T-18");
 	//$("#tableGeom").val("круглый");
 
 });

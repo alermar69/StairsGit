@@ -1878,6 +1878,12 @@ function drawMesh(par) {
 		}
 	}
 
+	if (par.pointsHole) {
+		var hole = new THREE.Path();
+		addPath(hole, par.dxfArr, par.pointsHole, par.dxfBasePoint)
+		par.shape.holes.push(hole);
+	}
+
 	var extrudeOptions = {
 		amount: par.thk,
 		bevelEnabled: false,

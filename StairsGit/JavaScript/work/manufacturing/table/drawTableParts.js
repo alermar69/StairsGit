@@ -10,9 +10,24 @@ function drawTableBase(par){
 	var modelPar = getTableBasePar(par);
 	var profPar = getProfParams(modelPar.legProf)
 	par.legProfPar = profPar;
+
+	var thk = 8;
+	var widthFlanTop = 100;
+	var turn = 1;
+
+	var p0 = { x: 0, y: 0 };
+
+	//точки контура подстолья
+	var pt1 = copyPoint(p0);
+	var pt2 = newPoint_xy(pt1, 0, par.len);
+	var pt3 = newPoint_xy(pt2, par.width, 0);
+	var pt4 = newPoint_xy(pt1, par.width, 0);
+
 	
-	for(var i=0; i<modelPar.partsAmt; i++){
-		
+	for (var i = 0; i < modelPar.partsAmt; i++){
+
+		if (i == 1) turn = -1;
+
 	//модель T-1, T-3, T-4
 		if (par.model == "T-1" || par.model == "T-3" || par.model == "T-4"){
 			var posZ = 0;
@@ -233,21 +248,24 @@ function drawTableBase(par){
 		}
 
 	//модель T-6
-		if (par.model == "T-6") {
+		if (par.model == "T-6" || par.model == "T-12") {
 			var mesh = new THREE.Object3D();
+
+			if (par.model == "T-12") profPar.sizeA = profPar.sizeB;
 
 			var ang = Math.atan(par.len / par.width); // угол диагонали
 
-			var p0 = { x: 0, y: 0 };
-
-			//точки контура подстолья
-			var pt1 = copyPoint(p0);;
-			var pt2 = newPoint_xy(pt1, 0, par.len);
-			var pt3 = newPoint_xy(pt2, par.width, 0);
-			var pt4 = newPoint_xy(pt1, par.width, 0);
+			if (par.model == "T-12") {
+				var pt11 = newPoint_xy(pt1, profPar.sizeB / 2, widthFlanTop / 2 - profPar.sizeB / 2)
+				var pt31 = newPoint_xy(pt3, -profPar.sizeB / 2, -widthFlanTop / 2 + profPar.sizeB / 2)
+				ang = calcAngleX1(pt11, pt31)
+			}
 
 			//точки ноги, вид сверху
-			var p1 = polar(pt1, Math.PI / 2 + ang, profPar.sizeB / 2)
+			var p1 = copyPoint(pt1);
+			if (par.model == "T-12") p1 = copyPoint(pt11);
+
+			p1 = polar(p1, Math.PI / 2 + ang, profPar.sizeB / 2)
 			var p2 = polar(p1, ang, profPar.sizeA)
 			var p3 = polar(p2, Math.PI / 2 + ang, -profPar.sizeB)
 			var p4 = polar(p3, ang, -profPar.sizeA)
@@ -257,6 +275,7 @@ function drawTableBase(par){
 				points: [p1, p2, p3, p4],
 				thk: par.height,
 			}
+			if (par.model == "T-12") meshPar.thk -= thk;
 
 			//левая передняя нога
 			var pole1 = drawMesh(meshPar).mesh;
@@ -284,12 +303,11 @@ function drawTableBase(par){
 			var pole1 = drawMesh(meshPar).mesh;
 			mesh.add(pole1);
 
-
-			//mesh.rotation.x = -Math.PI / 2
-			//par.mesh.add(mesh);
-
 			//диагональная длинная перекладина
-			for (var j = 0; j < 2; j++) {
+			var count = 2;
+			if (par.model == "T-12") count = 1;
+
+			for (var j = 0; j < count; j++) {
 				var points5 = [points4[2], points2[1], points2[2], points4[1]]
 				meshPar.points = points5
 				meshPar.thk = profPar.sizeB
@@ -299,7 +317,7 @@ function drawTableBase(par){
 			}
 
 			//диагональная короткая перекладина
-			for (var j = 0; j < 2; j++) {
+			for (var j = 0; j < count; j++) {
 				//передняя
 				var points6 = [points[2], points[1]]
 				points6.push(itercection(points[0], points[1], points4[2], points4[3]))
@@ -322,9 +340,1240 @@ function drawTableBase(par){
 			}
 
 
+			//верхняя пластина-------------
+			if (par.model == "T-12") {
+				var p1 = copyPoint(p0)
+				var p2 = newPoint_xy(p1, 0, widthFlanTop)
+				var p3 = newPoint_xy(p2, par.width, 0)
+				var p4 = newPoint_xy(p1, par.width, 0)
+				var pointsTop = [p1, p2, p3, p4]
+
+				var meshPar = {
+					points: pointsTop,
+					thk: thk,
+				}
+
+				var pole1 = drawMesh(meshPar).mesh;
+				pole1.position.z = par.height - thk
+				mesh.add(pole1);
+
+				//---------
+				pointsTop = mirrowPoints(pointsTop, 'y')
+				pointsTop = mirrowPoints(pointsTop, 'x')
+				pointsTop = moovePoints(pointsTop, pt3)
+				meshPar.points = pointsTop;
+
+				var pole1 = drawMesh(meshPar).mesh;
+				pole1.position.z = par.height - thk
+				mesh.add(pole1);
+			}
+
+
 			mesh.rotation.x = -Math.PI / 2
 			par.mesh.add(mesh);
 		}
+
+	//модель T-7
+		if (par.model == "T-7") {
+			var mesh = new THREE.Object3D();
+
+			var angInclination = toRadians(8); //угол наклона 
+
+
+			//точки ноги, вид сбоку
+			var height1 = par.height - thk * 2;
+
+			var pt = newPoint_xy(p0, 0, height1);
+
+			var p1 = copyPoint(p0)
+			var p2 = itercection(p0, polar(p0, Math.PI / 2 - angInclination, 100), pt, polar(pt, 0, 100));
+			var line = parallel(p1, p2, -profPar.sizeA);
+			var p3 = itercection(line.p1, line.p2, pt, polar(pt, 0, 100));
+			var p4 = itercection(line.p1, line.p2, p0, polar(p0, 0, 100));
+			var points = [p1, p2, p3, p4];
+
+			var meshPar = {
+				points: points,
+				thk: profPar.sizeB,
+			}
+
+			//левая нога
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			//правая нога
+			var points2 = mirrowPoints(points, 'y')
+			points2 = moovePoints(points2, newPoint_xy(p0, par.len, 0))
+			meshPar.points = points2
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			mesh.rotation.y = Math.PI / 2;
+			mesh.position.y = thk;
+			mesh.position.x = par.width / 2 + profPar.sizeB / 2;
+
+			par.mesh.add(mesh)
+
+			//-------------------------------
+
+			var pt1 = newPoint_xy(p0, 0, height1 / 3 * 2);
+			pt1 = itercection(pt1, polar(pt1, 0, 100), points[2], polar(points[2], -Math.PI / 4, 100));
+			var line1 = parallel(pt1, polar(pt1, 0, 100), profPar.sizeA / 2);
+			var line2 = parallel(pt1, polar(pt1, 0, 100), -profPar.sizeA / 2);
+
+			var line3 = parallel(points[3], polar(points[3], calcAngleX1(points[3], pt1), 100), -profPar.sizeA);
+			var line4 = parallel(points[2], pt1, profPar.sizeA);
+
+			var p1 = itercectionLines(line3, line2);
+			var p2 = itercection(line3.p1, line3.p2, p0, polar(p0, 0, 100));
+			var p3 = copyPoint(points[3])
+			var p4 = copyPoint(pt1)
+			var p5 = copyPoint(points[2])
+			var p6 = itercection(line4.p1, line4.p2, pt, polar(pt, 0, 100));
+			var p7 = itercectionLines(line4, line1);
+
+			var points3 = [p1, p2, p3, p4, p5, p6, p7];
+			var points4 = mirrowPoints(points3, 'y')
+			points4 = moovePoints(points4, newPoint_xy(p0, par.len, 0))
+			points4.reverse();
+			points3.push(...points4)
+
+			var meshPar = {
+				points: points3,
+				thk: profPar.sizeB,
+			}
+
+			var pole1 = drawMesh(meshPar).mesh;
+			pole1.rotation.y = Math.PI / 2;
+			pole1.position.y = thk;
+			pole1.position.x = par.width / 2 + profPar.sizeB / 2;
+
+			par.mesh.add(pole1)
+
+			//верхний, нижний фланец-----------------------------
+			var mesh = new THREE.Object3D();
+
+			//верхний-------------
+			var p1 = newPoint_xy(p0, 0, points[1].x)
+			var p2 = newPoint_xy(p0, 0, points3[5].x)
+			var p3 = newPoint_xy(p2, par.width, 0)
+			var p4 = newPoint_xy(p1, par.width, 0)
+			var pointsTop1 = [p1, p2, p3, p4];
+
+			var meshPar = {
+				points: pointsTop1,
+				thk: thk,
+			}
+
+			//левый фланец
+			var pole1 = drawMesh(meshPar).mesh;
+			pole1.position.z = par.height - thk;
+			mesh.add(pole1);
+
+			//правый фланец
+			var pointsTop2 = mirrowPoints(pointsTop1, 'x')
+			pointsTop2 = moovePoints(pointsTop2, newPoint_xy(p0, 0, par.len))
+			meshPar.points = pointsTop2
+			var pole1 = drawMesh(meshPar).mesh;
+			pole1.position.z = par.height - thk;
+			mesh.add(pole1);
+
+			//нижний-------------
+			var p1 = copyPoint(p0)
+			var p2 = newPoint_xy(p0, 0, points3[1].x)
+			var p3 = newPoint_xy(p2, par.width, 0)
+			var p4 = newPoint_xy(p1, par.width, 0)
+			var pointsBot1 = [p1, p2, p3, p4];
+
+			var meshPar = {
+				points: pointsBot1,
+				thk: thk,
+			}
+
+			//левый фланец
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			//правый фланец
+			var pointsBot2 = mirrowPoints(pointsBot1, 'x')
+			pointsBot2 = moovePoints(pointsBot2, newPoint_xy(p0, 0, par.len))
+			meshPar.points = pointsBot2
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			mesh.rotation.x = -Math.PI / 2
+			par.mesh.add(mesh);
+		}
+
+	//модель T-8
+		if (par.model == "T-8") {
+			var mesh = new THREE.Object3D();
+
+			var angInclination = toRadians(15); //угол наклона 
+
+
+			//точки ноги, вид сбоку
+			var height1 = par.height - thk;
+			var offset = 200;
+
+			var pt = newPoint_xy(p0, 0, height1);
+
+			var p1 = newPoint_xy(p0, offset, 0)
+			var p2 = itercection(p1, polar(p1, Math.PI / 2 + angInclination, 100), pt, polar(pt, 0, 100));
+			var line = parallel(p1, p2, profPar.sizeA);
+			var p3 = itercection(line.p1, line.p2, pt, polar(pt, 0, 100));
+			var p4 = itercection(line.p1, line.p2, p0, polar(p0, 0, 100));
+			var points = [p1, p2, p3, p4];
+
+			var meshPar = {
+				points: points,
+				thk: profPar.sizeB,
+			}
+
+			//левая нога
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			//правая нога
+			var points2 = mirrowPoints(points, 'y')
+			points2 = moovePoints(points2, newPoint_xy(p0, par.len, 0))
+			meshPar.points = points2
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			mesh.rotation.y = Math.PI / 2;
+			if(i== 1) mesh.position.x = par.width - profPar.sizeB;
+
+			par.mesh.add(mesh)
+
+			//----------------------------------
+			var p1 = copyPoint(p0)
+			var p2 = newPoint_xy(p1, 0, profPar.sizeA);
+			var p3 = itercection(points[0], points[1], p2, polar(p2, 0, 100));
+			var p4 = itercection(points[0], points[1], p1, polar(p1, 0, 100));
+			var points1 = [p1, p2, p3, p4];
+
+			var meshPar = {
+				points: points1,
+				thk: profPar.sizeB,
+			}
+
+			//левая нога
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			//правая нога
+			var points2 = mirrowPoints(points1, 'y')
+			points2 = moovePoints(points2, newPoint_xy(p0, par.len, 0))
+			meshPar.points = points2
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			mesh.rotation.y = Math.PI / 2;
+			if (i == 1) mesh.position.x = par.width - profPar.sizeB;
+
+			par.mesh.add(mesh)
+
+
+			//верхний, нижний фланец-----------------------------
+			var mesh = new THREE.Object3D();
+
+			//верхний-------------
+			var offset = points[1].x + (points[2].x - points[1].x) / 2
+
+			var p1 = newPoint_xy(p0, 0, offset - 100 / 2)
+			var p2 = newPoint_xy(p0, 0, offset + 100 / 2)
+			var p3 = newPoint_xy(p2, par.width, 0)
+			var p4 = newPoint_xy(p1, par.width, 0)
+
+			var pointsTop = [p1, p2, p3, p4];
+			if (i == 0) {
+				pointsTop = mirrowPoints(pointsTop, 'x')
+				pointsTop = moovePoints(pointsTop, newPoint_xy(p0, 0, par.len))
+			}
+
+			var meshPar = {
+				points: pointsTop,
+				thk: thk,
+			}
+
+			var pole1 = drawMesh(meshPar).mesh;
+			pole1.position.z = par.height - thk;
+			mesh.add(pole1);
+
+			//нижний-------------
+			var p1 = newPoint_xy(p0, profPar.sizeB, 0)
+			var p2 = newPoint_xy(p1, 0,profPar.sizeB)
+			var p3 = newPoint_xy(p2, par.width - profPar.sizeB * 2, 0)
+			var p4 = newPoint_xy(p1, par.width - profPar.sizeB * 2, 0)
+
+			var pointsBot = [p1, p2, p3, p4];
+			if (i == 0) {
+				pointsBot = mirrowPoints(pointsBot, 'x')
+				pointsBot = moovePoints(pointsBot, newPoint_xy(p0, 0, par.len))
+			}
+
+			var meshPar = {
+				points: pointsBot,
+				thk: profPar.sizeA,
+			}
+
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			mesh.rotation.x = -Math.PI / 2
+			par.mesh.add(mesh);
+		}
+
+	//модель T-9
+		if (par.model == "T-9") {
+			var mesh = new THREE.Object3D();
+
+
+			//точки ноги, вид сбоку
+			var height1 = par.height - thk;
+
+			var pt = newPoint_xy(p0, par.len / 2 - profPar.sizeB / 2, height1 / 2);
+
+			//точки нижней ноги
+			var p1 = copyPoint(p0)
+			var p2 = copyPoint(pt)
+			var line = parallel(p1, p2, -profPar.sizeA);
+			var p3 = itercection(line.p1, line.p2, pt, polar(pt, Math.PI / 2, 100));
+			var p4 = itercection(line.p1, line.p2, p0, polar(p0, 0, 100));
+			var points = [p1, p2, p3, p4];
+
+			//точки верхней ноги
+			var p1 = copyPoint(pt)
+			var p2 = newPoint_xy(p0, 0, height1);
+			var line = parallel(p1, p2, profPar.sizeA);
+			var p3 = itercection(line.p1, line.p2, p2, polar(p2, 0, 100));
+			var p4 = itercection(line.p1, line.p2, pt, polar(pt, Math.PI / 2, 100));
+			
+			var points1 = [p1, p2, p3, p4];
+
+			if (i == 1) {
+				points = mirrowPoints(points, 'y')
+				points = moovePoints(points, newPoint_xy(p0, par.len, 0))
+
+				points1 = mirrowPoints(points1, 'y')
+				points1 = moovePoints(points1, newPoint_xy(p0, par.len, 0))
+			}
+
+			var meshPar = {
+				points: points,
+				thk: profPar.sizeB,
+			}
+
+			//нижняя нога
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			//верхняя нога
+			meshPar.points = points1
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			mesh.rotation.y = Math.PI / 2;
+			mesh.position.x = par.width / 2 - profPar.sizeB / 2;
+
+			par.mesh.add(mesh)
+
+			if (i == 0) {
+				var mesh = new THREE.Object3D();
+
+				var pt = newPoint_xy(p0, par.width, height1);
+				var ang = calcAngleX1(p0, pt);
+				var pt1 = polar(pt, ang + Math.PI / 2, profPar.sizeA)
+				ang = calcAngleX1(p0, pt1);
+
+				//точки длинной ноги
+				var p1 = copyPoint(p0)
+				var p2 = itercection(p0, polar(p0, ang, 100), pt, polar(pt, 0, 100));
+				var p3 = copyPoint(pt)
+				var p4 = itercection(pt, polar(pt, ang, 100), p0, polar(p0, 0, 100));
+				var points3 = [p1, p2, p3, p4];
+
+				var meshPar = {
+					points: points3,
+					thk: profPar.sizeB,
+				}
+
+				var pole1 = drawMesh(meshPar).mesh;
+				mesh.add(pole1);
+
+				//точки коротких ног
+				var p1 = newPoint_xy(p0, 0, height1);
+				var p4 = itercection(p1, polar(p1, -ang, 100), p0, polar(p0, 0, 100));
+				var p3 = newPoint_xy(p0, par.width, 0)
+				var p2 = itercection(p3, polar(p3, -ang, 100), pt, polar(pt, 0, 100));
+
+				var widthTopFlan = distance(p1, p2);
+
+				var pt1 = itercection(p1, p4, points3[2], points3[3])
+				var pt2 = itercection(p2, p3, points3[2], points3[3])
+				var pt3 = itercection(p1, p4, points3[0], points3[1])
+				var pt4 = itercection(p2, p3, points3[0], points3[1])
+
+				var meshPar = {
+					points: [p3, p4, pt1, pt2],
+					thk: profPar.sizeB,
+				}
+
+				var pole1 = drawMesh(meshPar).mesh;
+				mesh.add(pole1);
+
+				meshPar.points = [p1, p2, pt4, pt3]
+				var pole1 = drawMesh(meshPar).mesh;
+				mesh.add(pole1);
+
+				mesh.position.z = -(par.len / 2 + profPar.sizeB / 2);
+
+				par.mesh.add(mesh)
+			}
+
+
+			//верхний фланец-----------------------------
+			var mesh = new THREE.Object3D();
+
+			var p1 = newPoint_xy(p0, par.width / 2 - (profPar.sizeB + 40) / 2, -20)
+			var p4 = newPoint_xy(p0, par.width / 2 + (profPar.sizeB + 40) / 2, -20)
+			var p2 = newPoint_xy(p1, 0, distance(points1[1], points1[2]) + 20)
+			var p3 = newPoint_xy(p4, 0, distance(points1[1], points1[2]) + 20)
+
+			var pointsTop = [p1, p2, p3, p4];
+			if (i == 0) {
+				pointsTop = mirrowPoints(pointsTop, 'x')
+				pointsTop = moovePoints(pointsTop, newPoint_xy(p0, 0, par.len))
+			}
+
+			var meshPar = {
+				points: pointsTop,
+				thk: thk,
+			}
+
+			var pole1 = drawMesh(meshPar).mesh;
+			pole1.position.z = par.height - thk;
+			mesh.add(pole1);
+
+			//-------------------
+			var p1 = newPoint_xy(p0, -20, par.len / 2 - (profPar.sizeB + 40) / 2)
+			var p4 = newPoint_xy(p0, -20, par.len / 2 + (profPar.sizeB + 40) / 2)
+			var p2 = newPoint_xy(p1, widthTopFlan + 20, 0)
+			var p3 = newPoint_xy(p4, widthTopFlan + 20, 0)
+
+			var pointsTop = [p1, p2, p3, p4];
+			if (i == 0) {
+				pointsTop = mirrowPoints(pointsTop, 'y')
+				pointsTop = moovePoints(pointsTop, newPoint_xy(p0, par.width, 0))
+			}
+
+			var meshPar = {
+				points: pointsTop,
+				thk: thk,
+			}
+
+			var pole1 = drawMesh(meshPar).mesh;
+			pole1.position.z = par.height - thk;
+			mesh.add(pole1);
+
+			mesh.rotation.x = -Math.PI / 2
+			par.mesh.add(mesh);
+		}
+
+	//модель T-10
+		if (par.model == "T-10") {
+			var mesh = new THREE.Object3D();
+
+			//нижняя перемычка
+			var p1 = newPoint_xy(p0, par.width, 0)
+			var p2 = newPoint_xy(p1, -profPar.sizeB, 0)
+			var p3 = newPoint_xy(p2, 0, 200)
+			var p4 = newPoint_xy(p1, 0, 200)
+			var points = [p1, p2, p3, p4];
+
+			//-------------
+			var p1 = newPoint_xy(p0, profPar.sizeB, 0)
+			var p2 = newPoint_xy(p1, 0, profPar.sizeB);
+			var p3 = newPoint_xy(p2, par.width - profPar.sizeB * 2, 0);
+			var p4 = newPoint_xy(p1, par.width - profPar.sizeB * 2, 0);
+
+			var points1 = [p1, p2, p3, p4];
+
+			//верхняя перемычка
+			var p1 = newPoint_xy(p0, 0, profPar.sizeB)
+			var p2 = newPoint_xy(p0, 0, par.len / 2 + profPar.sizeB / 2);
+			var p3 = newPoint_xy(p2, profPar.sizeB, 0);
+			var p4 = newPoint_xy(p1, profPar.sizeB, 0);
+
+			var points2 = [p1, p2, p3, p4];
+
+			//нога
+			var p1 = copyPoint(p0)
+			var p2 = newPoint_xy(p1, 0, profPar.sizeB);
+			var p3 = newPoint_xy(p2, profPar.sizeB, 0);
+			var p4 = newPoint_xy(p1, profPar.sizeB, 0);
+
+			var points3 = [p1, p2, p3, p4];
+
+			if (i == 1) {
+				points = mirrowPoints(points, 'y')
+				points = mirrowPoints(points, 'x')
+				points = moovePoints(points, newPoint_xy(p0, par.width, par.len))
+
+				points1 = mirrowPoints(points1, 'x')
+				points1 = moovePoints(points1, newPoint_xy(p0, 0, par.len))
+
+				points2 = mirrowPoints(points2, 'y')
+				points2 = mirrowPoints(points2, 'x')
+				points2 = moovePoints(points2, newPoint_xy(p0, par.width, par.len))
+
+				points3 = mirrowPoints(points3, 'y')
+				points3 = mirrowPoints(points3, 'x')
+				points3 = moovePoints(points3, newPoint_xy(p0, par.width, par.len))
+			}
+
+			var meshPar = {
+				points: points,
+				thk: profPar.sizeB,
+			}
+
+			//нижняя перемычка
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			//--
+			meshPar.points = points1
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			//верхняя перемычка
+			meshPar.points = points2
+			var pole1 = drawMesh(meshPar).mesh;
+			pole1.position.z = par.height - profPar.sizeB;
+			mesh.add(pole1);
+
+			//нога
+			meshPar.points = points3
+			meshPar.thk = par.height
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+
+			//средняя перемычка
+			if (i == 0) {
+				var p1 = newPoint_xy(p0, profPar.sizeB, par.len / 2 - profPar.sizeB / 2);
+				var p2 = newPoint_xy(p1, 0, profPar.sizeB);
+				var p3 = newPoint_xy(p2, par.width - profPar.sizeB * 2, 0);
+				var p4 = newPoint_xy(p1, par.width - profPar.sizeB * 2, 0);
+				var points4 = [p1, p2, p3, p4];
+
+				var meshPar = {
+					points: points4,
+					thk: profPar.sizeB,
+				}
+
+				var pole1 = drawMesh(meshPar).mesh;
+				pole1.position.z = par.height - profPar.sizeB;
+				mesh.add(pole1);
+			}
+
+			mesh.rotation.x -= Math.PI / 2;
+			par.mesh.add(mesh)
+
+		}
+
+	//модель T-11
+		if (par.model == "T-11") {
+			var mesh = new THREE.Object3D();
+
+			var len = 200;
+
+			var arrLeg = []
+			var arrBot = []
+
+			var pt = newPoint_xy(p0, par.width, par.len);
+
+			//ноги-----------------------------------
+			var p1 = copyPoint(p0)
+			var p2 = newPoint_xy(p1, 0, profPar.sizeB)
+			var p3 = newPoint_xy(p2, profPar.sizeB, 0)
+			var p4 = newPoint_xy(p1, profPar.sizeB, 0)
+			arrLeg.push([p1, p2, p3, p4])
+
+			var p1 = newPoint_xy(p0, 0, len - profPar.sizeB)
+			var p2 = newPoint_xy(p1, 0, profPar.sizeB)
+			var p3 = newPoint_xy(p2, profPar.sizeB, 0)
+			var p4 = newPoint_xy(p1, profPar.sizeB, 0)
+			arrLeg.push([p1, p2, p3, p4])
+
+			var p1 = newPoint_xy(p0, par.width - profPar.sizeB, 0)
+			var p2 = newPoint_xy(p1, 0, profPar.sizeB)
+			var p3 = newPoint_xy(p2, profPar.sizeB, 0)
+			var p4 = newPoint_xy(p1, profPar.sizeB, 0)
+			arrLeg.push([p1, p2, p3, p4])
+
+			var p1 = newPoint_xy(p0, par.width - profPar.sizeB, len - profPar.sizeB)
+			var p2 = newPoint_xy(p1, 0, profPar.sizeB)
+			var p3 = newPoint_xy(p2, profPar.sizeB, 0)
+			var p4 = newPoint_xy(p1, profPar.sizeB, 0)
+			arrLeg.push([p1, p2, p3, p4])
+
+			for (var j = 0; j < arrLeg.length; j++) {
+				var points = arrLeg[j]
+				if (i == 1) {
+					points = mirrowPoints(points, 'y')
+					points = mirrowPoints(points, 'x')
+					points = moovePoints(points, pt)
+				}
+				var meshPar = {
+					points: points,
+					thk: par.height - thk,
+				}
+
+				var pole1 = drawMesh(meshPar).mesh;
+				mesh.add(pole1);
+			}
+
+			//нижняя перемычка-------------------------
+			var p1 = newPoint_xy(p0, 0, profPar.sizeB)
+			var p2 = newPoint_xy(p0, 0, len - profPar.sizeB)
+			var p3 = newPoint_xy(p2, profPar.sizeB, 0)
+			var p4 = newPoint_xy(p1, profPar.sizeB, 0)
+			arrBot.push([p1, p2, p3, p4])
+
+			var p1 = newPoint_xy(p0, par.width - profPar.sizeB, profPar.sizeB)
+			var p2 = newPoint_xy(p1, 0, len - profPar.sizeB * 2)
+			var p3 = newPoint_xy(p2, profPar.sizeB, 0)
+			var p4 = newPoint_xy(p1, profPar.sizeB, 0)
+			arrBot.push([p1, p2, p3, p4])
+
+			var p1 = newPoint_xy(p0, profPar.sizeB,0)
+			var p2 = newPoint_xy(p1, 0, profPar.sizeB)
+			var p3 = newPoint_xy(p2, par.width - profPar.sizeB * 2, 0)
+			var p4 = newPoint_xy(p1, par.width - profPar.sizeB * 2, 0)
+			arrBot.push([p1, p2, p3, p4])
+
+			var p1 = newPoint_xy(p0, profPar.sizeB, len - profPar.sizeB)
+			var p2 = newPoint_xy(p1, 0, profPar.sizeB)
+			var p3 = newPoint_xy(p2, par.width - profPar.sizeB * 2, 0)
+			var p4 = newPoint_xy(p1, par.width - profPar.sizeB * 2, 0)
+			arrBot.push([p1, p2, p3, p4])
+
+			for (var j = 0; j < arrBot.length; j++) {
+				var points = arrBot[j]
+				if (i == 1) {
+					points = mirrowPoints(points, 'y')
+					points = mirrowPoints(points, 'x')
+					points = moovePoints(points, pt)
+				}
+				var meshPar = {
+					points: points,
+					thk: profPar.sizeB,
+				}
+
+				var pole1 = drawMesh(meshPar).mesh;
+				mesh.add(pole1);
+			}
+
+			//верхняя пластина-------------
+			var p1 = copyPoint(p0)
+			var p2 = newPoint_xy(p1, 0, len)
+			var p3 = newPoint_xy(p2, par.width, 0)
+			var p4 = newPoint_xy(p1, par.width, 0)
+			var pointsTop = [p1, p2, p3, p4]
+
+			if (i == 1) {
+				pointsTop = mirrowPoints(pointsTop, 'y')
+				pointsTop = mirrowPoints(pointsTop, 'x')
+				pointsTop = moovePoints(pointsTop, pt)
+			}
+			var meshPar = {
+				points: pointsTop,
+				thk: thk,
+			}
+
+			var pole1 = drawMesh(meshPar).mesh;
+			pole1.position.z = par.height - thk
+			mesh.add(pole1);
+
+
+
+			mesh.rotation.x -= Math.PI / 2;
+			par.mesh.add(mesh)
+
+		}
+
+	//модель T-13
+		if (par.model == "T-13") {
+
+			if (i == 0) {
+				//верхняя пластина-------------
+				var p1 = copyPoint(p0)
+				var p2 = newPoint_xy(p1, 0, widthFlanTop)
+				var p3 = newPoint_xy(p2, widthFlanTop / 2, 0)
+				var p4 = newPoint_xy(p3, 0, -widthFlanTop / 2)
+				var p5 = newPoint_xy(p4, widthFlanTop / 2, 0)
+				var p6 = newPoint_xy(p1, widthFlanTop, 0)
+				var points = [p1, p2, p3, p4, p5, p6]
+
+				var partsPar = {
+					points: points,
+					width: par.width,
+					len: par.len,
+					thk: thk,
+					posY: par.height - thk,
+				}
+
+				var mesh = drawTableBaseParts(partsPar).mesh;
+
+				mesh.rotation.x -= Math.PI / 2;
+				par.mesh.add(mesh)
+			}
+
+			//ноги из круглых палок---------------
+			
+			var mesh1 = new THREE.Object3D();
+
+			for (var k = 0; k < 2; k++) {
+				var mesh = new THREE.Object3D();
+
+				var polePar = {
+					type: "round",
+					poleProfileY: 10,
+					dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+					length: par.height - thk,
+					poleAngle: Math.PI / 2,
+				}
+
+				var pole1 = drawPole3D_4(polePar).mesh;
+				mesh.add(pole1);
+
+				var ang = Math.atan((par.height - thk) / (widthFlanTop - polePar.poleProfileY * 2))
+				polePar.poleAngle = ang;
+				polePar.length = polePar.length / Math.sin(ang);
+
+				var pole2 = drawPole3D_4(polePar).mesh;
+				pole2.position.x += polePar.poleProfileY;
+				mesh.add(pole2);
+
+				var pole3 = drawPole3D_4(polePar).mesh;
+				pole3.rotation.y = Math.PI / 2
+				pole3.position.z -= polePar.poleProfileY;
+				pole3.position.x -= polePar.poleProfileY;
+				mesh.add(pole3);
+
+				mesh.position.x = polePar.poleProfileY;
+				mesh.position.z = -polePar.poleProfileY;
+
+				if (k == 1) {
+					mesh.rotation.y = Math.PI / 2
+					mesh.position.x += par.width - polePar.poleProfileY * 2;
+				}
+				mesh1.add(mesh)
+			}
+
+			if (i == 1) {
+				mesh1.rotation.y = Math.PI
+				mesh1.position.z -= par.len;
+				mesh1.position.x += par.width;
+			}
+			par.mesh.add(mesh1)
+		}
+
+	//модель T-14
+		if (par.model == "T-14") {
+
+			var lenFlanTop = Math.floor(par.width / 3)
+
+			if (i == 0) {
+				//верхняя пластина-------------
+				var p1 = copyPoint(p0)
+				var p2 = newPoint_xy(p1, 0, widthFlanTop)
+				var p3 = newPoint_xy(p2, lenFlanTop, 0)
+				var p4 = newPoint_xy(p1, lenFlanTop, 0)
+				var points = [p1, p2, p3, p4]
+
+				var partsPar = {
+					points: points,
+					width: par.width,
+					len: par.len,
+					thk: thk,
+					posY: par.height - thk,
+				}
+
+				var mesh = drawTableBaseParts(partsPar).mesh;
+
+				mesh.rotation.x -= Math.PI / 2;
+				par.mesh.add(mesh)
+
+				//ноги-------------
+				var mesh = new THREE.Object3D();
+
+				var p1 = newPoint_xy(p0, 0, widthFlanTop / 2 - profPar.sizeB / 2)
+				var p2 = newPoint_xy(p1, 0, profPar.sizeB)
+				var p3 = newPoint_xy(p2, profPar.sizeB, 0)
+				var p4 = newPoint_xy(p1, profPar.sizeB, 0)
+				var points = [p1, p2, p3, p4]
+
+				var partsPar = {
+					points: points,
+					width: par.width,
+					len: par.len,
+					thk: par.height - thk,
+					posY: 0,
+				}
+
+				var mesh = drawTableBaseParts(partsPar).mesh;
+
+				mesh.rotation.x -= Math.PI / 2;
+				par.mesh.add(mesh)
+			}
+
+			//Боковые перемычки-------------------------
+			//длинная
+			var mesh = new THREE.Object3D();
+
+			var p1 = newPoint_xy(p0, profPar.sizeB, 0)
+			var p2 = newPoint_xy(p0, par.width - lenFlanTop, par.height - thk)
+			var line = parallel(p1, p2, -profPar.sizeB)
+			var p3 = itercection(line.p1, line.p2, p2, polar(p2, 0, 100));
+			var p4 = itercection(line.p1, line.p2, p1, polar(p1, 0, 100));
+			var points = [p1, p2, p3, p4]
+
+			var meshPar = {
+				points: points,
+				thk: profPar.sizeB,
+			}
+
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			//короткая
+			points1 = mirrowPoints(points, 'y')
+			points1 = moovePoints(points1, pt4)
+
+			var points2 = [points1[3], points1[0]]
+			points2.push(itercection(points[2], points[3], points1[0], points1[1]))
+			points2.push(itercection(points[2], points[3], points1[2], points1[3]))
+			meshPar.points = points2;
+
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+			//-----------------
+			var points3 = [points1[1], points1[2]]
+			points3.push(itercection(points[0], points[1], points1[2], points1[3]))
+			points3.push(itercection(points[0], points[1], points1[0], points1[1]))
+			meshPar.points = points3;
+
+			var pole1 = drawMesh(meshPar).mesh;
+			mesh.add(pole1);
+
+
+			mesh.position.z = -(widthFlanTop / 2 + profPar.sizeB / 2) * turn
+			if (i == 1) mesh.position.z -= par.len + profPar.sizeB;
+
+			par.mesh.add(mesh)
+		}
+
+	//модель T-15
+		if (par.model == "T-15") {
+
+			if (i == 0) {
+				//верхняя пластина-------------
+				var p1 = copyPoint(p0)
+				var p2 = newPoint_xy(p1, 0, widthFlanTop)
+				var p3 = newPoint_xy(p2, par.width, 0)
+				var p4 = newPoint_xy(p1, par.width, 0)
+				var points = [p1, p2, p3, p4]
+
+				var partsPar = {
+					points: points,
+					width: par.width,
+					len: par.len,
+					thk: thk,
+					posY: par.height - thk,
+					count: [2, 1]
+				}
+
+				var mesh = drawTableBaseParts(partsPar).mesh;
+
+				mesh.rotation.x -= Math.PI / 2;
+				par.mesh.add(mesh)
+			}
+
+			//Нога шестиугольная-------------------------
+			var offset = Math.floor(par.width / 4);
+			var pt = newPoint_xy(p0, 0, par.height - thk)
+
+			var p1 = newPoint_xy(p0, offset, 0)
+			var p2 = newPoint_xy(p0, 0, (par.height - thk) / 2)
+			var p3 = newPoint_xy(p0, offset, par.height - thk)
+			var points = [p1, p2, p3]
+
+			var points1 = mirrowPoints(points, 'y')
+			points1 = moovePoints(points1, pt4)
+			points1.reverse()
+
+			points.push(...points1)
+
+
+			//точки отверстия
+			var line1 = parallel(p1, polar(p1, 0, 100), profPar.sizeB)
+			var line11 = parallel(p1, p2, profPar.sizeB)
+			var line2 = parallel(p3, polar(p3, 0, 100), -profPar.sizeB)
+			var line21 = parallel(p2, p3, -profPar.sizeB)
+
+
+			var p1 = itercectionLines(line1, line11);
+			var p2 = itercectionLines(line11, line21);
+			var p3 = itercectionLines(line2, line21);
+			var points2 = [p1, p2, p3]
+
+			var points3 = mirrowPoints(points2, 'y')
+			points3 = moovePoints(points3, pt4)
+			points3.reverse()
+
+			points2.push(...points3)
+			points2.push(points2[0])
+
+			//points.reverse()
+			points2.reverse()
+
+			//создаем меш
+			var meshPar = {
+				points: points,
+				pointsHole: points2,
+				thk: profPar.sizeB,
+				dxfArr: dxfPrimitivesArr,
+			}
+
+			var pole1 = drawMesh(meshPar).mesh;
+			pole1.position.z = -(widthFlanTop / 2 + profPar.sizeB / 2) * turn
+			if (i == 1) pole1.position.z -= par.len + profPar.sizeB;
+
+			par.mesh.add(pole1)
+		}
+
+	//модель T-16
+		if (par.model == "T-16") {
+
+			if (i == 0) {
+				//верхняя пластина-------------
+				var p1 = copyPoint(p0)
+				var p2 = newPoint_xy(p1, 0, widthFlanTop)
+				var p3 = newPoint_xy(p2, par.width, 0)
+				var p4 = newPoint_xy(p1, par.width, 0)
+				var points = [p1, p2, p3, p4]
+
+				var partsPar = {
+					points: points,
+					width: par.width,
+					len: par.len,
+					thk: thk,
+					posY: par.height - thk,
+					count: [2, 1]
+				}
+
+				var mesh = drawTableBaseParts(partsPar).mesh;
+
+				mesh.rotation.x -= Math.PI / 2;
+				par.mesh.add(mesh)
+
+				//ноги-------------
+				profPar.sizeA = profPar.sizeB;
+				var ang = Math.atan(par.len / par.width); // угол диагонали
+				var pt11 = newPoint_xy(pt1, profPar.sizeB / 2, widthFlanTop / 2 - profPar.sizeB / 2)
+				var pt31 = newPoint_xy(pt3, -profPar.sizeB / 2, -widthFlanTop / 2 + profPar.sizeB / 2)
+				ang = calcAngleX1(pt11, pt31)
+
+				var p1 = copyPoint(pt11);
+
+				p1 = polar(p1, Math.PI / 2 + ang, profPar.sizeB / 2)
+				var p2 = polar(p1, ang, profPar.sizeA)
+				var p3 = polar(p2, Math.PI / 2 + ang, -profPar.sizeB)
+				var p4 = polar(p3, ang, -profPar.sizeA)
+				var points = [p1, p2, p3, p4];
+
+
+				var partsPar = {
+					points: points,
+					width: par.width,
+					len: par.len,
+					thk: par.height - thk,
+					posY: 0,
+				}
+
+				var mesh = drawTableBaseParts(partsPar).mesh;
+
+				mesh.rotation.x -= Math.PI / 2;
+				par.mesh.add(mesh)
+			}
+
+			//нижняя дуговая перемычка по ширине
+			var points4 = mirrowPoints(points, 'y')
+			points4 = moovePoints(points4, pt4)
+
+			var pt = newPoint_xy(p0, par.width / 2, 0)
+			var pc = itercection(points[1], points[2], pt, polar(pt, Math.PI / 2, 100))
+			var rad = distance(pc, points[2])
+			var rad1 = rad + profPar.sizeB / 2
+
+			var shape = new THREE.Shape();
+			var ang = calcAngleX1(points[2], points[1])
+			addLine(shape, par.dxfArr, points[2], polar(points[2], ang, profPar.sizeB / 2), par.dxfBasePoint);
+			addArc2(shape, par.dxfArr, pc, rad1, ang, Math.PI - ang, true, par.dxfBasePoint)
+			addLine(shape, par.dxfArr, polar(points4[2], Math.PI - ang, profPar.sizeB / 2), points4[2], par.dxfBasePoint);
+			addArc2(shape, par.dxfArr, pc, rad, ang, Math.PI - ang, false, par.dxfBasePoint)
+
+			var extrudeOptions = {
+				amount: profPar.sizeB,
+				bevelEnabled: false,
+				curveSegments: 12,
+				steps: 1
+			};
+
+			var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+			geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+			var mesh = new THREE.Mesh(geom, params.materials.metal);
+
+			mesh.rotation.x -= Math.PI / 2;
+			if (i == 1) {
+				mesh.rotation.x = Math.PI / 2;
+				mesh.position.y = profPar.sizeB;
+				mesh.position.z -= par.len;
+			}
+			par.mesh.add(mesh)
+
+			//нижняя дуговая перемычка по длине
+			var points2 = mirrowPoints(points, 'x')
+			points2 = moovePoints(points2, pt2)
+
+			var pt = newPoint_xy(p0, 0, par.len / 2)
+			var pc = itercection(points[1], points[2], pt, polar(pt, 0, 100))
+			var rad = distance(pc, points[1])
+			var rad1 = rad + profPar.sizeB / 2
+
+			var shape = new THREE.Shape();
+			var ang = calcAngleX1(points[1], points[2])
+			addLine(shape, par.dxfArr, polar(points[1], ang, profPar.sizeB / 2), points[1], par.dxfBasePoint);
+			addArc2(shape, par.dxfArr, pc, rad, -ang, ang, false, par.dxfBasePoint)
+			addLine(shape, par.dxfArr, points2[1], polar(points2[1], - ang, profPar.sizeB / 2),  par.dxfBasePoint);
+			addArc2(shape, par.dxfArr, pc, rad1, -ang,  ang, true, par.dxfBasePoint)
+
+			var extrudeOptions = {
+				amount: profPar.sizeB,
+				bevelEnabled: false,
+				curveSegments: 12,
+				steps: 1
+			};
+
+			var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+			geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+			var mesh = new THREE.Mesh(geom, params.materials.metal);
+
+			mesh.rotation.x -= Math.PI / 2;
+			if (i == 1) {
+				mesh.rotation.y = Math.PI;
+				mesh.position.y = profPar.sizeB;
+				mesh.position.x = par.width;
+			}
+			par.mesh.add(mesh)
+		}
+
+	//модель T-17
+		if (par.model == "T-17") {
+
+			var rad = par.width;
+			var mesh = new THREE.Object3D();
+
+			var ang = Math.PI * 2 / 3;
+
+			var shape = new THREE.Shape();
+			addCircle(shape, par.dxfArr, p0, rad, par.dxfBasePoint)
+
+			var hole = new THREE.Path();
+			addCircle(hole, par.dxfArr, p0, rad - profPar.sizeB, par.dxfBasePoint)
+			shape.holes.push(hole);
+
+			var extrudeOptions = {
+				amount: profPar.sizeB,
+				bevelEnabled: false,
+				curveSegments: 32,
+				steps: 1
+			};
+
+			var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+			geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+			var pole1 = new THREE.Mesh(geom, params.materials.metal);
+			mesh.add(pole1);
+
+			var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+			geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+			var pole1 = new THREE.Mesh(geom, params.materials.metal);
+			pole1.position.z = par.height - profPar.sizeB
+			mesh.add(pole1);
+
+			mesh.rotation.x -= Math.PI / 2;
+			par.mesh.add(mesh)
+
+
+			//ноги---------------------------------------------
+			var mesh = new THREE.Object3D();
+			var pt = newPoint_xy(p0, rad, 0)
+			var line1 = parallel(p0, pt, - profPar.sizeA / 2)
+			var line2 = parallel(p0, pt, profPar.sizeA / 2)
+
+			//точки ноги, вид сверху
+			var p1 = itercectionLineCircle(line1.p1, line1.p2, p0, rad)[0]
+			var p2 = itercectionLineCircle(line2.p1, line2.p2, p0, rad)[0]
+			var p3 = newPoint_xy(p2, -profPar.sizeB, 0)
+			var p4 = newPoint_xy(p1, -profPar.sizeB, 0)
+
+			var points1 = [p1, p2, p3, p4];
+			var points2 = rotatePoints(points1, ang, p0);
+			var points3 = rotatePoints(points2, ang, p0);
+
+			var arr = [points1, points2, points3]
+
+			//рисуем ноги
+			for (var j = 0; j < 3; j++) {
+				var meshPar = {
+					points: arr[j],
+					thk: par.height - profPar.sizeB * 2,
+				}
+				var pole1 = drawMesh(meshPar).mesh;
+				pole1.position.z = profPar.sizeB;
+				mesh.add(pole1);
+			}
+			mesh.rotation.x = -Math.PI / 2
+			par.mesh.add(mesh);
+		}
+
+	//модель T-18
+		if (par.model == "T-18") {
+
+			if (i == 0) {
+				
+				//ноги-------------
+				var mesh = new THREE.Object3D();
+
+				var p1 = copyPoint(p0)
+				var p2 = newPoint_xy(p1, 0, profPar.sizeB)
+				var p3 = newPoint_xy(p2, profPar.sizeA, 0)
+				var p4 = newPoint_xy(p1, profPar.sizeA, 0)
+				var points = [p1, p2, p3, p4]
+
+				var partsPar = {
+					points: points,
+					width: par.width,
+					len: par.len,
+					thk: par.height,
+					posY: 0,
+				}
+
+				var mesh = drawTableBaseParts(partsPar).mesh;
+
+				mesh.rotation.x -= Math.PI / 2;
+				par.mesh.add(mesh)
+
+				///верхняя, нижняя перемычка-------------
+				var mesh = new THREE.Object3D();
+
+				var p1 = newPoint_xy(p0, profPar.sizeA, 0)
+				var p2 = newPoint_xy(p1, 0, profPar.sizeB)
+				var p3 = newPoint_xy(p2, par.width - profPar.sizeA * 2, 0)
+				var p4 = newPoint_xy(p1, par.width - profPar.sizeA * 2, 0)
+				var points = [p1, p2, p3, p4]
+
+				var partsPar = {
+					points: points,
+					width: par.width,
+					len: par.len,
+					thk: profPar.sizeA,
+					posY: 0,
+					count: [2, 1],
+				}
+
+				//нижняя
+				var meshBot = drawTableBaseParts(partsPar).mesh;
+				mesh.add(meshBot)
+
+				//верхняя
+				partsPar.posY = par.height - profPar.sizeA;
+				var meshTop = drawTableBaseParts(partsPar).mesh;
+				mesh.add(meshTop)
+
+				mesh.rotation.x -= Math.PI / 2;
+				par.mesh.add(mesh)
+			}
+
+			//Боковые перемычки в середине--------------------------
+			var mesh = new THREE.Object3D();
+
+			var pt1 = newPoint_xy(p0, profPar.sizeA, profPar.sizeA)
+			var pt2 = newPoint_xy(p0, profPar.sizeA, par.height - profPar.sizeA)
+			var pt3 = newPoint_xy(p0, par.width - profPar.sizeA, par.height - profPar.sizeA)
+			var pt4 = newPoint_xy(p0, par.width - profPar.sizeA, profPar.sizeA)
+
+			var arr = []
+
+			var p1 = copyPoint(pt1)
+			var p2 = newPoint_xy(pt3, -profPar.sizeA * 3, 0)
+			var line = parallel(p1, p2, -profPar.sizeA)
+			var p3 = itercection(line.p1, line.p2, pt2, pt3);
+			var p4 = itercection(line.p1, line.p2, pt1, pt4);
+			arr.push([p1, p2, p3, p4])
+
+			//-------------
+			var p6 = copyPoint(p3)
+			var p5 = itercection(p6, polar(p6, toRadians(85), 100), pt1, pt4);
+			var line = parallel(p5, p6, -profPar.sizeA)
+			var p7 = itercection(line.p1, line.p2, pt2, pt3);
+			var p8 = itercection(line.p1, line.p2, pt1, pt4);
+			arr.push([p5, p6, p7, p8])
+
+			//--------------
+			var pt5 = newPoint_xy(pt2, 0, -profPar.sizeA * 2)
+			var pt6 = newPoint_xy(pt4, 0, profPar.sizeA * 2)
+			var line1 = parallel(pt5, pt6, profPar.sizeA / 2)
+			var line2 = parallel(pt5, pt6, -profPar.sizeA / 2)
+
+			var pk1 = itercection(line1.p1, line1.p2, pt1, pt2);
+			var pk2 = itercection(line2.p1, line2.p2, pt1, pt2);
+			var pk3 = itercection(line2.p1, line2.p2, p1, p2);
+			var pk4 = itercection(line1.p1, line1.p2, p1, p2);
+			arr.push([pk1, pk2, pk3, pk4])
+
+			var pk1 = itercection(line1.p1, line1.p2, p3, p4);
+			var pk2 = itercection(line2.p1, line2.p2, p3, p4);
+			var pk3 = itercection(line2.p1, line2.p2, p5, p6);
+			var pk4 = itercection(line1.p1, line1.p2, p5, p6);
+			arr.push([pk1, pk2, pk3, pk4])
+
+			var pk1 = itercection(line1.p1, line1.p2, p7, p8);
+			var pk2 = itercection(line2.p1, line2.p2, p7, p8);
+			var pk3 = itercection(line2.p1, line2.p2, pt3, pt4);
+			var pk4 = itercection(line1.p1, line1.p2, pt3, pt4);
+			arr.push([pk1, pk2, pk3, pk4])
+
+			for (var j = 0; j < arr.length; j++) {
+				var meshPar = {
+					points: arr[j],
+					thk: thk,
+				}
+
+				var pole1 = drawMesh(meshPar).mesh;
+				mesh.add(pole1);
+			}		
+
+			mesh.position.z = -(profPar.sizeB / 2 + thk / 2) * turn
+			if (i == 1) mesh.position.z -= par.len + thk;
+
+			par.mesh.add(mesh)
+		}
+
 
 	//модель D-1
 		if (par.model == "D-1") {
@@ -418,15 +1667,6 @@ function drawTableBase(par){
 			profPar.sizeB = 8;
 			var thk = profPar.sizeB;
 			var height = par.height - thk;
-
-			var p0 = { x: 0, y: 0 };
-
-			//точки контура подстолья
-			var pt1 = copyPoint(p0);
-			var pt2 = newPoint_xy(pt1, 0, par.len);
-			var pt3 = newPoint_xy(pt2, par.width, 0);
-			var pt4 = newPoint_xy(pt1, par.width, 0);
-
 
 			//модель S-1
 			if (par.model == "S-1") {
@@ -1476,7 +2716,7 @@ function drawTableBase(par){
 	}
 	
 	//центр в точке 0,0
-	if (!(par.model == "S-9")) {
+	if (!(par.model == "S-9" || par.model == "T-17")) {
 		var box3 = new THREE.Box3().setFromObject(par.mesh);
 		par.mesh.position.x -= (box3.max.x + box3.min.x) / 2;
 		par.mesh.position.z -= (box3.max.z + box3.min.z) / 2;
@@ -1609,7 +2849,7 @@ function getTableBasePar(par){
 		par.roundOnly = true;
 	}
 	
-	var models = ['S-8','S-9', 'T-6', 'T-7', 'T-9', 'T-10', 'T-12', 'T-16', 'T-17',]
+	var models = ['S-8','S-9', 'T-6', 'T-7', 'T-12', 'T-17',]
 	if(models.indexOf(par.model) != -1){
 		par.partsAmt = 1;
 	}
@@ -2180,6 +3420,52 @@ function drawTableBaseleg_D1(par) {
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	par.mesh = new THREE.Mesh(geom, par.material);
+
+	return par;
+}
+
+
+/** функция отрисовывает часть подстолья относительно всех углов (вид сверху)
+*/
+
+function drawTableBaseParts(par) {
+	par.mesh = new THREE.Object3D();
+
+	if (!par.count) par.count = [2, 2]; // зеркалить по ширине, длине
+
+	var p0 = { x: 0, y: 0 };
+
+	//точки контура подстолья
+	var pt1 = copyPoint(p0);
+	var pt2 = newPoint_xy(pt1, 0, par.len);
+	var pt3 = newPoint_xy(pt2, par.width, 0);
+	var pt4 = newPoint_xy(pt1, par.width, 0);
+
+	var points = par.points;
+
+	for (var i = 0; i < par.count[0]; i++) {
+
+		if (i == 1) {
+			points = mirrowPoints(points, 'x')
+			points = moovePoints(points, pt2)
+		}
+
+		for (var k = 0; k < par.count[1]; k++) {
+			if (k == 1) {
+				points = mirrowPoints(points, 'y')
+				points = moovePoints(points, pt4)
+			}
+
+			var meshPar = {
+				points: points,
+				thk: par.thk,
+			}
+
+			var pole1 = drawMesh(meshPar).mesh;
+			pole1.position.z = par.posY
+			par.mesh.add(pole1);
+		}
+	}
 
 	return par;
 }
