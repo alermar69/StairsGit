@@ -4,7 +4,6 @@
 	<ul>
 		<li>Размеры</li>
 		<li>Стены</li>
-		<li>Выступы</li>
 		<li>Текстуры</li>
 	</ul>
 	<div>
@@ -21,12 +20,6 @@
 			<?php include $GLOBALS['ROOT_PATH']."/calculator/walls/forms/walls_form.php" ?>
 		</div>
 		
-	<!--форма параметров выступов -->
-		<div id="ledgeForm">
-
-			<?php include $GLOBALS['ROOT_PATH']."/calculator/walls/forms/ledges_form.php" ?>
-
-		</div>
 		
 	<!-- Форма текстур обстановки -->
 	<div id="texturesFormDiv">

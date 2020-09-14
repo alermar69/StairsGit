@@ -17,6 +17,7 @@ var simpleDraw = true; //упрощенная отрисовка модели
 var partsParams = {}; //данные о деталях для спецификации
 var layers = {};
 
+
 $(function () {
 	loadFont();
 	
@@ -89,8 +90,8 @@ function recalculate(){
 		selectedItems = [];
 		getAllInputsValues(params);
 		changeAllForms();			
-		addWardrobe('vl_1', true);
-		calcWrPrice();
+		drawCoupeWr('vl_1', true);
+		calculateCarcasPrice();
 		setCompany();
 		
 		drawTopFloor();
@@ -106,4 +107,7 @@ function configDinamicInputs() {
 	configBoxInputs();
 	configDoorsInputs();
 	changeFormLedges();
+}
+
+function staircaseLoaded(){
 }

@@ -284,7 +284,7 @@
 	
 	<tr> 
 		<td>Цвет деталей каркаса</td> 
-		<td><input id="carcasColor" type="text" value="не указан"></td>
+		<td><input id="carcasMatColor" type="text" value="не указан"></td>
 	</tr>
 	
 	<tr class="rearWall"> 

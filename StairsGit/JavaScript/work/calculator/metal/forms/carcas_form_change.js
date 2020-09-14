@@ -165,10 +165,8 @@ $("#columnPos_tr").hide();
 if (params.columnModel != "нет") $("#columnPos_tr").show();
 
 /*скрываем все чекбоксы*/
-for (var i=1; i<9; i++) {
-	var trId = "isColumn" + i + "_label";
-	document.getElementById(trId).style.display = "none";
-	}
+$("#columnPos_tr label").hide()
+
 
 
 var stairModel = params.stairModel;
@@ -201,9 +199,7 @@ if (stairModel == "П-образная трехмаршевая") {
 
 
 for (var i=1; i < maxColumnAmt+1; i++) {
-	var trId = "isColumn" + i + "_label";
-	
-	document.getElementById(trId).style.display = "";	
+	$("#isColumn" + i + "_label").show()	
 }
 
 	

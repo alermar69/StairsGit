@@ -23,7 +23,7 @@ class Shelf extends AdditionalObject {
 				"botOffset": this.par.botOffset
 			}
 		}
-			
+		shelfParams = {};
 		var shelfObj = drawShelf(shelfPar);
 		this.add(shelfObj.carcas);
 		this.add(shelfObj.panels);

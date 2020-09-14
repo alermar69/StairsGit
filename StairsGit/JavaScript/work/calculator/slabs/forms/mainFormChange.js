@@ -213,7 +213,7 @@ function addUnitParamsInputs($row){
 		values: "number",
 		name: "Высота, мм",
 		defaultVal: 700,
-		classNames: 'tableBase',
+		classNames: 'tableBase facade',
 	};
 	props.push(prop)
 	
@@ -442,6 +442,7 @@ function addUnitParamsInputs($row){
 			'T-16',
 			'T-17',
 			'T-18',
+			'T-19',
 		],
 		name: "Модель",
 		classNames: 'tableBase',
@@ -455,6 +456,7 @@ function addUnitParamsInputs($row){
 			'не указано',
 			'прямоугольный',
 			'круглый',
+			'половина',
 		],
 		name: "Форма стола",
 		classNames: 'tableBase',
@@ -562,6 +564,12 @@ function configParamsInputs($row){
 	}
 	
 	if(type == "фасад мдф" || type == "фасад массив") $row.find(".facade").show();
+	
+	if(type == "фасад массив"){
+		var timberType = $row.find(".timberType").val();
+		if(timberType != "дуб ц/л" && timberType != "дуб паркет.") $row.find(".timberType").val("дуб паркет.");
+	}
+	
 	
 	if(!$row.find(".name").val()) $row.find(".name").val(type)
 	

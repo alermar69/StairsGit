@@ -2880,6 +2880,12 @@ layer
 	if (par.partName) {
 		var partName = par.partName;
 		var arcLength = Math.round(par.rad * par.angle);
+		var arcLength_out = Math.round((par.rad + par.thk / 2) * par.angle);
+		var sumLength = arcLength / 1000;
+		var area = (arcLength / 1000) * (par.height / 1000);
+		if (partName == 'polySheet') {
+			area = Math.ceil((arcLength / 1000)) * Math.ceil((par.height / 2100)) * 2.1; //округляем до ширины листа
+		}
 		
 		if (typeof specObj != 'undefined') {
 			if (!specObj[partName]) {
@@ -2897,28 +2903,21 @@ layer
 				}
 				if (partName == 'polySheet') {
 					specObj[partName].name = 'Поликарбонат';
-					// specObj[partName].division = "stock_2";
+				}
+				if (partName == 'carportBeam'){
+					specObj[partName].name = 'Дуга навеса';
 				}
 			}
 			var name = arcLength;
 			if (partName == 'polySheet') name = arcLength.toFixed(2)+'x'+par.height.toFixed(2);
-			if (partName != 'trussLine') {
-				if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
-				if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
-				specObj[partName]["amt"] += 1;
-			}
-			var area = 0;
-			var sumLength
-			if (partName == 'trussLine') {
-				area = (arcLength / 1000) * (par.height / 1000);
-				specObj[partName]["area"] += area;
-			}else if (partName == 'polySheet') {
-				area = Math.ceil((arcLength / 1000)) * Math.ceil((par.height / 2100)) * 2.1; //округляем до ширины листа
-				specObj[partName]["area"] += area;
-			}else{
-				sumLength = arcLength / 1000;
-				specObj[partName]["sumLength"] += sumLength;
-			}
+			if (partName == 'carportBeam') name = "R=" + Math.round(par.rad - par.thk / 2)  + " L=" + arcLength_out
+			
+			if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+			if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+			
+			specObj[partName]["area"] += area;
+			specObj[partName]["sumLength"] += sumLength;
+
 			par.mesh.specParams = {specObj: specObj, amt: 1, area: area, sumLength: sumLength, partName: partName, name: name}
 		}
 		par.mesh.specId = partName + name;

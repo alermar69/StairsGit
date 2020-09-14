@@ -45,6 +45,36 @@ $(function () {
 		}
 	})
 
+	$('body').on('click', '.changeGeometry', function(evt){
+		$("#shapeModifyModal").modal('show');
+	});
+
+	$('body').on('click', '.downloadDXF', function(){
+		getSelectedObjectDxf();
+	});
+
+	$('body').on('click', '.deleteGeometryChange', function(evt){
+		var obj = window.selectedObject;
+		if ((!obj || !obj.modifyKey) && window.clickedObject && window.clickedObject.modifyKey) obj = clickedObject;
+		if (obj) {
+			var deleteIndexes = [];
+			window.service_data.shapeChanges.forEach(function(modify, i){
+				if (obj.modifyKey == modify.modifyKey) deleteIndexes.push(i);
+			});
+			deleteIndexes.forEach(function(i){
+				window.service_data.shapeChanges.splice(i, 1);
+			});
+			if (obj.oldGeometry) {
+				obj.geometry = obj.oldGeometry;
+				delete obj.oldGeometry;
+			}
+
+			unselectAllObjects();
+			$('#objectContextMenu').hide();
+			// recalculate();
+		}
+	});
+
 	//Обработчик кнопки отмена(возвращает сцену в нормальный вид)
 	$('#resetSpecView').click(function () {
 		unselectAllObjects();
@@ -122,6 +152,43 @@ $(function () {
 	});
 });
 
+function getSelectedObjectDxf(){
+	var obj = window.selectedObject;
+	if ((!obj || !obj.geometry) && window.clickedObject && window.clickedObject.geometry) obj = clickedObject;
+
+	if (obj) {
+		var shape = obj.geometry.parameters.shapes;
+		console.log(shape);
+		var extracted = shape.extractPoints();
+		var points = extracted.shape;
+		var d = points.reduce(function(acc, point, i) {
+			point.y *= -1;
+			acc += (i === 0) ?'M' : 'L';
+			acc += point.x + ',' + point.y;
+			return acc;
+		}, '');
+		
+		initMakerJs(function(){
+			var models = {};
+			if (d) {
+				console.log(i);
+				models[i] = makerjs.importer.fromSVGPathData(d);
+				models[i].layer = $(this).attr('data-layer');
+			}
+			var dxf = makerjs.exporter.toDXF({models: models});
+			
+			var byteCharacters = unicodeToWin1251_UrlEncoded(dxf);
+			var byteArray = new Uint8Array(byteCharacters);
+			
+			var BB = window.Blob;
+			var fileName = "draw.dxf";
+			saveAs(
+				new BB([byteArray], {type: "application/octet-stream"}), 
+				fileName
+			);
+		});
+	}
+}
 
 function addMeasurement(viewportId) {
 	if (measure) removeObjects(viewportId, 'measure');
@@ -231,6 +298,19 @@ function addMeasurement(viewportId) {
 						// rightClickObject = object;
 						$('#objectContextMenu').html("");
 						$('#objectContextMenu').append("<a class='dropdown-item findInSpec'>Инфо</a>");
+						if (selectedObject.geometry || clickedObject.geometry) {
+							$('#objectContextMenu').append("<a class='dropdown-item downloadDXF'>Скачать DXF</a>");
+						}
+						var obj = window.selectedObject;
+						if ((!obj || !obj.modifyKey) && window.clickedObject && window.clickedObject.modifyKey) obj = clickedObject;
+
+						if (obj.modifyKey) {
+							if (!obj.oldGeometry) {
+								$('#objectContextMenu').append("<a class='dropdown-item changeGeometry'>Изменить геометрию</a>");
+							}else{
+								$('#objectContextMenu').append("<a class='dropdown-item deleteGeometryChange'>Отменить изменения</a>");
+							}
+						}
 						if (typeof AdditionalObject == 'function') AdditionalObject.onClick(selectedObject, evt);
 					}
 				}
@@ -240,7 +320,10 @@ function addMeasurement(viewportId) {
 					spStart.visible = true;
 					spEnd.visible = true;
 					sConnection.visible = true;
-					if (typeof onObjSelection == "function") onObjSelection(selectedObj);
+					if (params.calcType == "coupe" && typeof onObjSelection == "function") {
+						var object = intersects[0].object;
+						onObjSelection(object);
+					}
 		
 					if (fmin) {
 						var Ipoint = sphereHelper.position;
@@ -607,7 +690,7 @@ function selectObjectByRow(rowClass, rowId){
 }
 
 var selectedObject = null
-
+var clickedObject = null
 /**
  * Функция выделяет объект либо по specId либо по нажатой строке, либо из raycaster
  * @param object - выделяемый объект
@@ -616,6 +699,7 @@ function selectObject(object){
 	console.log(object)
 	if (selectedObject) unselectObject();
 	selectedObject = findNearestObject3D(object);
+	clickedObject = object;
 	if (selectedObject) {
 		selectedObject.traverse(function (node) {
 			// Если не линии, есть материал, нету предыдущего материала(oldMaterial)(туда убирается актуальный если есть выделение) и если включено выделение(только для доп объектов)
@@ -670,6 +754,7 @@ function unselectObject(){
 		});
 	}
 	selectedObject = null;
+	clickedObject = null;
 }
 
 function unselectAllObjects(){
@@ -725,7 +810,12 @@ function addObjects(viewportId, objectsArr, layerName) {
 		}
 
 		view.scene.add(this);
+
 	});
+	if (!menu[layerName]) {
+		var objects = view.scene.getObjectsByLayerName(layerName);
+		objects.setVisible(false);
+	}
 
 	// updateGUI();
 }

@@ -228,6 +228,7 @@ function drawTriangleSheetTruss(par){
 		p1: {x: topLine.p1.x + par.len, y: 0,}, //временная точка
 	}
 	if(params.carportType == "двухскатный") rightLine.p1.x - par.flanThk
+		
 	rightLine.p2 = newPoint_xy(rightLine.p1, 0, 100) //временная точка
 	
 	rightLine.p1 = itercectionLines(rightLine, topLine)
@@ -237,17 +238,28 @@ function drawTriangleSheetTruss(par){
 		botLine.p2 = itercection(rightLine.p2, polar(rightLine.p2, par.topAng / 180 * Math.PI, 1), botLine.p2, newPoint_xy(botLine.p2, 1, 0))
 	}
 	
-	//горизонтальная полка под колонну сверху на односкатном навесе
-	if(params.carportType == "односкатный") {
-		rightLine.p3 = newPoint_xy(rightLine.p2, -partPar.column.profSize.y - 10, 0)
-		rightLine.p4 = itercection(rightLine.p2, botLine.p2, rightLine.p3, newPoint_xy(rightLine.p3, 0, 1))
+	//верхний свес и горизонтальная полка под колонну сверху на односкатном навесе
+	//обозначение точек здесь https://6692035.ru/drawings/carport/trussTop.png
+	if(params.carportType == "односкатный") {		
+		rightLine.p3 = newPoint_xy(rightLine.p1, -params.sideOffsetTop, 0) //временная точка
+		rightLine.p3 = itercection(rightLine.p2, botLine.p2, rightLine.p3, newPoint_xy(rightLine.p3, 0, 1))
+		
+		rightLine.p4 = newPoint_x(rightLine.p3, -partPar.column.profSize.y - 10, 0)
+		rightLine.p5 = itercection(rightLine.p2, botLine.p2, rightLine.p4, newPoint_xy(rightLine.p4, 0, 1))
+		
+		rightLine.p21 = copyPoint(rightLine.p2)
+		if(params.sideOffsetTop > 0) rightLine.p21 = newPoint_xy(rightLine.p1, 0, -100) //уменьшаем высоту верхнего конца фермы
+		
+		rightLine.p31 = newPoint_xy(rightLine.p3, 10, 0) //увеличиваем опорную площадку
 	}
-	
-	
+
 	//делаем ферму цельной если длина меньше 4000мм
 	par.hasDivide = true;
-	var points = [botLine.p1, topLine.p1, rightLine.p1, rightLine.p2];
-	if(rightLine.p3) points.push(rightLine.p3, rightLine.p4)
+	var points = [botLine.p1, topLine.p1, rightLine.p1];
+	
+	if(rightLine.p3) points.push(rightLine.p21, rightLine.p31, rightLine.p4, rightLine.p5,)
+	else points.push(rightLine.p2)
+
 	points.push(botLine.p2)
 	if(botLine.p21) points.push(botLine.p21)
 		
@@ -363,8 +375,8 @@ function drawTriangleSheetTruss(par){
 		var flanPar = calcColumnFlanPar({isTop: true})
 		flanPar.holes.forEach(function(center){
 			var center1 = copyPoint(center);
-			center1.x = center1.x * (-1) + rightLine.p2.x - partPar.column.profSize.y / 2;
-			center1.y = center1.y + rightLine.p2.y;
+			center1.x = center1.x * (-1) + rightLine.p3.x - partPar.column.profSize.y / 2;
+			center1.y = center1.y + rightLine.p3.y;
 			
 			addRoundHole(par.shape, dxfPrimitivesArr, center1, flanPar.holeDiam / 2, par.dxfBasePoint);
 		})
@@ -417,7 +429,8 @@ function drawTriangleSheetTruss(par){
 	};
 	
 	if(params.carportType == "односкатный") {
-		stripeParBot.length -= 200; //чтобы полоса сверху не пересекалась с фланцем колонны
+		
+		stripeParBot.length = distance(botLine.p2, rightLine.p3) - 200; //чтобы полоса сверху не пересекалась с фланцем колонны
 	}
 	
 	var basePoint = polar(botLine.p2, (stripeParBot.poleAngle + Math.PI / 2), -stripeParBot.poleProfileY)
@@ -448,8 +461,8 @@ function drawTriangleSheetTruss(par){
 	flan.rotation.y = Math.PI
 	flan.position.x = rightLine.p2.x * 2
 	if(params.carportType == "односкатный") {
-		flan.position.x = rightLine.p2.x - partPar.column.profSize.y / 2
-		flan.position.y = rightLine.p2.y
+		flan.position.x = rightLine.p3.x - partPar.column.profSize.y / 2
+		flan.position.y = rightLine.p3.y
 	}
 	par.mesh.add(flan);
 	
@@ -1107,12 +1120,13 @@ partPar.main.arcPar.topArc = topArc;
 	
 	//первая пластина
 	var truss = new THREE.Mesh(geom, params.materials.metal);
+	truss.position.z = 0//-partPar.column.profSize.y / 2;
 	par.mesh.add(truss);
 	truss.setLayer('carcas');
 	
 	//вторая пластина
 	var truss = new THREE.Mesh(geom, params.materials.metal);
-	truss.position.z = partPar.column.profSize.y + partPar.truss.thk;
+	truss.position.z = partPar.column.profSize.y + partPar.truss.thk//partPar.column.profSize.y / 2 + partPar.truss.thk;
 	par.mesh.add(truss);
 	truss.setLayer('carcas');
 	
@@ -1336,7 +1350,7 @@ function addTrussHoles(par){
 	midHeight - высота на центральной линии фермы
 */
 function calcRoofArcParams(par){
-	console.log(par)
+
 	//параметры опорного узла
 	par.a3 = 58 / 180 * Math.PI//угол на точку p4
 	par.m2 = 110 //расстояние до точки p4

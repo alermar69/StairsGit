@@ -27,7 +27,7 @@ function drawTableBase(par){
 	for (var i = 0; i < modelPar.partsAmt; i++){
 
 		if (i == 1) turn = -1;
-
+		
 	//модель T-1, T-3, T-4
 		if (par.model == "T-1" || par.model == "T-3" || par.model == "T-4"){
 			var posZ = 0;
@@ -247,7 +247,7 @@ function drawTableBase(par){
 			}
 		}
 
-	//модель T-6
+		//модель T-6
 		if (par.model == "T-6" || par.model == "T-12") {
 			var mesh = new THREE.Object3D();
 
@@ -312,7 +312,7 @@ function drawTableBase(par){
 				meshPar.points = points5
 				meshPar.thk = profPar.sizeB
 				var pole1 = drawMesh(meshPar).mesh;
-				if(j == 1) pole1.position.z = par.height - meshPar.thk;
+				if (j == 1) pole1.position.z = par.height - meshPar.thk;
 				mesh.add(pole1);
 			}
 
@@ -373,7 +373,7 @@ function drawTableBase(par){
 			par.mesh.add(mesh);
 		}
 
-	//модель T-7
+		//модель T-7
 		if (par.model == "T-7") {
 			var mesh = new THREE.Object3D();
 
@@ -505,7 +505,7 @@ function drawTableBase(par){
 			par.mesh.add(mesh);
 		}
 
-	//модель T-8
+		//модель T-8
 		if (par.model == "T-8") {
 			var mesh = new THREE.Object3D();
 
@@ -542,7 +542,7 @@ function drawTableBase(par){
 			mesh.add(pole1);
 
 			mesh.rotation.y = Math.PI / 2;
-			if(i== 1) mesh.position.x = par.width - profPar.sizeB;
+			if (i == 1) mesh.position.x = par.width - profPar.sizeB;
 
 			par.mesh.add(mesh)
 
@@ -603,7 +603,7 @@ function drawTableBase(par){
 
 			//нижний-------------
 			var p1 = newPoint_xy(p0, profPar.sizeB, 0)
-			var p2 = newPoint_xy(p1, 0,profPar.sizeB)
+			var p2 = newPoint_xy(p1, 0, profPar.sizeB)
 			var p3 = newPoint_xy(p2, par.width - profPar.sizeB * 2, 0)
 			var p4 = newPoint_xy(p1, par.width - profPar.sizeB * 2, 0)
 
@@ -625,7 +625,7 @@ function drawTableBase(par){
 			par.mesh.add(mesh);
 		}
 
-	//модель T-9
+		//модель T-9
 		if (par.model == "T-9") {
 			var mesh = new THREE.Object3D();
 
@@ -649,7 +649,7 @@ function drawTableBase(par){
 			var line = parallel(p1, p2, profPar.sizeA);
 			var p3 = itercection(line.p1, line.p2, p2, polar(p2, 0, 100));
 			var p4 = itercection(line.p1, line.p2, pt, polar(pt, Math.PI / 2, 100));
-			
+
 			var points1 = [p1, p2, p3, p4];
 
 			if (i == 1) {
@@ -781,7 +781,7 @@ function drawTableBase(par){
 			par.mesh.add(mesh);
 		}
 
-	//модель T-10
+		//модель T-10
 		if (par.model == "T-10") {
 			var mesh = new THREE.Object3D();
 
@@ -883,7 +883,7 @@ function drawTableBase(par){
 
 		}
 
-	//модель T-11
+		//модель T-11
 		if (par.model == "T-11") {
 			var mesh = new THREE.Object3D();
 
@@ -948,7 +948,7 @@ function drawTableBase(par){
 			var p4 = newPoint_xy(p1, profPar.sizeB, 0)
 			arrBot.push([p1, p2, p3, p4])
 
-			var p1 = newPoint_xy(p0, profPar.sizeB,0)
+			var p1 = newPoint_xy(p0, profPar.sizeB, 0)
 			var p2 = newPoint_xy(p1, 0, profPar.sizeB)
 			var p3 = newPoint_xy(p2, par.width - profPar.sizeB * 2, 0)
 			var p4 = newPoint_xy(p1, par.width - profPar.sizeB * 2, 0)
@@ -1004,7 +1004,7 @@ function drawTableBase(par){
 
 		}
 
-	//модель T-13
+		//модель T-13
 		if (par.model == "T-13") {
 
 			if (i == 0) {
@@ -1032,7 +1032,7 @@ function drawTableBase(par){
 			}
 
 			//ноги из круглых палок---------------
-			
+
 			var mesh1 = new THREE.Object3D();
 
 			for (var k = 0; k < 2; k++) {
@@ -1081,7 +1081,7 @@ function drawTableBase(par){
 			par.mesh.add(mesh1)
 		}
 
-	//модель T-14
+		//модель T-14
 		if (par.model == "T-14") {
 
 			var lenFlanTop = Math.floor(par.width / 3)
@@ -1177,7 +1177,7 @@ function drawTableBase(par){
 			par.mesh.add(mesh)
 		}
 
-	//модель T-15
+		//модель T-15
 		if (par.model == "T-15") {
 
 			if (i == 0) {
@@ -1256,7 +1256,7 @@ function drawTableBase(par){
 			par.mesh.add(pole1)
 		}
 
-	//модель T-16
+		//модель T-16
 		if (par.model == "T-16") {
 
 			if (i == 0) {
@@ -1359,8 +1359,8 @@ function drawTableBase(par){
 			var ang = calcAngleX1(points[1], points[2])
 			addLine(shape, par.dxfArr, polar(points[1], ang, profPar.sizeB / 2), points[1], par.dxfBasePoint);
 			addArc2(shape, par.dxfArr, pc, rad, -ang, ang, false, par.dxfBasePoint)
-			addLine(shape, par.dxfArr, points2[1], polar(points2[1], - ang, profPar.sizeB / 2),  par.dxfBasePoint);
-			addArc2(shape, par.dxfArr, pc, rad1, -ang,  ang, true, par.dxfBasePoint)
+			addLine(shape, par.dxfArr, points2[1], polar(points2[1], - ang, profPar.sizeB / 2), par.dxfBasePoint);
+			addArc2(shape, par.dxfArr, pc, rad1, -ang, ang, true, par.dxfBasePoint)
 
 			var extrudeOptions = {
 				amount: profPar.sizeB,
@@ -1382,7 +1382,7 @@ function drawTableBase(par){
 			par.mesh.add(mesh)
 		}
 
-	//модель T-17
+		//модель T-17
 		if (par.model == "T-17") {
 
 			var rad = par.width;
@@ -1451,11 +1451,11 @@ function drawTableBase(par){
 			par.mesh.add(mesh);
 		}
 
-	//модель T-18
+		//модель T-18
 		if (par.model == "T-18") {
 
 			if (i == 0) {
-				
+
 				//ноги-------------
 				var mesh = new THREE.Object3D();
 
@@ -1566,7 +1566,7 @@ function drawTableBase(par){
 
 				var pole1 = drawMesh(meshPar).mesh;
 				mesh.add(pole1);
-			}		
+			}
 
 			mesh.position.z = -(profPar.sizeB / 2 + thk / 2) * turn
 			if (i == 1) mesh.position.z -= par.len + thk;
@@ -2732,14 +2732,14 @@ function drawTableBase(par){
 	@param width
 	@param len
 */
-function drawCountertop(par){
+function drawTableCountertop(par){
 	initPar(par)
 	
 	if(par.model != "цельная") par.width = (par.width - par.partsGap) / 2;
 
 	var p0 = { x: 0, y: 0 };
 
-	if (params.tableGeom !== 'круглый') {
+	if (par.geom !== 'круглый') {
 		var p1 = copyPoint(p0);
 		var p2 = newPoint_xy(p0, 0, par.len);
 		var p3 = newPoint_xy(p0, par.width, par.len);
@@ -2766,11 +2766,11 @@ function drawCountertop(par){
 		var shape = drawShapeByPoints2(shapePar).shape;
 	}
 
-	if (params.tableGeom == 'круглый') {
+	if (par.geom == 'круглый') {
 
 		var shape = new THREE.Shape();
 
-		var rad = params.width;
+		var rad = par.width;
 
 		addCircle(shape, dxfPrimitivesArr, p0, rad, par.dxfBasePoint)
 	}
@@ -2801,7 +2801,7 @@ function drawCountertop(par){
 	
 	//сохраняем данные для спецификации
 	par.partName = "countertop";
-	par.thk = params.countertopThk;
+	par.thk = par.thk;
 	if(typeof specObj !='undefined' && par.partName){
 		if(!specObj[par.partName]){
 			specObj[par.partName] = {
@@ -2849,7 +2849,7 @@ function getTableBasePar(par){
 		par.roundOnly = true;
 	}
 	
-	var models = ['S-8','S-9', 'T-6', 'T-7', 'T-12', 'T-17',]
+	var models = ['S-8', 'S-9', 'T-6', 'T-7', 'T-12', 'T-17',]
 	if(models.indexOf(par.model) != -1){
 		par.partsAmt = 1;
 	}

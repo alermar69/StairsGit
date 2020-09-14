@@ -18,7 +18,13 @@ class AdditionalObject extends THREE.Object3D {
 		this.calc_price = par.calc_price;
 
 		if (this.par.color) this.color = new THREE.Color(this.par.color);
-		this.material = new THREE.MeshBasicMaterial({ color: this.color });
+		if (window.texturesEnabled) {
+			this.material = new THREE.MeshMatcapMaterial();
+			this.matcapTexture = new THREE.TextureLoader().load("/calculator/images/matcap/mate.png");
+			this.material.matcap = this.matcapTexture
+		}else{
+			this.material = new THREE.MeshLambertMaterial({ color: this.color });
+		}
 
 		if (this.calc_price) {
 			partsAmt_dop[this.objId] = {unit: par.className};

@@ -709,13 +709,6 @@ if(sections){
 		platePar.dxfBasePoint = dxfBasePoint;
 		carcas.add(plate); 
 		
-		//вид спереди
-		var p1 = {
-			x: plate.position.x - thk,
-			y: plate.position.y,
-			}
-		drawRect(p1, thk, platePar.height, timberColor, par.canvasParams)
-	
 	//крепеж
 	var fixPartsPar = {
 		height: platePar.height + thk + posY,
@@ -801,14 +794,7 @@ if(par.isTopShelf == "есть"){
 	
 	
 	dxfBasePoint = newPoint_xy(dxfBasePoint, params.depth_wr + 500, 0);
-	
-	//вид спереди
-		var p1 = {
-			x: plate.position.x,
-			y: plate.position.y - thk,
-			}
-		drawRect(p1, platePar.height, thk, timberColor, par.canvasParams)
-	
+
 } //конец антресольной полки
 
 } //конец секций
@@ -845,54 +831,6 @@ for (var i=0; i<boxes.length; i++){
 	if(boxPar.type == "выдв. штанга" && isDoorsOpened) box.position.z += contentPanelWidth * 0.6;
 	shelfs.add(box)
 	
-	//вид спереди
-	//console.log(boxPar)
-	var p1 = {
-		x: box.position.x,
-		y: box.position.y,
-		}
-		
-	if(boxPar.type == "полка"){
-		drawRect(p1, boxPar.width, boxPar.height, timberColor, par.canvasParams) 
-		}
-	if(boxPar.type == "перегородка"){
-		drawRect(p1, boxPar.thk, boxPar.height, timberColor, par.canvasParams) 
-		}
-	if(boxPar.type == "штанга"){
-		drawRect(p1, boxPar.width, boxPar.height, metalColor, par.canvasParams) 
-		}
-	if(boxPar.type == "стойка"){
-		p1.x -= 25/2;
-		drawRect(p1, 25, boxPar.height, metalColor, par.canvasParams) 
-		}
-	if(boxPar.type == "выдв. штанга"){
-		drawRect(p1, 20, boxPar.height, metalColor, par.canvasParams)  
-		}
-	if(boxPar.type == "ящик"){
-		p1.x -= boxPar.boxDoorPlusLeft;
-		drawRect(p1, boxPar.width + boxPar.boxDoorPlusLeft + boxPar.boxDoorPlusRight, boxPar.height, timberColor, par.canvasParams)
-		}
-	if(boxPar.type == "пантограф"){
-		var sidePanelHeight = 260;
-		//Левая панель
-		var basePoint = copyPoint(p1) 
-		drawRect(basePoint, 40, sidePanelHeight, metalColor, par.canvasParams)
-		//левое плечо
-		basePoint = newPoint_xy(p1, 20, sidePanelHeight)
-		drawRect(basePoint, 10, boxPar.height - sidePanelHeight, metalColor, par.canvasParams)
-		//правая панель
-		basePoint = newPoint_xy(p1, boxPar.width - 40, 0)
-		drawRect(basePoint, 40, sidePanelHeight, metalColor, par.canvasParams)
-		//правое плечо
-		basePoint = newPoint_xy(p1, boxPar.width - 30, sidePanelHeight)
-		drawRect(basePoint, 10, boxPar.height - sidePanelHeight, metalColor, par.canvasParams)
-		//штанга
-		basePoint = newPoint_xy(p1, 20, boxPar.height)
-		drawRect(basePoint, boxPar.width - 40, 20, metalColor, par.canvasParams)
-		//ручка
-		basePoint = newPoint_xy(p1, boxPar.width/2 - 5, 200)
-		drawRect(basePoint, 10, boxPar.height - 200, metalColor, par.canvasParams)
-		}
 
 } //конец цикла отрисовки полок
 
@@ -1266,14 +1204,6 @@ if(params.leftWall_wr != "нет"){
 	dxfBasePoint = newPoint_xy(dxfBasePoint, par.depth + 500, 0);
 	leftOffset = thk;
 	
-	//вид спереди
-	var p1 = {
-		x: 0,
-		y: plate.position.y,
-		}
-	drawRect(p1, thk, platePar.height, par.timberColor, par.canvasParams)
-
-	
 } //конец левой панели
 
 //правая панель
@@ -1315,12 +1245,6 @@ if(params.rightWall_wr != "нет"){
 	dxfBasePoint = newPoint_xy(dxfBasePoint, par.depth + 500, 0);
 	rightOffset = thk;
 	
-	//вид спереди
-	var p1 = {
-		x: plate.position.x - thk,
-		y: plate.position.y,
-		}
-	drawRect(p1, thk, platePar.height, par.timberColor, par.canvasParams)
 	
 } //конец правой панели
 
@@ -1422,7 +1346,6 @@ if(params.topWall_wr != "нет"){
 	
 	//вид спереди
 	var p1 = polar(plate.position, topAng + Math.PI / 2, -thk)
-	drawRect(p1, platePar.height, thk, par.timberColor, par.canvasParams, topAng)
 	
 } //конец верхней панели
 
@@ -1538,12 +1461,6 @@ if(params.botWall_wr != "нет"){
 	dxfBasePoint = newPoint_xy(dxfBasePoint, par.depth + 500, 0);
 	botOffset = plate.position.y;
 	
-	//вид спереди
-	var p1 = {
-		x: plate.position.x,
-		y: plate.position.y - thk,
-		}
-	drawRect(p1, platePar.height, thk, par.timberColor, par.canvasParams)
 	
 } //конец нижней панели
 
@@ -1596,13 +1513,6 @@ if(params.botWall_wr == "цоколь" && params.botWallType != "накладн�
 	par.mesh.add(plate);
 	
 	dxfBasePoint = newPoint_xy(dxfBasePoint, 500, 0);
-	
-	//вид спереди
-	var p1 = {
-		x: plate.position.x,
-		y: 0,
-		}
-	drawRect(p1, platePar.height, platePar.width, par.timberColor, par.canvasParams)
 	
 	//боковые панели
 	if(params.botWallType == "накладной короб"){

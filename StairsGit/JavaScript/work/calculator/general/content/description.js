@@ -346,9 +346,9 @@ function getCarportRoofDescr(){
 */
 
 function printDescr() {
-	// if (params.calcType == 'sill') {
-	// 	return printDescrSill();
-	// }
+	if (params.calcType == 'sill') {
+		return printDescrSill();
+	}
 	var text = "";
 	var additionalObjectsText = ""
 	if (window.additional_objects && window.additional_objects.length > 0) {

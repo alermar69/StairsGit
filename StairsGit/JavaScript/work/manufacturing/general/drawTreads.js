@@ -495,7 +495,7 @@ function drawMarshTreads2(par) {
 			dxfArr: dxfPrimitivesArr,
 			thk: params.treadThickness - techDelta * 2,
 			material: params.materials.tread,
-			partName: "tread",
+			partName: "tread"
 		};
 		//коррекция толщины
 		if (params.stairType == "лотки" || params.stairType == "рифленая сталь") plateParams.thk = 4;
@@ -529,6 +529,7 @@ function drawMarshTreads2(par) {
 
 		var posZ = 0;
 		for (var i = startIndex; i < par.stairAmt; i++) {
+			plateParams.modifyKey = 'tread:' + par.marshId + ':' + i;
 			//коррекция длины
 			if (params.stairType == 'лотки' && params.calcType !== "mono") {
 				// длина ступени уменьшаеться если ступень попадает на фланец разделения тетив
@@ -909,6 +910,7 @@ function drawMarshTreads2(par) {
 
 
 				//отрисовка
+				riserPar.modifyKey = 'riser:' + par.marshId + ':' + i;
 				riserPar = drawRectRiser(riserPar);
 				riser = riserPar.mesh;
 
@@ -1203,6 +1205,7 @@ function drawPlatform2(par) {
 			};
 
 			//отрисовка
+			riserPar.modifyKey = 'riser:' + par.marshId + ':platform';
 			riserPar = drawRectRiser(riserPar);
 			riser = riserPar.mesh;
 
@@ -1782,7 +1785,7 @@ function drawWndTread1(par) {
 		treadId: par.treadId,
 	}
 	par.mesh = mesh;
-
+	par.mesh.modifyKey = 'wndTread:' + par.marshId + ':' + par.treadId;
 	//сохраняем параметр
 	par.stepWidthHi = distance(path.keyPoints[0], path.keyPoints[1]);
 
@@ -1964,7 +1967,7 @@ function drawWndTread2(par) {
 		treadId: 2,
 	}
 	par.mesh = mesh;
-
+	par.mesh.modifyKey = 'wndTread:' + par.marshId + ':2';
 	//производственная информация для вывода в dxf
 
 	//направление волокон
@@ -2205,6 +2208,7 @@ function drawWndTreadsMetal(par) {
 		if (par.botMarshId == 1 && params.stairAmt1 == 0 && params.stairModel != "П-образная с забегом") riserPar.width -= params.treadThickness;
 
 		//отрисовка
+		riserPar.modifyKey = 'riserWnd:' + par.marshId + ':1';
 		riserPar = drawRectRiser(riserPar);
 		riser = riserPar.mesh;
 		riser.rotation.z = Math.PI / 2;
@@ -2285,7 +2289,7 @@ function drawWndTreadsMetal(par) {
 	treadParams[2].treadId = 2;
 
 	//отрисовываем ступень
-
+	treadParams[2].marshId = par.botMarshId;
 	var tread2 = drawWndTread2(treadParams[2]).mesh;
 	tread2.rotation.x = -Math.PI / 2;
 	tread2.rotation.z = -Math.PI / 2;
@@ -2321,6 +2325,7 @@ function drawWndTreadsMetal(par) {
 		//if (testingMode) riserPar.len += 1;//Фикс пересечения с ковкой
 
 		//отрисовка
+		riserPar.modifyKey = 'riserWnd:' + par.marshId + ':2';
 		riserPar = drawRectRiser(riserPar);
 		riser = riserPar.mesh;
 
@@ -2417,6 +2422,7 @@ function drawWndTreadsMetal(par) {
 		}
 
 		//отрисовка
+		riserPar.modifyKey = 'riserWnd:' + par.marshId + ':3';
 		riserPar = drawRectRiser(riserPar);
 		riser = riserPar.mesh;
 
@@ -2610,9 +2616,6 @@ function drawWndTreadsMono(par) {
 			hasTurnRack: hasTurnRack,
 			isTread: true,
 		};
-
-
-
 
 	var tread2 = drawWndTread2(treadParams[2]).mesh;
 
@@ -2904,6 +2907,7 @@ function drawWndTreadsTimber(par){
 		if (marshPar.stairAmt == 0) riserPar.width -= params.treadThickness;
 
 		//отрисовка
+		riserPar.modifyKey = 'riserWnd:' + par.marshId + ':1';
 		riserPar = drawRectRiser(riserPar);
 		riser = riserPar.mesh;
 		riser.rotation.z = Math.PI / 2;
@@ -2951,7 +2955,7 @@ function drawWndTreadsTimber(par){
 	if(params.model == "тетивы" && params.riserType == "нет") treadParams[2].outerOffsetY = ledgeWidth;
 
 	//отрисовываем ступень
-
+	treadParams[2].marshId = par.botMarshId;
 	var tread2 = drawWndTread2(treadParams[2]).mesh;
 
 	tread2.rotation.x = -Math.PI / 2;
@@ -3206,6 +3210,7 @@ function drawWndTreadsTimber_stock(par) {
 		if (marshPar.stairAmt == 0) riserPar.width -= params.treadThickness;
 
 		//отрисовка
+		riserPar.modifyKey = 'riserWnd:' + par.marshId + ':1';
 		riserPar = drawRectRiser(riserPar);
 		riser = riserPar.mesh;
 		riser.rotation.z = Math.PI / 2;
@@ -3274,6 +3279,7 @@ function drawWndTreadsTimber_stock(par) {
 		}
 		
 		//отрисовка
+		riserPar.modifyKey = 'riserWnd:' + par.marshId + ':2';
 		riserPar = drawRectRiser(riserPar);
 		riser = riserPar.mesh;
 
@@ -3355,6 +3361,7 @@ function drawWndTreadsTimber_stock(par) {
 		riserPar.offsetX = 1;
 
 		//отрисовка
+		riserPar.modifyKey = 'riserWnd:' + par.marshId + ':3';
 		riserPar = drawRectRiser(riserPar);
 		riser = riserPar.mesh;
 
@@ -3956,7 +3963,8 @@ function drawTimberPlt_G(par){
         }
 				posZ -= (params.M / 2) * turnFactor;//FIX
 
-        //отрисовка
+		//отрисовка
+		riserPar.modifyKey = 'riserPlt:' + par.marshId;
         riserPar = drawRectRiser(riserPar);
         riser = riserPar.mesh;
         riser.rotation.x = Math.PI / 2;
@@ -4198,7 +4206,8 @@ function  drawTimberPlt_P(par){
         }
 		posZ -= params.M / 2;//FIX
 
-        //отрисовка
+		//отрисовка
+		riserPar.modifyKey = 'riserPltP:' + par.marshId;
         riserPar = drawRectRiser(riserPar);
         riser = riserPar.mesh;
         riser.rotation.x = Math.PI / 2;
@@ -4378,6 +4387,7 @@ function drawRectRiser(par) {
         geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
         var mesh = new THREE.Mesh(geometry, params.materials.riser)
 		mesh.userData.textureRot = Math.PI / 2;
+		if (par.modifyKey) mesh.modifyKey = par.modifyKey;
 		par.mesh.add(mesh);
     }
 
@@ -4421,7 +4431,8 @@ function drawRectRiser(par) {
         geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
         var mesh = new THREE.Object3D();
         var riser = new THREE.Mesh(geometry, params.materials.riser);
-        //riser.position.y += cutWndIn;
+		//riser.position.y += cutWndIn;
+		if (par.modifyKey) riser.modifyKey = par.modifyKey;
         riser.rotation.y = Math.PI / 2;
         riser.rotation.z = Math.PI / 2;
         mesh.add(riser);

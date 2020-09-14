@@ -2,20 +2,21 @@
 */
 
 function getLayersList(){
+	var notStairs = ['wardrobe', 'wardrobe_2', 'carport', 'table', 'slabs', 'sill', 'sideboard', 'coupe'];
 	var layers = {
 		treads: {
 			name: "Ступени",
-			not_for: ['carport', 'table', 'sill'],
+			not_for: notStairs,
 			group: 'treads'
 			},
 		risers: {
 			name: "Подступенки",
-			not_for: ['vint', 'carport', 'table', 'sill'],
+			not_for: ['vint', ...notStairs],
 			group: 'treads'
 			},
 		angles: {
 			name: "Уголки/рамки",
-			not_for: ['railing', 'mono', 'timber', 'timber_stock', 'geometry', 'table', 'sill'],
+			not_for: ['railing', 'mono', 'timber', 'timber_stock', 'geometry', ...notStairs],
 			group: 'carcas'
 			},
 		carcas: {
@@ -25,32 +26,32 @@ function getLayersList(){
 			},
 		carcas1: {
 			name: "Каркас1",
-			not_for: ['railing', 'vint', 'carport', 'table', 'sill'],
+			not_for: ['railing', 'vint', ...notStairs],
 			group: 'carcas'
 			},
 		railing: {
 			name: "Ограждения лестницы",
-			not_for: ['geometry', 'carport', 'table', 'sill'],
+			not_for: ['geometry', ...notStairs],
 			group: 'railing'
 			},
 		topRailing: {
 			name: "Балюстрада",
-			not_for: ['railing', 'carport', 'table', 'sill'],
+			not_for: ['railing', ...notStairs],
 			group: 'railing'
 			},
 		forge: {
 			name: "Ковка",
-			not_for: ['railing', 'geometry', 'carport', 'table', 'sill'],
+			not_for: ['railing', 'geometry', ...notStairs],
 			group: 'railing'
 			},
 		handrails: {
 			name: "Поручни",
-			not_for: ['geometry', 'carport', 'table', 'sill'],
+			not_for: ['geometry', ...notStairs],
 			group: 'railing'
 			},
 		newel: {
 			name: "Столбы",
-			not_for: ['geometry', 'carport', 'table', 'sill'],
+			not_for: ['geometry', ...notStairs],
 			group: 'carcas'
 			},
 		newel1: {
@@ -138,7 +139,7 @@ function getLayersList(){
 		//слои для столов
 		countertop: {
 			name: "Столешница",
-			only_for: ['table'],
+			only_for: ['table', 'sideboard', 'coupe'],
 			group: 'carcas'
 		},
 		
@@ -160,6 +161,27 @@ function getLayersList(){
 			only_for: ['sill'],
 			group: 'carcas'
 		},
+		
+		//слои для шкафов
+		doors: {
+			name: "Фасады",
+			only_for: ['sideboard', 'coupe'],
+			group: 'carcas'
+		},
+		
+		panels: {
+			name: "Пенели",
+			only_for: ['sideboard', 'coupe'],
+			group: 'carcas'
+		},
+		
+		shelfs: {
+			name: "Наполнение",
+			only_for: ['sideboard', 'coupe', 'table'],
+			group: 'carcas'
+		},
+		
+		
 		
 		//общие слои
 		walls: {

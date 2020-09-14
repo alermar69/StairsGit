@@ -7,7 +7,6 @@
 		<li>Полки</li>
 		<li>Двери</li>
 		<li>Стены</li>
-		<li>Выступы</li>
 		<li>Размеры</li>
 	</ul>
 	<div>
@@ -98,21 +97,6 @@
 		
 		</div>
 
-	<!--форма параметров выступов -->
-		<div id="ledgeForm">
-
-			<?$APPLICATION->IncludeComponent(
-				"bitrix:main.include",
-				".default",
-				Array(
-					"AREA_FILE_SHOW" => "file",
-					"PATH" => "/calculator/walls/forms/ledges_form.php",
-					"EDIT_TEMPLATE" => ""
-				)
-			);?>
-
-		</div>
-		
 	<!-- Форма ввода параметров размеров-->
 	<div id="dimFormDiv">
 

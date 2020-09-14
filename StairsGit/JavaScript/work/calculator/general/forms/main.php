@@ -5,7 +5,7 @@
 		$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 	
 		//модуль
-		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda', 'slabs', 'table', 'sill'];
+		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda', 'slabs', 'table', 'sill', 'sideboard', 'coupe',];
 		
 		$calc_type = '';
 		foreach($calc_types as $item){
@@ -45,6 +45,8 @@
 	if($calc_type == 'table') $title = "Расчет стола";
 	if($calc_type == 'sill') $title = "Расчет подоконников";
 	if($calc_type == 'slabs') $title = "Коммерческое предложение";
+	if($calc_type == 'coupe') $title = "Шкаф купе";
+	if($calc_type == 'sideboard') $title = "Комод";
 
 	//тип расчета и версия
 	echo '
@@ -376,17 +378,50 @@
 	if ($calc_type == 'sill') {
 		$tabs['geom'] = false;
 		$tabs['carcas'] = false;
-		// $tabs['carcas']['name'] = "Подоконники";
-		// $tabs['carcas']['url'] = "/calculator/sill/forms/mainForm.php";
 		$tabs['banister'] = false;
 		$tabs['railing'] = false;
-		$tabs['banister'] = false;
-		$tabs['railing'] = false;
-		// $tabs['floor_form'] = false;
-		// $tabs['walls'] = false;
 	};
 	
+	if ($calc_type == 'sideboard') {
+		$tabs['geom'] = false;
+		$tabs['carcas']['name'] = "Комод";
+		$tabs['carcas']['url'] = "/calculator/sideboard/forms/mainForm.php";
+		$tabs['banister'] = false;
+		$tabs['railing'] = false;
+		
+		$tabs['sbTemplates'] = [
+			'name' => 'Шаблоны',
+			'url' => '/calculator/sideboard/templates.php',
+			'group' => 'form',
+		];
+		
+	};
 	
+	if ($calc_type == 'coupe') {
+		$tabs['geom'] = false;
+		$tabs['carcas']['name'] = "Шкаф";
+		$tabs['carcas']['url'] = "/calculator/coupe/forms/main_form.php";
+		$tabs['banister'] = false;
+		$tabs['railing'] = false;
+		
+		$tabs['wrSect'] = [
+			'name' => 'Секции',
+			'url' => '/calculator/coupe/forms/wrSect.php',
+			'group' => 'form',
+		];
+		
+		$tabs['wrContent'] = [
+			'name' => 'Полки',
+			'url' => '/calculator/coupe/forms/wrContent.php',
+			'group' => 'form',
+		];
+		
+		$tabs['wrDoors'] = [
+			'name' => 'Двери',
+			'url' => '/calculator/coupe/forms/wrDoors.php',
+			'group' => 'form',
+		];
+	};
 	
 	
 
@@ -754,6 +789,7 @@
 	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/forgedBals.php";
 	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/updateEditions.php";
 	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/snapshotModal.php";
+	include $GLOBALS['ROOT_PATH']."/calculator/general/modals/shapeChangeModal.php";
 
 	# Модалка предпросмотра dxf -  в ней подгружаются все скрипты
 	include $_SERVER["DOCUMENT_ROOT"].'/orders/dxf-preview/modal.php';

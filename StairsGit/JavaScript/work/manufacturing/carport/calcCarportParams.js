@@ -162,6 +162,11 @@ function setCarportProfs(){
 			columnProf = "80х80"
 		}
 		
+		if(params.carportType == "купол"){
+			beamProf = "40х40"
+		}
+		
+		
 		$("#beamProf").val(beamProf)
 		$("#beamProf2").val(beamProf2)
 		$("#columnProf").val(columnProf)
@@ -244,6 +249,7 @@ function calcCarportPartPar(){
 		truss: {},
 		wall: {},
 		movableSections: {},
+		dome: {},
 	}
 
 	par.main.roofAng = params.roofAng / 180 * Math.PI;
@@ -410,7 +416,6 @@ function calcCarportPartPar(){
 	
 	//шаг по горизонтали для плоской кровли
 	par.purlin.holeStepX = (params.width - par.purlin.profSize.x) / (par.purlin.amt - 1);
-	console.log(par.purlin.holeStepX)
 	
 	//листы кровли
 	par.roofSheet.overhang = 50;
@@ -455,9 +460,21 @@ function calcCarportPartPar(){
 	}
 	//сдвиг в две стороны
 	if(params.sectAmt > 3) par.movableSections.left = Math.ceil(params.sectAmt / 2)
-	
+		
+	//параметры круглого павильона
+	par.dome = {
+		overlayAng: 2, //угол нахлеста секции
+		doorOffset: 82,
+		arcFixLen: 120, //длина участка крепления дуги к верхнему фланцу
+		topFlanDiam: 500,
+		tubeDiam: 26.8,
+		baseThk: 8, //толщина листа основания
+		weelBlockHeight: 60, //полная высота ролика с кронштейном от верха рельса до верха кронштейна
+	}
+
 	return par;	
 }
+
 
 /** функция рассчитывает параметры фланца крепления фермы к клонне **/
 function calcColumnFlanPar(par){

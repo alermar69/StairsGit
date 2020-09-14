@@ -17,8 +17,9 @@ function toggleDomeDoor(state){
 		
 		//поворотный сектор
 		if(params.carportType == 'купол'){
-			var fullAngle = (params.doorAng + params.overlayAng * 2) / 180 * Math.PI;
-			var closedPosAng = -fullAngle + (params.overlayAng / 180 * Math.PI)
+			var partPar = calcCarportPartPar();
+			var fullAngle = (params.doorAng) / 180 * Math.PI;
+			var closedPosAng = -fullAngle - (partPar.dome.overlayAng / 180 * Math.PI)
 			if(state != undefined) window.domeDoorOpen = state;
 			var fakeContext = {
 				animationProgress: function(animationName, progress){
@@ -27,7 +28,7 @@ function toggleDomeDoor(state){
 							window.domeDoor.rotation.y = closedPosAng + fullAngle * progress;
 							break;
 						case 'closeDoor':
-							window.domeDoor.rotation.y = closedPosAng * progress;
+							window.domeDoor.rotation.y = -(partPar.dome.overlayAng / 180 * Math.PI) - fullAngle * progress;
 							break;
 					}
 				}

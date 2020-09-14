@@ -462,12 +462,7 @@ function drawContentUnit(par){
 
 function drawHandle(par){
 	if(!par) par = {};
-	par.mesh = new THREE.Object3D();
-	var modelDim = getModelDimensions();
-	if(!par.dxfBasePoint){
-		par.dxfArr = [];
-		par.dxfBasePoint = {x:0, y:0};
-		}
+	initPar(par)
 	
 	par.len = 120;
 	par.width = 15;
@@ -519,7 +514,6 @@ function drawHandle(par){
 	
 	//сохраняем данные для спецификации
 	par.partName = "handle";
-	par.thk = modelDim.countertop.thk;
 	if(typeof specObj !='undefined' && par.partName){
 		if(!specObj[par.partName]){
 			specObj[par.partName] = {

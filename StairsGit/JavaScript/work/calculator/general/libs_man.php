@@ -35,6 +35,7 @@ $scripts[] = ["url" => "/calculator/general/three_libs/MTLLoader.js"];
 $scripts[] = ["url" => "/calculator/general/content/facts_generator.js"];
 
 $scripts[] = ["url" => "/manufacturing/sill/drawSillParts.js"];
+$scripts[] = ["url" => "/manufacturing/table/drawTableParts.js"];
 
 $scripts[] = ["url" => "/calculator/general/scene/additionalObject.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/sofa.js"];
@@ -108,6 +109,7 @@ $scripts[] = ["url" => "/manufacturing/general/svg/svg-pan-zoom.min.js"];
 //<!--шкаф под лестницей-->
 $scripts[] = ["url" => "/manufacturing/wardrobe/drawWardrobeParts.js"];
 $scripts[] = ["url" => "/calculator/wardrobe/drawWardrobe_st.js"];
+$scripts[] = ["url" => "/manufacturing/sideboard/drawContent.js"];
 
 // <!--экспорт в dxf-->
 $scripts[] = ["url" => "/calculator/general/dxfFileMaker.js"];

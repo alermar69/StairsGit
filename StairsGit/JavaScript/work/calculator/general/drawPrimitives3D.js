@@ -66,6 +66,9 @@ function drawPlate(par) {
 	par.mesh = new THREE.Mesh(geom, par.material);
 	par.shape = shape;
 
+	if (par.modifyKey) {
+		par.mesh.modifyKey = par.modifyKey;//Object.assign({}, par.modifyParams);
+	}
 	//сохраняем данные для спецификации
 	if (params.stairType == "нет" && (par.partName == "tread" || par.partName == "riser" || par.partName == "dpc"))
 		return par;
@@ -220,4 +223,45 @@ function setBevels(extrudeOptions){
 		extrudeOptions.bevelSize = 6;
 		extrudeOptions.bevelSegments = 12;
 	}
+}
+
+function updateModifyChanges(){
+	if (!window.service_data) window.service_data = {shapeChanges: []};
+	if (!window.service_data.shapeChanges) window.service_data.shapeChanges = [];
+	view.scene.traverse(function(node){
+		if (node.type == 'Mesh' && node.modifyKey) {
+			window.service_data.shapeChanges.forEach(function(par){
+				if (node.modifyKey == par.modifyKey) {
+					var options = node.geometry.parameters.options;
+					var newShape = new THREE.Shape()
+
+					// par.points.forEach(function(point))
+					// for (var i = 0; i < par.points.length; i++) {
+					// 	var point = par.points[i];
+					// 	var nextIndex = i + 1;
+					// 	if (nextIndex > par.points.length - 1) nextIndex = 0;
+					// 	var nextPoint = par.points[nextIndex];
+					// 	newShape.moveTo( point.x, point.y );
+					// 	newShape.lineTo( nextPoint.x, nextPoint.y );
+					// }
+
+					newShape.setFromPoints(par.points)
+					node.oldGeometry = node.geometry;
+					node.geometry = new THREE.ExtrudeGeometry(newShape, options);
+					node.geometryChanged = true;
+				}
+			});
+		}
+	})
+
+	window.service_data.shapeChanges.forEach(function(change){
+		var fakeShape = new THREE.Shape();
+		for (var i = 0; i < change.points.length; i++) {
+			var point = change.points[i];
+			var nextIndex = i + 1;
+			if (nextIndex > change.points.length - 1) nextIndex = 0;
+			var nextPoint = change.points[nextIndex];
+			addLine(fakeShape,dxfPrimitivesArr,point,nextPoint, {x:0,y:0}, 'default')
+		}
+	})
 }

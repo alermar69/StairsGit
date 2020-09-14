@@ -10,16 +10,40 @@ var dxfPrimitivesArr = [];
 var dxfBasePoint = {x:0, y:0,}
 
 //функция - оболочка
-function addWardrobe(viewportId, isVisible) {
+function drawCoupeWr(viewportId, isVisible) {
 
-//удаляем предыдущий шкаф
-	if (carcas_wr) removeObjects(viewportId, 'carcas_wr');
-	if (wrCarcas1) removeObjects(viewportId, 'wrCarcas1');
-	if (wrCarcas2) removeObjects(viewportId, 'wrCarcas2');	
-	if (doors) removeObjects(viewportId, 'doors');
-	if (shelfs) removeObjects(viewportId, 'shelfs');
-	if (metis) removeObjects(viewportId, 'metis');
-	if (dimensions) removeObjects(viewportId, 'dimensions');
+	var viewportId = 'vl_1';
+	
+	//очищаем все слои
+	for(var layer in layers){
+		removeObjects(viewportId, layer);
+	}
+	
+	//очищаем глобальный массив параметров для спецификации
+	staircasePartsParams = {
+		carport: []
+	};
+
+	var model = {
+		objects: [],
+		add: function(obj, layer){
+			var objInfo = {
+				obj: obj,
+				layer: layer,
+			}
+			this.objects.push(objInfo);
+		},
+	};
+	
+	//обнуляем счетчики спецификации
+	partsAmt = {};
+	partsAmt_bal = {unit: "banister"}
+	specObj = partsAmt; //задаем объект, куда будут сохраняться данные для спецификации
+	poleList = {};
+	railingParams = {};
+	shapesList = [];
+	dxfPrimitivesArr = [];
+	
 
 //очищаем глобальные массивы
 	carcas_wr = [];
@@ -38,57 +62,14 @@ function addWardrobe(viewportId, isVisible) {
 	var timberMaterial = params.materials.timber;//new THREE.MeshLambertMaterial( { color: 0x804000, overdraw: 0.5} );
 	var timberMaterial2 = params.materials.timber2;//new THREE.MeshLambertMaterial( { color: 0xD29252, overdraw: 0.5} );	
 	var metalMaterial = params.materials.metal;//new THREE.MeshLambertMaterial({color: 0x363636, wireframe: false});
-	// var floorMaterial = new THREE.MeshLambertMaterial( {color: 0xBFBFBF});	
-	// var stringerMaterial = new THREE.MeshLambertMaterial({color: 0x363636, wireframe: false});
-	
-	// params.materials = {};
-	// params.materials.timber = timberMaterial;	
-	// params.materials.metal = metalMaterial;
+
 	
 //константы, локальные переменные
 	var thk = params.carcasThk_wr;
 	
-//инициализация canvas для построение 2d вида спереди
-function init2D(){};
-
-	var zeroPoint = {
-		x: 200,
-		y: 100,
-		}
-		
-	scale = 0.2;
-	var imgHeight = (params.height_wr + 400)* scale; //высота картинки в пикселях
-	var imgWidth = (params.width_wr + 400)*scale;
-	var canvasHeight = 800;
-
 	//параметры построения
 	var floorThk = 150;
 
-	/*цвета*/
-	var timberColor = '#804000'; // Цвет заливки ступеней
-	var turnStepColor = '#D66B00'; // Цвет заливки площадки
-	var floorColor = '#C0C0C0'; // Цвет заливки перекрытий
-	var staircaseColor = "#000"
-
-
-	/*построение изображения*/
-	var canvas = document.getElementById("mainView"); 
-	canvas.width = imgWidth;
-	canvas.height = imgHeight;
-	var	mainView = canvas.getContext('2d');
-		mainView.clearRect(0, 0, imgWidth, imgHeight);//Очищаем холст
-		mainView.strokeStyle = "black";
-
-		
-	var canvasParams={
-		imgWidth: imgWidth,
-		imgHeight: imgHeight,
-		view: mainView,
-		scale: 0.2,
-		dimScale: imgHeight/canvasHeight,
-		zeroPoint: zeroPoint,
-		dxfBasePoint: {x:-5000, y:0},
-		}
 	
 //отрисовка прямого шкафа
 
@@ -108,8 +89,6 @@ var carcasParams = {
 	width: params.width_wr,
 	depth: params.depth_wr,
 	sectAmt: params.sectAmt,
-	timberColor: timberColor, 
-	canvasParams: canvasParams,
 	};
 
 var carcas = drawCarcasStright(carcasParams).mesh;
@@ -203,7 +182,6 @@ var contentPar = {
 	boxes: boxes,
 	side: "left",
 	isTopShelf: params.isTopShelf,
-	canvasParams: canvasParams,
 	}
 
 if(params.leftWall_wr == "фальшпанель") contentPar.leftOffset = 0;
@@ -955,7 +933,9 @@ addObjects(viewportId, dimensions, 'dimensions');
 
 
 //измерение размеров на модели
-	addMeasurement(viewportId);
+addMeasurement(viewportId);
+
+if (typeof staircaseLoaded !== undefined) staircaseLoaded();
 
 }//drawWardrobe;
 

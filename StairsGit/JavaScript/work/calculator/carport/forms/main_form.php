@@ -328,6 +328,11 @@
 				<td>Свес сбоку:</td>
 				<td><input type="number" id="sideOffset" value="100"></td>
 			</tr>
+			
+			<tr>
+				<td>Свес сбоку (верх):</td>
+				<td><input type="number" id="sideOffsetTop" value="0"></td>
+			</tr>
 		
 			<tr>
 				<td>Свес спереди:</td>
@@ -352,6 +357,7 @@
 		</tbody>
 	</table>
 
+<div class="gazeboPar">
 	<h3>Беседка</h3>
 	<table class="form_table">
 		<tbody>
@@ -421,7 +427,8 @@
 			
 		</tbody>
 	</table>
-	
+</div>
+
 	<h3>Стены</h3>
 	<table class="form_table">
 		<tbody>

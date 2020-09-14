@@ -12,7 +12,7 @@
 		
 		//модуль
 
-		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'curve', 'wardrobe_2', 'objects', 'carport', 'veranda', 'slabs', 'table', 'sill'];
+		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'curve', 'wardrobe_2', 'objects', 'carport', 'veranda', 'slabs', 'table', 'sill', 'sideboard', 'coupe',];
 
 		$calc_type = '';
 		foreach($calc_types as $item){
@@ -383,7 +383,46 @@
 		//knowledge
 		[
 			'url' => '/calculator/general/content/knowledge.js'
-		]
+		],
+		
+		//coupe
+		[
+			'url' => '/manufacturing/coupe/wrLib.js',
+			'only_for' => ['coupe'],
+		],
+		[
+			'url' => '/manufacturing/coupe/drawWardrobe.js',
+			'only_for' => ['coupe'],
+		],
+		[
+			'url' => '/manufacturing/coupe/drawWardrobeParts.js',
+			'only_for' => ['coupe'],
+		],
+		[
+			'url' => '/calculator/coupe/modelActions.js',
+			'only_for' => ['coupe'],
+		],
+		
+		
+		
+		//sideboard
+		[
+			'url' => '/manufacturing/sideboard/drawSideboard.js',
+			'only_for' => ['sideboard'],
+		],
+		[
+			'url' => '/manufacturing/sideboard/drawCarcas.js',
+			'only_for' => ['sideboard'],
+		],
+		[
+			'url' => '/manufacturing/sideboard/drawContent.js',
+			'only_for' => ['sideboard'],
+		],
+		[
+			'url' => '/manufacturing/sideboard/drawDimensions.js',
+			'only_for' => ['sideboard'],
+		],
+		
 	]);
 
 	if ($calc_type != 'wardrobe_2' && $calc_type != 'objects') {
@@ -397,9 +436,6 @@
 	if(($template == 'calculator' || $template == 'customers') && $calc_type != 'geometry' && $calc_type != 'wardrobe_2' && $calc_type != 'objects'){
 		$scripts[] = [
 				'url' => '/calculator/'.$calc_type.'/priceCalc.js',
-			];
-		$scripts[] = [
-				'url' => '/calculator/'.$calc_type.'/forms/templates.js',
 			];
 	};
 

@@ -1,3 +1,5 @@
+var simpleDraw = true; //упрощенная отрисовка модели
+
 function drawPlate(par){
 
 	/*

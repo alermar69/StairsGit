@@ -37,18 +37,7 @@ class Sill extends AdditionalObject {
 			console.log(timberCost, timberPaintCost);
 			cost = timberCost + timberPaintCost;
 		}
-		//подстолье
-		if (meshPar.sillGeom =='подстолье') {
-			cost = 5000;
-			if(meshPar.baseModel.indexOf("S") != -1) cost = 7500;
-			if(meshPar.baseModel.indexOf("D") != -1) cost = 15000;
-			
-			//учитываем размеры
-			var profLen = (meshPar.height + meshPar.width) * 2;
-			var nominalProfLen = (700 + 600) * 2;
-			
-			cost = cost * 0.7 + (cost * 0.3 * profLen / nominalProfLen);
-		}
+		
 		return {
 			name: this.getMeta().title,
 			cost: cost,

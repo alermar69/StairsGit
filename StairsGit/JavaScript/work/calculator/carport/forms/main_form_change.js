@@ -11,6 +11,11 @@ function changeFormCarcas(){
 		$(".truss").hide()
 		$(".dome").show()
 	}
+
+	$(".gazeboPar").hide()
+	if(params.carportType == "многогранник"){
+		$(".gazeboPar").show()
+	}
 	
 
 	
@@ -20,6 +25,7 @@ function changeFormCarcas(){
 		params.carportType.indexOf("консольный") == -1 &&
 		params.roofAng < 20) $("#roofAng").val(20)
 	
+	if(params.roofMat == "металлочерепица" && params.roofAng < 20) params.roofAng < 12
 	
 	//параметры кровли
 	$(".roofPar").show();	
@@ -34,6 +40,7 @@ function changeFormCarcas(){
 	if(params.carportType.indexOf("консольный") != -1){
 		$("#columnProf").val("100х200")
 		$("#roofType").val("Арочная")
+		$("#fixType").val("фланцы")
 	}
 	
 	if(params.carportType == "сдвижной") $("#beamModel").val("проф. труба");
@@ -47,6 +54,11 @@ function changeFormCarcas(){
 		$("#roofType").val("Плоская")
 		$("#beamModel").val("проф. труба");
 	}
+	
+	//свес сверху для односкатного навеса
+	$("#sideOffsetTop").closest("tr").hide()
+	if(params.carportType == "односкатный") $("#sideOffsetTop").closest("tr").show()
+	
 	
 	//количество граней для многогранной геометрии
 	$("#edgeAmt").closest("tr").hide();
@@ -97,7 +109,6 @@ function changeFormCarcas(){
 		$('#toggleDomeDoor').show();
 	}
 
-	//угол наклона кровли
 	if (params.floorType == "нет") $("#heightFloor").val(0)
 	
 	getAllInputsValues(params)

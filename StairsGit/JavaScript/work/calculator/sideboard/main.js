@@ -102,7 +102,7 @@ function recalculate() {
 		setHiddenLayers();
 		drawSideboard('vl_1', true);
 		drawSceneDimensions();
-		calcPrice();
+		calculateCarcasPrice();
 	} catch (error) {
 		prepareFatalErrorNotify(error);
 	}
@@ -125,4 +125,7 @@ function configDinamicInputs() {
 	//	configBoxInputs();
 	addDimRows();
 		
+}
+
+function staircaseLoaded(){
 }

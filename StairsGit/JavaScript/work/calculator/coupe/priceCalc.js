@@ -1,4 +1,4 @@
-function calcWrPrice(){
+function calculateCarcasPrice(){
 	
 	var modelInfo = "<h2>Параметры деталей, снятые с модели</h2>";
 	for(var partName in specObj){

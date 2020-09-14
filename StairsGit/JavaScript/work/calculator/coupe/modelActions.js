@@ -1,3 +1,5 @@
+var isDoorsFixed = false
+
 function onObjSelection(obj){
 
 	//добавление выделенной полки/ящика в список выделенных

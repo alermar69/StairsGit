@@ -162,6 +162,8 @@ function recalculate() {
 						calcSpec_vl();
 					}
 				}
+
+				updateModifyChanges();
 				resolve();
 			}});
 		} catch (error) {

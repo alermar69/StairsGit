@@ -2,6 +2,12 @@
 
 $(function () {
 	 
+	 //применение шаблона
+	$(".setTemplate").click(function(){
+		var orderName = $(this).attr("id");
+		_loadFromBD(orderName)
+	});
+
 	 //выравнивание ширины секций
 	 $("#equalSectWidth").click(function(){
 		equalSectWidth();

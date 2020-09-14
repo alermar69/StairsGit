@@ -1,4 +1,4 @@
-function calcPrice(){
+function calculateCarcasPrice(){
 
 var cost = {
 	carcas: {

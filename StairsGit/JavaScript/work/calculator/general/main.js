@@ -155,6 +155,8 @@ function recalculate() {
 				else if($("#calcType").val() == "veranda") drawFunc = drawVeranda;
 				else if($("#calcType").val() == "slabs" || $("#calcType").val() == "table") drawFunc = drawTable;
 				else if($("#calcType").val() == "sill") drawFunc = drawSills;
+				else if($("#calcType").val() == "sideboard") drawFunc = drawSideboard;
+				else if($("#calcType").val() == "coupe") drawFunc = drawCoupeWr;
 				else drawFunc = drawStaircase;
 				
 				drawFunc('vl_1', true);
@@ -180,7 +182,7 @@ function recalculate() {
 
 				drawSceneDimensions();
 				
-				var ignorCals = ["railing", "carport", "veranda", "table", "slabs", "sill"]
+				var ignorCals = ["railing", "carport", "veranda", "table", "slabs", "sill", "sideboard", "coupe"]
 				
 				if(ignorCals.indexOf($("#calcType").val()) == -1){
 					printGeomDescr();
@@ -211,7 +213,9 @@ function recalculate() {
 					printWorks2();
 					formatNumbers();
 					printDescr();
+
 				}
+				updateModifyChanges();
 				resolve();
 			}catch (error) {
 				prepareFatalErrorNotify(error);

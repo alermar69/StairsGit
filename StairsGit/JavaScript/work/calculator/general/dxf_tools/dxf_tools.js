@@ -23,7 +23,7 @@ function dxfToPath(data){
 			}
 		}
 
-		if (entity.type == "LWPOLYLINE") {
+		if (entity.type === 'LWPOLYLINE' || entity.type === 'POLYLINE') {
 			if (entity.vertices.length > 1) {
 				path.moveTo(entity.vertices[0].x, entity.vertices[0].y);
 				for (var i = 0; i < entity.vertices.length; i++) {
@@ -89,7 +89,7 @@ function dxfToShape(data){
 			}
 		}
 
-		if (entity.type == "LWPOLYLINE") {
+		if (entity.type === 'LWPOLYLINE' || entity.type === 'POLYLINE') {
 			if (entity.vertices.length > 1) {
 				path.moveTo(entity.vertices[0].x, entity.vertices[0].y);
 				for (var i = 0; i < entity.vertices.length; i++) {

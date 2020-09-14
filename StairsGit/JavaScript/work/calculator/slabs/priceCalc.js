@@ -14,7 +14,7 @@ function calcPrice(){
 		metal: 0,
 		timber: 0,
 		partners: 0,
-		total: 0,		
+		total: 0,
 	}
 	var costObj = {
 		product: 0,
@@ -24,8 +24,9 @@ function calcPrice(){
 		timber: 0,
 		partners: 0,
 		total: 0,
+		area: 0,
 	}
-
+	
 	$(".estimateItem").each(function(){
 		var $row = $(this);
 		
@@ -81,6 +82,8 @@ function calcPrice(){
 			$row.find(".metalPart").val(0);
 			$row.find(".timberPart").val(100);
 			$row.find(".partnersPart").val(0);
+			
+			costObj.area += area * $row.find(".amt").val();
 		}
 
 	//выравнивание слэбов
@@ -96,6 +99,7 @@ function calcPrice(){
 			$row.find(".timberPart").val(100);
 			$row.find(".partnersPart").val(0);
 			
+			costObj.area += area * $row.find(".amt").val();
 		}
 		
 	//подстолья
@@ -121,6 +125,45 @@ function calcPrice(){
 			$row.find(".partnersPart").val(0);
 		}
 	
+		//фасады
+		if(type == 'фасад мдф' || type == 'фасад массив') {
+	
+			var area = $row.find(".height").val() * $row.find(".width").val() / 1000000;
+			var geom = $row.find(".geom").val();
+			var timberType = $row.find(".timberType").val();
+			var thk = $row.find(".thk").val()
+		
+			var m3Cost = calcTimberParams(timberType).m3Price;
+			var m2Cost = m3Cost * 0.02;
+			if(thk > 20) m2Cost = m3Cost * 0.04;
+			if(thk > 40) m2Cost = m3Cost * 0.06;
+			
+			if(type == 'фасад мдф') m2Cost = 1000;
+
+			var timberCost = area * m2Cost;
+			
+			//упрощенный расчет стоимости работы
+			var workCost = 500 + area * 1000;
+
+			//покраска
+			var paintCost = calcTimberPaintPrice(params.timberPaint, timberType) * area * 2.2; //2.2 учитывает торцы и низ
+			
+			var cost = timberCost + workCost + paintCost;	
+			
+			if(cost < 1000) cost = 1000;
+			
+			$row.find("input.cost").val(Math.round(cost * amt));
+			$row.find(".unitPrice").val(Math.round(cost * margin));
+			
+			$row.find(".metalPart").val(0);
+			$row.find(".timberPart").val(100);
+			$row.find(".partnersPart").val(0);
+			
+			costObj.area += area * $row.find(".amt").val();
+			
+			console.log(area, $row.find(".amt").val(), area * $row.find(".amt").val())
+		}
+		
 	//коммерческая цена
 		
 		var amt = $row.find(".amt").val()
@@ -262,7 +305,9 @@ function printCost(par){
 		ВП: <span id='vpSum'>" + vp + "</span> руб (" + vpPart + "%)<br/><br/>\
 		Цена для дилера: " + dealerCost + " руб<br/>\
 		ВП дилера: <span id='vpSum'>" + dealerVp + "</span> руб (" + dealerVpPart + "%)\
-		</b>";
+		</b>\
+		<h3>Подробности</h3>\
+		Общая площадь: " + Math.round(par.area * 10) / 10 + "м2";
 	/*
 	var totalCost = 0;
 	$.each(par, function(key){

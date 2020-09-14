@@ -145,6 +145,7 @@ function drawCarportColumn(par){
 	if(params.calcType != "veranda"){	
 		var base = drawCarportColumnBase().mesh;
 		base.position.x = -partPar.column.profSize.x / 2
+		if(params.carportType.indexOf("консольный") != -1) base.position.z -= partPar.column.profSize.y / 2;
 		par.mesh.add(base);
 	}
 	
@@ -260,13 +261,13 @@ function drawCarportColumnBase(par){
 
 	var flan = new THREE.Mesh(geom, params.materials.metal);
 	flan.position.y = 8
-	flan.position.z = partPar.column.profSize.x / 2
+	flan.position.z = partPar.column.profSize.y / 2
 	par.mesh.add(flan);
 
 	var flan2 = new THREE.Mesh(geom, params.materials.metal);
 	flan2.position.x = flan.position.x
 	flan2.position.y = flan.position.y
-	flan2.position.z = -partPar.column.profSize.x / 2 - 4
+	flan2.position.z = -partPar.column.profSize.y / 2 - 4
 	par.mesh.add(flan2);
 	
 	//метизы
@@ -907,7 +908,7 @@ function drawSphereSector(par){
 	const heightSegments = 20;  // ui: heightSegments
 	const phiStart = 0;  // ui: phiStart
 	const phiLength = par.angleWidth;  // ui: phiLength
-	const thetaStart = 0;  // ui: thetaStart
+	const thetaStart = par.topCutAngle || 0;  // ui: thetaStart
 	const thetaLength = Math.PI / 2 + par.extraAngle;  // ui: thetaLength
 
 	var geom = new THREE.SphereBufferGeometry(
@@ -933,7 +934,7 @@ function drawSphereSector(par){
 				types: {},
 				amt: 0,
 				area: 0,
-				name: "Поликарбонат " + par.thk + " " + params.roofColor,
+				name: "Поликарбонат " + par.thk + " " + params.roofPlastColor,
 				metalPaint: false,
 				timberPaint: false,
 				division: "metal",
@@ -1828,7 +1829,7 @@ function drawRoofCarcas(par){
 	}
 	
 	if(params.carportType == "консольный" || params.carportType == "консольный двойной"){
-		rafterArrPar.arrSize.z += partPar.truss.thk //фермы внакладку на колонны
+		rafterArrPar.arrSize.z = params.sectLen * params.sectAmt - partPar.column.profSize.y + 4
 	}
 		
 	var rafterArr = drawRectArray(rafterArrPar).mesh;
@@ -3678,6 +3679,332 @@ function drawPurlinConnector(par){
 		}
 		
 		name = par.height + "х" + par.width;
+		
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		par.mesh.specParams = {specObj: specObj, amt: 1, partName: partName, name: name}
+	}
+	
+	par.mesh.specId = partName + name;
+	
+	return par;
+}
+
+/** функция отрисовывает блок роликов для сдвижного навеса 
+	@param type: single || block - тип блока: с одиночным роликом под круглую трубу или блок из трех роликов под профильный рельс
+**/
+
+function drawWeelBlock(par){
+	if(!par) par = {};
+	initPar(par)
+	
+	var partPar = calcCarportPartPar();
+	
+	par.height = partPar.dome.weelBlockHeight; //рабочая высота ролика от верха рельса до верха кронштейна
+	par.width = 60; //полная ширина по внешним сторонам ушей
+	par.diam = 34; //диаметр ролика в узкой части
+	
+	if(params.carportType == "купол"){
+		//круглый ролик, рисуется горизонтально
+		var weelPar = {
+			maxDiam: 65,
+			minDiam: par.diam,
+			grooveDiam: 28,
+			width: 45,
+			holeDiam: 8,
+		}
+
+			
+		var p0 = {x:0, y:0} //точка в середине ролика
+		
+		//рисуем правую половину ролика
+		var p1 = newPoint_xy(p0, weelPar.holeDiam / 2, -weelPar.width / 2, )
+		var p2 = newPoint_xy(p0, weelPar.maxDiam / 2, -weelPar.width / 2, )
+		var p3 = newPoint_xy(p0, weelPar.maxDiam / 2, weelPar.width / 2)
+		var p4 = newPoint_xy(p0, weelPar.holeDiam / 2, weelPar.width / 2)
+		
+		//габариты проточки
+		var p21 = newPoint_xy(p0, weelPar.maxDiam / 2, -weelPar.grooveDiam / 2)
+		var p22 = newPoint_xy(p0, weelPar.minDiam / 2, -weelPar.grooveDiam / 2)
+		var p32 = newPoint_xy(p0, weelPar.minDiam / 2, weelPar.grooveDiam / 2)
+		var p31 = newPoint_xy(p0, weelPar.maxDiam / 2, weelPar.grooveDiam / 2)
+		
+		//p22.filletRad = p32.filletRad = weelPar.grooveDiam / 2 - 1; TODO: Надо доработать drawShapeByPoints2 чтобы скругления нормально строились для внутренних углов
+		
+	/*	
+		//создаем шейп
+		var shapePar = {
+			points: [p1, p2, p21, p22, p32, p31, p3, p4],
+			dxfArr: [],
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		var shape = drawShapeByPoints2(shapePar).shape;
+		
+		
+		var extrudeOptions = {
+			amount: 10,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+		
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	*/
+
+		var points = [p1, p2, p21, p22, p32, p31, p3, p4];
+		var geom = new THREE.LatheGeometry(points, 36, 2, 2 * Math.PI);
+			
+		var weel = new THREE.Mesh(geom, params.materials.whitePlastic);
+		weel.rotation.z = Math.PI / 2
+		par.mesh.add(weel)
+		
+		
+		//вертикальные уши
+		var holderPar = {
+			width: 40, //ширина вертикального уха
+			height: 60,
+			offset: 20,
+			thk: 4,
+			flanLen: 80, //длина верхнего фланца
+		}
+		
+		holderPar.height = par.height - weelPar.minDiam / 2 + holderPar.offset;
+
+		var p1 = newPoint_xy(p0, -holderPar.width / 2, -holderPar.offset, )
+		var p2 = newPoint_xy(p1, 0, holderPar.height, )
+		var p3 = newPoint_xy(p2, holderPar.width, 0)
+		var p4 = newPoint_xy(p3, 0, -holderPar.height)
+		
+		p1.filletRad = p4.filletRad = 18
+		
+		var shapePar = {
+			points: [p1, p2, p3, p4],
+			dxfArr: [],
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		var shape = drawShapeByPoints2(shapePar).shape;
+		
+		addRoundHole(shape, par.dxfArr, p0, 4, par.dxfBasePoint)
+
+		
+		var extrudeOptions = {
+			amount: holderPar.thk,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+		
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);		
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		
+		var holder = new THREE.Mesh(geom, params.materials.metal);
+		holder.rotation.y = Math.PI / 2
+		holder.position.x = -par.width / 2
+		par.mesh.add(holder)
+		
+		var holder = new THREE.Mesh(geom, params.materials.metal);
+		holder.rotation.y = Math.PI / 2
+		holder.position.x = par.width / 2 - holderPar.thk
+		par.mesh.add(holder)
+		
+		//верхний фланец
+		var flanWidth = par.width - holderPar.thk * 2
+		var holeOffset = 10
+		var flanPar = {
+			height: holderPar.flanLen,
+			width: flanWidth,
+			thk: holderPar.thk,
+			cornerRad: 10,
+			holeRad: 4,
+			noBolts: true,
+			dxfPrimitivesArr: par.dxfArr,
+			dxfBasePoint: par.dxfBasePoint,
+			roundHoleCenters: [
+				{x: flanWidth / 2, y: holeOffset },
+				{x: flanWidth / 2 , y: holderPar.flanLen - holeOffset},
+			],
+		}
+		
+		var flan = drawRectFlan2(flanPar).mesh;
+		flan.rotation.x = -Math.PI / 2;
+		flan.position.y = par.height - weelPar.minDiam / 2 - holderPar.thk
+		flan.position.x = -flanPar.width / 2;
+		flan.position.z = flanPar.height / 2;
+		par.mesh.add(flan);
+	
+		
+	}
+	
+	if(params.carportType == "сдвижной"){
+		
+	}
+	
+	
+	
+	//сохраняем данные для спецификации
+	var partName = 'weelBlock';
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				name: 'Ролик с кронштейном',
+				metalPaint: true,
+				timberPaint: false,
+				isModelData: true,
+				division: "metal",
+				purposes: [],
+				workUnitName: "amt",
+				group: "carcas",
+			}
+		}
+		
+		name = "Ф" + weelPar.maxDiam + " h=" + par.height;
+		
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		par.mesh.specParams = {specObj: specObj, amt: 1, partName: partName, name: name}
+	}
+	
+	par.mesh.specId = partName + name;
+	
+	par.weelPar = weelPar
+	
+	return par;
+}
+
+/** функция отрисовывает кольцо основания для купольного навеса */
+
+function drawBaseRing(par){
+	if(!par) par = {};
+	initPar(par)
+	
+	par.dxfArr = dxfPrimitivesArr
+	par.diam = par.rad * 2;
+	
+	var partPar = calcCarportPartPar();
+	
+	par.thk = partPar.dome.baseThk;
+	
+	par.railBaseWidth = 100;
+	if(par.railDiam) par.railBaseWidth = (par.railDiam - par.diam) / 2
+	if(par.isMovable) par.railBaseWidth = 60;
+	
+	par.ringWidth = 100;
+	par.railDiam = par.diam + par.railBaseWidth * 2;
+	par.extraAngle = (partPar.dome.overlayAng + 1) / 180 *  Math.PI; //угол нахлеста двери
+	par.railAngle = params.doorAng * 2 / 180 * Math.PI + par.extraAngle * 2 ;
+	par.tubeDiam = partPar.dome.tubeDiam
+	
+	par.railStartAng = -Math.PI / 2 - par.extraAngle;
+	par.railEndAng = par.railStartAng + par.railAngle;
+	
+	if(par.isMovable){
+		par.extraAngle = 0;
+		par.railStartAng = 0;
+		par.railEndAng = par.angle;
+		//par.railDiam = par.diam - par.railBaseWidth * 2;
+	}
+	
+	var shape = new THREE.Shape();
+	var p0 = {x: 0, y: 0} //центр дуг
+	
+	//нижний внутренний угол
+	var p1 = polar(p0, par.railStartAng, par.diam / 2);
+	//нижний внешний угол
+	var p2 = polar(p0, par.railStartAng, par.railDiam / 2);
+	//верхний внешний угол
+	var p3 = polar(p0, par.railEndAng, par.railDiam / 2);
+	//верхний нижний угол
+	var p4 = polar(p0, par.railEndAng, par.diam / 2);
+
+	if(!par.layer) par.layer = "parts";
+	
+	//неподвижное кольцо
+	if(!par.isMovable){
+		if(par.railAngle < Math.PI * 1.8){
+			addLine(shape, par.dxfArr, p3, p4, par.dxfBasePoint, par.layer);
+			addArc2(shape, par.dxfArr, p0, par.diam / 2,  par.railStartAng, par.railEndAng, false, par.dxfBasePoint, par.layer);
+			
+			addLine(shape, par.dxfArr, p2, p1, par.dxfBasePoint, par.layer);
+			addArc2(shape, par.dxfArr, p0, par.railDiam / 2, par.railEndAng, par.railStartAng, false, par.dxfBasePoint, par.layer);
+		}
+		else {
+			addArc2(shape, par.dxfArr, p0, par.railDiam / 2, Math.PI * 1.99999, 0, false, par.dxfBasePoint, par.layer);
+		}
+		
+		addRoundHole(shape, par.dxfArr, p0, par.diam / 2 - par.ringWidth, par.dxfBasePoint); 
+	}
+	//подвижное кольцо
+	/*
+		var arcPanelPar = {
+		rad: baseRing.rad,
+		height: 8,
+		thk: 100,
+		angle: Math.PI * 1.999,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+		material: params.materials.metal,
+		partName: 'progonProf',
+		dxfPrimitivesArr: dxfPrimitivesArr,
+	}
+	*/
+	
+	if(par.isMovable){		
+		addLine(shape, par.dxfArr, p1, p2, par.dxfBasePoint, par.layer);
+		addArc2(shape, par.dxfArr, p0, par.railDiam / 2, par.railEndAng, par.railStartAng, false, par.dxfBasePoint, par.layer);
+		addLine(shape, par.dxfArr, p3, p4, par.dxfBasePoint, par.layer);
+		addArc2(shape, par.dxfArr, p0, par.diam / 2, par.railEndAng, par.railStartAng,  true, par.dxfBasePoint, par.layer);
+	}
+
+
+	
+	var treadExtrudeOptions = {
+		amount: par.thk, 
+		bevelEnabled: false,
+		curveSegments: 72,
+		steps: 1
+	};
+		
+	var geom = new THREE.ExtrudeGeometry(shape, treadExtrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var plate = new THREE.Mesh(geom, params.materials.metal);
+	par.mesh.add(plate)
+	
+	//рельс
+	if(!par.isMovable){
+		var geom = new THREE.TorusGeometry(par.railDiam / 2, par.tubeDiam / 2, 18, 72, par.railAngle);
+		var rail = new THREE.Mesh(geom, params.materials.metal);
+		rail.rotation.z = par.railStartAng
+		rail.position.z = par.tubeDiam / 2 + par.thk
+		par.mesh.add(rail)
+	}
+	//сохраняем данные для спецификации
+	var partName = 'baseRing';
+	if(par.isMovable) partName = 'doorBaseRing';
+	
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				name: 'Основание павильона',
+				metalPaint: true,
+				timberPaint: false,
+				isModelData: true,
+				division: "metal",
+				purposes: [],
+				workUnitName: "amt",
+				group: "carcas",
+			}
+		}
+		if(par.isMovable) specObj[partName].name = "Основание двери"
+		name = "Ф" + Math.round(par.diam);
 		
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;

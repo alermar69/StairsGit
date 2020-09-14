@@ -954,7 +954,7 @@ function changeAllForms() {
 	if(typeof changeFormAssembling == 'function') changeFormAssembling();
 	if(typeof changeFormBanisterConstruct == 'function' && params.calcType != 'railing') changeFormBanisterConstruct();
 	
-	var notStairs = ["vint", "railing", "slabs", "table", "sill"]
+	var notStairs = ["vint", "railing", "slabs", "table", "sill", "sideboard", "coupe"]
 	if(notStairs.indexOf($("#calcType").val()) == -1){
 		if(typeof changeFormCarcas == 'function') changeFormCarcas();
 		if(typeof changeFormRailing == 'function') changeFormRailing();		
@@ -980,6 +980,16 @@ function changeAllForms() {
 	if($("#calcType").val() == "sill"){
 		changeSillForm()
 	}
+	if($("#calcType").val() == "sideboard"){
+		mainFormChange();
+	}
+	if($("#calcType").val() == "coupe"){
+		setShelfPosByDist() // функция в файле sectFormChange.js
+		getAllInputsValues(params);
+		countFirstSectionWidth();
+		changeFormWr();
+		changeFormContent();
+	}
 	 
 	
 	textureManager = getTextureMangerInstance()
@@ -997,6 +1007,15 @@ function configDinamicInputs() {
 	}
 	else if($("#calcType").val() == "slabs"){
 		configEstimateForms()
+	}
+	else if($("#calcType").val() == "sideboard"){
+		configBoxInputs();
+		configShelfInputs();
+	}
+	else if($("#calcType").val() == "coupe"){
+		configSectInputs();
+		configBoxInputs();
+		configDoorsInputs();
 	}
 	else {
 		if(typeof changeFormBanister == 'function') changeFormBanister();
