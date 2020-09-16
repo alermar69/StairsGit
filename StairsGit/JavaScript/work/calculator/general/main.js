@@ -120,6 +120,13 @@ $(function () {
 		$("#wallPositionZ_4").val(-2500);
 	}
 	
+	if($("#calcType").val() == "carport" || $("#calcType").val() == "railing"){
+		$("#wallThickness_1").val(0);
+		$("#wallThickness_2").val(0);
+		$("#wallThickness_3").val(0);
+		$("#wallThickness_4").val(0);
+	}
+	
 	if(params.calcType == "mono") {
 		if(params.discountMode == "процент") $("#discountFactor").val(20);
 	}

@@ -18,8 +18,9 @@ class AdditionalObject extends THREE.Object3D {
 		this.calc_price = par.calc_price;
 
 		if (this.par.color) this.color = new THREE.Color(this.par.color);
-		if (window.texturesEnabled) {
+		if (window.texturesEnabled && window.location.href.indexOf('/customers/') != -1) {
 			this.material = new THREE.MeshMatcapMaterial();
+			this.material.color = this.color;
 			this.matcapTexture = new THREE.TextureLoader().load("/calculator/images/matcap/mate.png");
 			this.material.matcap = this.matcapTexture
 		}else{
@@ -323,6 +324,10 @@ class AdditionalObject extends THREE.Object3D {
 			{
 				className: 'Shelf',
 				title: 'Стеллаж'
+			},
+			{
+				className: 'Bed',
+				title: 'Кровать'
 			},
 			{
 				className: 'Pool',

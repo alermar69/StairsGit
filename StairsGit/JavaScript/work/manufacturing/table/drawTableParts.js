@@ -2787,6 +2787,7 @@ function drawTableCountertop(par){
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var mesh = new THREE.Mesh(geom, params.materials.timber);
 	mesh.rotation.x = Math.PI / 2;
+	if (par.modifyKey) mesh.modifyKey = par.modifyKey;
 	par.mesh.add(mesh);
 
 	if(par.model != "цельная"){

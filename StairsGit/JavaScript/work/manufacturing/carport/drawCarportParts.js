@@ -41,32 +41,43 @@ function drawPurlin(par){
 	var screwsAmt = Math.round(par.len / 450);
 	var step = par.len / screwsAmt;
 	for (var i = 0; i < screwsAmt; i++) {
-		var shim = drawTermoShim();
-		shim.position.x = step / 2 + step * i
-		shim.rotation.x = Math.PI / 2;
-		shim.position.z = partPar.purlin.profSize.y + params.roofThk;
-		shim.position.y = partPar.purlin.profSize.x / 2;
-		
+		//позиция крепежа
+		var pos = {
+			x: step / 2 + step * i,
+			y: partPar.purlin.profSize.x / 2,
+			z: partPar.purlin.profSize.y + params.roofThk,
+			rotX: Math.PI / 2,
+		}
 		//переворачиваем прогон для плоской кровли
 		if(params.roofType == "Плоская") {
-			shim.rotation.x = 0;
-			shim.position.z = partPar.purlin.profSize.x / 2;
-			shim.position.y = partPar.purlin.profSize.y + params.roofThk;
+			pos.rotX = 0;
+			pos.z = partPar.purlin.profSize.x / 2;
+			pos.y = partPar.purlin.profSize.y + params.roofThk;
 		}
-		par.mesh.add(shim);
-
-		var screwPar = {
-			id: "roofingScrew_5x32",
-			description: "Крепление поликарбоната к профилям",
-			group: "Кровля"
+		
+		if(params.roofMat.indexOf("поликарбонат") != -1){
+			var shim = drawTermoShim();			
+			shim.rotation.x = pos.rotX
+			shim.position.x = pos.x
+			shim.position.y = pos.y
+			shim.position.z = pos.z			
+			par.mesh.add(shim);
 		}
-			
-		var screw = drawScrew(screwPar).mesh;
-		screw.position.x = shim.position.x
-		screw.rotation.x = shim.rotation.x - Math.PI;
-		screw.position.y = shim.position.y;
-		screw.position.z = shim.position.z;
-		par.mesh.add(screw);
+		
+		if(params.roofMat != "нет"){
+			var screwPar = {
+				id: "roofingScrew_5x32",
+				description: "Крепление покрытия к профилям",
+				group: "Кровля"
+			}
+				
+			var screw = drawScrew(screwPar).mesh;			
+			screw.rotation.x = pos.rotX - Math.PI;
+			screw.position.x = pos.x
+			screw.position.y = pos.y
+			screw.position.z = pos.z
+			par.mesh.add(screw);
+		}
 	};
 
 //фланцы и заглушки

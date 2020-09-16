@@ -1345,6 +1345,8 @@ function redrawAdditionalObjects(){
 	if (window.selectedObject && selectedObject.objectRowClass == "additionalObjectRow") {
 		selectObjectByRow(selectedObject.objectRowClass, selectedObject.objectRowId);
 	}
+
+	updateModifyChanges();
 }
 
 function drawParMeshWrapper(par){

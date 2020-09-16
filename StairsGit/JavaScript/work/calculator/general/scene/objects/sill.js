@@ -2,7 +2,7 @@ class Sill extends AdditionalObject {
 	constructor(par) {
 		super(par);
 
-		var sillPar = Object.assign({}, this.par)
+		var sillPar = Object.assign({modifyKey: 'sill:' + this.objId}, this.par)
 		sillPar.dxfBasePoint = {x:0,y:0}
 		var drawFunc = drawSillEnv;
 		if(this.par.geom == "эркер") drawFunc = drawOriel
@@ -22,14 +22,13 @@ class Sill extends AdditionalObject {
 	static calcPrice(par){
 		var meshPar = par.meshParams;
 		var cost = 0;
-		console.log(meshPar)
 		//столешница
 		if (meshPar.sillGeom == 'столешница' || meshPar.sillGeom == 'подоконник') {
 			var timberPar = calcTimberParams(params.additionalObjectsTimberMaterial);
 			var paintPriceM2 = calcTimberPaintPrice(params.additionalObjectsTimberColor, params.additionalObjectsTimberMaterial)
 			console.log(params.additionalObjectsTimberMaterial, timberPar)
-			var timberVol = meshPar.width * meshPar.depth * meshPar.sillThk / 1000000000;
-			var paintedArea = (meshPar.width * meshPar.depth + (meshPar.width + meshPar.depth) * 2 * meshPar.sillThk) / 1000000
+			var timberVol = meshPar.width * meshPar.len * meshPar.sillThk / 1000000000;
+			var paintedArea = (meshPar.width * meshPar.len + (meshPar.width + meshPar.len) * 2 * meshPar.sillThk) / 1000000
 			
 			
 			var timberCost = timberVol * timberPar.m3Price;
@@ -37,7 +36,7 @@ class Sill extends AdditionalObject {
 			console.log(timberCost, timberPaintCost);
 			cost = timberCost + timberPaintCost;
 		}
-		
+
 		return {
 			name: this.getMeta().title,
 			cost: cost,
@@ -49,7 +48,8 @@ class Sill extends AdditionalObject {
 	/** STATIC **/
 
 	static formChange(form, data){
-		console.log(form, data)
+		var par = data.meshParams
+		
 		// console.log(data);
 		// form.find('input').hide();
 		form.find(".orielRow").hide()
@@ -62,25 +62,45 @@ class Sill extends AdditionalObject {
 			var imgName =  "/drawings/sill/oriel/" + form.find('[data-propid="orielType"]').val() + ".png"
 			$(form.find(".orielRow td")[0]).html("<td><img style='max-width: 100%;' src='"+imgName+"'></td>");
 		}
+		//параметры вент. отверстий
 		if(form.find('[data-propid="ventHoles"]').val() != "нет") {
 			form.find('.holePar').show();
 		}
+		//параметры балконной двери
 		if(form.find('[data-propid="geom"]').val() == "балконное окно" || form.find('[data-propid="geom"]').val() == "подоконный блок") {
 			form.find(".doorPar").show()
 		}
-		if (form.find('[data-propid="sillGeom"]').val() == 'подоконник') {
-			form.find('[data-propid="frontEdge"]').closest('tr').hide()
-			form.find('[data-propid="baseModel"]').closest('tr').hide()
-			form.find('[data-propid="depth"]').closest('tr').hide()
-			form.find('[data-propid="countertopDepth"]').closest('tr').hide()
-			form.find('[data-propid="width"]').closest('tr').hide()
-		}else{
-			form.find('[data-propid="frontEdge"]').closest('tr').show()
-			form.find('[data-propid="baseModel"]').closest('tr').show()
-			form.find('[data-propid="depth"]').closest('tr').show()
-			form.find('[data-propid="countertopDepth"]').closest('tr').show()
-			form.find('[data-propid="width"]').closest('tr').show()
+		
+	
+		//параметры обстановки по подоконнику
+
+		if (par.envPar == 'авто') {
+			form.find('[data-propid="frontNose"]').closest('tr').hide()
+			form.find(".envPar").hide()
+			//ширина окна			
+			var windowWidth = par.len - par.rightNose - par.leftNose
+			form.find('[data-propid="windowWidth"]').val(windowWidth)
+			
+			//свес подоконника спереди
+			var frontNose = par.width - par.windowPosZ;
+			if(par.geom == "подоконный блок") frontNose = (par.width - par.wallThk) / 2
+			form.find('[data-propid="frontNose"]').val(frontNose)
 		}
+		else{
+
+			form.find('[data-propid="frontNose"]').closest('tr').show()
+			form.find(".envPar").show()
+			
+			//длина подоконника
+			var len = par.windowWidth + par.rightNose + par.leftNose
+			form.find('[data-propid="len"]').val(len)
+			
+			//ширина подоконника
+			var width = par.windowPosZ + par.frontNose;			
+			if(par.geom == "подоконный блок") width = par.wallThk + par.frontNose * 2
+			form.find('[data-propid="width"]').val(width)
+		}
+		getObjPar()
 	}
 
 	static getMeta() {
@@ -113,6 +133,22 @@ class Sill extends AdditionalObject {
 						}
 					],
 					"default": "стена",
+					"type": "select"
+				},
+				{
+					"key": "envPar",
+					"title": "Размеры:",
+					"values": [
+						{
+							"value": "авто",
+							"title": "авто"
+						},
+						{
+							"value": "задаются",
+							"title": "задаются"
+						},
+					],
+					"default": "авто",
 					"type": "select"
 				},
 				{
@@ -166,7 +202,7 @@ class Sill extends AdditionalObject {
 				},
 				{
 					"key": "geomSide",
-					"class": "wallPar",
+					"class": "wallPar envPar",
 					"title": "Сторона:",
 					"values": [
 					{
@@ -179,11 +215,11 @@ class Sill extends AdditionalObject {
 					}
 					],
 					"default": "правая",
-					"type": "select"
+					"type": "select",
 				},
 				{
 					"key": "sideWall",
-					"class": "wallPar",
+					"class": "wallPar envPar",
 					"title": "Угловая стена:",
 					"values": [
 					{
@@ -204,77 +240,81 @@ class Sill extends AdditionalObject {
 					}
 					],
 					"default": "нет",
-					"type": "select"
+					"type": "select",
 				},
 				{
 					"key": "windowWidth",
-					"class": "wallPar",
+					"class": "wallPar envPar",
 					"title": "Ширина окна:",
 					"default": 1000,
-					"type": "number"
+					"type": "number",					
 				  },
 				  {
 					"key": "windowHeight",
-					"class": "wallPar",
+					"class": "wallPar envPar",
 					"title": "Высота окна:",
 					"default": 1600,
 					"type": "number"
 				  },
 				  {
 					"key": "wallSideBevel",
+					"class": 'envPar',
 					"title": "Скос откоса:",
 					"default": 30,
-					"type": "number"
+					"type": "number",
 				  },
 				  {
 					"key": "ceilHeight",
+					"class": 'envPar',
 					"title": "Высота потолка:",
 					"default": 2800,
-					"type": "number"
+					"type": "number",
 				  },
 				  {
 					"key": "wallThk",
+					"class": 'envPar',
 					"title": "Толщина стены:",
 					"default": 400,
-					"type": "number"
+					"type": "number",
 				  },
 				  {
 					"key": "windowPosZ",
-					"class": "wallPar",
+					"class": "wallPar envPar",
 					"title": "Позиция окна по глубине:",
 					"default": 200,
-					"type": "number"
+					"type": "number",
 				  },
 				  {
 					"key": "windowOffsetRight",
-					"class": "wallPar",
+					"class": "wallPar envPar",
 					"title": "Отступ окна справа:",
 					"default": 500,
-					"type": "number"
+					"type": "number",
 				  },
 				  {
 					"key": "windowOffsetLeft",
-					"class": "wallPar",
+					"class": "wallPar envPar",
 					"title": "Отступ окна слева:",
 					"default": 500,
-					"type": "number"
+					"type": "number",
 				  },
 				  {
 					"key": "windowSectAmt",
-					"class": "wallPar",
+					"class": "wallPar envPar",
 					"title": "Кол-во створок окна:",
 					"default": 1,
-					"type": "number"
+					"type": "number",
 				  },
 				  {
 					"key": "doorWidth",
-					"class": "doorPar",
+					"class": "doorPar envPar",
 					"title": "Ширина двери:",
 					"default": 1000,
-					"type": "number"
+					"type": "number",
 				  },
 				  {
 					"key": "height",
+					"class": "envPar",
 					"title": "Высота от пола:",
 					"default": 800,
 					"type": "number"
@@ -291,168 +331,21 @@ class Sill extends AdditionalObject {
 							"value": "подоконник",
 							"title": "подоконник"
 						},
-						{
-							"value": "столешница",
-							"title": "столешница"
-						},
-						{
-							"value": "подстолье",
-							"title": "подстолье"
-						}
 					],
 					"default": "подоконник",
 					"type": "select"
 				},
+
 				{
-					"key": "frontEdge",
-					"title": "Передний край:",
-					"values": [
-					{
-						"value": "прямой",
-						"title": "прямой"
-					},
-					{
-						"value": "живой",
-						"title": "живой"
-					}
-					],
-					"default": "прямой",
-					"type": "select"
-				},
-				{
-					"key": "baseModel",
-					"title": "Модель:",
-					"values": [
-					{
-						"value": "не указано",
-						"title": "не указано"
-					},
-					{
-						"value": "D-1",
-						"title": "D-1"
-					},
-					{
-						"value": "S-1",
-						"title": "S-1"
-					},
-					{
-						"value": "S-2",
-						"title": "S-2"
-					},
-					{
-						"value": "S-3",
-						"title": "S-3"
-					},
-					{
-						"value": "S-4",
-						"title": "S-4"
-					},
-					{
-						"value": "S-5",
-						"title": "S-5"
-					},
-					{
-						"value": "S-6",
-						"title": "S-6"
-					},
-					{
-						"value": "S-7",
-						"title": "S-7"
-					},
-					{
-						"value": "S-8",
-						"title": "S-8"
-					},
-					{
-						"value": "S-9",
-						"title": "S-9"
-					},
-					{
-						"value": "T-1",
-						"title": "T-1"
-					},
-					{
-						"value": "T-2",
-						"title": "T-2"
-					},
-					{
-						"value": "T-3",
-						"title": "T-3"
-					},
-					{
-						"value": "T-4",
-						"title": "T-4"
-					},
-					{
-						"value": "T-5",
-						"title": "T-5"
-					},
-					{
-						"value": "T-6",
-						"title": "T-6"
-					},
-					{
-						"value": "T-7",
-						"title": "T-7"
-					},
-					{
-						"value": "T-8",
-						"title": "T-8"
-					},
-					{
-						"value": "T-9",
-						"title": "T-9"
-					},
-					{
-						"value": "T-10",
-						"title": "T-10"
-					},
-					{
-						"value": "T-11",
-						"title": "T-11"
-					},
-					{
-						"value": "T-12",
-						"title": "T-12"
-					},
-					{
-						"value": "T-13",
-						"title": "T-13"
-					},
-					{
-						"value": "T-14",
-						"title": "T-14"
-					},
-					{
-						"value": "T-15",
-						"title": "T-15"
-					},
-					{
-						"value": "T-16",
-						"title": "T-16"
-					},
-					{
-						"value": "T-17",
-						"title": "T-17"
-					},
-					{
-						"value": "T-18",
-						"title": "T-18"
-					}
-					],
-					"default": "T-1",
-					"type": "select"
-				},
-				{
-					"key": "depth",
-					"title": "Глубина столешницы:",
+					"key": "len",
+					"title": "Длина:",
 					"default": 800,
 					"type": "number"
 				},
 				{
 					"key": "width",
 					"title": "Ширина:",
-					"default": 800,
+					"default": 300,
 					"type": "number"
 				},
 				{
@@ -479,12 +372,7 @@ class Sill extends AdditionalObject {
 				  "default": 50,
 				  "type": "number"
 				},
-				{
-				  "key": "countertopDepth",
-				  "title": "Глубина столешницы:",
-				  "default": 500,
-				  "type": "number"
-				},
+
 				{
 				  "key": "cornerRadRight",
 				  "title": "Радиус справа:",
@@ -556,7 +444,30 @@ class Sill extends AdditionalObject {
 					"default": "100",
 					"class": "holePar",
 					"type": "number"
-				}
+				},
+				{
+					"type": "delimeter",
+					"title": "Цена"
+				},
+				{
+					"key": "slabPrice",
+					"title": "Цена слэба",
+					"type": "number"
+				},
+				{
+					key: 'priceFactor',
+					title: 'К-т на цену',
+					default: 1,
+					hidden: true,
+					type: 'number'
+				},
+				{
+					key: 'costFactor',
+					title: 'К-т на себестоимость',
+					default: 1,
+					hidden: true,
+					type: 'number'
+				},
 			]
 		}
 	}

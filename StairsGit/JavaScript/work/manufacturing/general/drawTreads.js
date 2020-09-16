@@ -3600,9 +3600,10 @@ function drawNotchedPlate(par){
         len
         width
         thk
-        hasNothes: true,
+        
         notches: {
-            botIn: {x: 0, y:0},
+			hasNothes: true,
+		   botIn: {x: 0, y:0},
             botOut: {x: 0, y:0},
             topIn: {x: 0, y:0},
             topOut: {x: 0, y:0},
@@ -3628,15 +3629,15 @@ function drawNotchedPlate(par){
     if(!par.notches.middle) par.notches.middle = {x:0, y:0};
 
     if(par.notches.hasNothes){
-        if(params.turnSide == "правое"){
-            notches = {
-                botLeft: copyPoint(par.notches.botOut),
-                botRight: copyPoint(par.notches.botIn),
-                topLeft: copyPoint(par.notches.topOut),
-                topRight: copyPoint(par.notches.topIn),
-                middle: copyPoint(par.notches.middle)
-            };
-        }
+
+		notches = {
+			botLeft: copyPoint(par.notches.botOut),
+			botRight: copyPoint(par.notches.botIn),
+			topLeft: copyPoint(par.notches.topOut),
+			topRight: copyPoint(par.notches.topIn),
+			middle: copyPoint(par.notches.middle)
+		};
+
         if(params.turnSide == "левое"){
             notches = {
                 botLeft: copyPoint(par.notches.botIn),
@@ -3715,7 +3716,11 @@ function drawNotchedPlate(par){
 				if (this.x && this.y) partName = "notchedTread";
 			})
 	}
-	if(typeof specObj !='undefined' && params.stairType != "нет"){
+	if(params.stairType == "нет") partName = false;
+	
+	if(par.partName) partName = par.partName;
+	
+	if(typeof specObj !='undefined' && partName){
 		if(!specObj[partName]){
 			specObj[partName] = {
 				types: {},
@@ -3728,9 +3733,13 @@ function drawNotchedPlate(par){
 				division: treadPar.division,
 				workUnitName: "amt",
 				group: "treads",
-				}
-			if(partName == "notchedTread") specObj[partName].name = "Ступень с вырезами";
 			}
+			if(partName == "notchedTread") specObj[partName].name = "Ступень с вырезами";
+			if(partName == "shelf") {
+				specObj[partName].name = "Полка с вырезами";
+				specObj[partName].group = "additionalObjectsTimber";
+			}
+		}
 		
 		
 		var area = par.len * par.widthFull / 1000000;

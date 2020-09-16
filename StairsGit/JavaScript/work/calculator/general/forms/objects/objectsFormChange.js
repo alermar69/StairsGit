@@ -11,26 +11,8 @@ $(function(){
 
 	//кнопка применить параметры объекта
 	$('#applyObjProps').click(function (e) {
-		var $form = $("#additionalObjectProperties")
-		var id = $form.find('#additionalObjectId').val();
-		var item = getAdditionalObject(id);
-		if (item) {
-			$.each($form.find('input,select,textarea'), function(){
-				var key = $(this).attr('data-propid');
-				if (key) {
-					if ($(this).attr('type') == 'checkbox') {
-						item.meshParams[key] = $(this).is(':checked');
-					}else if($(this).attr('type') == 'number'){
-						item.meshParams[key] = $(this).val() * 1.0;
-					}else if($(this).attr('type') == 'custom_input'){
-						item.meshParams[key] = $(this).find('.selected').data('value');
-					}else{
-						item.meshParams[key] = $(this).val();
-					}
-				}
-			});
-			redrawAdditionalObjects();
-		}
+		getObjPar()
+		redrawAdditionalObjects();
 	});
 
 
@@ -43,6 +25,7 @@ $(function(){
 		var id = $form.find('#additionalObjectId').val();
 		var item = getAdditionalObject(id);
 		if (item) {
+			getObjPar()
 			var classItem = eval(item.className);
 			if (classItem && classItem.formChange) {
 				classItem.formChange($form, item)
@@ -106,6 +89,12 @@ $(function(){
 		var item = getAdditionalObject(id);
 		item.color = $(this).val();
 		redrawAdditionalObjects();
+	});
+
+	$('body').on('change', '.additionalObjectName', function(){
+		var id = $(this).parents('.additionalObjectRow').data('object_id');
+		var item = getAdditionalObject(id);
+		item.name = $(this).val();		
 	});
 
 	$('body').on('click', '.meshParam_custom', function() {
@@ -325,13 +314,15 @@ function addAdditionalObjectTable(par){
 	if (!par.id && !par.position) return;
 
 	var text = '\
-		<tr class="additionalObjectRow" data-object_selector="additionalObjectRow" data-object_id='+ par.id +' data-id='+ par.id +'>\
+		<tr class="additionalObjectRow" data-object_selector="additionalObjectRow" style="width: 100%" data-object_id='+ par.id +' data-id='+ par.id +'>\
 			<td>\
-				<select class="additionalObjectClass">';
-				AdditionalObject.getAvailableClasses().forEach(function(c){
-					text += '<option value="' + c.className + '">' + c.title + '</option>'
-				});
-		text+= '</select>\
+				Тип: <select class="additionalObjectClass">';
+					AdditionalObject.getAvailableClasses().forEach(function(c){
+						text += '<option value="' + c.className + '">' + c.title + '</option>'
+					});
+		text+= '</select><br>\
+				Цвет: <input class="additionalObjectColor" type="color" style="width: 100%" value="#cccccc"><br>\
+				Название: <input class="additionalObjectName" style="width: 100%" type="text"><br>\
 			</td>\
 			<td>\
 				<div class="line">X: <input type="number" value="100" step="100" class="additionalObjectPosX"></div>\
@@ -339,7 +330,6 @@ function addAdditionalObjectTable(par){
 				<div class="line">Z: <input type="number" value="100" step="100" class="additionalObjectPosZ"></div>\
 				<div class="line">Поворот: <input type="number" value="100" step="100" class="additionalObjectRot"></div>\
 			</td>\
-			<td><input class="additionalObjectColor" type="color" value="#cccccc"></td>\
 			<td style="text-align: center;">\
 				<button class="btn btn-outline-dark setHolePos" style="margin: 2px" data-toggle="tooltip" title="Вставить в проем" data-original-title="Вставить в проем">\
 					<i class="fa fa-window-maximize actionIcon"></i>\
@@ -372,6 +362,7 @@ function addAdditionalObjectTable(par){
 	el.find('.additionalObjectRot').val(par.rotation);
 	el.find('.additionalObjectClass').val(par.className);
 	el.find('.additionalObjectColor').val(par.color);
+	el.find('.additionalObjectName').val(par.name);
 	if(par.calc_price) el.find('.additionalObjectCalcPrice').attr('checked', true);
 
 
@@ -447,5 +438,30 @@ function additionalObjectParamsShow(id){
 				classItem.formChange($form, item)
 			}
 		}
+	}
+}
+
+/** функция считывает параметры из формы и пишет их в глобальный объект
+*/
+
+function getObjPar(){
+	var $form = $("#additionalObjectProperties")
+	var id = $form.find('#additionalObjectId').val();
+	var item = getAdditionalObject(id);
+	if (item) {
+		$.each($form.find('input,select,textarea'), function(){
+			var key = $(this).attr('data-propid');
+			if (key) {
+				if ($(this).attr('type') == 'checkbox') {
+					item.meshParams[key] = $(this).is(':checked');
+				}else if($(this).attr('type') == 'number'){
+					item.meshParams[key] = $(this).val() * 1.0;
+				}else if($(this).attr('type') == 'custom_input'){
+					item.meshParams[key] = $(this).find('.selected').data('value');
+				}else{
+					item.meshParams[key] = $(this).val();
+				}
+			}
+		});
 	}
 }

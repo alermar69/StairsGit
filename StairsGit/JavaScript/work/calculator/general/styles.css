@@ -220,3 +220,24 @@
 .dropdown-item{
 	cursor: pointer;
 }
+
+#shapeModifyModal .modal-dialog{
+	min-height: calc(100% - 60px);
+	min-width: 100%;
+}
+
+#shapeModifyModal .modal-content{
+	min-height: calc(100% - 60px);
+	min-width: 100%;
+}
+
+#shapeModifyModal .iframe-wrapper{
+	height: calc(100% - 80px);
+	position: absolute;
+    width: calc(100% - 30px);
+}
+
+#shapeModifyModal iframe{
+	height: 100%;
+	width: 100%;
+}

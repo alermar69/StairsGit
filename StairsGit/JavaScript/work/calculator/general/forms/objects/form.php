@@ -17,9 +17,9 @@
 				<table class="form_table objectsTable" id='objectsTable'>
 					<thead>
 						<tr>
-							<th>Тип</th>
+							<th>Данные</th>
 							<th style="min-width: 190px">Позиция</th>
-							<th>Цвет</th>
+							<!-- <th>Цвет</th> -->
 							<th style="min-width: 100px">Действия</th>
 							<th style="min-width: 100px">Считать цену</th>
 						</tr>

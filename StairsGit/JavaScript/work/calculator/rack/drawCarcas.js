@@ -1,27 +1,77 @@
-// Вывод каркаса всей лестницы
-function drawShelf(par) {
-	shelfParams = par.shelfPar || params;
+/** функция отрисовывает стеллаж
+*/
+function drawShelfTower(par) {
+
 	par.carcas = new THREE.Object3D();
 	par.panels = new THREE.Object3D();
 	par.countertop = new THREE.Object3D();
 	var dxfX0 = par.dxfBasePoint.x;
 	par.dxfArr = dxfPrimitivesArr
-	var legPar = getProfParams(shelfParams.legProf)
+	var legPar = getProfParams(par.legProf);
+
 
 	//полки
+	
+
 	var panelPar = {
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -3000),
+		len: par.width,
+		width: par.depth - legPar.sizeB * 2,
+		thk: par.shelfThk,
+		partName: "shelf",
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 2000, 0),
+		dxfArr: dxfPrimitivesArr,
 	}
-	var botShelfPosY = shelfParams.botOffset + shelfParams.shelfThk;
-	var shelfStep = (shelfParams.height - shelfParams.topOffset - shelfParams.botOffset - shelfParams.shelfThk) / (shelfParams.shelfAmt - 1);
+	
+	if(par.carcasModel == "панели" || par.carcasModel == "бруски") panelPar.width = par.depth;
+	if(par.carcasModel == "панели") panelPar.len = par.width - legPar.sizeA * 2;
+		
+	var botShelfPosY = par.botOffset + par.shelfThk;
+	var shelfStep = (par.height - par.topOffset - par.botOffset - par.shelfThk) / (par.shelfAmt - 1);
 	var shelfPositions = [];
-	for (var i = 0; i < shelfParams.shelfAmt; i++) {
-		var panel = drawCountertop(panelPar).mesh;
+	
+	//вырезы полки для стеллажа с брусками
+	var drawShefFunc = drawPlate
+	if(par.carcasModel == "бруски"){
+		//полка с вырезами
+		drawShefFunc = drawNotchedPlate;
+		/*
+		//меняем местами длину и ширину
+		var temp = panelPar.len;
+		panelPar.len = panelPar.width
+		panelPar.width = temp
+		*/
+		var notch = {x: legPar.sizeB, y: legPar.sizeA,}
+
+		panelPar.notches = {
+            hasNothes: true,
+			botIn: notch,
+            botOut: notch,
+            topIn: notch,
+            topOut: notch,
+		};		
+	}
+	
+	for (var i = 0; i < par.shelfAmt; i++) {
+		
+		if(par.carcasModel == "панели"){
+			//последняя полка толстая
+			if(i == par.shelfAmt - 1) panelPar.thk = legPar.sizeA;
+		}
+			
+		var panel = drawShefFunc(panelPar).mesh;
+		panel.rotation.x = Math.PI / 2
 		panel.position.x = 0;
+		if(par.carcasModel == "панели") panel.position.x = legPar.sizeA;
 		panel.position.y = botShelfPosY + shelfStep * i;
-		panel.position.z = legPar.sizeB;
+		panel.position.z = (par.depth - panelPar.width) / 2;
+		if(par.carcasModel == "бруски"){
+			panel.rotation.z = Math.PI / 2
+			panel.position.x = panelPar.len
+		}
 		par.countertop.add(panel);
 		shelfPositions.push(panel.position.y);
+		
+		panelPar.dxfArr = [];
 	}
 
 
@@ -36,11 +86,19 @@ function drawShelf(par) {
 		dxfBasePoint: par.dxfBasePoint,
 		side: "left",
 		shelfPositions: shelfPositions,
+		legProf: par.legProf,
+		bridgeProf: par.bridgeProf,
+		width: par.depth,
+		height: par.height,
+		shelfThk: par.shelfThk,
+		carcasModel: par.carcasModel,
+		topOffset: par.topOffset,
 	}
+	
 	var leftSideObj = drawSideWall(sidePar);
 	leftSideObj.carcas.rotation.y = -Math.PI / 2;
 	leftSideObj.carcas.position.z = legPar.sizeB;
-	leftSideObj.carcas.position.x = legPar.sizeA + shelfParams.sideOverhang;
+	leftSideObj.carcas.position.x = legPar.sizeA + par.sideOverhang;
 	leftSideObj.panels.rotation.y = leftSideObj.carcas.rotation.y;
 	leftSideObj.panels.position.z = leftSideObj.carcas.position.z;
 	leftSideObj.panels.position.x = leftSideObj.carcas.position.x;
@@ -49,15 +107,12 @@ function drawShelf(par) {
 	par.panels.add(leftSideObj.panels);
 
 	// правая боковина
-	var sidePar = {
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, shelfParams.depth + 200, 0),
-		side: "right",
-		shelfPositions: shelfPositions,
-	}
+	sidePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.depth + 200, 0);
+	sidePar.side = "right";
 
 	var rightSideObj = drawSideWall(sidePar);
 	rightSideObj.carcas.rotation.y = -Math.PI / 2;
-	rightSideObj.carcas.position.x = shelfParams.width - shelfParams.sideOverhang;
+	rightSideObj.carcas.position.x = par.width - par.sideOverhang;
 	rightSideObj.carcas.position.z = legPar.sizeB;
 
 	rightSideObj.panels.rotation.y = rightSideObj.carcas.rotation.y;
@@ -69,28 +124,27 @@ function drawShelf(par) {
 	par.panels.add(rightSideObj.panels);
 
 	//царги
-	var bridgePar = getProfParams(shelfParams.bridgeProf)
+	var bridgePar = getProfParams(par.bridgeProf)
 
 
 	var polePar = {
 		poleProfileY: bridgePar.sizeA,
 		poleProfileZ: bridgePar.sizeB,
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -1000),
-		length: shelfParams.width - legPar.sizeA * 2 - shelfParams.sideOverhang * 2,
+		length: par.width - legPar.sizeA * 2 - par.sideOverhang * 2,
 		poleAngle: 0,
-		partName: "shelfBridge",
 	}
 
 	//задняя царга
 	var pos = {
-		x: legPar.sizeA + shelfParams.sideOverhang,
-		y: shelfParams.height - polePar.poleProfileY - modelDim.countertop.thk,
-		z: shelfParams.depth - polePar.poleProfileZ - shelfParams.frontOverhang,
+		x: legPar.sizeA + par.sideOverhang,
+		y: par.height - polePar.poleProfileY - modelDim.countertop.thk,
+		z: par.depth - polePar.poleProfileZ - par.frontOverhang,
 	}
 	var pole1 = drawPole3D_4(polePar).mesh;
 	pole1.position.x = pos.x;
 	pole1.position.y = pos.y;
-	pole1.position.z = shelfParams.frontOverhang;
+	pole1.position.z = par.frontOverhang;
 	par.carcas.add(pole1);
 
 	//верхняя передняя царга
@@ -123,10 +177,10 @@ function drawShelf(par) {
 	*/
 
 	//задняя стенка
-	if (shelfParams.rearPanel == "есть") {
+	if (par.rearPanel == "есть") {
 		var platePar = {
-			len: shelfParams.width - sideWallDim.newellSize * 2 + modelDim.rearWall.ledge * 2,
-			width: shelfParams.rearPanelHeight,
+			len: par.width - sideWallDim.newellSize * 2 + modelDim.rearWall.ledge * 2,
+			width: par.rearPanelHeight,
 			thk: modelDim.rearWall.thk,
 			partName: "mdfPlate",
 		}
@@ -142,14 +196,21 @@ function drawShelf(par) {
 
 		par.panels.add(panel);
 	}
-
-
-
+	
 	return par;
 
 } //end of drawCarcas
 
-/** фуниция отрисовывает боковину комода
+/** фуниция отрисовывает боковину стеллажа в стиле лофт
+		dxfBasePoint: par.dxfBasePoint,
+		side: "left",
+		shelfPositions: shelfPositions,
+		legProf: par.legProf,
+		bridgeProf: par.bridgeProf,
+		width: par.depth,
+		height: par.height,
+		shelfThk: par.shelfThk,
+		carcasModel: par.carcasModel,
  */
 
 function drawSideWall(par) {
@@ -157,18 +218,16 @@ function drawSideWall(par) {
 	par.panels = new THREE.Object3D();
 	var dxfX0 = par.dxfBasePoint.x;
 	par.dxfArr = dxfPrimitivesArr;
-
 	var modelDim = getModelDimensions();
 	var sideWallDim = modelDim.sideWall;
-	par.width = shelfParams.depth;
-	var legPar = getProfParams(shelfParams.legProf)
-	var beamPar = getProfParams(shelfParams.bridgeProf)
+	var legPar = getProfParams(par.legProf)
+	var beamPar = getProfParams(par.bridgeProf)
 
 	//константы
 
-	var topBeamSize = shelfParams.legProf;
-	var botBeamSize = shelfParams.legProf;
-	var botBeamOffset = shelfParams.botOffset - beamPar.sizeB;
+	var topBeamSize = par.legProf;
+	var botBeamSize = par.legProf;
+	var botBeamOffset = par.botOffset - beamPar.sizeB;
 	var panelThk = sideWallDim.panelThk;
 	var panelLedge = sideWallDim.panelLedge;
 
@@ -180,11 +239,12 @@ function drawSideWall(par) {
 		poleProfileY: legPar.sizeB,
 		poleProfileZ: legPar.sizeA,
 		dxfBasePoint: par.dxfBasePoint,
-		length: shelfParams.height,
+		length: par.height,
 		poleAngle: Math.PI / 2,
-		partName: "shelfLeg",
 	}
-
+	
+	if(par.carcasModel == "панели" || par.carcasModel == "бруски") polePar.material = params.materials.timber
+		
 	//передняя стоевая
 	var pos = {
 		x: par.width - legPar.sizeB,
@@ -208,66 +268,72 @@ function drawSideWall(par) {
 	par.carcas.add(newell);
 
 	//перемычки
-
-	var polePar = {
-		poleProfileY: legPar.sizeB,
-		poleProfileZ: legPar.sizeA,
-		dxfBasePoint: par.dxfBasePoint,
-		length: par.width - legPar.sizeB * 2,
-		poleAngle: 0,
-		partName: "shelfLeg",
-	}
-
-	//верхняя перемычка
-	var pos = {
-		x: 0, //sideWallDim.newellSize,
-		y: shelfParams.height - polePar.poleProfileY,
-	}
-	polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y)
-	var newell = drawPole3D_4(polePar).mesh;
-	newell.position.x = pos.x;
-	newell.position.y = pos.y;
-	par.carcas.add(newell);
-
-	//остальные перемычки
-
-	if (par.shelfPositions) {
-		$.each(par.shelfPositions, function (i) {
+	
+	if(par.carcasModel != "панели"){
+		var polePar = {
+			poleProfileY: legPar.sizeB,
+			poleProfileZ: legPar.sizeA,
+			dxfBasePoint: par.dxfBasePoint,
+			length: par.width - legPar.sizeB * 2,
+			poleAngle: 0,
+		}
+		if(par.carcasModel == "бруски") {
+			polePar.material = params.materials.timber
+			polePar.poleProfileY = 20;
+		}
+		
+		//верхняя перемычка
+		if(par.topOffset != 0){
 			var pos = {
-				x: 0,
-				y: this - shelfParams.shelfThk - beamPar.sizeB,
+				x: 0, //sideWallDim.newellSize,
+				y: par.height - polePar.poleProfileY,
 			}
-			polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
-			//polePar.poleProfileY = botBeamSize;
-			var beam = drawPole3D_4(polePar).mesh;
-			beam.position.x = pos.x;
-			beam.position.y = pos.y;
-			par.carcas.add(beam);
+			
+			polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y)
+			var newell = drawPole3D_4(polePar).mesh;
+			newell.position.x = pos.x;
+			newell.position.y = pos.y;
+			par.carcas.add(newell);
+		}
+		//остальные перемычки
 
-			//рисунок крест
-			if (shelfParams.carcasModel == "01" && i < par.shelfPositions.length - 1) {
-				var crossPar = {
-					height: par.shelfPositions[1] - par.shelfPositions[0] - shelfParams.shelfThk - beamPar.sizeB,
-					width: shelfParams.depth - legPar.sizeB * 2,
+		if (par.shelfPositions) {
+			$.each(par.shelfPositions, function (i) {
+				var pos = {
+					x: 0,
+					y: this - par.shelfThk - polePar.poleProfileY,
 				}
-				var cross = drawCross(crossPar).mesh;
-				cross.position.y = this;
-				par.carcas.add(cross);
-			}
-		})
-	}
+				polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
+				//polePar.poleProfileY = botBeamSize;
+				var beam = drawPole3D_4(polePar).mesh;
+				beam.position.x = pos.x;
+				beam.position.y = pos.y;
+				par.carcas.add(beam);
 
+				//рисунок крест
+				if (par.carcasModel == "кресты" && i < par.shelfPositions.length - 1) {
+					var crossPar = {
+						height: par.shelfPositions[1] - par.shelfPositions[0] - par.shelfThk - beamPar.sizeB,
+						width: par.width - legPar.sizeB * 2,
+						dxfBasePoint: polePar.dxfBasePoint,
+					}
+					var cross = drawCross(crossPar).mesh;
+					cross.position.y = this;
+					par.carcas.add(cross);
+				}
+			})
+		}
+	}
 	//панель
 	var drawPanel = false;
-	if (shelfParams.sidePanel == "две") drawPanel = true;
-	if (par.side == "left" && shelfParams.sidePanel == "левая") drawPanel = true;
-	if (par.side == "right" && shelfParams.sidePanel == "правая") drawPanel = true;
+	if (par.sidePanel == "две") drawPanel = true;
+	if (par.side == "left" && par.sidePanel == "левая") drawPanel = true;
+	if (par.side == "right" && par.sidePanel == "правая") drawPanel = true;
 	if (drawPanel) {
 		var platePar = {
 			len: par.width - sideWallDim.newellSize * 2 + panelLedge * 2,
-			width: shelfParams.height - botBeamOffset - botBeamSize - topBeamSize + panelLedge * 2 - modelDim.countertop.thk,
+			width: par.height - botBeamOffset - botBeamSize - topBeamSize + panelLedge * 2 - modelDim.countertop.thk,
 			thk: panelThk,
-			partName: "mdfPlate",
 		}
 		var pos = {
 			x: -panelLedge,
@@ -282,160 +348,87 @@ function drawSideWall(par) {
 		par.carcas.add(panel);
 	}
 
-	return par;
-
-}
-
-function drawCountertop(par) {
-	par.mesh = new THREE.Object3D();
-	var modelDim = getModelDimensions();
-	var legPar = getProfParams(shelfParams.legProf)
-
-	par.len = shelfParams.width;
-	par.width = shelfParams.depth - legPar.sizeB * 2;
-
-	var p0 = {
-		x: 0,
-		y: 0
-	};
-	var p1 = copyPoint(p0);
-	var p2 = newPoint_xy(p0, 0, par.width);
-	var p3 = newPoint_xy(p0, par.len, par.width);
-	var p4 = newPoint_xy(p0, par.len, 0);
-
-	var points = [p1, p2, p3, p4];
-
-
-	//создаем шейп
-	var shapePar = {
-		points: points,
-		dxfArr: dxfPrimitivesArr,
-		dxfBasePoint: par.dxfBasePoint,
-		//radIn: radIn, //Радиус скругления внутренних углов
-		radOut: modelDim.countertop.cornerRad, //радиус скругления внешних углов
-		//markPoints: true,
-	}
-
-	var shape = drawShapeByPoints2(shapePar).shape;
-
-	var extrudeOptions = {
-		amount: shelfParams.shelfThk,
-		bevelEnabled: false,
-		curveSegments: 12,
-		steps: 1
-	};
-
-	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
-	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var mesh = new THREE.Mesh(geom, params.materials.timber);
-	mesh.rotation.x = Math.PI / 2;
-	par.mesh.add(mesh);
-
-	//сохраняем данные для спецификации
-	par.partName = "countertop";
-	par.thk = shelfParams.shelfThk;
-	if (typeof specObj != 'undefined' && par.partName) {
-		if (!specObj[par.partName]) {
-			specObj[par.partName] = {
+	var partName = "shelfSideWall"
+	if(typeof specObj !='undefined' && partName){
+		if(!specObj[partName]){
+			specObj[partName] = {
 				types: {},
 				amt: 0,
-				name: "Столешница",
+				name: "Боковина стеллажа",
 				area: 0,
-				vol: 0,
 				paintedArea: 0,
-				paintedArea: 0,
-				metalPaint: false,
-				timberPaint: true,
-				division: "timber",
-				group: "Каркас",
+				metalPaint: true,
+				timberPaint: false,
+				division: "metal",
+				workUnitName: "amt",
+				group: "additionalObjectsMetal",
 			}
+			if(par.carcasModel == "панели" || par.carcasModel == "бруски") {
+				specObj[partName].metalPaint = false;
+				specObj[partName].timberPaint = true;
+				specObj[partName].division = "timber";
+				specObj[partName].group = "additionalObjectsTimber";
+			} 
 		}
-		var area = par.len * par.width / 1000000;
-		var paintedArea = area * 2 + (par.len + par.width) * 2 * par.thk / 1000000;
-
-		var name = Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(par.thk);
-		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
-		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
-		specObj[par.partName]["amt"] += 1;
-		specObj[par.partName]["area"] += area;
-		specObj[par.partName]["vol"] += par.width * par.len * shelfParams.shelfThk / 1000000000;
-		specObj[par.partName]["paintedArea"] += paintedArea;
 		
-		par.mesh.specId = par.partName + name;
+		
+		var area = par.height * par.width / 1000000;
+		var paintedArea = area * 2;
+
+		var name = Math.round(par.height) + "x" + Math.round(par.width);
+		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		specObj[partName]["area"] += area;
+		specObj[partName]["paintedArea"] += paintedArea;
 	}
-
-	//сохраняем данные для ведомости деталей
-	var addToPoleList = true;
-
-	//if(par.partName == "timberPlate") addToPoleList = true;
-
-	if (typeof poleList != 'undefined' && addToPoleList && par.partName) {
-		var poleType = Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(modelDim.countertop.thk);
-		//формируем массив, если такого еще не было
-		if (!poleList[poleType]) poleList[poleType] = [];
-		var polePar = {
-			len1: Math.round(par.length),
-			len2: Math.round(par.length),
-			len3: Math.round(par.length),
-			angStart: par.angStart,
-			angEnd: par.angEnd,
-			cutOffsetStart: 0,
-			cutOffsetEnd: 0,
-			poleProfileY: par.poleProfileY,
-			poleProfileZ: par.poleProfileY,
-		}
-
-		//комментарий назначение детали
-		if (par.sectText) polePar.text = "Столешница";
-
-
-		polePar.description = [];
-		polePar.description.push(polePar.text);
-		polePar.amt = 1;
-
-		poleList[poleType].push(polePar);
-	}
-
+	par.carcas.specId = partName + name;
+	
+	
 	return par;
+
 }
+
 
 /** функция устанавливает основные размеры, зависящие от модели
  */
 function getModelDimensions() {
-	shelfParams.thinBoardThk = 20;
-
+	var thinBoardThk = 20;
+	var thickBoardThk = 40;
+	var mdfThk = 4;
+	
 	var par = {
 		leg: 125, //высота ножек
 		bridgeThk: 0, //толщина горизонтальных перемычек между ящиками
-		vertBridgeThk: shelfParams.thinBoardThk, //толщина вертикальных перемычек между ящиками
-		sectWallThk: shelfParams.thinBoardThk, //толщина перегородок между секциями
+		vertBridgeThk: thinBoardThk, //толщина вертикальных перемычек между ящиками
+		sectWallThk: thinBoardThk, //толщина перегородок между секциями
 		sideWall: {
 			newellSize: 50, //сечение стоевых	
-			topBeamSize: shelfParams.thinBoardThk, //сечение верхней перемычки по У
-			botBeamSize: shelfParams.thinBoardThk, //сечение нижней перемычки
-			panelThk: shelfParams.mdfThk, //толщина панели вставки
+			topBeamSize: thinBoardThk, //сечение верхней перемычки по У
+			botBeamSize: thinBoardThk, //сечение нижней перемычки
+			panelThk: mdfThk, //толщина панели вставки
 			panelLedge: 5, //выступ вставки на одну сторону
 			panelOffset: 10, //смещение плоскости вставки от внешней плоскости боковины
 		},
 		rearWall: {
-			thk: shelfParams.mdfThk,
+			thk: mdfThk,
 			offset: 2, //утапливание задней стенки относительно задней плоскости шкафа
 			ledge: 10,
 		},
 		countertop: {
 			ledge: 15,
-			thk: shelfParams.countertopThk,
-			cornerRad: shelfParams.cornerRad,
+			thk: thickBoardThk,
+			cornerRad: 10,
 		},
 		door: {
-			thk: shelfParams.thinBoardThk,
+			thk: thinBoardThk,
 			gap: 2,
-			topBeamSize: shelfParams.thinBoardThk, //сечение верхней перемычки по У
-			botBeamSize: shelfParams.thinBoardThk, //сечение нижней перемычки
+			topBeamSize: thinBoardThk, //сечение верхней перемычки по У
+			botBeamSize: thinBoardThk, //сечение нижней перемычки
 		},
 		drawer: {
-			sideThk: shelfParams.thinBoardThk,
-			botThk: shelfParams.mdfThk,
+			sideThk: thinBoardThk,
+			botThk: mdfThk,
 			botOffset: 10, //Отступ днища от низа ящика
 			botLedge: 10, //вхожнение днища в паз по одной стороне
 			deltaLen: 10, //коррекция длины ящика под направляющие
@@ -444,24 +437,6 @@ function getModelDimensions() {
 		}
 	}
 
-	if (shelfParams.model == "Брутал") {
-		par.leg = 40; //высота ног
-		par.bridgeThk = shelfParams.thinBoardThk;
-		par.sideWall = {
-			newellSize: 80, //сечение стоевых	
-			topBeamSize: shelfParams.thickBoardThk, //сечение верхней перемычки по У
-			botBeamSize: shelfParams.thickBoardThk, //сечение нижней перемычки
-			panelThk: shelfParams.mdfThk, //толщина панели вставки
-			panelLedge: 5, //выступ вставки на одну сторону
-			panelOffset: 10, //смещение плоскости вставки от внешней плоскости боковины
-		};
-		par.countertop = {
-			ledge: 15,
-			thk: shelfParams.thickBoardThk,
-			cornerRad: 0,
-		};
-		par.door.botBeamSize = shelfParams.thickBoardThk;
-	}
 	return par;
 
 } //end of getModelDimensions

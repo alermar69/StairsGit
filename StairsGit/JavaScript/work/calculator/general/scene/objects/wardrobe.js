@@ -34,7 +34,7 @@ class Wardrobe extends AdditionalObject {
 	
 	
 	toggleDoor() {
-		if (this.par.doorExist) {
+		if (this.par.door != 'нет') {
 			if (this.doorClosed) {
 				this.addAnimation('openDoor', 500);
 				this.doorClosed = false;
@@ -58,7 +58,7 @@ class Wardrobe extends AdditionalObject {
 
 	getActions() {
 		var actions = [];
-		if (this.par.doorExist) {
+		if (this.par.door != 'нет') {
 			actions.push({
 				title: 'Открыть/Закрыть дверцу',
 				function: 'toggleDoor'

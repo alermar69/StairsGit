@@ -276,7 +276,8 @@ function drawTriangleSheetTruss(par){
 	par.shape = drawShapeByPoints2(shapePar).shape;
 
 	//большие отверстия
-	var holeCornerRad = 40	
+	var holeCornerRad = 40
+	if(partPar.truss.midHeight < 250) holeCornerRad = 30
 	var holeAmt = partPar.purlin.amt * 2
 	var holeStepX = partPar.purlin.holeStepX / 2
 	if(params.carportType == "двухскатный") holeStepX *= 0.5
@@ -297,9 +298,12 @@ function drawTriangleSheetTruss(par){
 	
 	//смещаем крайнее отверстие чтобы было место для фланца крепления к колонне
 	if(params.carportType == "односкатный") {
-		holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, holeStepX - partPar.truss.bridgeWidth / 2)
+		//var offsetRight = holeStepX - partPar.truss.bridgeWidth / 2;
+		var offsetRight = params.sideOffsetTop + 200; //200 - ширина фланца колонны
+		
+		holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, offsetRight)
 		if(params.trussHolesType == "круги") holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, maxHoleDiam / 2)
-		holeAmt -= 2;
+	//	holeAmt -= 2;
 	}
 
 	par.progonAmt = Math.floor(distance(topLine.p1, rightLine.p1) / params.progonMaxStep) + 2;
@@ -810,7 +814,6 @@ function drawArcSheetTruss(par){
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
 		material: params.materials.metal,
 		layer: "carcas", //слой для выгрузки в dxf
-		partName: 'trussLine',
 		dxfPrimitivesArr: []
 	}	
 
@@ -821,6 +824,30 @@ function drawArcSheetTruss(par){
 	stripe.position.z = -stripeWidth / 2 + partPar.truss.stripeThk / 2;
 	stripe.position.x = topArc.center.x;
 	stripe.position.y = -topArc.rad + rightLine.p1.y;
+	stripe.setLayer('carcas');
+	par.mesh.add(stripe);
+	
+	//полоса снизу
+	var arcAngle = botArc.startAngle - botArc.endAngle;
+
+	var stripePar = {
+		rad: botArc.rad - partPar.truss.stripeThk / 2,
+		height: stripeWidth,
+		thk: partPar.truss.stripeThk,
+		angle: arcAngle,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+		material: params.materials.metal,
+		layer: "carcas", //слой для выгрузки в dxf
+		dxfPrimitivesArr: []
+	}	
+
+	var stripe = drawArcPanel(stripePar).mesh;
+
+	stripe.rotation.z = Math.PI / 2;
+	if(!par.hasDivide) stripe.rotation.z = botArc.endAngle;
+	stripe.position.z = -stripeWidth / 2 + partPar.truss.stripeThk / 2;
+	stripe.position.x = botArc.center.x;
+	stripe.position.y = -botArc.rad + rightLine.p2.y;
 	stripe.setLayer('carcas');
 	par.mesh.add(stripe);
 	

@@ -1,32 +1,39 @@
 class Table extends AdditionalObject {
 	constructor(par) {
 		super(par);
-
-		var basePar = {
-			dxfBasePoint: {x: 0,y: 0},
-			model: this.par.baseModel,
-			width: this.par.width - this.par.sideOverhang * 2,
-			height: this.par.height - this.par.countertopThk,
-			len: this.par.len - this.par.frontOverhang * 2,
-		}
-
-		var base = drawTableBase(basePar).mesh;
-		this.add(base);
 		
-		var topPar = {
-			dxfBasePoint: {x: 2000, y: 0},
-			geom: this.par.tableGeom,
-			model: this.par.countertopModel,
-			cornerRad: this.par.cornerRad,
-			width: this.par.width,
-			len: this.par.len,
-			thk: this.par.countertopThk,
-			partsGap: this.par.partsGap,
+		//подстолье
+		if (this.par.baseModel != 'не указано' && this.par.baseModel != 'нет') {
+			var basePar = {
+				dxfBasePoint: {x: 0,y: 0},
+				model: this.par.baseModel,
+				width: this.par.width - this.par.sideOverhang * 2,
+				height: this.par.height - this.par.countertopThk,
+				len: this.par.len - this.par.frontOverhang * 2,
+			}
+	
+			var base = drawTableBase(basePar).mesh;
+			this.add(base);
 		}
-		// debugger;
-		var top = drawTableCountertop(topPar).mesh;
-		top.position.y = this.par.height;
-		this.add(top);
+		
+		//столешница
+		if (this.par.tabletopType != 'нет') {
+			var topPar = {
+				dxfBasePoint: {x: 2000, y: 0},
+				geom: this.par.tableGeom,
+				model: this.par.countertopModel,
+				cornerRad: this.par.cornerRad,
+				width: this.par.width,
+				len: this.par.len,
+				thk: this.par.countertopThk,
+				partsGap: this.par.partsGap,
+				modifyKey: 'tabletop:' + this.objId
+			}
+			// debugger;
+			var top = drawTableCountertop(topPar).mesh;
+			top.position.y = this.par.height;
+			this.add(top);
+		}
 	}
 
 	static calcPrice(par){
@@ -34,42 +41,45 @@ class Table extends AdditionalObject {
 		var cost = 0;
 
 		//дерево
-		// var model = $row.find(".model").val();
-		// var area = $row.find(".len").val() * $row.find(".width").val() / 1000000;
-		// var vol = area * $row.find(".thk").val() / 1000;
-		// var timberType = $row.find(".timberType").val();
-		// var m3Cost = calcTimberParams(timberType).m3Price;
+		var len = meshPar.len
+		var width = meshPar.width
+		var model = meshPar.tabletopType;
+		var area = len * width / 1000000;
+		var vol = area * meshPar.countertopThk / 1000;
+		var timberType = params.additionalObjectsTimberMaterial;//$row.find(".timberType").val();
+		var m3Cost = calcTimberParams(timberType).m3Price;
 		// if(model == "слэб цельный") m3Cost = 200000;
-		// if(model == "шпон") m3Cost = 100000;
+		if(model == "шпон") m3Cost = 100000;
 		
+		var timberCost = vol * m3Cost;
+		if (["слэб цельный", "слэб со склейкой","слэб + стекло","слэб + смола непрозр.","слэб + смола прозр."].indexOf(model) != -1) {
+			timberCost = meshPar.slabPrice;
+		}
+		var workCost = 0;
 		
-		// var timberCost = vol * m3Cost;
-		// var workCost = 0;
-		
-		// //упрощенный расчет стоимости работы
+		//упрощенный расчет стоимости работы
 		// if(type == "изготовление столешницы") {
 		// 	timberCost = 0;
 		// 	workCost = 5000 + area * 1000;
 		// }
 		
-		// //покраска
-		// var paintCost = calcTimberPaintPrice(params.timberPaint, timberType) * area * 1.5; //1.5 учитывает торцы и низ
+		//покраска
+		var paintCost = calcTimberPaintPrice(params.timberPaint, timberType) * area * 1.5; //1.5 учитывает торцы и низ
 		
-		// //река
-		// var riverWidth = $row.find(".riverWidth").val();
-		// var riverArea = $row.find(".riverWidth").val() * $row.find(".len").val() / 1000000;
-		// var resinVol = riverArea * $row.find(".thk").val();
-		// if(type == "изготовление столешницы") resinVol = $row.find(".resinVol").val();
-		// if(model == "слэб + смола непрозр.") resinVol *= 0.5 //к-т учитывает заполнитель
+		//река
+		var riverArea = meshPar.riverWidth * len / 1000000;
+		var resinVol = riverArea * meshPar.countertopThk
+		// if(type == "изготовление столешницы") resinVol = meshPar.resinVol;
+		if(model == "слэб + смола непрозр.") resinVol *= 0.5 //к-т учитывает заполнитель
 	
-		// var riverCost = 0;
-		// var resinLiterCost = 1500;
-		// if(model == "слэб + смола прозр." || model == "слэб + смола непрозр." || type == "изготовление столешницы") {
-		// 	riverCost += riverArea * resinVol * resinLiterCost;				
-		// }
-		// if(model == "слэб + стекло") riverCost += riverArea * 12000 + 2000; //12к - цена стекла за м2, 2к - работа по фрезеровке 
+		var riverCost = 0;
+		var resinLiterCost = 1500;
+		if(model == "слэб + смола прозр." || model == "слэб + смола непрозр."){// || type == "изготовление столешницы") {
+			riverCost += riverArea * resinVol * resinLiterCost;				
+		}
+		if(model == "слэб + стекло") riverCost += riverArea * 12000 + 2000; //12к - цена стекла за м2, 2к - работа по фрезеровке 
 	
-		// cost += timberCost + workCost + paintCost + riverCost;
+		cost += timberCost + workCost + paintCost + riverCost;
 		
 		if (meshPar.baseModel != 'не указано') {
 			var tableBaseCost = 5000;
@@ -97,25 +107,195 @@ class Table extends AdditionalObject {
 			title: 'Стол',
 			inputs: [
 				{
+					"type": "delimeter",
+					"title": "Столешница"
+				},
+				
+								{
+					"key": "tabletopType",
+					"title": "Тип столешницы:",
+					"default": "щит",
+					"type": "select",
+					"values": [
+						{
+							"value": "щит",
+							"title": "щит"
+						},
+						{
+							"value": "шпон",
+							"title": "шпон"
+						},
+						{
+							"value": "слэб цельный",
+							"title": "слэб цельный"
+						},
+						{
+							"value": "слэб со склейкой",
+							"title": "слэб со склейкой"
+						},
+						{
+							"value": "слэб + стекло",
+							"title": "слэб + стекло"
+						},
+						{
+							"value": "слэб + смола непрозр.",
+							"title": "слэб + смола непрозр."
+						},
+						{
+							"value": "слэб + смола прозр.",
+							"title": "слэб + смола прозр."
+						},
+						{
+							"value": "нет",
+							"title": "нет"
+						},
+					]
+				},
+				
+				{
 					"key": "tableGeom",
 					"title": "Форма:",
 					"values": [
-					{
-						"value": "прямоугольный",
-						"title": "прямоугольный"
-					},
-					{
-						"value": "круглый",
-						"title": "круглый"
-					},
-					{
-						"value": "овальный",
-						"title": "овальный"
-					}
+						{
+							"value": "прямоугольный",
+							"title": "прямоугольный"
+						},
+						{
+							"value": "круглый",
+							"title": "круглый"
+						},
+						{
+							"value": "овальный",
+							"title": "овальный"
+						}
 					],
 					"default": "прямоугольный",
 					"type": "select"
 				},
+				
+				{
+					"key": "width",
+					"title": "Ширина:",
+					"default": 600,
+					"type": "number"
+				},
+				{
+					"key": "len",
+					"title": "Длина:",
+					"default": 1200,
+					"type": "number"
+				},
+				{
+					"key": "height",
+					"title": "Высота:",
+					"default": 750,
+					"type": "number"
+				},
+				
+				{
+					"key": "edgeGeomTop",
+					"title": "Фаска сверху:",
+					"values": [
+						{
+							"value": "не указано",
+							"title": "не указано"
+						},
+						{
+							"value": "1 ребро",
+							"title": "1 ребро"
+						},
+						{
+							"value": "3 ребра",
+							"title": "3 ребра"
+						},
+						{
+							"value": "все ребра",
+							"title": "все ребра"
+						},
+						{
+							"value": "по чертежу",
+							"title": "по чертежу"
+						},
+						{
+							"value": "по шаблону",
+							"title": "по шаблону"
+						},
+						{
+							"value": "нет",
+							"title": "нет"
+						}
+					],
+					"default": "все ребра",
+					"type": "select"
+				},
+
+				{
+					"key": "edgeModel",
+					"title": "Ребра",
+					"values": [
+						{
+							"value": "не указано",
+							"title": "не указано"
+						},
+						{
+							"value": "скругление R3",
+							"title": "скругление R3"
+						},
+						{
+							"value": "скругление R6",
+							"title": "скругление R6"
+						},
+						{
+							"value": "скругление R12",
+							"title": "скругление R12"
+						},
+						{
+							"value": "скругление R25",
+							"title": "скругление R25"
+						},
+						{
+							"value": "фигурная Ф-1",
+							"title": "фигурная Ф-1"
+						},
+						{
+							"value": "фигурная Ф-2",
+							"title": "фигурная Ф-2"
+						},
+						{
+							"value": "фигурная Ф-3",
+							"title": "фигурная Ф-3"
+						},
+						{
+							"value": "фигурная Ф-4",
+							"title": "фигурная Ф-4"
+						},
+						{
+							"value": "фигурная Ф-5",
+							"title": "фигурная Ф-5"
+						},
+						{
+							"value": "фигурная Ф-6",
+							"title": "фигурная Ф-6"
+						},
+						{
+							"value": "фигурная Ф-7",
+							"title": "фигурная Ф-7"
+						},
+						{
+							"value": "фигурная Ф-8",
+							"title": "фигурная Ф-8"
+						},
+						{
+							"value": "фаска 6х45гр",
+							"title": "фаска 6х45гр"
+						},
+						{
+							"value": "фаска 12х45гр",
+							"title": "фаска 12х45гр"
+						},
+					]
+				},
+
 				{
 					"key": "countertopModel",
 					"title": "Тип:",
@@ -156,10 +336,52 @@ class Table extends AdditionalObject {
 					"default": "прямые",
 					"type": "select"
 				},
+				
+				
+				{
+					"key": "countertopThk",
+					"title": "Толщина:",
+					"default": 40,
+					"type": "number"
+				},
+				{
+					"key": "partsGap",
+					"title": "Зазор между частями столешницы:",
+					"default": 10,
+					"type": "number"
+				},
+				{
+					"key": "cornerRad",
+					"title": "Радиус скругления углов:",
+					"default": 20,
+					"type": "number"
+				},
+				{
+					"key": "riverWidth",
+					"type": "number",
+					"title": "Ширина реки, мм",
+					"default": 150
+				},
+				{
+					"key": "resinVol",
+					"type": "number",
+					"title": "Объем заливки, л",
+					"default": 1
+				},
+				
+	//подстолье			
+				{
+					"type": "delimeter",
+					"title": "Подстолье"
+				},
 				{
 					"key": "baseModel",
 					"title": "Модель:",
 					"values": [
+					{
+						"value": "нет",
+						"title": "нет"
+					},
 					{
 						"value": "не указано",
 						"title": "не указано"
@@ -281,48 +503,6 @@ class Table extends AdditionalObject {
 					"type": "select"
 				},
 				{
-					"key": "width",
-					"title": "Ширина:",
-					"default": 600,
-					"type": "number"
-				},
-				{
-					"key": "len",
-					"title": "Длина:",
-					"default": 1200,
-					"type": "number"
-				},
-				{
-					"key": "height",
-					"title": "Высота:",
-					"default": 750,
-					"type": "number"
-				},
-				{
-					"key": "countertopThk",
-					"title": "Толщина:",
-					"default": 40,
-					"type": "number"
-				},
-				{
-					"key": "partsGap",
-					"title": "Зазор между частями столешницы:",
-					"default": 10,
-					"type": "number"
-				},
-				{
-					"key": "cornerRad",
-					"title": "Радиус скругления углов:",
-					"default": 20,
-					"type": "number"
-				},
-				{
-					"key": "edgeRad",
-					"title": "Радиус скругления кромок:",
-					"default": 3,
-					"type": "number"
-				},
-				{
 					"key": "sideOverhang",
 					"title": "Свес столешницы боковой:",
 					"default": 50,
@@ -333,7 +513,33 @@ class Table extends AdditionalObject {
 					"title": "Свес столешницы передний/задний:",
 					"default": 100,
 					"type": "number"
-				}
+				},
+				
+	//цена			
+				{
+					"type": "delimeter",
+					"title": "Цена"
+				},
+				{
+					"key": "slabPrice",
+					"title": "Цена слэба",
+					"type": "number"
+				},
+				{
+					key: 'priceFactor',
+					title: 'К-т на цену',
+					default: 1,
+					hidden: true,
+					type: 'number'
+				},
+				{
+					key: 'costFactor',
+					title: 'К-т на себестоимость',
+					default: 1,
+					hidden: true,
+					type: 'number'
+				},
+				
 			]
 		}
 	}

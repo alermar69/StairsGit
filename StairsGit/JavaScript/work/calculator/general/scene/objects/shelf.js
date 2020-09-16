@@ -1,30 +1,11 @@
 class Shelf extends AdditionalObject {
 	constructor(par) {
 		super(par);
-		var shelfPar = {
-			dxfBasePoint: {x: 0, y: 0},
-			shelfPar:{
-				"width": this.par.width,
-				"depth": this.par.depth,
-				"height": this.par.height,
-				"shelfAmt": this.par.shelfAmt,
-				"shelfThk": this.par.shelfThk,
-				"sideOverhang": this.par.sideOverhang,
-				"cornerRad": this.par.cornerRad,
-				"edgeRad": this.par.edgeRad,
-				"timberType": "не указано",
-				"timberPaint": "не указано",
-				"surfaceType": "гладкая",
-				"fillerType": "не указано",
-				"carcasModel": this.par.carcasModel,
-				"legProf": this.par.legProf,
-				"bridgeProf": this.par.bridgeProf,
-				"topOffset": this.par.topOffset,
-				"botOffset": this.par.botOffset
-			}
-		}
-		shelfParams = {};
-		var shelfObj = drawShelf(shelfPar);
+		
+		var shelfPar = Object.assign({}, this.par)
+		shelfPar.dxfBasePoint = {x:0,y:0}
+
+		var shelfObj = drawShelfTower(shelfPar);
 		this.add(shelfObj.carcas);
 		this.add(shelfObj.panels);
 		this.add(shelfObj.countertop);
@@ -32,29 +13,79 @@ class Shelf extends AdditionalObject {
 
 	/** STATIC **/
 
+	static formChange(form, data){
+		var par = data.meshParams
+		
+		//параметры боковин
+		form.find('[data-propid="legProf"]').closest('tr').show()
+		form.find('[data-propid="bridgeProf"]').closest('tr').show()
+		
+		if(par.carcasModel == "бруски"){
+			var profs = ['40х40', '50х50', '60х60'] 
+			if(profs.indexOf(par.legProf) == -1) form.find('[data-propid="legProf"]').val(profs[0])
+			form.find('[data-propid="topOffset"]').val(0);
+		}
+		if(par.carcasModel == "панели"){
+			form.find('[data-propid="legProf"]').closest('tr').hide()
+			form.find('[data-propid="bridgeProf"]').closest('tr').hide()
+			
+			var sizeA = 40;
+			var minGap = 40;
+			var maxWidth = 200;
+			var sizeB = (par.depth - minGap) / 2
+			if(sizeB > maxWidth) sizeB = maxWidth
+			var profName = sizeA + "х" + sizeB;
+			
+			form.find('[data-propid="legProf"]').append('<option value="' + profName + '">' + profName + '</option>');
+			form.find('[data-propid="legProf"]').val(profName);
+			
+			form.find('[data-propid="sideOverhang"]').val(0);
+			form.find('[data-propid="topOffset"]').val(0);
+			
+		}
+		
+		if(par.carcasModel == "бруски" || par.carcasModel == "панели") form.find('[data-propid="sideOverhang"]').val(0);
+		
+		getObjPar()
+	}
+	
 	static calcPrice(par){
+
 		var meshPar = par.meshParams;
 		var dopSpec = partsAmt_dop[par.id];
 		var cost = 0;
+
 		if (dopSpec) {
-			// Цена крестов
-			var crossProfileCost = getPartPropVal('shelfCrossProfile', 'sumLength', dopSpec) * getProfParams('20х20').unitCost;
-			cost += crossProfileCost;
-			// Ножки
-			var legProfileCost = getPartPropVal('shelfLeg', 'sumLength', dopSpec) * getProfParams(par.meshParams.legProf).unitCost;
-			cost += legProfileCost;
-			// перемычки
-			var bridgeProfileCost = getPartPropVal('shelfBridge', 'sumLength', dopSpec) * getProfParams(par.meshParams.bridgeProf).unitCost;
-			cost += bridgeProfileCost;
-			//Полки
-			var countertopCost = getPartPropVal('countertop', 'vol', dopSpec) * calcTimberParams(params.additionalObjectsTimberMaterial).m3Price;
-			cost += countertopCost;
-			//Сварка
-			var weldPrice = 100 * (getPartPropVal('shelfCrossProfile', 'amt', dopSpec) + getPartPropVal('shelfLeg', 'amt', dopSpec) + getPartPropVal('shelfBridge', 'amt', dopSpec));
-			cost += weldPrice;
-			//Покраска
-			var paintPrice = (getPartPropVal('countertop', 'area', dopSpec) * 2) * calcTimberPaintPrice(params.timberPaint, params.additionalObjectsTimberMaterial);
-			cost += paintPrice;
+			console.log(meshPar)
+			var timberM3Cost = calcTimberParams(params.additionalObjectsTimberMaterial).m3Price;
+			var legProfPar = getProfParams(meshPar.legProf)
+			var timberPaintCost = calcTimberPaintPrice(params.timberPaint, params.additionalObjectsTimberMaterial)
+			
+			//боковины
+			
+			//материал
+			var profLen = meshPar.height * 4 + meshPar.depth * (meshPar.shelfAmt + 1)
+			var cost = profLen * legProfPar.unitCost / 1000
+			
+			if(meshPar.carcasModel == "бруски" || meshPar.carcasModel == "панели"){
+				cost = timberM3Cost * legProfPar.sizeA * legProfPar.sizeB / 1000000 * profLen / 1000
+			}
+			
+			//изготовление
+			if(meshPar.carcasModel == "бруски" || meshPar.carcasModel == "кресты") cost += 3000;
+			else cost += 2000;
+			
+			//покраска
+			var area = meshPar.height * meshPar.depth / 1000000
+			if(meshPar.carcasModel == "бруски" || meshPar.carcasModel == "кресты") cost += area * timberPaintCost
+			else cost += area * 500;
+			
+			//полки
+			
+			//материал
+			var vol = meshPar.width * meshPar.depth * meshPar.shelfThk * meshPar.shelfAmt / 1000000000;
+			cost += vol * timberM3Cost
+			debugger
 		}
 		return {
 			name: par.name || this.getMeta().title,
@@ -68,6 +99,31 @@ class Shelf extends AdditionalObject {
 		return {
 			title: 'Стеллаж',
 			inputs: [
+				{
+					key: 'carcasModel',
+					title: 'Боковины',
+					default: 'проф. труба',
+					type: 'select',
+					values: [
+						{
+							value: 'проф. труба',
+							title: 'проф. труба'
+						},
+						{
+							value: 'кресты',
+							title: 'кресты'
+						},
+						{
+							value: 'бруски',
+							title: 'бруски'
+						},
+						{
+							value: 'панели',
+							title: 'панели'
+						},
+						
+					]
+				},
 				{
 					key: 'height',
 					title: 'Высота',
@@ -105,37 +161,15 @@ class Shelf extends AdditionalObject {
 					type: 'number'
 				},
 				{
-					key: 'cornerRad',
-					title: 'Радиус углов',
-					default: 0,
-					type: 'number'
-				},
-				{
 					key: 'edgeRad',
 					title: 'Радиус граней',
 					default: 3,
 					type: 'number'
 				},
 				{
-					key: 'carcasModel',
-					title: 'Кресты',
-					default: '01',
-					type: 'select',
-					values: [
-						{
-							value: '01',
-							title: 'Есть'
-						},
-						{
-							value: '02',
-							title: 'Нет'
-						}
-					]
-				},
-				{
 					key: 'legProf',
 					title: 'Профиль ножек',
-					default: '20х20',
+					default: '40х20',
 					type: 'select',
 					values: [
 						{
@@ -225,7 +259,8 @@ class Shelf extends AdditionalObject {
 					type: 'number'
 				},
 				{
-					type: 'delimeter'
+					type: 'delimeter',
+					title: 'Цена',
 				},
 				{
 					key: 'priceFactor',
@@ -250,7 +285,7 @@ class Shelf extends AdditionalObject {
 	*/
 	
 	static getDescr(par) {
-		console.log(this, par)
+
 		if(!this) return {html: '', text: ''};
 		var meta = this.getMeta();
 		var text = "Стеллаж " + par.shelfAmt + " пол. " + par.height + "х" + par.width + "х" + par.depth + "мм";
@@ -265,3 +300,4 @@ class Shelf extends AdditionalObject {
 		return {html: html, text: text};
 	}
 }
+

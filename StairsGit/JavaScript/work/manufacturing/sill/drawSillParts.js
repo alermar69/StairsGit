@@ -210,9 +210,9 @@ function drawSill(par){
 	if(!par) par = {};
 	initPar(par)
 	
-	par.len = par.windowWidth + par.rightNose + par.leftNose;
-	par.width = par.windowPosZ + par.frontNose;
-	if(par.geom == "подоконный блок") par.width = par.wallThk + par.frontNose * 2
+//	par.len = par.windowWidth + par.rightNose + par.leftNose;
+//	par.width = par.windowPosZ + par.frontNose;
+//	if(par.geom == "подоконный блок") par.width = par.wallThk + par.frontNose * 2
 	
 	var p0 = {x: 0, y:0}; //точка в середине передней кромки
 	var p1 = newPoint_xy(p0, -par.windowWidth / 2 - par.leftNose, 0);
@@ -274,6 +274,7 @@ function drawSill(par){
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var mesh = new THREE.Mesh(geom, params.materials.timber);
+	if(par.modifyKey) mesh.modifyKey = par.modifyKey;
 	mesh.rotation.x = -Math.PI / 2;
 	par.mesh.add(mesh);
 	
@@ -357,7 +358,7 @@ function drawOriel(par){
 	
 	//простенок слева
 	var p14 = polar(p13, angle(p13, p21), 50);
-	var p15 = calcPerppar(p1, p2, p14).point;
+	var p15 = calcPerpParams(p1, p2, p14).point;
 	points = [p1, p11, p12, p13, p14, p15];
 
 	//создаем шейп
@@ -385,7 +386,7 @@ function drawOriel(par){
 	
 	//простенок справа
 	var p44 = polar(p43, angle(p43, p31), -50);
-	var p45 = calcPerppar(p4, p3, p44).point;
+	var p45 = calcPerpParams(p4, p3, p44).point;
 	points = [p4, p41, p42, p43, p44, p45];
 
 	//создаем шейп
@@ -524,6 +525,7 @@ function drawOriel(par){
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var mesh = new THREE.Mesh(geom, params.materials.timber);
+	if(par.modifyKey) mesh.modifyKey = par.modifyKey;
 	mesh.rotation.x = -Math.PI / 2;
 	mesh.position.y = par.height;
 	par.mesh.add(mesh);

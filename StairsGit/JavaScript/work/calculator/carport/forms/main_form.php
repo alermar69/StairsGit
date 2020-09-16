@@ -224,6 +224,11 @@
 			</tr>
 			
 			<tr class="truss">
+				<td>Высота фермы:</td>
+				<td><input type="number" id="trussHeight" value="250"></td>
+			</tr>
+			
+			<tr class="truss">
 				<td>Толщина ребра фермы:</td>
 				<td><input type="number" id="trussThk" value="4"></td>
 			</tr>

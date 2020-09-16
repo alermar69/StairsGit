@@ -179,6 +179,46 @@ function setCarportProfs(){
 	if(params.width >= 5000) trussThk = 8;
 	$("#trussThk").val(trussThk)
 	
+	//высота в середине фермы
+	var midHeight = 250
+	
+	if(params.roofType == "Арочная") {
+		midHeight = 250
+		if(params.beamModel == "сужающаяся"){			
+			if(params.width > 3900) midHeight = 300
+			if(params.width > 4900) midHeight = 400
+			if(params.width > 5900) midHeight = 450
+			
+			if(params.carportType == "односкатный") midHeight *= 1.1;
+		}
+		
+		if(params.beamModel == "постоянной ширины"){
+			if(params.width > 3900) midHeight = 250
+			if(params.width > 4900) midHeight = 300
+			if(params.width > 5900) midHeight = 350
+		}
+	}
+	
+	if(params.roofType == "Плоская") {
+		midHeight = 350
+		if(params.beamModel == "сужающаяся"){
+			if(params.width > 3900) midHeight = 400
+			if(params.width > 4900) midHeight = 500
+			if(params.width > 5900) midHeight = 550
+			midHeight *= 1 / Math.cos(params.roofAng / 180 * Math.PI);
+			midHeight = Math.round(midHeight)
+		}
+		if(params.beamModel == "постоянной ширины"){
+			midHeight = 230
+			if(params.width > 3900) midHeight = 250
+			if(params.width > 4900) midHeight = 300
+			if(params.width > 5900) midHeight = 350
+		}
+	}
+	
+	$("#trussHeight").val(midHeight)
+	
+	
 	//пояса и раскосы сварных ферм из профиля
 	var chordProf = "40х40"
 	var webProf = "20х20"
@@ -318,41 +358,7 @@ function calcCarportPartPar(){
 		endPoint: {x:0, y:0}, //точка перезаписывается при отрисовке фермы
 		sideWidth: 60, //Отступ отверстия от края
 		bridgeWidth: 60, //минимальная ширина перемычки между отверстиями
-	}
-	
-	//высота в середине фермы
-	
-	if(params.roofType == "Арочная") {
-		par.truss.midHeight = 250
-		if(params.beamModel == "сужающаяся"){			
-			if(params.width > 3900) par.truss.midHeight = 300
-			if(params.width > 4900) par.truss.midHeight = 400
-			if(params.width > 5900) par.truss.midHeight = 450
-			
-			if(params.carportType == "односкатный") par.truss.midHeight *= 1.1;
-		}
-		
-		if(params.beamModel == "постоянной ширины"){
-			if(params.width > 3900) par.truss.midHeight = 250
-			if(params.width > 4900) par.truss.midHeight = 300
-			if(params.width > 5900) par.truss.midHeight = 350
-		}
-	}
-	
-	if(params.roofType == "Плоская") {
-		par.truss.midHeight = 350
-		if(params.beamModel == "сужающаяся"){
-			if(params.width > 3900) par.truss.midHeight = 400
-			if(params.width > 4900) par.truss.midHeight = 500
-			if(params.width > 5900) par.truss.midHeight = 550
-			par.truss.midHeight *= 1 / Math.cos(params.roofAng / 180 * Math.PI);
-		}
-		if(params.beamModel == "постоянной ширины"){
-			par.truss.midHeight = 200
-			if(params.width > 3900) par.truss.midHeight = 250
-			if(params.width > 4900) par.truss.midHeight = 300
-			if(params.width > 5900) par.truss.midHeight = 350
-		}
+		midHeight: params.trussHeight, //высота в центре фермы
 	}
 	
 	//высота фермы над колонной

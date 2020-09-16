@@ -151,7 +151,8 @@ class RackWall extends AdditionalObject {
 					]
 				},				
 				{
-					type: 'delimeter'
+					"type": "delimeter",
+					"title": "Цена"
 				},
 				{
 					key: 'priceFactor',
