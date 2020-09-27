@@ -22,10 +22,12 @@ class Columns extends AdditionalObject {
 		meta.inputs.forEach(function(input){
 			colParams[input.key] = obj.par[input.key];
 		})
-		
-		colParams = drawColArray(colParams);
-		
-		this.add(colParams.mesh);
+
+		this.add(Columns.draw(colParams).mesh);
+	}
+
+	static draw(par){
+		return drawColArray(par);
 	}
 
 	static calcPrice(par){
@@ -57,7 +59,8 @@ class Columns extends AdditionalObject {
 					key: 'length',
 					title: 'Длинна',
 					default: 500,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'columnProf',
@@ -85,7 +88,8 @@ class Columns extends AdditionalObject {
 							title: '80х80'
 						},
 					],
-					type: 'select'
+					type: 'select',
+					"printable": "true",
 				},
 				
 				{

@@ -1,4 +1,7 @@
 <div id="production_data">
+	<h3>Описание заказа</h3>
+	<div id="descr"></div>
+	
 	<h3>Расчет трудоемкости и сдельных расценок</h3>
 	<div >
 		<nav>

@@ -1,18 +1,30 @@
 class Battery extends AdditionalObject {
 	constructor(par) {
 		super(par);
-		var gap = 10;//зазор между секциями
-		var sectionGeometry = new THREE.BoxGeometry(this.par.sectWidth, this.par.height, this.par.thk);
+		var objPar = Object.assign({}, this.par);
+		objPar.material = this.material;
+		var mesh = Battery.draw(objPar).mesh;
+		this.add(mesh);
+	}
 
-		var sectionsCount = Math.floor(this.par.width / (this.par.sectWidth + gap));
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
+
+		var gap = 10;//зазор между секциями
+		var sectionGeometry = new THREE.BoxGeometry(par.sectWidth, par.height, par.thk);
+
+		var sectionsCount = Math.floor(par.width / (par.sectWidth + gap));
 
 		for (var i = 0; i < sectionsCount; i++) {
-			var section = new THREE.Mesh(sectionGeometry, this.material);
-			section.position.x = i * (this.par.sectWidth + gap);
-			section.position.y = this.par.height / 2;
+			var section = new THREE.Mesh(sectionGeometry, par.material);
+			section.position.x = i * (par.sectWidth + gap);
+			section.position.y = par.height / 2;
 			section.position.z = 20;
-			this.add(section);
+			par.mesh.add(section);
 		}
+
+		return par
 	}
 
 	static getMeta() {

@@ -81,7 +81,7 @@
 </td></tr>
 
 <tr class="topPlt">
-	<td><img src="/calculator/images/vhod/stairway_02_2.png"></td> 
+	<td><img src="/images/calculator/vhod/stairway_02_2.png"></td> 
 	<td>Ограждение верхней площадки:<br/>
 	<ul style="list-style: none;">
 		<li>3<input id="topPltRailing_3" type="checkbox"></li>

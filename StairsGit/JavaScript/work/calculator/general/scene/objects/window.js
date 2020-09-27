@@ -6,37 +6,54 @@ class Window extends AdditionalObject {
 	constructor(par) {
 		super(par);
 
+		var objPar = Object.assign({}, this.par)
+		objPar.material = this.material;
+		
+		var wndObj = Window.draw(objPar);
+
+		this.windowMesh = wndObj.windowMesh;
+		this.window2Mesh = wndObj.window2Mesh;
+
+		this.add(wndObj.mesh);
+	}
+
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
+
 		var wndObject = new THREE.Object3D();
 
-		this.windowMesh = this.drawWindow();
-		wndObject.add(this.windowMesh);
-		if (this.par.windowsCount > 1) {
-			var windowMesh = this.drawWindow(true);
-			windowMesh.position.x = (this.par.width / this.par.windowsCount) * 2;
+		par.windowMesh = Window.drawWindow(par);
+		wndObject.add(par.windowMesh);
+		if (par.windowsCount > 1) {
+			var windowMesh = Window.drawWindow(par, true);
+			windowMesh.position.x = (par.width / par.windowsCount) * 2;
 			wndObject.add(windowMesh);
-			if (this.par.windowsCount == 2) this.window2Mesh = windowMesh;
+			if (par.windowsCount == 2) par.window2Mesh = windowMesh;
 		}
-		if (this.par.windowsCount == 3) {
-			this.window2Mesh = this.drawWindow(true);
-			this.window2Mesh.position.x = (this.par.width / this.par.windowsCount) * 3;
-			wndObject.add(this.window2Mesh);
+		if (par.windowsCount == 3) {
+			par.window2Mesh = Window.drawWindow(par, true);
+			par.window2Mesh.position.x = (par.width / par.windowsCount) * 3;
+			wndObject.add(par.window2Mesh);
 		}
 
-		var windowsillGeometry = new THREE.BoxGeometry(this.par.windowsillWidth, this.par.windowsillThickness, this.par.windowsillDepth);
-		var windowsill = new THREE.Mesh(windowsillGeometry, this.material);
-		windowsill.position.x = this.par.width / 2;
-		windowsill.position.y = this.par.windowsillThickness / 2;
-		windowsill.position.z = this.par.windowsillDepth / 2;
+		var windowsillGeometry = new THREE.BoxGeometry(par.windowsillWidth, par.windowsillThickness, par.windowsillDepth);
+		var windowsill = new THREE.Mesh(windowsillGeometry, par.material);
+		windowsill.position.x = par.width / 2;
+		windowsill.position.y = par.windowsillThickness / 2;
+		windowsill.position.z = par.windowsillDepth / 2;
 		wndObject.add(windowsill);
 
 		wndObject.position.z = -40;
 
-		this.add(wndObject);
+		par.mesh.add(wndObject);
+
+		return par
 	}
 
-	drawWindow(translatePos) {
+	static drawWindow(par, translatePos) {
+		var wndWidth = par.width / (par.windowsCount * 1.0);
 		/*
-		var wndWidth = this.par.width / (this.par.windowsCount * 1.0);
 
 		var borderWidth = 70;
 
@@ -77,8 +94,8 @@ class Window extends AdditionalObject {
 		wnd.add(windowInner);
 		*/
 		
-		this.par.mat = this.material;
-		var wnd = drawWindow(this.par).mesh
+		par.mat = par.material;
+		var wnd = drawWindow(par).mesh
 		
 		if (translatePos) {
 			var wndWrapper = new THREE.Object3D();

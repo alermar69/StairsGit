@@ -1229,12 +1229,11 @@ function drawRectCarport(par){
 		columnArrPar.arrSize.x = params.width - params.sideOffset - params.sideOffsetTop;
 		
 		if(params.roofType == "Плоская") {
-			//перепад высоты до верхней точки фермы
-			deltaHeight = (params.width - params.sideOffset - params.sideOffsetTop - partPar.column.profSize.y / 2) * Math.tan(params.roofAng / 180 * Math.PI);
-			//if(params.beamModel == "постоянной ширины") deltaHeight -= 0//120 * Math.tan(params.roofAng / 180 * Math.PI); //размер фланца
-			//if(params.beamModel == "сужающаяся") 
+			//перепад высоты по осям колонн на верхней линии
+			deltaHeight = partPar.main.colDist * Math.tan(params.roofAng / 180 * Math.PI);
 			deltaHeight -= partPar.truss.midHeight - partPar.truss.endHeight;
 		}
+
 		if(params.roofType == "Арочная") {
 			deltaHeight = partPar.main.arcPar.topArc.height - partPar.truss.width
 			if(params.beamModel == "проф. труба") deltaHeight = partPar.main.arcPar.topArc.height - partPar.rafter.profSize.y - partPar.beam.profSize.y

@@ -6,25 +6,10 @@
 		$revision = '';
 	}
  	if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
-	//выцепляем модуль и представление из url
-	
-		$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-		
 		//модуль
-
-		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'curve', 'wardrobe_2', 'objects', 'carport', 'veranda', 'slabs', 'table', 'sill', 'sideboard', 'coupe',];
-
-		$calc_type = '';
-		foreach($calc_types as $item){
-			if (strpos($url,'/'.$item) !== false) $calc_type = $item;
-		};
-		
+		$calc_type = getCalcType();
 		//представление
-		$templates = ['calculator', 'manufacturing', 'installation', 'customers'];
-		$template = '';
-		foreach($templates as $item){
-			if (strpos($url,'/'.$item) !== false) $template = $item;
-		};
+		$template = getTemplate();
 	}else{
 		$calc_type = $GLOBALS['CALCULATOR_CONFIG']['calc_type'];
 		$template = $GLOBALS['CALCULATOR_CONFIG']['template'];
@@ -422,10 +407,19 @@
 			'url' => '/manufacturing/sideboard/drawDimensions.js',
 			'only_for' => ['sideboard'],
 		],
+
+		// Функция для деталей мебели
+		[
+			'url' => '/manufacturing/general/drawFurnitureParts.js'
+		],
+
+		[
+			'url' => '/calculator/general/content/materials.js'
+		],
 		
 	]);
 
-	if ($calc_type != 'wardrobe_2' && $calc_type != 'objects') {
+	if ($calc_type != 'wardrobe_2') {
 		$scripts[] = [
 			'url' => "/$template/general/main.js"
 		];
@@ -433,7 +427,7 @@
 
 	//специфические скрипты для модулей
 	
-	if(($template == 'calculator' || $template == 'customers') && $calc_type != 'geometry' && $calc_type != 'wardrobe_2' && $calc_type != 'objects'){
+	if($calc_type != 'objects'){
 		$scripts[] = [
 				'url' => '/calculator/'.$calc_type.'/priceCalc.js',
 			];
@@ -544,7 +538,7 @@
 	};
 
 	if($calc_type == 'objects'){
-		$scripts[] = ["url" => "/calculator/objects/main.js"];
+		$scripts[] = ["url" => "/calculator/objects/drawObjects.js"];
 	};
 
 	//вывод скриптов на страницу

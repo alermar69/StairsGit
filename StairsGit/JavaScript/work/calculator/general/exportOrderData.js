@@ -176,8 +176,8 @@ function getExportData_com(checkSumm){
 			timberPaint: 0,
 		};			
 	};
-	
-	
+
+
 	if(params.calcType == "slabs"){
 		var price_data = {};
 		var discountFactor = staircasePrice.finalPrice / staircasePrice.total;
@@ -210,6 +210,22 @@ function getExportData_com(checkSumm){
 		});
 		
 	};
+
+
+	//доп. объекты
+
+	$.each(priceObj, function(key){
+		if (this.is_additional_object) {
+			price_data[key] = {
+				name: this.name,
+				price: this.discountPrice,
+				metalPaint: 0,
+				timberPaint: 0,
+			};	
+		}
+	});
+
+	
 
 	//исправляем пустые значения
 	for(var unit in price_data){
@@ -306,16 +322,9 @@ function getExportData_com(checkSumm){
 		}
 	}
 
-	if (window.additional_objects && staircasePrice.additionalObjectsFinalPrice) {
-		price_data.main.additional_objects = staircasePrice.additionalObjectsFinalPrice;
-	}
-	else{
-		price_data.main.additional_objects = 0;
-	}
-	
 	//общая цена заказа
 
-	var totalPrice = price_data.main.production + price_data.main.assembling + price_data.main.delivery + price_data.main.additional_objects;
+	var totalPrice = price_data.main.production + price_data.main.assembling + price_data.main.delivery
 
 	if(Math.abs(staircasePrice.finalPrice - totalPrice) > 0.01 && checkPrice && totalPrice){
 		console.log("Ошибка расчета цены для выгрузки: " + totalPrice + " != " + staircasePrice.finalPrice )
@@ -523,9 +532,9 @@ function getExportData_com(checkSumm){
 	
 	//доп. объекты
 	if (window.additional_objects) {
-		if(description != "" && additional_objects.length > 0) description += ". Объекты: "
+		var objDescr = "";		
 		
-		$.each(additional_objects, function(i){		
+		$.each(additional_objects, function(i){
 			if(this.calc_price){
 				var className = this.className
 				
@@ -536,10 +545,15 @@ function getExportData_com(checkSumm){
 				var AdditionalObjectClass =  eval(className);
 				if(AdditionalObjectClass) descr = AdditionalObjectClass.getDescr(this.meshParams).text
 	
-				if(i > 0) description += ", "
-				description += descr;
+				if(i > 0 && objDescr) objDescr += ", "
+				objDescr += descr;
 			}
-		})
+		});
+		
+		if(objDescr) {
+			if(description != "") description += ". Объекты: "
+			description += objDescr;
+		}
 	}
 			
 	
@@ -564,7 +578,7 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		partners: 0,
 		assembling: price_data.main.assembling + price_data.main.delivery,
 		}
-	
+
 	if(params.calcType != "vint" && params.calcType != "custom" && params.calcType != "slabs" && params.calcType != "carport"){
 
 		//каркас
@@ -664,6 +678,19 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 			dept_data.partners += sum * $(this).find(".partnersPart").val() / 100;
 		})
 	}
+	
+	
+	//доп. объекты
+
+	$.each(priceObj, function(key){
+		if (this.is_additional_object) {
+			var metalPartPrice = this.discountPrice * this.metalPart;
+			if(!metalPartPrice) metalPartPrice = 0;
+			
+			dept_data.metal += metalPartPrice
+			dept_data.timber += this.discountPrice - metalPartPrice
+		}
+	});
 	
 	//проверка
 	var deptsSum = dept_data.metal + dept_data.timber + dept_data.partners;

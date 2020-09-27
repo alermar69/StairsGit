@@ -51,7 +51,7 @@
 
 
 			<tr id="topPltRailing_tr">
-				<td><img id="railingPltImg" src="/calculator/images/vhod/railingPlt_1.png"></td> 
+				<td><img id="railingPltImg" src="/images/calculator/vhod/railingPlt_1.png"></td> 
 				<td>Ограждение верхней площадки:<br/>
 				<ul style="list-style: none;">
 					<li>3<input id="topPltRailing_3" type="checkbox"></li>

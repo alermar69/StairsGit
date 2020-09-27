@@ -505,6 +505,7 @@ function drawPolyConnectionProfile(par){
 
 /** функция отрисовывает фланец колонны навеса
 centerLines
+6692035.ru/drawings/carport/columnFlan.png
 */
 
 function drawColumnFlan(par){
@@ -540,16 +541,23 @@ function drawColumnFlan(par){
 		p41.filletRad = 20;
 	}
 	
+	//выступ на месте крепления к колонне
+	var pinSize = 6; //размер выступа
+	var p11 = newPoint_xy(p1, pinSize, 0)
+	var p12 = newPoint_xy(p1, pinSize, -pinSize)
+	var p91 = newPoint_xy(p9, -pinSize, 0)
+	var p92 = newPoint_xy(p9, -pinSize, -pinSize)
 
 	//создаем шейп
 	var shapePar = {
-		points: [p0, p1, p2, p3, p4, p41, p5, p6, p7, p8, p9],
+		points: [p1, p2, p3, p4, p41, p5, p6, p7, p8, p9, p91, p92, p12, p11],
 		dxfArr: par.dxfPrimitivesArr,
-		dxfBasePoint: par.dxfBasePoint
+		dxfBasePoint: par.dxfBasePoint,
+		markPoints: true,
 	}
 	
 	if(par.isTop){
-		shapePar.points = [p0, par.points.p1, p4, p5, p6, p7, p8, p9];
+		shapePar.points = [p1, p4, p5, p6, p7, p8, p9, p91, p92, p12, p11];
 	}
 	
 	var shape = drawShapeByPoints2(shapePar).shape;

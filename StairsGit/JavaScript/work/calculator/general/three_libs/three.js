@@ -8972,8 +8972,7 @@
 		},
 
 		clone: function ( recursive ) {
-
-			return new this.constructor().copy( this, recursive );
+			return new this.constructor(this.objPar).copy( this, recursive );
 
 		},
 

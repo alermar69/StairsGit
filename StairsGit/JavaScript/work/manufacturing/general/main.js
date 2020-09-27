@@ -46,8 +46,10 @@ $(function () {
 
 	//добавляем стены
 	addWalls('vl_1', false);//параметры viewportId, isVisible
+
+	var isStaircaseCalc = getCalcTypeMeta().isStaircaseCalc; //является ли текущий расчет расчетом лестницы
 	
-	if($("#calcType").val() != "railing" && $("#calcType").val() != "slabs"){
+	if(isStaircaseCalc){
 		//добавляем балюстраду
 		addBanister('vl_1');
 
@@ -70,21 +72,36 @@ $(function () {
 	//перерисовка стен при измененнии инпутов формы параметров стен
     $('#nav-walls').delegate('input,select', 'change', function(){
 		getAllInputsValues(params);
-		if($("#calcType").val() != "railing"){
-			drawTopFloor();
-			redrawWalls();
-		}
-		
+		if(isStaircaseCalc)	drawTopFloor();
+		redrawWalls();
 		drawSceneDimensions();
 	});
 	
 	//перерисовка балюстрады при измененнии инпутов формы параметров стен
     $('#nav-banister').delegate('input,select', 'change', function(){
 		getAllInputsValues(params);
-		if($("#calcType").val() != "railing" && typeof drawBanister == "function"){
-			drawBanister();
-		}
+		if(isStaircaseCalc) drawBanister();
 	});
+
+	//задаем начальное положение стен
+	if(isStaircaseCalc && params.calcType != "vint"){
+		$("#wallPositionX_1").val(-5000);
+		$("#wallPositionX_2").val(-5000);
+		$("#wallPositionX_3").val(1000);
+		$("#wallPositionX_4").val(-5000);
+	}
+
+	//стены по умолчанию нулевой толщины
+	if(!isStaircaseCalc){
+		$("#wallThickness_1").val(0);
+		$("#wallThickness_2").val(0);
+		$("#wallThickness_3").val(0);
+		$("#wallThickness_4").val(0);
+	}
+
+	if(!isStaircaseCalc || params.calcType == "mono") {
+		if(params.discountMode == "процент") $("#discountFactor").val(20);
+	}
 	
 	$('#makeDrawings').click(function(){
 		makeDrawings();
@@ -104,6 +121,7 @@ $(function () {
 });
 
 function recalculate() {
+	var isStaircaseCalc = getCalcTypeMeta().isStaircaseCalc; //является ли текущий расчет расчетом лестницы
 	if (!testingMode) boltDiam = boltDiamNoTest;
 	return new Promise(function(resolve, reject){
 		try {
@@ -120,17 +138,17 @@ function recalculate() {
 				else if($("#calcType").val() == "veranda") drawFunc = drawVeranda;
 				else if($("#calcType").val() == "slabs" || $("#calcType").val() == "table") drawFunc = drawTable;
 				else if($("#calcType").val() == "sill") drawFunc = drawSills;
-				else drawFunc = drawStaircase;
+				else if($("#calcType").val() != "objects") drawFunc = drawStaircase;
 				
 				drawFunc('vl_1', true);
 				redrawWalls();
 
-				if($("#calcType").val() == "railing"){
-					redrawConcrete();
-				}
-				else if($("#calcType").val() != "slabs") {
+				if(isStaircaseCalc){
 					drawTopFloor();
 					drawBanister();
+				}
+				if($("#calcType").val() == "railing"){
+					redrawConcrete();
 				}
 
 				redrawAdditionalObjects();
@@ -139,20 +157,53 @@ function recalculate() {
 					calculateSpec();	
 					if(!testingMode) checkSpec();
 				}
-				setHiddenLayers(); //скрываем слои в режиме тестирования
-								
-				drawSceneDimensions();
+
+				if(params.calcType != "objects") drawSceneDimensions();
 				
+				
+				if(isStaircaseCalc || params.calcType == "veranda"){
+					printGeomDescr();
+				}
+
+				setHiddenLayers(); //скрываем слои в режиме тестирования
+
 				createMaterialsList(); // обнуляем список материалов
 				crateWorksList();
 				calcWorks(partsAmt, "staircase");
 				calcWorks(partsAmt_bal, "banister");
 
-				printMaterialsNeed();
-				calcProductionTime();
-				printWorks2();
-				formatNumbers();
-				printDescr();
+			//	printMaterialsNeed();
+			//	calcProductionTime();
+			//	if($("#calcType").val() != "objects") printWorks2();
+				
+				//расчет цены
+				if(params.calcType != "geometry"){
+					staircasePrice = {}; //очищаем глобальный массив цен элементов лестницы
+					if ($("#calcType").val() == "railing") {
+						calcRailingModulePrice()
+					}else{
+						if($("#calcType").val() == "vhod" && params.staircaseType == "Готовая"){
+							calculateCarcasPrice_stock();
+							calculateRailingPrice_stock();
+						}else if($("#calcType").val() != "objects"){
+							calculateCarcasPrice();
+							calculateRailingPrice2(); //функция в файле priceLib.js
+						}
+						if ($("#calcType").val() != "objects") {
+							calculateBanisterPrice(); //функция в файле priceCalcBanister.js
+							calcWrPrice(); //функция в файле /calculator/wardrobe/priceCalc.js
+						}
+					}
+					calculateTotalPrice2(); //функция в файле priceLib.js
+					printPrice2(); //функция в файле priceLib.js
+					printCost2(); //функция в файле priceLib.js
+
+					printMaterialsNeed();
+					calcProductionTime();
+					if($("#calcType").val() != "objects") printWorks2();
+					formatNumbers();
+					printDescr();
+				}
 				
 				if (window.updateDxfLinks) updateDxfLinks();
 				
@@ -164,6 +215,7 @@ function recalculate() {
 				}
 
 				updateModifyChanges();
+				if ($("#calcType").val() == "objects") staircaseLoaded();
 				resolve();
 			}});
 		} catch (error) {

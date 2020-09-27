@@ -364,7 +364,6 @@ var factBlocks = [
 	},
 ];
 
-
 function getFacts(group, block){
 	var generatedFacts = [];
 

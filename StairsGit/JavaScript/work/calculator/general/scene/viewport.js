@@ -159,14 +159,7 @@ function getSelectedObjectDxf(){
 	if (obj) {
 		var shape = obj.geometry.parameters.shapes;
 		console.log(shape);
-		var extracted = shape.extractPoints();
-		var points = extracted.shape;
-		var d = points.reduce(function(acc, point, i) {
-			point.y *= -1;
-			acc += (i === 0) ?'M' : 'L';
-			acc += point.x + ',' + point.y;
-			return acc;
-		}, '');
+		var d = makePathStringFromShape(shape);
 		
 		initMakerJs(function(){
 			var models = {};
@@ -245,7 +238,6 @@ function addMeasurement(viewportId) {
 	var canvas = view.renderer.domElement;
 
 	function onDocumentMouseDown(evt) {
-
 		//Чистим правое меню
 		$('#objectContextMenu').hide();
 		if (window.rightClickObject) window.rightClickObject = null;
@@ -812,7 +804,7 @@ function addObjects(viewportId, objectsArr, layerName) {
 		view.scene.add(this);
 
 	});
-	if (!menu[layerName]) {
+	if (menu[layerName] === false) {
 		var objects = view.scene.getObjectsByLayerName(layerName);
 		objects.setVisible(false);
 	}

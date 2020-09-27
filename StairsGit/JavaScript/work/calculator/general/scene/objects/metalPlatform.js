@@ -2,6 +2,8 @@ class MetalPlatform extends AdditionalObject{
 	constructor(par){
 		super(par);
 		var obj = this;
+		if (!par) par = obj.par;
+		console.log(par);
 		
 		var sectParams = {
 			dxfArr: [],
@@ -17,13 +19,16 @@ class MetalPlatform extends AdditionalObject{
 		};
 		
 		var meta = MetalPlatform.getMeta();
+		console.log(obj.par);
 		meta.inputs.forEach(function(input){
 			sectParams[input.key] = obj.par[input.key];
 		})
 
-		sectParams = drawMetalPlatform(sectParams);
-
-		obj.add(sectParams.mesh);
+		obj.add(MetalPlatform.draw(sectParams).mesh);
+	}
+	
+	static draw(par){
+		return drawMetalPlatform(par)
 	}
 
 	static calcPrice(par){
@@ -73,13 +78,15 @@ class MetalPlatform extends AdditionalObject{
 					key: 'len',
 					title: 'Длина',
 					default: 2000,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'width',
 					title: 'Ширина',
 					default: 900,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'beamStep',
@@ -146,7 +153,8 @@ class MetalPlatform extends AdditionalObject{
 							title: 'ступени'
 						},
 						],
-					type: 'select'
+					type: 'select',
+					"printable": "true",
 				},
 				{
 					type: 'delimeter'

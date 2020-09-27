@@ -43,7 +43,7 @@ function changeFormCarcas(){
 		$("#fixType").val("фланцы")
 	}
 	
-	if(params.carportType == "сдвижной") $("#beamModel").val("проф. труба");
+	if(params.carportType == "сдвижной" || params.carportType == "купол") $("#beamModel").val("проф. труба");
 	
 	if(params.carportType == "четырехскатный") {
 		$("#roofType").val("Плоская")

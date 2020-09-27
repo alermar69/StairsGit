@@ -33,49 +33,24 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 </div>
 
 <?};?>
-
-<ul class="pz_info printBlock">
-	<input type="number" id='currentOrderId' hidden>
-	<li>Номер предложения: <input type="text" value="" id="orderName" readonly></li>
-	<li>Дата составления: <input type="date" value="2000-01-01" id="orderDate"></li>
-	<li>Адрес объекта: <input type="text" value="к/п Гринфилд" id = "adress"></li>
-	<li>Руководитель проекта:
-		<select size="1" id="managerName">
-			<option value="Константин Лащиновский">Константин Лащиновский</option>
-			<option value="Андрей Панков">Андрей Панков</option>
-			<option value="Артур Саркисян">Артур Саркисян</option>
-			<option value="Алексей Маслов">Алексей Маслов</option>
-			<option value="Дубровский Сергей">Дубровский Сергей</option>
-			<option value="Пилипенко Сергей">Пилипенко Сергей</option>
-			<option value="Сынжерян Дмитрий">Сынжерян Дмитрий</option>
-			<option value="Сергей Романов">Сергей Романов</option>
-			<option value="Константин Кондратенко">Константин Кондратенко</option>
-			<option value="Максим Петренко">Максим Петренко</option>			
-			<option value="Станислав Синельников">Станислав Синельников</option>
-			<option value="Алексей Котельников">Алексей Котельников</option>
-			<option value="Артем Николаев">Артем Николаев</option>
-			<option value="Алексей Степин">Алексей Степин</option>
-			<option value="Шерышев Сергей">Шерышев Сергей</option>
-			<option value="Юркин Александр">Юркин Александр</option>
-			
-			<option value="Константин Симбирев">Константин Симбирев</option>
-			<option value="Кирилл Янкин">Кирилл Янкин</option>
-			<option value="Иван Русских">Иван Русских</option>
-			<option value="Владислав Господариков">Владислав Господариков</option>
-			<option value="Сергей Блескин">Сергей Блескин</option>
-			<option value="Владимир Родионов">Владимир Родионов</option>
-			<option value="Кудашкин Михаил">Кудашкин Михаил</option>
-			<option value="Эдуард Мирзоян">Эдуард Мирзоян</option>
-			<option value="Феликс Барсегян">Феликс Барсегян</option>
-			<option value="Максим Быков">Максим Быков</option>
-
-		</select>
-	</li>
-
-	<li>Клиент: <input type="text" value="" id = "customerName"></li>
-	<li>E-mail клиента: <input type="text" value="" id = "customerMail"></li>
-
-</ul>
+<!-- параметры для шапки кп -->
+<? if ($template == 'calculator') { ?>
+	<div class="kp_header-wrapper">
+		<div class="kp_header">
+			<div class='text-center h2 mt-5' data-input_id="orderName">Коммерческое предложение № <span></span></div>
+			<div class='text-center h3 mt-5 changeInput' data-input_id="customerName">Для <span></span></div>
+			<div class='text-center h3 mt-5 changeInput' data-input_id="kpDescription"><span></span></div>
+			<div class="row">
+				<div class="col-6 h5 mt-4 mb-3" data-input_id="orderDate">Дата составления: <span></span></div>
+				<div class="col-6 h5 mt-4 mb-3" data-input_id="managerName">Руководитель проекта: <span></span></div>
+			</div>
+		</div>
+	</div>
+<? } if ($template == 'manufacturing') { ?>
+	<div class="pz_info printBlock">
+		<?php include $GLOBALS['ROOT_PATH'].'/calculator/general/forms/orderDataForm.php' ?>
+	</div>
+<? } ?>
 
 <div id='troubles' class='noPrint'>
 	<div id='dataTroubles'></div>

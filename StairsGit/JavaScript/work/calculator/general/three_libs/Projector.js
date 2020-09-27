@@ -436,7 +436,6 @@ THREE.Projector = function () {
 		//
 
 		var objects = _renderData.objects;
-
 		for ( var o = 0, ol = objects.length; o < ol; o ++ ) {
 
 			var object = objects[ o ].object;

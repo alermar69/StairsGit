@@ -33,9 +33,13 @@ class ConcretePlatform extends AdditionalObject{
 		//общие параметры
 		sectParams.material = this.material;
 
-		sectParams = drawConcretePlatform(sectParams);
+		sectParams = ConcretePlatform.draw(sectParams);
 
 		this.add(sectParams.mesh);
+	}
+
+	static draw(par){
+		return drawConcretePlatform(par);
 	}
 
 	static getMeta(){

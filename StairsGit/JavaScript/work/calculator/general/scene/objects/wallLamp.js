@@ -2,6 +2,11 @@ class WallLamp extends AdditionalObject{
 	constructor(par){
 		super(par);
 
+		var objPar = Object.assign({}, this.par)
+		objPar.material = this.material;
+		
+		this.add(WallLamp.draw(objPar).mesh);
+
 		var size = this.par.size;
 
 		if (this.par.type == 1) {
@@ -74,6 +79,13 @@ class WallLamp extends AdditionalObject{
 			this.add(plaf);
 		}
 
+	}
+
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
+
+		return par
 	}
 
 	static getMeta(){

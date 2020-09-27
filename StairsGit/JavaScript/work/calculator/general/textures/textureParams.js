@@ -1,4 +1,4 @@
-var baseUrl = '/calculator/images/textures';
+var baseUrl = '/images/calculator/textures';
 
 function getMaterialsConfigs(){
 	var config = {

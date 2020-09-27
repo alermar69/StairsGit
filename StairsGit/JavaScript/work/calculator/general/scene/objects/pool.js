@@ -21,9 +21,11 @@ class Pool extends AdditionalObject{
 			sectParams[input.key] = obj.par[input.key];
 		})
 
-		sectParams = drawPool(sectParams);
+		obj.add(Pool.draw(sectParams).mesh);
+	}
 
-		obj.add(sectParams.mesh);
+	static draw(par){
+		return drawPool(par)
 	}
 	
 	static getMeta(){

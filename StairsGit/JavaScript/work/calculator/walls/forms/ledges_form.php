@@ -1,4 +1,4 @@
-<input type="hidden" id="wallLedgeAmt" value="0"/>
+<!-- <input type="hidden" id="wallLedgeAmt" value="0"/> -->
 <table class="form_table">
 	<tbody>
 	<tr>

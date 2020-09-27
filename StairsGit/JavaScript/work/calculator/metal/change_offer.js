@@ -95,7 +95,7 @@ function complectDescription(){
 		stairModel == "Прямая с промежуточной площадкой" ||
 		stairModel == "Прямая горка") carcasImage = "001.jpg";
 	$('#carcasImage').html(
-		"<a href='/calculator/images/carcas/" + carcasImage + "' rel='fancy'><img src='/calculator/images/carcas/" + carcasImage + "' width='300px'></a>");
+		"<a href='/images/calculator/carcas/" + carcasImage + "' rel='fancy'><img src='/images/calculator/carcas/" + carcasImage + "' width='300px'></a>");
 
 	if (model == "лт") carcasText_3 = "Каркас остается видимым, подчеркивая оригинальность дизайна;";
 	if (model == "ко") carcasText_3 = "Каркас можно легко и быстро обшить гипсокартоном, построить под лестницей стенку или оставить видимым;";

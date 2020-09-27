@@ -13,11 +13,12 @@ function drawStrightTruss(par){
 	var stripeWidth = partPar.beam.profSize.x
 	par.flanWidth = stripeWidth - partPar.truss.thk;
 	par.height = partPar.beam.profSize.y
+	par.stripeThk = 4;
 
 	//внешний контур
 	var p1 = {x: 0, y: 0}
-	var p2 = { x: 0, y: par.height - 4} //4 - толщина нижней полки швеллера
-	var p3 = { x: par.len, y: par.height - 4 } //4 - толщина нижней полки швеллера
+	var p2 = {x: 0, y: par.height - par.stripeThk * 2}
+	var p3 = {x: par.len, y: par.height - par.stripeThk * 2}
 	var p4 = {x: par.len, y: 0}
 
 	//создаем шейп
@@ -71,6 +72,7 @@ function drawStrightTruss(par){
 	truss.position.y = 4; //4 - толщина нижней полки швеллера
 	truss.position.z = -par.flanWidth / 2 - partPar.truss.thk;
 	if(par.isLeft) truss.position.z = par.flanWidth / 2
+	truss.position.y = par.stripeThk;
 	par.mesh.add(truss);
 	truss.setLayer('carcas');
 	
@@ -79,7 +81,7 @@ function drawStrightTruss(par){
 	if(par.isLeft) posZ -= stripeWidth - partPar.truss.thk
 
 	var stripeParTop = {
-		poleProfileY: 4,
+		poleProfileY: par.stripeThk,
 		poleProfileZ: stripeWidth,
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -100),
 		length: par.len,
@@ -99,7 +101,7 @@ function drawStrightTruss(par){
 	
 	var stripe = drawPole3D_4(stripeParTop).mesh;
 	stripe.position.x = 0
-	stripe.position.y = par.height;
+	stripe.position.y = par.height - par.stripeThk;
 	stripe.position.z = posZ
 	par.mesh.add(stripe);
 	stripe.setLayer('carcas');
@@ -109,10 +111,10 @@ function drawStrightTruss(par){
 //фланцы крепления к колоннам
 
 	var columnFlanPar = calcColumnFlanPar();
-	var holeOffset = (par.height - partPar.beam.holeDist) / 2 ;
+	var holeOffset = (par.height - partPar.beam.holeDist) / 2 - par.stripeThk;
 	
 	var flanPar = {
-		height: par.height - 4,  //4 - толщина нижней полки швеллера,
+		height: par.height - par.stripeThk * 2,
 		width: par.flanWidth,
 		thk: columnFlanPar.thk,
 		//cornerRad: 20,
@@ -122,12 +124,13 @@ function drawStrightTruss(par){
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -500),
 		roundHoleCenters: [
 			{ x: par.flanWidth / 2, y: holeOffset - stripeParTop.poleProfileY},
-			{ x: par.flanWidth / 2, y: par.height - holeOffset - stripeParTop.poleProfileY},
+			{x: par.flanWidth / 2, y: holeOffset + partPar.beam.holeDist},
 		],
 	}
 	
 	var startFlan = drawRectFlan2(flanPar).mesh;
 	startFlan.rotation.y = Math.PI / 2;
+	startFlan.position.y = par.stripeThk;
 	startFlan.position.z = flanPar.width / 2;
 	startFlan.position.y = truss.position.y;
 	par.mesh.add(startFlan);
@@ -136,6 +139,7 @@ function drawStrightTruss(par){
 	var endFlan = drawRectFlan2(flanPar).mesh;
 	endFlan.rotation.y = Math.PI / 2;
 	endFlan.position.x = par.len - flanPar.thk;
+	endFlan.position.y = par.stripeThk;
 	endFlan.position.z = flanPar.width / 2;
 	endFlan.position.y = truss.position.y;
 	par.mesh.add(endFlan);
@@ -209,6 +213,7 @@ function drawTriangleSheetTruss(par){
 		p1: copyPoint(pt),
 		p2: polar(pt, par.topAng / 180 * Math.PI, 100), //временная точка
 	}
+
 	
 	var leftLine = {
 		p1: newPoint_xy(p0, -partPar.column.profSize.y / 2 - params.sideOffset, 0)
@@ -241,26 +246,34 @@ function drawTriangleSheetTruss(par){
 		botLine.p2 = itercection(rightLine.p2, polar(rightLine.p2, par.topAng / 180 * Math.PI, 1), botLine.p2, newPoint_xy(botLine.p2, 1, 0))
 	}
 	
+
 	//верхний свес и горизонтальная полка под колонну сверху на односкатном навесе
 	//обозначение точек здесь https://6692035.ru/drawings/carport/trussTop.png
-	if(params.carportType == "односкатный") {		
-		rightLine.p3 = newPoint_xy(rightLine.p1, -params.sideOffsetTop, 0) //временная точка
-		rightLine.p3 = itercection(rightLine.p2, botLine.p2, rightLine.p3, newPoint_xy(rightLine.p3, 0, 1))
+	if(params.carportType == "односкатный") {
+		
+		//корректируем правую точку, т.к. par.midHeight это высота над колонной, а не на краю
+		topLine.p2 = newPoint_x(pt, partPar.main.colDist, par.topAng / 180 * Math.PI) //точка над центром верхней колонны на верхней линии
+		botLine.p3 = newPoint_xy(topLine.p2, 0, -par.midHeight) //точка на нижней линии над центром колонны
+		rightLine.p2 = itercection(botLine.p2, botLine.p3, rightLine.p1, rightLine.p2) //нижняя точка правой линии
+		
+		
+		rightLine.p3 = newPoint_xy(botLine.p3, partPar.column.profSize.y / 2, 0)
 		
 		rightLine.p4 = newPoint_x(rightLine.p3, -partPar.column.profSize.y - 10, 0)
 		rightLine.p5 = itercection(rightLine.p2, botLine.p2, rightLine.p4, newPoint_xy(rightLine.p4, 0, 1))
 		
 		rightLine.p21 = copyPoint(rightLine.p2)
-		if(params.sideOffsetTop > 0) rightLine.p21 = newPoint_xy(rightLine.p1, 0, -100) //уменьшаем высоту верхнего конца фермы
-		
-		rightLine.p31 = newPoint_xy(rightLine.p3, 10, 0) //увеличиваем опорную площадку
+		if(params.sideOffsetTop > 10) {
+			rightLine.p21 = newPoint_xy(rightLine.p1, 0, -100) //уменьшаем высоту верхнего конца фермы
+			rightLine.p3 = newPoint_xy(rightLine.p3, 10, 0) //увеличиваем опорную площадку
+		};
 	}
 
 	//делаем ферму цельной если длина меньше 4000мм
 	par.hasDivide = true;
 	var points = [botLine.p1, topLine.p1, rightLine.p1];
 	
-	if(rightLine.p3) points.push(rightLine.p21, rightLine.p31, rightLine.p4, rightLine.p5,)
+	if(rightLine.p3) points.push(rightLine.p21, rightLine.p3, rightLine.p4, rightLine.p5,)
 	else points.push(rightLine.p2)
 
 	points.push(botLine.p2)

@@ -11,93 +11,59 @@ class Door extends AdditionalObject {
 		this.material = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xFFFFFF) });
 		this.materialDoor = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xFFFFFF) });
 		if (this.par.doorsCount == 2) this.materialDoor2 = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xFFFFFF) });
+		
+		var objPar = Object.assign({}, this.par)
+		objPar.dxfBasePoint = {x:0,y:0}
+		objPar.material = this.material;
+		objPar.materialDoor = this.materialDoor;
+		objPar.materialDoor2 = this.materialDoor2;
+		objPar.calc_price = this.calc_price;
+		objPar.objId = this.objId;
+		
+		var doorPar = Door.draw(objPar);
+		this.add(doorPar.mesh);
 
-		if (this.par.texture && textureManager.texturesEnabled) {
-			var self = this;
-
-			textureManager.textureLoader.load(this.par.texture + 'other.jpg', function (map) {
-				self.material.map = map;
-				self.material.needsUpdate = true;
-			});
-
-			textureManager.textureLoader.load(this.par.texture + 'map.jpg', function (map) {
-				if (self.par.doorsCount == 1 && self.par.doorType == 'левая') {
-					map.wrapS = THREE.RepeatWrapping;
-					map.repeat.x = - 1;
-				}
-				self.materialDoor.map = map;
-				self.materialDoor.needsUpdate = true;
-			});
-
-			if (this.par.doorsCount == 2) {
-				textureManager.textureLoader.load(this.par.texture + 'map.jpg', function (map) {
-					map.wrapS = THREE.RepeatWrapping;
-					map.repeat.x = - 1;
-
-					self.materialDoor2.map = map;
-					self.materialDoor2.needsUpdate = true;
-				});
-			}
-		}
-		window.door = this;
-
-		var door = new THREE.Object3D();
-
-		var nal = this.drawNal(40 + 10);
-		door.add(nal);
-		var nal = this.drawNal(40 + 5 - this.par.wallThickness);
-		door.add(nal);
-
-		if (this.par.doorExist) {
-			this.doorMesh = this.drawDoor(this.par.doorsCount == 1 && this.par.doorType == 'правая');
-			door.add(this.doorMesh);
-			if (this.par.doorsCount == 2) {
-				this.doorMesh2 = this.drawDoor(true);
-				door.add(this.doorMesh2);
-			}
-		}
-
-		door.position.z -= 47.5;
-
-		this.add(door);
+		this.doorMesh = par.doorMesh;
+		this.doorMesh2 = par.doorMesh2;
+		
 	}
 
-	drawNal(zPos) {
+	static drawNal(par, zPos) {
 		var nal = new THREE.Object3D();
 
-		var nalSideGeometry = new THREE.BoxGeometry(this.par.nalWidth, this.par.height, 5);
-		var nalLeft = new THREE.Mesh(nalSideGeometry, this.material);
-		nalLeft.position.x = -this.par.nalWidth / 2;
-		nalLeft.position.y = this.par.height / 2;
+		var nalSideGeometry = new THREE.BoxGeometry(par.nalWidth, par.height, 5);
+		var nalLeft = new THREE.Mesh(nalSideGeometry, par.material);
+		nalLeft.position.x = -par.nalWidth / 2;
+		nalLeft.position.y = par.height / 2;
 		nalLeft.position.z = zPos;
 		nal.add(nalLeft);
 
-		var nalRight = new THREE.Mesh(nalSideGeometry, this.material);
-		nalRight.position.x = this.par.width + this.par.nalWidth / 2;
-		nalRight.position.y = this.par.height / 2;
+		var nalRight = new THREE.Mesh(nalSideGeometry, par.material);
+		nalRight.position.x = par.width + par.nalWidth / 2;
+		nalRight.position.y = par.height / 2;
 		nalRight.position.z = zPos;
 		nal.add(nalRight);
 
-		var nalTopGeometry = new THREE.BoxGeometry(this.par.width + this.par.nalWidth * 2, this.par.nalWidth, 5);
-		var nalTop = new THREE.Mesh(nalTopGeometry, this.material);
-		nalTop.position.x = this.par.width / 2;
-		nalTop.position.y = this.par.nalWidth / 2 + this.par.height;
+		var nalTopGeometry = new THREE.BoxGeometry(par.width + par.nalWidth * 2, par.nalWidth, 5);
+		var nalTop = new THREE.Mesh(nalTopGeometry, par.material);
+		nalTop.position.x = par.width / 2;
+		nalTop.position.y = par.nalWidth / 2 + par.height;
 		nalTop.position.z = zPos;
 		nal.add(nalTop);
 
 		return nal;
 	}
 
-	drawDoor(leftDoor) {
+	static drawDoor(par, leftDoor) {
 		var doorMesh = new THREE.Object3D();
-		var doorWidth = this.par.width;
-		var materialDoor = this.materialDoor;
-		if (this.par.doorsCount == 2) {
-			doorWidth = this.par.width / 2;
-			if(leftDoor) materialDoor = this.materialDoor2;
+		var doorWidth = par.width;
+		var materialDoor = par.materialDoor;
+		if (par.doorsCount == 2) {
+			doorWidth = par.width / 2;
+			if(leftDoor) materialDoor = par.materialDoor2;
 		}
 
-		var doorGeometry = new THREE.BoxGeometry(doorWidth, this.par.height, 40);
+		var doorGeometry = new THREE.BoxGeometry(doorWidth, par.height, 40);
 
 		if (leftDoor) {
 			doorGeometry.translate(-doorWidth / 2, 0, -20);
@@ -107,45 +73,45 @@ class Door extends AdditionalObject {
 
 		var door = new THREE.Mesh(doorGeometry, materialDoor);
 		door.position.x = 0;
-		door.position.y = this.par.height / 2;
+		door.position.y = par.height / 2;
 		doorMesh.add(door);
 
-		if (this.par.haveDoorHandle) {
+		if (par.haveDoorHandle) {
 			var handleGeometry = new THREE.CylinderGeometry(20, 20, 20, 32);
-			var handle = new THREE.Mesh(handleGeometry, this.material);
+			var handle = new THREE.Mesh(handleGeometry, par.material);
 			handle.position.x = doorWidth - 60;
 			if (leftDoor) handle.position.x = -doorWidth + 60;
-			handle.position.y = this.par.height / 2;
+			handle.position.y = par.height / 2;
 			handle.position.z = 10;
 			handle.rotation.x = Math.PI / 2;
 			doorMesh.add(handle);
 
-			var handle = new THREE.Mesh(handleGeometry, this.material);
+			var handle = new THREE.Mesh(handleGeometry, par.material);
 			handle.position.x = doorWidth - 60;
 			if (leftDoor) handle.position.x = -doorWidth + 60;
-			handle.position.y = this.par.height / 2;
+			handle.position.y = par.height / 2;
 			handle.position.z = -40 - 10;
 			handle.rotation.x = Math.PI / 2;
 			doorMesh.add(handle);
 		}
 
-		if (leftDoor) doorMesh.position.x = this.par.width;
-		if (this.par.isOut) {
+		if (leftDoor) doorMesh.position.x = par.width;
+		if (par.isOut) {
 			doorMesh.position.z = 46;
 			var handleGeometry = new THREE.CylinderGeometry(10, 10, 130, 32);
-			var handle = new THREE.Mesh(handleGeometry, this.material);
+			var handle = new THREE.Mesh(handleGeometry, par.material);
 			handle.position.x = 0;
-			handle.position.y = this.par.height * 0.2;
+			handle.position.y = par.height * 0.2;
 			handle.position.z = 10;
 			doorMesh.add(handle);
 
-			var handle = new THREE.Mesh(handleGeometry, this.material);
+			var handle = new THREE.Mesh(handleGeometry, par.material);
 			handle.position.x = 0;
-			handle.position.y = this.par.height * 0.8;
+			handle.position.y = par.height * 0.8;
 			handle.position.z = 10;
 			doorMesh.add(handle);
 		} else {
-			doorMesh.position.z = 45 + 5 / 2 + 20 - this.par.wallThickness / 2;
+			doorMesh.position.z = 45 + 5 / 2 + 20 - par.wallThickness / 2;
 		}
 
 		return doorMesh;
@@ -192,6 +158,63 @@ class Door extends AdditionalObject {
 	}
 
 	/** STATIC **/
+
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
+		
+		if (par.texture && textureManager.texturesEnabled) {
+			var self = this;
+
+			textureManager.textureLoader.load(par.texture + 'other.jpg', function (map) {
+				self.material.map = map;
+				self.material.needsUpdate = true;
+			});
+
+			textureManager.textureLoader.load(par.texture + 'map.jpg', function (map) {
+				if (self.par.doorsCount == 1 && self.par.doorType == 'левая') {
+					map.wrapS = THREE.RepeatWrapping;
+					map.repeat.x = - 1;
+				}
+				self.materialDoor.map = map;
+				self.materialDoor.needsUpdate = true;
+			});
+
+			if (par.doorsCount == 2) {
+				textureManager.textureLoader.load(par.texture + 'map.jpg', function (map) {
+					map.wrapS = THREE.RepeatWrapping;
+					map.repeat.x = - 1;
+
+					self.materialDoor2.map = map;
+					self.materialDoor2.needsUpdate = true;
+				});
+			}
+		}
+		window.door = this;
+
+		var door = new THREE.Object3D();
+
+		var nal = Door.drawNal(par, 40 + 10);
+		door.add(nal);
+		var nal = Door.drawNal(par, 40 + 5 - par.wallThickness);
+		door.add(nal);
+
+		if (par.doorExist) {
+			par.doorMesh = Door.drawDoor(par, par.doorsCount == 1 && par.doorType == 'правая');
+			door.add(par.doorMesh);
+			if (par.doorsCount == 2) {
+				par.doorMesh2 = Door.drawDoor(par, true);
+				door.add(par.doorMesh2);
+			}
+		}
+
+		door.position.z -= 47.5;
+
+		par.mesh.add(door);
+
+		return par;
+	}
+
 	static getMeta() {
 		return {
 			title: 'Дверь',
@@ -295,43 +318,43 @@ class Door extends AdditionalObject {
 				{
 					key: 'texture',
 					title: 'Текстура',
-					default: '/calculator/images/textures/door/1/',
+					default: '/images/calculator/textures/door/1/',
 					values: [
 						{
-							value: '/calculator/images/textures/door/1/',
-							preview: '/calculator/images/textures/door/1/map.jpg'
+							value: '/images/calculator/textures/door/1/',
+							preview: '/images/calculator/textures/door/1/map.jpg'
 						},
 						{
-							value: '/calculator/images/textures/door/2/',
-							preview: '/calculator/images/textures/door/2/map.jpg'
+							value: '/images/calculator/textures/door/2/',
+							preview: '/images/calculator/textures/door/2/map.jpg'
 						},
 						{
-							value: '/calculator/images/textures/door/3/',
-							preview: '/calculator/images/textures/door/3/map.jpg'
+							value: '/images/calculator/textures/door/3/',
+							preview: '/images/calculator/textures/door/3/map.jpg'
 						},
 						{
-							value: '/calculator/images/textures/door/4/',
-							preview: '/calculator/images/textures/door/4/map.jpg'
+							value: '/images/calculator/textures/door/4/',
+							preview: '/images/calculator/textures/door/4/map.jpg'
 						},
 						{
-							value: '/calculator/images/textures/door/5/',
-							preview: '/calculator/images/textures/door/5/map.jpg'
+							value: '/images/calculator/textures/door/5/',
+							preview: '/images/calculator/textures/door/5/map.jpg'
 						},
 						{
-							value: '/calculator/images/textures/door/6/',
-							preview: '/calculator/images/textures/door/6/map.jpg'
+							value: '/images/calculator/textures/door/6/',
+							preview: '/images/calculator/textures/door/6/map.jpg'
 						},
 						{
-							value: '/calculator/images/textures/door/7/',
-							preview: '/calculator/images/textures/door/7/map.jpg'
+							value: '/images/calculator/textures/door/7/',
+							preview: '/images/calculator/textures/door/7/map.jpg'
 						},
 						{
-							value: '/calculator/images/textures/door/8/',
-							preview: '/calculator/images/textures/door/8/map.jpg'
+							value: '/images/calculator/textures/door/8/',
+							preview: '/images/calculator/textures/door/8/map.jpg'
 						},
 						{
-							value: '/calculator/images/textures/door/9/',
-							preview: '/calculator/images/textures/door/9/map.jpg'
+							value: '/images/calculator/textures/door/9/',
+							preview: '/images/calculator/textures/door/9/map.jpg'
 						}
 					],
 					type: 'image'

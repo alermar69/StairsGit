@@ -5,12 +5,92 @@ class Bed extends AdditionalObject {
 		var objPar = Object.assign({}, this.par)
 		objPar.dxfBasePoint = {x:0,y:0}
 
-		var mesh = drawBed(objPar).mesh;
+		var mesh = Bed.draw(objPar).mesh;
 		this.add(mesh);
 	}
 
 	/** STATIC **/
-
+	
+	static draw(par){
+		if(!par) par = {};
+		initPar(par)
+		
+		var legPar = getProfParams(par.legProf)
+		var bridgePar = getProfParams(par.bridgeProf)
+		
+		//ножки
+		var polePar = {
+			poleProfileY: legPar.sizeB,
+			poleProfileZ: legPar.sizeA,
+			dxfBasePoint: par.dxfBasePoint,
+			length: par.height,
+			poleAngle: Math.PI / 2,
+			partName: "shelfLeg",
+			material: params.materials.timber,
+		}
+		
+		//царги
+		var platePar = {
+			len: par.width - legPar.sizeB * 2,
+			width: bridgePar.sizeA,
+			thk: bridgePar.sizeB,
+			partName: "mdfPlate",
+		}
+				
+		var pos = {
+			x: [0, par.width - legPar.sizeB],
+			z: [0, par.len - legPar.sizeA],
+			
+		}
+		
+		
+		pos.z.forEach(function(posZ){
+			pos.x.forEach(function(posX){
+				//ножки
+				if(posZ > 0) polePar.length = par.headBoardHeight //изголовье
+				var newell = drawPole3D_4(polePar).mesh;
+				newell.position.x = posX;
+				newell.position.z = posZ;
+				par.mesh.add(newell);		
+				
+				//царги поперечные
+				if(posX == 0) {
+					platePar.len = par.width - legPar.sizeB * 2
+					platePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y)
+					
+					platePar.width = bridgePar.sizeA;
+					if(posZ > 0) platePar.width += par.headBoardHeight - par.height  //изголовье
+						
+					var panel = drawPlate(platePar).mesh;
+					panel.position.x = posX;
+					panel.position.y = par.height - bridgePar.sizeA;
+					panel.position.z = posZ + legPar.sizeB / 2 - bridgePar.sizeB / 2;
+	
+					par.mesh.add(panel);
+				}
+				if(posZ == 0) {
+					//царги продольные
+					platePar.len = par.len - legPar.sizeB * 2
+					platePar.width = bridgePar.sizeA;
+					platePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y)
+					var panel = drawPlate(platePar).mesh;
+					//поперечные
+					panel.rotation.y = Math.PI / 2
+					panel.position.x = posX - legPar.sizeB / 2 - bridgePar.sizeB / 2;
+					panel.position.y = par.height - platePar.width;
+					panel.position.z = par.len - legPar.sizeB;
+	
+					par.mesh.add(panel);
+				}
+			})
+			
+			
+		})
+		
+		
+		return par;
+	}
+	
 	static formChange(form, data){
 		var par = data.meshParams
 		getObjPar()
@@ -169,84 +249,3 @@ class Bed extends AdditionalObject {
 		return {html: html, text: text};
 	}
 }
-
-function drawBed(par){
-	if(!par) par = {};
-	initPar(par)
-	
-	var legPar = getProfParams(par.legProf)
-	var bridgePar = getProfParams(par.bridgeProf)
-	
-	//ножки
-	var polePar = {
-		poleProfileY: legPar.sizeB,
-		poleProfileZ: legPar.sizeA,
-		dxfBasePoint: par.dxfBasePoint,
-		length: par.height,
-		poleAngle: Math.PI / 2,
-		partName: "shelfLeg",
-		material: params.materials.timber,
-	}
-	
-	//царги
-	var platePar = {
-		len: par.width - legPar.sizeB * 2,
-		width: bridgePar.sizeA,
-		thk: bridgePar.sizeB,
-		partName: "mdfPlate",
-	}
-			
-	var pos = {
-		x: [0, par.width - legPar.sizeB],
-		z: [0, par.len - legPar.sizeA],
-		
-	}
-	
-	
-	pos.z.forEach(function(posZ){
-		pos.x.forEach(function(posX){
-			//ножки
-			if(posZ > 0) polePar.length = par.headBoardHeight //изголовье
-			var newell = drawPole3D_4(polePar).mesh;
-			newell.position.x = posX;
-			newell.position.z = posZ;
-			par.mesh.add(newell);		
-			
-			//царги поперечные
-			if(posX == 0) {
-				platePar.len = par.width - legPar.sizeB * 2
-				platePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y)
-				
-				platePar.width = bridgePar.sizeA;
-				if(posZ > 0) platePar.width += par.headBoardHeight - par.height  //изголовье
-					
-				var panel = drawPlate(platePar).mesh;
-				panel.position.x = posX;
-				panel.position.y = par.height - bridgePar.sizeA;
-				panel.position.z = posZ + legPar.sizeB / 2 - bridgePar.sizeB / 2;
-
-				par.mesh.add(panel);
-			}
-			if(posZ == 0) {
-				//царги продольные
-				platePar.len = par.len - legPar.sizeB * 2
-				platePar.width = bridgePar.sizeA;
-				platePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y)
-				var panel = drawPlate(platePar).mesh;
-				//поперечные
-				panel.rotation.y = Math.PI / 2
-				panel.position.x = posX - legPar.sizeB / 2 - bridgePar.sizeB / 2;
-				panel.position.y = par.height - platePar.width;
-				panel.position.z = par.len - legPar.sizeB;
-
-				par.mesh.add(panel);
-			}
-		})
-		
-		
-	})
-	
-	
-	return par;
-}
-

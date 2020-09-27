@@ -698,6 +698,19 @@ function createBackZenkCurve(curve){
 */
 
 function makeSvgFromShape(shape, draw, isRotate){	
+	var pathString = makePathStringFromShape(shape, isRotate);
+	
+	var path = draw.path(pathString)
+	path.attr({
+		fill: "none",
+		stroke: "#000",
+		"stroke-width": 3,
+	})
+	
+	return path;
+}
+
+function makePathStringFromShape(shape, isRotate){
 	var curveArr = [];
 	var curvesArr = shape.curves.concat();
 
@@ -779,16 +792,7 @@ function makeSvgFromShape(shape, draw, isRotate){
 		}
 	})
 	
-	var pathString = getPathString(curveArr)
-	
-	var path = draw.path(pathString)
-	path.attr({
-		fill: "none",
-		stroke: "#000",
-		"stroke-width": 3,
-	})
-	
-	return path;
+	return getPathString(curveArr)
 }
 
 function drawAxisHelper(len, draw){

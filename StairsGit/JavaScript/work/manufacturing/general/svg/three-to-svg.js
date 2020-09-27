@@ -24,7 +24,7 @@ $(function(){
 	
 	$("#svg").delegate("#saveDxf", "click", function(){
 		setTimeout(() => {
-			var paths = $("#svg svg path")
+			var paths = $("#svg svg path");
 			saveDxfFile(paths);
 		}, 1000);
 	})
@@ -134,6 +134,8 @@ function saveDxfFile(data){
 		var models = {};
 		$.each(data, function(i){
 			var d = $(this).attr('d');
+			// var parts = Raphael.parsePathString(d);
+			// console.log(parts);
 			if (d) {
 				console.log(i);
 				models[i] = makerjs.importer.fromSVGPathData(d);

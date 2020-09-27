@@ -22,10 +22,12 @@ class Canopy extends AdditionalObject {
 			canopyPar[input.key] = obj.par[input.key];
 		})
 
-		canopyPar = drawCanopy(canopyPar);
-
-		obj.add(canopyPar.mesh);
+		obj.add(Canopy.draw(canopyPar).mesh);
 		
+	}
+
+	static draw(par){
+		return drawCanopy(par)
 	}
 
 	static calcPrice(par){
@@ -63,13 +65,15 @@ class Canopy extends AdditionalObject {
 					key: 'width',
 					title: 'Ширина',
 					default: 1500,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'sideOffset',
 					title: 'Свес сбоку',
 					default: 100,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: "holderType",
@@ -85,7 +89,8 @@ class Canopy extends AdditionalObject {
 							title: 'm-1000',
 							value: 'm-1000'
 						}
-					]
+					],
+					"printable": "true",
 				},
 				{
 					key: "polyColor",
@@ -101,7 +106,8 @@ class Canopy extends AdditionalObject {
 							title: 'Бронза',
 							value: '#a15000'
 						}
-					]
+					],
+					"printable": "true",
 				},
 				{
 					key: "polyType",
@@ -117,13 +123,15 @@ class Canopy extends AdditionalObject {
 							title: 'Монолитный',
 							value: 'монолитный'
 						}
-					]
+					],
+					"printable": "true",
 				},
 				{
 					key: 'holderAmt',
 					title: 'Количество держателей',
 					default: 3,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					type: 'delimeter'

@@ -2,6 +2,9 @@ class Table extends AdditionalObject {
 	constructor(par) {
 		super(par);
 		
+		var objPar = Object.assign({}, this.par)
+		this.add(Table.draw(objPar).mesh);
+
 		//подстолье
 		if (this.par.baseModel != 'не указано' && this.par.baseModel != 'нет') {
 			var basePar = {
@@ -34,6 +37,13 @@ class Table extends AdditionalObject {
 			top.position.y = this.par.height;
 			this.add(top);
 		}
+	}
+
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
+
+		return par
 	}
 
 	static calcPrice(par){
@@ -149,7 +159,8 @@ class Table extends AdditionalObject {
 							"value": "нет",
 							"title": "нет"
 						},
-					]
+					],
+					"printable": "true",
 				},
 				
 				{
@@ -177,19 +188,22 @@ class Table extends AdditionalObject {
 					"key": "width",
 					"title": "Ширина:",
 					"default": 600,
-					"type": "number"
+					"type": "number",
+					"printable": "true",
 				},
 				{
 					"key": "len",
 					"title": "Длина:",
 					"default": 1200,
-					"type": "number"
+					"type": "number",
+					"printable": "true",
 				},
 				{
 					"key": "height",
 					"title": "Высота:",
 					"default": 750,
-					"type": "number"
+					"type": "number",
+					"printable": "true",
 				},
 				
 				{
@@ -226,7 +240,8 @@ class Table extends AdditionalObject {
 						}
 					],
 					"default": "все ребра",
-					"type": "select"
+					"type": "select",
+					"printable": "true",
 				},
 
 				{
@@ -293,7 +308,8 @@ class Table extends AdditionalObject {
 							"value": "фаска 12х45гр",
 							"title": "фаска 12х45гр"
 						},
-					]
+					],
+					"printable": "true",
 				},
 
 				{
@@ -318,7 +334,8 @@ class Table extends AdditionalObject {
 					}
 					],
 					"default": "цельная",
-					"type": "select"
+					"type": "select",
+					"printable": "true",
 				},
 				{
 					"key": "sideEdges",
@@ -334,7 +351,8 @@ class Table extends AdditionalObject {
 					}
 					],
 					"default": "прямые",
-					"type": "select"
+					"type": "select",
+					"printable": "true",
 				},
 				
 				
@@ -342,31 +360,36 @@ class Table extends AdditionalObject {
 					"key": "countertopThk",
 					"title": "Толщина:",
 					"default": 40,
-					"type": "number"
+					"type": "number",
+					"printable": "true",
 				},
 				{
 					"key": "partsGap",
 					"title": "Зазор между частями столешницы:",
 					"default": 10,
-					"type": "number"
+					"type": "number",
+					"printable": "true",
 				},
 				{
 					"key": "cornerRad",
 					"title": "Радиус скругления углов:",
 					"default": 20,
-					"type": "number"
+					"type": "number",
+					"printable": "true",
 				},
 				{
 					"key": "riverWidth",
 					"type": "number",
 					"title": "Ширина реки, мм",
-					"default": 150
+					"default": 150,
+					"printable": "true",
 				},
 				{
 					"key": "resinVol",
 					"type": "number",
 					"title": "Объем заливки, л",
-					"default": 1
+					"default": 1,
+					"printable": "true",
 				},
 				
 	//подстолье			
@@ -500,19 +523,22 @@ class Table extends AdditionalObject {
 					}
 					],
 					"default": "T-1",
-					"type": "select"
+					"type": "select",
+					"printable": "true",
 				},
 				{
 					"key": "sideOverhang",
 					"title": "Свес столешницы боковой:",
 					"default": 50,
-					"type": "number"
+					"type": "number",
+					"printable": "true",
 				},
 				{
 					"key": "frontOverhang",
 					"title": "Свес столешницы передний/задний:",
 					"default": 100,
-					"type": "number"
+					"type": "number",
+					"printable": "true",
 				},
 				
 	//цена			

@@ -12,12 +12,25 @@ function drawCarcas(par){
 	
 	var modelDim = getModelDimensions();
 	var sideWallDim = modelDim.sideWall; 
-
+	console.log(modelDim)
 	// левая боковина
 	var sidePar = {
 		dxfBasePoint: par.dxfBasePoint,
 		side: "left",
-		}	
+		shelfPositions: [modelDim.leg],
+		legProf: sideWallDim.newellSize + 'х' + sideWallDim.newellSize,
+		bridgeProf: sideWallDim.newellSize + 'х' + modelDim.countertop.thk,
+		width: params.depth,
+		height: params.height - modelDim.countertop.thk,
+		shelfThk: modelDim.countertop.thk,
+		carcasModel: "1",
+		topOffset: 10,
+		botOffset: modelDim.leg,
+		sidePanel: "две"
+	}
+	if (params.model == 'брутал') {
+		sidePar.shelfPositions = [modelDim.leg * 3]
+	}
 	var leftSideObj = drawSideWall(sidePar);
 	leftSideObj.carcas.rotation.y = -Math.PI / 2;
 	leftSideObj.carcas.position.z = sideWallDim.newellSize;
@@ -29,10 +42,9 @@ function drawCarcas(par){
 	par.panels.add(leftSideObj.panels); 
 	
 	// правая боковина
-	var sidePar = {
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.depth + 200, 0),
-		side: "right",
-		}
+	// правая боковина
+	sidePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, params.depth + 200, 0);
+	sidePar.side = "right";
 	
 	var rightSideObj = drawSideWall(sidePar);
 	rightSideObj.carcas.rotation.y = -Math.PI / 2;
@@ -136,7 +148,7 @@ function drawCarcas(par){
 /** фуниция отрисовывает боковину комода
 */
 
-function drawSideWall(par){
+function drawSideWall_(par){
 	par.carcas = new THREE.Object3D();	
 	par.panels = new THREE.Object3D();
 	var dxfX0 = par.dxfBasePoint.x;
@@ -164,13 +176,13 @@ function drawSideWall(par){
 		length: params.height - modelDim.countertop.thk,
 		poleAngle: Math.PI / 2,
 		partName: "timberPole",
-		}
+	}
 	
 	//передняя стоевая
 	var pos = {
 		x: params.depth - sideWallDim.newellSize,
 		y: 0,
-		}
+	}
 	polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y)
 	var newell = drawPole3D_4(polePar).mesh;
 	newell.position.x = pos.x;

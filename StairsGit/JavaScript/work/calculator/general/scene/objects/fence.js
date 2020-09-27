@@ -21,10 +21,19 @@ class Fence extends AdditionalObject{
 			sectParams[input.key] = obj.par[input.key];
 		})
 
-		sectParams = drawFenceObj(sectParams);
-
-		obj.add(sectParams.mesh);
+		obj.add(Fence.draw(sectParams).mesh);
 	}
+
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
+
+		var geom = new THREE.BoxGeometry(par.len, par.height, par.thk);
+		par.mesh = new THREE.Mesh(geom, par.material);
+
+		return par
+	}
+
 
 	static calcPrice(par){
 		var meshPar = par.meshParams;
@@ -102,16 +111,3 @@ class Fence extends AdditionalObject{
 		}
 	}
 }
-
-function drawFenceObj(par){
-
-	if(!par) par = {};
-	initPar(par)
-	
-	
-	var geom = new THREE.BoxGeometry(par.len, par.height, par.thk);
-	par.mesh = new THREE.Mesh(geom, par.material);
-	
-	
-	return par;
-}//end of drawFenceObj

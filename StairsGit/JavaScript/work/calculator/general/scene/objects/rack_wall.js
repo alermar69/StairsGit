@@ -22,10 +22,12 @@ class RackWall extends AdditionalObject {
 			objParams[input.key] = obj.par[input.key];
 		})
 
-		objParams = drawRackWall(objParams);
-
-		obj.add(objParams.mesh);
+		obj.add(RackWall.draw(objParams).mesh);
 		
+	}
+
+	static draw(par){
+		return drawRackWall(par);
 	}
 
 	static calcPrice(par){
@@ -60,19 +62,22 @@ class RackWall extends AdditionalObject {
 					key: 'height',
 					title: 'Высота',
 					default: 2000,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'width',
 					title: 'Ширина',
 					default: 700,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'step',
 					title: 'Шаг',
 					default: 20,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'material',
@@ -88,7 +93,8 @@ class RackWall extends AdditionalObject {
 							title: 'Металл'
 						}
 					],
-					type: 'select'
+					type: 'select',
+					"printable": "true",
 				},
 				{
 					key: 'racksProfile',
@@ -148,7 +154,8 @@ class RackWall extends AdditionalObject {
 							value: 'Ф38',
 							title: 'Ф38'
 						}
-					]
+					],
+					"printable": "true",
 				},				
 				{
 					"type": "delimeter",

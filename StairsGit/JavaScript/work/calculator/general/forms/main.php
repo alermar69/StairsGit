@@ -1,24 +1,9 @@
 <?php
-
 	if (!isset($GLOBALS['IS_YII']) || !$GLOBALS['IS_YII']) {
-		//выцепляем модуль и представление из url
-		$url = 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-	
 		//модуль
-		$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda', 'slabs', 'table', 'sill', 'sideboard', 'coupe',];
-		
-		$calc_type = '';
-		foreach($calc_types as $item){
-			if (strpos($url,'/'.$item) !== false) $calc_type = $item;
-		};
-	
-	
+		$calc_type = getCalcType();
 		//представление
-		$templates = ['calculator', 'manufacturing', 'installation', 'customers'];
-		$template = '';
-		foreach($templates as $item){
-			if (strpos($url,'/'.$item) !== false) $template = $item;
-		};
+		$template = getTemplate();
 	}else{
 		$calc_type = $GLOBALS['CALCULATOR_CONFIG']['calc_type'];
 		$template = $GLOBALS['CALCULATOR_CONFIG']['template'];
@@ -105,7 +90,7 @@
 		echo "<div class='dropdown-menu dropdown-menu-sm' id='objectContextMenu'></div>";
 
 		//кнопки под визуализацией
-		if($template == 'calculator' && $calc_type != 'wardrobe' && $calc_type != 'wardrobe_2' && $calc_type != 'objects') {
+		if($template == 'calculator') {
 			echo
 				'<div class="noPrint mainButtons">
 					<button id="open_master_modal" class="btn btn-outline-primary">Конфигуратор</button>
@@ -479,7 +464,7 @@
 			'group' => 'data',
 		];
 	};
-	if ($calc_type != 'wardrobe_2' && $calc_type != 'objects') {
+	if ($calc_type != 'wardrobe_2') {
 		include $GLOBALS['ROOT_PATH']."/calculator/general/content/templates.php";
 	}
 
@@ -625,29 +610,33 @@
 	}
 
 	if ($calc_type == 'objects') {
-		$tabs = [
-			"menu"=>[
-				'name' => 'Меню',
-				'url' => '/calculator/general/forms/menu_form.php',
-				'class' => 'noPrint',
-				'group' => 'form',
-			],
-			"form"=>[
-				'name' => 'Объекты',
-				'url' => '/calculator/objects/form.php',
-				'class' => 'noPrint',
-				'group' => 'form'
-			],
-			'objects' => [
-				'name' => 'Объекты',
-				'url' => '/calculator/general/forms/objects/form.php',
-				'class' => 'noPrint',
-				'group' => 'form',
-			]
-		];
+		$tabs['carcas']  = false;//"/calculator/wardrobe/forms/main_form.php";
+		$tabs['railing'] = false;
+		$tabs['banister'] = false;
+		$tabs['geom'] = false;
+		// $tabs = [
+		// 	"menu"=>[
+		// 		'name' => 'Меню',
+		// 		'url' => '/calculator/general/forms/menu_form.php',
+		// 		'class' => 'noPrint',
+		// 		'group' => 'form',
+		// 	],
+		// 	"form"=>[
+		// 		'name' => 'Объекты',
+		// 		'url' => '/calculator/objects/form.php',
+		// 		'class' => 'noPrint',
+		// 		'group' => 'form'
+		// 	],
+		// 	'objects' => [
+		// 		'name' => 'Объекты',
+		// 		'url' => '/calculator/general/forms/objects/form.php',
+		// 		'class' => 'noPrint',
+		// 		'group' => 'form',
+		// 	]
+		// ];
 	}
 	
-	$ignor_calc_types = ['geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'slabs'];
+	$ignor_calc_types = ['geometry', 'wardrobe', 'wardrobe_2', 'carport', 'slabs'];
 	
 	if (!in_array($calc_type, $ignor_calc_types) ) {
 		$tabs["materials"] = [

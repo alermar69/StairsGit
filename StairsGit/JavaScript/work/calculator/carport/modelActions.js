@@ -14,10 +14,10 @@ window.domeDoorOpen = false;
 function toggleDomeDoor(state){
 	console.log(state)
 	if ((window.domeDoor || window.moovableSections) && window.animations) {
+		var partPar = calcCarportPartPar();
 		
 		//поворотный сектор
-		if(params.carportType == 'купол'){
-			var partPar = calcCarportPartPar();
+		if(params.carportType == 'купол'){			
 			var fullAngle = (params.doorAng) / 180 * Math.PI;
 			var closedPosAng = -fullAngle - (partPar.dome.overlayAng / 180 * Math.PI)
 			if(state != undefined) window.domeDoorOpen = state;
@@ -45,7 +45,6 @@ function toggleDomeDoor(state){
 					var fullLen = (params.sectAmt - 1) * params.sectLen;
 					switch (animationName) {
 						case 'openDoor':
-							
 							$.each(window.moovableSections, function(i){
 								//секции слева
 								var mooveLen = i * params.sectLen;

@@ -77,6 +77,22 @@ $(function(){
 		redrawAdditionalObjects();
 	});
 
+	$('body').on('click', '.actionInput', function(){
+		var $form = $("#additionalObjectProperties")
+		var id = $form.find('#additionalObjectId').val();
+		var item = getAdditionalObject(id);
+		if (item) {
+			var method = $(this).attr('data-action_key');
+			if (method) {
+				getObjPar()
+				var classItem = eval(item.className);
+				if (classItem && classItem[method]) {
+					classItem[method]($form, item)
+				}
+			}
+		}
+	})
+
 	$('body').on('change', '.additionalObjectRot', function(){
 		var id = $(this).parents('.additionalObjectRow').data('object_id');
 		var item = getAdditionalObject(id);
@@ -100,6 +116,16 @@ $(function(){
 	$('body').on('click', '.meshParam_custom', function() {
 		$(this).parents('.meshParam_custom_parent').find('.meshParam_custom').removeClass('selected');
 		$(this).addClass('selected');
+		var $form = $("#additionalObjectProperties")
+		var id = $form.find('#additionalObjectId').val();
+		var item = getAdditionalObject(id);
+		if (item) {
+			getObjPar()
+			var classItem = eval(item.className);
+			if (classItem && classItem.formChange) {
+				classItem.formChange($form, item)
+			}
+		}
 	});
 
 
@@ -295,15 +321,16 @@ function getAdditionalObjectCurrentId(){
 }
 
 function addAdditionalObjectTable(par){
-	console.log(par);
+	var isNew = false;
 	if(!par) {
+		isNew = true;
 		par = {
 			id: getAdditionalObjectCurrentId(),
 			className: 'ConcretePlatform',
 			meshParams: ConcretePlatform.getDefaults(),
 			position: {
 				x: 0,
-				y: 1000,
+				y: 0,
 				z: 0
 			},
 			rotation: 0,
@@ -314,7 +341,7 @@ function addAdditionalObjectTable(par){
 	if (!par.id && !par.position) return;
 
 	var text = '\
-		<tr class="additionalObjectRow" data-object_selector="additionalObjectRow" style="width: 100%" data-object_id='+ par.id +' data-id='+ par.id +'>\
+		<tr class="additionalObjectRow '+(isNew ? 'selected': '')+'" data-object_selector="additionalObjectRow" style="width: 100%" data-object_id='+ par.id +' data-id='+ par.id +'>\
 			<td>\
 				Тип: <select class="additionalObjectClass">';
 					AdditionalObject.getAvailableClasses().forEach(function(c){
@@ -365,6 +392,9 @@ function addAdditionalObjectTable(par){
 	el.find('.additionalObjectName').val(par.name);
 	if(par.calc_price) el.find('.additionalObjectCalcPrice').attr('checked', true);
 
+	additionalObjectParamsShow(par.id)
+	$('.additionalObjectRow').removeClass("selected")
+	el.addClass('selected');
 
 	return par.id;
 }
@@ -415,11 +445,16 @@ function additionalObjectParamsShow(id){
 			}
 			
 			if (this.type == 'image') {
-				text += this.title + '<tr class="'+(this.class || "")+'" ><td> <div class="meshParam meshParam_custom_parent imageSelector" data-propid="' + this.key + '" type="custom_input">';
+				text += this.title + '<tr class="'+(this.class || "")+'" ><td> <div class="meshParam meshParam_custom_parent imageSelector custom_input" data-propid="' + this.key + '" type="custom_input">';
 				var key = this.key;
 				this.values.forEach(function(value){
 					text += '<image width="64px" height="64px" style="margin: 5px;" class="meshParam_custom ' + ((item.meshParams[key] == value.value) ? 'selected' : '') + '" data-value="' + value.value + '" src="' + value.preview + '">';
 				});
+				text += '</div></td></tr>';
+			}
+			if (this.type == 'action') {
+				text += this.title + '<tr class="'+(this.class || "")+'" ><td colspan="2"> <div class="custom_input" data-propid="' + this.key + '" type="custom_input">';
+				text += '<button class="btn btn-primary actionInput" data-action_key="'+this.key+'">'+this.title+'</button>';
 				text += '</div></td></tr>';
 			}
 			if (this.type == 'wrapper') {
@@ -449,7 +484,7 @@ function getObjPar(){
 	var id = $form.find('#additionalObjectId').val();
 	var item = getAdditionalObject(id);
 	if (item) {
-		$.each($form.find('input,select,textarea'), function(){
+		$.each($form.find('input,select,textarea,.custom_input'), function(){
 			var key = $(this).attr('data-propid');
 			if (key) {
 				if ($(this).attr('type') == 'checkbox') {
@@ -457,11 +492,12 @@ function getObjPar(){
 				}else if($(this).attr('type') == 'number'){
 					item.meshParams[key] = $(this).val() * 1.0;
 				}else if($(this).attr('type') == 'custom_input'){
-					item.meshParams[key] = $(this).find('.selected').data('value');
+					item.meshParams[key] = $(this).find('.selected').attr('data-value');
 				}else{
 					item.meshParams[key] = $(this).val();
 				}
 			}
 		});
+		
 	}
 }

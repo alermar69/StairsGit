@@ -71,6 +71,6 @@
 		</table>
 	</div>
 	<div class="col-5 opening_image">
-		<img src="/calculator/images/master/rect_opening.jpg" alt="">
+		<img src="/images/calculator/master/rect_opening.jpg" alt="">
 	</div>
 </div>

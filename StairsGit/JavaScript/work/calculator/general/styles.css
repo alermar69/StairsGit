@@ -241,3 +241,24 @@
 	height: 100%;
 	width: 100%;
 }
+
+.kp_header-wrapper{
+	display: flex;
+}
+
+.kp_header{
+	width: 100%;
+	padding: 10px;
+}
+
+.kp_header select, .kp_header input, .kp_header textarea{
+	background-color: transparent;
+	border: unset;
+}
+#kp_inputs td:first-child{
+	min-width: 250px;
+}
+
+#kp_inputs input, #kp_inputs textarea, #kp_inputs select{
+	width: 100%;
+}

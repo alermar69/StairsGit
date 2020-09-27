@@ -1,5 +1,5 @@
 var texturesManger;
-var imgPath = "/calculator/images/textures";
+var imgPath = "/images/calculator/textures";
 
 function getTextureMangerInstance(){
 	return window.textureManager;
@@ -224,13 +224,14 @@ class TextureManager{
 		
 		var metalMaterial_roof = this.createMaterial({name:'metal_roof', color: getMetalColorId(params.roofMetalColor)});
 		var plasticMaterial_roof = this.createMaterial({name:'plastic_roof', opacity: 0.6, color: getPlasticColorId(params.roofPlastColor), transparent: true, opacity: 0.3 });
-
+		var additionalObjectTimber = this.createMaterial({name: 'additionalObjectTimber', color: getTimberColorId(params.additionalObjectsTimberColor), wireframe: false});
+		var additionalObjectMetal = this.createMaterial({name: 'additionalObjectMetal', color: getMetalColorId(params.additionalObjectsMetalColor), wireframe: false});
 		/**
 		 * Кастомный цвет для освещения
 		*/
 		var lightMaterial = new THREE.MeshBasicMaterial({color: new THREE.Color(0xFFFFFF)});
 		lightMaterial.transparent = true;
-		this.textureLoader.load('/calculator/images/textures/light.png', function(map){
+		this.textureLoader.load('/images/calculator/textures/light.png', function(map){
 			map.repeat = {x: 2, y: 2};
 			map.rotation = -Math.PI / 2;
 			map.offset.y = -0.5;
@@ -266,6 +267,8 @@ class TextureManager{
 			lightMaterial: lightMaterial,
 			metal_roof: metalMaterial_roof,
 			plastic_roof: plasticMaterial_roof,
+			additionalObjectTimber: additionalObjectTimber,
+			additionalObjectMetal: additionalObjectMetal
 		}
 
 		return materials;
@@ -289,6 +292,7 @@ class TextureManager{
 	loadMaterialConfig(material, material_name){
 
 		var info = this.getMaterialInfo(material_name);
+		material.userData.materialKey = info.key;
 		if (!info || info.group == '') return
 
 		var mat_config = false;
@@ -417,8 +421,10 @@ class TextureManager{
 	getMaterialInfo(material_name){
 		var texture_name = '';
 		var color_name = '';
+		var key = null;
 		var mapScale = 1;
 		if (material_name == 'tread') {
+			key = params.stairType;
 			texture_name = getTreadTextureName();
 			color_name = params.treadsColor;	
 			if (texture_name == 'rif_metal') if (params.metalPaint == "порошок") color_name = params.carcasColor;
@@ -427,18 +433,22 @@ class TextureManager{
 		if (material_name == 'riser') {
 			texture_name = getTimberTextureName(params.risersMaterial);
 			color_name = params.risersColor;
+			key = params.risersMaterial;
 		}
 		if (material_name == 'newell') {
 			texture_name = getTimberTextureName(params.newellsMaterial);
 			color_name = params.newellsColor;
+			key = params.newellsMaterial;
 		}
 		if (material_name == 'bal') {
 			texture_name = getTimberTextureName(params.timberBalMaterial);
 			color_name = params.timberBalColor;
+			key = params.timberBalMaterial;
 		}
 		if (material_name == 'handrail') {
 			texture_name = getTimberTextureName(params.handrailsMaterial);
 			color_name = params.handrailsColor;
+			key = params.handrailsMaterial;
 		}
 		if (material_name == 'metal' || material_name == 'metal2') {
 			texture_name = 'metal';
@@ -474,11 +484,15 @@ class TextureManager{
 			texture_name = 'light';
 		}
 
-		if (material_name == 'additionalObjectTimber') texture_name = getTimberTextureName(params.additionalObjectsTimberMaterial);
+		if (material_name == 'additionalObjectTimber') {
+			texture_name = getTimberTextureName(params.additionalObjectsTimberMaterial);
+			key = params.additionalObjectsTimberMaterial;
+		}
 		
 		if (material_name == 'timber' || material_name == 'timber2') {
 			color_name = params.stringersColor;
 			texture_name = getTimberTextureName(params.stringersMaterial);
+			key = params.stringersMaterial;
 		}
 		if (material_name == 'inox' || material_name == 'bolt') texture_name = 'chrome';
 		
@@ -514,7 +528,8 @@ class TextureManager{
 			texture: texture_name,
 			color: color_name,
 			mapScale: mapScale,
-			};
+			key: key,
+		};
 	}
 
 	/** 
@@ -1021,7 +1036,7 @@ function createProjectionTexture(){
 	// view.scene.add( projCameraHelper );
 	// view.scene.add( projCamera );
 
-	new THREE.TextureLoader().load('/calculator/images/textures/light.png', function(map){
+	new THREE.TextureLoader().load('/images/calculator/textures/light.png', function(map){
 		map.repeat = {x:0.005, y:0.005};
 		map.rotation = Math.PI;
 		map.offset.y = 1;

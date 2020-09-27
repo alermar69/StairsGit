@@ -15,13 +15,8 @@
 	$pvcPaint = '<option value="нет">нет</option>';
 	$pvcColors = file_get_contents($GLOBALS['ROOT_PATH']."/calculator/general/forms/pvcColors.php");
 	
-	//тип расчета
-	if(strpos($_SERVER["REQUEST_URI"], "metal")) $calcType = "metal";
-	if(strpos($_SERVER["REQUEST_URI"], "mono")) $calcType = "mono";
-	if(strpos($_SERVER["REQUEST_URI"], "timber")) $calcType = "timber";
-	if(strpos($_SERVER["REQUEST_URI"], "vhod")) $calcType = "vhod";
-	if(strpos($_SERVER["REQUEST_URI"], "railing")) $calcType = "railing";
-	if(strpos($_SERVER["REQUEST_URI"], "vint")) $calcType = "vint";
+	//модуль
+	$calcType = getCalcType();
 	if (isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII']) $calcType = $GLOBALS['CALCULATOR_CONFIG']['calc_type'];
 
 	

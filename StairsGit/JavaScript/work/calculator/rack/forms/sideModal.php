@@ -13,7 +13,7 @@
 <?php 
 	echo '<b>Симметричные</b><br>';
 	$amt = 13;
-	$path = '/calculator/images/table/side/sym/';
+	$path = '/images/calculator/table/side/sym/';
 	for($i=1; $i <= $amt; $i++){
 		$name = $i;
 		if($i < 10) $name = "0".$name;
@@ -22,7 +22,7 @@
 	
 	echo '<br><b>Односторонние</b><br>';
 	$amt = 10;
-	$path = '/calculator/images/table/side/asym/';
+	$path = '/images/calculator/table/side/asym/';
 	for($i=1; $i <= $amt; $i++){
 		$name = "1" . $i;
 		if($i < 10) $name = "10" . $i;

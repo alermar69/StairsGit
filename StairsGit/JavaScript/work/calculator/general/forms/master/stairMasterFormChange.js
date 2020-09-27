@@ -206,7 +206,7 @@ function setOpeningType(openingType){
 
 	if (openingType == 'квадратный') {
 		$('.opening_image img').show();
-		$('.opening_image img').attr('src', '/calculator/images/master/rect_opening.jpg')
+		$('.opening_image img').attr('src', '/images/calculator/master/rect_opening.jpg')
 	}
 
 	if (openingType == 'dxf') {
@@ -215,7 +215,7 @@ function setOpeningType(openingType){
 
 	if (openingType == 'Г-образный' && $("#turnSide").val() == 'правое') {
 		$('.opening_image img').show();
-		$('.opening_image img').attr('src', '/calculator/images/master/g_opening.jpg')
+		$('.opening_image img').attr('src', '/images/calculator/master/g_opening.jpg')
 
 		var dSize = $('#dSize').val() * 1.0;
 		var cSize = $('#cSize').val() * 1.0;
@@ -270,7 +270,7 @@ function setOpeningType(openingType){
 
 	if (openingType == 'Г-образный' && $("#turnSide").val() == 'левое') {
 		$('.opening_image img').show();
-		$('.opening_image img').attr('src', '/calculator/images/master/g_mirror_opening.jpg')
+		$('.opening_image img').attr('src', '/images/calculator/master/g_mirror_opening.jpg')
 		
 		var dSize = $('#dSize').val() * 1.0;
 		var cSize = $('#cSize').val() * 1.0;

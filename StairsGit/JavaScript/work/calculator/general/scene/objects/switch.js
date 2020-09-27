@@ -2,6 +2,11 @@ class Switch extends AdditionalObject {
 	constructor(par) {
 		super(par);
 
+		var objPar = Object.assign({}, this.par)
+		objPar.material = this.material;
+		
+		this.add(Switch.draw(objPar).mesh);
+
 		var platformGeometry = new THREE.BoxGeometry(this.par.width, this.par.height, 10);
 		var buttonGeometry = new THREE.BoxGeometry(this.par.width * 0.8, this.par.height * 0.8, 5);
 
@@ -21,6 +26,14 @@ class Switch extends AdditionalObject {
 	}
 
 	/** STATIC **/
+
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
+
+		return par
+	}
+
 	static getMeta() {
 		return {
 			title: 'Выключатель',

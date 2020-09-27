@@ -3806,9 +3806,9 @@ function drawNotchedPlate(par){
 				if (this.x && this.y) partName = "notchedTread";
 			})
 	}
-	if(params.stairType == "нет") partName = false;
 	
 	if(par.partName) partName = par.partName;
+	if(params.stairType == "нет" && par.partName == "tread") partName = false;
 	
 	if(typeof specObj !='undefined' && partName){
 		if(!specObj[partName]){

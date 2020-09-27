@@ -2,6 +2,11 @@ class Tv extends AdditionalObject{
 	constructor(par){
 		super(par);
 
+		var objPar = Object.assign({}, this.par)
+		objPar.material = this.material;
+		
+		this.add(Tv.draw(objPar).mesh);
+
 		var tvGeometry = new THREE.BoxGeometry(this.par.width, this.par.height, 20 );
 		var tv = new THREE.Mesh( tvGeometry, this.material );
 		tv.position.x = this.par.width / 2;
@@ -40,6 +45,13 @@ class Tv extends AdditionalObject{
 			stand.position.z = 0;
 			this.add(stand);
 		}
+	}
+
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
+
+		return par
 	}
 
 	static getMeta(){

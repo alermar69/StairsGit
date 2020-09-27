@@ -92,7 +92,7 @@ $(function () {
 		
 		loadOfferData();
 		
-		$("#offerNameForm").modal('show');
+		$("#offerNameFormModal").modal('show');
 		
 		var url = document.location.href;
 		if(url.indexOf("geometry") != -1) {
@@ -107,6 +107,7 @@ $(function () {
 
 	//инпут для текстового имени тестовых расчетов
 	$("#offerNameForm input, #offerNameForm select, #offerNameForm textarea").change(function(){
+		console.log("test")
 		configOfferNameInputs();
 	})
 	
@@ -128,7 +129,60 @@ $(function () {
 		
 		$("." + $(this).val()).show()
 	})
+	//изменение шапки при изменении параметров
+	$("#kp_inputs input, #kp_inputs select").change(function(){
+		changeOrderForm();
+	});
+
+	//двойной клик по тексту в шапке
+	$('.changeInput').dblclick(function(){
+		var id = $(this).attr('data-input_id');
+		if ($('#' + id).length > 0) {
+			var result = prompt("Введите значение", $('#' + id).val());
+			if (result) {
+				$('#' + id).val(result)
+				changeOrderForm();
+			}
+		}else{
+			alert("Инпут не найден")
+		}
+	})
 });
+
+/** функция заполняет данные в шапке по данным из формы
+**/
+
+function changeOrderForm(){
+	//заполняем описание, если оно пустое
+	if (params.kpDescription == "") $("#kpDescription").html("Красивая и удобная лестница по вашим размерам");
+	
+	//перебираем все параметры в форме и переносим данные в шапку
+	$.each($('#kp_inputs select, #kp_inputs input, #kp_inputs textarea'), function(){
+		var id = this.id;
+		var el = $('[data-input_id="'+id+'"]');
+		if (el.length > 0) {
+			var val = $(this).val();
+			//форматируем дату
+			if($(this).attr("type") == "date") val = formatDate($(this).val(), "dd.MM.yy");
+				
+			if(el.find("span").html() != $(this).val()) el.find("span").html(val);
+		}
+	})
+	
+	//если нет имени клиента - скрываем поле
+	$(".kp_header-wrapper div[data-input_id='customerName']").hide()
+	if(params.customerName) $(".kp_header-wrapper div[data-input_id='customerName']").show()
+	
+	//задаем фон шапки
+	
+	var bgImg = ""
+	if(params.hedarBgImg == "дерево") bgImg = "/images/calculator/new_kp/timber_bg.jpg"
+	if(params.hedarBgImg == "металл") bgImg = "/images/calculator/new_kp/rif-steel.jpg"
+	if(params.hedarBgImg == "нет") bgImg = ""
+	console.log(bgImg)
+	$(".kp_header").css("background-image", "url(" + bgImg + ")")
+	
+}
 
 /* функция показывает нужные инпуты для ввода имени расчета*/
 function configOfferNameInputs(){

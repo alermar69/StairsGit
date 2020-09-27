@@ -297,6 +297,8 @@ function calcCarportPartPar(){
 	//общая длина навеса
 	par.main.len = params.sectAmt * params.sectLen + params.frontOffset + params.backOffset;
 	par.main.width = params.width / Math.cos(par.main.roofAng); //длина вдоль ската кровли
+	
+
 
 
 	//стропила
@@ -330,6 +332,9 @@ function calcCarportPartPar(){
 		},
 	}
 	
+	//ширина навеса по осям колонн
+	par.main.colDist = params.width - params.sideOffset * 2 - par.column.profSize.x;
+	if(params.carportType == "односкатный") par.main.colDist = params.width - params.sideOffset - params.sideOffsetTop - par.column.profSize.x;
 
 	
 	//продольные балки

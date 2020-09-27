@@ -6,92 +6,110 @@ class Fridge extends AdditionalObject {
 	constructor(par) {
 		super(par);
 
-		var backGeometry = new THREE.BoxGeometry(this.par.width - 40, this.par.height - 20, 20);
-		var sideGeometry = new THREE.BoxGeometry(20, this.par.height - 20, this.par.depth - 40);
-		var topGeometry = new THREE.BoxGeometry(this.par.width, 20, this.par.depth - 40);
+		var objPar = Object.assign({}, this.par)
+		objPar.dxfBasePoint = {x:0,y:0}
+		objPar.material = this.material;
+		
+		var doorPar = Fridge.draw(objPar);
+		this.add(doorPar.mesh);
 
-		var shelfGeometry = new THREE.BoxGeometry(this.par.width - 40, 20, this.par.depth - 40 - 20);
-
-		var side = new THREE.Mesh(sideGeometry, this.material);
-		side.position.x = 20 / 2;
-		side.position.y = (this.par.height - 20) / 2;
-		side.position.z = (this.par.depth - 40) / 2;
-		this.add(side);
-
-		var side = new THREE.Mesh(sideGeometry, this.material);
-		side.position.x = this.par.width - 20 / 2;
-		side.position.y = (this.par.height - 20) / 2;
-		side.position.z = (this.par.depth - 40) / 2;
-		this.add(side);
-
-		var back = new THREE.Mesh(backGeometry, this.material);
-		back.position.x = this.par.width / 2;
-		back.position.y = (this.par.height - 20) / 2;
-		back.position.z = 10;
-		this.add(back);
-
-		var top = new THREE.Mesh(topGeometry, this.material);
-		top.position.x = this.par.width / 2;
-		top.position.y = this.par.height - 10;
-		top.position.z = this.par.depth / 2 - 20;
-		this.add(top);
-
-		var shelf = new THREE.Mesh(shelfGeometry, this.material);
-		shelf.position.x = this.par.width / 2;
-		shelf.position.y = 10;
-		shelf.position.z = this.par.depth / 2 - 10;
-		this.add(shelf);
-
-		var shelf = new THREE.Mesh(shelfGeometry, this.material);
-		shelf.position.x = this.par.width / 2;
-		shelf.position.y = this.par.height * 0.4 - 10;
-		shelf.position.z = this.par.depth / 2 - 10;
-		this.add(shelf);
-
-		this.doorMesh = this.drawDoor();
-		if (this.par.doorsCount == 2) {
-			this.doorMesh2 = this.drawDoor(true);
-		}
+		this.doorMesh = par.doorMesh;
+		this.doorMesh2 = par.doorMesh2;
+		
 	}
 
-	drawDoor(isSecondDoor) {
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
+
+		var backGeometry = new THREE.BoxGeometry(par.width - 40, par.height - 20, 20);
+		var sideGeometry = new THREE.BoxGeometry(20, par.height - 20, par.depth - 40);
+		var topGeometry = new THREE.BoxGeometry(par.width, 20, par.depth - 40);
+
+		var shelfGeometry = new THREE.BoxGeometry(par.width - 40, 20, par.depth - 40 - 20);
+
+		var side = new THREE.Mesh(sideGeometry, par.material);
+		side.position.x = 20 / 2;
+		side.position.y = (par.height - 20) / 2;
+		side.position.z = (par.depth - 40) / 2;
+		par.mesh.add(side);
+
+		var side = new THREE.Mesh(sideGeometry, par.material);
+		side.position.x = par.width - 20 / 2;
+		side.position.y = (par.height - 20) / 2;
+		side.position.z = (par.depth - 40) / 2;
+		par.mesh.add(side);
+
+		var back = new THREE.Mesh(backGeometry, par.material);
+		back.position.x = par.width / 2;
+		back.position.y = (par.height - 20) / 2;
+		back.position.z = 10;
+		par.mesh.add(back);
+
+		var top = new THREE.Mesh(topGeometry, par.material);
+		top.position.x = par.width / 2;
+		top.position.y = par.height - 10;
+		top.position.z = par.depth / 2 - 20;
+		par.mesh.add(top);
+
+		var shelf = new THREE.Mesh(shelfGeometry, par.material);
+		shelf.position.x = par.width / 2;
+		shelf.position.y = 10;
+		shelf.position.z = par.depth / 2 - 10;
+		par.mesh.add(shelf);
+
+		var shelf = new THREE.Mesh(shelfGeometry, par.material);
+		shelf.position.x = par.width / 2;
+		shelf.position.y = par.height * 0.4 - 10;
+		shelf.position.z = par.depth / 2 - 10;
+		par.mesh.add(shelf);
+
+		par.doorMesh = Fridge.drawDoor(par);
+		if (par.doorsCount == 2) {
+			par.doorMesh2 = Fridge.drawDoor(par, true);
+		}
+
+		return par
+	}
+
+	static drawDoor(par, isSecondDoor) {
 		var doorMesh = new THREE.Object3D();
-		var doorWidth = this.par.width;
-		if (this.par.doorsCount == 2) doorWidth = this.par.width / 2;
+		var doorWidth = par.width;
+		if (par.doorsCount == 2) doorWidth = par.width / 2;
 
-		var doorGeometry = new THREE.BoxGeometry(doorWidth, this.par.height * 0.6, 40);
+		var doorGeometry = new THREE.BoxGeometry(doorWidth, par.height * 0.6, 40);
 
-		if (this.par.doorsCount == 2 && isSecondDoor) {
+		if (par.doorsCount == 2 && isSecondDoor) {
 			doorGeometry.translate(-doorWidth / 2, 0, 20);
 		} else {
 			doorGeometry.translate(doorWidth / 2, 0, 20);
 		}
 
-		var door = new THREE.Mesh(doorGeometry, this.material);
+		var door = new THREE.Mesh(doorGeometry, par.material);
 		door.position.x = 0;
-		door.position.y = (this.par.height * 0.6) / 2 + this.par.height * 0.4;
+		door.position.y = (par.height * 0.6) / 2 + par.height * 0.4;
 
 		doorMesh.add(door);
 
-		var botDoorGeometry = new THREE.BoxGeometry(doorWidth, this.par.height * 0.4 - 20, 40);
-		if (this.par.doorsCount == 2 && isSecondDoor) {
+		var botDoorGeometry = new THREE.BoxGeometry(doorWidth, par.height * 0.4 - 20, 40);
+		if (par.doorsCount == 2 && isSecondDoor) {
 			botDoorGeometry.translate(-doorWidth / 2, 0, 20);
 		} else {
 			botDoorGeometry.translate(doorWidth / 2, 0, 20);
 		}
 
-		var botDoor = new THREE.Mesh(botDoorGeometry, this.material);
+		var botDoor = new THREE.Mesh(botDoorGeometry, par.material);
 
 		botDoor.position.x = 0;
-		botDoor.position.y = (this.par.height * 0.4 - 20) / 2;
+		botDoor.position.y = (par.height * 0.4 - 20) / 2;
 
 		doorMesh.add(botDoor);
 
-		doorMesh.position.z = this.par.depth - 40;
+		doorMesh.position.z = par.depth - 40;
 		if (isSecondDoor) {
-			doorMesh.position.x = this.par.width;
+			doorMesh.position.x = par.width;
 		}
-		this.add(doorMesh);
+		par.mesh.add(doorMesh);
 
 		return doorMesh;
 	}

@@ -16,12 +16,13 @@ class AdditionalObject extends THREE.Object3D {
 		this.objId = par.id;
 		this.par = par.meshParams;
 		this.calc_price = par.calc_price;
+		this.objPar = par;
 
 		if (this.par.color) this.color = new THREE.Color(this.par.color);
 		if (window.texturesEnabled && window.location.href.indexOf('/customers/') != -1) {
 			this.material = new THREE.MeshMatcapMaterial();
 			this.material.color = this.color;
-			this.matcapTexture = new THREE.TextureLoader().load("/calculator/images/matcap/mate.png");
+			this.matcapTexture = new THREE.TextureLoader().load("/images/calculator/matcap/mate.png");
 			this.material.matcap = this.matcapTexture
 		}else{
 			this.material = new THREE.MeshLambertMaterial({ color: this.color });
@@ -97,13 +98,34 @@ class AdditionalObject extends THREE.Object3D {
 	getObjectMaterial(){
 		if(!window.textureManager) return this.material
 		if (this.par.material == 'металл') {
-			var metalType = 'additionalObjectMetal';
-			if (params.additionalObjectsMetalMaterial == 'хром. сталь' || params.additionalObjectsMetalMaterial ==  'нерж. сталь') metalType = 'inox';
-			return textureManager.createMaterial({name: metalType, color: getMetalColorId(params.additionalObjectsMetalColor), wireframe: false});
+			// var metalType = 'additionalObjectMetal';
+			// // if (params.additionalObjectsMetalMaterial == 'хром. сталь' || params.additionalObjectsMetalMaterial ==  'нерж. сталь') metalType = 'inox';
+			// // return textureManager.createMaterial({name: metalType, color: getMetalColorId(params.additionalObjectsMetalColor), wireframe: false});
+			// if (!params.materials['additionalObjectMetal']) {
+			// 	params.materials['additionalObjectMetal'] = textureManager.createMaterial({name: metalType, color: getMetalColorId(params.additionalObjectsMetalColor), wireframe: false});
+			// }
+			return params.materials['additionalObjectMetal'];
 		}
 		if (this.par.material == 'массив') {
-			return textureManager.createMaterial({name: 'additionalObjectTimber', color: getTimberColorId(params.additionalObjectsTimberColor), wireframe: false});
+			// if (!params.materials['additionalObjectTimber']) {
+			// 	params.materials['additionalObjectTimber'] = textureManager.createMaterial({name: 'additionalObjectTimber', color: getTimberColorId(params.additionalObjectsTimberColor), wireframe: false});
+			// }
+			return params.materials['additionalObjectTimber'];
 		}
+	}
+
+	/**
+	 * Функция отрисовывает объект
+	 */
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
+
+		console.warn('Функция отрисовки не найдена', par);
+		// var mesh = new eval(par.className)();
+		// par.mesh.add(mesh);
+
+		return par;
 	}
 
 	/** возвращает описание объекта.
@@ -116,7 +138,7 @@ class AdditionalObject extends THREE.Object3D {
 		html += '<table class="form_table" style="max-width: 40%"><tbody>'
 		var text = meta.title;
 		meta.inputs.forEach(function(input){
-			if (input && par[input.key] && !input.hidden) {
+			if (input && par[input.key] && !input.hidden && input.printable) {
 				html += '<tr><td>' + input.title + '</td><td>' + par[input.key] + '</td></tr>';
 				// text += '' + input.title + ': ' + par[input.key] + ',';
 			}

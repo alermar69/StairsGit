@@ -48,7 +48,7 @@
 				<div id="textureImg">
 					<div class='walls'>
 						<?php 
-							$dir = '/calculator/images/textures/walls/';
+							$dir = '/images/calculator/textures/walls/';
 							$files = scandir($GLOBALS['ROOT_PATH'].$dir);
 							
 							foreach($files as $key=>$file){
@@ -65,7 +65,7 @@
 					
 					<div class='floor'>
 						<?php 
-							$dir = '/calculator/images/textures/floor/';
+							$dir = '/images/calculator/textures/floor/';
 							$files = scandir($GLOBALS['ROOT_PATH'].$dir);
 							foreach($files as $file){
 								if($file != "." && 

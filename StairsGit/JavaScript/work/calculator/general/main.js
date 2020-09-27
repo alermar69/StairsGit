@@ -46,7 +46,9 @@ $(function () {
 	//добавляем стены
 	addWalls('vl_1', false);//параметры viewportId, isVisible
 	
-	if($("#calcType").val() != "railing" && $("#calcType").val() != "slabs"){
+	var isStaircaseCalc = getCalcTypeMeta().isStaircaseCalc; //является ли текущий расчет расчетом лестницы
+	
+	if(isStaircaseCalc){
 		//добавляем балюстраду
 		addBanister('vl_1');
 
@@ -69,33 +71,28 @@ $(function () {
 	//перерисовка стен при измененнии инпутов формы параметров стен
     $('#nav-walls').delegate('input,select', 'change', function(){
 		getAllInputsValues(params);
-		if($("#calcType").val() != "railing"){
-			drawTopFloor();
-			redrawWalls();
-		}
-		
+		redrawWalls();
+		if(isStaircaseCalc)	drawTopFloor();
 		drawSceneDimensions();
 	});
 	
-	//перерисовка балюстрады при измененнии инпутов формы параметров стен
+	//перерисовка балюстрады при измененнии инпутов формы параметров балюстрады
     $('#nav-banister').delegate('input,select', 'change', function(){
 		getAllInputsValues(params);
-		if($("#calcType").val() != "railing" && typeof drawBanister == "function"){
-			drawBanister();
-		}
+		if(isStaircaseCalc) drawBanister();
 	});
 	
 	
 	//Вызов рассчета геометрии
 	$("#calcGeometry").click(function(){
-		if(params.calcType == 'metal' || params.calcType == 'mono' || params.calcType == 'timber' || params.calcType == 'timber_stock'){
+		if(isStaircaseCalc && params.calcType != "vint"){
 			 calculateGeom();
 			 recalculate();
 		}
 	})
 
 	//задаем начальное положение стен
-	if($("#calcType").val() != "railing" && $("#calcType").val() != "vint"){
+	if(isStaircaseCalc && params.calcType != "vint"){
 		$("#wallPositionX_1").val(-5000);
 		$("#wallPositionX_2").val(-5000);
 		$("#wallPositionX_3").val(1000);
@@ -108,26 +105,16 @@ $(function () {
 		setInputValue("wallLength_3", params.staircaseDiam);
 	}
 	
-	if($("#calcType").val() == "carport"){
-		$("#wallPositionX_1").val(-2500);
-		$("#wallPositionX_2").val(-2500);
-		$("#wallPositionX_3").val(2500);
-		$("#wallPositionX_4").val(-2500);
-		
-		$("#wallPositionZ_1").val(-2500);
-		$("#wallPositionZ_2").val(2500);
-		$("#wallPositionZ_3").val(-2500);
-		$("#wallPositionZ_4").val(-2500);
-	}
+	//стены по умолчанию нулевой толщины
 	
-	if($("#calcType").val() == "carport" || $("#calcType").val() == "railing"){
+	if(!isStaircaseCalc){
 		$("#wallThickness_1").val(0);
 		$("#wallThickness_2").val(0);
 		$("#wallThickness_3").val(0);
 		$("#wallThickness_4").val(0);
 	}
 	
-	if(params.calcType == "mono") {
+	if(!isStaircaseCalc || params.calcType == "mono") {
 		if(params.discountMode == "процент") $("#discountFactor").val(20);
 	}
 	if(params.calcType == "timber" || params.calcType == "timber_stock") {
@@ -151,6 +138,9 @@ $(function () {
 
 function recalculate() {
 	rt1 = performance.now();
+	var isStaircaseCalc = getCalcTypeMeta().isStaircaseCalc; //является ли текущий расчет расчетом лестницы
+	
+	
 	return new Promise(function(resolve, reject){
 		$('#loaderBlock').show({done: function(){
 			try {
@@ -164,17 +154,18 @@ function recalculate() {
 				else if($("#calcType").val() == "sill") drawFunc = drawSills;
 				else if($("#calcType").val() == "sideboard") drawFunc = drawSideboard;
 				else if($("#calcType").val() == "coupe") drawFunc = drawCoupeWr;
+				else if($("#calcType").val() == "objects") drawFunc = drawObjects;
 				else drawFunc = drawStaircase;
 				
 				drawFunc('vl_1', true);
 				redrawWalls();
-
-				if($("#calcType").val() == "railing"){
-					redrawConcrete();
-				}
-				else if($("#calcType").val() != "slabs") {
+				
+				if(isStaircaseCalc){
 					drawTopFloor();
 					drawBanister();
+				}
+				if($("#calcType").val() == "railing"){
+					redrawConcrete();
 				}
 
 				redrawAdditionalObjects();
@@ -187,11 +178,10 @@ function recalculate() {
 					calcWorks(partsAmt_bal, "banister");
 				}
 
-				drawSceneDimensions();
+				if(params.calcType != "objects") drawSceneDimensions();
 				
-				var ignorCals = ["railing", "carport", "veranda", "table", "slabs", "sill", "sideboard", "coupe"]
 				
-				if(ignorCals.indexOf($("#calcType").val()) == -1){
+				if(isStaircaseCalc || params.calcType == "veranda"){
 					printGeomDescr();
 				}
 			
@@ -204,12 +194,14 @@ function recalculate() {
 						if($("#calcType").val() == "vhod" && params.staircaseType == "Готовая"){
 							calculateCarcasPrice_stock();
 							calculateRailingPrice_stock();
-						}else{
+						}else if($("#calcType").val() != "objects"){
 							calculateCarcasPrice();
 							calculateRailingPrice2(); //функция в файле priceLib.js
 						}
-						calculateBanisterPrice(); //функция в файле priceCalcBanister.js
-						calcWrPrice(); //функция в файле /calculator/wardrobe/priceCalc.js
+						if ($("#calcType").val() != "objects") {
+							calculateBanisterPrice(); //функция в файле priceCalcBanister.js
+							calcWrPrice(); //функция в файле /calculator/wardrobe/priceCalc.js
+						}
 					}
 					calculateTotalPrice2(); //функция в файле priceLib.js
 					printPrice2(); //функция в файле priceLib.js
@@ -217,12 +209,13 @@ function recalculate() {
 
 					printMaterialsNeed();
 					calcProductionTime();
-					printWorks2();
+					if($("#calcType").val() != "objects") printWorks2();
 					formatNumbers();
 					printDescr();
 
 				}
 				updateModifyChanges();
+				if ($("#calcType").val() == "objects") staircaseLoaded();
 				resolve();
 			}catch (error) {
 				prepareFatalErrorNotify(error);

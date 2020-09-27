@@ -21,6 +21,14 @@ $(function(){
 							if(this.drawing) obj.drawing = this.drawing;
 							if(this.specId) obj.specId = this.specId;
 							if(this.specParams) obj.specParams = this.specParams;
+							if(this.par) obj.par = this.par;
+							if(this.objPar) obj.objPar = this.objPar;
+							if(this.objId) obj.objId = this.objId;
+							if(this.calc_price) obj.calc_price = this.calc_price;
+							if(this.matcapTexture) obj.matcapTexture = this.matcapTexture;
+							if(this.objectRowClass) obj.objectRowClass = this.objectRowClass;
+							if(this.objectRowId) obj.objectRowId = this.objectRowId;
+
 							return obj;
 						};
 					}

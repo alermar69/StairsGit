@@ -1,4 +1,4 @@
-var imgPath = "/calculator/images/textures";
+var imgPath = "/images/calculator/textures";
 
 function getHandrailMaterial(angle){
 	var color = params.handrailsColor
@@ -875,7 +875,7 @@ function setMaterials(){
 function getTimberDiffuse(timberType){
 	var par = {
 		type: timberType,
-		basePath: '/calculator/images/textures/timber/',
+		basePath: '/images/calculator/textures/timber/',
 		size: {
 			x: 1600,
 			y: 800,

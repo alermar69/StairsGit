@@ -127,14 +127,14 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 		if (basePoint instanceof Array) {
 			var newPoint=[];
 			newPoint[0] = basePoint[0] + deltaX;
-			newPoint[1] = basePoint[1] - deltaX * Math.tan(angle);
+			newPoint[1] = basePoint[1] + deltaX * Math.tan(angle);
 			if(basePoint[2] != "undefined") newPoint[2] = basePoint[2];
 			return newPoint;
 			}
 		if (basePoint instanceof Object) {
 			var newPoint = {};
 			newPoint.x = basePoint.x + deltaX;
-			newPoint.y = basePoint.y - deltaX * Math.tan(angle);
+			newPoint.y = basePoint.y + deltaX * Math.tan(angle);
 			if(basePoint.z != "undefined") newPoint.z = basePoint.z;
 			return newPoint;	
 			}

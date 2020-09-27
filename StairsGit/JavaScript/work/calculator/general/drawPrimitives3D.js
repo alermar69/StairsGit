@@ -272,7 +272,7 @@ function updateModifyChanges(){
 					// 	newShape.lineTo( nextPoint.x, nextPoint.y );
 					// }
 
-					newShape.setFromPoints(par.points)
+					newShape.fromJSON(par.shapeData)
 					node.oldGeometry = node.geometry;
 					node.geometry = new THREE.ExtrudeGeometry(newShape, options);
 					node.geometryChanged = true;
@@ -281,14 +281,14 @@ function updateModifyChanges(){
 		}
 	})
 
-	window.service_data.shapeChanges.forEach(function(change){
-		var fakeShape = new THREE.Shape();
-		for (var i = 0; i < change.points.length; i++) {
-			var point = change.points[i];
-			var nextIndex = i + 1;
-			if (nextIndex > change.points.length - 1) nextIndex = 0;
-			var nextPoint = change.points[nextIndex];
-			addLine(fakeShape,dxfPrimitivesArr,point,nextPoint, {x:0,y:0}, 'default')
-		}
-	})
+	// window.service_data.shapeChanges.forEach(function(change){
+	// 	var fakeShape = new THREE.Shape();
+	// 	for (var i = 0; i < change.points.length; i++) {
+	// 		var point = change.points[i];
+	// 		var nextIndex = i + 1;
+	// 		if (nextIndex > change.points.length - 1) nextIndex = 0;
+	// 		var nextPoint = change.points[nextIndex];
+	// 		addLine(fakeShape,dxfPrimitivesArr,point,nextPoint, {x:0,y:0}, 'default')
+	// 	}
+	// })
 }

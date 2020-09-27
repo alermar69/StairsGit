@@ -85,6 +85,12 @@ $APPLICATION->SetTitle("");
 	</tr>
 
 	<tr>
+		<td class="left">Объекты</td>
+		<td><a href="/calculator/objects/" target="_blank">Открыть</a></td>
+		<td><a href="/manufacturing/objects/" target="_blank">Открыть</a></td>
+	</tr>
+	
+	<tr>
 		<td class="left">Полностью деревянные (архив)</td>
 		<td><a href="/calculator/timber/" target="_blank">Открыть</a></td>
 		<td><a href="/manufacturing/timber/" target="_blank">Открыть</a></td>

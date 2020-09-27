@@ -2,21 +2,40 @@ class Sill extends AdditionalObject {
 	constructor(par) {
 		super(par);
 
-		var sillPar = Object.assign({modifyKey: 'sill:' + this.objId}, this.par)
+		var sillPar = Object.assign({modifyKey: 'sill:' + this.objId}, this.par);
 		sillPar.dxfBasePoint = {x:0,y:0}
-		var drawFunc = drawSillEnv;
-		if(this.par.geom == "эркер") drawFunc = drawOriel
-		var env = drawFunc(sillPar).mesh;
+		this.par.material = 'массив';
+		sillPar.material = this.getObjectMaterial();
+		var mesh = Sill.draw(sillPar).mesh;
+		this.add(mesh);
+	}
+
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
 		
-		this.add(env);
+		var envPar = {};
+		$.extend(true, envPar, par)
+		envPar.material = par.material;
+
+		var drawFunc = drawSillEnv;
+		if(par.geom == "эркер") drawFunc = drawOriel
+		var env = drawFunc(envPar).mesh;
+		
+		par.mesh.add(env);
 		
 		//подоконник
-		if(this.par.geom != "эркер") {
+		if(par.geom != "эркер") {
+			
+			var sillPar = {};
+			$.extend(true, sillPar, par);
 			var sill = drawSill(sillPar).mesh;
-			sill.position.y = this.par.height + 10
-			sill.position.z = this.par.wallThk + this.par.frontNose
-			this.add(sill);
+			
+			sill.position.y = par.height + 10
+			sill.position.z = par.wallThk + par.frontNose
+			par.mesh.add(sill);
 		}
+		return par;
 	}
 
 	static calcPrice(par){
@@ -46,6 +65,60 @@ class Sill extends AdditionalObject {
 	}
 
 	/** STATIC **/
+
+	/** Метод загружает данные слэба в объект */
+	static acceptSlabModel(form,data){
+		// var slabModel = data.slabModel;
+		var par = data.meshParams
+
+		$.get('https://garmonyc-mebel.ru/index.php?route=api/slabs/get&product_model=' + par.slabModel, function(response){
+			console.log(response);
+			if (response &&  response.product) {
+				data.meshParams.slabPrice = response.product.price * 1.0;
+				data.images = response.product.images;
+				additionalObjectParamsShow(data.id);
+				// alert('Данные загружены')
+
+				// uploadPreviews(params.orderName, data.images);
+
+				// var blobs = [];
+				// // Формируем blob
+				// data.images.forEach(function(){
+				// 	fetch(preview.url)
+				// 	.then(function(resp){
+				// 		return resp.blob();
+				// 	})
+				// 	.then(function(blob){
+				// 		blobs.push(resp.blob());
+				// 	})
+				// });
+
+				// $.ajax({
+				// 	url: '/orders/calc-controller/upload-previews',
+				// 	type: 'POST',
+				// 	data: fd,
+				// 	processData: false,
+				// 	contentType: false,
+				// 	success: function(data){
+				// 		if (data == 'ok') {
+				// 			alert('Загрузка данных прошла успешно')
+				// 		}else{
+				// 			alert('Ошибка загрузки данных на сервер')
+				// 		}
+				// 	},
+				// 	error: function(result){
+				// 		console.log('error', result)
+				// 	},
+				// });
+			}else{
+				if(response.error){
+					alert(response.error)
+				}else{
+					alert("Ошибка загрузки данных")
+				}
+			}
+		});
+	}
 
 	static formChange(form, data){
 		var par = data.meshParams
@@ -100,6 +173,16 @@ class Sill extends AdditionalObject {
 			if(par.geom == "подоконный блок") width = par.wallThk + par.frontNose * 2
 			form.find('[data-propid="width"]').val(width)
 		}
+
+		//доклейка снизу
+		form.find(".botPole").hide()
+		if(par.botPoleType != "нет") form.find(".botPole").show()
+		
+		//прааметры слэба
+		form.find(".slab").hide()
+		if(par.matType && par.matType.indexOf("слэб") != -1) form.find(".slab").show()
+
+		
 		getObjPar()
 	}
 
@@ -340,19 +423,22 @@ class Sill extends AdditionalObject {
 					"key": "len",
 					"title": "Длина:",
 					"default": 800,
-					"type": "number"
+					"type": "number",
+					"printable": "true",
 				},
 				{
 					"key": "width",
 					"title": "Ширина:",
 					"default": 300,
-					"type": "number"
+					"type": "number",
+					"printable": "true",
 				},
 				{
 				  "key": "sillThk",
 				  "title": "Толщина:",
 				  "default": 40,
-				  "type": "number"
+				  "type": "number",
+					"printable": "true",
 				},
 				{
 				  "key": "frontNose",
@@ -408,7 +494,8 @@ class Sill extends AdditionalObject {
 						},
 					],
 					"default": "нет",
-					"type": "select"
+					"type": "select",
+					"printable": "true",
 				},
 				{
 					"key": "ventHolesSize",
@@ -447,12 +534,242 @@ class Sill extends AdditionalObject {
 				},
 				{
 					"type": "delimeter",
+					"title": "Производство"
+				},
+				
+				{
+					"key": "shapeType",
+					"title": "Геометрия:",
+					"values": [
+						{
+							"value": "прямоугольник",
+							"title": "прямоугольник"
+						},
+						{
+							"value": "по чертежу",
+							"title": "по чертежу"
+						},
+						{
+							"value": "по шаблону",
+							"title": "по шаблону"
+						},
+					],
+					"default": "прямоугольник",
+					"type": "select",
+					"printable": "true",
+				},
+				
+				{
+					"key": "matType",
+					"title": "Материал:",
+					"values": [
+						{
+							"value": "щит",
+							"title": "щит"
+						},
+						{
+							"value": "шпон",
+							"title": "шпон"
+						},
+						{
+							"value": "слэб цельный",
+							"title": "слэб цельный"
+						},
+						{
+							"value": "слэб со склейкой",
+							"title": "слэб со склейкой"
+						},
+						{
+							"value": "слэб + стекло",
+							"title": "слэб + стекло"
+						},
+						{
+							"value": "слэб + смола непрозр.",
+							"title": "слэб + смола непрозр."
+						},
+						{
+							"value": "слэб + смола прозр.",
+							"title": "слэб + смола прозр."
+						},
+					],
+					"default": "щит",
+					"type": "select",
+					"printable": "true",
+				},
+				
+				{
+					"key": "edgeGeomTop",
+					"title": "Фаска сверху:",
+					"values": [
+						{
+							"value": "не указано",
+							"title": "не указано"
+						},
+						{
+							"value": "1 ребро",
+							"title": "1 ребро"
+						},
+						{
+							"value": "3 ребра",
+							"title": "3 ребра"
+						},
+						{
+							"value": "все ребра",
+							"title": "все ребра"
+						},
+						{
+							"value": "по чертежу",
+							"title": "по чертежу"
+						},
+						{
+							"value": "по шаблону",
+							"title": "по шаблону"
+						},
+					],
+					"default": "не указано",
+					"type": "select",
+					"printable": "true",
+				},
+				
+				{
+					"key": "edgeModel",
+					"title": "Тип фаски:",
+					"values": [
+						{
+							"value": "не указано",
+							"title": "не указано"
+						},
+						{
+							"value": "скругление R3",
+							"title": "скругление R3"
+						},
+						
+						{
+							"value": "скругление R6",
+							"title": "скругление R6"
+						},
+						{
+							"value": "скругление R12",
+							"title": "скругление R12"
+						},
+						{
+							"value": "скругление R25",
+							"title": "скругление R25"
+						},
+						{
+							"value": "фигурная Ф-1",
+							"title": "фигурная Ф-1"
+						},
+						{
+							"value": "фигурная Ф-2",
+							"title": "фигурная Ф-2"
+						},
+						{
+							"value": "фигурная Ф-3",
+							"title": "фигурная Ф-3"
+						},
+						{
+							"value": "фигурная Ф-4",
+							"title": "фигурная Ф-4"
+						},
+						{
+							"value": "фигурная Ф-5",
+							"title": "фигурная Ф-5"
+						},
+						{
+							"value": "фигурная Ф-6",
+							"title": "фигурная Ф-6"
+						},
+						{
+							"value": "фигурная Ф-7",
+							"title": "фигурная Ф-7"
+						},
+						{
+							"value": "фигурная Ф-8",
+							"title": "фигурная Ф-8"
+						},
+						{
+							"value": "фаска 6х45гр",
+							"title": "фаска 6х45гр"
+						},
+						{
+							"value": "фаска 12х45гр",
+							"title": "фаска 12х45гр"
+						},
+
+					],
+					"default": "не указано",
+					"type": "select",
+					"printable": "true",
+				},
+				
+				{
+					"key": "botPoleType",
+					"title": "Доклейка по толщине:",
+					"values": [
+						{
+							"value": "нет",
+							"title": "нет"
+						},
+						{
+							"value": "спереди",
+							"title": "спереди"
+						},
+						{
+							"value": "3 ребра",
+							"title": "3 ребра"
+						},
+						{
+							"value": "по чертежу",
+							"title": "по чертежу"
+						},
+						
+					],
+					"default": "нет",
+					"type": "select",
+					"printable": "true",
+				},
+				
+				{
+					"key": "botPoleThk",
+					"title": "Толщина доклейки:",
+					"default": "20",
+					"class": "botPole",
+					"type": "number",
+				},
+				
+				{
+					"key": "botPoleWidth",
+					"title": "Ширина доклейки:",
+					"default": "100",
+					"class": "botPole",
+					"type": "number"
+				},
+				
+				
+				{
+					"type": "delimeter",
 					"title": "Цена"
 				},
 				{
 					"key": "slabPrice",
 					"title": "Цена слэба",
+					"class": "slab",
 					"type": "number"
+					
+				},
+				{
+					"key": "slabModel",
+					"title": "Номер слэба(garmonyc-mebel)",
+					"type": "text",
+					"class": "slab",
+					"printable": "true",
+				},
+				{
+					"key": "acceptSlabModel",
+					"title": "Загрузить данные слэба",
+					"class": "slab",
+					"type": "action"
 				},
 				{
 					key: 'priceFactor',

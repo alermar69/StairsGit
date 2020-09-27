@@ -996,6 +996,8 @@ function changeAllForms() {
 	if (textureManager) {
 		textureManager.updateMaterials();
 	}
+
+	if (changeOrderForm) changeOrderForm();
 }
 
 function configDinamicInputs() {

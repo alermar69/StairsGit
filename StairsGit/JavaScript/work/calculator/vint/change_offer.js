@@ -34,16 +34,16 @@ function changeOffer(){
 	"<div id='stairsImage'>";
 	
 	if (treadsMaterial == 'береза' || treadsMaterial == "береза паркет."){
-		complect += "<a href='/calculator/images/stairs/002.jpg' rel='fancy'><img src='/calculator/images/stairs/002.jpg' width='300px'></a>";
+		complect += "<a href='/images/calculator/stairs/002.jpg' rel='fancy'><img src='/images/calculator/stairs/002.jpg' width='300px'></a>";
 	}
 	if (treadsMaterial == 'дуб'){
-		complect += "<a href='/calculator/images/stairs/003.jpg' rel='fancy'><img src='/calculator/images/stairs/003.jpg' width='300px'></a>";
+		complect += "<a href='/images/calculator/stairs/003.jpg' rel='fancy'><img src='/images/calculator/stairs/003.jpg' width='300px'></a>";
 	}
 	if (treadsMaterial == 'рифленая сталь'){
-		complect += "<a href='/calculator/images/stairs/005.jpg' rel='fancy'><img src='/calculator/images/stairs/005.jpg' width='300px'></a>";
+		complect += "<a href='/images/calculator/stairs/005.jpg' rel='fancy'><img src='/images/calculator/stairs/005.jpg' width='300px'></a>";
 	}
 	if (treadsMaterial == 'лотки под плитку'){
-		complect += "<a href='/calculator/images/stairs/007.jpg' rel='fancy'><img src='/calculator/images/stairs/007.jpg' width='300px'></a>";
+		complect += "<a href='/images/calculator/stairs/007.jpg' rel='fancy'><img src='/images/calculator/stairs/007.jpg' width='300px'></a>";
 	}
 
 	if(treadsMaterial == 'дуб' || treadsMaterial == 'береза' || treadsMaterial == "береза паркет."){
@@ -69,9 +69,9 @@ function changeOffer(){
 		"<h3 id='railingHeader'>Ограждения</h3>" +
 		"<div id='railingImage'>";
 	if(treadsMaterial == 'дуб' || treadsMaterial == 'береза')
-		complect += "<a href='/calculator/images/vint/1.png' rel='fancy'><img src='/calculator/images/vint/1.png' width='300px'></a>";
+		complect += "<a href='/images/calculator/vint/1.png' rel='fancy'><img src='/images/calculator/vint/1.png' width='300px'></a>";
 	else
-		complect += "<a href='/calculator/images/vint/6.png' rel='fancy'><img src='/calculator/images/vint/6.png' width='300px'></a>";
+		complect += "<a href='/images/calculator/vint/6.png' rel='fancy'><img src='/images/calculator/vint/6.png' width='300px'></a>";
 
 	complect += "</div>" +
 		"<ul class='galka'>" + 

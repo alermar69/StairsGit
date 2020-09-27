@@ -2,7 +2,7 @@
 */
 
 function getLayersList(){
-	var notStairs = ['wardrobe', 'wardrobe_2', 'carport', 'table', 'slabs', 'sill', 'sideboard', 'coupe'];
+	var notStairs = getCalcTypeMeta().notStairs;
 	var layers = {
 		treads: {
 			name: "Ступени",
@@ -210,4 +210,17 @@ function getLayersByGroup(group){
 		}
 	});
 	return layers;
+}
+
+/** функция возвращает дополнительные сведенья о типе расчета
+**/
+function getCalcTypeMeta(){
+	var par = {};
+	par.calcType = $("#calcType").val();
+	par.notStairs = ['railing', 'wardrobe', 'wardrobe_2', 'carport', 'table', 'slabs', 'sill', 'sideboard', 'coupe', 'objects'];
+	
+	par.isStaircaseCalc = true;
+	if(par.notStairs.indexOf(par.calcType) != -1) par.isStaircaseCalc = false;
+	
+	return par;	
 }

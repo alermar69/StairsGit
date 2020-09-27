@@ -5,13 +5,22 @@ class Shelf extends AdditionalObject {
 		var shelfPar = Object.assign({}, this.par)
 		shelfPar.dxfBasePoint = {x:0,y:0}
 
-		var shelfObj = drawShelfTower(shelfPar);
-		this.add(shelfObj.carcas);
-		this.add(shelfObj.panels);
-		this.add(shelfObj.countertop);
+		this.add(Shelf.draw(shelfPar).mesh);
 	}
 
 	/** STATIC **/
+
+	static draw(par){
+		if(!par) par = {};
+		initPar(par);
+
+		var shelfObj = drawShelfTower(par);
+		par.mesh.add(shelfObj.carcas);
+		par.mesh.add(shelfObj.panels);
+		par.mesh.add(shelfObj.countertop);
+
+		return par
+	}
 
 	static formChange(form, data){
 		var par = data.meshParams
@@ -54,6 +63,7 @@ class Shelf extends AdditionalObject {
 		var meshPar = par.meshParams;
 		var dopSpec = partsAmt_dop[par.id];
 		var cost = 0;
+		var metalPart = 0;
 
 		if (dopSpec) {
 			console.log(meshPar)
@@ -77,7 +87,7 @@ class Shelf extends AdditionalObject {
 			
 			//покраска
 			var area = meshPar.height * meshPar.depth / 1000000
-			if(meshPar.carcasModel == "бруски" || meshPar.carcasModel == "кресты") cost += area * timberPaintCost
+			if(meshPar.carcasModel == "бруски" || meshPar.carcasModel == "панели") cost += area * timberPaintCost
 			else cost += area * 500;
 			
 			//полки
@@ -85,13 +95,16 @@ class Shelf extends AdditionalObject {
 			//материал
 			var vol = meshPar.width * meshPar.depth * meshPar.shelfThk * meshPar.shelfAmt / 1000000000;
 			cost += vol * timberM3Cost
-			debugger
+			
+			//доля металлического цеха в цене
+			if(meshPar.carcasModel == "проф. труба" || meshPar.carcasModel == "кресты") metalPart = 0.5;			
 		}
 		return {
 			name: par.name || this.getMeta().title,
 			cost: cost,
 			priceFactor: meshPar.priceFactor || 1,
-			costFactor: meshPar.costFactor || 1
+			costFactor: meshPar.costFactor || 1,
+			metalPart: metalPart,
 		}
 	}
 
@@ -122,43 +135,50 @@ class Shelf extends AdditionalObject {
 							title: 'панели'
 						},
 						
-					]
+					],
+					"printable": "true",
 				},
 				{
 					key: 'height',
 					title: 'Высота',
 					default: 1500,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'width',
 					title: 'Ширина',
 					default: 700,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'depth',
 					title: 'Глубина',
 					default: 400,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'shelfAmt',
 					title: 'Кол-во полок',
 					default: 4,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'shelfThk',
 					title: 'Толщина полок',
 					default: 20,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'sideOverhang',
 					title: 'Свес сбоку',
 					default: 20,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'edgeRad',
@@ -204,7 +224,8 @@ class Shelf extends AdditionalObject {
 							value: '80х40',
 							title: '80х40'
 						}
-					]
+					],
+					"printable": "true",
 				},
 				{
 					key: 'bridgeProf',
@@ -244,7 +265,8 @@ class Shelf extends AdditionalObject {
 							value: '80х40',
 							title: '80х40'
 						}
-					]
+					],
+					"printable": "true",
 				},
 				{
 					key: 'topOffset',

@@ -50,7 +50,7 @@ function complectDescription(){
 	if (stairModel == "П-образная трехмаршевая") carcasImage = "005.jpg";
 	if (stairModel == "Прямая двухмаршевая" || stairModel == "Прямая с промежуточной площадкой" ||
 		stairModel == "Прямая горка") carcasImage = "001.jpg";
-	$('#carcasImage').html("<a href='/calculator/images/carcas/" + carcasImage + "' rel='fancy'><img src='/calculator/images/carcas/" + carcasImage + "' width='300px'></a>");
+	$('#carcasImage').html("<a href='/images/calculator/carcas/" + carcasImage + "' rel='fancy'><img src='/images/calculator/carcas/" + carcasImage + "' width='300px'></a>");
 
 	carcasText_3 = "Каркас остается видимым, подчеркивая оригинальность дизайна;";
 	if (metalPaint == "нет") carcasText_4 = "Детали каркаса поставляются зачищенными и подготовленными под покраску;";

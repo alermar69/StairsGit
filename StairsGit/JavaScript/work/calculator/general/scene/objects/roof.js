@@ -23,7 +23,11 @@ class Roof extends AdditionalObject{
 
 		sectParams = drawRoofObj(sectParams);
 
-		obj.add(sectParams.mesh);
+		obj.add(Roof.draw(sectParams).mesh);
+	}
+
+	static draw(par){
+		return drawRoofObj(par)
 	}
 
 	static calcPrice(par){

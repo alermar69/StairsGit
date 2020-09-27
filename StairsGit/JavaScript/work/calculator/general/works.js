@@ -7,12 +7,15 @@ $(function () {
 	
 	//печать активной вкладки с расчетом трудоемкости/расценок
 	$("#production_data").delegate("#printWorksTab-btn", "click", function(){
-		var text = $("#production_data .tab-pane.active").html();
-		console.log(text)
+		var $activeTab = $("#production_data .tab-pane.active")
+		var text = $activeTab.html();
+		if($activeTab.attr("id") == "works_metal" || $activeTab.attr("id") == "works_timber"){
+			text = $("#descr").html() + text + $("#materialNeed").html();
+		}
 		
-		var docHeader = "<!DOCTYPE html><html><head><title>Расчет трудоемкости заказа " + params.orderName + "</title><link rel='stylesheet' type='text/css' href='/bitrix/templates/calc/styles.css'></head><body>" + 
+		var docHeader = "<!DOCTYPE html><html><head><title>Расчетная трудоемкость заказа " + params.orderName + "</title><link rel='stylesheet' type='text/css' href='/bitrix/templates/calc/styles.css'></head><body>" + 
 		"<div class='documentDiv'>\
-			<h2>Расчет трудоемкости заказа " + params.orderName + "</h2>";
+			<h2>Расчетная трудоемкость заказа " + params.orderName + "</h2>";
 		var docFooter = "</body></html>"
 		
 		var mywindow = window.open('', '_blank'); 
@@ -235,7 +238,7 @@ workList = {
 		amtId: "sumLength",
 		amtName: "м.п.",
 		startTime: 30,
-		unitTime: 60 * 8 * 2 / 3, //3 метра за полный день двух человек
+		unitTime: 60 * 8 * 2 / 6, //6 метров за полный день двух человек
 		amt: 0,
 		}
 		

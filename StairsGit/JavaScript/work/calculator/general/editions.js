@@ -793,7 +793,7 @@ function setTreadDescr(par){
 		if (metalPaint == "автоэмаль") stairsText_4 = "Рамки ступеней шпаклюются, шлифуются и покрываются высокоглянцевой автомобильной эмалью;";
 	}
 	
-	par.imgLink = "/calculator/images/stairs/" + stairsImage;
+	par.imgLink = "/images/calculator/stairs/" + stairsImage;
 	
 	if(params.calcType == "slabs") return par
 	
@@ -1032,7 +1032,7 @@ function setRailingDescr(){
 		if (timberPaint == "морилка+лак") railingText_6 = "Деревянные детали ограждений тонируются в выбранный Вами цвет и покрываются лаком";
 	}
 
-	var railingImgPath = "/calculator/images/railing/lt/";
+	var railingImgPath = "/images/calculator/railing/lt/";
 	if (railingModel == "Экраны лазер") railingImgPath = "/images/calculator/railing/laser/";
 
 	$('#railingHeader').html(railingHeader);

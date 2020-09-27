@@ -1,8 +1,7 @@
 class Winder extends AdditionalObject{
 	constructor(par){
 		super(par);
-		var size = this.par.size;
-		
+
 		var sectParams = {
 			dxfArr: [],
 			dxfBasePoint: {
@@ -30,10 +29,12 @@ class Winder extends AdditionalObject{
 
 		//общие параметры
 		sectParams.material = this.material;
-
-		sectParams = drawConcreteTurn(sectParams);
 		
-		this.add(sectParams.mesh);
+		this.add(Winder.draw(sectParams).mesh);
+	}
+
+	static draw(par){
+		return drawConcreteTurn(par);
 	}
 
 	static getMeta(){

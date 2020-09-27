@@ -40,13 +40,13 @@ if(params.calcType == "vhod"){
 	$("#topPltRailing_tr").hide();
 	if (params.platformTop == "площадка") {
 		$("#topPltRailing_tr").show();
-		$("#railingPltImg").attr("src","/calculator/images/vhod/railingPlt_1.png");
+		$("#railingPltImg").attr("src","/images/calculator/vhod/railingPlt_1.png");
 		$("#topPltRailing_6").closest("li").hide();
 		}
 	if (params.platformTop == "увеличенная") {
 		$("#topPltRailing_tr").show();
-		$("#railingPltImg").attr("src","/calculator/images/vhod/railingPlt_2.png");
-		if(params.turnSide == "левое") $("#railingPltImg").attr("src","/calculator/images/vhod/railingPlt_3.png");
+		$("#railingPltImg").attr("src","/images/calculator/vhod/railingPlt_2.png");
+		if(params.turnSide == "левое") $("#railingPltImg").attr("src","/images/calculator/vhod/railingPlt_3.png");
 		$("#topPltRailing_6").closest("li").show();
 		}
 	}

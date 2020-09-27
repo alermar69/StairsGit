@@ -273,7 +273,7 @@ function drawSill(par){
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var mesh = new THREE.Mesh(geom, params.materials.timber);
+	var mesh = new THREE.Mesh(geom, params.materials.additionalObjectTimber || params.materials.timber);
 	if(par.modifyKey) mesh.modifyKey = par.modifyKey;
 	mesh.rotation.x = -Math.PI / 2;
 	par.mesh.add(mesh);
@@ -524,7 +524,7 @@ function drawOriel(par){
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var mesh = new THREE.Mesh(geom, params.materials.timber);
+	var mesh = new THREE.Mesh(geom, params.materials.additionalObjectTimber || params.materials.timber);
 	if(par.modifyKey) mesh.modifyKey = par.modifyKey;
 	mesh.rotation.x = -Math.PI / 2;
 	mesh.position.y = par.height;
