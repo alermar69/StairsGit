@@ -516,12 +516,12 @@ function draw3DDimensions(par){
 	if (params.calcType == 'vint' && window.vintStaircaseMoove) {
 		var dimPar = {
 			p1: {
-				x: window.vintStaircaseMoove.x,
+				x: window.vintStaircaseMoove.x + params.staircasePosX,
 				y: params.staircaseHeight,
-				z: window.vintStaircaseMoove.z,
+				z: window.vintStaircaseMoove.z + params.staircasePosZ,
 			},
 			p2: {
-				x: window.vintStaircaseMoove.x,
+				x: window.vintStaircaseMoove.x + params.staircasePosX,
 				y: params.staircaseHeight,
 				z: 0,
 			},
@@ -540,12 +540,12 @@ function draw3DDimensions(par){
 			p1: {
 				x: 0,
 				y: params.staircaseHeight,
-				z: window.vintStaircaseMoove.z,
+				z: window.vintStaircaseMoove.z + params.staircasePosZ,
 			},
 			p2: {
-				x: window.vintStaircaseMoove.x,
+				x: window.vintStaircaseMoove.x + params.staircasePosX,
 				y: params.staircaseHeight,
-				z: window.vintStaircaseMoove.z,
+				z: window.vintStaircaseMoove.z + params.staircasePosZ,
 			},
 			offset: 100,
 			basePlane: 'xy',

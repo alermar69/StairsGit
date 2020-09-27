@@ -136,7 +136,7 @@ function drawColumn(par){
 		par.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -500);
 		var flanParams = {
 			width: 100,
-			holeDiam: 18,
+			holeDiam: 15,
 			holeDiam5: 0,
 			angleRadUp: 10,
 			angleRadDn: 10,
@@ -157,7 +157,7 @@ function drawColumn(par){
 
 		flanParams.isFixPart = true; // болты крепления к стенам
 		flanParams.fixPar = getFixPart(par.marshId); // параметры крепления к стенам
-		flanParams.holeDiam = flanParams.fixPar.diam + 2; 
+		//flanParams.holeDiam = flanParams.fixPar.diam + 2; 
 
 		//добавляем фланец
 		flanParams = drawRectFlan(flanParams);
@@ -322,7 +322,7 @@ function drawColumn(par){
 		var flanFix = new THREE.Object3D();
 		var flanParams = {
 			width: 200,
-			holeDiam: 18,
+			holeDiam: 15,
 			holeDiam5: 0,
 			angleRadUp: 10,
 			angleRadDn: 10,
@@ -343,7 +343,7 @@ function drawColumn(par){
 
 		flanParams.isFixPart = true; // болты крепления к стенам
 		flanParams.fixPar = getFixPart(par.marshId); // параметры крепления к стенам
-		flanParams.holeDiam = flanParams.fixPar.diam + 2; 
+		//flanParams.holeDiam = flanParams.fixPar.diam + 2; 
 
 		//добавляем фланец
         flanParams = drawRectFlan(flanParams);
@@ -1195,6 +1195,7 @@ function drawHorPlate(par) {
 			frontOffset: -params.nose,
 			pointsHole: points,
 			cornerRad: par.cornerRad,
+
 		}
 		var tread = drawTreadNotchMono(treadPar);
 		//tread.position.x = -params.nose;// par.frontOffset;
@@ -1221,6 +1222,7 @@ function drawHorPlates(par) {
 	var gap = 1; //зазор от торца пластины до вертикальных пластин косоура
 	var gapPlates = 20; //зазор между пластинами
 	var holeOffset = 40;
+	var gapPockets = 2;
 
 	if (par.frontOff && params.treadLigts !== 'нет') par.frontOff -= 10;
 
@@ -1574,7 +1576,43 @@ function drawHorPlates(par) {
 					}
 				}
 
-				var arr = [p1, p2, p3, p4];
+				var arr = [p1];
+
+				//добавляем вырез под подложку
+				if (params.treadPlatePockets !== "нет") {
+					if (params.stairModel !== "П-образная с площадкой") {
+
+						var len = params.M / 2 - par.width / 2 - gap - 5 -10;
+
+						var ph0 = { x: 0, y: 0 };
+						var ph1 = newPoint_xy(ph0, 0, par.width / 2);
+						var ph2 = newPoint_xy(ph1, len, 0);
+						var ph3 = newPoint_xy(ph2, 0, -par.width);
+						var ph4 = newPoint_xy(ph1, 0, -par.width);
+						var pointsHole = [ph1, ph2, ph3, ph4]
+
+						basePoint = newPoint_xy(ph0,
+							params.M / 2 - len - gap,
+							(turnParams.turnLengthTop - turnParams.topMarshOffsetX) / 2 - 5);
+						if (turnFactor == -1) {
+							basePoint.x *= -1;
+							basePoint.x -= len;
+						}
+						pointsHole = moovePoints(pointsHole, basePoint);
+
+						var pk1 = newPoint_xy(pointsHole[2], gapPockets, -gapPockets)
+						var pk2 = newPoint_xy(pointsHole[1], gapPockets, gapPockets)
+
+						var p11 = itercection(p1, p2, pk1, polar(pk1, 0, 100))
+						var p21 = itercection(p1, p2, pk2, polar(pk2, 0, 100))
+
+						pk1.filletRad = pk2.filletRad = par.cornerRad;
+
+						arr.push(p11, pk1, pk2, p21)
+					}
+				}
+
+				arr.push(p2, p3, p4)
 
 				var shapePar = {
 					points: arr,
@@ -1588,6 +1626,10 @@ function drawHorPlates(par) {
 			if (params.treadPlatePockets !== "нет") {
 				//добавляем отверстия под подложки
 				var pointsHole = points.concat();
+				pointsHole[0] = newPoint_xy(pointsHole[0], -gapPockets, -gapPockets);
+				pointsHole[1] = newPoint_xy(pointsHole[1], -gapPockets, gapPockets);
+				pointsHole[2] = newPoint_xy(pointsHole[2], gapPockets, gapPockets);
+				pointsHole[3] = newPoint_xy(pointsHole[3], gapPockets, -gapPockets);
 				//plate.position.x += (par.height + gapPlates) * j;
 				if (j > 0) {
 					var basePoint = { x: 0, y: (par.height + gapPlates) * j + par.frontOffset };
@@ -1619,40 +1661,45 @@ function drawHorPlates(par) {
 				drawHoleTreadLigts(holeParams);
 			}
 
-			if (params.treadPlatePockets !== "нет") {
-				if (j == count - 1) {
-					if (params.stairModel !== "П-образная с площадкой") {
+			//if (params.treadPlatePockets !== "нет") {
+			//	if (j == count - 1) {
+			//		if (params.stairModel !== "П-образная с площадкой") {
 
-						var len = params.M / 2 - par.width / 2 - 5 - gap;
+			//			var len = params.M / 2 - par.width / 2 - 5 - gap;
 
-						var p0 = { x: 0, y: 0 };
-						var p1 = newPoint_xy(p0, 0, par.width / 2);
-						var p2 = newPoint_xy(p1, len, 0);
-						var p3 = newPoint_xy(p2, 0, -par.width);
-						var p4 = newPoint_xy(p1, 0, -par.width);
-						var pointsHole = [p1, p2, p3, p4]
+			//			var p0 = { x: 0, y: 0 };
+			//			var p1 = newPoint_xy(p0, 0, par.width / 2);
+			//			var p2 = newPoint_xy(p1, len, 0);
+			//			var p3 = newPoint_xy(p2, 0, -par.width);
+			//			var p4 = newPoint_xy(p1, 0, -par.width);
+			//			var pointsHole = [p1, p2, p3, p4]
+
+			//			pointsHole[0] = newPoint_xy(pointsHole[0], -gapPockets, gapPockets);
+			//			pointsHole[1] = newPoint_xy(pointsHole[1], gapPockets, gapPockets);
+			//			pointsHole[2] = newPoint_xy(pointsHole[2], gapPockets, -gapPockets);
+			//			pointsHole[3] = newPoint_xy(pointsHole[3], -gapPockets, -gapPockets);
 
 
-						basePoint = newPoint_xy(p0,
-							params.M / 2 - len - gap,
-							(turnParams.turnLengthTop - turnParams.topMarshOffsetX) / 2 - 5);
-						if (turnFactor == -1) {
-							basePoint.x *= -1;
-							basePoint.x -= len;
-						}
-						pointsHole = moovePoints(pointsHole, basePoint);
+			//			basePoint = newPoint_xy(p0,
+			//				params.M / 2 - len - gap,
+			//				(turnParams.turnLengthTop - turnParams.topMarshOffsetX) / 2 - 5);
+			//			if (turnFactor == -1) {
+			//				basePoint.x *= -1;
+			//				basePoint.x -= len;
+			//			}
+			//			pointsHole = moovePoints(pointsHole, basePoint);
 
-						var holeParams = {
-							vertexes: pointsHole,
-							cornerRad: par.cornerRad,
-							dxfPrimitivesArr: par.dxfArr,
-							dxfBasePoint: par.dxfBasePoint
-						}
-						if (turnFactor == -1) holeParams.clockwise = false;
-						shapeTread.holes.push(topCoverCentralHole(holeParams));
-					}
-				}
-			}
+			//			var holeParams = {
+			//				vertexes: pointsHole,
+			//				cornerRad: par.cornerRad,
+			//				dxfPrimitivesArr: par.dxfArr,
+			//				dxfBasePoint: par.dxfBasePoint
+			//			}
+			//			if (turnFactor == -1) holeParams.clockwise = false;
+			//			shapeTread.holes.push(topCoverCentralHole(holeParams));
+			//		}
+			//	}
+			//}
 
 
 			// создаем меш
@@ -1704,6 +1751,8 @@ function drawHorPlatesPlatformBot(par) {
 	var gap = 1; //зазор от торца пластины до вертикальных пластин косоура
 	var gapPlates = 20; //зазор между пластинами
 	var holeOfsset = 40;
+	var gapPockets = 2;
+
 	var p0 = { x: 0, y: 0 };
 
 	var lenTread = turnParams.turnLengthTop;
@@ -2333,6 +2382,10 @@ function drawHorPlatesPlatformBot(par) {
 				}
 				for (var i = 0; i < pointsHoleTreadPlate.length; i++) {
 					holeParams.vertexes = pointsHoleTreadPlate[i];
+					holeParams.vertexes[0] = newPoint_xy(holeParams.vertexes[0], -gapPockets, -gapPockets);
+					holeParams.vertexes[1] = newPoint_xy(holeParams.vertexes[1], -gapPockets, gapPockets);
+					holeParams.vertexes[2] = newPoint_xy(holeParams.vertexes[2], gapPockets, gapPockets);
+					holeParams.vertexes[3] = newPoint_xy(holeParams.vertexes[3], gapPockets, -gapPockets);
 					shapeTread.holes.push(topCoverCentralHole(holeParams));
 				}
 			}
@@ -5030,7 +5083,7 @@ function drawMonoFlan(par) {
 			addHolesMonoFlan(flanPar);
 
 			var boltLenTemp = boltLen;
-			boltLen = 40;
+			boltLen = 30;
 			flanPar.mirrowBolts = true;
 			flanPar.dzBolt = 24;
 			var flan = drawRectFlan2(flanPar).mesh;
@@ -8505,6 +8558,7 @@ function drawTreadNotchMono(par) {
 	}
 
 	var thk = par.thk;
+	var gap = 2;
 
 	//создаем контур пластины для создания Object3D
 	var p0 = { x: 0, y: 0 };
@@ -8513,7 +8567,24 @@ function drawTreadNotchMono(par) {
 	var p3 = newPoint_xy(p2, par.length, 0);
 	var p4 = newPoint_xy(p1, par.length, 0);
 
-	var points = [p1, p2, p3, p4]
+	var points = [p1, p2]
+
+	//добавляем вырез под подложку
+	if (params.treadPlatePockets !== "нет" && par.pointsHole.length > 0) {
+		var pt1 = newPoint_xy(par.pointsHole[0], -gap, -gap)
+		var pt2 = newPoint_xy(par.pointsHole[par.pointsHole.length - 1], gap, -gap)
+
+		var p21 = itercection(p2, p3, pt1, polar(pt1, Math.PI / 2, 100))
+		var p31 = itercection(p2, p3, pt2, polar(pt2, Math.PI / 2, 100))
+
+		pt1.filletRad = pt2.filletRad = par.cornerRad;
+
+		points.push(p21, pt1, pt2, p31)
+	}
+
+	points.push(p3, p4)
+
+	points.reverse()
 
 	var shapePar = {
 		points: points,
@@ -8523,16 +8594,16 @@ function drawTreadNotchMono(par) {
 
 	var shape = drawShapeByPoints2(shapePar).shape;
 
-	if (params.treadPlatePockets !== "нет") {
-		var holeParams = {
-			vertexes: par.pointsHole,
-			cornerRad: par.cornerRad,
-			dxfPrimitivesArr: par.dxfArr,
-			dxfBasePoint: par.dxfBasePoint
-		}
+	//if (params.treadPlatePockets !== "нет") {
+	//	var holeParams = {
+	//		vertexes: par.pointsHole,
+	//		cornerRad: par.cornerRad,
+	//		dxfPrimitivesArr: par.dxfArr,
+	//		dxfBasePoint: par.dxfBasePoint
+	//	}
 
-		if (par.pointsHole.length > 0) shape.holes.push(topCoverCentralHole(holeParams));
-	}
+	//	if (par.pointsHole.length > 0) shape.holes.push(topCoverCentralHole(holeParams));
+	//}
 
 	if (params.treadLigts !== 'нет') {
 		var holeParams = {
@@ -9186,4 +9257,162 @@ function setDistHoleTurn(numberTurn, turnParams) {
 
 		return { in: distance(pt2In, pt1In) - 70, out: distance(pt2Out, pt1Out) - 70 }
 	}
+}
+
+
+/*
+ * Соединительные фланцы разделения косоура
+ */
+function drawDivideFlans(par) {
+
+	par.mesh = new THREE.Object3D();
+
+	var flanPar = {
+		width: par.width,
+		len: par.length,
+		thk: par.thk,
+		thkConnectPlate: 8,
+		lenConnectPlate: 60,
+		heightConnectPlate: 50,
+		holeRad: 19 / 2,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+	}
+
+	if (par.pointCurrentSvg) {
+		flanPar.drawing = {
+			name: "Фланец соединения косоуров",
+			group: "carcasPlates",
+			marshId: par.marshId,
+			basePoint: newPoint_xy(par.pointCurrentSvg, -par.pointStartSvg.x + 300, -par.pointStartSvg.y - 300),
+		}
+	}
+
+	//нижний фланец
+	var flan = drawDivideFlan(flanPar).mesh;
+	flan.rotation.y = Math.PI / 2;
+	par.mesh.add(flan);
+
+	//верхний фланец
+	if (par.pointCurrentSvg) flanPar.drawing.basePoint.x += flanPar.len + 100
+	flanPar.dxfBasePoint.x += flanPar.len + 100;
+	flanPar.isBolt = true;
+	flanPar.isConnectPlate = true;
+	var flan = drawDivideFlan(flanPar).mesh;
+	flan.rotation.y = -Math.PI / 2;
+	par.mesh.add(flan);
+
+	return par;
+}
+
+/** функция отрисовывает соединительный фланец разделения косоура
+*@params par = {
+	holeCenters: [] - все отверстия фланца, включая угловые
+	botLeft - центр левого нижнего отверстия
+	botRight - центр правого нижнего отверстия
+	topLeft - центр верхнего левого
+	topRight - центр верхнего правого
+	key - тип фланца middle или top
+	side: right || left
+	}
+*@returns par.mesh
+*/
+function drawDivideFlan(par) {
+
+	par.mesh = new THREE.Object3D();
+
+	var p0 = { x: 0, y: 0 };
+
+	var p1 = newPoint_xy(p0, -par.len / 2, 0);
+	var p2 = newPoint_xy(p1, 0, par.width);
+	var p3 = newPoint_xy(p2, par.len, 0.0);
+	var p4 = newPoint_xy(p1, par.len, 0.0);
+	var points = [p1, p2, p3, p4];
+
+	//отверстия для болтов
+	var holes = [];
+	var offsetHoleX = 25;
+	var offsetHoleY = 20;
+	holes.push(newPoint_xy(p1, offsetHoleX, offsetHoleY));
+	holes.push(newPoint_xy(p4, -offsetHoleX, offsetHoleY));
+	holes.push(newPoint_xy(p1, par.len / 2, offsetHoleY));
+	holes.push(newPoint_xy(p2, offsetHoleX, -offsetHoleY));
+	holes.push(newPoint_xy(p3, -offsetHoleX, -offsetHoleY));
+	holes.push(newPoint_xy(p2, par.len / 2, -offsetHoleY));
+	for (var i = 0; i < holes.length; i++) {
+		holes[i].rad = par.holeRad;
+	}
+
+	//отверстие под соединительную пластину фланцев
+	var thkConnectPlate = par.thkConnectPlate + 2;
+	var lenConnectPlate = par.lenConnectPlate + 2;
+	var pt1 = newPoint_xy(p1, par.len / 2 - lenConnectPlate / 2, par.width / 2 - thkConnectPlate / 2);
+	var pt2 = newPoint_xy(pt1, 0, thkConnectPlate);
+	var pt3 = newPoint_xy(pt2, lenConnectPlate, 0);
+	var pt4 = newPoint_xy(pt1, lenConnectPlate, 0);
+	var pointsHole = [pt1, pt4, pt3, pt2, pt1];
+
+
+	var meshPar = {
+		points: points,
+		thk: par.thk,
+		holes: holes,
+		pointsHole: pointsHole,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 200, 0),
+	}
+
+	if (par.drawing) meshPar.drawing = par.drawing;
+
+
+
+	var flan = drawMesh(meshPar).mesh;
+	par.mesh.add(flan);
+
+	if (par.isConnectPlate) {
+		var p1 = newPoint_xy(p0, -par.lenConnectPlate / 2, 0);
+		var p2 = newPoint_xy(p1, 0, par.heightConnectPlate);
+		var p3 = newPoint_xy(p2, par.lenConnectPlate, 0.0);
+		var p4 = newPoint_xy(p1, par.lenConnectPlate, 0.0);
+		p2.filletRad = p3.filletRad = 10;
+		var points = [p1, p2, p3, p4];
+
+		var meshPar = {
+			points: points,
+			thk: par.thkConnectPlate,
+			dxfArr: par.dxfArr,
+			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -100),
+		}
+
+		var plate = drawMesh(meshPar).mesh;
+		plate.rotation.x = Math.PI / 2;
+		plate.position.y = par.width / 2 + par.thkConnectPlate / 2;
+		plate.position.z = -par.thkConnectPlate / 2;
+		par.mesh.add(plate)
+	}
+	
+
+	//болты
+	if (typeof anglesHasBolts != "undefined" && anglesHasBolts &&par.isBolt) {
+		var boltPar = {
+			diam: 16,
+			len: 40,
+			//headType: "потай",
+		}
+
+		for (var i = 0; i < holes.length; i++) {
+			var bolt = drawBolt(boltPar).mesh;
+
+			bolt.rotation.x = -Math.PI / 2;
+			bolt.position.x = holes[i].x;
+			bolt.position.z = -boltLen / 2;
+			bolt.position.y = holes[i].y;
+
+			par.mesh.add(bolt);
+		}
+	}
+
+	
+
+	return par;
 }

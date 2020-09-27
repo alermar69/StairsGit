@@ -16,8 +16,8 @@ function drawStrightTruss(par){
 
 	//внешний контур
 	var p1 = {x: 0, y: 0}
-	var p2 = {x: 0, y: par.height}
-	var p3 = {x: par.len, y: par.height}
+	var p2 = { x: 0, y: par.height - 4} //4 - толщина нижней полки швеллера
+	var p3 = { x: par.len, y: par.height - 4 } //4 - толщина нижней полки швеллера
 	var p4 = {x: par.len, y: 0}
 
 	//создаем шейп
@@ -68,6 +68,7 @@ function drawStrightTruss(par){
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var truss = new THREE.Mesh(geom, params.materials.metal);
+	truss.position.y = 4; //4 - толщина нижней полки швеллера
 	truss.position.z = -par.flanWidth / 2 - partPar.truss.thk;
 	if(par.isLeft) truss.position.z = par.flanWidth / 2
 	par.mesh.add(truss);
@@ -98,7 +99,7 @@ function drawStrightTruss(par){
 	
 	var stripe = drawPole3D_4(stripeParTop).mesh;
 	stripe.position.x = 0
-	stripe.position.y = par.height
+	stripe.position.y = par.height;
 	stripe.position.z = posZ
 	par.mesh.add(stripe);
 	stripe.setLayer('carcas');
@@ -108,10 +109,10 @@ function drawStrightTruss(par){
 //фланцы крепления к колоннам
 
 	var columnFlanPar = calcColumnFlanPar();
-	var holeOffset = (par.height - partPar.beam.holeDist) / 2;
+	var holeOffset = (par.height - partPar.beam.holeDist) / 2 ;
 	
 	var flanPar = {
-		height: par.height,
+		height: par.height - 4,  //4 - толщина нижней полки швеллера,
 		width: par.flanWidth,
 		thk: columnFlanPar.thk,
 		//cornerRad: 20,
@@ -120,14 +121,15 @@ function drawStrightTruss(par){
 		dxfPrimitivesArr: par.dxfPrimitivesArr,
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -500),
 		roundHoleCenters: [
-			{x: par.flanWidth / 2, y: holeOffset},
-			{x: par.flanWidth / 2, y: par.height - holeOffset},
+			{ x: par.flanWidth / 2, y: holeOffset - stripeParTop.poleProfileY},
+			{ x: par.flanWidth / 2, y: par.height - holeOffset - stripeParTop.poleProfileY},
 		],
 	}
 	
 	var startFlan = drawRectFlan2(flanPar).mesh;
 	startFlan.rotation.y = Math.PI / 2;
 	startFlan.position.z = flanPar.width / 2;
+	startFlan.position.y = truss.position.y;
 	par.mesh.add(startFlan);
 	
 	flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.len, -500);
@@ -135,6 +137,7 @@ function drawStrightTruss(par){
 	endFlan.rotation.y = Math.PI / 2;
 	endFlan.position.x = par.len - flanPar.thk;
 	endFlan.position.z = flanPar.width / 2;
+	endFlan.position.y = truss.position.y;
 	par.mesh.add(endFlan);
 
 	var box3 = new THREE.Box3().setFromObject(truss);

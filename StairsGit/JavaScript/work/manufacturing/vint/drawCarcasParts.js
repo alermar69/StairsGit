@@ -747,6 +747,7 @@ function drawVintTreadShape(par) {
 				division: "metal",
 				workUnitName: "area", //единица измерения
 				group: "Каркас",
+				comment: "ЧПУ, по чертежу"
 			}
 			if (partName == 'vintTreadTop') specObj[partName].name = 'Накладка ступени' + params.treadsMaterial;
 			if (type == "timber" || partName == 'vintTreadTop') {
@@ -899,6 +900,7 @@ function drawVintPlatform(par) {
 	};
 
 	topPlateParams = drawVintPlatformShape(par);
+	par.lengthConnection = topPlateParams.lengthConnection
 
 	var shape = topPlateParams.shape;
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
@@ -1580,7 +1582,8 @@ function drawVintPlatformShape(par) {
 		}
 
 		if (par.platformType == "square") {
-			/*рассчитываем координаты точек*/
+		/*рассчитываем координаты точек*/
+			var platformLedgeM = params.platformLedgeM + (92 - 76); //92 - габарит декоративная крышка, 76 - габарит  фланца
 			var p0 = {
 				x: 0,
 				y: 0,
@@ -1598,11 +1601,11 @@ function drawVintPlatformShape(par) {
 				y: params.staircaseDiam / 2 + params.platformLedge,
 			}
 			var p4 = {
-				x: params.staircaseDiam / 2 + params.platformLedgeM,
+				x: params.staircaseDiam / 2 + platformLedgeM,
 				y: params.staircaseDiam / 2 + params.platformLedge,
 			}
 			var p5 = {
-				x: params.staircaseDiam / 2 + params.platformLedgeM,
+				x: params.staircaseDiam / 2 + platformLedgeM,
 				y: 0,
 			}
 			var p6 = {
@@ -1845,7 +1848,8 @@ function drawVintPlatformShape(par) {
 		}
 
 		if (par.platformType == "square") {
-			/*рассчитываем координаты точек*/
+		/*рассчитываем координаты точек*/
+		var platformLedgeM = params.platformLedgeM + (92 - 76); //92 - габарит декоративная крышка, 76 - габарит  фланца
 			var p0 = {
 				x: 0,
 				y: 0
@@ -1861,12 +1865,12 @@ function drawVintPlatformShape(par) {
 			}
 
 			var p4 = {
-				x: stairRad + params.platformLedgeM,
+				x: stairRad + platformLedgeM,
 				y: stairRad + params.platformLedge,
 			}
 
 			var p5 = {
-				x: stairRad + params.platformLedgeM,
+				x: stairRad + platformLedgeM,
 				y: p1.y,
 			}
 
@@ -3946,14 +3950,27 @@ function drawHolderVint() {
 	if (typeof anglesHasBolts != "undefined" && anglesHasBolts) { //глобальная переменная
 		var boltPar = {
 			diam: 6,
-			len: 30,
-			headType: "внутр. шестигр. плоск. гол.",
+			len: 20,
+			headType: " внутр. шестигр. плоск. гол.",
+			noNut: true,
 		}
 
-		var bolt = drawBolt(boltPar).mesh;
+		var bolt = drawVint(boltPar).mesh;
 		bolt.position.x = 10;
 		bolt.rotation.z = -Math.PI / 2;
 		complexObject1.add(bolt)
+
+		var nutParams = {
+			diam: 6,
+			len: 15,
+			shimThk: 1,
+		}
+
+		var nut = drawNutEricson(nutParams).mesh;
+		nut.rotation.z = -Math.PI / 2;
+		nut.position.y = -10;
+		nut.position.z = 12 / 2;
+		if (!testingMode) complexObject1.add(nut)
 	}
 
 

@@ -759,7 +759,7 @@ function drawBalSection(par) {
 						handrailParams.length -= (40 - handrailProfileZ) / 2;
 						if (par.connection == 'две стороны') {
 							if (par.sectId == 0 || par.sectId > 0 && $('#banisterSectionDirection' + par.sectId).val() !== $('#banisterSectionDirection' + (par.sectId - 1)).val()) {
-								handrailParams.length -= handrailProfileZ / 2;
+								handrailParams.length -= handrailProfileZ / 2 + 10;
 							}
 						}
 					}
@@ -808,7 +808,7 @@ function drawBalSection(par) {
 			}
 
 			if (params.calcType == 'vint') {
-				pos.y = -rackOffsetY + params.handrailHeight_bal - handrailPar.profY - 25 + 42;//42 высота кронштейна
+				pos.y = -rackOffsetY + params.handrailHeight_bal - handrailPar.profY - 25 + 42 - 16;//42 высота кронштейна
 				if (params.handrail_bal == "Ф50 нерж." || params.handrail_bal == 'ПВХ') {
 					pos.y += handrailPar.profY / 2;
 				}
@@ -841,7 +841,8 @@ function drawBalSection(par) {
 				if (par.connection == 'конец' || par.connection == 'две стороны') {
 					var jointParams = {
 						rad: 25,
-						dxfBasePoint: handrailParams.dxfBasePoint
+						dxfBasePoint: handrailParams.dxfBasePoint,
+						handrail: params.handrail_bal,
 					}
 
 					var sphere = drawHandrailJoint(jointParams);
@@ -858,7 +859,8 @@ function drawBalSection(par) {
 				if ((par.sectId == 0 && (par.connection == 'начало' || par.connection == 'две стороны')) || par.sectId > 0 && ($('#banisterSectionDirection' + (par.sectId - 1)).val() !== 'начало' && $('#banisterSectionDirection' + (par.sectId - 1)).val() == 'две стороны')) {
 					var jointParams = {
 						rad: 25,
-						dxfBasePoint: handrailParams.dxfBasePoint
+						dxfBasePoint: handrailParams.dxfBasePoint,
+						handrail: params.handrail_bal,
 					}
 
 					var sphere = drawHandrailJoint(jointParams);
@@ -907,6 +909,11 @@ function drawBalSection(par) {
 			if(params.railingModel_bal == "Самонесущее стекло"){
 				if(params.glassFix_bal == "рутели") handrailParams.length += 200;
 				if(params.glassFix_bal == "профиль") handrailParams.length -= 100;
+			}
+			if (handrailParams.cutBasePlane == 'top') {
+				handrailParams.cutBasePlane = false;
+				handrailParams.startAngle = Math.PI / 2;
+				handrailParams.endAngle = Math.PI / 2;
 			}
 			handrailParams.poleAngle = -Math.PI / 2
 			var pole = drawHandrail_4(handrailParams).mesh;
@@ -1162,7 +1169,7 @@ function drawBalSection(par) {
 	//сохраняем данные для спецификации
 
 	if (railingModel == "Кованые балясины" || railingModel == "Кресты") {
-
+		sectionLength += 40; //40 - размер стойки
 		var partName = "forgedSection";
 		if (typeof specObj != 'undefined') {
 			if (!specObj[partName]) {

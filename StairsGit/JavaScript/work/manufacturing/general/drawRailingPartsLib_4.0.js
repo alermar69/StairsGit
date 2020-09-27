@@ -207,6 +207,15 @@ function drawRack3d_4(par) {
 			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, len - 90),
 			isForge: false,
 		}
+		if (specObj.unit == "banister") {
+			holderParams.isForge = true;
+			holderParams.railingModel = params.railingModel_bal;
+			if (holderParams.railingModel == "Решетка") {
+				holderParams.railingModel = "Кованые балясины";
+				//params.banister1_bal = "20х20";
+				//params.banister2_bal = "20х20";
+			}
+		}
 		var holder = drawHandrailHolder(holderParams).mesh;
 		holder.position.x = 0;
 		holder.position.y = len - 90;
@@ -776,10 +785,13 @@ function drawRackPlug(material){
 function drawRackHolder(par) {
 	var mesh = new THREE.Object3D();
 	var profSize = 40;
+	var profSizeX = 41;
 	var holderWidth = 80;
 	var plateThk = 4;
 	var holeOffset = 10;
 	var sidePlateLen = params.sideOverHang + profSize / 2;
+
+	var dxfBasePoint = newPoint_xy(par.dxfBasePoint, 50, 0);
 
 	var platePoints = [];
 
@@ -796,7 +808,7 @@ function drawRackHolder(par) {
 	var shapePar = {
 		points: platePoints,
 		dxfArr: dxfPrimitivesArr,
-		dxfBasePoint: par.dxfBasePoint
+		dxfBasePoint: dxfBasePoint,
 		//markPoints: true,
 	}
 
@@ -826,7 +838,7 @@ function drawRackHolder(par) {
 	var plate = new THREE.Mesh(geom, params.materials.metal_railing);
 
 	plate.rotation.y = -Math.PI / 2;
-	plate.position.x = - profSize / 2;
+	plate.position.x = - profSizeX / 2;
 	plate.position.z = plateThk - sidePlateLen;
 	mesh.add(plate);
 
@@ -834,19 +846,21 @@ function drawRackHolder(par) {
 
 	plate = new THREE.Mesh(geom, params.materials.metal_railing);
 	plate.rotation.y = -Math.PI / 2;
-	plate.position.x = profSize / 2 + plateThk;
+	plate.position.x = profSizeX / 2 + plateThk;
 	plate.position.z = plateThk - sidePlateLen;
 	mesh.add(plate);
 
+	dxfBasePoint = newPoint_xy(dxfBasePoint, sidePlateLen + 50, 0);
+
 	var flanPar = {
 		height: holderWidth,
-		width: profSize,
+		width: profSizeX,
 		thk: 4,
 		holeRad: 6.5,
 		roundHoleCenters: [],
 		noBolts: true,
 		material: params.materials.metal_railing,
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, sidePlateLen + 50, 0),
+		dxfBasePoint: dxfBasePoint,
 	}
 
 	var hole1 = {
@@ -865,7 +879,7 @@ function drawRackHolder(par) {
 	mesh.add(flan);
 
 	// часть прилегающая к стойке
-	flanPar.dxfBasePoint.x += flanPar.width;
+	flanPar.dxfBasePoint.x += flanPar.width + 50;
 	flanPar.width = profSize + 20;
 	hole1 = {
 		x: flanPar.width / 2,
@@ -2618,6 +2632,9 @@ function drawHandrailJoint(par) {
 	addCircle(trashShape, dxfPrimitivesArr, { x: 0, y: 0 }, par.rad, par.dxfBasePoint);
 
 	//сохраняем данные для спецификации
+	var handrail = params.handrail;
+	if (par.handrail) handrail = par.handrail;
+
 	var partName = par.type;
 	if (typeof specObj != 'undefined') {
 		if (!specObj[partName]) {
@@ -2631,7 +2648,7 @@ function drawHandrailJoint(par) {
 				workUnitName: "amt",
 				group: "Ограждения",
 			}
-			if (params.handrail == "ПВХ") specObj[partName].name = "Шарнир внешн. под ПВХ";
+			if (handrail == "ПВХ") specObj[partName].name = "Шарнир внешн. под ПВХ";
 			if (par.type == "rigelJoint") specObj[partName].name = "Шарнир ригеля внешн.";
 		}
 		var name = "Ф50";
@@ -3708,6 +3725,7 @@ function drawHandrailPorfile_4(par) {
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var pole = new THREE.Mesh(geom, par.material);
 	pole.rotation.x = Math.PI / 2;
+	//if (par.poleAngle) pole.rotation.y += par.poleAngle;
 	pole.position.y = par.profHeight;
 	pole.position.z = -50;//par.profWidth / 2;
 	par.mesh.add(pole);

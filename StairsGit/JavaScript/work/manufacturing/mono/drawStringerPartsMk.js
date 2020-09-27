@@ -141,7 +141,10 @@ function drawStringerMk(par) {
 				var topPoints = par.pointsShape.slice(index);
 				topPoints.unshift(pt2)
 
-				shapePar.drawing.isDivide = true;
+				var heightTopStringer = sizeShape(topPoints).dimY;
+
+				//shapePar.drawing.isDivide = true;
+				shapePar.drawing.basePointOffY = heightTopStringer;
 				shapePar.points = botPoints;
 				par.stringerShapeBot = drawShapeByPoints2(shapePar).shape;
 
@@ -157,9 +160,12 @@ function drawStringerMk(par) {
 					key: par.key,
 					marshId: par.marshId,
 				}
+				shapePar.drawing.isDivide = true;
 				if (par.key == "in") shapePar.drawing.in = true;
-				shapePar.drawing.basePoint = newPoint_xy(pt1, -par.pointsShape[2].x, -par.pointsShape[2].y),
-					shapePar.points = topPoints;
+				var pointStartSvg = copyPoint(par.pointsShape[1]);
+				var pointCurrentSvg = copyPoint(pt2);
+				shapePar.drawing.basePoint = newPoint_xy(pointCurrentSvg, -pointStartSvg.x - (pt2.x - pt1.x), -pointStartSvg.y + heightTopStringer);
+				shapePar.points = topPoints;
 				par.stringerShapeTop = drawShapeByPoints2(shapePar).shape;
 
 				par.pDivideBot = pt2;
@@ -2317,4 +2323,20 @@ function addPointsRecessFramePlatform(p, pos, par) {
 		par.pointsShape.push(p3);
 		par.pointsShape.push(p4);
 	}
+}
+
+function sizeShape(points) {
+	var minX = points[0].x;
+	var minY = points[0].y;
+	var maxX = points[0].x;
+	var maxY = points[0].y;
+
+	for (var i = 0; i < points.length; i++) {
+		if (points[i].x > maxX) maxX = points[i].x
+		if (points[i].x < minX) minX = points[i].x
+		if (points[i].y > maxY) maxY = points[i].y
+		if (points[i].y < minY) minY = points[i].y
+	}
+
+	return { dimX: maxX - minX, dimY: maxY - minY }
 }

@@ -136,6 +136,8 @@ function drawDrums(par){
 		var botFlanThk = 8;
 		var middleFlanThk = 4;
 
+		var botFloorType = params.botFloorType;
+
 		var cylParams = {
 			diam: par.columnDiam,
 			holeDiam: par.columnDiam - 8,
@@ -939,6 +941,7 @@ function drawPlatform(par){
 	if (params.stairType == "рифленая сталь" || params.stairType == "лотки под плитку") {
 		vintPlatformParams.type = "metal";
 	}
+	if (vintPlatformParams.type == "metal" && params.stairType !== 'рамки') vintPlatformParams.material = params.materials.metal;
 
 	//отрисовываем площадку
 	vintPlatformParams = drawVintPlatform(vintPlatformParams)

@@ -1870,6 +1870,20 @@ function drawMesh(par) {
 		dxfBasePoint: par.dxfBasePoint,
 	}
 
+	if (par.drawing) {
+		shapePar.drawing = {
+			name: par.drawing.name,
+			group: par.drawing.group,
+			marshId: par.drawing.marshId,
+		}
+		if (par.drawing.location) shapePar.drawing.location = par.drawing.location
+		if (par.drawing.basePoint) shapePar.drawing.basePoint = par.drawing.basePoint
+		if (par.drawing.isRotate) shapePar.drawing.baseLine = { p1: p1, p2: p2 }
+		if (par.drawing.isCount) shapePar.drawing.isCount = par.drawing.isCount;
+		if (par.drawing.pointStartSvg) shapePar.drawing.pointStartSvg = par.drawing.pointStartSvg;
+		if (par.drawing.pointCurrentSvg) shapePar.drawing.pointCurrentSvg = par.drawing.pointCurrentSvg;
+	}
+
 	par.shape = drawShapeByPoints2(shapePar).shape;
 
 	if (par.holes) {

@@ -530,7 +530,7 @@ function drawTurnStep(par){
 				type_comments: {}
 			}
 		}
-		var name = 0;
+		var name = '';
 
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;

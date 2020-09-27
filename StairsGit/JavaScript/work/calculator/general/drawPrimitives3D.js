@@ -24,7 +24,7 @@ function drawPlate(par) {
 	if (!par.layer) par.layer = "parts";
 
 
-	var mesh = new THREE.Object3D();
+	par.mesh = new THREE.Object3D();
 
 	var shape = new THREE.Shape();
 	var p1 = { x: 0, y: 0 }
@@ -61,10 +61,37 @@ function drawPlate(par) {
 		//extrudeOptions.bevelSegments = 12;
 	}
 
+	if (par.isTreadLigts) extrudeOptions.amount -= par.treadLigtsThk;
+
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	par.mesh = new THREE.Mesh(geom, par.material);
+	var mesh = new THREE.Mesh(geom, par.material);
+	par.mesh.add(mesh)
 	par.shape = shape;
+
+	// добавляем часть ступени с вырезом под подсветку ступеней
+	if (par.isTreadLigts) {
+		extrudeOptions.amount = par.treadLigtsThk;
+
+		var hole = new THREE.Path();
+		var ph1 = newPoint_xy(p2, par.offsetSide, -par.offsetFront);
+		var ph2 = newPoint_xy(ph1, 0, -par.widthLigts);
+		var ph4 = newPoint_xy(p3, -par.offsetSide, -par.offsetFront);
+		var ph3 = newPoint_xy(ph4, 0, -par.widthLigts);
+
+		addLine(hole, par.dxfArr, ph1, ph2, par.dxfBasePoint);
+		addLine(hole, par.dxfArr, ph2, ph3, par.dxfBasePoint);
+		addLine(hole, par.dxfArr, ph3, ph4, par.dxfBasePoint);
+		addLine(hole, par.dxfArr, ph4, ph1, par.dxfBasePoint);
+
+		shape.holes.push(hole)
+
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var mesh = new THREE.Mesh(geom, par.material);
+		mesh.position.z = par.thk - par.treadLigtsThk;
+		par.mesh.add(mesh)
+	}
 
 	if (par.modifyKey) {
 		par.mesh.modifyKey = par.modifyKey;//Object.assign({}, par.modifyParams);

@@ -1007,8 +1007,12 @@ function drawGlassSectionMetal(par) {
 		}
 		
 		//компенсируем наклонный срез поручня
-		if (params.handrailFixType == "паз" && params.handrailEndType == 'под углом' && !(marshPar.lastMarsh && params.handrailEndHor == "да")) {
+		if (params.handrailFixType == "паз" && params.handrailEndType == 'под углом' && !(marshPar.lastMarsh && params.handrailEndHor == "да") && par.key == 'out') {
 			handrailParams.extraLengthEnd += (meterHandrailPar.profY - par.handrailSlotDepth) * Math.tan(marshPar.ang)// par.handrailSlotDepth;
+		}
+
+		if (par.key == 'in' && params.startVertHandrail == "есть" && nextMarshParams.hasRailing.in && !marshPar.lastMarsh) {
+			handrailParams.extraLengthEnd = 0;
 		}
 		
 	

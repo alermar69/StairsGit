@@ -522,7 +522,11 @@ function checkSpec(callback){
 	text += "Ошибки в числах: " + localResult + "<br/>";
 	
 //проверка количества ступеней
-	if (params.stairType != 'дпк' && params.stairType != 'лиственница тер.'){
+	var isTestTread = true;
+	if (params.stairType != 'дпк' && params.stairType != 'лиственница тер.') isTestTread = false;
+	if (params.calcType != "railing") isTestTread = false;
+
+	if (isTestTread){
 	
 		var calcTreadAmt = params.stairAmt1;
 		if(params.stairModel != "Прямая") calcTreadAmt += params.stairAmt3;
@@ -600,7 +604,7 @@ function checkSpec(callback){
 		if (params.stairType == 'нет') calcTreadAmt = 0;
 
 		if (params.stairType == 'нет' && params.startTreadAmt !== 0) {
-			calcTreadAmt += params.startTreadAmt;
+			//calcTreadAmt += params.startTreadAmt;
 		}
 
 		var specTreadAmt = getPartAmt("tread") + getPartAmt("notchedTread") + getPartAmt("startTread");

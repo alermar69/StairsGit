@@ -1496,7 +1496,36 @@ function drawComplexStringer(par) {
 				par.flans.add(flan);
 			}
 
-	        if (pointCurrentSvgTmp1) {
+			//Соединительные фланцы
+			if (par.pDivideBot) {
+				dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.pDivideBot.x + 100, par.pDivideBot.y);
+
+				var flanPar = {
+					marshId: par.marshId,
+					length: par.stringerWidth - params.metalThickness * 2,
+					width: distance(par.pDivideBot, par.pDivideTop),
+					dxfBasePoint: dxfBasePoint,
+					dxfArr: dxfPrimitivesArr,
+					ang: marshParams.ang, 
+					thk: 4,
+					name: "Фланец соединения косоуров",
+				};
+				flanPar.width -= params.metalThickness + params.metalThickness / Math.sin(marshParams.ang) + flanPar.thk / Math.sin(marshParams.ang);
+				flanPar.pointCurrentSvg = newPoint_xy(par.pDivideBot, 50, 0);
+				flanPar.pointStartSvg = copyPoint(par.stepPoints[0]);
+				if (par.isBigFloor) flanPar.pointStartSvg = copyPoint(par.pointsShape[2]);// при большой разнице чистового и чернового пола
+
+				var flan = drawDivideFlans(flanPar).mesh;
+				var pt = polar(par.pDivideBot, marshParams.ang + Math.PI / 2, params.metalThickness);
+				flan.position.x = sidePlate2.position.x + pt.x;
+				flan.position.y += sidePlate2.position.y + pt.y;// -flanParams.height +holOffZapTop;
+				//flan.rotation.y += Math.PI / 2;
+				flan.rotation.z = marshParams.ang;
+
+				par.flans.add(flan);
+			}
+
+			if (pointCurrentSvgTmp1) {
 		        pointCurrentSvgTmp = copyPoint(pointCurrentSvgTmp1);
 		        pointStartSvgTmp = copyPoint(pointStartSvgTmp1);
 	        }

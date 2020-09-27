@@ -230,7 +230,8 @@ function drawStaircase(viewportId, isVisible) {
 		platformLedge: platformLedge,
 		edgeAngle: edgeAngle,
 		platformDepth: platformDepth,
-		strightPartHeight: strightPartHeight1
+		strightPartHeight: strightPartHeight1,
+		staircaseHeight: staircaseHeight
 	};
 	var treads = addVintTreads(mainParams).mesh;
 	model.add(treads, 'treads');
@@ -305,6 +306,8 @@ function drawStaircase(viewportId, isVisible) {
 	}
 	
 	window.vintStaircaseMoove = moove;
+	//window.vintStaircaseMoove.x += params.staircasePosX;
+	//window.vintStaircaseMoove.z += params.staircasePosZ * 2;
 
 	for (var i = 0; i < model.objects.length; i++) {
 		var obj = model.objects[i].obj;

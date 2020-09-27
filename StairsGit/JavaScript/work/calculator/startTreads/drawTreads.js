@@ -357,7 +357,7 @@ function drawStartTread(par) {
 	var treadPar = getTreadParams(); //функция в файле calcSpecGeneral.js
 
 	var partName = "startTread";
-	if (typeof specObj != 'undefined') {
+	if (typeof specObj != 'undefined' && params.stairType !== "нет") {
 		if (!specObj[partName]) {
 			specObj[partName] = {
 				types: {},
@@ -560,7 +560,7 @@ function drawStartRiser(par) {
 	var treadPar = getTreadParams(); //функция в файле calcSpecGeneral.js
 	var sizeB = params.h1 - params.treadThickness
 	var partName = "riser_arc";
-	if (typeof specObj != 'undefined') {
+	if (typeof specObj != 'undefined' && params.stairType !== "нет") {
 		if (!specObj[partName]) {
 			specObj[partName] = {
 				types: {},

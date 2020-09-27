@@ -311,13 +311,16 @@ function drawDimensions(par){
 	par.height = b.height;
 	par.width = b.width;
 	
-	var rect = drawRect({x: b.x, y: -b.y}, b.width, b.height, draw).attr({
-		fill: "none",
-		stroke: "#555",
-		"stroke-width": 1,
-	})
-	rect.setClass("other");
-	if(!par.isNotFrame) par.set.push(rect);
+	
+	if (!par.isNotFrame) {
+		var rect = drawRect({ x: b.x, y: -b.y }, b.width, b.height, draw).attr({
+			fill: "none",
+			stroke: "#555",
+			"stroke-width": 1,
+		})
+		rect.setClass("other");
+		par.set.push(rect)
+	};
 	//базовые точки размеров
 	var p1 = {x: b.x, y: -b.y}
 	var p2 = newPoint_xy(p1, b.width, 0)

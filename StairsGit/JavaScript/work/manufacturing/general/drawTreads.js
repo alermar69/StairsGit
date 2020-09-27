@@ -402,7 +402,7 @@ function drawTreads() {
     lastMarshEnd.z += topStepDelta * Math.sin(-lastMarshEnd.rot);
 
     if (!params.treadPlatePockets) params.treadPlatePockets = 'нет';
-	if (params.treadPlatePockets !== 'нет' || params.treadLigts !== 'нет') {
+	if (params.calcType == "mono" && (params.treadPlatePockets !== 'нет' || params.treadLigts !== 'нет')) {
 		var pocketDepth = 10;
 
 		treadsGroup.traverse(function(node){
@@ -497,6 +497,9 @@ function drawMarshTreads2(par) {
 			material: params.materials.tread,
 			partName: "tread"
 		};
+
+		getTreadLigtsParams(plateParams) //параметры подсветки ступеней
+
 		//коррекция толщины
 		if (params.stairType == "лотки" || params.stairType == "рифленая сталь") plateParams.thk = 4;
 		if (params.stairType == "лотки") plateParams.width -= plateParams.thk * 2 + 0.1;
@@ -1123,6 +1126,7 @@ function drawPlatform2(par) {
 		}
 		if (params.stairType == 'дпк' || params.stairType == "лиственница тер." ) {
 			// plateParams.material = params.materials.dpc;
+			plateParams.partName = "dpc";
 			plateParams.dxfArr = [];
 		}
 		if (params.stairType == 'лотки') {
@@ -1703,6 +1707,10 @@ function drawWndTread1(par) {
 
 	var marshPar = getMarshParams(par.marshId);
 
+	par.mesh = new THREE.Object3D();
+
+	getTreadLigtsParams(par) //параметры подсветки ступеней
+
 	var path = calcWndTread1Points(par);
 
 	//зеркалим третью ступень
@@ -1774,6 +1782,8 @@ function drawWndTread1(par) {
 	//лотки
 	if (params.stairType == "лотки" || params.stairType == "рифленая сталь") extrudeOptions.amount = 4;
 
+	if (par.isTreadLigts) extrudeOptions.amount -= par.treadLigtsThk;
+
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	if (par.treadId == 3) {
@@ -1784,10 +1794,51 @@ function drawWndTread1(par) {
 		angle: par.edgeAngle,
 		treadId: par.treadId,
 	}
-	par.mesh = mesh;
+	if (par.isTreadLigts) mesh.position.z = par.treadLigtsThk;
+	par.mesh.add(mesh);
 	par.mesh.modifyKey = 'wndTread:' + par.marshId + ':' + par.treadId;
 	//сохраняем параметр
 	par.stepWidthHi = distance(path.keyPoints[0], path.keyPoints[1]);
+
+	// добавляем часть ступени с вырезом под подсветку ступеней
+	if (par.isTreadLigts) {
+		extrudeOptions.amount = par.treadLigtsThk;
+
+		var hole = new THREE.Path();
+
+		if (par.treadId == 1) {
+			var ph1 = newPoint_xy(points1[0], par.offsetSide * turnFactor, par.offsetFront);
+			var ph2 = newPoint_xy(ph1, 0, par.widthLigts);
+			var ph4 = newPoint_xy(points1[points1.length - 1], -par.offsetSide * turnFactor, par.offsetFront);
+			var ph3 = newPoint_xy(ph4, 0, par.widthLigts);
+		}
+		if (par.treadId == 3) {
+			var lineF1 = parallel(points1[1], points1[2], -par.offsetFront)
+			var lineF2 = parallel(points1[1], points1[2], -par.offsetFront - par.widthLigts)
+			var lineS1 = parallel(points1[0], points1[1], par.offsetSide * turnFactor)
+			var lineS2 = parallel(points1[2], points1[3], -par.offsetSide * turnFactor)
+			var ph1 = itercectionLines(lineF1, lineS1);
+			var ph2 = itercectionLines(lineF1, lineS2);
+			var ph3 = itercectionLines(lineF2, lineS2);
+			var ph4 = itercectionLines(lineF2, lineS1);
+		}
+
+		addLine(hole, dxfPrimitivesArr, ph1, ph2, par.dxfBasePoint);
+		addLine(hole, dxfPrimitivesArr, ph2, ph3, par.dxfBasePoint);
+		addLine(hole, dxfPrimitivesArr, ph3, ph4, par.dxfBasePoint);
+		addLine(hole, dxfPrimitivesArr, ph4, ph1, par.dxfBasePoint);
+
+		shape.holes.push(hole)
+
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		if (par.treadId == 3) {
+			geom.rotateUV(-par.edgeAngle * turnFactor);
+		}
+		var mesh = new THREE.Mesh(geom, params.materials.tread);
+		//mesh.position.z = par.thk - par.treadLigtsThk;
+		par.mesh.add(mesh)
+	}
 
 	//производственная информация для вывода в dxf
 
@@ -1890,6 +1941,10 @@ function drawWndTread2(par) {
         stepOffsetY
     */
 
+    par.mesh = new THREE.Object3D();
+
+    getTreadLigtsParams(par) //параметры подсветки ступеней
+
 	//необязательные параметры
 	if (!par.outerOffsetX) par.outerOffsetX = 0;
 	if (!par.outerOffsetY) par.outerOffsetY = 0;
@@ -1956,6 +2011,8 @@ function drawWndTread2(par) {
 	//лотки
 	if (params.stairType == "лотки" || params.stairType == "рифленая сталь") extrudeOptions.amount = 4;
 
+	if (par.isTreadLigts) extrudeOptions.amount -= par.treadLigtsThk;
+
 	//signKeyPoints(wndTreadParams.signKeyPoints, par.dxfBasePoint);
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 
@@ -1966,8 +2023,41 @@ function drawWndTread2(par) {
 		angle: par.angleX,
 		treadId: 2,
 	}
-	par.mesh = mesh;
+	if (par.isTreadLigts) mesh.position.z = par.treadLigtsThk;
+	par.mesh.add(mesh);
 	par.mesh.modifyKey = 'wndTread:' + par.marshId + ':2';
+
+	// добавляем часть ступени с вырезом под подсветку ступеней
+	if (par.isTreadLigts) {
+		extrudeOptions.amount = par.treadLigtsThk;
+
+		var hole = new THREE.Path();
+
+		var lineF1 = parallel(points1[0], points1[1], par.offsetFront)
+		var lineF2 = parallel(points1[0], points1[1], par.offsetFront + par.widthLigts)
+		var lineS1 = parallel(points1[1], points1[2], par.offsetSide)
+		if (par.hasTurnRack) lineS1 = parallel(points1[1], points1[2], par.offsetSide * turnFactor)
+		var lineS2 = parallel(points1[0], points1[points1.length-1], par.offsetSide)
+		var ph1 = itercectionLines(lineF1, lineS1);
+		var ph2 = itercectionLines(lineF1, lineS2);
+		var ph3 = itercectionLines(lineF2, lineS2);
+		var ph4 = itercectionLines(lineF2, lineS1);
+
+		addLine(hole, dxfPrimitivesArr, ph1, ph2, par.dxfBasePoint);
+		addLine(hole, dxfPrimitivesArr, ph2, ph3, par.dxfBasePoint);
+		addLine(hole, dxfPrimitivesArr, ph3, ph4, par.dxfBasePoint);
+		addLine(hole, dxfPrimitivesArr, ph4, ph1, par.dxfBasePoint);
+
+		shape.holes.push(hole)
+
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		geom.rotateUV(par.angleX * turnFactor);
+		var mesh = new THREE.Mesh(geom, params.materials.tread);
+		par.mesh.add(mesh)
+	}
+
+
 	//производственная информация для вывода в dxf
 
 	//направление волокон
@@ -4914,3 +5004,13 @@ function drawNotchedPlatePlatform(par) {
 	return par;
 
 }//end of drawNotchedTread
+
+function getTreadLigtsParams(par) {
+	if (params.calcType !== "mono" && params.treadLigts !== "нет") {
+		par.isTreadLigts = true;
+		par.treadLigtsThk = 10;
+		par.offsetFront = 5;
+		par.offsetSide = 10;
+		par.widthLigts = 12;
+	}
+}

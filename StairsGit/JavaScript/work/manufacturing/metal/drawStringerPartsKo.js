@@ -546,14 +546,14 @@ function drawBotStepKo_pltP(par){
 	var dX = 0;
 	for (var i = 0; i < pltPar.partsAmt - 1; i++){
 		center2 = newPoint_xy(po1, dX, 0);
-		//не допускаем пересечения рамок
-        var minDist = 45 * 2 + 5 + params.stringerThickness + 15;
-		if (frame1Hole.x - center2.x < minDist) center2.x = frame1Hole.x - minDist;
 		//если под площадкой две рамки, вторую делаем под стыком площадки
 		if (pltPar.partsAmt == 2) {
 			center2 = newPoint_xy(p2, -(params.platformLength_1 + params.nose - frameHoleDist) / 2, par.stepHoleY);
 			if (params.riserType == "есть") center2.x -= params.riserThickness;
 		}
+		//не допускаем пересечения рамок
+		var minDist = 45 * 2 + 5 + params.stringerThickness + 15;
+		if (frame1Hole.x - center2.x < minDist) center2.x = frame1Hole.x - minDist;
         center1 = newPoint_xy(center2, -frameHoleDist, 0);
 		pointsHoleBot.push(center1);
 		pointsHoleBot.push(center2);
@@ -2064,14 +2064,14 @@ function drawTopStepKo_pltP(par){
 	var dX = 0;
 	for (var i = 0; i < pltPar.partsAmt - 1; i++){
 		center1 = newPoint_xy(po1, dX, 0);
-		//не допускаем пересечения рамок
-		var minDist = 45 * 2 + 5 + params.stringerThickness + 15;
-		if (center1.x - frame1Hole.x < minDist) center1.x = frame1Hole.x + minDist;
 		//если под площадкой две рамки, вторую делаем под стыком площадки
 		if (pltPar.partsAmt == 2) {
 			center1 = newPoint_xy(p2, (platformLen - params.nose - frameHoleDist) / 2, par.stepHoleY);
 			if (params.riserType == "есть") center1.x -= params.riserThickness;
 		}
+		//не допускаем пересечения рамок
+		var minDist = 45 * 2 + 5 + params.stringerThickness + 15;
+		if (center1.x - frame1Hole.x < minDist) center1.x = frame1Hole.x + minDist;
 		center2 = newPoint_xy(center1, frameHoleDist, 0);		
 		pointsHoleTop.push(center1);
 		pointsHoleTop.push(center2);

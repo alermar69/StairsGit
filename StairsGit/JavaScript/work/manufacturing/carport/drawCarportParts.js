@@ -61,7 +61,7 @@ function drawPurlin(par){
 			shim.position.x = pos.x
 			shim.position.y = pos.y
 			shim.position.z = pos.z			
-			par.mesh.add(shim);
+			if (!testingMode) par.mesh.add(shim);
 		}
 		
 		if(params.roofMat != "нет"){
@@ -76,7 +76,7 @@ function drawPurlin(par){
 			screw.position.x = pos.x
 			screw.position.y = pos.y
 			screw.position.z = pos.z
-			par.mesh.add(screw);
+			if (!testingMode) par.mesh.add(screw);
 		}
 	};
 
@@ -91,6 +91,7 @@ function drawPurlin(par){
 			var flan = drawPurlinFlan(flanPar).mesh
 			if(params.roofType == "Плоская") flan.rotation.x = -Math.PI / 2;
 			flan.position.x = params.frontOffset + (partPar.column.profSize.y - 40) / 2 + (params.sectLen - partPar.column.profSize.y / params.sectAmt) * i
+			flan.position.z = -flanPar.thk
 			flan.setLayer('carcas');
 			par.mesh.add(flan);
 			flanPar.dxfBasePoint = false;
@@ -138,7 +139,9 @@ function drawPurlin(par){
 function drawCarportColumn(par){
 	if(!par) par = {};
 	initPar(par)
-	
+
+	var isColumnBase = true;
+	if (params.calcType == "veranda") isColumnBase = false;
 	
 	var columnPar = {
 		poleProfileY: partPar.column.profSize.x,
@@ -148,12 +151,14 @@ function drawCarportColumn(par){
 		material: params.materials.metal,
 		type: 'rect',
 	};
+	if (isColumnBase) columnPar.length -= 8; //8 - толщина нижнего фланца
 	
 	var pole = drawPole3D_4(columnPar).mesh;
 	pole.position.z = -partPar.column.profSize.x / 2
+	if (isColumnBase) pole.position.y = 8; //8 - толщина нижнего фланца
 	par.mesh.add(pole);
 
-	if(params.calcType != "veranda"){	
+	if (isColumnBase){	
 		var base = drawCarportColumnBase().mesh;
 		base.position.x = -partPar.column.profSize.x / 2
 		if(params.carportType.indexOf("консольный") != -1) base.position.z -= partPar.column.profSize.y / 2;
@@ -297,31 +302,31 @@ function drawCarportColumnBase(par){
 		var stud1 = drawStudF(studPar)
 		stud1.rotation.x = Math.PI / 2;
 		stud1.position.y = posY;
-		par.mesh.add(stud1)
+		if (!testingMode) par.mesh.add(stud1)
 		
 		var shim = drawShim({diam: 10}).mesh
 		shim.rotation.x = 0
 		shim.position.y = posY;
 		shim.position.z = partPar.column.profSize.y / 2 + 4;
-		par.mesh.add(shim)
+		if (!testingMode) par.mesh.add(shim)
 		
 		var shim = drawShim({diam: 10}).mesh
 		shim.rotation.x = 0
 		shim.position.y = posY;
 		shim.position.z = -partPar.column.profSize.y / 2 - 4 - 2;
-		par.mesh.add(shim)
+		if (!testingMode) par.mesh.add(shim)
 		
 		var nut = drawNut({diam: 10}).mesh
 		nut.rotation.x = Math.PI / 2
 		nut.position.y = posY;
 		nut.position.z = partPar.column.profSize.y / 2 + 4;
-		par.mesh.add(nut)
+		if (!testingMode) par.mesh.add(nut)
 		
 		var nut = drawNut({diam: 10}).mesh
 		nut.rotation.x = Math.PI / 2
 		nut.position.y = posY;
 		nut.position.z = -partPar.column.profSize.y / 2 - 4 - 10;
-		par.mesh.add(nut)
+		if (!testingMode) par.mesh.add(nut)
 	})
 	
 	//винтовая свая
@@ -861,11 +866,12 @@ function drawPurlinFlan(par){
 	initPar(par)
 	
 	par.flanWidth = 40;
+	par.thk = 2;
 
 	var flanPar = {
 		height: partPar.purlin.profSize.y,
 		width: 40, //partPar.purlin.profSize.y,
-		thk: 2,
+		thk: par.thk,
 		//cornerRad: 20,
 		holeRad: 4,
 		noBolts: true,
@@ -893,7 +899,7 @@ function drawPurlinFlan(par){
 	screw.position.x = 10
 	screw.position.y = 5;
 	screw.position.z = 10;
-	par.mesh.add(screw);
+	if (!testingMode) par.mesh.add(screw);
 	
 	var screwPar = {
 		id: "roofingScrew_5x19",
@@ -904,7 +910,7 @@ function drawPurlinFlan(par){
 	screw2.position.x = 30
 	screw2.position.y = 5;
 	screw2.position.z = partPar.purlin.profSize.y - 10;
-	par.mesh.add(screw2);
+	if (!testingMode) par.mesh.add(screw2);
 	
 	return par;
 }
@@ -3591,7 +3597,7 @@ function drawVintPile(par){
 	vint.position.y = -par.len + 300;
 	vint.position.x = par.vintDiam / 2;
 	vint.position.z = -par.vintDiam / 2;
-	par.mesh.add(vint);
+	if (!testingMode) par.mesh.add(vint);
 	
 	//сохраняем данные для спецификации
 	var partName = 'vintPile';

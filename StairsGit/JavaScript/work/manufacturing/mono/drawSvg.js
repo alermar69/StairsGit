@@ -137,6 +137,7 @@ function makeSvg() {
 
 		if (shapes.length > 0) {
 			//рисуем сборочный чертеж монокосоура	
+			if (shapes[0].drawing.basePointOffY) basePoint.y -= shapes[0].drawing.basePointOffY
 			var svgPar = {
 				draw: draw,
 				basePoint: basePoint,
@@ -742,7 +743,7 @@ function drawShapeSvg(par) {
 	par.borderFrame.height = par.borderFrame.topRigth.y - par.borderFrame.botLeft.y;
 
 
-	if (shape.drawing.group == "stringers" && !shape.drawing.isDivide) par.basePointOffY = b.height;
+	if (shape.drawing.group == "stringers" && !shape.drawing.isDivide) par.basePointOffY += b.height;
 
     par.rect = b;
 

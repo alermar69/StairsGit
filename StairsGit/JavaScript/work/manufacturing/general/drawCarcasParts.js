@@ -570,8 +570,9 @@ function drawBolt(par) {
     if (!par.noNut && !testingMode && menu.boltHead) {
 
         //гайка
-        var nutParams = { diam: par.diam, isCap: par.hasCapNut }
-        var nut = drawNut(nutParams).mesh;
+		var nutParams = { diam: par.diam, isCap: par.hasCapNut }
+		var nut = drawNut(nutParams).mesh;
+			
         nut.position.y = par.len / 2 - nutParams.nutHeight - 1;
         par.mesh.add(nut);
 
@@ -1469,10 +1470,15 @@ function drawVint(par){
 	if (menu.simpleMode) return par;
 	par.mesh.specId = par.id + "_model";
 
-	par.len = 10;
-	par.diam = 6;
+	if (!par.len) par.len = 10;
+	if (!par.diam) par.diam = 6;
 	
 	var vintName = "Винт М" + par.diam + "x" + par.len;
+
+	if (par.headType) {
+		vintName += par.headType;
+	}
+
 	if (par.id == "vint_M6x10") {
 		vintName = "Винт М6х12 потай крест";
 	}
@@ -1484,6 +1490,7 @@ function drawVint(par){
 		vintName = "Винт М4х10 полусфера";
 		par.diam = 4;
 	}
+
 	
 	var shape = new THREE.Shape();
 	addCircle(shape, [], { x: 0, y: 0 }, par.diam, { x: 0, y: 0 })

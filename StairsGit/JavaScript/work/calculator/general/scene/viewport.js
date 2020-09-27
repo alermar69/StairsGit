@@ -1307,7 +1307,7 @@ function addAdditionalObject(json){
 			mesh.rotation.y = THREE.Math.degToRad(json.rotation) || 0;
 		}
 
-		addObjects('', mesh, json.layer || 'additionalObject');
+		if (!testingMode) addObjects('', mesh, json.layer || 'additionalObject');
 	}
 	return mesh;
 }

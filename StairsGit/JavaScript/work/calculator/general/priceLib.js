@@ -3015,7 +3015,7 @@ function calcHandrailMeterParams(par){
 		handrailType == "омега-образный дуб"||
 		handrailType == "40х60 дуб"||
 		handrailType == "40х60 дуб с пазом" ||
-		handrailType == "ПВХ" ||
+		//handrailType == "ПВХ" ||
 		handrailType == "сосна" ||
 		handrailType == "береза" ||
 		handrailType == "лиственница" ||

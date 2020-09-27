@@ -3471,6 +3471,8 @@ function drawRailingSectionForge2(par) {
 
 		if (params.railingModel == 'Кресты') {
 			var crossHeight = polar(topPolePos, parRacks.angMarsh, rackProfile / Math.cos(parRacks.angMarsh)).y - botPolePos.y - botPoleProfileY / Math.cos(parRacks.angMarsh);
+			if (parRacks.botFirst) crossHeight = topPolePos.y - botPolePos.y - botPoleProfileY / Math.cos(parRacks.angMarsh);
+
 			var crossFillParams = {
 				sectLen: botPoleLen,
 				ang: parRacks.angMarsh,
@@ -4501,7 +4503,7 @@ function drawForgedFramePart2(par) {
 
 			//отверстия для бокового крепления
 
-			if (params.rackBottom == "боковое" && !par.isBanister) {
+			if ((params.rackBottom == "боковое" && !par.isBanister) || (params.rackBottom_bal == "боковое" && par.isBanister)) {
 				//верхнее отверстие
 				var center = { x: 0, y: 90 }
 				//нижнее отверстие
@@ -4604,7 +4606,8 @@ function drawForgedFramePart2(par) {
 					par.mesh.add(holder);
 				}
 
-				if (params.rackBottom == "боковое"){
+				//if (params.rackBottom == "боковое"){
+				if (true){
 					var rackFlan = drawRackFlan(par.poleProfileY);
 					rackFlan.position.y += holeDist / 2 + 30;
 					rackFlan.position.z += 2;
@@ -4626,7 +4629,7 @@ function drawForgedFramePart2(par) {
 
 			//фланец балясины
 
-			if (params.rackBottom == "сверху с крышкой" || par.isBanister) {
+			if ((params.rackBottom == "сверху с крышкой" && !par.isBanister) || (params.rackBottom_bal == "сверху с крышкой" && par.isBanister)) {
 				var flanParams = {
 					material: par.material,
 					dxfArr: dxfPrimitivesArr0,

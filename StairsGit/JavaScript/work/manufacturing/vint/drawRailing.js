@@ -89,6 +89,12 @@ function drawPlatformRailing(par){
 			y: 3000
 		},
 	}
+
+	if (params.handrailConnectionType_bal) {
+		balSectionParams.connection = 'конец';
+		balSectionParams.handrailOffsetEnd -= 50;
+	}
+
 	if (params.railingModel_bal == "Ригели" || params.railingModel_bal == "Стекло на стойках") {
 		balSectionParams.handrailOffsetEnd += 40; //размер стойки
 	}
@@ -125,10 +131,11 @@ function drawPlatformRailing(par){
 	}
 
 	//замыкание поручня на площадке
-	if (params.pltHandrailConnection == 'есть'){
+	if (params.pltHandrailConnection == 'есть' && params.platformType == "triangle"){
 		var railingPar = {
 			lengthHandrail: par.vintPlatformParams.lengthConnection,
 			dxfBasePoint: balSectionParams.dxfBasePoint,
+			railingModel: params.railingModel_bal,
 		}
 
 		
@@ -236,7 +243,7 @@ function drawSpiralRailing(par) {
 			text: "Первая балясина"
 		}
 		
-		//if (params.botFloorType == 'черновой') balParams.length += params.botFloorsDist;
+		if (params.botFloorType == 'черновой') balParams.length += params.botFloorsDist;
 
 		//сохраняем размеры для спецификации
 		stairParams.banisterHoleDist = banisterHoleDist;
@@ -253,7 +260,7 @@ function drawSpiralRailing(par) {
 
 			//первая балясина
 			balParams.holeDst = banisterHoleDist[0];
-			//if (params.botFloorType == 'черновой') balParams.holeDst += params.botFloorsDist;
+			if (params.botFloorType == 'черновой') balParams.holeDst += params.botFloorsDist;
 			balParams.angleShift = 2;
 			if (regShimAmt > 0) balParams.angleShift = 2;
 			if (par.stairType == "metal") balParams.angleShift = -2;
@@ -264,7 +271,7 @@ function drawSpiralRailing(par) {
 			startBanister.rotation.y = -banistrPositionAngle - Math.PI / 2;
 			startBanister.position.x = banisterPositionRad * Math.cos(banistrPositionAngle);
 			startBanister.position.y = 0;
-			//if (params.botFloorType == "черновой") startBanister.position.y = -params.botFloorsDist;
+			if (params.botFloorType == "черновой") startBanister.position.y = -params.botFloorsDist;
 			startBanister.position.z = banisterPositionRad * Math.sin(banistrPositionAngle);
 			startBanister.castShadow = true;
 			//railing.push(startBanister);
@@ -754,6 +761,7 @@ function drawSpiralRailing(par) {
 		handrailParams.poleRad += 10;
 		//handrailParams.posY += 20 / Math.cos((stairAmt + 1.5) * stepAngle) + 15;
 		handrailParams.posY += 20;
+		handrailParams.endOffset = 0.1;
 	}
 	if (par.model != "Частые стойки") {
 		handrailParams.startOffset = 0.25;
@@ -1081,6 +1089,7 @@ function drawRailingConnectionPlatform(par) {
 		unit: 'balustrade',
 		realHolder: true, //точно отрисовываем кронштейн поручня
 		holderAng: 0,
+		railingModel: params.railingModel_bal,
 	};
 
 	var rack = drawRack3d_4(rackParams).mesh;
