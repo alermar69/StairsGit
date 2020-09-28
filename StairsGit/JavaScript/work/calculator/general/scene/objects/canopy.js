@@ -140,14 +140,12 @@ class Canopy extends AdditionalObject {
 					key: 'priceFactor',
 					title: 'К-т на цену',
 					default: 1,
-					hidden: true,
 					type: 'number'
 				},
 				{
 					key: 'costFactor',
 					title: 'К-т на себестоимость',
 					default: 1,
-					hidden: true,
 					type: 'number'
 				},
 			]
@@ -158,9 +156,11 @@ class Canopy extends AdditionalObject {
 	@param - meshParams из объекта additional_objects
 	*/
 
-	static getDescr(par) {
+	static getDescr(objPar) {
 		console.log(this)
 		if(!this) return {html: '', text: ''};
+		var par = objPar.meshParams;
+
 		var meta = this.getMeta();
 		var text = "Козырек " + par.holderType + " " + par.width + " мм"
 		var html = "<h3>Параметры " + meta.title + "</h3>";

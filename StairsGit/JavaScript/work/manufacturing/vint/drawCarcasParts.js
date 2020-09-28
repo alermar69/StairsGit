@@ -3112,110 +3112,15 @@ function drawMidFix(par) {
 
 	par.mesh.add(flan);
 
-	//фланец для крепления к стене
+	//фланец с косынкам
 	var flanPar = {
-		height: 140, //ширина фланца
-		width: 140, //длина фланца (высота при вертикальном расположении)
-		holeRad: 7.5,
-		cornerRad: 20,
-		holeX: 20,
-		holeY: 20,
-		dxfBasePoint: dxfBasePoint,
+		pos: bal.position,
+		numberFix: par.numberFix,
+		profWidth: par.profWidth,
+		holderLen: par.holderLen,
 	};
-	//flanPar.noBolts = par.noBolts; //болты не добавляются
-	flanPar.noBolts = true; //болты не добавляются
-
-	flanPar.isFixPart = true; // болты крепления к стенам
-	var numberFix = par.numberFix;
-	if (numberFix == 5) numberFix = 1;
-	flanPar.fixPar = getFixPart(par.numberFix, 'vint'); // параметры крепления к стенам
-
-	flanPar.holeRad = flanPar.fixPar.diam / 2 + 1;
-
-	flanPar.roundHoleCenters = [];
-
-	//добавляем  отверстия по краям
-	flanPar.roundHoleCenters.push({ x: flanPar.holeX, y: flanPar.holeY, holeData: { zenk: 'no' }, isFixPart: flanPar.isFixPart });
-	flanPar.roundHoleCenters.push({ x: flanPar.holeX, y: flanPar.height - flanPar.holeY, holeData: { zenk: 'no' }, isFixPart: flanPar.isFixPart });
-	flanPar.roundHoleCenters.push({ x: flanPar.width - flanPar.holeX, y: flanPar.height - flanPar.holeY, holeData: { zenk: 'no' }, isFixPart: flanPar.isFixPart });
-	flanPar.roundHoleCenters.push({ x: flanPar.width - flanPar.holeX, y: flanPar.holeY, holeData: { zenk: 'no' }, isFixPart: flanPar.isFixPart });
-
-
-	var flan = drawRectFlan2(flanPar).mesh;
-	flan.position.x = bal.position.x + par.holderLength;
-	flan.position.y = bal.position.y - flanPar.height / 2 - par.profWidth / 2;
-	flan.position.z = bal.position.z - flanPar.width / 2 + par.profWidth / 2;
-	flan.rotation.x = Math.PI / 2;
-	flan.rotation.y = Math.PI / 2;
-
-	par.mesh.add(flan);
-
-	//косынка кронштейна
-	{
-		var p0 = {x: 0,y: 0}
-
-		var p1 = copyPoint(p0);
-		var p2 = newPoint_xy(p1, 0, flanPar.height);
-		var p3 = newPoint_xy(p1, 40, flanPar.height / 2);
-
-		p3.filletRad = 20;
-
-		var shapePar = {
-			points: [p3, p2, p1],
-			dxfArr: par.dxfArr,
-			dxfBasePoint: dxfBasePoint,
-		}
-
-		var shape = drawShapeByPoints2(shapePar).shape;
-
-		var center = newPoint_xy(p1, 25, flanPar.height / 2)
-		addRoundHole(shape, par.dxfArr, center, 6, dxfBasePoint);
-
-		var extrudeOptions = {
-			amount: 8,
-			bevelEnabled: false,
-			curveSegments: 12,
-			steps: 1
-		};
-
-		var geometry = new THREE.ExtrudeGeometry(shape, extrudeOptions);
-		geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-		var flan = new THREE.Mesh(geometry, par.material);
-		flan.position.x = bal.position.x + par.holderLength;
-		flan.position.y = bal.position.y// - flanPar.height / 2 - par.profWidth / 2;
-		flan.position.z = bal.position.z - flanPar.width / 2 + par.profWidth / 2;
-		flan.rotation.x = Math.PI / 2;
-		flan.rotation.y = Math.PI;
-
-		par.mesh.add(flan);
-
-		var geometry = new THREE.ExtrudeGeometry(shape, extrudeOptions);
-		geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-		var flan1 = new THREE.Mesh(geometry, par.material);
-		flan1.position.x = bal.position.x + par.holderLength;
-		flan1.position.y = bal.position.y - par.profWidth - 8;
-		flan1.position.z = bal.position.z - flanPar.width / 2 + par.profWidth / 2;
-		flan1.rotation.x = Math.PI / 2;
-		flan1.rotation.y = Math.PI;
-
-		par.mesh.add(flan1);
-
-		/* болты */
-		if (typeof anglesHasBolts != "undefined" && anglesHasBolts) { //глобальная переменная
-			var boltPar = {
-				diam: 10,
-				len: 70,
-				headType: "шестигр.",
-			}
-			var bolt = drawBolt(boltPar).mesh;
-			bolt.rotation.x = -Math.PI / 2;
-			bolt.position.x = center.x;
-			bolt.position.y = center.y;
-			bolt.position.z = -5 - 20;
-
-			flan.add(bolt)
-		}
-	}
+	var flan = drawMidFixHolder(flanPar).mesh
+	par.mesh.add(flan)
 
 	var plugParams = {
 		id: "plasticPlug_40_40",
@@ -3318,6 +3223,145 @@ console.log("ghgh")
 
 	return par;
 
+}
+
+/** функция отрисовывает фланец крепления к стене с косынками для кронштейна промежуточого крепления к стене
+**/
+function drawMidFixHolder(par){
+		
+	if(!par) par = {};
+	initPar(par)
+	
+		//фланец для крепления к стене
+	var flanPar = {
+		height: 140, //ширина фланца
+		width: 140, //длина фланца (высота при вертикальном расположении)
+		holeRad: 7.5,
+		cornerRad: 20,
+		holeX: 20,
+		holeY: 20,
+		dxfBasePoint: par.dxfBasePoint,
+	};
+	//flanPar.noBolts = par.noBolts; //болты не добавляются
+	flanPar.noBolts = true; //болты не добавляются
+
+	flanPar.isFixPart = true; // болты крепления к стенам
+	var numberFix = par.numberFix;
+	if (numberFix == 5) numberFix = 1;
+	flanPar.fixPar = getFixPart(par.numberFix, 'vint'); // параметры крепления к стенам
+
+	flanPar.holeRad = flanPar.fixPar.diam / 2 + 1;
+
+	flanPar.roundHoleCenters = [];
+
+	//добавляем  отверстия по краям
+	flanPar.roundHoleCenters.push({ x: flanPar.holeX, y: flanPar.holeY, holeData: { zenk: 'no' }, isFixPart: flanPar.isFixPart });
+	flanPar.roundHoleCenters.push({ x: flanPar.holeX, y: flanPar.height - flanPar.holeY, holeData: { zenk: 'no' }, isFixPart: flanPar.isFixPart });
+	flanPar.roundHoleCenters.push({ x: flanPar.width - flanPar.holeX, y: flanPar.height - flanPar.holeY, holeData: { zenk: 'no' }, isFixPart: flanPar.isFixPart });
+	flanPar.roundHoleCenters.push({ x: flanPar.width - flanPar.holeX, y: flanPar.holeY, holeData: { zenk: 'no' }, isFixPart: flanPar.isFixPart });
+
+console.log(flanPar, par)
+	var flan = drawRectFlan2(flanPar).mesh;
+	flan.position.x = par.pos.x + par.holderLength;
+	flan.position.y = par.pos.y - flanPar.height / 2 - par.profWidth / 2;
+	flan.position.z = par.pos.z - flanPar.width / 2 + par.profWidth / 2;
+	flan.rotation.x = Math.PI / 2;
+	flan.rotation.y = Math.PI / 2;
+
+	par.mesh.add(flan);
+
+	//косынка кронштейна
+	{
+		var p0 = {x: 0,y: 0}
+
+		var p1 = copyPoint(p0);
+		var p2 = newPoint_xy(p1, 0, flanPar.height);
+		var p3 = newPoint_xy(p1, 40, flanPar.height / 2);
+
+		p3.filletRad = 20;
+
+		var shapePar = {
+			points: [p3, p2, p1],
+			dxfArr: par.dxfArr,
+			dxfBasePoint: dxfBasePoint,
+		}
+
+		var shape = drawShapeByPoints2(shapePar).shape;
+
+		var center = newPoint_xy(p1, 25, flanPar.height / 2)
+		addRoundHole(shape, par.dxfArr, center, 6, dxfBasePoint);
+
+		var extrudeOptions = {
+			amount: 8,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+
+		var geometry = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var flan = new THREE.Mesh(geometry, par.material);
+		flan.position.x = par.pos.x + par.holderLength;
+		flan.position.y = par.pos.y// - flanPar.height / 2 - par.profWidth / 2;
+		flan.position.z = par.pos.z - flanPar.width / 2 + par.profWidth / 2;
+		flan.rotation.x = Math.PI / 2;
+		flan.rotation.y = Math.PI;
+
+		par.mesh.add(flan);
+
+		var geometry = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var flan1 = new THREE.Mesh(geometry, par.material);
+		flan1.position.x = par.pos.x + par.holderLength;
+		flan1.position.y = par.pos.y - par.profWidth - 8;
+		flan1.position.z = par.pos.z - flanPar.width / 2 + par.profWidth / 2;
+		flan1.rotation.x = Math.PI / 2;
+		flan1.rotation.y = Math.PI;
+
+		par.mesh.add(flan1);
+
+		/* болты */
+		if (typeof anglesHasBolts != "undefined" && anglesHasBolts) { //глобальная переменная
+			var boltPar = {
+				diam: 10,
+				len: 70,
+				headType: "шестигр.",
+			}
+			var bolt = drawBolt(boltPar).mesh;
+			bolt.rotation.x = -Math.PI / 2;
+			bolt.position.x = center.x;
+			bolt.position.y = center.y;
+			bolt.position.z = -5 - 20;
+
+			par.mesh.add(bolt)
+		}
+	}
+	
+	//сохраняем данные для спецификации
+	var partName = "midFixHolder";
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				name: "Фланец кронштейна промежуточного крепления к стене",
+				metalPaint: true,
+				timberPaint: false,
+				division: "metal",
+				workUnitName: "amt", //единица измерения
+				group: "Каркас",
+			}
+		}
+
+		var name = flanPar.height + "x" + flanPar.width;
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+	}
+	par.mesh.specId = partName + name;
+
+
+	return par;
 }
 
 function drawCylinder(par) {

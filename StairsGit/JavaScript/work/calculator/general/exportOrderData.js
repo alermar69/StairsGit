@@ -543,7 +543,7 @@ function getExportData_com(checkSumm){
 				
 				//используем метод класса если есть
 				var AdditionalObjectClass =  eval(className);
-				if(AdditionalObjectClass) descr = AdditionalObjectClass.getDescr(this.meshParams).text
+				if(AdditionalObjectClass) descr = AdditionalObjectClass.getDescr(this).text
 	
 				if(i > 0 && objDescr) objDescr += ", "
 				objDescr += descr;

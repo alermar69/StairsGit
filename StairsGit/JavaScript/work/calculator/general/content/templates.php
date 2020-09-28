@@ -329,13 +329,41 @@
 
 <!-- Новое кп -->
 
-<!-- <script id='headerTemplate' type='text/html'>
-	<div class="kp_header"style='background-image: url("{{:image}}")'>
-		<div class='text-center h2 mt-5'>Коммерческое предложение</div>
-		<div class='text-center h3 mt-5'>Для {{:clientName}}</div>
-		<div class='text-center h3 mt-5'>{{:text}}</div>
+<script id="objectDescriptionTempalte" type="text/html">
+	<div class='description-block additionalObjectsDescription'>
+		<div class='container'>
+			<div class="descripton-content row">
+				<div class="descripton-content_image col-lg-6 col-md-6 col-sm-12 col-xs-12">
+					<div class="description-images" data-images_type="{{:type}}">
+						{{for images}}
+							<div class='description-images_image'>
+								<div class="description-images_image-delete">
+									<button class="delete_description_image btn btn-danger" data-image_id="{{:id}}"><i class="fa fa-trash-o" title="Align Left"></i></button>
+								</div>
+								<a href='{{:url}}' data-fancybox='gallery'><img src='{{:url}}'></a>
+								<!-- <img src="{{:url}}" alt=""> -->
+							</div>
+						{{else}}
+							<div class='description-images_image'>
+								{{if noDefault}}
+									<img src="/images/logo.png" alt="">
+								{{else}}
+									<img src="/images/calculator/description/{{:type}}.jpg" alt="">
+								{{/if}}
+							</div>
+						{{/for}}
+					</div>
+					<div class='description_image-button'>
+						<button class="btn btn-primary add_description_image" data-type="{{:type}}">Добавить картинку</button>
+					</div>
+				</div>
+				<div class="descripton-content_text col-lg-6 col-md-6 col-sm-12 col-xs-12">
+					{{:description}}
+				</div>
+			</div>
+		</div>
 	</div>
-</script> -->
+</script>
 
 <script id='footerTemplate' type='text/html'>
 	<div class="kp_footer">

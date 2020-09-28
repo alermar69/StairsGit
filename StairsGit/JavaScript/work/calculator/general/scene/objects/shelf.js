@@ -288,14 +288,12 @@ class Shelf extends AdditionalObject {
 					key: 'priceFactor',
 					title: 'К-т на цену',
 					default: 1,
-					hidden: true,
 					type: 'number'
 				},
 				{
 					key: 'costFactor',
 					title: 'К-т на себестоимость',
 					default: 1,
-					hidden: true,
 					type: 'number'
 				},
 			]
@@ -306,9 +304,11 @@ class Shelf extends AdditionalObject {
 	@param - meshParams из объекта additional_objects
 	*/
 	
-	static getDescr(par) {
+	static getDescr(objPar) {
 
 		if(!this) return {html: '', text: ''};
+		var par = objPar.meshParams;
+
 		var meta = this.getMeta();
 		var text = "Стеллаж " + par.shelfAmt + " пол. " + par.height + "х" + par.width + "х" + par.depth + "мм";
 		var html = "<h3>Параметры " + meta.title + "</h3>";

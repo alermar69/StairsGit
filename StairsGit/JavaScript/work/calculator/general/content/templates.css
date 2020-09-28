@@ -201,3 +201,11 @@
 .newKP .light-text{
 	color: rgb(200,200,200);
 }
+
+.additionalObjectsDescription .descripton-content_text table{
+	min-width: 100% !important;
+}
+
+/* .additionalObjectsDescription{
+	background-color: white;
+} */

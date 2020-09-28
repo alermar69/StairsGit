@@ -75,41 +75,26 @@ class Sill extends AdditionalObject {
 			console.log(response);
 			if (response &&  response.product) {
 				data.meshParams.slabPrice = response.product.price * 1.0;
-				data.images = response.product.images;
+				// data.images = response.product.images;
 				additionalObjectParamsShow(data.id);
-				// alert('Данные загружены')
 
-				// uploadPreviews(params.orderName, data.images);
+				var preview = {
+					id: window.previews.length,
+					url: response.product.image,
+					isNew: true,
+					type: "preview"
+				};
+				window.previews.push(preview);
 
-				// var blobs = [];
-				// // Формируем blob
-				// data.images.forEach(function(){
-				// 	fetch(preview.url)
-				// 	.then(function(resp){
-				// 		return resp.blob();
-				// 	})
-				// 	.then(function(blob){
-				// 		blobs.push(resp.blob());
-				// 	})
-				// });
-
-				// $.ajax({
-				// 	url: '/orders/calc-controller/upload-previews',
-				// 	type: 'POST',
-				// 	data: fd,
-				// 	processData: false,
-				// 	contentType: false,
-				// 	success: function(data){
-				// 		if (data == 'ok') {
-				// 			alert('Загрузка данных прошла успешно')
-				// 		}else{
-				// 			alert('Ошибка загрузки данных на сервер')
-				// 		}
-				// 	},
-				// 	error: function(result){
-				// 		console.log('error', result)
-				// 	},
-				// });
+				// Формируем blob
+				fetch(preview.url)
+				.then(function(resp){
+					return resp.blob();
+				})
+				.then(function(blob){
+					preview.blob = blob;
+					printDescr();
+				})
 			}else{
 				if(response.error){
 					alert(response.error)
@@ -775,14 +760,12 @@ class Sill extends AdditionalObject {
 					key: 'priceFactor',
 					title: 'К-т на цену',
 					default: 1,
-					hidden: true,
 					type: 'number'
 				},
 				{
 					key: 'costFactor',
 					title: 'К-т на себестоимость',
 					default: 1,
-					hidden: true,
 					type: 'number'
 				},
 			]

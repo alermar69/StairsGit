@@ -2,6 +2,10 @@
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Расчет пожарных лестниц v.1.0"); 
 include $GLOBALS['ROOT_PATH']."/orders/calcs/getOrderData.php";
+//модуль
+$calc_type = getCalcType();
+//представление
+$template = getTemplate();
 ?> 
 
 <div class="noPrint">

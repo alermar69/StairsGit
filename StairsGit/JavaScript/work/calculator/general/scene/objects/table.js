@@ -555,14 +555,12 @@ class Table extends AdditionalObject {
 					key: 'priceFactor',
 					title: 'К-т на цену',
 					default: 1,
-					hidden: true,
 					type: 'number'
 				},
 				{
 					key: 'costFactor',
 					title: 'К-т на себестоимость',
 					default: 1,
-					hidden: true,
 					type: 'number'
 				},
 				

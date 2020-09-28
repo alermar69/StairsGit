@@ -354,7 +354,7 @@ function printDescr() {
 	if (window.additional_objects && window.additional_objects.length > 0) {
 		window.additional_objects.forEach(function(obj){
 			if (obj.calc_price) {
-				additionalObjectsText += eval(obj.className).getDescr(obj.meshParams).html;
+				additionalObjectsText += eval(obj.className).getDescr(obj).html;
 			}
 		})
 	}
@@ -442,11 +442,6 @@ function printDescr() {
 	}
 }
 
-/**
- * TODO:
- * Классы которые необходимо проверить:
- */
-
 function printAdditionalDescription(){
 	var paramsBlockTemplate = $.templates("#paramsBlockTemplate");
 	var infoBlockTemplate = $.templates("#infoBlockTemplate");
@@ -456,49 +451,12 @@ function printAdditionalDescription(){
 
 	// Материалы
 	html += Materials.getSceneDescription().html;
-	// html += infoBlockTemplate.render({
-	// 	title: "Используемые материалы",
-	// 	blocks: [
-	// 		{
-	// 			'image': '/images/calculator/new_kp/03. Щит дуб паркетной склейки.jpg',
-	// 			'title': 'Щит дуба паркетной склейки',
-	// 			'description': 'Дуб исключительно крепкий от природы материал с красивой однородной текстурой, сохраняет стабильность форм и размеров при перепадах температур и изменении уровня влажности. При покраске приобретает благородный равномерный оттенок. Не деформируется, вынослив, сохраняет эстетические показатели в течение десятилетий.'
-	// 		},
-	// 		{
-	// 			'image': '/images/calculator/new_kp/03. Щит дуб паркетной склейки.jpg',
-	// 			'title': 'Слэб карагача',
-	// 			'description': 'Клеится из длинных брусков, которые идут на всю длину изделия. Такой подоконник более устойчив к надломам и выглядит изготовленным из цельного куска дерева.'
-	// 		},
-	// 		{
-	// 			'image': '/images/calculator/new_kp/03. Щит дуб паркетной склейки.jpg',
-	// 			'title': 'Эпоксидная смола',
-	// 			'description': 'За счет  специальной обработки - искусственного старения или браширования,  красивая структура дерева дополнительно подчеркивается и становится более ярко выраженной.'
-	// 		}
-	// 	]
-	// });
 
 	// Отделка дерева
 	var form = $('#nav-materials .form_table')[0];
 	var par = getInputsFromForm(form);
 	html += paramsBlockTemplate.render(getTimberPaintDescription());
-	// 	title: "Отделка дерева",
-	// 	description: "За счет специальной обработки - искусственного старения или брашировки, красивая\
-	// 		структура дерева дополнительно подчеркивается и становится более ярко выраженной.\
-	// 		После этого изделие покрывается высококачественным маслом, немецкого производства.\
-	// 		Масло надежно защищает древесину от гниения, благодаря глубокому проникновению в\
-	// 		структуру. Не расслаивается и не отшелушивается. Масло абсолютно безвредно для\
-	// 		человека.",
-	// 	images: [
-	// 		{
-	// 			url: "/images/calculator/new_kp/10. Брашировка дерева - работа.jpg",
-	// 		},
-	// 		{
-	// 			url: "/images/calculator/new_kp/11. Брашированная поверхность.jpg",
-	// 		}
-	// 	],
-	// 	par: par
-	// });
-
+	
 	// Покраска металла
 	html += paramsBlockTemplate.render({
 		title: "Покраска металла",
@@ -525,7 +483,10 @@ function printAdditionalDescription(){
 	if (window.additional_objects && window.additional_objects.length > 0) {
 		window.additional_objects.forEach(function(obj){
 			if (obj.calc_price) {
-				additionalObjectsText += eval(obj.className).getDescr(obj.meshParams).html;
+				if (eval(obj.className)) {
+					var blockType = "object_" + obj.id;
+					html += $.templates("#objectDescriptionTempalte").render({noDefault: true, type: blockType, images: getPreviewImages(blockType), description: eval(obj.className).getDescr(obj).html});
+				}
 			}
 		})
 	}
@@ -569,135 +530,13 @@ function printAdditionalDescription(){
 
 	html += '</div>'
 	$("#description").html(html);
-}
 
-function printDescrObjects() {
-	var html = "<div class='container' style='margin: unset;'>";
-	var paramsBlockTemplate = $.templates("#paramsBlockTemplate");
-	var infoBlockTemplate = $.templates("#infoBlockTemplate");
-	var imagesBlockTemplate = $.templates("#imagesBlockTemplate");
-
-	// Материалы
-	html += infoBlockTemplate.render({
-		title: "Используемые материалы",
-		blocks: [
-			{
-				'image': '/images/calculator/sill/oak.jpg',
-				'title': 'Щит дуба паркетной склейки',
-				'description': 'Дуб исключительно крепкий от природы материал с красивой однородной текстурой, сохраняет стабильность форм и размеров при перепадах температур и изменении уровня влажности. При покраске приобретает благородный равномерный оттенок. Не деформируется, вынослив, сохраняет эстетические показатели в течение десятилетий.'
-			},
-			{
-				'image': '/images/calculator/sill/oak.jpg',
-				'title': 'Слэб карагача',
-				'description': 'Клеится из длинных брусков, которые идут на всю длину изделия. Такой подоконник более устойчив к надломам и выглядит изготовленным из цельного куска дерева.'
-			},
-			{
-				'image': '/images/calculator/sill/oak.jpg',
-				'title': 'Эпоксидная смола',
-				'description': 'За счет  специальной обработки - искусственного старения или браширования,  красивая структура дерева дополнительно подчеркивается и становится более ярко выраженной.'
-			}
-		]
-	});
-
-	// Отделка дерева
-	var form = $('#nav-materials .form_table')[0];
-	var par = getInputsFromForm(form);
-	html += paramsBlockTemplate.render(getTimberPaintDescription());
-	// 	title: "Отделка дерева",
-	// 	description: "За счет специальной обработки - искусственного старения или брашировки, красивая\
-	// 		структура дерева дополнительно подчеркивается и становится более ярко выраженной.\
-	// 		После этого изделие покрывается высококачественным маслом, немецкого производства.\
-	// 		Масло надежно защищает древесину от гниения, благодаря глубокому проникновению в\
-	// 		структуру. Не расслаивается и не отшелушивается. Масло абсолютно безвредно для\
-	// 		человека.",
-	// 	images: [
-	// 		{
-	// 			url: "/images/calculator/sill/timber_work_1.jpg",
-	// 		},
-	// 		{
-	// 			url: "/images/calculator/sill/timber_work_2.jpg",
-	// 		}
-	// 	],
-	// 	par: par
-	// });
-
-	// Покраска металла
-	html += paramsBlockTemplate.render({
-		title: "Покраска металла",
-		description: "В специальном покрасочном цехе мы окрашиваем все металлические детали долговечной\
-		износостойкой порошковой краской с нулевой эмиссией летучих веществ. А так же обеспечиваем\
-		контроль толщины слоя.",
-		images: [
-			{
-				url: "/images/calculator/sill/metal_paint_1.jpg",
-			},
-			{
-				url: "/images/calculator/sill/metal_paint_2.jpg",
-			}
-		],
-		par: [
-			{
-				title: 'Цвет металла',
-				value: 'темно-серый'
-			}
-		]
-	});
-
-	// Доставка и монтаж
-	// Получаем инпуты соответсвующей формы
-	var par = getInputsFromForm($('#assemblingWrap')[0]);
-	html += paramsBlockTemplate.render({
-		title: "Как будет происходить доставка и монтаж",
-		description: "",
-		images: [
-			{
-				url: '/images/calculator/sill/assembling_1.png',
-				text: 'Доставка и монтаж готового изделия осуществляется в удобный для вас день и время.'
-			},
-			{
-				url: '/images/calculator/sill/assembling_2.jpg',
-				text: 'Перед отправкой изделия мы надежно упаковываем его в плотную пленку для безопасной транспортировки.'
-			},
-			{
-				url: '/images/calculator/sill/assembling_3.jpeg',
-				text: 'Монтаж подоконника занимает не более 2х часов. После окончания работ, монтажники уберут за собой весь мусор.'
-			}
-		],
-		par: par
-	});
-	html += '</div>'
-	$("#description").html(html);
-
-	// var text = "";
-
-	// if (window.location.href.indexOf('/customers') != -1) {
-	// 	$('#additionalObjectsParams').html(additionalObjectsText);
-	// }else{
-	// 	text += additionalObjectsText;
-	// }
-
-
-	// if ($("#descriptionTempalte").length > 0) {
-	// 	var template = $.templates("#descriptionTempalte");
-	// 	var html = template.render(blocks);
-	// 	text += html;
-
-
-
-
-
-
-
-
-	// 	$("#description").html(text);
-	
-	// 	if ($('#previewImages').length > 0) {
-	// 		var images = getPreviewImages('preview');
-	// 		var template = $.templates("#previewsTemplate");
-	// 		var html = template.render({images: images});
-	// 		$('#previewImages').html(html);
-	// 	}
-	// }
+	if ($('#previewImages').length > 0) {
+		var images = getPreviewImages('preview');
+		var template = $.templates("#previewsTemplate");
+		var html = template.render({images: images});
+		$('#previewImages').html(html);
+	}
 }
 
 function getInputsFromForm(form){
@@ -763,87 +602,3 @@ function getGoodItems(array){
 		return false;
 	})
 }
-
-// clientName: 'Тестова Теста Тестовича',
-// materials: [
-// 	{
-// 		'image': '/images/calculator/sill/oak.jpg',
-// 		'title': 'Щит дуба паркетной склейки',
-// 		'description': 'Дуб исключительно крепкий от природы материал с красивой однородной текстурой, сохраняет стабильность форм и размеров при перепадах температур и изменении уровня влажности. При покраске приобретает благородный равномерный оттенок. Не деформируется, вынослив, сохраняет эстетические показатели в течение десятилетий.'
-// 	},
-// 	{
-// 		'image': '/images/calculator/sill/oak.jpg',
-// 		'title': 'Слэб карагача',
-// 		'description': 'Клеится из длинных брусков, которые идут на всю длину изделия. Такой подоконник более устойчив к надломам и выглядит изготовленным из цельного куска дерева.'
-// 	},
-// 	{
-// 		'image': '/images/calculator/sill/oak.jpg',
-// 		'title': 'Эпоксидная смола',
-// 		'description': 'За счет  специальной обработки - искусственного старения или браширования,  красивая структура дерева дополнительно подчеркивается и становится более ярко выраженной.'
-// 	}
-// ],
-// construction: [
-// 	{
-// 		image: '/images/calculator/sill/construction_1.png',
-// 		title: 'Фаска',
-// 		description: 'Фаска облагораживают внешний вид изделия, снижает до минимума риск травмироваться о кромку и устраняет возможность скола или расщепления подоконника.'
-// 	},
-// 	{
-// 		image: '/images/calculator/sill/construction_2.jpg',
-// 		title: 'Вентиляционное отверстие над радиатором',
-// 		description: 'Клеится из длинных брусков, которые идут на всю длину изделия. Такой подоконник более устойчив к надломам и выглядит изготовленным из цельного куска дерева.'
-// 	},
-// 	{
-// 		image: '/images/calculator/sill/construction_3.jpeg',
-// 		title: 'Река из смолы',
-// 		description: 'Пространство между 2мя слэбами заполнено эпоксидной смолой. В итоге получается так называемая “река”. Эпоксидная смола может иметь любой цвет, быть прозрачной или непрозрачной (затуманенной). Так же в нее можно добавить различные мелочи для декора (ракушки, камушки, металлические предметы). В итоге вы получаете эксклюзивное изделие неординарной красоты.'
-// 	}
-// ],
-// assembling:[
-// 	{
-// 		image: '/images/calculator/sill/assembling_1.png',
-// 		text: 'Доставка и монтаж готового изделия осуществляется в удобный для вас день и время.'
-// 	},
-// 	{
-// 		image: '/images/calculator/sill/assembling_2.jpg',
-// 		text: 'Перед отправкой изделия мы надежно упаковываем его в плотную пленку для безопасной транспортировки.'
-// 	},
-// 	{
-// 		image: '/images/calculator/sill/assembling_3.jpeg',
-// 		text: 'Монтаж подоконника занимает не более 2х часов. После окончания работ, монтажники уберут за собой весь мусор.'
-// 	},
-// ],
-// work_process: [
-// 	{
-// 		image: '/images/calculator/sill/process_1.jpg',
-// 		text: 'Заключение договора, внесения аванса'
-// 	},
-// 	{
-// 		image: '/images/calculator/sill/process_2.jpg',
-// 		text: 'Согласование цветов и материалов'
-// 	},
-// 	{
-// 		image: '/images/calculator/sill/process_3.png',
-// 		text: 'Шаблонирование'
-// 	},
-// 	{
-// 		image: '/images/calculator/sill/process_4.png',
-// 		text: 'Производство'
-// 	},
-// 	{
-// 		image: '/images/calculator/sill/process_5.jpg',
-// 		text: 'Доставка/установка (подрезка по месту)'
-// 	},
-// 	{
-// 		image: '/images/calculator/sill/process_6.jpg',
-// 		text: 'Оплата по окончанию работ'
-// 	}
-// ],
-// examples: [
-// 	'/images/calculator/sill/construction_2.jpg', '/images/calculator/sill/construction_2.jpg', '/images/calculator/sill/construction_2.jpg',
-// 	'/images/calculator/sill/construction_2.jpg', '/images/calculator/sill/construction_2.jpg', '/images/calculator/sill/construction_2.jpg'
-// ],
-// factory: [
-// 	'/images/calculator/sill/construction_2.jpg', '/images/calculator/sill/construction_2.jpg', '/images/calculator/sill/construction_2.jpg',
-// 	'/images/calculator/sill/construction_2.jpg', '/images/calculator/sill/construction_2.jpg', '/images/calculator/sill/construction_2.jpg'
-// ]

@@ -38,7 +38,7 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 	<div class="kp_header-wrapper">
 		<div class="kp_header">
 			<div class='text-center h2 mt-5' data-input_id="orderName">Коммерческое предложение № <span></span></div>
-			<div class='text-center h3 mt-5 changeInput' data-input_id="customerName">Для <span></span></div>
+			<div class='text-center h3 mt-5 changeInput' data-input_id="customerName">для <span></span></div>
 			<div class='text-center h3 mt-5 changeInput' data-input_id="kpDescription"><span></span></div>
 			<div class="row">
 				<div class="col-6 h5 mt-4 mb-3" data-input_id="orderDate">Дата составления: <span></span></div>

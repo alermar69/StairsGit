@@ -69,6 +69,8 @@ $scripts[] = ["url" => "/calculator/general/scene/objects/fence.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/bed.js"];
 $scripts[] = ["url" => "/calculator/rack/drawCarcas.js"];
 
+$scripts[] = ["url" => "/orders/docs/russianNames.js"];
+
 $scripts[] = ['url' => "/calculator/general/jsviews.min.js"];
 
 //<!--другая библиотека polygon triangulation-->
