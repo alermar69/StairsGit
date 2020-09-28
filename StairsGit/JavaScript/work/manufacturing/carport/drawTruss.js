@@ -123,7 +123,8 @@ function drawStrightTruss(par){
 		dxfPrimitivesArr: par.dxfPrimitivesArr,
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -500),
 		roundHoleCenters: [
-			{ x: par.flanWidth / 2, y: holeOffset - stripeParTop.poleProfileY},
+			//{ x: par.flanWidth / 2, y: holeOffset - stripeParTop.poleProfileY},
+			{ x: par.flanWidth / 2, y: holeOffset},
 			{x: par.flanWidth / 2, y: holeOffset + partPar.beam.holeDist},
 		],
 	}
@@ -202,6 +203,7 @@ function drawTriangleSheetTruss(par){
 	var p0 = {x: 0, y: 0}
 	var pt = newPoint_xy(p0, 0, partPar.truss.endHeight) //точка на верхней линии над осью колонны
 	
+	
 	//нижняя линия
 	var botLine = {
 		p1: newPoint_xy(p0, -par.columnBase / 2, 0),
@@ -213,7 +215,7 @@ function drawTriangleSheetTruss(par){
 		p1: copyPoint(pt),
 		p2: polar(pt, par.topAng / 180 * Math.PI, 100), //временная точка
 	}
-
+	
 	
 	var leftLine = {
 		p1: newPoint_xy(p0, -partPar.column.profSize.y / 2 - params.sideOffset, 0)
@@ -235,7 +237,7 @@ function drawTriangleSheetTruss(par){
 	var rightLine = {
 		p1: {x: topLine.p1.x + par.len, y: 0,}, //временная точка
 	}
-	if(params.carportType == "двухскатный") rightLine.p1.x - par.flanThk
+	if(params.carportType == "двухскатный") rightLine.p1.x -= par.flanThk / 2
 		
 	rightLine.p2 = newPoint_xy(rightLine.p1, 0, 100) //временная точка
 	
@@ -245,7 +247,6 @@ function drawTriangleSheetTruss(par){
 	if(params.beamModel == "постоянной ширины"){
 		botLine.p2 = itercection(rightLine.p2, polar(rightLine.p2, par.topAng / 180 * Math.PI, 1), botLine.p2, newPoint_xy(botLine.p2, 1, 0))
 	}
-	
 
 	//верхний свес и горизонтальная полка под колонну сверху на односкатном навесе
 	//обозначение точек здесь https://6692035.ru/drawings/carport/trussTop.png
@@ -273,7 +274,7 @@ function drawTriangleSheetTruss(par){
 	par.hasDivide = true;
 	var points = [botLine.p1, topLine.p1, rightLine.p1];
 	
-	if(rightLine.p3) points.push(rightLine.p21, rightLine.p3, rightLine.p4, rightLine.p5,)
+	if(rightLine.p3) points.push(rightLine.p21, rightLine.p3, rightLine.p4, rightLine.p5)
 	else points.push(rightLine.p2)
 
 	points.push(botLine.p2)
@@ -412,6 +413,7 @@ function drawTriangleSheetTruss(par){
 	var geom = new THREE.ExtrudeGeometry(par.shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var truss = new THREE.Mesh(geom, params.materials.metal);
+	if (params.carportType == "двухскатный") truss.position.x -= par.flanThk / 2
 	par.mesh.add(truss);
 	truss.setLayer('carcas');
 
@@ -431,6 +433,7 @@ function drawTriangleSheetTruss(par){
 
 	var stripe = drawPole3D_4(stripeParTop).mesh;
 	stripe.position.x = topLine.p1.x
+	if (params.carportType == "двухскатный") stripe.position.x -= par.flanThk / 2
 	stripe.position.y = topLine.p1.y
 	stripe.position.z = -stripeParTop.poleProfileZ / 2 + partPar.truss.thk / 2;
 	par.mesh.add(stripe);
@@ -458,7 +461,8 @@ function drawTriangleSheetTruss(par){
 	
 	var stripe = drawPole3D_4(stripeParBot).mesh;
 	stripe.position.x = basePoint.x
-	stripe.position.y = basePoint.y
+	if (params.carportType == "двухскатный") stripe.position.x -= par.flanThk / 2
+	stripe.position.y = basePoint.y - 0.1
 	stripe.position.z = -stripeParBot.poleProfileZ / 2 + partPar.truss.thk / 2;
 	par.mesh.add(stripe);
 	stripe.setLayer('carcas');
@@ -472,6 +476,7 @@ function drawTriangleSheetTruss(par){
 	
 	var flan = drawColumnFlan(flanParams).mesh;
 	flan.position.z = -flanParams.thk;
+	if (params.carportType == "двухскатный") flan.position.x = -par.flanThk / 2
 	par.mesh.add(flan);
 	
 	//правый фланец	
@@ -480,6 +485,10 @@ function drawTriangleSheetTruss(par){
 	var flan = drawColumnFlan(flanParams).mesh;
 	flan.rotation.y = Math.PI
 	flan.position.x = rightLine.p2.x * 2
+	if (params.carportType == "двухскатный") {
+		flan.position.x += par.flanThk / 2
+		//flan.position.z = -partPar.truss.thk;
+	}
 	if(params.carportType == "односкатный") {
 		flan.position.x = rightLine.p3.x - partPar.column.profSize.y / 2
 		flan.position.y = rightLine.p3.y
@@ -510,27 +519,27 @@ function drawTriangleSheetTruss(par){
 		
 		var flan = drawRectFlan2(flanPar).mesh;
 		flan.rotation.y = Math.PI / 2;
-		flan.position.x = rightLine.p2.x
+		flan.position.x = rightLine.p2.x - par.flanThk / 2
 		flan.position.y = rightLine.p2.y
 		// flan.position.z = stripeWidth / 2;
 		flan.position.z = stripeWidth / 2 + partPar.truss.thk / 2;
 		par.mesh.add(flan);
-		flan.setLayer('carcas');
+		flan.setLayer('flans');
 	}
 	
 	//вторая половинка
 	if(params.carportType == "двухскатный"){
 		var truss2 = new THREE.Mesh(geom, params.materials.metal);
 		truss2.rotation.y = Math.PI;
-		truss2.position.x = rightLine.p1.x * 2;
-		//truss2.position.z = partPar.truss.thk;
+		truss2.position.x = rightLine.p1.x * 2 + par.flanThk / 2;
+		truss2.position.z = partPar.truss.thk;
 		par.mesh.add(truss2);
 		truss2.setLayer('carcas');
 		
 		//полоса сверху
 		var stripe = drawPole3D_4(stripeParTop).mesh;			
 		stripe.rotation.y = Math.PI;
-		stripe.position.x = -topLine.p1.x + rightLine.p1.x * 2
+		stripe.position.x = -topLine.p1.x + rightLine.p1.x * 2 + par.flanThk / 2
 		stripe.position.y = topLine.p1.y
 		stripe.position.z = stripeParTop.poleProfileZ / 2 + partPar.truss.thk / 2;
 
@@ -540,8 +549,8 @@ function drawTriangleSheetTruss(par){
 		//полоса снизу
 		var stripe = drawPole3D_4(stripeParBot).mesh;
 		stripe.rotation.y = Math.PI;
-		stripe.position.x = -basePoint.x + rightLine.p1.x * 2
-		stripe.position.y = basePoint.y
+		stripe.position.x = -basePoint.x + rightLine.p1.x * 2 + par.flanThk / 2
+		stripe.position.y = basePoint.y - 0.1
 		stripe.position.z = stripeParBot.poleProfileZ / 2 + partPar.truss.thk / 2;
 		par.mesh.add(stripe);
 		stripe.setLayer('carcas');
@@ -553,6 +562,7 @@ function drawTriangleSheetTruss(par){
 	
 	//сохраняем точку конец фермы для отрисовки прогонов и кровли
 	partPar.truss.endPoint = polar(topLine.p1, THREE.Math.degToRad(params.roofAng + 90), partPar.truss.stripeThk)
+	if (params.carportType == "двухскатный") partPar.truss.endPoint.y += 0.5
 	
 	//расчет площади одной половинки
 	var height_l = topLine.p1.y;
@@ -721,6 +731,8 @@ function drawArcSheetTruss(par){
 	addArc2(par.shape, par.dxfArr, botArc.center, botArc.rad, botArc.startAngle, botArc.endAngle, false, par.dxfBasePoint)
 
 	//большие отверстия
+	//var len = topArc.len - params.sideOffset;
+	//if (params.carportType == "двухскатный") len -= params.sideOffset;
 	par.progonAmt = Math.ceil(topArc.len / params.progonMaxStep);	
 	if(!par.hasDivide) par.progonAmt *= 0.5; //кол-во прогонов на половину фермы
 	
@@ -839,7 +851,7 @@ function drawArcSheetTruss(par){
 	if(!par.hasDivide) stripe.rotation.z = topArc.endAngle;
 	stripe.position.z = -stripeWidth / 2 + partPar.truss.stripeThk / 2;
 	stripe.position.x = topArc.center.x;
-	stripe.position.y = -topArc.rad + rightLine.p1.y;
+	stripe.position.y = -topArc.rad + rightLine.p1.y + 0.1;
 	stripe.setLayer('carcas');
 	par.mesh.add(stripe);
 	
@@ -856,6 +868,7 @@ function drawArcSheetTruss(par){
 		layer: "carcas", //слой для выгрузки в dxf
 		dxfPrimitivesArr: []
 	}	
+	if (params.carportType == "односкатный") stripePar.angle -= 0.02
 
 	var stripe = drawArcPanel(stripePar).mesh;
 
@@ -863,7 +876,8 @@ function drawArcSheetTruss(par){
 	if(!par.hasDivide) stripe.rotation.z = botArc.endAngle;
 	stripe.position.z = -stripeWidth / 2 + partPar.truss.stripeThk / 2;
 	stripe.position.x = botArc.center.x;
-	stripe.position.y = -botArc.rad + rightLine.p2.y;
+	stripe.position.y = -botArc.rad + rightLine.p2.y - 0.2;
+	if (params.carportType == "односкатный") stripe.rotation.z += 0.02
 	stripe.setLayer('carcas');
 	par.mesh.add(stripe);
 	
@@ -1227,6 +1241,7 @@ function addTrussHoles(par){
 	var holeStepAng = (par.topArc.startAngle - par.topArc.endAngle) / holeAmt;
 	
 	var hidenHolesAmt = 1; //не отрисовываем крайние отверстия
+	hidenHolesAmt += Math.floor(params.sideOffset / 300);
 	
 	if(params.trussHolesType == "круги"){
 		var holeAmt = Math.ceil(par.topArc.len / (par.maxHoleDiam + par.bridgeWidth))

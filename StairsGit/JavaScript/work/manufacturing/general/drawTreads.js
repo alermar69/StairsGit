@@ -2291,7 +2291,8 @@ function drawWndTreadsMetal(par) {
 			dxfArr: dxfPrimitivesArr,
 			dxfBasePoint: dxfBasePoint,
 			hasTopScrews: true,
-			hasBotScrews: true
+			hasBotScrews: true,
+			isTurn: true,
 		};
 		// console.log(par.turnId)
 		if (params.stairModel == "П-образная с забегом" && par.turnId == 2) riserPar.width = par.h;
@@ -2407,7 +2408,8 @@ function drawWndTreadsMetal(par) {
 			dxfArr: dxfPrimitivesArr,
 			dxfBasePoint: newPoint_xy(dxfBasePoint, 0, -500),
 			hasTopScrews: true,
-			hasBotScrews: true
+			hasBotScrews: true,
+			isTurn: true,
 		};
 		if (hasTurnRack && treadParams[1].riserFix) {//Меняем размер подступенка, riserFix рассчитывается в calcWndTread1Points
 			riserPar.cutWndIn = treadParams[1].riserFix / Math.cos(treadParams[1].edgeAngle) + 0.03;
@@ -2504,7 +2506,8 @@ function drawWndTreadsMetal(par) {
 			dxfBasePoint: newPoint_xy(dxfBasePoint, 0, -500),
 			offsetX: offsetX,
 			hasTopScrews: true,
-			hasBotScrews: true
+			hasBotScrews: true,
+			isTurn: true,
 		};
 		if (hasTurnRack) {//Меняем размер подступенка, riserFix рассчитывается в calcWndTread1Points
 			//riserPar.cutWndIn = params.rackSize / Math.cos(treadParams[3].edgeAngle) + 10;
@@ -4603,6 +4606,13 @@ function drawRectRiser(par) {
 			treadLightMesh.position.y = -par.len / 2;
 			treadLightMesh.position.x = 0.5;
 			treadLightMesh.rotation.y = -Math.PI / 2;
+		}
+		if (par.isTurn && turnFactor == -1) {
+			treadLightMesh.position.z = par.thk + lightWidth;
+			if (par.offsetX) {
+				treadLightMesh.position.x = par.width - 0.5
+				treadLightMesh.position.z = -lightWidth;
+			}
 		}
 		
 		treadLightMesh.setLayer('tread_light');

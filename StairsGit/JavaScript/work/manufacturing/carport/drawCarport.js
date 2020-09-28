@@ -428,8 +428,8 @@ function drawRoof(par){
 				sheet.position.x = params.width / 2;
 			}
 			
-			sheet.position.z = sheetStep * i;
-			sheet.position.y = par.topArc.center.y;
+			sheet.position.z = sheetStep * i + 10;
+			sheet.position.y = par.topArc.center.y + 10;
 			sheet.setLayer('roof');
 			roof.add(sheet);
 
@@ -452,7 +452,7 @@ function drawRoof(par){
 				
 		
 				polyProfile.setLayer('roof');
-				roof.add(polyProfile);
+				if(!testingMode) roof.add(polyProfile);
 			}
 		}
 		
@@ -1235,7 +1235,7 @@ function drawRectCarport(par){
 		}
 
 		if(params.roofType == "Арочная") {
-			deltaHeight = partPar.main.arcPar.topArc.height - partPar.truss.width
+			deltaHeight = partPar.main.arcPar.topArc.height - partPar.truss.width - 50
 			if(params.beamModel == "проф. труба") deltaHeight = partPar.main.arcPar.topArc.height - partPar.rafter.profSize.y - partPar.beam.profSize.y
 		}
 		columnArrPar.modifier = function(counter, itemPar, itemMoove){
@@ -1243,7 +1243,7 @@ function drawRectCarport(par){
 			itemPar.isTop = false;
 			
 			if(counter.x == 1) {
-				itemPar.len = params.height + deltaHeight;
+				itemPar.len = params.height + deltaHeight - 0.5;
 				itemPar.isTop = true;
 			}
 		}

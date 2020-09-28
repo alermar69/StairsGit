@@ -1510,17 +1510,17 @@ function drawComplexStringer(par) {
 					thk: 4,
 					name: "Фланец соединения косоуров",
 				};
-				flanPar.width -= params.metalThickness + params.metalThickness / Math.sin(marshParams.ang) + flanPar.thk / Math.sin(marshParams.ang);
+				var dx = flanPar.thk / Math.tan(marshParams.ang) + params.metalThickness / Math.sin(marshParams.ang)
+				flanPar.width -= params.metalThickness + dx;
 				flanPar.pointCurrentSvg = newPoint_xy(par.pDivideBot, 50, 0);
 				flanPar.pointStartSvg = copyPoint(par.stepPoints[0]);
 				if (par.isBigFloor) flanPar.pointStartSvg = copyPoint(par.pointsShape[2]);// при большой разнице чистового и чернового пола
 
 				var flan = drawDivideFlans(flanPar).mesh;
-				var pt = polar(par.pDivideBot, marshParams.ang + Math.PI / 2, params.metalThickness);
+				var pt = newPoint_xy(par.pDivideBot, -dx, 0);
 				flan.position.x = sidePlate2.position.x + pt.x;
-				flan.position.y += sidePlate2.position.y + pt.y;// -flanParams.height +holOffZapTop;
-				//flan.rotation.y += Math.PI / 2;
-				flan.rotation.z = marshParams.ang;
+				flan.position.y += sidePlate2.position.y + pt.y;
+				flan.rotation.z = Math.PI / 2;
 
 				par.flans.add(flan);
 			}

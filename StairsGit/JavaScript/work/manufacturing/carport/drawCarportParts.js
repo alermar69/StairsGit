@@ -91,7 +91,7 @@ function drawPurlin(par){
 			var flan = drawPurlinFlan(flanPar).mesh
 			if(params.roofType == "Плоская") flan.rotation.x = -Math.PI / 2;
 			flan.position.x = params.frontOffset + (partPar.column.profSize.y - 40) / 2 + (params.sectLen - partPar.column.profSize.y / params.sectAmt) * i
-			flan.position.z = -flanPar.thk
+			if (params.roofType == "Плоская") flan.position.z = -flanPar.thk
 			flan.setLayer('carcas');
 			par.mesh.add(flan);
 			flanPar.dxfBasePoint = false;
@@ -548,17 +548,21 @@ function drawColumnFlan(par){
 	var p91 = newPoint_xy(p9, -pinSize, 0)
 	var p92 = newPoint_xy(p9, -pinSize, -pinSize)
 
+	var points = [p1, p2, p3, p4, p41, p5, p6, p7, p8, p9]
+	if (par.isTop) points = [p1, p4, p5, p6, p7, p8, p9];
+
+	if (!testingMode) {
+		points.push(p91, p92, p12, p11)
+	}
+
 	//создаем шейп
 	var shapePar = {
-		points: [p1, p2, p3, p4, p41, p5, p6, p7, p8, p9, p91, p92, p12, p11],
+		points: points,
 		dxfArr: par.dxfPrimitivesArr,
 		dxfBasePoint: par.dxfBasePoint,
 		markPoints: true,
 	}
 	
-	if(par.isTop){
-		shapePar.points = [p1, p4, p5, p6, p7, p8, p9, p91, p92, p12, p11];
-	}
 	
 	var shape = drawShapeByPoints2(shapePar).shape;
 
@@ -1899,7 +1903,7 @@ function drawRoofCarcas(par){
 			}
 			if(params.beamModel != "проф. труба") {
 				arrPar.itemAmt = rafterPar.progonAmt + 1;
-				arrPar.rad = topArc.rad + partPar.truss.stripeThk
+				arrPar.rad = topArc.rad + partPar.truss.stripeThk + 1
 			}
 			
 			if(params.beamModel == "ферма постоянной ширины") {

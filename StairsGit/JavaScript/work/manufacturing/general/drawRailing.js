@@ -4634,7 +4634,7 @@ function drawForgedFramePart2(par) {
 					material: par.material,
 					dxfArr: dxfPrimitivesArr0,
 					dxfBasePoint: { x: 1000, y: -1000, },
-					size: 76,
+					size: 92,
 					holeDst: 55,
 				}
 				flanParams = drawPlatformRailingFlan(flanParams)

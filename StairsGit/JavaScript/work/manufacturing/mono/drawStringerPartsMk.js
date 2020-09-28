@@ -127,10 +127,8 @@ function drawStringerMk(par) {
 						break;
 					}
 				}
-				var pt2 = itercection(pt1,
-					polar(pt1, par.marshAngle + Math.PI / 2, 100),
-					par.pointsShape[0],
-					par.pointsShape[par.pointsShape.length - 1]);
+				//var pt2 = itercection(pt1, polar(pt1, par.marshAngle + Math.PI / 2, 100), par.pointsShape[0], par.pointsShape[par.pointsShape.length - 1]);
+				var pt2 = itercection(pt1, polar(pt1, 0, 100), par.pointsShape[0], par.pointsShape[par.pointsShape.length - 1]);
 
 				var trashShape = new THREE.Shape();
 				var layer = "comments";

@@ -9331,14 +9331,14 @@ function drawDivideFlan(par) {
 
 	//отверстия для болтов
 	var holes = [];
-	var offsetHoleX = 25;
-	var offsetHoleY = 20;
+	var offsetHoleX = 20;
+	var offsetHoleY = 25;
 	holes.push(newPoint_xy(p1, offsetHoleX, offsetHoleY));
 	holes.push(newPoint_xy(p4, -offsetHoleX, offsetHoleY));
-	holes.push(newPoint_xy(p1, par.len / 2, offsetHoleY));
+	holes.push(newPoint_xy(p1, offsetHoleX, par.width / 2));
+	holes.push(newPoint_xy(p4, -offsetHoleX, par.width / 2));
 	holes.push(newPoint_xy(p2, offsetHoleX, -offsetHoleY));
 	holes.push(newPoint_xy(p3, -offsetHoleX, -offsetHoleY));
-	holes.push(newPoint_xy(p2, par.len / 2, -offsetHoleY));
 	for (var i = 0; i < holes.length; i++) {
 		holes[i].rad = par.holeRad;
 	}
