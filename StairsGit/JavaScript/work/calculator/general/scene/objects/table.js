@@ -541,7 +541,7 @@ class Table extends AdditionalObject {
 					"printable": "true",
 				},
 				
-	//цена			
+				//цена
 				{
 					"type": "delimeter",
 					"title": "Цена"
@@ -551,19 +551,7 @@ class Table extends AdditionalObject {
 					"title": "Цена слэба",
 					"type": "number"
 				},
-				{
-					key: 'priceFactor',
-					title: 'К-т на цену',
-					default: 1,
-					type: 'number'
-				},
-				{
-					key: 'costFactor',
-					title: 'К-т на себестоимость',
-					default: 1,
-					type: 'number'
-				},
-				
+				...AdditionalObject.defaultInputs()
 			]
 		}
 	}

@@ -162,6 +162,16 @@ function changeOrderForm(){
 		var el = $('[data-input_id="'+id+'"]');
 		if (el.length > 0) {
 			var val = $(this).val();
+			// Для заказов созданных раньше 28.09.2020 склоняем имена
+			if (this.id == "customerName") {
+				try {
+					var createDate = new Date($("#orderDate").val());
+					if (createDate < new Date('09.28.2020')) {
+						var russianName = new RussianName(val);
+						val = russianName.fullName(russianName.gcaseGen);
+					}
+				} catch (error) {}
+			}
 			//форматируем дату
 			if($(this).attr("type") == "date") val = formatDate($(this).val(), "dd.MM.yy");
 				

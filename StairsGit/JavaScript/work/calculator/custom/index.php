@@ -1,6 +1,10 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Шаблон КП на нестандартные изделия v.1.0"); 
+//модуль
+$calc_type = getCalcType();
+//представление
+$template = getTemplate();
 ?> 
 
 <link href="styles.css" type="text/css" rel="stylesheet" />

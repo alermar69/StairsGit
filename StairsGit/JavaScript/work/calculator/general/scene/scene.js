@@ -293,6 +293,8 @@ class TextureManager{
 
 		var info = this.getMaterialInfo(material_name);
 		material.userData.materialKey = info.key;
+		material.userData.materialColorName = info.color;
+		material.userData.materialGroup = info.group;
 		if (!info || info.group == '') return
 
 		var mat_config = false;

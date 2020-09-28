@@ -221,9 +221,12 @@ class Materials {
 		var templateJson = [];
 		keys_list.forEach(function(key){
 			var materialInfo = Materials.list[key];
-			json[key] = materialInfo;
-			templateJson.push(materialInfo)
+			if (materialInfo) {
+				json[key] = materialInfo;
+				templateJson.push(materialInfo)
+			}
 		});
+		console.log(templateJson)
 		html = $.templates("#infoBlockTemplate").render({
 			title: "Используемые материалы",
 			blocks: templateJson

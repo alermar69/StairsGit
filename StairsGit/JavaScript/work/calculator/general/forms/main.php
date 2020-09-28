@@ -91,10 +91,12 @@
 
 		//кнопки под визуализацией
 		if($template == 'calculator') {
-			echo
-				'<div class="noPrint mainButtons">
-					<button id="open_master_modal" class="btn btn-outline-primary">Конфигуратор</button>
-					<button id="sendMessageModalShow" class="btn btn-outline-primary">Отправить КП</button>
+			echo '<div class="noPrint mainButtons">';
+			if ($calc_type != 'objects') {
+				echo	'<button id="open_master_modal" class="btn btn-outline-primary">Конфигуратор</button>';
+			}
+
+			echo	'<button id="sendMessageModalShow" class="btn btn-outline-primary">Отправить КП</button>
 					<button id="print" class="btn btn-outline-primary">Печать</button>
 					<button onclick="saveCanvasImg(0)" class="btn btn-outline-secondary">Сохранить png</button>
 					

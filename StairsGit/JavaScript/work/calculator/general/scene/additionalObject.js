@@ -234,6 +234,42 @@ class AdditionalObject extends THREE.Object3D {
 		}
 	}
 
+	/**
+	 * Общие инпуты
+	 */
+	static defaultInputs(){
+		return [
+			{
+				type: "delimeter",
+				title: "Общие параметры"
+			},
+			{
+				key: 'priceFactor',
+				title: 'К-т на цену',
+				default: 1,
+				type: 'number'
+			},
+			{
+				key: 'costFactor',
+				title: 'К-т на себестоимость',
+				default: 1,
+				type: 'number'
+			},
+			{
+				key: 'objectAmt',
+				title: 'Количество',
+				default: 1,
+				type: 'number'
+			},
+			{
+				key: 'objectComment',
+				title: 'Комментарий',
+				default: '',
+				type: 'text'
+			},
+		]
+	}
+
 	static getDefaults() {
 		var obj = {};
 

@@ -106,7 +106,7 @@ class Fence extends AdditionalObject{
 					title: 'Высота',
 					default: 2000,
 					type: 'number'
-				},
+				}
 			]
 		}
 	}

@@ -560,7 +560,7 @@ function drawColumnFlan(par){
 		points: points,
 		dxfArr: par.dxfPrimitivesArr,
 		dxfBasePoint: par.dxfBasePoint,
-		markPoints: true,
+		//markPoints: true,
 	}
 	
 	

@@ -1,6 +1,10 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("КП на столешницы и подоконники"); 
+//модуль
+$calc_type = getCalcType();
+//представление
+$template = getTemplate();
 ?> 
 
 <link href="styles.css" type="text/css" rel="stylesheet" />

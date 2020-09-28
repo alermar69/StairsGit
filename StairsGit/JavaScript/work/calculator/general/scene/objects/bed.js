@@ -206,23 +206,7 @@ class Bed extends AdditionalObject {
 						},
 					]
 				},
-				
-				{
-					type: 'delimeter',
-					title: 'Цена',
-				},
-				{
-					key: 'priceFactor',
-					title: 'К-т на цену',
-					default: 1,
-					type: 'number'
-				},
-				{
-					key: 'costFactor',
-					title: 'К-т на себестоимость',
-					default: 1,
-					type: 'number'
-				},
+				...AdditionalObject.defaultInputs()
 			]
 		}
 	}

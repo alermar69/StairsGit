@@ -433,19 +433,7 @@ class Wardrobe extends AdditionalObject {
 					default: 'Шкаф',
 					type: 'text'
 				},
-				{
-					key: 'priceFactor',
-					title: 'К-т на цену',
-					default: 1,
-					type: 'number'
-				},
-				{
-					key: 'costFactor',
-					title: 'К-т на себестоимость',
-					default: 1,
-					type: 'number'
-				},
-
+				...AdditionalObject.defaultInputs()
 			]
 		}
 	}

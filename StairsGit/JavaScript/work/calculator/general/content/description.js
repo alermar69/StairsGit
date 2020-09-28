@@ -444,8 +444,6 @@ function printDescr() {
 
 function printAdditionalDescription(){
 	var paramsBlockTemplate = $.templates("#paramsBlockTemplate");
-	var infoBlockTemplate = $.templates("#infoBlockTemplate");
-	var imagesBlockTemplate = $.templates("#imagesBlockTemplate");
 
 	var html = "<div class='container newKP' style=''>";
 
@@ -453,31 +451,12 @@ function printAdditionalDescription(){
 	html += Materials.getSceneDescription().html;
 
 	// Отделка дерева
-	var form = $('#nav-materials .form_table')[0];
-	var par = getInputsFromForm(form);
-	html += paramsBlockTemplate.render(getTimberPaintDescription());
+	if (getTimberPaintDescription().images.length > 0) {
+		html += paramsBlockTemplate.render(getTimberPaintDescription());
+	}
 	
 	// Покраска металла
-	html += paramsBlockTemplate.render({
-		title: "Покраска металла",
-		description: "В специальном покрасочном цехе мы окрашиваем все металлические детали долговечной\
-		износостойкой порошковой краской с нулевой эмиссией летучих веществ. А так же обеспечиваем\
-		контроль толщины слоя.",
-		images: [
-			{
-				url: "/images/calculator/new_kp/20. Порошковая покраска металла - работа.jpg",
-			},
-			{
-				url: "/images/calculator/new_kp/20. Порошковая покраска металла - результат.jpg",
-			}
-		],
-		par: [
-			{
-				title: 'Цвет металла',
-				value: 'темно-серый'
-			}
-		]
-	});
+	if (getMetalPaintDescription().images.length > 0) html += paramsBlockTemplate.render(getMetalPaintDescription());
 
 	var additionalObjectsText = ""
 	if (window.additional_objects && window.additional_objects.length > 0) {
@@ -485,7 +464,11 @@ function printAdditionalDescription(){
 			if (obj.calc_price) {
 				if (eval(obj.className)) {
 					var blockType = "object_" + obj.id;
-					html += $.templates("#objectDescriptionTempalte").render({noDefault: true, type: blockType, images: getPreviewImages(blockType), description: eval(obj.className).getDescr(obj).html});
+					html += $.templates("#objectDescriptionTempalte").render({
+						noDefault: true, 
+						type: blockType, 
+						images: getPreviewImages(blockType), 
+						description: eval(obj.className).getDescr(obj).html});
 				}
 			}
 		})
@@ -539,8 +522,12 @@ function printAdditionalDescription(){
 	}
 }
 
-function getInputsFromForm(form){
-	var tr = $(form).find('tr:not([style*="display: none"])')
+function getInputsFromForm(form, className){
+	var selector = 'tr:not([style*="display: none"])';
+	if (className) {
+		selector = 'tr.'+className+':not([style*="display: none"])';
+	}
+	var tr = $(form).find(selector)
 	var par = [];
 	$.each(tr, function(){
 		var input = $(this).find('input, select');
@@ -593,7 +580,81 @@ function getTimberPaintDescription(){
 		images.push({url: item.image});
 	})
 
-	return {title: 'Обработка дерева', description: descriptionText, images: images}
+	// Формирование параметров
+	var form = $('#nav-materials .form_table')[0];
+	var par = getInputsFromForm(form, 'timberPaint');
+	$.each($('#colorsFormTable tr[data-mat="timber"]:not([style*="display: none"])'), function(){
+		par.push({
+			title: "Цвет ("+$(this).find("td")[0].innerHTML+")",
+			value: $(this).find(".Color").val()
+		})
+	})
+
+	return {title: 'Обработка дерева', description: descriptionText, images: images, par: par}
+}
+
+function getMetalColors(){
+	var colors = [];
+	view.scene.traverse(function(node){
+		var material = node.material;
+		if (material && material.userData && material.userData.materialColorName && material.userData.materialGroup == 'metal') {
+			if (colors.indexOf(material.userData.materialColorName) == -1) colors.push(material.userData.materialColorName);
+		}
+	});
+	return colors;
+}
+
+// Картинки для обработки дерева
+function getMetalPaintDescription(){
+	var painting_images = [
+		{
+			'name': 'Порошок',
+			'description': "В специальном покрасочном цехе мы окрашиваем все металлические детали долговечной	износостойкой порошковой краской с нулевой эмиссией летучих веществ. А так же обеспечиваем	контроль толщины слоя.",
+			'condition': 'params.metalPaint == "порошок"',
+			'block': 'metal',
+			'image': '/images/calculator/new_kp/20. Порошковая покраска металла - работа.jpg'
+		}
+	];
+
+	$.each($('#carcasColor option'), function(){
+		var name = this.value;
+		painting_images.push({
+			'name': name,
+			'description': "",
+			'condition': 'getMetalColors().indexOf("'+name+'") != -1',
+			'block': 'metal',
+			'image': '/images/calculator/metal_paint/'+name+'.jpg'
+		});
+	})
+
+	var items = getGoodItems(painting_images);
+
+	var descriptionText = "";
+	var images = [];
+	items.forEach(function(item){
+		descriptionText += item.description;
+		images.push({url: item.image});
+	})
+
+	// Формируем параметры
+	var par = [
+		{
+			title: "Тип покраски",
+			value: params.metalPaint
+		},
+		{
+			title: "Цвет металла",
+			value: params.carcasColor
+		}
+	];
+	$.each($('#colorsFormTable tr[data-mat="metal"]:not([style*="display: none"])'), function(){
+		par.push({
+			title: "Цвет ("+$(this).find("td")[0].innerHTML+")",
+			value: $(this).find(".Color").val()
+		})
+	})
+
+	return {title: 'Покраска металла', description: descriptionText, images: images, par: par}
 }
 
 function getGoodItems(array){

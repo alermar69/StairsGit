@@ -164,20 +164,19 @@ class Door extends AdditionalObject {
 		initPar(par);
 		
 		if (par.texture && textureManager.texturesEnabled) {
-			var self = this;
 
 			textureManager.textureLoader.load(par.texture + 'other.jpg', function (map) {
-				self.material.map = map;
-				self.material.needsUpdate = true;
+				par.material.map = map;
+				par.material.needsUpdate = true;
 			});
 
 			textureManager.textureLoader.load(par.texture + 'map.jpg', function (map) {
-				if (self.par.doorsCount == 1 && self.par.doorType == 'левая') {
+				if (par.doorsCount == 1 && par.doorType == 'левая') {
 					map.wrapS = THREE.RepeatWrapping;
 					map.repeat.x = - 1;
 				}
-				self.materialDoor.map = map;
-				self.materialDoor.needsUpdate = true;
+				par.materialDoor.map = map;
+				par.materialDoor.needsUpdate = true;
 			});
 
 			if (par.doorsCount == 2) {
@@ -185,8 +184,8 @@ class Door extends AdditionalObject {
 					map.wrapS = THREE.RepeatWrapping;
 					map.repeat.x = - 1;
 
-					self.materialDoor2.map = map;
-					self.materialDoor2.needsUpdate = true;
+					par.materialDoor2.map = map;
+					par.materialDoor2.needsUpdate = true;
 				});
 			}
 		}

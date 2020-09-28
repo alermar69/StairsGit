@@ -119,21 +119,7 @@ class Columns extends AdditionalObject {
 					default: 2,
 					type: 'number'
 				},
-				{
-					type: 'delimeter'
-				},
-				{
-					key: 'priceFactor',
-					title: 'К-т на цену',
-					default: 1,
-					type: 'number'
-				},
-				{
-					key: 'costFactor',
-					title: 'К-т на себестоимость',
-					default: 1,
-					type: 'number'
-				},
+				...AdditionalObject.defaultInputs()
 			]
 		}
 	}

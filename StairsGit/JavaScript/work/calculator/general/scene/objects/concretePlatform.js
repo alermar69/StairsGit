@@ -97,7 +97,7 @@ class ConcretePlatform extends AdditionalObject{
 					title: 'Наклон',
 					default: 0,
 					type: 'number'
-				},
+				}
 			]
 		}
 	}
