@@ -124,9 +124,11 @@ function drawStringerMk(par) {
 					if (par.botUnitEnd == par.pointsShape[i]) {
 						index = i + Math.floor(par.stairAmt / 2) * 2;
 						var pt1 = copyPoint(par.pointsShape[index])
+						pt1.y += (par.pointsShape[index + 1].y - pt1.y) / 2 
 						break;
 					}
 				}
+
 				//var pt2 = itercection(pt1, polar(pt1, par.marshAngle + Math.PI / 2, 100), par.pointsShape[0], par.pointsShape[par.pointsShape.length - 1]);
 				var pt2 = itercection(pt1, polar(pt1, 0, 100), par.pointsShape[0], par.pointsShape[par.pointsShape.length - 1]);
 
@@ -135,8 +137,10 @@ function drawStringerMk(par) {
 				addLine(trashShape, dxfPrimitivesArr, pt1, pt2, par.dxfBasePoint, layer);
 
 				var botPoints = par.pointsShape.slice(0, index + 1);
+				botPoints.push(pt1);
 				botPoints.push(pt2);
-				var topPoints = par.pointsShape.slice(index);
+				var topPoints = par.pointsShape.slice(index + 1);
+				topPoints.unshift(pt1)
 				topPoints.unshift(pt2)
 
 				var heightTopStringer = sizeShape(topPoints).dimY;
