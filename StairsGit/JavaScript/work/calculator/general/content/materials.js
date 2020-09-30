@@ -201,6 +201,13 @@ class Materials {
 	 * Формирует описание на основе материалов сцены
 	 */
 	static getSceneDescription(){
+		return Materials.getItemsDescription(Materials.getSceneMaterialsList())
+	}
+
+	/**
+	 * Формирует описание на основе материалов сцены
+	 */
+	static getSceneMaterialsList(){
 		var sceneMaterials = []// Массив ключей материалов присутствующих в сцене
 		view.scene.traverse(function(node){
 			var material = node.material;
@@ -208,7 +215,7 @@ class Materials {
 				if (sceneMaterials.indexOf(material.userData.materialKey) == -1) sceneMaterials.push(material.userData.materialKey);
 			}
 		})
-		return Materials.getItemsDescription(sceneMaterials)
+		return sceneMaterials;
 	}
 
 	/**

@@ -1,3 +1,3 @@
-<div id="descriptionWrap">	
+<div id="">	
 	<div id="description"></div>
 </div>

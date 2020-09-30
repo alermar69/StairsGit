@@ -3,45 +3,46 @@ class Table extends AdditionalObject {
 		super(par);
 		
 		var objPar = Object.assign({}, this.par)
+		objPar.objId = this.objId;
 		this.add(Table.draw(objPar).mesh);
-
-		//подстолье
-		if (this.par.baseModel != 'не указано' && this.par.baseModel != 'нет') {
-			var basePar = {
-				dxfBasePoint: {x: 0,y: 0},
-				model: this.par.baseModel,
-				width: this.par.width - this.par.sideOverhang * 2,
-				height: this.par.height - this.par.countertopThk,
-				len: this.par.len - this.par.frontOverhang * 2,
-			}
-	
-			var base = drawTableBase(basePar).mesh;
-			this.add(base);
-		}
-		
-		//столешница
-		if (this.par.tabletopType != 'нет') {
-			var topPar = {
-				dxfBasePoint: {x: 2000, y: 0},
-				geom: this.par.tableGeom,
-				model: this.par.countertopModel,
-				cornerRad: this.par.cornerRad,
-				width: this.par.width,
-				len: this.par.len,
-				thk: this.par.countertopThk,
-				partsGap: this.par.partsGap,
-				modifyKey: 'tabletop:' + this.objId
-			}
-			// debugger;
-			var top = drawTableCountertop(topPar).mesh;
-			top.position.y = this.par.height;
-			this.add(top);
-		}
 	}
 
 	static draw(par){
 		if(!par) par = {};
 		initPar(par);
+
+		//подстолье
+		if (par.baseModel != 'не указано' && par.baseModel != 'нет') {
+			var basePar = {
+				dxfBasePoint: {x: 0,y: 0},
+				model: par.baseModel,
+				width: par.width - par.sideOverhang * 2,
+				height: par.height - par.countertopThk,
+				len: par.len - par.frontOverhang * 2,
+			}
+	
+			var base = drawTableBase(basePar).mesh;
+			par.mesh.add(base);
+		}
+		
+		//столешница
+		if (par.tabletopType != 'нет') {
+			var topPar = {
+				dxfBasePoint: {x: 2000, y: 0},
+				geom: par.tableGeom,
+				model: par.countertopModel,
+				cornerRad: par.cornerRad,
+				width: par.width,
+				len: par.len,
+				thk: par.countertopThk,
+				partsGap: par.partsGap,
+				modifyKey: 'tabletop:' + par.objId
+			}
+			// debugger;
+			var top = drawTableCountertop(topPar).mesh;
+			top.position.y = par.height;
+			par.mesh.add(top);
+		}
 
 		return par
 	}
@@ -550,6 +551,19 @@ class Table extends AdditionalObject {
 					"key": "slabPrice",
 					"title": "Цена слэба",
 					"type": "number"
+				},
+				{
+					"key": "slabModel",
+					"title": "Номер слэба(garmonyc-mebel)",
+					"type": "text",
+					"class": "slab",
+					"printable": "true",
+				},
+				{
+					"key": "getSlabData",
+					"title": "Загрузить данные слэба",
+					"class": "slab",
+					"type": "action"
 				},
 				...AdditionalObject.defaultInputs()
 			]

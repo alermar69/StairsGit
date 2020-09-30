@@ -95,9 +95,9 @@ class AdditionalObject extends THREE.Object3D {
 		return [];
 	}
 
-	getObjectMaterial(){
+	getObjectMaterial(material){
 		if(!window.textureManager) return this.material
-		if (this.par.material == 'металл') {
+		if (material == 'металл' || this.par.material == 'металл') {
 			// var metalType = 'additionalObjectMetal';
 			// // if (params.additionalObjectsMetalMaterial == 'хром. сталь' || params.additionalObjectsMetalMaterial ==  'нерж. сталь') metalType = 'inox';
 			// // return textureManager.createMaterial({name: metalType, color: getMetalColorId(params.additionalObjectsMetalColor), wireframe: false});
@@ -106,7 +106,7 @@ class AdditionalObject extends THREE.Object3D {
 			// }
 			return params.materials['additionalObjectMetal'];
 		}
-		if (this.par.material == 'массив') {
+		if (material == 'массив' || this.par.material == 'массив') {
 			// if (!params.materials['additionalObjectTimber']) {
 			// 	params.materials['additionalObjectTimber'] = textureManager.createMaterial({name: 'additionalObjectTimber', color: getTimberColorId(params.additionalObjectsTimberColor), wireframe: false});
 			// }
@@ -141,8 +141,7 @@ class AdditionalObject extends THREE.Object3D {
 		}else{
 			title = meta.title
 		}
-		var html = "<h3>Параметры " + title + "</h3>";
-		html += '<table class="form_table" style="max-width: 40%"><tbody>'
+		var html = '<table class="form_table" style="max-width: 40%"><tbody>'
 		var text = meta.title;
 		meta.inputs.forEach(function(input){
 			if (input && par[input.key] && input.printable) {
@@ -150,6 +149,16 @@ class AdditionalObject extends THREE.Object3D {
 			}
 		});
 		html += '</tbody></table>'
+		if (objPar.calc_price) {
+			html += "<h4 class='mt-3 pt-3' style='border-top: 2px solid gray;'>Цена</h4>";
+			html += '<table class="form_table" style="max-width: 40%"><tbody>'
+			html += '<tr><td>Количество</td><td>' + (par.objectAmt || 1) + '</td></tr>';
+			html += '<tr><td>Общая цена</td><td>' + priceObj[objPar.className + '_' + objPar.id].price + '</td></tr>';
+			if (priceObj[objPar.className + '_' + objPar.id].pricePerItem) {
+				html += '<tr><td>Цена за штуку</td><td>' + priceObj[objPar.className + '_' + objPar.id].pricePerItem + '</td></tr>';
+			}
+			html += '</tbody></table>'
+		}
 		return {html: html, text: text};
 	}
 

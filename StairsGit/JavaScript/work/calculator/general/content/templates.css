@@ -139,6 +139,11 @@
 
 .newKP .card-img-top{
 	height: 300px;
+	width: auto;
+}
+
+.newKP .card-img__container{
+	text-align: center;
 }
 
 .newKP .card-wrapper .card{
@@ -209,3 +214,20 @@
 /* .additionalObjectsDescription{
 	background-color: white;
 } */
+
+
+.description-block .additional-images__image img{
+	width: 100%;
+	height: auto;
+}
+
+.additional-images__image {
+	margin: 5px 0px;
+	padding: 5px;
+}
+
+.additional-images__image-delete{
+	position: absolute;
+	left: 5px;
+	top: 5px;
+}

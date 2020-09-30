@@ -346,69 +346,52 @@ function getCarportRoofDescr(){
 */
 
 function printDescr() {
-	if (params.calcType == 'objects') {
-		return printAdditionalDescription();
-	}
-	var text = "";
-	var additionalObjectsText = ""
-	if (window.additional_objects && window.additional_objects.length > 0) {
-		window.additional_objects.forEach(function(obj){
-			if (obj.calc_price) {
-				additionalObjectsText += eval(obj.className).getDescr(obj).html;
+	$("#description").html("");
+	if (params.calcType != 'objects') {
+		var text = "";
+		if(params.calcType != 'carport') text += $('#zamerBlocks').html();
+		if(params.calcType == 'carport') text += $('#zamerBlocksCarport').html();
+		if (params.calcType == 'carport') {
+			text += "<div class='description-title'>Основные особенности Вашего навеса</div>";
+		}else{
+			text += "<div class='description-title'>Основные особенности Вашей лестницы</div>";
+		}
+		var blocks = [];
+		var units = staircaseHasUnit();
+		//каркас
+		if(units.carcas) blocks.push({type: 'carcas', content: getCarcasDescr(), images: getPreviewImages('carcas')});
+		
+		//ступени
+		if(units.treads) {
+			var images = getPreviewImages('treads');
+			//картинка по умолчанию
+			if(images.length == 0){
+				images = [{url: getTreadDescr().img}]
 			}
-		})
-	}
-
-	if (window.location.href.indexOf('/customers') != -1) {
-		$('#additionalObjectsParams').html(additionalObjectsText);
-	}else{
-		text += additionalObjectsText;
-	}
-
-	if(params.calcType != 'carport') text += $('#zamerBlocks').html();
-	if(params.calcType == 'carport') text += $('#zamerBlocksCarport').html();
-	if (params.calcType == 'carport') {
-		text += "<div class='description-title'>Основные особенности Вашего навеса</div>";
-	}else{
-		text += "<div class='description-title'>Основные особенности Вашей лестницы</div>";
-	}
-	var blocks = [];
-	var units = staircaseHasUnit();
-	//каркас
-	if(units.carcas) blocks.push({type: 'carcas', content: getCarcasDescr(), images: getPreviewImages('carcas')});
-	
-	//ступени
-	if(units.treads) {
-		var images = getPreviewImages('treads');
-		//картинка по умолчанию
-		if(images.length == 0){
-			images = [{url: getTreadDescr().img}]
+			blocks.push({type: 'treads', content: getTreadDescr(), images: images});
 		}
-		blocks.push({type: 'treads', content: getTreadDescr(), images: images});
-	}
+		
+		//ограждения
+		if(units.railing || units.banister || units.sideHandrails) blocks.push({type: 'railing', content: getRailingDescr(), images: getPreviewImages('railing')});
+		
+		if (units.carportCarcas) blocks.push({type: 'carport_carcas', content: getCarportCarcasDescr(), images: getPreviewImages('carport_carcas')});
+		if (units.carportRoof) blocks.push({type: 'carport_roof', content: getCarportRoofDescr(), images: getPreviewImages('carport_roof')});
 	
-	//ограждения
-	if(units.railing || units.banister || units.sideHandrails) blocks.push({type: 'railing', content: getRailingDescr(), images: getPreviewImages('railing')});
-	
-	if (units.carportCarcas) blocks.push({type: 'carport_carcas', content: getCarportCarcasDescr(), images: getPreviewImages('carport_carcas')});
-	if (units.carportRoof) blocks.push({type: 'carport_roof', content: getCarportRoofDescr(), images: getPreviewImages('carport_roof')});
-
-	// $.each(blocks, function(){
-	// 	if(!this || !this.type) return true;
-	// 	text += html;
-	// });
-	if ($("#descriptionTempalte").length > 0) {
-		var template = $.templates("#descriptionTempalte");
-		var html = template.render(blocks);
-		text += html;
-		$("#description").html(text);
-	
-		if ($('#previewImages').length > 0) {
-			var images = getPreviewImages('preview');
-			var template = $.templates("#previewsTemplate");
-			var html = template.render({images: images});
-			$('#previewImages').html(html);
+		if ($("#descriptionTempalte").length > 0) {
+			var template = $.templates("#descriptionTempalte");
+			var html = template.render(blocks);
+			text += html;
+			$("#description").append(text);
 		}
+	}
+
+	$('#description').append(printAdditionalDescription())
+
+	if ($('#previewImages').length > 0) {
+		var images = getPreviewImages('preview');
+		var template = $.templates("#previewsTemplate");
+		var html = template.render({images: images});
+		$('#previewImages').html(html);
 	}
 
 	//описание для производственного модуля
@@ -442,10 +425,86 @@ function printDescr() {
 	}
 }
 
+/**
+ * Формирует описание 'особенности конструкции'
+ */
+function getConstructionAdditional() {
+	function getObjectsEdges(){
+		var edges = [];
+		window.additional_objects.forEach(function(item){
+			if (item.meshParams.edgeModel) {
+				if (edges.indexOf(item.meshParams.edgeModel) == -1) edges.push(item.meshParams.edgeModel);
+			}
+		})
+		return edges;
+	}
+
+	var path = "/drawings/tables/edges/";
+
+	var availableEdgeTypes = {
+		"скругление R3": "r-3",
+		"скругление R6": "r-6",
+		"скругление R12": "r-12",
+		"скругление R25": "r-25",
+		"фигурная Ф-1": "f-1",
+		"фигурная Ф-2": "f-2",
+		"фигурная Ф-3": "f-3",
+		"фигурная Ф-4": "f-4",
+		"фигурная Ф-5": "f-5",
+		"фигурная Ф-6": "f-6",
+		"фигурная Ф-7": "f-7",
+		"фигурная Ф-8": "f-8",
+		"фаска 6х45гр": "b-6x45",
+		"фаска 12х45гр": "b-12x45",
+	}
+
+	var images = [];
+	getObjectsEdges().forEach(function(edgeType){
+		if (Object.keys(availableEdgeTypes).indexOf(edgeType) != -1 && availableEdgeTypes[edgeType]) {
+			images.push({
+				text: '<h4>Фаска ' + edgeType + '</h4>',
+				url: path + availableEdgeTypes[edgeType] + ".jpg"
+			})
+		}
+	})
+	return {title: 'Особнности конструкции', description: "", images: images}
+}
+
+/**
+ * Получает картинки доставки
+ */
+function getAssemblingDescription() {
+	var images = [
+		{
+			url: '/images/calculator/new_kp/assembling_1.png',
+			text: 'Доставка и монтаж готового изделия осуществляется в удобный для вас день и время.'
+		},
+		{
+			url: '/images/calculator/new_kp/assembling_2.jpg',
+			text: 'Перед отправкой изделия мы надежно упаковываем его в плотную пленку для безопасной транспортировки.'
+		},
+		{
+			url: '/images/calculator/new_kp/assembling_3.jpeg',
+			condition: 'if(window.additional_objects && window.additional_objects.length > 0) window.additional_objects.find(function(item){return item.calc_price && item.className == "Sill"});',
+			text: 'Монтаж подоконника занимает не более 2х часов. После окончания работ, монтажники уберут за собой весь мусор.'
+		}
+	]
+	var par = getInputsFromForm($('#assemblingWrap table')[0]);
+	return {
+		title: "Как будет происходить доставка и монтаж",
+		description: "",
+		images: getGoodItems(images),
+		par: par
+	}
+}
+
+/**
+ * Формирование нового кп
+ */
 function printAdditionalDescription(){
 	var paramsBlockTemplate = $.templates("#paramsBlockTemplate");
 
-	var html = "<div class='container newKP' style=''>";
+	var html = "<div class='newKP' style=''>";
 
 	// Материалы
 	html += Materials.getSceneDescription().html;
@@ -454,7 +513,7 @@ function printAdditionalDescription(){
 	if (getTimberPaintDescription().images.length > 0) {
 		html += paramsBlockTemplate.render(getTimberPaintDescription());
 	}
-	
+
 	// Покраска металла
 	if (getMetalPaintDescription().images.length > 0) html += paramsBlockTemplate.render(getMetalPaintDescription());
 
@@ -468,6 +527,8 @@ function printAdditionalDescription(){
 						noDefault: true, 
 						type: blockType, 
 						images: getPreviewImages(blockType), 
+						comment: obj.meshParams.objectComment,
+						title: (obj.name || eval(obj.className).getMeta().title),
 						description: eval(obj.className).getDescr(obj).html});
 				}
 			}
@@ -476,34 +537,19 @@ function printAdditionalDescription(){
 
 	html += additionalObjectsText;
 
-	// Доставка и монтаж
-	// Получаем инпуты соответсвующей формы
-	var par = getInputsFromForm($('#assemblingWrap table')[0]);
-	html += paramsBlockTemplate.render({
-		title: "Как будет происходить доставка и монтаж",
-		description: "",
-		images: [
-			{
-				url: '/images/calculator/new_kp/assembling_1.png',
-				text: 'Доставка и монтаж готового изделия осуществляется в удобный для вас день и время.'
-			},
-			{
-				url: '/images/calculator/new_kp/assembling_2.jpg',
-				text: 'Перед отправкой изделия мы надежно упаковываем его в плотную пленку для безопасной транспортировки.'
-			},
-			{
-				url: '/images/calculator/new_kp/assembling_3.jpeg',
-				text: 'Монтаж подоконника занимает не более 2х часов. После окончания работ, монтажники уберут за собой весь мусор.'
-			}
-		],
-		par: par
-	});
+	/**
+	 * Особенности конструкции
+	 */
+	if (params.calcType == 'objects') {
+		if(getConstructionAdditional().images.length > 0) html += paramsBlockTemplate.render(getConstructionAdditional());
+	}
 
+	// Доставка и монтаж
+	html += paramsBlockTemplate.render(getAssemblingDescription());
 
 	html += $.templates("#footerTemplate").render({
 		image: "/images/calculator/new_kp/assembling_1.png",
 		items:[
-			"Бесплатно организуем вам такси до нашего офиса",
 			"Покажем образцы древесины, обработки, покрытия и тд - у нас в офисе больше 200 образцов!",
 			"Ответим на все ваши вопросы касаемо монтажа и дальнейшего ухода за подоконником",
 			"Проведем экскурсию по производству, расскажем обо всех нюансах",
@@ -512,14 +558,15 @@ function printAdditionalDescription(){
 	
 
 	html += '</div>'
-	$("#description").html(html);
+	// $("#description").html(html);
+	return html
 
-	if ($('#previewImages').length > 0) {
-		var images = getPreviewImages('preview');
-		var template = $.templates("#previewsTemplate");
-		var html = template.render({images: images});
-		$('#previewImages').html(html);
-	}
+	// if ($('#previewImages').length > 0) {
+	// 	var images = getPreviewImages('preview');
+	// 	var template = $.templates("#previewsTemplate");
+	// 	var html = template.render({images: images});
+	// 	$('#previewImages').html(html);
+	// }
 }
 
 function getInputsFromForm(form, className){
@@ -547,30 +594,79 @@ function getTimberPaintDescription(){
 			'description': "За счет специальной обработки - искусственного старения или брашировки, красивая структура дерева дополнительно подчеркивается и становится более ярко выраженной.",
 			'condition': 'params.surfaceType == "брашированная"',
 			'block': 'timber',
-			'image': '/images/calculator/sill/timber_work_1.jpg'
+			'image': "/images/calculator/new_kp/brush_01.jpg",
+		},
+		{
+			'name': 'Брашировка',
+			'description': '',
+			'condition': 'params.surfaceType == "брашированная"',
+			'block': 'timber',
+			'image': "/images/calculator/new_kp/brush_02.jpg",
 		},
 		{
 			'name': 'Шлифовка',
-			'description': "",
+			'description': "Все детали тщательно шлифуются. Сначала на станках, затем вручную, для достижения идеально гладкой поверхности. ",
 			'condition': 'params.surfaceType == "гладкая"',
 			'block': 'timber',
-			'image': '/images/calculator/sill/timber_work_1.jpg'
+			'image': "/images/calculator/new_kp/sander.jpg",
 		},
 		{
 			'name': 'Покраска лаком',
-			'description': "",
+			'description': "После этого изделие покрывается износостойким двухкомпонентным лаком Sirca (Италия). Лак образует на поверхности дерева прочную гладкую пленку. Покрытие экологично и абсолютно безвредно для человека.",
 			'condition': '["лак", "морилка+лак", "морилка+патина+лак"].indexOf(params.timberPaint) != -1',
 			'block': 'timber',
-			'image': '/images/calculator/sill/timber_work_1.jpg'
+			'image': "/images/calculator/new_kp/paint_lack.jpg",
 		},
 		{
 			'name': 'Покраска маслом',
-			'description': "После этого изделие покрывается высококачественным маслом, немецкого производства.Масло надежно защищает древесину от гниения, благодаря глубокому проникновению вструктуру. Не расслаивается и не отшелушивается. Масло абсолютно безвредно длячеловека.",
+			'description': "После этого изделие покрывается износостойким маслом с твердым воском Borma Wachs (Италия). Масло надежно защищает древесину, благодаря глубокому проникновению в структуру. Масло экологично и абсолютно безвредно для человека.",
 			'condition': '["масло", "цветное масло"].indexOf(params.timberPaint) != -1',
 			'block': 'timber',
-			'image': '/images/calculator/sill/timber_work_1.jpg'
+			'image': "/images/calculator/new_kp/paint_oil.jpg",
 		}
 	]
+
+	// Перебираем типы дерева
+	$.each($('#treadsMaterial option'), function(){
+		var timberType = this.value;
+		var timberFolder = 'дуб';
+		if (this.value.indexOf("карагач") != -1) timberFolder = 'карагач';
+		if (this.value.indexOf("лиственница") != -1) timberFolder = 'лиственница';
+		if (this.value.indexOf("сосна") != -1) timberFolder = 'сосна';
+		if (this.value.indexOf("береза") != -1) timberFolder = 'береза';
+		// Перебираем цвета
+		$.each($('#treadsColor option'), function(){
+			var color = this.value;
+			// if (color == 'нет' || color == 'не указано'){
+			// 	painting_images.push({
+			// 		'name': color,
+			// 		'description': "",
+			// 		'condition': 'Materials.getSceneMaterialsList().indexOf("нет") != -1 && getSceneColors("timber").indexOf("нет") != -1 || Materials.getSceneMaterialsList().indexOf("не указано") != -1 && getSceneColors("timber").indexOf("не указано") != -1',
+			// 		'block': 'timber',
+			// 		'image': '/images/calculator/timber_paint/'+timberFolder+'/натуральный.jpg'
+			// 	});
+			// 	return;
+			// }
+			if (color == 'нет' || color == 'не указано') return;
+			// Лак
+			painting_images.push({
+				'name': color,
+				'description': "",
+				'condition': 'Materials.getSceneMaterialsList().indexOf("'+timberType+'") != -1 && getSceneColors("timber").indexOf("'+color+'") != -1 && ["лак", "морилка+лак", "морилка+патина+лак"].indexOf(params.timberPaint) != -1',
+				'block': 'timber',
+				'image': '/images/calculator/timber_paint/'+timberFolder+'/лак/'+color+'.jpg'
+			});
+			// Масло
+			painting_images.push({
+				'name': color,
+				'description': "",
+				'condition': 'Materials.getSceneMaterialsList().indexOf("'+timberType+'") != -1 && getSceneColors("timber").indexOf("'+color+'") != -1 && ["масло", "цветное масло"].indexOf(params.timberPaint) != -1',
+				'block': 'timber',
+				'image': '/images/calculator/timber_paint/'+timberFolder+'/масло/'+color+'.jpg'
+			});
+		})
+	})
+
 	var items = getGoodItems(painting_images);
 
 	var descriptionText = "";
@@ -593,11 +689,14 @@ function getTimberPaintDescription(){
 	return {title: 'Обработка дерева', description: descriptionText, images: images, par: par}
 }
 
-function getMetalColors(){
+/**
+ * Функция получает цвета объектов сцены соответсвующего типа(metal/timber)
+ */
+function getSceneColors(materialType){
 	var colors = [];
 	view.scene.traverse(function(node){
 		var material = node.material;
-		if (material && material.userData && material.userData.materialColorName && material.userData.materialGroup == 'metal') {
+		if (material && material.userData && material.userData.materialColorName && material.userData.materialGroup == materialType) {
 			if (colors.indexOf(material.userData.materialColorName) == -1) colors.push(material.userData.materialColorName);
 		}
 	});
@@ -621,7 +720,7 @@ function getMetalPaintDescription(){
 		painting_images.push({
 			'name': name,
 			'description': "",
-			'condition': 'getMetalColors().indexOf("'+name+'") != -1',
+			'condition': 'getSceneColors("metal").indexOf("'+name+'") != -1',
 			'block': 'metal',
 			'image': '/images/calculator/metal_paint/'+name+'.jpg'
 		});
@@ -659,6 +758,8 @@ function getMetalPaintDescription(){
 
 function getGoodItems(array){
 	return array.filter(function(item){
+		//Отсутствие условия считаем указателем на то, что этот пункт актуален всегда
+		if (!item.condition) return true;
 		if(eval(item.condition)) return true;
 		return false;
 	})

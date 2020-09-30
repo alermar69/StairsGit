@@ -83,11 +83,13 @@ $(function(){
 		var item = getAdditionalObject(id);
 		if (item) {
 			var method = $(this).attr('data-action_key');
+			console.log(method);
 			if (method) {
 				getObjPar()
-				var classItem = eval(item.className);
-				if (classItem && classItem[method]) {
-					classItem[method]($form, item)
+				try {
+					eval(method)($form, item)
+				} catch (error) {
+					console.warn('Не удалось вызвать метод ' + method)
 				}
 			}
 		}

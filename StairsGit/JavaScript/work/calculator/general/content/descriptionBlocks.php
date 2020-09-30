@@ -1,7 +1,7 @@
 <div class='description_save_buttons'>
 	<button class='btn btn-success' id='savePreviewImages'>Сохранить картинки</button>
 </div>
-<div style='width: 100vw;'>
+<div style=''>
 	<div class="container">
 		<h1>Превью</h1>
 		<div id="previewImages"></div>

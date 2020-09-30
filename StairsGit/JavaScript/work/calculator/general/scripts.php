@@ -517,6 +517,7 @@
 		$formScripts = [
 			'dimensions' => ["/calculator/general/forms/dimensionsFormChange.js"],
 			'objects' => ["/calculator/general/forms/objects/objectsFormChange.js"],
+			'assembling' => ["/calculator/general/forms/assemblingFormChange.js"],
 		];
 	}
 

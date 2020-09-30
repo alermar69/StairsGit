@@ -427,6 +427,7 @@ class TextureManager{
 		var mapScale = 1;
 		if (material_name == 'tread') {
 			key = params.stairType;
+			if(key == "массив" || params.calcType == 'vint') key = params.treadsMaterial;
 			texture_name = getTreadTextureName();
 			color_name = params.treadsColor;	
 			if (texture_name == 'rif_metal') if (params.metalPaint == "порошок") color_name = params.carcasColor;
@@ -488,7 +489,13 @@ class TextureManager{
 
 		if (material_name == 'additionalObjectTimber') {
 			texture_name = getTimberTextureName(params.additionalObjectsTimberMaterial);
+			color_name = params.additionalObjectsTimberColor;
 			key = params.additionalObjectsTimberMaterial;
+		}
+		if (material_name == 'additionalObjectMetal') {
+			color_name = params.additionalObjectsTimberColor;
+			texture_name = 'metal';
+			if (params.metalPaint == "порошок") color_name = params.additionalObjectsMetalColor;
 		}
 		
 		if (material_name == 'timber' || material_name == 'timber2') {

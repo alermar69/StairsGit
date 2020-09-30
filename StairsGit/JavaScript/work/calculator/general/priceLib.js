@@ -899,6 +899,9 @@ function calculateTotalPrice2(){
 			calcPriceObjects.forEach(function(item){
 				var price = eval(item.className + '.calcPrice(item)');
 				price.is_additional_object = true;
+				if (item.meshParams.objectAmt && item.meshParams.objectAmt > 1) {
+					price.objectAmt = item.meshParams.objectAmt;
+				}
 				priceObj[item.className + '_' + item.id] = price;
 			});
 		}
@@ -1022,8 +1025,15 @@ function calculateTotalPrice2(){
 			priceObj[unit].price = Math.round(priceObj[unit].cost * priceObj[unit].priceFactor * margin);
 			priceObj[unit].cost = Math.round(priceObj[unit].cost * priceObj[unit].costFactor * costFactor);
 			if(!priceObj[unit].isOption) productionPrice += priceObj[unit].price;
+
+			if (priceObj[unit].is_additional_object && priceObj[unit].objectAmt && priceObj[unit].objectAmt > 1) {
+				priceObj[unit].pricePerItem = priceObj[unit].price;
+				priceObj[unit].costPerItem = priceObj[unit].cost;
+				priceObj[unit].price *= priceObj[unit].objectAmt;
+				priceObj[unit].cost *= priceObj[unit].objectAmt;
 			}
 		}
+	}
 
 	//монтаж и доставка
 	

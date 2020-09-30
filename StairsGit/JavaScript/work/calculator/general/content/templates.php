@@ -98,7 +98,7 @@
 							<div class="h4 mt-2">{{:title}}</div>
 							<div class="mt-3">{{:description}}</div>
 						</div>
-						<div class="col-6">
+						<div class="col-6 card-img__container">
 							<img class="card-img-top" src="{{:image}}" alt="">
 						</div>
 					{{/if}}
@@ -146,7 +146,7 @@
 							<div class="h4 mt-2">{{:title}}</div>
 							<div class="mt-3">{{:description}}</div>
 						</div>
-						<div class="col-6">
+						<div class="col-6 card-img__container">
 							<img class="card-img-top" src="{{:image}}" alt="">
 						</div>
 					{{/if}}
@@ -333,18 +333,22 @@
 	<div class='description-block additionalObjectsDescription'>
 		<div class='container'>
 			<div class="descripton-content row">
+				{{if title}}
+					<div class="col-12 pt-3 pb-3 h3 text-center">
+						{{:title}}
+					</div>
+				{{/if}}
 				<div class="descripton-content_image col-lg-6 col-md-6 col-sm-12 col-xs-12">
-					<div class="description-images" data-images_type="{{:type}}">
+					<div class="additional-images row" data-images_type="{{:type}}">
 						{{for images}}
-							<div class='description-images_image'>
-								<div class="description-images_image-delete">
+							<div class='additional-images__image col-6'>
+								<div class="additional-images__image-delete">
 									<button class="delete_description_image btn btn-danger" data-image_id="{{:id}}"><i class="fa fa-trash-o" title="Align Left"></i></button>
 								</div>
 								<a href='{{:url}}' data-fancybox='gallery'><img src='{{:url}}'></a>
-								<!-- <img src="{{:url}}" alt=""> -->
 							</div>
 						{{else}}
-							<div class='description-images_image'>
+							<div class='additional-images__image col-6'>
 								{{if noDefault}}
 									<img src="/images/logo.png" alt="">
 								{{else}}
@@ -361,46 +365,53 @@
 					{{:description}}
 				</div>
 			</div>
+			{{if comment}}
+				<div class="col-12 pt-3 pb-3 text-center">
+					{{:comment}}
+				</div>
+			{{/if}}
 		</div>
 	</div>
 </script>
 
 <script id='footerTemplate' type='text/html'>
 	<div class="kp_footer">
-		<div class='text-center h2 mt-5'>Хотите узнать больше? - Приезжайте к нам в офис!</div>
-		<div class='text-center h4 mt-5'>Ответим на все вопросы - напоим вкусным кофе - подберем материал и способ обработки</div>
-		<div class='row mt-5'>
-			<div class="col-6">
-				<ul>
-					{{for items}}
-						<li>{{:}}</li>
-					{{/for}}
-					<li class="h4 mt-3 no-star">Позвоните прямо сейчас и мы договоримся о встрече!<br>8 495 222 433 22</li>
-				</ul>
-				<!-- <div class='text-center h4 mt-5' style='margin-left: 70px;'>Позвоните прямо сейчас и мы договоримся о встрече!</div>
-				<div class='text-center h4 mt-3' style='margin-left: 70px;'>8 495 222 433 22</div> -->
-			</div>
-			<div class="col-6">
-				<img src="{{:image}}" class="img-fluid" alt="">
+		<div class="container">
+			<div class='text-center h2 mt-5'>Хотите узнать больше? - Приезжайте к нам в офис!</div>
+			<div class='text-center h4 mt-5'>Ответим на все вопросы - напоим вкусным кофе - подберем материал и способ обработки</div>
+			<div class='row mt-5'>
+				<div class="col-6">
+					<ul>
+						{{for items}}
+							<li>{{:}}</li>
+						{{/for}}
+						<li class="h4 mt-3 no-star">Позвоните прямо сейчас и мы договоримся о встрече!<br>+7 (495) 125-11-78</li>
+					</ul>
+					<!-- <div class='text-center h4 mt-5' style='margin-left: 70px;'>Позвоните прямо сейчас и мы договоримся о встрече!</div>
+					<div class='text-center h4 mt-3' style='margin-left: 70px;'>8 495 222 433 22</div> -->
+				</div>
+				<div class="col-6">
+					<img src="{{:image}}" class="img-fluid" alt="">
+				</div>
 			</div>
 		</div>
-		<div class='row no-gutters'>
+		<!-- <div class='row no-gutters'>
 			<div class="col-6">
 				<iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A6565878be20d22353902f07556e737284a78def12bac0f7c5add56849c98b9c2&amp;source=constructor" width="100%" height="100%" frameborder="0"></iframe>
 			</div>
 			<div class="col-6 black-block">
 				<div class='h2 mt-5'>Контактная информация:</div>
-				<div class='h2 mt-5'>8 (495) 487-15-90</div>
+				<div class='h2 mt-5'>+7 (495) 125-11-78</div>
 				<div class='h2 mt-2'>info@drev-massiv.ru</div>
 				<div class='light-text mt-5'>Москва, Проектируемый проезд, 1422</div>
 				<div class='light-text'>Работаем по будням с 9:00 до 18:00, перед поездкой в выстовочный зал просим позвонить и предупредить о визите.</div>
 			</div>
-		</div>
+		</div> -->
 	</div>
 </script>
 
 <script id='infoBlockTemplate' type='text/html'>
-	<div>
+	<div class="container">
 		<div class='text-center h3 mt-5'>{{:title}}</div>
 		<div class='row justify-content-center'>
 			{{for blocks}}
@@ -419,7 +430,7 @@
 						<div class="h4 mt-2">{{:title}}</div>
 						<div class="mt-3">{{:description}}</div>
 					</div>
-					<div class="col-6">
+					<div class="col-6 card-img__container">
 						<img class="card-img-top" src="{{:image}}" alt="">
 					</div>
 				{{/if}}
@@ -429,12 +440,12 @@
 </script>
 
 <script id='paramsBlockTemplate' type='text/html'>
-	<div>
+	<div class="container">
 		<div class='text-center h3 mt-5'>{{:title}}</div>
 		<div class='mt-3'>{{:description}}</div>
 		<div class='row mt-4 justify-content-center'>
 			{{for images}}
-				<div class="col">
+				<div class="col-4">
 					<div class='card-img'><img style='max-width: 100%;' src="{{:url}}" alt=""></div>
 					<div>{{:text}}</div>
 				</div>
@@ -454,7 +465,7 @@
 </script>
 
 <script id='imagesBlockTemplate' type='text/html'>
-	<div>
+	<div class="container">
 		<div class='text-center h3 mt-5'>{{:title}}</div>
 		<div class='row mt-4 justify-content-center'>
 			{{for images}}

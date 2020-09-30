@@ -89,6 +89,33 @@ function getMaterialsConfigs(){
 						}
 					}
 				},
+				elm_slab:{
+					main:{
+						mapUrl: baseUrl + '/timber/elm_slab_white.jpg',
+						mapPar:{
+							repeat: {x: 1/2000, y: 1/1000},
+							offset: {x: 0.1, y: 0.5}
+						}
+					}
+				},
+				oak_slab:{
+					main:{
+						mapUrl: baseUrl + '/timber/oak_slab_white.jpg',
+						mapPar:{
+							repeat: {x: 1/1200, y: 1/600},
+							offset: {x: 0.1, y: 0.5}
+						}
+					}
+				},
+				oak_veneer:{
+					main:{
+						mapUrl: baseUrl + '/timber/oak_prem_white.jpg',
+						mapPar:{
+							repeat: {x: 1/2000, y: 1/1000},
+							offset: {x: 0.1, y: 0.5}
+						}
+					}
+				},
 			}
 		},
 		metal:{
@@ -3495,6 +3522,9 @@ function getTimberTextureName(timberType){
 	if(timberType == "лиственница ц/л") return "larch_prem";
 	if(timberType == "дуб паркет.") return "oak";
 	if(timberType == "дуб ц/л") return "oak_prem";
+	if(timberType == "дуб натур") return "oak_slab";
+	if(timberType == "карагач натур") return "elm_slab";
+	if(timberType == "шпон") return "oak_veneer";
 	return "oak";
 }
 
@@ -3584,6 +3614,33 @@ function getTimberMatConfig(){
 			mapPar:{
 				repeat: {x: 1/2000, y: 1/1000},
 				offset: {x: 0.1, y: 0.5}
+			}
+		},
+		elm_slab:{
+			main:{
+				mapUrl: baseUrl + '/timber/elm_slab_white.jpg',
+				mapPar:{
+					repeat: {x: 1/2000, y: 1/1000},
+					offset: {x: 0.1, y: 0.5}
+				}
+			}
+		},
+		oak_slab:{
+			main:{
+				mapUrl: baseUrl + '/timber/oak_slab_white.jpg',
+				mapPar:{
+					repeat: {x: 1/2000, y: 1/1000},
+					offset: {x: 0.1, y: 0.5}
+				}
+			}
+		},
+		oak_veneer:{
+			main:{
+				mapUrl: baseUrl + '/timber/oak_prem_white.jpg',
+				mapPar:{
+					repeat: {x: 1/2000, y: 1/1000},
+					offset: {x: 0.1, y: 0.5}
+				}
 			}
 		},
 	}

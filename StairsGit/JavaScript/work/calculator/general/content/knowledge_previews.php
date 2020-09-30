@@ -1,4 +1,4 @@
-<div class='knowledgePreviewsWrap' style='width: 100vw'>
+<div class='knowledgePreviewsWrap'>
 	<div class='container'>
 		<h2>Примеры работ</h2>
 		<div id='knowledge_controls'>

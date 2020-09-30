@@ -672,6 +672,10 @@ function staircaseHasUnit() {
 				if (this.className == "Sill") {
 					par.dopTimber = true;
 				}
+				if (this.className == "Table") {
+					par.dopTimber = true;
+					par.dopMetal = true;
+				}
 			}
 		})
 	}

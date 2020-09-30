@@ -38,6 +38,8 @@ class Sill extends AdditionalObject {
 		return par;
 	}
 
+	
+	/** STATIC **/
 	static calcPrice(par){
 		var meshPar = par.meshParams;
 		var cost = 0;
@@ -59,50 +61,9 @@ class Sill extends AdditionalObject {
 		return {
 			name: this.getMeta().title,
 			cost: cost,
-			priceFactor: 1,
-			costFactor: 1
+			priceFactor: meshPar.priceFactor,
+			costFactor: meshPar.costFactor
 		}
-	}
-
-	/** STATIC **/
-
-	/** Метод загружает данные слэба в объект */
-	static acceptSlabModel(form,data){
-		// var slabModel = data.slabModel;
-		var par = data.meshParams
-
-		$.get('https://garmonyc-mebel.ru/index.php?route=api/slabs/get&product_model=' + par.slabModel, function(response){
-			console.log(response);
-			if (response &&  response.product) {
-				data.meshParams.slabPrice = response.product.price * 1.0;
-				// data.images = response.product.images;
-				additionalObjectParamsShow(data.id);
-
-				var preview = {
-					id: window.previews.length,
-					url: response.product.image,
-					isNew: true,
-					type: "preview"
-				};
-				window.previews.push(preview);
-
-				// Формируем blob
-				fetch(preview.url)
-				.then(function(resp){
-					return resp.blob();
-				})
-				.then(function(blob){
-					preview.blob = blob;
-					printDescr();
-				})
-			}else{
-				if(response.error){
-					alert(response.error)
-				}else{
-					alert("Ошибка загрузки данных")
-				}
-			}
-		});
 	}
 
 	static formChange(form, data){
@@ -751,7 +712,7 @@ class Sill extends AdditionalObject {
 					"printable": "true",
 				},
 				{
-					"key": "acceptSlabModel",
+					"key": "getSlabData",
 					"title": "Загрузить данные слэба",
 					"class": "slab",
 					"type": "action"

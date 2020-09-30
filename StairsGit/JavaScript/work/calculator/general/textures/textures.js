@@ -911,6 +911,19 @@ function getTimberDiffuse(timberType){
 		par.name = "oak_prem";
 		par.size = {x: 2000, y: 1000,};
 	}
+	
+	if(timberType == "дуб натур") {
+		par.name = "oak_slab";
+		par.size = {x: 2000, y: 1000,};
+	}
+	if(timberType == "каракач натур") {
+		par.name = "elm_slab";
+		par.size = {x: 2000, y: 1000,};
+	}
+	if(timberType == "шпон") {
+		par.name = "oak_veneer";
+		par.size = {x: 2000, y: 1000,};
+	}
 
 	par.diffuse = new THREE.TextureLoader(texturesManger).load( par.basePath + par.name + ".jpg");
 	par.diffuse.wrapS = par.diffuse.wrapT = THREE.RepeatWrapping;

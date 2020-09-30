@@ -56,6 +56,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: [p1, p2, p3, p4],
 				thk: profPar.sizeB,
+				material: params.materials.additionalObjectMetal
 			}
 
 			//левая нога
@@ -92,6 +93,7 @@ function drawTableBase(par){
 					poleProfileZ: profPar.sizeA,
 					dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
 					length: par.width - profPar.sizeB * 2,
+					material: params.materials.additionalObjectMetal,
 					poleAngle: 0,
 				}
 
@@ -222,6 +224,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: points,
 				thk: profPar.sizeB,
+				material: params.materials.additionalObjectMetal
 			}
 
 			for (var j = 0; j < 2; j++) {
@@ -274,6 +277,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: [p1, p2, p3, p4],
 				thk: par.height,
+				material: params.materials.additionalObjectMetal
 			}
 			if (par.model == "T-12") meshPar.thk -= thk;
 
@@ -351,6 +355,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: pointsTop,
 					thk: thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -395,6 +400,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: points,
 				thk: profPar.sizeB,
+				material: params.materials.additionalObjectMetal
 			}
 
 			//левая нога
@@ -441,6 +447,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: points3,
 				thk: profPar.sizeB,
+				material: params.materials.additionalObjectMetal
 			}
 
 			var pole1 = drawMesh(meshPar).mesh;
@@ -463,6 +470,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: pointsTop1,
 				thk: thk,
+				material: params.materials.additionalObjectMetal
 			}
 
 			//левый фланец
@@ -488,6 +496,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: pointsBot1,
 				thk: thk,
+				material: params.materials.additionalObjectMetal
 			}
 
 			//левый фланец
@@ -528,6 +537,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: points,
 				thk: profPar.sizeB,
+				material: params.materials.additionalObjectMetal
 			}
 
 			//левая нога
@@ -556,6 +566,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: points1,
 				thk: profPar.sizeB,
+				material: params.materials.additionalObjectMetal
 			}
 
 			//левая нога
@@ -595,6 +606,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: pointsTop,
 				thk: thk,
+				material: params.materials.additionalObjectMetal
 			}
 
 			var pole1 = drawMesh(meshPar).mesh;
@@ -616,6 +628,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: pointsBot,
 				thk: profPar.sizeA,
+				material: params.materials.additionalObjectMetal
 			}
 
 			var pole1 = drawMesh(meshPar).mesh;
@@ -663,6 +676,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: points,
 				thk: profPar.sizeB,
+				material: params.materials.additionalObjectMetal
 			}
 
 			//нижняя нога
@@ -697,6 +711,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: points3,
 					thk: profPar.sizeB,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -718,6 +733,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p3, p4, pt1, pt2],
 					thk: profPar.sizeB,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -750,6 +766,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: pointsTop,
 				thk: thk,
+				material: params.materials.additionalObjectMetal
 			}
 
 			var pole1 = drawMesh(meshPar).mesh;
@@ -771,6 +788,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: pointsTop,
 				thk: thk,
+				material: params.materials.additionalObjectMetal
 			}
 
 			var pole1 = drawMesh(meshPar).mesh;
@@ -836,6 +854,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: points,
 				thk: profPar.sizeB,
+				material: params.materials.additionalObjectMetal
 			}
 
 			//нижняя перемычка
@@ -871,6 +890,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: points4,
 					thk: profPar.sizeB,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -929,6 +949,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: points,
 					thk: par.height - thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -970,6 +991,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: points,
 					thk: profPar.sizeB,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -991,6 +1013,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: pointsTop,
 				thk: thk,
+				material: params.materials.additionalObjectMetal
 			}
 
 			var pole1 = drawMesh(meshPar).mesh;
@@ -1144,6 +1167,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: points,
 				thk: profPar.sizeB,
+				material: params.materials.additionalObjectMetal
 			}
 
 			var pole1 = drawMesh(meshPar).mesh;
@@ -1247,6 +1271,7 @@ function drawTableBase(par){
 				pointsHole: points2,
 				thk: profPar.sizeB,
 				dxfArr: dxfPrimitivesArr,
+				material: params.materials.additionalObjectMetal
 			}
 
 			var pole1 = drawMesh(meshPar).mesh;
@@ -1336,7 +1361,7 @@ function drawTableBase(par){
 
 			var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 			geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-			var mesh = new THREE.Mesh(geom, params.materials.metal);
+			var mesh = new THREE.Mesh(geom, params.materials.additionalObjectMetal);
 
 			mesh.rotation.x -= Math.PI / 2;
 			if (i == 1) {
@@ -1371,7 +1396,7 @@ function drawTableBase(par){
 
 			var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 			geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-			var mesh = new THREE.Mesh(geom, params.materials.metal);
+			var mesh = new THREE.Mesh(geom, params.materials.additionalObjectMetal);
 
 			mesh.rotation.x -= Math.PI / 2;
 			if (i == 1) {
@@ -1406,12 +1431,12 @@ function drawTableBase(par){
 
 			var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 			geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-			var pole1 = new THREE.Mesh(geom, params.materials.metal);
+			var pole1 = new THREE.Mesh(geom, params.materials.additionalObjectMetal);
 			mesh.add(pole1);
 
 			var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 			geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-			var pole1 = new THREE.Mesh(geom, params.materials.metal);
+			var pole1 = new THREE.Mesh(geom, params.materials.additionalObjectMetal);
 			pole1.position.z = par.height - profPar.sizeB
 			mesh.add(pole1);
 
@@ -1442,6 +1467,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: arr[j],
 					thk: par.height - profPar.sizeB * 2,
+					material: params.materials.additionalObjectMetal
 				}
 				var pole1 = drawMesh(meshPar).mesh;
 				pole1.position.z = profPar.sizeB;
@@ -1562,6 +1588,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: arr[j],
 					thk: thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -1589,7 +1616,7 @@ function drawTableBase(par){
 				width: par.width,
 				profPar: profPar,
 				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -1000),
-				material: params.materials.metal,
+				material: params.materials.additionalObjectMetal,
 				dxfArr: dxfPrimitivesArr,
 			}
 
@@ -1650,7 +1677,7 @@ function drawTableBase(par){
 
 			var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 			geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-			var mesh = new THREE.Mesh(geom, params.materials.metal);
+			var mesh = new THREE.Mesh(geom, params.materials.additionalObjectMetal);
 			mesh.rotation.y = -Math.PI / 2 * turn;
 			mesh.position.z = posZ + profPar.sizeA * turn 
 			mesh.position.x = par.width / 2 + 8 / 2
@@ -1692,6 +1719,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: profPar.sizeA,
+					material: params.materials.additionalObjectMetal
 				}
 
 				//левая нога
@@ -1724,6 +1752,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: profPar.sizeB,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -1756,6 +1785,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4, p5, p6, p7],
 					thk: profPar.sizeB,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -1787,6 +1817,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4, p5, p6, p7],
 					thk: profPar.sizeB,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -1825,6 +1856,7 @@ function drawTableBase(par){
 					var meshPar = {
 						points: [p1, p2, p3, p4],
 						thk: par.height - thk * 2,
+						material: params.materials.additionalObjectMetal
 					}
 
 					//левая передняя нога
@@ -1917,6 +1949,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: points,
 					thk: profPar.sizeB,
+					material: params.materials.additionalObjectMetal
 				}
 
 				for (var k = 0; k < 2; k++) {
@@ -1969,6 +2002,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: profPar.sizeB,
+					material: params.materials.additionalObjectMetal
 				}
 
 				//нижняя перемычка
@@ -1999,6 +2033,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: profPar.sizeB,
+					material: params.materials.additionalObjectMetal
 				}
 
 				//нижняя перемычка
@@ -2028,6 +2063,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: profPar.sizeA,
+					material: params.materials.additionalObjectMetal
 				}
 
 				//нижняя перемычка
@@ -2081,6 +2117,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4, p5, p6, p7, p8],
 					thk: thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -2100,6 +2137,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				for (var k = 0; k < 2; k++) {
@@ -2130,6 +2168,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -2169,6 +2208,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -2194,6 +2234,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				for (var k = 0; k < 2; k++) {
@@ -2230,6 +2271,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -2272,6 +2314,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p31, p32, p42, p41, p4],
 					thk: thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				for (var k = 0; k < 2; k++) {
@@ -2302,6 +2345,7 @@ function drawTableBase(par){
 					var meshPar = {
 						points: [p1, p2, p3, p4],
 						thk: thk,
+						material: params.materials.additionalObjectMetal
 					}
 
 					var pole1 = drawMesh(meshPar).mesh;
@@ -2321,6 +2365,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				for (var k = 0; k < 2; k++) {
@@ -2369,6 +2414,7 @@ function drawTableBase(par){
 					var meshPar = {
 						points: [p1, p2, p3, p4],
 						thk: par.height,
+						material: params.materials.additionalObjectMetal
 					}
 
 					//левая передняя нога
@@ -2425,6 +2471,7 @@ function drawTableBase(par){
 					var meshPar = {
 						points: [p1, p2, p3, p4],
 						thk: thk,
+						material: params.materials.additionalObjectMetal
 					}
 
 					//левая передняя
@@ -2498,6 +2545,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: par.height - thk * 2,
+					material: params.materials.additionalObjectMetal
 				}
 
 				//левая передняя нога
@@ -2540,6 +2588,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: par.height - thk * 2,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var offsetLen = par.len / 4;
@@ -2572,6 +2621,7 @@ function drawTableBase(par){
 				var meshPar = {
 					points: points,
 					thk: thk,
+					material: params.materials.additionalObjectMetal
 				}
 
 				//передняя перемычка
@@ -2631,6 +2681,7 @@ function drawTableBase(par){
 					var meshPar = {
 						points: arr[j],
 						thk: par.height - thk * 2,
+						material: params.materials.additionalObjectMetal
 					}
 					var pole1 = drawMesh(meshPar).mesh;
 					pole1.position.z = thk;
@@ -2662,6 +2713,7 @@ function drawTableBase(par){
 					thk: thk,
 					dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -1000),
 					dxfArr: dxfPrimitivesArr,
+					material: params.materials.additionalObjectMetal
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -2704,6 +2756,7 @@ function drawTableBase(par){
 			var meshPar = {
 				points: [p1, p2, p3, p4],
 				thk: 4,
+				material: params.materials.additionalObjectMetal
 			}
 
 			//левая передняя нога
@@ -2741,9 +2794,9 @@ function drawTableCountertop(par){
 
 	if (par.geom !== 'круглый') {
 		var p1 = copyPoint(p0);
-		var p2 = newPoint_xy(p0, 0, par.len);
-		var p3 = newPoint_xy(p0, par.width, par.len);
-		var p4 = newPoint_xy(p0, par.width, 0);
+		var p2 = newPoint_xy(p0, 0, par.width);
+		var p3 = newPoint_xy(p0, par.len, par.width);
+		var p4 = newPoint_xy(p0, par.len, 0);
 
 
 
@@ -2785,13 +2838,14 @@ function drawTableCountertop(par){
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var mesh = new THREE.Mesh(geom, params.materials.timber);
+	var mesh = new THREE.Mesh(geom, params.materials.additionalObjectTimber);
 	mesh.rotation.x = Math.PI / 2;
+	mesh.rotation.z = Math.PI / 2;
 	if (par.modifyKey) mesh.modifyKey = par.modifyKey;
 	par.mesh.add(mesh);
 
 	if(par.model != "цельная"){
-		var mesh = new THREE.Mesh(geom, params.materials.timber);
+		var mesh = new THREE.Mesh(geom, params.materials.additionalObjectTimber);
 		mesh.rotation.x = -Math.PI / 2;
 		mesh.rotation.y = Math.PI;
 	//	mesh.position.y = -par.thk;
@@ -2940,7 +2994,7 @@ function drawTableBasePlate(par){
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var mesh = new THREE.Mesh(geom, params.materials.metal);
+	var mesh = new THREE.Mesh(geom, params.materials.additionalObjectMetal);
 	mesh.rotation.x = Math.PI / 2;
 	if (par.model == "D-1") {
 		mesh.rotation.x = -Math.PI / 2;
@@ -3126,7 +3180,7 @@ function drawTableBaseFrameBridgePlate(par) {
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var mesh = new THREE.Mesh(geom, params.materials.metal);
+	var mesh = new THREE.Mesh(geom, params.materials.additionalObjectMetal);
 	mesh.rotation.x = Math.PI / 2;
 	mesh.rotation.z = Math.PI / 2;
 
@@ -3174,7 +3228,7 @@ function drawTableBaseFrameHolder(par) {
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var mesh = new THREE.Mesh(geom, params.materials.metal);
+	var mesh = new THREE.Mesh(geom, params.materials.additionalObjectMetal);
 
 	par.mesh.add(mesh);
 
@@ -3222,7 +3276,7 @@ function drawTableBaseFrameHolder(par) {
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var mesh = new THREE.Mesh(geom, params.materials.metal);
+	var mesh = new THREE.Mesh(geom, params.materials.additionalObjectMetal);
 	mesh.rotation.x = -Math.PI / 2;
 	mesh.rotation.z = -Math.PI / 2;
 	mesh.position.y = par.beamProfileY - par.height;
@@ -3259,7 +3313,7 @@ function drawTableBaseFrameHolder(par) {
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var mesh = new THREE.Mesh(geom, params.materials.metal);
+	var mesh = new THREE.Mesh(geom, params.materials.additionalObjectMetal);
 	mesh.rotation.x = -Math.PI / 2;
 	mesh.rotation.z = -Math.PI / 2;
 	mesh.position.y = par.beamProfileY - par.height;
@@ -3291,6 +3345,7 @@ function drawTableBaseleg(par) {
 	var meshPar = {
 		points: [p1, p2, p3, p4],
 		thk: par.profPar.sizeB,
+		material: params.materials.additionalObjectMetal
 	}
 
 	var mesh = drawMesh(meshPar).mesh;
@@ -3460,6 +3515,7 @@ function drawTableBaseParts(par) {
 			var meshPar = {
 				points: points,
 				thk: par.thk,
+				material: params.materials.additionalObjectMetal
 			}
 
 			var pole1 = drawMesh(meshPar).mesh;
