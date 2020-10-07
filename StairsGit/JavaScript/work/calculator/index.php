@@ -85,7 +85,7 @@ $APPLICATION->SetTitle("");
 	</tr>
 
 	<tr>
-		<td class="left">Объекты</td>
+		<td class="left">Мебель</td>
 		<td><a href="/calculator/objects/" target="_blank">Открыть</a></td>
 		<td><a href="/manufacturing/objects/" target="_blank">Открыть</a></td>
 	</tr>

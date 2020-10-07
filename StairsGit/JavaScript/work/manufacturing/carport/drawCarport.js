@@ -100,283 +100,6 @@ function drawSpherePavilion(par){
 	return dome;
 }
 
-/** функция отрисовывает сегмент шарового купола
-	fullAngle  - полный угол сектора
-	extraRad - увеличение радиуса и высоты по сравнению со значением из параметров
-*/
-
-function drawSphereSegment(par){
-	
-	var partPar = calcCarportPartPar();
-	
-	var dome = new THREE.Object3D();
-	if(!par.extraRad) par.extraRad = 0;
-	
-	//параметры дуг
-	var arcPar = getProfParams(par.beamProf);
-	
-	//ось стропила (дуга)
-	var rafterPar = {
-		center: {
-			x: partPar.dome.topFlanDiam / 2 - partPar.dome.arcFixLen / 2,
-			y: 0,
-		},
-	}
-	
-	rafterPar.midRad = params.domeDiam / 2 - rafterPar.center.x + par.extraRad; //радиус по средней линии
-	rafterPar.center.y = params.height + par.extraRad - rafterPar.midRad;
-	
-
-
-	var axisOffset = partPar.dome.topFlanDiam / 2 - partPar.dome.arcFixLen / 2 //смещение оси дуги относительно оси павильона
-	var rad = params.domeDiam / 2 - axisOffset + par.extraRad
-	var height = params.height + par.extraRad;
-
-	
-	//разница по высоте в сравнении с половиной сферы
-	var extraHeight = height - rad;
-
-	
-	//отступ снизу
-	var botOffset = 0;
-	if(par.isMovable) botOffset = partPar.dome.weelBlockHeight + partPar.dome.tubeDiam + partPar.dome.baseThk;
-	
-	//кольцо в основании
-	var botLine = {
-		p1: {x: 0, y: partPar.dome.baseThk + botOffset},		
-	}
-	
-	if(!par.isMovable){
-		//пересечение основания с внешней дугой стропила
-		botLine.p2 = itercectionLineCircle(botLine.p1, newPoint_xy(botLine.p1, 10, 0), rafterPar.center, rafterPar.midRad + partPar.rafter.profSize.y / 2)[0]
-	}
-	if(par.isMovable){
-		//пересечение основания с внутренней дугой стропила
-		botLine.p2 = itercectionLineCircle(botLine.p1, newPoint_xy(botLine.p1, 10, 0), rafterPar.center, rafterPar.midRad - partPar.rafter.profSize.y / 2)[0]
-	}
-	
-	var basePar = {
-		rad: botLine.p2.x,
-		len: par.fullAngle * botLine.p2.x,
-		angle: par.fullAngle,
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
-		isMovable: par.isMovable,
-	}
-	
-	if(par.railDiam) basePar.railDiam = par.railDiam
-	
-	var ring = drawBaseRing(basePar).mesh;		
-	ring.rotation.x = -Math.PI / 2;
-	ring.position.y = botOffset
-	dome.add(ring)
-	
-	//сохраняем для использования диаметр рельса
-	par.railDiam = basePar.railDiam - 30 * 2; //30 - половина ширины ролика
-
-
-
-	
-	//второе кольцо на переходе сферы в цилиндр
-	
-	if(params.cylinderBase == "есть"){
-		arcPanelPar.angle = par.fullAngle;
-		arcPanelPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 2000, 0)
-		var ring = drawArcPanel(arcPanelPar).mesh;	
-		ring.rotation.x = -Math.PI / 2;
-		ring.position.y = rafterPar.center.y;
-		dome.add(ring)
-	}
-		
-	//верхний фланец
-	var flanPar = {
-		diam: partPar.dome.topFlanDiam,
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 3000, 0),
-	}
-	if(par.isMovable) flanPar.bearingHeight = par.extraRad; //высота подшипника)
-	
-	var flan = drawDomeTopFlan(flanPar).mesh;
-	flan.rotation.x = -Math.PI / 2;
-	flan.position.y = height - partPar.rafter.profSize.y / 2 - flanPar.thk;
-	dome.add(flan)
-	
-	//дуги
-	var arcStepMax = 1000; //макс. шаг дуг
-	var arcAmt = Math.ceil(basePar.len / arcStepMax);
-	var arcStepAng = par.fullAngle / arcAmt;
-	
-	//рассчитываем начальный и конечный угол дуги
-	extraAngle = -angle(rafterPar.center, botLine.p2)
-	if(params.cylinderBase == "есть") extraAngle = 0;
-
-	//параметры дуги из профиля
-	var arcPanelPar = {
-		rad: rad,
-		height: arcPar.sizeA,
-		thk: arcPar.sizeB,
-		angle: Math.PI / 2 + extraAngle,
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 4000, 0),
-		material: params.materials.metal,
-		partName: 'carportBeam',
-		dxfPrimitivesArr: dxfPrimitivesArr
-	}
-	
-	//удлинняем дуги на половину длины крепления к верхнему диску
-	arcPanelPar.angle += partPar.dome.arcFixLen / 2 / rad;
-	
-	//перемычки между дугами		
-	var bridgePosY = params.height / 2;
-	var bridgePosAng = Math.asin((bridgePosY - rafterPar.center.y) / rad)
-	var bridgePosRad = rad * Math.cos(bridgePosAng) - arcPar.sizeB + rafterPar.center.x;
-	
-	var bridgePar = {
-		poleProfileY: partPar.purlin.profSize.x,
-		poleProfileZ: partPar.purlin.profSize.y,
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 5000, 0),
-		length: bridgePosRad * arcStepAng, //упрощенная формула - надо править
-		poleAngle: 0,
-		material: params.materials.metal,
-		dxfArr: dxfPrimitivesArr,
-		type: 'rect',
-		partName: 'carportColumn'
-	};
-		
-	//параметры сектора из поликарбоната
-	var sectorPolyPar = {
-		rad: rad + partPar.purlin.profSize.y / 2,
-		height: arcPar.sizeA,
-		thk: params.roofThk,
-		angleWidth: arcStepAng * 1.1, //1.1 - подогнано, чтбы не было дырок
-		extraAngle: extraAngle,
-		topCutAngle: Math.atan(rafterPar.center.x / rafterPar.midRad),
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
-		material: params.materials.plastic_roof,
-		dxfArr: [],
-		
-	}
-	
-	//параметры цилиндрических листов из поликарбоната
-	
-	var arcSheetPar = {
-		rad: basePar.rad,
-		height: rafterPar.center.y - botOffset,
-		thk: params.roofThk,
-		angle: arcStepAng,
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
-		material: params.materials.plastic_roof,
-		partName: 'polySheet',
-		dxfPrimitivesArr: []
-	}
-
-	for(var i=0; i<= arcAmt; i++){
-		var pos = polar({x:0, y:0}, arcStepAng * i, -arcPanelPar.height / 2); //смещение на половину профиля
-		pos = polar(pos, arcStepAng * i + Math.PI / 2, rafterPar.center.x); //смещение к краю диска
-		
-		//отрисовка дуг
-		var arcProf = drawArcPanel(arcPanelPar).mesh;
-		arcProf.rotation.z = -extraAngle;
-		arcProf.rotation.y = arcStepAng * i;
-		arcProf.position.x = pos.y;
-		arcProf.position.y = rafterPar.center.y;
-		arcProf.position.z = pos.x;
-		dome.add(arcProf)
-		
-		//перемычки между дугами
-		if(params.cylinderBase == "нет" && i != arcAmt){
-			var bridgePos = polar({x:0, y:0}, -arcStepAng * i, bridgePosRad)
-			
-			var bridge = drawPole3D_4(bridgePar).mesh;
-			bridge.rotation.y = arcStepAng * (i + 0.5) + Math.PI / 2;
-			bridge.position.x = bridgePos.x;
-			bridge.position.y = bridgePosY;
-			bridge.position.z = bridgePos.y;
-			
-			dome.add(bridge)
-		}
-		
-		//цилиндрическая часть
-		if(params.cylinderBase == "есть"){
-			
-			//вертикальные стойки
-			var polePar = {
-				poleProfileY: arcPar.sizeA,
-				poleProfileZ: arcPar.sizeB,
-				dxfBasePoint: par.dxfBasePoint,
-				length: rafterPar.center.y - botOffset,
-				poleAngle: 0,
-				material: params.materials.metal,
-				dxfArr: [],
-				type: 'rect',
-				partName: 'carportColumn'
-			};
-			
-			var pos = polar({x:0, y:0}, -arcStepAng * i, basePar.rad)
-			
-			var rack = drawPole3D_4(polePar).mesh;
-			rack.rotation.y = arcStepAng * i + Math.PI / 2;
-			rack.rotation.z = Math.PI / 2;
-			rack.position.x = pos.x;
-			rack.position.y = botOffset;
-			rack.position.z = pos.y;
-
-			dome.add(rack)
-			
-			//поликарбонат цилиндры
-			if(i != arcAmt){
-				var sheet = drawArcPanel(arcSheetPar).mesh;
-				sheet.rotation.z = -arcStepAng * (i + 1);
-				sheet.rotation.x = Math.PI / 2;
-				//sheet.position.x = pos.y;
-				sheet.position.y = rafterPar.center.y;
-				//sheet.position.z = pos.x;
-				dome.add(sheet)
-			}
-			
-		}
-	
-		//поликарбонат сегменты
-		if(i != arcAmt){
-			var sheetPos = polar({x:0, y:0}, -arcStepAng * i, rafterPar.center.x); //смещение к краю диска
-			var coverSector = drawSphereSector(sectorPolyPar).mesh;
-			coverSector.rotation.y = arcStepAng * i + Math.PI;
-			coverSector.rotation.z = -sectorPolyPar.topCutAngle;
-			coverSector.position.x = sheetPos.x
-			coverSector.position.y = rafterPar.center.y
-			coverSector.position.z = sheetPos.y
-			dome.add(coverSector)
-		}
-		
-		//ролики
-		if(par.isMovable){
-			var weelPar = {}
-			var weelPosAng = Math.PI / 2 + arcStepAng * i;
-			//смещаем первый и последний ролики
-			var weelMooveAng = 50 / (par.railDiam / 2)
-			if(i == 0) weelPosAng += weelMooveAng;
-			if(i == arcAmt) weelPosAng -= weelMooveAng;
-			
-			var weelPos = polar({x:0, y:0}, weelPosAng, par.railDiam / 2);
-			
-			
-			var weel = drawWeelBlock(weelPar).mesh;
-			
-			weel.rotation.y = weelPosAng - Math.PI / 2;
-			weel.position.x = weelPos.y;
-			weel.position.y = weelPar.diam / 2 + partPar.dome.tubeDiam + partPar.dome.baseThk;
-			weel.position.z = weelPos.x;
-		
-			dome.add(weel)
-		}
-		
-		
-	}
-	
-	
-
-	
-	dome.setLayer('carcas');
-	
-	return dome;
-}
 
 /** функция отрисовывает кровлю навеса
 	var roofPar = {
@@ -1093,35 +816,25 @@ function drawArcPavilion(par){
 		var a1 = angle( center, points[1]) + Math.PI
 		if(a1 == Math.PI * 2) a1 = Math.PI
 		
-		console.log(points, width, a1)
-		//дуги
+		
 		var sectPar = {
-			len: params.sectLen,
+			rad: rad,
+			center: center,
 			width: width,
+			sectId: i,
 			a1: a1,
-			rafterAmt: Math.ceil(params.sectLen / 700) + 1,
 		}
-
-		var sect = drawRoofCarcas(sectPar).mesh
+		
+		var sect = drawArcPoolSect(sectPar).mesh
 		sect.position.z = params.sectLen * i
 		section.add(sect)
 		
-		//кровля		
-		var roofPar = {
-			topArc: sectPar.topArc,
-			len: params.sectLen,
-		}
-		
-		var roof = drawRoof(roofPar)
-		roof.position.z = sect.position.z - params.sectLen / 2
-		roof.setLayer('roof');
-		section.add(roof);
-		
 		//направляющие
 		if(i < leftSectAmt){
+			/*
 			var polePar = {
-				poleProfileY: partPar.purlin.profSize.x,
-				poleProfileZ: partPar.purlin.profSize.y,
+				poleProfileY: partPar.rail.profSize.y,
+				poleProfileZ: partPar.rail.profSize.x,
 				dxfBasePoint: par.dxfBasePoint,
 				length: params.sectAmt * params.sectLen,
 				material: params.materials.metal,
@@ -1130,17 +843,37 @@ function drawArcPavilion(par){
 			
 			var rail = drawPole3D_4(polePar).mesh;
 			rail.rotation.y = -Math.PI / 2
-			rail.position.x = -width / 2
+			rail.position.x = -width / 2 + partPar.rafter.profSize.y / 2 + partPar.rail.profSize.x / 2
 			rail.position.z = -params.sectLen / 2
 			pavilion.add(rail);
 			rail.setLayer('carcas');
 			
 			var rail = drawPole3D_4(polePar).mesh;
 			rail.rotation.y = -Math.PI / 2
-			rail.position.x = width / 2
+			rail.position.x = width / 2 - partPar.rafter.profSize.y / 2 + partPar.rail.profSize.x / 2
 			rail.position.z = -params.sectLen / 2
 			pavilion.add(rail);
 			rail.setLayer('carcas');
+			*/
+			
+			var railPar = {
+				len: params.sectAmt * params.sectLen,
+			}
+			
+			var rail = drawPoolRail(railPar).mesh;
+		//	rail.rotation.y = -Math.PI / 2
+			rail.position.x = -width / 2 + partPar.rafter.profSize.y / 2 + partPar.rail.profSize.x / 2
+			rail.position.z = -params.sectLen / 2
+			pavilion.add(rail);
+			rail.setLayer('carcas');
+			
+			var rail = drawPoolRail(railPar).mesh;
+			//rail.rotation.y = -Math.PI / 2
+			rail.position.x = width / 2 - partPar.rafter.profSize.y / 2 + partPar.rail.profSize.x / 2
+			rail.position.z = -params.sectLen / 2
+			pavilion.add(rail);
+			rail.setLayer('carcas');
+
 		}
 		
 		//фронтон
@@ -1169,6 +902,7 @@ function drawArcPavilion(par){
 		}
 		pavilion.add(section)
 		window.moovableSections.push(section)
+
 	}
 	
 		//центр массива в точке 0,0

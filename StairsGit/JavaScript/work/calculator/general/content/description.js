@@ -385,7 +385,20 @@ function printDescr() {
 		}
 	}
 
-	$('#description').append(printAdditionalDescription())
+	$('#description').append(printAdditionalDescription());
+
+	//Применяем formChange для форм доп объектов
+	if (window.additional_objects && window.additional_objects.length > 0) {
+		window.additional_objects.forEach(function(item){
+			if (item.calc_price) {
+				$form = $('#object_description_' + item.id)
+				var classItem = eval(item.className);
+				if (classItem && classItem.formChange) {
+					classItem.formChange($form, item)
+				}
+			}
+		});
+	}
 
 	if ($('#previewImages').length > 0) {
 		var images = getPreviewImages('preview');
@@ -529,7 +542,8 @@ function printAdditionalDescription(){
 						images: getPreviewImages(blockType), 
 						comment: obj.meshParams.objectComment,
 						title: (obj.name || eval(obj.className).getMeta().title),
-						description: eval(obj.className).getDescr(obj).html});
+						description: eval(obj.className).getDescr(obj).html
+					});
 				}
 			}
 		})
@@ -545,7 +559,9 @@ function printAdditionalDescription(){
 	}
 
 	// Доставка и монтаж
-	html += paramsBlockTemplate.render(getAssemblingDescription());
+	if (params.isAssembling != 'нет') {
+		html += paramsBlockTemplate.render(getAssemblingDescription());
+	}
 
 	html += $.templates("#footerTemplate").render({
 		image: "/images/calculator/new_kp/assembling_1.png",

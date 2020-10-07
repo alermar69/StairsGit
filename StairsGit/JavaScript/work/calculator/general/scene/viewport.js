@@ -28,10 +28,16 @@ $(function () {
 		width: containerWidth,
 		outputDivId: "WebGL-output",
 	}
-
+	
+	//кнопка обновить текстуры
 	$(".updateTextures").click(function () {
 		// Обновляем состояние текстур
 		textureManager.updateMaterials();
+	})
+	
+	//кнопка включить текстуры
+	$(".showTextures").click(function(){
+		menu.textures = true
 	})
 
 	$('#objectContextMenu').contextmenu(function() {
@@ -1314,6 +1320,8 @@ function redrawAdditionalObjects(){
 		}
 	}
 
+	var currentSelectedId = $('.additionalObjectRow.selected').attr('data-object_id');
+
 	$('.additionalObjectRow').remove();
 
 	// Сохраняем ссылку на specObj перед отрисовкой, тк в процессе отрисовки формируется спецификация для доп объектов
@@ -1336,6 +1344,8 @@ function redrawAdditionalObjects(){
 
 	if (window.selectedObject && selectedObject.objectRowClass == "additionalObjectRow") {
 		selectObjectByRow(selectedObject.objectRowClass, selectedObject.objectRowId);
+	}else if(currentSelectedId){
+		$('.additionalObjectRow[data-object_id="'+currentSelectedId+'"]').addClass('selected');
 	}
 
 	updateModifyChanges();

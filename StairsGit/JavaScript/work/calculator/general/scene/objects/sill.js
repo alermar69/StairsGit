@@ -14,15 +14,25 @@ class Sill extends AdditionalObject {
 		if(!par) par = {};
 		initPar(par);
 		
+		//исправляем битые параметры
+		var meta = this.getMeta();
+		meta.inputs.forEach(function(item){
+			if(item.key && par[item.key] == "undefined") {
+				par[item.key] = item['default']
+			}
+		})
+		
 		var envPar = {};
 		$.extend(true, envPar, par)
 		envPar.material = par.material;
 
 		var drawFunc = drawSillEnv;
 		if(par.geom == "эркер") drawFunc = drawOriel
-		var env = drawFunc(envPar).mesh;
 		
-		par.mesh.add(env);
+		if(par.geom != "нет"){
+			var env = drawFunc(envPar).mesh;		
+			par.mesh.add(env);
+		}
 		
 		//подоконник
 		if(par.geom != "эркер") {
@@ -41,28 +51,13 @@ class Sill extends AdditionalObject {
 	
 	/** STATIC **/
 	static calcPrice(par){
-		var meshPar = par.meshParams;
-		var cost = 0;
-		//столешница
-		if (meshPar.sillGeom == 'столешница' || meshPar.sillGeom == 'подоконник') {
-			var timberPar = calcTimberParams(params.additionalObjectsTimberMaterial);
-			var paintPriceM2 = calcTimberPaintPrice(params.additionalObjectsTimberColor, params.additionalObjectsTimberMaterial)
-			console.log(params.additionalObjectsTimberMaterial, timberPar)
-			var timberVol = meshPar.width * meshPar.len * meshPar.sillThk / 1000000000;
-			var paintedArea = (meshPar.width * meshPar.len + (meshPar.width + meshPar.len) * 2 * meshPar.sillThk) / 1000000
-			
-			
-			var timberCost = timberVol * timberPar.m3Price;
-			var timberPaintCost = paintedArea * paintPriceM2;
-			console.log(timberCost, timberPaintCost);
-			cost = timberCost + timberPaintCost;
-		}
+		var cost = calcCountertopCost(par.meshParams);
 
 		return {
 			name: this.getMeta().title,
 			cost: cost,
-			priceFactor: meshPar.priceFactor,
-			costFactor: meshPar.costFactor
+			priceFactor: par.meshParams.priceFactor,
+			costFactor: par.meshParams.costFactor
 		}
 	}
 
@@ -126,7 +121,7 @@ class Sill extends AdditionalObject {
 		
 		//прааметры слэба
 		form.find(".slab").hide()
-		if(par.matType && par.matType.indexOf("слэб") != -1) form.find(".slab").show()
+		if(par.tabletopType && par.tabletopType.indexOf("слэб") != -1) form.find(".slab").show()
 
 		
 		getObjPar()
@@ -159,6 +154,10 @@ class Sill extends AdditionalObject {
 						{
 							"value": "эркер",
 							"title": "эркер"
+						},
+						{
+							"value": "нет",
+							"title": "нет"
 						}
 					],
 					"default": "стена",
@@ -360,6 +359,10 @@ class Sill extends AdditionalObject {
 							"value": "подоконник",
 							"title": "подоконник"
 						},
+						{
+							"value": "столешница",
+							"title": "столешница"
+						},
 					],
 					"default": "подоконник",
 					"type": "select"
@@ -380,7 +383,7 @@ class Sill extends AdditionalObject {
 					"printable": "true",
 				},
 				{
-				  "key": "sillThk",
+				  "key": "thk",
 				  "title": "Толщина:",
 				  "default": 40,
 				  "type": "number",
@@ -506,8 +509,10 @@ class Sill extends AdditionalObject {
 				},
 				
 				{
-					"key": "matType",
+					"key": "tabletopType",
 					"title": "Материал:",
+					"default": "щит",
+					"type": "select",
 					"values": [
 						{
 							"value": "щит",
@@ -518,12 +523,8 @@ class Sill extends AdditionalObject {
 							"title": "шпон"
 						},
 						{
-							"value": "слэб цельный",
-							"title": "слэб цельный"
-						},
-						{
-							"value": "слэб со склейкой",
-							"title": "слэб со склейкой"
+							"value": "слэб",
+							"title": "слэб"
 						},
 						{
 							"value": "слэб + стекло",
@@ -537,9 +538,11 @@ class Sill extends AdditionalObject {
 							"value": "слэб + смола прозр.",
 							"title": "слэб + смола прозр."
 						},
+						{
+							"value": "нет",
+							"title": "нет"
+						},
 					],
-					"default": "щит",
-					"type": "select",
 					"printable": "true",
 				},
 				
@@ -691,6 +694,24 @@ class Sill extends AdditionalObject {
 					"class": "botPole",
 					"type": "number"
 				},
+				
+				{
+					"key": "riverWidth",
+					"type": "number",
+					"title": "Ширина реки, мм",
+					"default": 150,
+					"class": "slab",
+					"printable": "true",
+				},
+				{
+					"key": "resinVol",
+					"type": "number",
+					"title": "Объем заливки, л",
+					"default": 1,
+					"class": "slab",
+					"printable": "true",
+				},
+				
 				
 				
 				{

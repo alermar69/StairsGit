@@ -49,8 +49,12 @@
 					</select></td>
 			</tr>
 			<tr>
-				<td>Для:</td>
+				<td>Клиент:</td>
 				<td><input type="text" value="" id="customerName"></td>
+			</tr>
+			<tr>
+				<td>Клиент (В родительном падеже):</td>
+				<td><input type="text" value="" id="genitiveCaseCustomerName"></td>
 			</tr>
 			<tr>
 				<td>E-mail клиента:</td>

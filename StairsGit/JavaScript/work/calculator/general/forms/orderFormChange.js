@@ -146,6 +146,12 @@ $(function () {
 		}else{
 			alert("Инпут не найден")
 		}
+	});
+
+	$("#customerName").change(function(){
+		var russianName = new RussianName($("#customerName").val());
+		var name = russianName.fullName(russianName.gcaseGen);
+		$("#genitiveCaseCustomerName").val(name)
 	})
 });
 
@@ -162,13 +168,6 @@ function changeOrderForm(){
 		var el = $('[data-input_id="'+id+'"]');
 		if (el.length > 0) {
 			var val = $(this).val();
-			// Для заказов созданных раньше 28.09.2020 склоняем имена
-			if (this.id == "customerName") {
-				try {
-					var russianName = new RussianName(val);
-					val = russianName.fullName(russianName.gcaseGen);
-				} catch (error) {}
-			}
 			//форматируем дату
 			if($(this).attr("type") == "date") val = formatDate($(this).val(), "dd.MM.yy");
 				

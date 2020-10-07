@@ -1108,7 +1108,7 @@ function calcWorks(specObj, unit){
 
 					var amtId = workList.painting[workId.painting].amtId;
 					var paintWorkId = workId.painting;
-					if(timberPaint == "морилка+лак" || timberPaint == "морилка+масло") paintWorkId += "_col";
+					if(timberPaint == "морилка+лак" || timberPaint == "морилка+масло" || timberPaint == "цветное масло") paintWorkId += "_col";
 					workList.painting[paintWorkId].amt += specObj[partId][amtId];
 					}				
 				}
@@ -1206,7 +1206,7 @@ function printWorks2(par){
 	
 
 	//страница КП
-	if(!par.noPrint) {
+	if(!par.noPrint && window.getExportData_com ) {
 		//общее время изготовления
 
 		var data = getExportData_com(false).production_data;
@@ -1397,6 +1397,9 @@ function calcAssemblingWage(){
 		railing: {
 			name: "Ограждения",
 			},
+		objects: {
+			name: "Объекты",
+			},
 		other: {
 			name: "Прочее",
 			},
@@ -1411,7 +1414,7 @@ function calcAssemblingWage(){
 	
 	
 
-if(params.calcType != "vint"){
+if(params.calcType != "vint" && params.calcType != "objects"){
 
 	var stepAmt = calcTotalStepAmt();
 	
@@ -1695,7 +1698,7 @@ if(params.calcType == "carport"){
 		unitName: "м2",
 		unitWage: 100,
 		}	
-	wages.other.items.push(wage);
+	wages.carcas.items.push(wage);
 	
 	//опоры столбов
 	if(params.fixType == "бетон"){
@@ -1705,7 +1708,7 @@ if(params.calcType == "carport"){
 			unitName: "шт",
 			unitWage: 500,
 			}	
-		wages.other.items.push(wage);
+		wages.carcas.items.push(wage);
 	}
 	
 	if(params.fixType == "винтовые сваи"){
@@ -1715,7 +1718,7 @@ if(params.calcType == "carport"){
 			unitName: "шт",
 			unitWage: 500,
 			}	
-		wages.other.items.push(wage);
+		wages.carcas.items.push(wage);
 	}
 	
 }
@@ -1765,7 +1768,65 @@ if(params.calcType == "railing"){
 	}
 
 
+//подоконники
 
+	var wage = {
+		name: "Монтаж подоконников/столешниц",
+		amt: Math.round(getDopPartPropVal("sill", "area") * 10) / 10,
+		unitName: "м2",
+		unitWage: 2000,
+		}	
+	wages.objects.items.push(wage);
+	
+	var wage = {
+		name: "Подготовка основания",
+		amt: getDopPartPropVal("sill", "amt"),
+		unitName: "шт",
+		unitWage: 500,
+		}	
+	wages.objects.items.push(wage);
+	
+	var wage = {
+		name: "Подгонка изделий по месту",
+		amt: getDopPartPropVal("sill", "amt") - getDopPartPropVal("sill", "lineTemplatesAmt") - getDopPartPropVal("sill", "curveTemplates"),
+		unitName: "шт",
+		unitWage: 500,
+		}	
+	wages.objects.items.push(wage);
+	
+	var wage = {
+		name: "Шаблоны прямолинейные",
+		amt: getDopPartPropVal("sill", "lineTemplatesAmt"),
+		unitName: "шт",
+		unitWage: 1000,
+		minWage: 2000,
+		}
+	wages.objects.items.push(wage);
+	
+	var wage = {
+		name: "Шаблоны криволинейные",
+		amt: getDopPartPropVal("sill", "curveTemplates"),
+		unitName: "шт",
+		unitWage: 2000,		
+	}
+	wages.objects.items.push(wage);
+	
+	var wage = {
+		name: "Установка опор",
+		amt: 0,
+		unitName: "шт",
+		unitWage: 1000,
+		}
+	wages.objects.items.push(wage);
+	
+	var wage = {
+		name: "Демонтаж",
+		amt: getDopPartPropVal("sill", "breaking"),
+		unitName: "шт",
+		unitWage: 1000,
+		}	
+	wages.objects.items.push(wage);
+	
 //ограждения
 	
 	//ограждение лестницы
@@ -1928,6 +1989,10 @@ if(params.calcType == "railing"){
 	
 	for(var dept in wages){
 		var deptWages = wages[dept].items;
+
+		if(deptWages.length == 0) continue;
+		console.log(dept, deptWages.length, deptWages)
+		
 		sum[dept] = {
 			base: 0,
 			extra: 0,
@@ -1939,12 +2004,20 @@ if(params.calcType == "railing"){
 			//общая сумма
 			deptWages[i].total = deptWages[i].amt * deptWages[i].unitWage;
 			
+			//минималка по позиции
+			var isMinWage = false;
+			if(deptWages[i].total > 0 && deptWages[i].total < deptWages[i].minWage) {
+				deptWages[i].total = deptWages[i].minWage;
+				isMinWage = true;
+			}
 			if(deptWages[i].total > 0 || calcAll){
 				text += "<tr><td>" + deptWages[i].name + "</td>" + 
 					"<td>" + deptWages[i].unitName + "</td>" + 
 					"<td>" + deptWages[i].amt + "</td>" + 
 					"<td>" + deptWages[i].unitWage + "</td>" + 
-					"<td>" + Math.round(deptWages[i].total) + "</td></tr>";
+					"<td>" + Math.round(deptWages[i].total);
+				if(isMinWage) text += " (мин)";
+				text += "</td></tr>";
 				sum[dept].base += deptWages[i].total;
 				}
 			}
@@ -1979,6 +2052,10 @@ if(params.calcType == "railing"){
 	//базовая
 	if(calcTotalStepAmt() > 7) minWage.base = 7000;
 	if(params.calcType == "railing") minWage.base = 7000;
+	if(params.calcType == "objects") {
+		minWage.base = 4500;
+		if(params.needMockup == "да") minWage.base = 6500;
+	}
 	minWage.total += minWage.base;
 	
 	//многоэтапные заказы
@@ -1995,10 +2072,17 @@ if(params.calcType == "railing"){
 		
 	text += "<h4>Расчет минималки</h4>" + 
 		"Первый этап: " + minWage.base;
-	if(params.calcType != "railing"){
+
+	if(params.calcType != "railing" && params.calcType != "objects"){
 		if(calcTotalStepAmt() > 7) text += " (лестница более 7 ступеней)";
 		else text += " (лестница менее 7 ступеней)";
 	}
+	
+	if(params.calcType == "objects" && params.needMockup == "да"){
+		text += " (4500 + 2000)";
+	}
+
+	
 	text += "<br/>"
 	
 	text += "Дополнительные этапы: " + (params.workers - 1) * 4000 + "<br/>" + 

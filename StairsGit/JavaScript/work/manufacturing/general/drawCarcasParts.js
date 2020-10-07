@@ -141,6 +141,7 @@ function drawRectFlan2(par) {
 	if (par.hasScrews) {
 		if (par.roundHoleCenters) {
 			var screwId = "screw_6x32"
+			if(par.screwId) screwId = par.screwId;
 			var screwPar = {
 				id: screwId,
 				description: "Крепление ступеней",
@@ -2914,10 +2915,13 @@ layer
 				if (partName == 'carportBeam'){
 					specObj[partName].name = 'Дуга навеса';
 				}
+				if (partName == 'carportBeamConnector'){
+					specObj[partName].name = 'Соединитель';
+				}
 			}
 			var name = arcLength;
 			if (partName == 'polySheet') name = arcLength.toFixed(2)+'x'+par.height.toFixed(2);
-			if (partName == 'carportBeam') name = "R=" + Math.round(par.rad - par.thk / 2)  + " L=" + arcLength_out
+			if (partName == 'carportBeam' || partName == 'carportBeamConnector') name = "R=" + Math.round(par.rad - par.thk / 2)  + " L=" + arcLength_out
 			
 			if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 			if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;

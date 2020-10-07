@@ -141,24 +141,25 @@ class AdditionalObject extends THREE.Object3D {
 		}else{
 			title = meta.title
 		}
-		var html = '<table class="form_table" style="max-width: 40%"><tbody>'
-		var text = meta.title;
-		meta.inputs.forEach(function(input){
-			if (input && par[input.key] && input.printable) {
-				html += '<tr><td>' + input.title + '</td><td>' + par[input.key] + '</td></tr>';
-			}
-		});
-		html += '</tbody></table>'
-		if (objPar.calc_price) {
+		var html = '<div id="object_description_' + objPar.id + '">';//<table class="form_table" style="max-width: 40%"><tbody>'
+		html += getObjetParamsHtml(objPar.id, true);
+		var text = title;
+		var classItem = eval(objPar.className);
+
+		if (objPar.calc_price && priceObj[objPar.className + '_' + objPar.id]) {
 			html += "<h4 class='mt-3 pt-3' style='border-top: 2px solid gray;'>Цена</h4>";
 			html += '<table class="form_table" style="max-width: 40%"><tbody>'
 			html += '<tr><td>Количество</td><td>' + (par.objectAmt || 1) + '</td></tr>';
-			html += '<tr><td>Общая цена</td><td>' + priceObj[objPar.className + '_' + objPar.id].price + '</td></tr>';
+			if (classItem.printPrice) {
+				html += classItem.printPrice(objPar);
+			}
 			if (priceObj[objPar.className + '_' + objPar.id].pricePerItem) {
 				html += '<tr><td>Цена за штуку</td><td>' + priceObj[objPar.className + '_' + objPar.id].pricePerItem + '</td></tr>';
 			}
+			html += '<tr><td>Общая цена</td><td>' + priceObj[objPar.className + '_' + objPar.id].price + '</td></tr>';
 			html += '</tbody></table>'
 		}
+		html += '</div>';
 		return {html: html, text: text};
 	}
 
@@ -169,6 +170,10 @@ class AdditionalObject extends THREE.Object3D {
 			priceFactor: 1,
 			costFactor: 1
 		}
+	}
+
+	static printPrice(par){
+		return ""
 	}
 	/** STATIC METHODS */
 

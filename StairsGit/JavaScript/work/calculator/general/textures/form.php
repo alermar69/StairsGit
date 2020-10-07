@@ -60,4 +60,6 @@
 
 </div>
 
-<button class='updateTextures' type="button" name="button">Обновить текстуры</button><br/>
+<br/>
+<button class='updateTextures btn btn-primary' type="button" name="button">Обновить текстуры</button>
+<button class='showTextures btn btn-primary' type="button" name="button">Включить текстуры</button><br/>

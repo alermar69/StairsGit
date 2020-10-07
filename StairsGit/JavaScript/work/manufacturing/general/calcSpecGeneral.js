@@ -2110,6 +2110,18 @@ function getPartPropVal(partName, prop, dataObj){
 	return propVal;
 } //end of getPartPropVal
 
+/** функция возвращает свойство детали для доп. объектов */
+function getDopPartPropVal(partName, prop){
+
+	var propVal = 0;
+	$.each(partsAmt_dop, function(){
+		if(this[partName]) propVal += this[partName][prop];
+	})
+	
+	return propVal;
+} //end of getPartPropVal
+
+
 /**
  * Назначает объекту и всем его дочернем объектам specId
  * @param {Object3D} obj Сам объект(так-же может быть Mesh)

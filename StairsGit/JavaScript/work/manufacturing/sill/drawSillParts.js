@@ -210,6 +210,8 @@ function drawSill(par){
 	if(!par) par = {};
 	initPar(par)
 	
+	if(!par.objectAmt) par.objectAmt = 1;
+	
 //	par.len = par.windowWidth + par.rightNose + par.leftNose;
 //	par.width = par.windowPosZ + par.frontNose;
 //	if(par.geom == "подоконный блок") par.width = par.wallThk + par.frontNose * 2
@@ -277,6 +279,48 @@ function drawSill(par){
 	if(par.modifyKey) mesh.modifyKey = par.modifyKey;
 	mesh.rotation.x = -Math.PI / 2;
 	par.mesh.add(mesh);
+	
+	//сохраняем данные для спецификации
+	var partName = 'sill';
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				sumLength: 0,
+				area: 0,
+				name: 'Подоконник',
+				metalPaint: false,
+				timberPaint: true,
+				isModelData: true,
+				division: "timber",
+				purposes: [],
+				workUnitName: "amt",
+				group: "treads",
+				//дополнительные данные
+				lineTemplatesAmt: 0,
+				curveTemplates: 0,
+				breaking: 0,
+			}
+		}
+		
+		name = par.shapeType + " " + Math.round(par.len) + "х" + Math.round(par.width);
+		
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1 * par.objectAmt;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1 * par.objectAmt;
+		specObj[partName]["amt"] += 1 * par.objectAmt;
+		specObj[partName]["sumLength"] += par.len / 1000 * par.objectAmt;
+		specObj[partName]["area"] += par.len * par.width / 1000000 * par.objectAmt;
+		par.mesh.specParams = {specObj: specObj, amt: 1 * par.objectAmt, partName: partName, name: name}
+		
+		//дополнительные данные
+		if(par.makingTemplates == "прямолинейные") specObj[partName]["lineTemplatesAmt"] += 1 * par.objectAmt;
+		if(par.makingTemplates == "криволинейные") specObj[partName]["curveTemplates"] += 1 * par.objectAmt;
+		if(par.breaking == "есть") specObj[partName]["breaking"] += 1 * par.objectAmt;
+	}
+	
+	par.mesh.specId = partName + name;
+		
 	
 	return par
 }

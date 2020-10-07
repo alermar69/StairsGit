@@ -2788,7 +2788,11 @@ function drawTableBase(par){
 function drawTableCountertop(par){
 	initPar(par)
 	
-	if(par.model != "цельная") par.width = (par.width - par.partsGap) / 2;
+	par.hasGap = false; //есть ли стык посередине
+	if(par.width > 600 && (par.type == "щит" || par.type == "слэб" )) par.hasGap = true;
+	if (par.type.indexOf('слэб') != -1 && par.type != 'слэб') par.hasGap = true;
+	
+	if(par.hasGap) par.width = (par.width - par.partsGap) / 2;
 
 	var p0 = { x: 0, y: 0 };
 
@@ -2799,11 +2803,18 @@ function drawTableCountertop(par){
 		var p4 = newPoint_xy(p0, par.len, 0);
 
 
-
-		var points = [p1, p2, p3, p4];
-
-		if (par.model != "цельная") {
-			points[2].filletRad = points[3].filletRad = 1
+		if (par.sideEdges == 'живые' && par.type.indexOf('слэб') != -1) {
+			if (par.type == 'слэб') {
+				var points = [p1, p2, ...getNoisedPoints(p2,p3), p3, p4, ...getNoisedPoints(p1,p4).reverse()];
+			}else if(par.type == 'слэб + стекло' || par.type == 'слэб + смола непрозр.' || par.type == 'слэб + смола прозр.'){
+				var points = [p1, p2, ...getNoisedPoints(p2,p3, 100, 50, 'in'), p3, p4, ...getNoisedPoints(p1,p4, 100, 50, 'out').reverse()];
+			}
+		}else{
+			var points = [p1, p2, p3, p4];
+		}
+		
+		if (par.hasGap) {
+			points[0].filletRad = points[3].filletRad = 1
 		}
 
 		//создаем шейп
@@ -2815,6 +2826,7 @@ function drawTableCountertop(par){
 			radOut: par.cornerRad, //радиус скругления внешних углов
 			//markPoints: true,
 		}
+		if (par.sideEdges == 'живые') shapePar.radOut = undefined;
 
 		var shape = drawShapeByPoints2(shapePar).shape;
 	}
@@ -2844,14 +2856,24 @@ function drawTableCountertop(par){
 	if (par.modifyKey) mesh.modifyKey = par.modifyKey;
 	par.mesh.add(mesh);
 
-	if(par.model != "цельная"){
+	if(par.hasGap){
 		var mesh = new THREE.Mesh(geom, params.materials.additionalObjectTimber);
 		mesh.rotation.x = -Math.PI / 2;
-		mesh.rotation.y = Math.PI;
-	//	mesh.position.y = -par.thk;
-		mesh.position.x = par.width * 2+ par.partsGap;
-		mesh.position.z = par.len;
+		mesh.rotation.z = -Math.PI / 2;
+		mesh.position.y = -par.thk;
+		mesh.position.x = par.partsGap;
+		//mesh.position.z = par.len;
 		par.mesh.add(mesh);
+	}
+
+	// Проверяем что есть стекло или смола
+	if (par.hasGap && par.type.indexOf('слэб') != -1 && par.type != 'слэб') {
+		var riverGeometry = new THREE.BoxGeometry(200, par.len - 2, par.thk - 1);
+		var river = new THREE.Mesh(riverGeometry, params.materials.glass);
+		river.rotation.x = Math.PI / 2;
+		river.position.y = -par.thk / 2;
+		river.position.z = par.len / 2;
+		par.mesh.add(river)
 	}
 	
 	//сохраняем данные для спецификации
@@ -2881,7 +2903,11 @@ function drawTableCountertop(par){
 		specObj[par.partName]["amt"] += 1;
 		specObj[par.partName]["area"] += area;
 		specObj[par.partName]["paintedArea"] += paintedArea;
+		
+		par.mesh.specParams = {specObj: specObj, amt: 1, partName: par.partName, name: name}
 	}
+	
+	par.mesh.specId = par.partName + name;
 	
 	//центр в точке 0,0
 	var box3 = new THREE.Box3().setFromObject(par.mesh);
@@ -2889,6 +2915,41 @@ function drawTableCountertop(par){
 	par.mesh.position.z -= (box3.max.z + box3.min.z) / 2;
 	
 	return par;
+}
+
+/**
+ * 
+ * @param p1 - Первая точка
+ * @param p2 - Вторая точка
+ * @param dist - Расстояние между точками
+ * @param offset - Возможное максимальное выступание от линии
+ * @param lineLimit (in/out) - Ограничение базовой линией(то есть шум не выйдет за базовую линию или не зайдет за нее внутрь)
+ */
+function getNoisedPoints(p1,p2, dist, offset, lineLimit){
+	var dist = dist || 100;
+	var offset = offset || 25;
+	// Учитываем исходя из того что на 100мм должна быть 1 точка
+	var pointsDistance = distance(p1,p2);
+	var pointsAngle = angle(p1,p2);
+	
+	var pointsCount = Math.floor(pointsDistance / dist);
+	var offsetStrength = offset;
+	var offsetCoeff = 0.5;
+	if (lineLimit == 'in') offsetCoeff = 0;
+	if (lineLimit == 'out') offsetCoeff = 1;
+	if (offsetCoeff == 0.5) offsetStrength = offsetStrength * 2;
+
+	var step = pointsDistance / pointsCount;
+	var newPoints = [];
+	for (var i = 1; i <= pointsCount; i++) {
+		// var randomAngle =
+		var p = polar(p1, pointsAngle, step * i);
+		var randomOffset = offsetStrength * Math.random() * Math.sign(offsetCoeff - Math.random());
+		var p = polar(p, pointsAngle + Math.PI / 2, randomOffset);
+		newPoints.push(p);
+	}
+
+	return newPoints
 }
 
 /** функция возвращает параметры подстолья по модели

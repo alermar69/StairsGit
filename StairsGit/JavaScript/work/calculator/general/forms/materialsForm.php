@@ -57,3 +57,6 @@
 <div>
 	<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/colorsForm.php" ?>
 </div>
+
+<br/>
+<button class='showTextures btn btn-primary' type="button" name="button">Включить текстуры</button><br/>

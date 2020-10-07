@@ -323,9 +323,7 @@ function getAdditionalObjectCurrentId(){
 }
 
 function addAdditionalObjectTable(par){
-	var isNew = false;
 	if(!par) {
-		isNew = true;
 		par = {
 			id: getAdditionalObjectCurrentId(),
 			className: 'ConcretePlatform',
@@ -343,7 +341,7 @@ function addAdditionalObjectTable(par){
 	if (!par.id && !par.position) return;
 
 	var text = '\
-		<tr class="additionalObjectRow '+(isNew ? 'selected': '')+'" data-object_selector="additionalObjectRow" style="width: 100%" data-object_id='+ par.id +' data-id='+ par.id +'>\
+		<tr class="additionalObjectRow" data-object_selector="additionalObjectRow" style="width: 100%" data-object_id='+ par.id +' data-id='+ par.id +'>\
 			<td>\
 				Тип: <select class="additionalObjectClass">';
 					AdditionalObject.getAvailableClasses().forEach(function(c){
@@ -394,10 +392,6 @@ function addAdditionalObjectTable(par){
 	el.find('.additionalObjectName').val(par.name);
 	if(par.calc_price) el.find('.additionalObjectCalcPrice').attr('checked', true);
 
-	additionalObjectParamsShow(par.id)
-	$('.additionalObjectRow').removeClass("selected")
-	el.addClass('selected');
-
 	return par.id;
 }
 
@@ -413,57 +407,7 @@ function additionalObjectParamsShow(id){
 		var itemMeta = eval(className + '.getMeta()');
 		$('#additionalObjectTitle').html(itemMeta.title);
 		$('#additionalObjectId').val(id);
-		var text = "";
-		var item = getAdditionalObject(id);
-		if (!item) return;
-		text += '<div><table class="form_table"><tbody>';
-		$.each(itemMeta.inputs, function(){
-			if (this.type == 'delimeter') {
-				// text += "<tr style='margin: 15px;width: 100%;border: 1px solid gray;'></tr>";
-				// text += "</tbody></table><h1>"+this.title+"</h1><table class='form_table'><tbody>";
-				text += '<tr><td colspan="2"><h1>'+this.title+'</h1></td></tr>'
-			}
-			if (this.type == 'row_start') {
-				text += '<tr class="'+(this.class || "")+'" ><td style="width: 30%"></td><td>';
-			}
-			if (this.type == 'row_end') {
-				text += '</td></tr>';
-			}
-
-			if (['text', 'number', 'boolean', 'select'].indexOf(this.type) != -1) {
-				var propParams = {
-					prop: {
-						id: this.key,
-						values: this.type,
-					},
-					val: item.meshParams[this.key] == undefined ? this.default : item.meshParams[this.key]
-				}
-				if (this.type == 'select') propParams.prop.values = this.values
-				if (!this.not_row) {
-					text += '<tr class="'+(this.class || "")+'" ><td style="width: 30%">' + this.title + '</td><td>' + printEditableProp(propParams) + '</td></tr>';
-				}else{
-					text += '<div class="'+(this.class || "")+'">' + this.title + ': ' + printEditableProp(propParams) + '</div>';
-				}
-			}
-			
-			if (this.type == 'image') {
-				text += this.title + '<tr class="'+(this.class || "")+'" ><td> <div class="meshParam meshParam_custom_parent imageSelector custom_input" data-propid="' + this.key + '" type="custom_input">';
-				var key = this.key;
-				this.values.forEach(function(value){
-					text += '<image width="64px" height="64px" style="margin: 5px;" class="meshParam_custom ' + ((item.meshParams[key] == value.value) ? 'selected' : '') + '" data-value="' + value.value + '" src="' + value.preview + '">';
-				});
-				text += '</div></td></tr>';
-			}
-			if (this.type == 'action') {
-				text += this.title + '<tr class="'+(this.class || "")+'" ><td colspan="2"> <div class="custom_input" data-propid="' + this.key + '" type="custom_input">';
-				text += '<button class="btn btn-primary actionInput" data-action_key="'+this.key+'">'+this.title+'</button>';
-				text += '</div></td></tr>';
-			}
-			if (this.type == 'wrapper') {
-				text += '<tr class="'+(this.class || "")+'" ><td></td></tr>';
-			}
-		});
-		text += '</tbody></table></div>';
+		var text = getObjetParamsHtml(id)
 		$('#additionalObjectBody').html(text);
 
 		var $form = $("#additionalObjectProperties")
@@ -476,6 +420,68 @@ function additionalObjectParamsShow(id){
 			}
 		}
 	}
+}
+
+/**
+ * Функция формирует html параметров 
+ */
+
+function getObjetParamsHtml(id, isKp){
+	var text = "";
+	var item = getAdditionalObject(id);
+	if (!item) return;
+	var itemMeta = eval(item.className + '.getMeta()');
+	text += '<div><table class="form_table"><tbody>';
+	$.each(itemMeta.inputs, function(){
+		if (isKp && this.printable != "true") return;
+		if (this.type == 'delimeter') {
+			// text += "<tr style='margin: 15px;width: 100%;border: 1px solid gray;'></tr>";
+			// text += "</tbody></table><h1>"+this.title+"</h1><table class='form_table'><tbody>";
+			text += '<tr><td colspan="2"><h1>'+this.title+'</h1></td></tr>'
+		}
+		if (this.type == 'row_start') {
+			text += '<tr class="'+(this.class || "")+'" ><td style="width: 30%"></td><td>';
+		}
+		if (this.type == 'row_end') {
+			text += '</td></tr>';
+		}
+
+		if (['text', 'number', 'boolean', 'select'].indexOf(this.type) != -1) {
+			var propParams = {
+				prop: {
+					id: this.key,
+					values: this.type,
+					isConstant: isKp
+				},
+				val: item.meshParams[this.key] == undefined ? this.default : item.meshParams[this.key]
+			}
+			if (this.type == 'select') propParams.prop.values = this.values
+			if (!this.not_row) {
+				text += '<tr class="'+(this.class || "")+'" ><td style="width: 30%">' + this.title + '</td><td>' + printEditableProp(propParams) + '</td></tr>';
+			}else{
+				text += '<div class="'+(this.class || "")+'">' + this.title + ': ' + printEditableProp(propParams) + '</div>';
+			}
+		}
+		
+		if (this.type == 'image') {
+			text += this.title + '<tr class="'+(this.class || "")+'" ><td> <div class="meshParam meshParam_custom_parent imageSelector custom_input" data-propid="' + this.key + '" type="custom_input">';
+			var key = this.key;
+			this.values.forEach(function(value){
+				text += '<image width="64px" height="64px" style="margin: 5px;" class="meshParam_custom ' + ((item.meshParams[key] == value.value) ? 'selected' : '') + '" data-value="' + value.value + '" src="' + value.preview + '">';
+			});
+			text += '</div></td></tr>';
+		}
+		if (this.type == 'action') {
+			text += this.title + '<tr class="'+(this.class || "")+'" ><td colspan="2"> <div class="custom_input" data-propid="' + this.key + '" type="custom_input">';
+			text += '<button class="btn btn-primary actionInput" data-action_key="'+this.key+'">'+this.title+'</button>';
+			text += '</div></td></tr>';
+		}
+		if (this.type == 'wrapper') {
+			text += '<tr class="'+(this.class || "")+'" ><td></td></tr>';
+		}
+	});
+	text += '</tbody></table></div>';
+	return text;
 }
 
 /** функция считывает параметры из формы и пишет их в глобальный объект

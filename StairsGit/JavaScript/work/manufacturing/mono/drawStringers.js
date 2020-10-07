@@ -1507,7 +1507,7 @@ function drawComplexStringer(par) {
 					dxfBasePoint: dxfBasePoint,
 					dxfArr: dxfPrimitivesArr,
 					ang: marshParams.ang, 
-					thk: 4,
+					thk: 8,
 					name: "Фланец соединения косоуров",
 				};
 				var dx = flanPar.thk / Math.tan(marshParams.ang) + params.metalThickness / Math.sin(marshParams.ang)

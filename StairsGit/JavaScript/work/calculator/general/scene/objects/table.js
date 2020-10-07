@@ -10,14 +10,22 @@ class Table extends AdditionalObject {
 	static draw(par){
 		if(!par) par = {};
 		initPar(par);
-
+		
+		//исправляем битые параметры
+		var meta = this.getMeta();
+		meta.inputs.forEach(function(item){
+			if(item.key && par[item.key] == "undefined") {
+				par[item.key] = item['default']
+			}
+		})
+		
 		//подстолье
 		if (par.baseModel != 'не указано' && par.baseModel != 'нет') {
 			var basePar = {
 				dxfBasePoint: {x: 0,y: 0},
 				model: par.baseModel,
 				width: par.width - par.sideOverhang * 2,
-				height: par.height - par.countertopThk,
+				height: par.height - par.thk,
 				len: par.len - par.frontOverhang * 2,
 			}
 	
@@ -30,12 +38,13 @@ class Table extends AdditionalObject {
 			var topPar = {
 				dxfBasePoint: {x: 2000, y: 0},
 				geom: par.tableGeom,
-				model: par.countertopModel,
+				type: par.tabletopType,
 				cornerRad: par.cornerRad,
 				width: par.width,
 				len: par.len,
-				thk: par.countertopThk,
+				thk: par.thk,
 				partsGap: par.partsGap,
+				sideEdges: par.sideEdges,
 				modifyKey: 'tabletop:' + par.objId
 			}
 			// debugger;
@@ -47,70 +56,74 @@ class Table extends AdditionalObject {
 		return par
 	}
 
-	static calcPrice(par){
-		var meshPar = par.meshParams;
-		var cost = 0;
+	static printPrice(par){
+		var priceParts = this.calcPriceParts(par);
+		var objPrice = this.calcPrice(par);
+		var priceCoeff = getPriceCoefficients(objPrice);
+		var priceHTML = "";
+		if (priceParts.tableBase) priceHTML += '<tr><td>Основание</td><td>' + Math.round(priceParts.tableBase * objPrice.priceFactor * priceCoeff.margin) + '</td></tr>';
+		if (priceParts.countertopCost) priceHTML += '<tr><td>Столешница</td><td>' + Math.round(priceParts.countertopCost * objPrice.priceFactor * priceCoeff.margin) + '</td></tr>';
 
-		//дерево
-		var len = meshPar.len
-		var width = meshPar.width
-		var model = meshPar.tabletopType;
-		var area = len * width / 1000000;
-		var vol = area * meshPar.countertopThk / 1000;
-		var timberType = params.additionalObjectsTimberMaterial;//$row.find(".timberType").val();
-		var m3Cost = calcTimberParams(timberType).m3Price;
-		// if(model == "слэб цельный") m3Cost = 200000;
-		if(model == "шпон") m3Cost = 100000;
-		
-		var timberCost = vol * m3Cost;
-		if (["слэб цельный", "слэб со склейкой","слэб + стекло","слэб + смола непрозр.","слэб + смола прозр."].indexOf(model) != -1) {
-			timberCost = meshPar.slabPrice;
-		}
-		var workCost = 0;
-		
-		//упрощенный расчет стоимости работы
-		// if(type == "изготовление столешницы") {
-		// 	timberCost = 0;
-		// 	workCost = 5000 + area * 1000;
-		// }
-		
-		//покраска
-		var paintCost = calcTimberPaintPrice(params.timberPaint, timberType) * area * 1.5; //1.5 учитывает торцы и низ
-		
-		//река
-		var riverArea = meshPar.riverWidth * len / 1000000;
-		var resinVol = riverArea * meshPar.countertopThk
-		// if(type == "изготовление столешницы") resinVol = meshPar.resinVol;
-		if(model == "слэб + смола непрозр.") resinVol *= 0.5 //к-т учитывает заполнитель
-	
-		var riverCost = 0;
-		var resinLiterCost = 1500;
-		if(model == "слэб + смола прозр." || model == "слэб + смола непрозр."){// || type == "изготовление столешницы") {
-			riverCost += riverArea * resinVol * resinLiterCost;				
-		}
-		if(model == "слэб + стекло") riverCost += riverArea * 12000 + 2000; //12к - цена стекла за м2, 2к - работа по фрезеровке 
-	
-		cost += timberCost + workCost + paintCost + riverCost;
-		
-		if (meshPar.baseModel != 'не указано') {
+		return priceHTML;
+	}
+
+	/**
+	 * Расчет цены по пунктам
+	 * @param par 
+	 */
+	static calcPriceParts(par){
+		var countertopCost = calcCountertopCost(par.meshParams);
+		var cost = countertopCost;
+
+		if (par.meshParams.baseModel != 'не указано' && par.meshParams.baseModel != 'нет') {		
 			var tableBaseCost = 5000;
-			var model = meshPar.baseModel
+			var model = par.meshParams.baseModel
 			if(model.indexOf("S") != -1) tableBaseCost = 7500;
 			if(model.indexOf("D") != -1) tableBaseCost = 15000;
 			
 			//учитываем размеры
-			var profLen = (meshPar.height + meshPar.width) * 2;
+			var profLen = (par.meshParams.height + par.meshParams.width) * 2;
 			var nominalProfLen = (700 + 600) * 2;
-	
-			cost += tableBaseCost * 0.7 + (tableBaseCost * 0.3 * profLen / nominalProfLen);
+			
+			var table_base = tableBaseCost * 0.7 + (tableBaseCost * 0.3 * profLen / nominalProfLen);
+			cost += table_base
 		}
-		
+		return {
+			cost: cost,
+			tableBase: table_base,
+			countertopCost: countertopCost
+		}
+	}
+
+	static calcPrice(par){
 		return {
 			name: this.getMeta().title,
-			cost: cost,
+			cost: this.calcPriceParts(par).cost,
 			priceFactor: 1,
 			costFactor: 1
 		}
+	}
+	
+	static formChange(form, data){
+		var par = data.meshParams
+		
+		//зазор между частями столешницы
+		form.find('[data-propid="partsGap"]').closest('tr').hide()
+		if(par.width > 600 && (par.tabletopType == "щит" || par.tabletopType == "слэб")) form.find('[data-propid="partsGap"]').closest('tr').show()
+		
+		//ширина реки
+		form.find('[data-propid="riverWidth"]').closest('tr').hide()
+		if(par.tabletopType == "слэб + стекло" || par.tabletopType == "слэб + смола непрозр." || par.tabletopType == "слэб + смола прозр.") form.find('[data-propid="riverWidth"]').closest('tr').show()
+		
+		//объем заливки
+		form.find('[data-propid="resinVol"]').closest('tr').hide()
+		form.find('[data-propid="sideEdges"]').closest('tr').hide()
+		if(par.tabletopType.indexOf("слэб") != -1) {
+			form.find('[data-propid="resinVol"]').closest('tr').show()
+			form.find('[data-propid="sideEdges"]').closest('tr').show()
+		}
+
+		getObjPar()
 	}
 
 	static getMeta() {
@@ -122,7 +135,7 @@ class Table extends AdditionalObject {
 					"title": "Столешница"
 				},
 				
-								{
+				{
 					"key": "tabletopType",
 					"title": "Тип столешницы:",
 					"default": "щит",
@@ -137,12 +150,8 @@ class Table extends AdditionalObject {
 							"title": "шпон"
 						},
 						{
-							"value": "слэб цельный",
-							"title": "слэб цельный"
-						},
-						{
-							"value": "слэб со склейкой",
-							"title": "слэб со склейкой"
+							"value": "слэб",
+							"title": "слэб"
 						},
 						{
 							"value": "слэб + стекло",
@@ -186,65 +195,29 @@ class Table extends AdditionalObject {
 				},
 				
 				{
-					"key": "width",
-					"title": "Ширина:",
-					"default": 600,
-					"type": "number",
-					"printable": "true",
-				},
-				{
 					"key": "len",
 					"title": "Длина:",
 					"default": 1200,
 					"type": "number",
 					"printable": "true",
 				},
+				
 				{
-					"key": "height",
-					"title": "Высота:",
-					"default": 750,
+					"key": "width",
+					"title": "Ширина:",
+					"default": 600,
+					"type": "number",
+					"printable": "true",
+				},
+								
+				{
+					"key": "thk",
+					"title": "Толщина:",
+					"default": 40,
 					"type": "number",
 					"printable": "true",
 				},
 				
-				{
-					"key": "edgeGeomTop",
-					"title": "Фаска сверху:",
-					"values": [
-						{
-							"value": "не указано",
-							"title": "не указано"
-						},
-						{
-							"value": "1 ребро",
-							"title": "1 ребро"
-						},
-						{
-							"value": "3 ребра",
-							"title": "3 ребра"
-						},
-						{
-							"value": "все ребра",
-							"title": "все ребра"
-						},
-						{
-							"value": "по чертежу",
-							"title": "по чертежу"
-						},
-						{
-							"value": "по шаблону",
-							"title": "по шаблону"
-						},
-						{
-							"value": "нет",
-							"title": "нет"
-						}
-					],
-					"default": "все ребра",
-					"type": "select",
-					"printable": "true",
-				},
-
 				{
 					"key": "edgeModel",
 					"title": "Ребра",
@@ -310,34 +283,11 @@ class Table extends AdditionalObject {
 							"title": "фаска 12х45гр"
 						},
 					],
-					"printable": "true",
-				},
-
-				{
-					"key": "countertopModel",
-					"title": "Тип:",
-					"values": [
-					{
-						"value": "цельная",
-						"title": "цельная"
-					},
-					{
-						"value": "двойная",
-						"title": "двойная"
-					},
-					{
-						"value": "двойная с вставкой",
-						"title": "двойная с вставкой"
-					},
-					{
-						"value": "нет",
-						"title": "нет"
-					}
-					],
-					"default": "цельная",
+					"default": "скругление R3",
 					"type": "select",
 					"printable": "true",
 				},
+
 				{
 					"key": "sideEdges",
 					"title": "Края:",
@@ -356,14 +306,6 @@ class Table extends AdditionalObject {
 					"printable": "true",
 				},
 				
-				
-				{
-					"key": "countertopThk",
-					"title": "Толщина:",
-					"default": 40,
-					"type": "number",
-					"printable": "true",
-				},
 				{
 					"key": "partsGap",
 					"title": "Зазор между частями столешницы:",
@@ -374,7 +316,7 @@ class Table extends AdditionalObject {
 				{
 					"key": "cornerRad",
 					"title": "Радиус скругления углов:",
-					"default": 20,
+					"default": 3,
 					"type": "number",
 					"printable": "true",
 				},
@@ -398,9 +340,10 @@ class Table extends AdditionalObject {
 					"type": "delimeter",
 					"title": "Подстолье"
 				},
+				
 				{
 					"key": "baseModel",
-					"title": "Модель:",
+					"title": "Подстолье:",
 					"values": [
 					{
 						"value": "нет",
@@ -528,10 +471,19 @@ class Table extends AdditionalObject {
 					"printable": "true",
 				},
 				{
+					"key": "height",
+					"title": "Высота:",
+					"default": 750,
+					"type": "number",
+					"class": 'basPar',
+					"printable": "true",
+				},
+				{
 					"key": "sideOverhang",
 					"title": "Свес столешницы боковой:",
 					"default": 50,
 					"type": "number",
+					"class": 'basPar',
 					"printable": "true",
 				},
 				{
@@ -539,6 +491,7 @@ class Table extends AdditionalObject {
 					"title": "Свес столешницы передний/задний:",
 					"default": 100,
 					"type": "number",
+					"class": 'basPar',
 					"printable": "true",
 				},
 				

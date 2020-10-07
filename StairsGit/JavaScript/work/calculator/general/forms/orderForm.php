@@ -38,7 +38,7 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 	<div class="kp_header-wrapper">
 		<div class="kp_header">
 			<div class='text-center h2 mt-5' data-input_id="orderName">Коммерческое предложение № <span></span></div>
-			<div class='text-center h3 mt-5 changeInput' data-input_id="customerName">для <span></span></div>
+			<div class='text-center h3 mt-5 changeInput' data-input_id="genitiveCaseCustomerName">для <span></span></div>
 			<div class='text-center h3 mt-5 changeInput' data-input_id="kpDescription"><span></span></div>
 			<div class="row">
 				<div class="col-6 h5 mt-4 mb-3" data-input_id="orderDate">Дата составления: <span></span></div>
@@ -46,7 +46,7 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 			</div>
 		</div>
 	</div>
-<? } if ($template == 'manufacturing') { ?>
+<? } if ($template == 'manufacturing' || $template == 'installation') { ?>
 	<div class="pz_info printBlock">
 		<?php include $GLOBALS['ROOT_PATH'].'/calculator/general/forms/orderDataForm.php' ?>
 	</div>
@@ -67,7 +67,7 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 <!--обмен данными с базой и через файлы-->
 <!--<script type="text/javascript" src="/calculator/general/dataExchangeXml_3.1.js"></script>-->
 <script type="text/javascript" src="/orders/calcs/actions.js?06082020"></script>
-<script type="text/javascript" src="/calculator/general/exportOrderData.js"></script>
+<!-- <script type="text/javascript" src="/calculator/general/exportOrderData.js"></script> -->
 
 <!--скрипт обработки формы -->
 <script type="text/javascript" src="/calculator/general/forms/orderFormChange.js"></script>

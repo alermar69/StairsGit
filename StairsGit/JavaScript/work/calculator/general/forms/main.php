@@ -43,7 +43,7 @@
 	if($template != 'customers' && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) echo '<h1 id="mainTitle" contenteditable="true">' . $title . '</h1>';
 
 	//форма параметров заказа
-	if($template == 'customers') {
+	if($template == 'customers' || $calc_type == 'slabs') {
 		echo '<div class="d-none">';
 		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/orderForm.php";
 		echo '</div>';
@@ -55,7 +55,7 @@
 		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/main.php";
 	}
 	
-	if($template != 'customers') {
+	if($template != 'customers' && $calc_type != 'slabs' && $calc_type != 'custom') {
 		if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
 			//Форма параметров заказа
 			include $GLOBALS['ROOT_PATH']."/calculator/general/forms/orderForm.php";
@@ -342,10 +342,36 @@
 		$tabs['walls'] = false;
 		$tabs['assembling'] = false;
 		
+		// calculator/slabs/forms/main.php
 		//главная форма
-		$tabs['geom'] = [
+		$tabs['slabs'] = [
 			'name' => 'Изделия',
-			'url' => '/calculator/slabs/forms/mainForm.php',
+			'url' => '/calculator/slabs/forms/main.php',
+			'group' => 'data', //выводим в теле страницы
+		];
+	};
+
+	if ($calc_type == 'custom') {
+		$tabs['geom'] = false;
+		$tabs['carcas'] = false;
+		$tabs['banister'] = false;
+		$tabs['railing'] = false;
+		$tabs['banister'] = false;
+		$tabs['railing'] = false;
+		$tabs['floor_form'] = false;
+		$tabs['walls'] = false;
+		$tabs['assembling'] = false;
+		
+		//главная форма
+		$tabs['main'] = [
+			'name' => 'Изделия',
+			'url' => '/calculator/custom/forms/mainForm.php',
+			'group' => 'data', //выводим в теле страницы
+		];
+
+		$tabs['cost'] = [
+			'name' => 'Себестоимость',
+			'url' => '/calculator/custom/forms/costForm.php',
 			'group' => 'data', //выводим в теле страницы
 		];
 	};
@@ -485,13 +511,15 @@
 		$tabs['price'] = false;
 	};
 
-	//себестоимость
-	$tabs['cost'] = [
-		'name' => 'Себестоимость',
-		'url' => '/calculator/general/forms/cost.php',
-		'class' => 'd-none',
-		'group' => 'data',
-	];
+	if ($calc_type != 'slabs') {
+		//себестоимость
+		$tabs['cost'] = [
+			'name' => 'Себестоимость',
+			'url' => '/calculator/general/forms/cost.php',
+			'class' => 'd-none',
+			'group' => 'data',
+		];
+	}
 
 	if($template == 'calculator') $tabs['cost']['class'] = 'noPrint';
 	// if($calc_type == 'railing') $tabs['cost']['url'] = '/calculator/railing/forms/cost.php';

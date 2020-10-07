@@ -9,11 +9,11 @@ function getCalcType()
 {
 	$url = getRootUrl();
 
-	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda', 'slabs', 'table', 'sill', 'sideboard', 'coupe',];
+	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda', 'slabs', 'table', 'sill', 'sideboard', 'coupe','custom'];
 	
 	$calc_type = '';
 	foreach($calc_types as $item){
-		if (strpos($url,'/'.$item) !== false) $calc_type = $item;
+		if (strpos($url,'/'.$item.'/') !== false) $calc_type = $item;
 	};
 
 	return $calc_type;

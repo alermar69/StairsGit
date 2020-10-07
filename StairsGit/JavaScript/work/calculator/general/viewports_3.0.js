@@ -1895,45 +1895,6 @@ function updateTextures(){
 			$(this).closest('div').find('input[type="checkbox"]').prop('checked', 'checked')
 		}
 	});
-	// var newScene = new THREE.Scene();
-
-	// //текстура мира		
-	// newScene.background = getSceneBackGround();
-	
-	// //переносим объекты в новую сцену
-	// $.each(view.scene.children, function(){
-	// 	if(this.type == "Object3D" && this.layerName != "dimensions"){
-	// 		var obj = this.clone();
-	// 		newScene.add(obj);
-	// 	}
-	// });
-
-	// var lineSegments = [];
-
-	// newScene.traverse(function(node){
-	// 	if (!node) return;
-	// 	if (node.type == 'LineSegments') {
-	// 		lineSegments.push(node);
-	// 	}
-	// });
-	
-	// lineSegments.forEach(function(node){
-	// 	node.parent.remove(node);
-	// })
-	
-	// //заменяем материалы объектов
-	// initObjectShadowsMaterials2(newScene); //функция в файле textures.js
-	
-	// //Свет
-	// var lights = createLigts(true);
-	// $.each(lights, function(){
-	// 	newScene.add(this);
-	// })
-		
-	// //заменяем старую сцену на новую
-	// view.scene = newScene;		
-	// $["vl_1"] = view.scene; //для совместимости с имеющимися функциями
-
 }
 
 /** функция возвращает стандартный свет для сцены без текстур

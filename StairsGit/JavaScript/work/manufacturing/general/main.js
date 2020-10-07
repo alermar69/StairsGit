@@ -185,11 +185,11 @@ function recalculate() {
 						if($("#calcType").val() == "vhod" && params.staircaseType == "Готовая"){
 							calculateCarcasPrice_stock();
 							calculateRailingPrice_stock();
-						}else if($("#calcType").val() != "objects"){
+						}else if($("#calcType").val() != "objects" && $("#calcType").val() != "slabs"){
 							calculateCarcasPrice();
 							calculateRailingPrice2(); //функция в файле priceLib.js
 						}
-						if ($("#calcType").val() != "objects") {
+						if ($("#calcType").val() != "objects"  && $("#calcType").val() != "slabs") {
 							calculateBanisterPrice(); //функция в файле priceCalcBanister.js
 							calcWrPrice(); //функция в файле /calculator/wardrobe/priceCalc.js
 						}
@@ -200,7 +200,7 @@ function recalculate() {
 
 					printMaterialsNeed();
 					calcProductionTime();
-					if($("#calcType").val() != "objects") printWorks2();
+					printWorks2();
 					formatNumbers();
 					printDescr();
 				}

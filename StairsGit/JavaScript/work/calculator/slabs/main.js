@@ -4,7 +4,6 @@ var staircaseCost = {};
 var partsAmt = {};
 var priceObj = {};
 $(function () {
-	
 	//пересчитываем лестницу
 	if (window.loadedData) {
 		setLoadedData(window.loadedData, true);
@@ -13,7 +12,7 @@ $(function () {
 	}
 });
 
-function recalculate(){	
+function recalculate(){
 	changeAllForms();
 	calcPrice();
 	changeOffer()

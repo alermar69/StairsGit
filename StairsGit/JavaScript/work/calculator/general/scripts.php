@@ -324,6 +324,10 @@
 			'url' => '/manufacturing/carport/testing.js',
 			'only_for' => ['carport'],
 		],
+		[
+			'url' => '/manufacturing/carport/pool.js',
+			'only_for' => ['carport'],
+		],
 		
 		// veranda
 		[
@@ -419,7 +423,7 @@
 		
 	]);
 
-	if ($calc_type != 'wardrobe_2') {
+	if ($calc_type != 'wardrobe_2' && $calc_type != 'slabs' && $calc_type != 'custom') {
 		$scripts[] = [
 			'url' => "/$template/general/main.js"
 		];
@@ -536,6 +540,14 @@
 
 	if($calc_type == 'wardrobe_2'){
 		$scripts[] = ["url" => "/calculator/wardrobe_2/main.js"];
+	};
+
+	if($calc_type == 'slabs'){
+		$scripts[] = ["url" => "/calculator/slabs/main.js"];
+	};
+
+	if($calc_type == 'custom'){
+		$scripts[] = ["url" => "/calculator/custom/main.js"];
 	};
 
 	if($calc_type == 'objects'){

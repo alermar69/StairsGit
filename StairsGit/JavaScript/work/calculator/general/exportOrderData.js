@@ -997,9 +997,12 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		assembling_data.stages = {};
 		$(".assmStages select").each(function(){
 			var stage = $(this).val();
-			if(stage != "нет"){
-				if(!assembling_data.stages[stage]) assembling_data.stages[stage] = "";
-				else assembling_data.stages[stage] += ", "
+			if(stage != "нет" && stage != ""){
+				if(!assembling_data.stages[stage]) {
+					assembling_data.stages[stage] = "";
+				}else{
+					assembling_data.stages[stage] += ", "
+				} 
 				assembling_data.stages[stage] += $(this).closest("tr").find("td:eq(0)").text();
 			}
 		})		

@@ -29,9 +29,6 @@
 <!--экспорт g-code-->
 <script type="text/javascript" src="/calculator/general/tapFileMaker.js"></script>
 
-<!-- текстуры-->
-<script type="text/javascript" src="/calculator/general/textures/textures.js"></script>
-
 <!-- сортируемая таблица -->
 <link href="/calculator/general/tablelib/theme.default.min.css" rel="stylesheet">
 <link href="/calculator/general/tablelib/theme.blue.css" rel="stylesheet">

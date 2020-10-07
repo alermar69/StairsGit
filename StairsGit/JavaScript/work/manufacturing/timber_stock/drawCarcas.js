@@ -159,7 +159,7 @@ function drawTimberStockTopUnit(par){
 	};
 	//средняя доска
 	var plate = drawPlate(plateParams).mesh;
-	plate.geometry.rotateUV(Math.PI / 2, 1);
+	if (plate.geometry) plate.geometry.rotateUV(Math.PI / 2, 1);
 	plate.position.x = -plateParams.len + 0.03;
 	plate.position.y = -plateParams.width - params.treadThickness;
 	plate.position.z = -plateParams.thk / 2;
@@ -178,7 +178,7 @@ function drawTimberStockTopUnit(par){
 
 	//Левая доска 40х100
 	var plate = drawPlate(plateParams).mesh;
-	plate.geometry.rotateUV(Math.PI / 2);
+	if (plate.geometry) plate.geometry.rotateUV(Math.PI / 2);
 	plate.position.x = -plateParams.len + 0.03;
 	plate.position.y = -plateParams.width - params.treadThickness;
 	plate.position.z = -params.M / 2;
@@ -187,7 +187,7 @@ function drawTimberStockTopUnit(par){
 
 	//Праввая доска 40х100
 	var plate = drawPlate(plateParams).mesh;
-	plate.geometry.rotateUV(Math.PI / 2);
+	if (plate.geometry) plate.geometry.rotateUV(Math.PI / 2);
 	plate.position.x = -plateParams.len + 0.03;
 	plate.position.y = -plateParams.width - params.treadThickness;
 	plate.position.z = params.M / 2 - plateParams.thk;

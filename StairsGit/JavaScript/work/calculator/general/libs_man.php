@@ -173,7 +173,6 @@ $scripts[] = ["url" => "/calculator/general/calcTime.js"];
 
 // <!-- текстуры-->
 $scripts[] = ["url" => "/calculator/general/textures/textureParams.js"];
-$scripts[] = ["url" => "/calculator/general/modals/textures.js"];
 
 // <!--скрипт отпарвки отчета-->
 $scripts[] = ["url" => "/bugs/sendReport2.js"];

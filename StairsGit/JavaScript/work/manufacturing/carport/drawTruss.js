@@ -1444,7 +1444,8 @@ function calcRoofArcParams(par){
 		startAngle: par.a1,
 		endAngle: Math.PI - par.a1,			
 	}
-	par.topArc.rad = distance(pt, par.topArc.center);	
+	par.topArc.rad = distance(pt, par.topArc.center);
+	par.topArc.len = par.topArc.rad * (par.topArc.startAngle - par.topArc.endAngle)
 
 	//корректируем точки центральной линии
 	par.centerLine.p1 = newPoint_xy(par.topArc.center, 0, par.topArc.rad)

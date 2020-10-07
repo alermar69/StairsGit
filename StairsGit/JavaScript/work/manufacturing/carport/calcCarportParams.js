@@ -290,6 +290,7 @@ function calcCarportPartPar(){
 		wall: {},
 		movableSections: {},
 		dome: {},
+		rail: {}, //рельсы для сдвижного навеса
 	}
 
 	par.main.roofAng = params.roofAng / 180 * Math.PI;
@@ -404,7 +405,6 @@ function calcCarportPartPar(){
 	}
 	
 
-	
 	//прогоны
 	var purlinProfPar = getProfParams(params.progonProf);
 	par.purlin = {
@@ -481,6 +481,19 @@ function calcCarportPartPar(){
 		tubeDiam: 26.8,
 		baseThk: 8, //толщина листа основания
 		weelBlockHeight: 60, //полная высота ролика с кронштейном от верха рельса до верха кронштейна
+		baseStripe: {x: 4, y: 40}, //ребро на основании
+	}
+	
+	//рельсы для сдвижного навеса
+	par.rail = {
+		profSize: {
+			x: 20,
+			y: 20,
+		},
+		stripe: {
+			x: 40,
+			y: 4,
+		}
 	}
 
 	return par;	

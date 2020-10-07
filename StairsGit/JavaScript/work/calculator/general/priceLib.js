@@ -1011,19 +1011,12 @@ function calculateTotalPrice2(){
 		if(!isItemAdded) errorText += item + " ";
 		};
 
-	//подсчет цены
-	var priceMarkup = 1.1; //к-т на цену 07.05.19 был 1.05
-	var margin = 3 * priceMarkup / costMarkup;
-	if(params.calcType == "vhod" && params.staircaseType == "Готовая") margin = 1 / (0.7 / 1.45);
-	if (params.calcType == 'railing') margin = Math.round(3 * params.railingPriceFactor);
-	//if(params.calcType == "vint") margin = 3 / ;
-	if(params.calcType == "timber_stock") margin = 2;
-	var costFactor = 1 
 	var productionPrice = 0; //общая цена изделия без учета скидки
 	for(var unit in priceObj){
 		if(priceObj[unit].cost){
-			priceObj[unit].price = Math.round(priceObj[unit].cost * priceObj[unit].priceFactor * margin);
-			priceObj[unit].cost = Math.round(priceObj[unit].cost * priceObj[unit].costFactor * costFactor);
+			var priceCoefficients = getPriceCoefficients(priceObj[unit]);
+			priceObj[unit].price = Math.round(priceObj[unit].cost * priceObj[unit].priceFactor * priceCoefficients.margin);
+			priceObj[unit].cost = Math.round(priceObj[unit].cost * priceObj[unit].costFactor * priceCoefficients.costFactor);
 			if(!priceObj[unit].isOption) productionPrice += priceObj[unit].price;
 
 			if (priceObj[unit].is_additional_object && priceObj[unit].objectAmt && priceObj[unit].objectAmt > 1) {
@@ -1119,6 +1112,23 @@ function calculateTotalPrice2(){
 
 	priceObj.total.name = "Итого";
 	priceObj.total.productionPrice = productionPrice;
+}
+
+function getPriceCoefficients(priceObj){
+	//подсчет цены
+	var priceMarkup = 1.1; //к-т на цену 07.05.19 был 1.05
+	var margin = 3 * priceMarkup / costMarkup;
+	if(params.calcType == "vhod" && params.staircaseType == "Готовая") margin = 1 / (0.7 / 1.45);
+	if (params.calcType == 'railing') margin = Math.round(3 * params.railingPriceFactor);
+	//if(params.calcType == "vint") margin = 3 / ;
+	if(params.calcType == "timber_stock") margin = 2;
+	var costFactor = 1;
+
+	return {
+		costFactor: costFactor,
+		priceMarkup: priceMarkup,
+		margin: margin
+	}
 }
 
 function calcColumnPrice(par){
@@ -3527,4 +3537,50 @@ function calcRackWallPrice(par){
 		paintPrice: paintPrice,
 		balPrice: balPrice
 	}
+}
+
+/** функция рассчитывает стоимость столешницы
+*/
+
+function calcCountertopCost(par){
+	
+	var timberPar = calcTimberParams(params.additionalObjectsTimberMaterial);
+	var paintPriceM2 = calcTimberPaintPrice(params.timberPaint, params.additionalObjectsTimberMaterial)
+	var timberVol = par.width * par.len * par.thk / 1000000000;
+	var paintedArea = par.width * par.len / 1000000
+	
+	//древесина
+	var timberCost = timberVol * timberPar.m3Price;
+	if (par.tabletopType && par.tabletopType.indexOf("слэб") != -1) timberCost = par.slabPrice * 0.5; //себестоимость слэба - половина цены с сайта гармоник-мебель
+
+	//покраска
+	var timberPaintCost = paintedArea * paintPriceM2 * 1.5; //1.5 учитывает торцы и низ
+	cost = timberCost + timberPaintCost;
+	
+	//заливка смолой
+	var riverArea = par.riverWidth * par.len / 1000000;
+	var resinVol_calc = riverArea * par.thk
+	if(par.tabletopType == "слэб") resinVol_calc = 1;
+
+	var riverCost = 0;
+	var resinLiterCost = 1500;
+	if(par.tabletopType == "слэб + смола непрозр.") resinLiterCost *= 0.5 //к-т учитывает заполнитель
+	
+	if(par.tabletopType == "слэб" || par.tabletopType == "слэб + смола прозр." || par.tabletopType == "слэб + смола непрозр."){
+		riverCost += par.resinVol * resinLiterCost;
+		if(resinVol_calc > par.resinVol) alertTrouble("ВНИМАНИЕ ОШИБКА! Расчетный объем реки превышает указанный объем заливки. Расчетный объем " + Math.ceil(resinVol_calc) + "л")
+	}
+	if(par.tabletopType == "слэб + стекло") riverCost += riverArea * 12000 + 2000; //12к - цена стекла за м2, 2к - работа по фрезеровке 
+
+	cost += riverCost;
+	
+	//непрямоугольные изделия
+	var perim = (par.width + par.len) * 2 / 1000
+	var meterCutCost = 0; //резка на форматке в подарок
+	if(par.shapeType == "по чертежу") meterCutCost = 200;
+	if(par.shapeType == "по шаблону") meterCutCost = 500;
+	
+	cost += meterCutCost * perim;
+
+	return cost;
 }
