@@ -406,7 +406,8 @@ function drawTreads() {
 		var pocketDepth = 10;
 
 		treadsGroup.traverse(function(node){
-			if (node instanceof THREE.Mesh) {
+			//if (node instanceof THREE.Mesh) {
+			if (node.specId && (node.specId.indexOf('tread') != -1 || node.specId.indexOf('wndTread') != -1)) {
 				//масштабируем по толщине
 				node.scale.z = (params.treadThickness - pocketDepth) / params.treadThickness;				
 				//выравниваем забежные ступени по высоте
@@ -682,14 +683,15 @@ function drawMarshTreads2(par) {
 					}
 					if (params.lastRiser == "есть") {
 						var riserSideOffset = 20;
-						plateParams.width = par.a - params.riserThickness;
+						var depth = 20;
+						plateParams.width = par.a - depth;
 						plateParams.widthFull = par.a;
 						plateParams.notches = {
 							hasNothes: true,
 							botIn: { x: 0, y: 0 },
 							botOut: { x: 0, y: 0 },
-							topIn: { x: -params.riserThickness, y: riserSideOffset }, //отрицательный вырез это выступ
-							topOut: { x: -params.riserThickness, y: riserSideOffset },
+							topIn: { x: -depth, y: riserSideOffset }, //отрицательный вырез это выступ
+							topOut: { x: -depth, y: riserSideOffset },
 						}
 						drawRectTread = false;
 					}
@@ -770,14 +772,15 @@ function drawMarshTreads2(par) {
 					}
 					if (params.lastRiser == "есть") {
 						var riserSideOffset = 20;
-						plateParams.width = par.a - params.riserThickness;
+						var depth = 20;
+						plateParams.width = par.a - depth;
 						plateParams.widthFull = par.a;
 						plateParams.notches = {
 							hasNothes: true,
 							botIn: { x: 0, y: 0 },
 							botOut: { x: 0, y: 0 },
-							topIn: { x: -params.riserThickness, y: riserSideOffset }, //отрицательный вырез это выступ
-							topOut: { x: -params.riserThickness, y: riserSideOffset },
+							topIn: { x: -depth, y: riserSideOffset }, //отрицательный вырез это выступ
+							topOut: { x: -depth, y: riserSideOffset },
 						}
 					}
 					plateParams.dxfBasePoint = newPoint_xy(plateParams.dxfBasePoint, plateParams.width + 100, 0);
@@ -1003,6 +1006,13 @@ function drawMarshTreads2(par) {
 			}
 			
 			lastTread.position.y = par.endPos.y;
+			if (params.calcType == "mono" && params.topAnglePosition == "над ступенью") {
+				var h = par.h - params.treadThickness - 20;
+				if (h < params.topHolePos) {
+					var offsetYLastTread = params.topHolePos - h
+					lastTread.position.y += offsetYLastTread
+				}  
+			} 
 			lastTread.position.z += - plateParams.len / 2;
 			par.treads.add(lastTread);
 			posX = lastTread.position.x - 40;
@@ -1019,6 +1029,7 @@ function drawMarshTreads2(par) {
 			material: params.materials.riser,
 			partName: "riser",
 			holes: [],
+			treadLen: par.treadLen,
 		};
 		if (par.stairAmt == 0 && marshPar.botTurn == "площадка")
 			plateParams.len += turnParams.topMarshOffsetX;
@@ -1027,6 +1038,7 @@ function drawMarshTreads2(par) {
 			if(params.calcType == "mono") {
 				if(typeof riserSideOffset == 'undefined') var riserSideOffset = 20;
 				plateParams.len -= riserSideOffset * 2 + 2;
+				if (offsetYLastTread) plateParams.width += offsetYLastTread
 			}
 			
 			if (params.calcType == "timber_stock") {
@@ -2037,7 +2049,7 @@ function drawWndTread2(par) {
 		var lineF2 = parallel(points1[0], points1[1], par.offsetFront + par.widthLigts)
 		var lineS1 = parallel(points1[1], points1[2], par.offsetSide)
 		if (par.hasTurnRack) lineS1 = parallel(points1[1], points1[2], par.offsetSide * turnFactor)
-		var lineS2 = parallel(points1[0], points1[points1.length-1], par.offsetSide)
+		var lineS2 = parallel(points1[0], points1[points1.length - 1], -par.offsetSide * turnFactor)
 		var ph1 = itercectionLines(lineF1, lineS1);
 		var ph2 = itercectionLines(lineF1, lineS2);
 		var ph3 = itercectionLines(lineF2, lineS2);
@@ -4380,7 +4392,7 @@ function drawRectRiser(par) {
         addLine(shape, par.dxfArr, p1, p2, par.dxfBasePoint);
 
 				//Саморезы
-				{
+				if (params.stairType !== 'нет'){
 					var screwPar = {
 						id: "screw_3x35",
 						description: "Крепление подступенков",
@@ -4564,30 +4576,32 @@ function drawRectRiser(par) {
 				var sideOverHang = 20;
 				if (params.sideOverHang) sideOverHang = params.sideOverHang;
 
-				// Нижние
-				var screw = drawScrew(screwPar).mesh;
-				screw.position.x = 20;
-				if (par.offsetX) screw.position.x = par.width - 20;
-				screw.position.y = sideOverHang + 20 + offset;
-				screw.position.z = 5;
-				screw.rotation.x = -Math.PI / 2;
-				if(!testingMode) par.mesh.add(screw);
-		
-				var screw = drawScrew(screwPar).mesh;
-				screw.position.x = 20;
-				if (par.offsetX) screw.position.x = par.width - 20;
-				screw.position.y = par.len / 2 + offset;
-				screw.position.z = 5;
-				screw.rotation.x = -Math.PI / 2;
-				if(!testingMode) par.mesh.add(screw);
-		
-				var screw = drawScrew(screwPar).mesh;
-				screw.position.x = 20;
-				if (par.offsetX) screw.position.x = par.width - 20;
-				screw.position.y = par.len - sideOverHang - 20 + offset;
-				screw.position.z = 5;
-				screw.rotation.x = -Math.PI / 2;
-				if(!testingMode) par.mesh.add(screw);
+				if (params.stairType !== 'нет') {
+					// Нижние
+					var screw = drawScrew(screwPar).mesh;
+					screw.position.x = 20;
+					if (par.offsetX) screw.position.x = par.width - 20;
+					screw.position.y = sideOverHang + 20 + offset;
+					screw.position.z = 5;
+					screw.rotation.x = -Math.PI / 2;
+					if (!testingMode) par.mesh.add(screw);
+
+					var screw = drawScrew(screwPar).mesh;
+					screw.position.x = 20;
+					if (par.offsetX) screw.position.x = par.width - 20;
+					screw.position.y = par.len / 2 + offset;
+					screw.position.z = 5;
+					screw.rotation.x = -Math.PI / 2;
+					if (!testingMode) par.mesh.add(screw);
+
+					var screw = drawScrew(screwPar).mesh;
+					screw.position.x = 20;
+					if (par.offsetX) screw.position.x = par.width - 20;
+					screw.position.y = par.len - sideOverHang - 20 + offset;
+					screw.position.z = 5;
+					screw.rotation.x = -Math.PI / 2;
+					if (!testingMode) par.mesh.add(screw);
+				}
     }
 
 	if (params.treadLigts !== 'нет') {
@@ -4773,6 +4787,9 @@ function drawNotchRiser(par) {
 	if (!par.material) par.material = params.materials.timber;
 	if (!par.layer) par.layer = "parts";
 
+	var thkStrap = 2
+	par.thk = par.depth - thkStrap
+
 
 	par.mesh = new THREE.Object3D();
 
@@ -4801,7 +4818,7 @@ function drawNotchRiser(par) {
 	}
 
 	var extrudeOptions = {
-		amount: par.thk - par.depth,
+		amount: thkStrap,
 		bevelEnabled: false,
 		curveSegments: 12,
 		steps: 1
@@ -4810,7 +4827,7 @@ function drawNotchRiser(par) {
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var plate1 = new THREE.Mesh(geom, par.material);
-	plate1.position.z = par.depth;
+	plate1.position.z = par.depth - thkStrap;
 	par.mesh.add(plate1);
 
 	//-----------------------------------
@@ -4839,7 +4856,7 @@ function drawNotchRiser(par) {
 	//}
 
 	var extrudeOptions = {
-		amount: par.depth,
+		amount: par.thk,
 		bevelEnabled: false,
 		curveSegments: 12,
 		steps: 1
@@ -4858,7 +4875,7 @@ function drawNotchRiser(par) {
 	par.mesh.add(plate3);
 
 
-	var thk = par.thk;
+	var thk = par.depth;
 	par.partName = "riser"
 	if (typeof specObj != 'undefined' && par.partName) {
 		if (!specObj[par.partName]) {
@@ -4872,14 +4889,15 @@ function drawNotchRiser(par) {
 				timberPaint: true,
 				division: "timber",
 				workUnitName: "amt",
-				group: "risers",
+				//group: "risers",
+				group: "treads",
 			}
 
 		}
 		var area = par.len * par.width / 1000000;
 		var paintedArea = area * 2 + (par.len + par.width) * 2 * thk / 1000000;
 
-		var name = Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(thk);
+		var name = Math.round(par.treadLen) + "x" + Math.round(par.width + params.treadThickness) + "x" + Math.round(len) + "x" + Math.round(par.len);
 		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
 		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 		specObj[par.partName]["amt"] += 1;

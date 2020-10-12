@@ -5,7 +5,8 @@ class Sofa extends AdditionalObject {
 		var objPar = Object.assign({}, par)
 		objPar.material = par.material;
 		
-		par.mesh.add(Sofa.draw(objPar).mesh);
+		//par.mesh.add(Sofa.draw(objPar).mesh);
+		this.add(Sofa.draw(objPar).mesh);
 
 	}
 

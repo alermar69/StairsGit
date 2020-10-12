@@ -361,6 +361,7 @@ function drawMarshRailing(par, marshId) {
 	}
 
 	//внешняя сторона
+	sectionPar.isRearPRailing = false;
 	var hasRailing = false;
 	if (marshParams.hasRailing.out) hasRailing = true;
 	if (marshParams.hasTopPltRailing && marshParams.hasTopPltRailing.out) hasRailing = true;
@@ -1532,6 +1533,20 @@ function drawRailingSectionNewel2(par) {
 				glassParams.glassHeight = rackLength - dy - 100;
 				glassParams.p1.y += dy - 70;
 				glassParams.p2.y += dy - 70;
+			}
+
+			//уменьшаем высоту стекла чтобы оно не касалось ступеней
+			if (params.rackBottom == "сверху с крышкой" && (glassParams.p1.y !== glassParams.p2.y)) {
+				var dy = par.h - (par.b / 2 - (par.a - par.b) - glassDist) * Math.tan(parRacks.angMarsh);
+				if (params.calcType == 'bolz') dy = -50;
+				glassParams.glassHeight = rackLength - dy - 100;
+				glassParams.p1.y += dy - 70;
+				glassParams.p2.y += dy - 70;
+			}
+
+			//сдвигаем нижний стеклодержатель на поворотной стойке, чтобы он не касался ступеней
+			if (params.calcType == 'bolz' && parRacks.marshLast.dxToMarshNext) {
+				glassParams.offsetYHolderBot = -70;
 			}
 
 			if (params.calcType === 'mono' || params.calcType === 'bolz') {		
@@ -2984,6 +2999,7 @@ function drawRailingSectionForge2(par) {
 
 		//базовая точка для поручня
 		topPoint3 = newPoint_xy(pos, -20, rackPar.len2 + 20 / Math.cos(parRacks.angTop))
+		if (parRacks.isNotMarsh) topPoint3.x -= 50
 
 
 		//последняя стойка
@@ -3926,6 +3942,7 @@ function drawRailingSectionForge2(par) {
 	}
 	meterHandrailPar = calcHandrailMeterParams(meterHandrailPar);
 
+
 	//первая точка первого марша на прямой двухмаршевой
 	if (topPoint0) {
 		var extraLen = 80 + rackPar.topCutLen / 2;
@@ -4017,9 +4034,10 @@ function drawRailingSectionForge2(par) {
 		}
 		topPoint3 = polar(topPoint3, parRacks.angMarsh, extraLen);
 	}
-	if (topPoint3) {
-		if ((params.calcType == 'vhod' || params.calcType === 'veranda') && params.stairModel == 'Прямая') {
+	if (topPoint3 ) {
+		if ((params.calcType == 'vhod' || params.calcType === 'veranda') && params.stairModel == 'Прямая' && !parRacks.isNotMarsh) {
 			topPoint3 = polar(topPoint3, parRacks.angMarsh, 40);
+			if (topPoint4) topPoint4.y = topPoint3.y;
 		}
 		handrailPoints.push(topPoint3);
 	}
@@ -4970,26 +4988,26 @@ function drawForgedSectionConnectionFlan(par){
 	par.mesh.add(flan);
 
 	//сохраняем данные для спецификации
-	var partName = "railingFlan";
-	if(typeof specObj !='undefined' && partName){
-		if(!specObj[partName]){
-			specObj[partName] = {
-				types: {},
-				amt: 0,
-				sumLength: 0,
-				name: "Фланец скрепления секций ограждения",
-				metalPaint: false,
-				timberPaint: false,
-				division: "metal",
-				workUnitName: "amt",
-			}
-		}
-		var name = "40х60"
-		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
-		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
-		specObj[partName]["amt"] += 1;
-	}
-	par.mesh.specId = partName + name;
+	//var partName = "railingFlan";
+	//if(typeof specObj !='undefined' && partName){
+	//	if(!specObj[partName]){
+	//		specObj[partName] = {
+	//			types: {},
+	//			amt: 0,
+	//			sumLength: 0,
+	//			name: "Фланец скрепления секций ограждения",
+	//			metalPaint: false,
+	//			timberPaint: false,
+	//			division: "metal",
+	//			workUnitName: "amt",
+	//		}
+	//	}
+	//	var name = "40х60"
+	//	if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+	//	if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+	//	specObj[partName]["amt"] += 1;
+	//}
+	//par.mesh.specId = partName + name;
 
 	return par;
 }
@@ -5302,7 +5320,8 @@ function drawGlassNewell(par) {
     var glassHolder = drawGlassHolder1(glassHolderParams).mesh;
     glassHolder.position.z = -16+10;
     glassHolder.position.x = offsetX;
-    glassHolder.position.y = offsetY;
+	glassHolder.position.y = offsetY;
+	if (par.offsetYHolderBot) glassHolder.position.y += par.offsetYHolderBot;
     obj.add(glassHolder);
     //----------------------
     offsetX = pg4.x + 22 - 0.1;

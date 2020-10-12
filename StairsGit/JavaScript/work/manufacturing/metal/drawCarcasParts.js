@@ -973,7 +973,8 @@ function drawTopPltStringer(par) {
 		par.pointsHole.push(center2);
 
 		//сохраняем точки для колонн
-		par.keyPoints[par.key].end3 = newPoint_xy(p0, plateLen / 2, 0);;	// для второй колонны
+		//par.keyPoints[par.key].end3 = newPoint_xy(p0, plateLen / 2, 0);;	// для второй колонны
+		par.keyPoints[par.key].end3 = newPoint_xy(p3, -params.M, 0);;	// для второй колонны
 	}
 
 	// отверстия под крепежный уголок промежуточного косоура широкого марша

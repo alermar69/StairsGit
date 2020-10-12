@@ -458,9 +458,10 @@ function drawGlassSectionMetal(par) {
 		marshSectLen = par.keyPoints.botLineP10.x;
 		marshSectLen -= glassDist;
 
-		if (par.key == "in") {
-			marshSectLen = par.keyPoints.botLineP10.x - glassDist - par.glassOffsetZ - par.keyPoints.botLineP0.x;
-		}
+		//if (par.key == "in") {
+		//	marshSectLen = par.keyPoints.botLineP10.x - glassDist - par.glassOffsetZ - par.keyPoints.botLineP0.x;
+		//}
+		marshSectLen = par.keyPoints.botLineP10.x - glassDist - par.glassOffsetZ - par.keyPoints.botLineP0.x;
 	}
 
 	if (params.startTreadAmt > 0 && par.marshId == 1) marshSectLen -= params.startTreadAmt * par.b + 20;
@@ -1029,7 +1030,7 @@ function drawGlassSectionMetal(par) {
 				}
 				//newPoint_xy(handrailParams.points[0], 0, -glassHeight);
 				handrailParams.points.unshift(startPoint);
-				if (par.key == 'in' && (!nextMarshParams.hasRailing.in || params.stairModel == "П-образная с площадкой" || params.stairModel == "П-образная с забегом")) {
+				if ((par.key == 'in' || par.lastMarsh) && (!nextMarshParams.hasRailing.in || params.stairModel == "П-образная с площадкой" || params.stairModel == "П-образная с забегом")) {
 					if (params.model == "ко") handrailParams.points[handrailParams.points.length - 1] = newPoint_x1(handrailParams.points[handrailParams.points.length - 1], -meterHandrailPar.profY - 3, marshAngle);
 					if (params.model == "лт") handrailParams.points[handrailParams.points.length - 1] = newPoint_x1(handrailParams.points[handrailParams.points.length - 1], -meterHandrailPar.profY + handrailParams.extraLengthEnd, marshAngle);
 					var startPoint = newPoint_xy(handrailParams.points[handrailParams.points.length - 1], 0, -glassHeight); //поправить
@@ -1169,7 +1170,10 @@ function setRacksParams(par) {
 
 	//если все стойки находятся на площадке
 	if (racks[0].y == racks[racks.length - 1].y && params.stairModel !== 'Прямая горка') {
-		par.isRearPRailing = true;
+		if (params.railingModel == "Кованые балясины" || params.railingModel == "Кресты")
+			var isPlatform = true;
+		else
+			par.isRearPRailing = true;
 	}
 
 	//определяем крайние стойки снизу
@@ -1334,10 +1338,22 @@ function setRacksParams(par) {
 
 	//заднее ограждение забега
 	if (par.isRearPRailing) {
-		parRacks = {};
-		parRacks.marshFirst = racks[0];
-		parRacks.marshLast = racks[racks.length - 1];
-		parRacks.angMarsh = angle(parRacks.marshFirst, parRacks.marshLast);
+		if (params.railingModel == "Кованые балясины" || params.railingModel == "Кресты") {
+			//parRacks.isNotMarsh = true;
+			////var topFirstTmp = parRacks.topFirst
+			////var topLastTmp = parRacks.topLast 
+			//parRacks = {};
+			//parRacks.topFirst = racks[0];
+			//parRacks.topLast = racks[racks.length - 1];
+			//parRacks.angTop = angle(parRacks.topFirst, parRacks.topLast);
+		} else {
+			parRacks = {};
+			parRacks.marshFirst = racks[0];
+			parRacks.marshLast = racks[racks.length - 1];
+			parRacks.angMarsh = angle(parRacks.marshFirst, parRacks.marshLast);
+			
+		}
+		
 	}
 
 	if (par.isPlatform) parRacks.angMarsh = 0;
@@ -1400,6 +1416,18 @@ function setRacksParams(par) {
 
 		parRacks.angBot = 0;
 		parRacks.angMarsh = Math.atan(params.h3 / params.b3);
+
+	}
+
+	if (isPlatform) {
+		parRacks.isNotMarsh = true;
+		//var topFirstTmp = parRacks.topFirst
+		//var topLastTmp = parRacks.topLast 
+		//parRacks = {};
+		parRacks.topFirst = racks[0];
+		parRacks.topLast = racks[racks.length - 1];
+		parRacks.topLen = distance(parRacks.topFirst, parRacks.topLast)
+		parRacks.angTop = angle(parRacks.topFirst, parRacks.topLast);
 
 	}
 

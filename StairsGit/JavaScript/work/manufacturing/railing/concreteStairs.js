@@ -353,6 +353,7 @@ function drawTurn(par){
 
 			// Вторая половина поворота
 			if (par.stairAmt % 2 != 0 && i == (Math.floor(par.stairAmt / 2))) {
+				skirtingParams.step = distance(treadParams.startLine.p2, treadParams.cornerOut) + params.nose;
 				var ang = angle(treadParams.startLine.p2, treadParams.cornerOut);
 				skirtingPos.x = treadParams.startLine.p2.x;
 				skirtingPos.y = -treadParams.startLine.p2.y;
@@ -378,6 +379,26 @@ function drawTurn(par){
 			var pos = {x: skirting.position.x, z: skirting.position.z};
 
 			par.mesh.add(skirting);
+
+
+			// Вторая половина поворота
+			if (par.stairAmt % 2 != 0 && i == (Math.floor(par.stairAmt / 2))) {
+				skirtingParams.isNotVerticalPlank = true;
+				skirtingParams.step = distance(treadParams.endLine.p2, treadParams.cornerOut);
+				if (params.riserType == 'есть') {
+					skirtingParams.step -= params.riserThickness;
+				}
+				var ang = angle(treadParams.endLine.p2, treadParams.cornerOut);
+
+				skirtingParams = drawSkirting2(skirtingParams);
+				var skirting = skirtingParams.mesh;
+
+				skirting.position.y = par.h * i + params.treadThickness;
+				skirting.position.x = treadParams.cornerOut.x;
+				skirting.position.z = -treadParams.cornerOut.y + 20;
+				skirting.rotation.y = Math.PI;
+				par.mesh.add(skirting);
+			}
 		}
 	}
 
@@ -442,6 +463,8 @@ function drawTurnStep(par){
 		turnBorder: turnBorder,
 		turnAngle: par.turnAngle,
 		center: center,
+		startAngle: par.startAngle,
+
 	};
 	
 	getTurnIntercectPoints(linePar)
@@ -458,6 +481,7 @@ function drawTurnStep(par){
 		turnBorder: turnBorder,
 		turnAngle: par.turnAngle,
 		center: center,
+		endAngle: par.endAngle,
 	};
 	
 	getTurnIntercectPoints(linePar)
@@ -562,15 +586,17 @@ function getTurnIntercectPoints(par){
 	
 	//выбираем точку, которая ближе к центру поворота
 	par.line.p1 = p1;
-	if(distance(par.center, p2) < distance(par.center, p1)) par.line.p1 = p2;
-	
+	if (distance(par.center, p2) < distance(par.center, p1)) par.line.p1 = p2;
+
 	//пересечение с внешней линией нижнего и верхнего марша
 	var p1 = itercection(par.line.p1, par.line.p2, par.turnBorder.startOut, par.turnBorder.cornerOut)
 	var p2 = itercection(par.line.p1, par.line.p2, par.turnBorder.endOut, par.turnBorder.cornerOut)
 	
 	//выбираем точку, которая ближе к центру поворота
 	par.line.p2 = p1;
-	if(distance(par.center, p2) < distance(par.center, p1)) par.line.p2 = p2;
+	//if (distance(par.center, p2) < distance(par.center, p1)) par.line.p2 = p2;
+	if (par.startAngle && par.startAngle > Math.PI / 4) par.line.p2 = p2;
+	if (par.endAngle && par.endAngle > Math.PI / 4) par.line.p2 = p2;
 
 	return par;
 }

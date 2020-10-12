@@ -98,19 +98,31 @@ function drawColumn(par){
 		var holeRad = 30;
 		addRoundHole(shape, par.dxfArr, center, holeRad, par.dxfBasePoint);
 
-		center = {
-			x: length / 2 + 60,
-			y: maxHeight - 100,
-		}
-		var holeRad = 60;
-		addRoundHole(shape, par.dxfArr, center, holeRad, par.dxfBasePoint);
+		
 
-		center = {
-			x: length / 4,
-			y: maxHeight - 155,
+		if (length > 420) {
+			center = {
+				x: length / 2 + 60,
+				y: maxHeight - 100,
+			}
+			var holeRad = 60;
+			addRoundHole(shape, par.dxfArr, center, holeRad, par.dxfBasePoint);
+
+			center = {
+				x: length / 4,
+				y: maxHeight - 155,
+			}
+			var holeRad = 90;
+			addRoundHole(shape, par.dxfArr, center, holeRad, par.dxfBasePoint);
+		} else {
+			center = {
+				x: 120,
+				y: maxHeight - 155,
+			}
+			var holeRad = 75;
+			addRoundHole(shape, par.dxfArr, center, holeRad, par.dxfBasePoint);
 		}
-		var holeRad = 90;
-		addRoundHole(shape, par.dxfArr, center, holeRad, par.dxfBasePoint);
+		
 
 		var extrudeOptions = {
 			amount: 8,
@@ -182,6 +194,7 @@ function drawColumn(par){
 		flan.position.y = par.length - flanParams.height - params.flanThickness / Math.cos(par.topAngle);// - par.M/2 - par.h - 200;
 		flan.position.z = -params.M / 2 + par.stringerLedge;
 		if (par.side == "right") flan.position.z = params.M / 2 + par.stringerLedge;
+		flan.setLayer('flans')
 
 		flanFix.add(flan);
 
@@ -210,6 +223,7 @@ function drawColumn(par){
 
     if (par.type == "двойной подкос") {
 		//контур подкоса
+		var topAngle = -par.topAngle * turnFactor
 		var maxHeight = 400;
 		var minHeight = 100;
 		var plateDist = 100; //расстояние между пластинами
@@ -217,7 +231,7 @@ function drawColumn(par){
 		var length = params.M / 2 + par.profSize / 2 - params.flanThickness + extraLen + par.stringerLedge;
 		par.sideLength = length; //размер для спецификации
 		var flanThickness = 8;
-		var deltaHeightFlan = flanThickness / Math.cos(par.topAngle);
+		var deltaHeightFlan = flanThickness / Math.cos(topAngle);
 		var p0 = { x: 0, y: 0 };
 		var p1 = copyPoint(p0);
 		var p2 = newPoint_xy(p1, 0, maxHeight);
@@ -259,7 +273,7 @@ function drawColumn(par){
 		};
 		var geometry = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 		geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-		var topFLanDeltaY = (plateDist + 8) * Math.tan(par.topAngle);//Рассчитываем разницу наклона, это нужно чтобы скорректировать положение подкоса и корректно рассчитать фланцы
+		var topFLanDeltaY = (plateDist + 8) * Math.tan(topAngle);//Рассчитываем разницу наклона, это нужно чтобы скорректировать положение подкоса и корректно рассчитать фланцы
 		var heightDelta = 0;
 		if (topFLanDeltaY < -15) {//15 отступ на пластинах которые крепятся к фланцу, проверяем если угол получившийся меньше, сдвигаем подкос ниже
 			heightDelta = -topFLanDeltaY + 15;
@@ -270,7 +284,9 @@ function drawColumn(par){
 		if (par.side == "right") cons.rotation.y = Math.PI / 2;
 		cons.position.x = - plateDist/2 + params.flanThickness;
 		if (par.side == "right") cons.position.x = - plateDist/2;
-		cons.position.y = -heightDelta - maxHeight - params.flanThickness / Math.cos(par.topAngle) - plateDist/2 * Math.tan(par.topAngle) - 15 - 0.01;
+		cons.position.y = -heightDelta - maxHeight - params.flanThickness / Math.cos(topAngle) - plateDist/2 * Math.tan(topAngle) -15 - 0.01;
+		cons.position.y += topFLanDeltaY;
+		if (turnFactor == 1) cons.position.y += -params.flanThickness * Math.tan(topAngle);
 		cons.position.z = -length + par.profSize / 2 + extraLen;
 		if (par.side == "right") cons.position.z = length - (par.profSize / 2 + extraLen);
 		par.mesh.add(cons);
@@ -370,6 +386,7 @@ function drawColumn(par){
 		flan.position.y = cons.position.y;
 		flan.position.z = -params.M / 2 - par.stringerLedge;
 		if (par.side == "right") flan.position.z = params.M / 2 - params.flanThickness + par.stringerLedge;
+		flan.setLayer('flans')
 
 		flanFix.add(flan);
 
@@ -377,7 +394,7 @@ function drawColumn(par){
 		var gap = 1;
 		var p1 = {x:0, y:15 - 0.01};
 		p1.y += heightDelta;
-		var p2 = newPoint_x(p1, plateDist + 8, -par.topAngle);
+		var p2 = newPoint_x(p1, plateDist + 8, -topAngle);
 		var p3 = newPoint_xy(p1, plateDist + 8, -heightDelta);
 		var p4 = newPoint_xy(p3, 0, -15 + 0.01);
 		var p5 = newPoint_xy(p4, -10 + gap, 0);
@@ -405,6 +422,12 @@ function drawColumn(par){
 		plate.position.x = -plateDist / 2;
 		plate.position.y = cons.position.y + maxHeight + 0.01;
 		plate.position.z = -50;
+		
+		if (turnFactor == -1) {
+			plate.rotation.y = Math.PI;
+			plate.position.x = plateDist / 2 + 8;
+			plate.position.z = -50 + 8;
+		}
 		flanFix.add(plate);
 
 		//вторая пластина
@@ -420,6 +443,8 @@ function drawColumn(par){
 		plate2.position.x = plate.position.x;
 		plate2.position.y = plate.position.y;
 		plate2.position.z = 50 - 8;
+		if (turnFactor == -1) plate2.position.z = 50;
+		plate2.rotation.y = plate.rotation.y;
 		flanFix.add(plate2);
 
 
@@ -462,7 +487,8 @@ function drawColumn(par){
 		//первая пластина
 		var headBridge = drawJumperPlatform(headBridgePar).mesh;
 		headBridge.rotation.y = Math.PI / 2;
-		headBridge.position.x = plate.position.x + 8 + gap;
+		//headBridge.position.x = plate.position.x + 8 + gap;
+		headBridge.position.x = -plateDist / 2 + 8 + gap;
 		headBridge.position.y = plate.position.y - headBridgePar.height;
 		headBridge.position.z = 50 - 8;
 		flanFix.add(headBridge);
@@ -1195,6 +1221,7 @@ function drawHorPlate(par) {
 			frontOffset: -params.nose,
 			pointsHole: points,
 			cornerRad: par.cornerRad,
+			isTopLast: par.isTopLast,
 
 		}
 		var tread = drawTreadNotchMono(treadPar);
@@ -3153,24 +3180,39 @@ function drawTurnPlate1(par) {
 		if (turnFactor == -1)
 			arr = mirrowPointsMiddleX(arr);
 
+		var arr1 = [arr[0], arr[1]]
+
+		if (params.treadPlatePockets !== "нет") {
+			var pt2 = itercection(arr[1], arr[2], points[0], points[1])
+			var pt3 = itercection(arr[1], arr[2], points[3], points[2])
+			var pt1 = copyPoint(points[0])
+			var pt4 = copyPoint(points[3])
+			pt1.filletRad = pt4.filletRad = par.cornerRad
+			arr1.push(pt2, pt1, pt4, pt3)
+		}
+
+		arr1.push(arr[2], arr[3])
+
+		arr1.reverse()
+
 		var shapePar = {
-			points: arr,
+			points: arr1,
 			dxfArr: par.dxfArr,
 			dxfBasePoint: par.dxfBasePoint,
 		}
 
 		var shape = drawShapeByPoints2(shapePar).shape;
 
-		if (params.treadPlatePockets !== "нет") {
-			var holeParams = {
-				vertexes: points,
-				cornerRad: par.cornerRad,
-				dxfPrimitivesArr: par.dxfArr,
-				dxfBasePoint: par.dxfBasePoint
-			}
+		//if (params.treadPlatePockets !== "нет") {
+		//	var holeParams = {
+		//		vertexes: points,
+		//		cornerRad: par.cornerRad,
+		//		dxfPrimitivesArr: par.dxfArr,
+		//		dxfBasePoint: par.dxfBasePoint
+		//	}
 
-			shape.holes.push(topCoverCentralHole(holeParams));
-		}
+		//	shape.holes.push(topCoverCentralHole(holeParams));
+		//}
 
 		if (params.treadLigts !== 'нет') {
 			var holeParams = {
@@ -3430,24 +3472,39 @@ function drawTurnPlate3(par){
 		if (turnFactor == -1)
 			arr = mirrowPointsMiddleX(arr);
 
+		var arr1 = [arr[0], arr[1]]
+
+		if (params.treadPlatePockets !== "нет") {
+			var pt2 = itercection(p2, p3, points[0], points[1])
+			var pt3 = itercection(p2, p3, points[3], points[2])
+			var pt1 = copyPoint(points[0])
+			var pt4 = copyPoint(points[3])
+			pt1.filletRad = pt4.filletRad = par.cornerRad
+			arr1.push(pt2, pt1, pt4, pt3)
+		}
+
+		arr1.push(arr[2], arr[3])
+
+		arr1.reverse()
+
 		var shapePar = {
-			points: arr,
+			points: arr1,
 			dxfArr: par.dxfArr,
 			dxfBasePoint: par.dxfBasePoint,
 		}
 
 		var shape = drawShapeByPoints2(shapePar).shape;
 
-		if (params.treadPlatePockets !== "нет") {
-			var holeParams = {
-				vertexes: points,
-				cornerRad: par.cornerRad,
-				dxfPrimitivesArr: par.dxfArr,
-				dxfBasePoint: par.dxfBasePoint
-			}
+		//if (params.treadPlatePockets !== "нет") {
+		//	var holeParams = {
+		//		vertexes: points,
+		//		cornerRad: par.cornerRad,
+		//		dxfPrimitivesArr: par.dxfArr,
+		//		dxfBasePoint: par.dxfBasePoint
+		//	}
 
-			shape.holes.push(topCoverCentralHole(holeParams));
-		}
+		//	shape.holes.push(topCoverCentralHole(holeParams));
+		//}
 
 		if (params.treadLigts !== 'нет') {
 			var holeParams = {
@@ -3777,24 +3834,45 @@ function drawTurnPlate2(par) {
 		if (turnFactor == -1)
 			arr = mirrowPointsMiddleX(arr);
 
+		var arr1 = arr
+
+		if (params.treadPlatePockets !== "нет") {
+			var pt1 = itercection(arr[5], arr[4], points[0], points[1])
+			var pt2 = copyPoint(points[0])
+			var pt3 = copyPoint(points[4])
+			var pt4 = itercection(arr[4], arr[3], points[4], points[3])
+			pt2.filletRad = pt3.filletRad = par.cornerRad
+			arr1 = [pt1, pt2, pt3, pt4, arr[3], arr[2], arr[1], arr[0], arr[5]]
+			arr1.reverse()
+
+			if (turnFactor == -1) {
+				var pt1 = itercection(arr[0], arr[1], points[3], points[4])
+				var pt2 = copyPoint(points[4])
+				var pt3 = copyPoint(points[0])
+				var pt4 = itercection(arr[1], arr[2], points[0], points[1])
+				pt2.filletRad = pt3.filletRad = par.cornerRad
+				arr1 = [pt1, pt2, pt3, pt4, arr[2], arr[3], arr[4], arr[5], arr[0]]
+			}
+		}
+
 		var shapePar = {
-			points: arr,
+			points: arr1,
 			dxfArr: par.dxfArr,
 			dxfBasePoint: par.dxfBasePoint,
 		}
 
 		var shape = drawShapeByPoints2(shapePar).shape;
 
-		if (params.treadPlatePockets !== "нет") {
-			var holeParams = {
-				vertexes: points,
-				cornerRad: par.cornerRad,
-				dxfPrimitivesArr: par.dxfArr,
-				dxfBasePoint: par.dxfBasePoint
-			}
+		//if (params.treadPlatePockets !== "нет") {
+		//	var holeParams = {
+		//		vertexes: points,
+		//		cornerRad: par.cornerRad,
+		//		dxfPrimitivesArr: par.dxfArr,
+		//		dxfBasePoint: par.dxfBasePoint
+		//	}
 
-			shape.holes.push(topCoverCentralHole(holeParams));
-		}
+		//	shape.holes.push(topCoverCentralHole(holeParams));
+		//}
 
 		if (params.treadLigts !== 'нет') {
 			var holeParams = {
@@ -8579,6 +8657,14 @@ function drawTreadNotchMono(par) {
 
 		pt1.filletRad = pt2.filletRad = par.cornerRad;
 
+		points.push(p21, pt1, pt2, p31)
+	}
+
+	if (par.isTopLast && params.topAnglePosition == "над ступенью" && params.treadPlatePockets == "нет") {
+		var p21 = newPoint_xy(p2, 20, 0)
+		var pt1 = newPoint_xy(p21, 0, -20)
+		var p31 = newPoint_xy(p3, -20, 0)
+		var pt2 = newPoint_xy(p31, 0, -20)
 		points.push(p21, pt1, pt2, p31)
 	}
 

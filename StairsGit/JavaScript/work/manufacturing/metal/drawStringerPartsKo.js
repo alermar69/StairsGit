@@ -227,9 +227,11 @@ if (par.prevMarshPar.stairAmt == 0 && par.prevMarshPar.botTurn == "пол") par.
 	center1.hasAngle = center2.hasAngle = true;
 	center1.rotated = center2.rotated = true;
 	if (par.key == 'out') center1.noBoltsInSide1 = center2.noBoltsInSide1 = true;
-	//par.pointsHole.push(center1);
-	//par.pointsHole.push(center2);
-	
+	if (par.stringerDivisionBot) {
+		par.pointsHole.push(center1);
+		par.pointsHole.push(center2);
+	}
+
 	//if (!(par.topEnd == "platformG" && par.stairAmt === 0)){
 
 		//Отверстия под ограждения

@@ -24,7 +24,12 @@ function drawPurlin(par){
 	}
 	
 	//учитываем толщину фланцев
-	if(params.beamModel == "проф. труба") polePar.length -= par.flanThk * 2
+	if (params.beamModel == "проф. труба") polePar.length -= par.flanThk * 2
+
+	var connectorPar = {
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -1000),
+		dxfArr: par.dxfArr,
+	}
 	
 	for(var i=0; i<purlinSectAmt; i++){
 		var purlin = drawPole3D_4(polePar).mesh;
@@ -32,12 +37,14 @@ function drawPurlin(par){
 		if(params.beamModel == "проф. труба") purlin.position.x += par.flanThk
 		purlin.setLayer('purlins');
 		par.mesh.add(purlin);
-		
-		if(i>0){
-			var connector = drawPurlinConnector().mesh;
+
+		if (i > 0) {
+			var connector = drawPurlinConnector(connectorPar).mesh;
 			connector.position.x = purlin.position.x;
 			connector.setLayer('purlins');
 			par.mesh.add(connector);
+
+			connectorPar.dxfArr = [];
 		}
 	}
 
@@ -90,7 +97,8 @@ function drawPurlin(par){
 	if(params.beamModel != "проф. труба") {
 		//фланцы для крепления к фермам
 		var flanPar = {
-			dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.sectLen + 1000, -500)
+			dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.sectLen + 1000, -500),
+			dxfArr: par.dxfArr,
 		}
 		for(var i=0; i<=params.sectAmt; i++){
 			var flan = drawPurlinFlan(flanPar).mesh
@@ -106,6 +114,8 @@ function drawPurlin(par){
 		var plugPar = {
 			width: partPar.purlin.profSize.x,
 			height: partPar.purlin.profSize.y,
+			dxfBasePoint: par.dxfBasePoint,
+			dxfArr: par.dxfArr,
 		}
 		
 		if(params.roofType == "Плоская") {
@@ -144,7 +154,7 @@ function drawPurlin(par){
 			noBolts: true,
 			hasScrews: true,
 			screwId: "roofingScrew_5x19",
-			dxfPrimitivesArr: par.dxfArr,
+			dxfArr: par.dxfArr,
 			dxfBasePoint: par.dxfBasePoint,
 			roundHoleCenters: [],
 		}
@@ -203,8 +213,12 @@ function drawCarportColumn(par){
 	if (isColumnBase) pole.position.y = 8; //8 - толщина нижнего фланца
 	par.mesh.add(pole);
 
-	if (isColumnBase){	
-		var base = drawCarportColumnBase().mesh;
+	if (isColumnBase) {	
+		var columnBasePar = {
+			dxfArr: par.dxfArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		var base = drawCarportColumnBase(columnBasePar).mesh;
 		base.position.x = -partPar.column.profSize.x / 2
 		if(params.carportType.indexOf("консольный") != -1) base.position.z -= partPar.column.profSize.y / 2;
 		par.mesh.add(base);
@@ -264,7 +278,7 @@ function drawCarportColumnBase(par){
 		cornerRad: 20,
 		holeRad: 6.5,
 		noBolts: true,
-		dxfPrimitivesArr: par.dxfArr,
+		dxfArr: par.dxfArr,
 		dxfBasePoint: par.dxfBasePoint,
 		roundHoleCenters: [
 			{x: holeOffset, y: holeOffset},
@@ -297,7 +311,7 @@ function drawCarportColumnBase(par){
 	var shapePar = {
 		points: points,
 		dxfArr: par.dxfArr,
-		dxfBasePoint: par.dxfBasePoint
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 400, 0)
 	}
 	
 	var shape = drawShapeByPoints2(shapePar).shape;
@@ -307,7 +321,7 @@ function drawCarportColumnBase(par){
 		{x:0, y: 70},
 	]
 	holes.forEach(function(center){
-		addRoundHole(shape, par.dxfArr, center, 12 / 2 + 1.5, par.dxfBasePoint); 
+		addRoundHole(shape, par.dxfArr, center, 12 / 2 + 1.5, shapePar.dxfBasePoint); 
 	})
 	
 	var extrudeOptions = {
@@ -862,7 +876,7 @@ function drawPurlinFlan(par){
 		//cornerRad: 20,
 		holeRad: 4,
 		noBolts: true,
-		dxfPrimitivesArr: par.dxfArr,
+		dxfArr: par.dxfArr,
 		dxfBasePoint: par.dxfBasePoint,
 		roundHoleCenters: [
 			{x: 10, y: 10},
@@ -1732,11 +1746,16 @@ function drawRectArray(par){
 				if(typeof par.modifier == "function") par.modifier(counter, par.itemPar, itemMoove);
 				//отрисовываем элемент
 				var item = par.drawFunction(par.itemPar).mesh;
+
+				//выводим в dxf только первый объект
+				par.itemPar.dxfArr = par.itemPar.dxfPrimitivesArr = []
+				par.itemPar.dxfBasePoint = false;
+
 				$.each(axis, function(){
 					item.rotation[this] = par.itemRot[this];
 					item.position[this] = par.step[this] * counter[this] + itemMoove[this];
 					//выводим в dxf только первый объект
-					if(counter[this] > 0) par.itemPar.dxfArr = par.itemPar.dxfPrimitivesArr = []
+					//if(counter[this] == 0) par.itemPar.dxfArr = par.itemPar.dxfPrimitivesArr = []
 				})
 				par.mesh.add(item);
 			}
@@ -1981,6 +2000,8 @@ function drawRoofCarcas(par){
 	//параметры одного прогона
 	var purlinPar = {
 		len: partPar.main.len,
+		dxfBasePoint: par.dxfBasePoint,
+		dxfArr: dxfPrimitivesArr,
 	};
 	
 	if(params.beamModel == "проф. труба") {
@@ -3769,6 +3790,7 @@ function drawPurlinConnector(par){
 		dxfBasePoint: par.dxfBasePoint,
 		length: par.len,
 		material: params.materials.metal,
+		dxfArr: par.dxfArr,
 	};
 	
 	var pole = drawPole3D_4(polePar).mesh;

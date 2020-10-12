@@ -131,7 +131,7 @@ function drawPlatformRailing(par){
 	}
 
 	//замыкание поручня на площадке
-	if (params.pltHandrailConnection == 'есть' && params.platformType == "triangle"){
+	if (params.pltHandrailConnection == 'есть' && params.platformType == "triangle" && par.vintPlatformParams.lengthConnection){
 		var railingPar = {
 			lengthHandrail: par.vintPlatformParams.lengthConnection,
 			dxfBasePoint: balSectionParams.dxfBasePoint,

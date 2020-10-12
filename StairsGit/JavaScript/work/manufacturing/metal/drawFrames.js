@@ -519,19 +519,22 @@ par.frameParams = {
 			}
 		}
 
-		screwHoles.forEach(function(hole){
-			var screwId = "screw_6x32";
-			var screwPar = {
-				id: screwId,
-				description: "Крепление ступеней",
-				group: "Ступени"
-			}
-			var screw = drawScrew(screwPar).mesh;
-			screw.position.x = hole.y;
-			screw.position.y = screwPar.len / 2;
-			screw.position.z = hole.x;			
-			par.mesh.add(screw);
-		});
+		if (!(testingMode || params.stairType == 'нет')) {
+			screwHoles.forEach(function (hole) {
+				var screwId = "screw_6x32";
+				var screwPar = {
+					id: screwId,
+					description: "Крепление ступеней",
+					group: "Ступени"
+				}
+				var screw = drawScrew(screwPar).mesh;
+				screw.position.x = hole.y;
+				screw.position.y = screwPar.len / 2;
+				screw.position.z = hole.x;
+				par.mesh.add(screw);
+			});
+		}
+		
 
 		var holesPar = {
 			holeArr: screwHoles,
@@ -1063,19 +1066,21 @@ function drawWndFrame2(par){
 			}
 		}
 
-		screwHoles.forEach(function(hole){
-			var screwId = "screw_6x32";
-			var screwPar = {
-				id: screwId,
-				description: "Крепление ступеней",
-				group: "Ступени"
-			}
-			var screw = drawScrew(screwPar).mesh;
-			screw.position.x = hole.y;
-			screw.position.y = screwPar.len / 2;
-			screw.position.z = hole.x;
-			par.mesh.add(screw);
-		});
+		if (!(testingMode || params.stairType == 'нет')) {
+			screwHoles.forEach(function(hole) {
+				var screwId = "screw_6x32";
+				var screwPar = {
+					id: screwId,
+					description: "Крепление ступеней",
+					group: "Ступени"
+				}
+				var screw = drawScrew(screwPar).mesh;
+				screw.position.x = hole.y;
+				screw.position.y = screwPar.len / 2;
+				screw.position.z = hole.x;
+				par.mesh.add(screw);
+			});
+		}
 
 		var holesPar = {
 			holeArr: screwHoles,
@@ -1409,6 +1414,7 @@ function drawWndTreadFlan(par){
 	par.flanWidth = flanPar.width;
 	par.flanThickness = flanPar.thk;
 	par.flanHeight = flanHeight;
+	if (params.stairType == 'нет') flanPar.noBolts = true;
 	
 	//Отверстия под шурупы крепления подступенка
 	if (par.type == "riser_holes" && params.riserType == "есть"){
@@ -1422,33 +1428,34 @@ function drawWndTreadFlan(par){
 		flanPar.holeRad = 4;
 		flanPar.noBolts = true;
 
-		var screwPar = {
-			id: "screw_4x19",
-			description: "Крепление забежных подступенков",
-			group: "Ступени"
+		if (params.stairType !== 'нет') {
+			var screwPar = {
+				id: "screw_4x19",
+				description: "Крепление забежных подступенков",
+				group: "Ступени"
+			}
+
+			var screw = drawScrew(screwPar).mesh;
+			screw.position.x = center1.x;
+			screw.position.y = flanHeight / 2;
+			screw.position.z = center1.y - 20;
+			screw.rotation.x = Math.PI / 2;
+			par.mesh.add(screw);
+
+			var screw = drawScrew(screwPar).mesh;
+			screw.position.x = center2.x;
+			screw.position.y = flanHeight / 2;
+			screw.position.z = center2.y - 20;
+			screw.rotation.x = Math.PI / 2;
+			par.mesh.add(screw);
+
+			var screw = drawScrew(screwPar).mesh;
+			screw.position.x = center3.x;
+			screw.position.y = flanHeight / 2;
+			screw.position.z = center3.y - 20;
+			screw.rotation.x = Math.PI / 2;
+			par.mesh.add(screw);
 		}
-	
-		var screw = drawScrew(screwPar).mesh;
-		screw.position.x = center1.x;
-		screw.position.y = flanHeight / 2;
-		screw.position.z = center1.y - 20;
-		screw.rotation.x = Math.PI / 2;
-		par.mesh.add(screw);
-
-		var screw = drawScrew(screwPar).mesh;
-		screw.position.x = center2.x;
-		screw.position.y = flanHeight / 2;
-		screw.position.z = center2.y - 20;
-		screw.rotation.x = Math.PI / 2;
-		par.mesh.add(screw);
-
-		var screw = drawScrew(screwPar).mesh;
-		screw.position.x = center3.x;
-		screw.position.y = flanHeight / 2;
-		screw.position.z = center3.y - 20;
-		screw.rotation.x = Math.PI / 2;
-		par.mesh.add(screw);
-
 	}
 	
 	// Отверстие для крепления к каркасу
@@ -2009,6 +2016,7 @@ function drawTreadFrame2(par){
 	if (par.isPltPFrame && turnFactor == -1) flanPar.noBolts = true;
 	if (par.isFrameSideNoBolts1) flanPar.noBolts = true;
 	if (par.isPltFrameMarshDist) flanPar.noBolts = true;
+	if (params.stairType == 'нет') flanPar.noBolts = true;
 	var sideFlan1 = drawRectFlan2(flanPar).mesh;
 	sideFlan1.position.x = flanPar.height + par.profWidth;
 	sideFlan1.position.y = - flanPar.width;
@@ -2023,6 +2031,7 @@ function drawTreadFrame2(par){
 	if (par.isFrameSideNoBolts2) flanPar.noBolts = true;
 	if (par.isPltPFrame && turnFactor == -1 && !par.isPltFrameMarshDist) flanPar.noBolts = false;
 	if (par.isPltFrameMarshDist) flanPar.noBolts = true;
+	if (params.stairType == 'нет') flanPar.noBolts = true;
 	flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -flanPar.height - 50);
 	flanPar.mirrowBolts = true;
 	

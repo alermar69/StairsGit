@@ -649,6 +649,10 @@ function drawGlassSectionMono(par){
 				//if(hole.x + 40 + holeRad > par.glassPoints[i].len && !hole.hasHolder){
 				// 	hole.x -= (40 + holeRad) - par.glassPoints[i].len - hole.x;
 				// }
+				if (params.treadPlatePockets !== "нет") {
+					hole.y -= 5;
+					if (hole.hasHolder) hole.y -= 10;
+				}
 				filteredHoles.push(hole);
 			}
 		}
@@ -1819,7 +1823,8 @@ function drawRackMono(par){
 		if(par.type == 'first') name += " начальная с фланцем ";
 		if(par.type == 'last') name += " L-образная ";
 		name += "L=" + Math.round(rackLen);
-		if(par.type == 'first' || par.type == 'middle') name += " A=" + Math.round(sizeA);
+		if (par.type == 'first' || par.type == 'middle') name += " A=" + Math.round(sizeA);
+		if (par.type == 'turnRackStart' && par.isFirstFlan) name += " с фланцем "
 		
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;

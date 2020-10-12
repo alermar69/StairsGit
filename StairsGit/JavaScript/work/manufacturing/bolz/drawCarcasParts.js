@@ -169,7 +169,7 @@ function drawBolz(par) {
 		//шайбы
 		var shimPar = {
 			profile: 50,
-			thk: par.shimThk,
+			thk: par.shimThk - 0.1,
 			dxfBasePoint: par.dxfBasePoint,
 		}
 
@@ -217,7 +217,7 @@ function drawBolz(par) {
 		shim.position.x = par.bolzProfile / 2;
 		shim.position.z = par.bolzProfile / 2;
 		shim.position.y = par.shimThk * 2 + 20;
-		par.mesh.add(shim);
+		if (!testingMode) par.mesh.add(shim);
 
 		//гайка	в больце
 		var nutParams = { diam: par.studDiam }
@@ -273,7 +273,7 @@ function drawBolz(par) {
 			if (nutParams) stud.position.y -= nutParams.nutHeight;
 			stud.position.z = par.bolzProfile / 2;
 			stud.position.x = par.bolzProfile / 2;
-			par.mesh.add(stud);
+			if (!testingMode) par.mesh.add(stud);
 		}
 
 	}
@@ -283,7 +283,7 @@ function drawBolz(par) {
 		//шайба сверху
 		var shimPar = {
 			profile: 50,
-			thk: par.shimThk,
+			thk: par.shimThk - 0.1,
 			dxfBasePoint: par.dxfBasePoint,
 		}
 
@@ -309,7 +309,7 @@ function drawBolz(par) {
 		shim.position.y = bolzPar.len + par.shimThk * 3 + params.treadThickness + 5;
 		if (par.regShimThk) shim.position.y += par.regShimThk;
 		if (par.isFirst) shim.position.y += par.shimThk;
-		par.mesh.add(shim);
+		if (!testingMode) par.mesh.add(shim);
 
 		//гайка	в стойке
 		var nutParams = { diam: par.studDiam }
@@ -339,7 +339,7 @@ function drawBolz(par) {
 		if (par.regShimThk) stud.position.y += par.regShimThk;
 		stud.position.z = par.bolzProfile / 2;
 		stud.position.x = par.bolzProfile / 2;
-		par.mesh.add(stud);
+		if (!testingMode) par.mesh.add(stud);
 	}
 
 	if (par.isLast) {
@@ -385,7 +385,7 @@ function drawBolz(par) {
 		plate.position.x = platePar.len / 2 - 5;
 		plate.position.z = par.bolzProfile / 2;
 		plate.position.y = bolzPar.len + par.shimThk + par.shimThk + params.treadThickness - 20;
-		par.mesh.add(plate);
+		if (!testingMode) par.mesh.add(plate);
 	}
 
 	if (par.isFirst) par.mesh.position.y -= par.shimThk;
@@ -656,6 +656,8 @@ function drawShimWeld(par) {
 		dxfBasePoint: par.dxfBasePoint,
 		isNotSpec: true,
 	}
+
+	if (par.thk) shimPar.thk = par.thk
 
 	//шкайба нижняя
 	var shim = drawShimBolz(shimPar).mesh;

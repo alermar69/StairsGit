@@ -933,6 +933,8 @@ function drawRectCarport(par){
 	var columnPar = {
 		len: params.height,
 		isTop: false,
+		dxfArr: dxfPrimitivesArr,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 500),
 	};
 	
 	

@@ -568,7 +568,7 @@ function drawPlug(par){
 
 	var plugColor = "ЧЕРНАЯ";
 	if(params.metalPaint == "порошок"){
-		if(params.carcasColor == "белый") plugColor = "БЕЛАЯ";
+		if (params.carcasColor == "белый" || params.carcasColor == "белое серебро") plugColor = "БЕЛАЯ";
 	}
 	if (par.width == 50 && par.height == 100) plugColor = "ЧЕРНАЯ";
 	
@@ -3176,6 +3176,8 @@ function drawBanisterAngle(par) {
 				group: "Ограждения",
 			}
 		}
+		if (params.banisterMaterial && params.banisterMaterial.indexOf('нерж') != -1)
+			specObj[partName].group = 'Каркас'
 		var name = "3мм";
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;

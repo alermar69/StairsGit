@@ -928,7 +928,10 @@ function drawTreadFrameStock(par) {
 			offsetY: params.treadThickness,
 			nutOffset: -10
 		};
+		if (testingMode) flanPar.boltParams = false;
 	}
+
+	
 
 	flanPar.dxfBasePoint = newPoint_xy(flanPar.dxfBasePoint, 0, flanPar.height + 150);
 
@@ -1030,14 +1033,14 @@ function drawColumnsStock(par) {
 
 		colParams = drawColumnStock(colParams);
 		var col1 = colParams.mesh;
-		col1.position.x = par.colPoint1.x - 5;
+		col1.position.x = par.colPoint1.x - 5 - 1;
 		col1.position.z = - params.M / 2 + params.stringerThickness + 8;
 		mesh.add(col1);
 		colParams.dxfBasePoint.x += 200;
 
 		colParams = drawColumnStock(colParams);
 		var col1 = colParams.mesh;
-		col1.position.x = par.colPoint1.x - 5;
+		col1.position.x = par.colPoint1.x - 5 - 1;
 		col1.position.z = +params.M / 2 - params.stringerThickness - 8;
 		col1.rotation.y = Math.PI;
 		mesh.add(col1);

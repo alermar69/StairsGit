@@ -82,7 +82,7 @@ function drawBalSection(par) {
 		rackLength = par.sectHeight - handrailPar.profY
 	}	
 
-	var handrailHolderLength = 70; //длина кронштейна поручня
+	var handrailHolderLength = 40; //длина кронштейна поручня
 	var railingPositionZ = -20//-40;
 	var basePoint = [];
 	if (turnFactor == -1) {
@@ -119,7 +119,7 @@ function drawBalSection(par) {
 
 		//стойки
 		var rackParams = {
-			len: rackLength - 70 - 2, //70 - высота кронштейна 2 - толщина кронштейна
+			len: rackLength - handrailHolderLength - 2, //70 - высота кронштейна 2 - толщина кронштейна
 			isBotFlan: true,
 			dxfBasePoint: par.dxfBasePoint,
 			dxfArr: dxfPrimitivesArr,
@@ -136,7 +136,7 @@ function drawBalSection(par) {
 		if (rackAmt < 2) rackAmt = 2;
 		var rackDist = sectionLength / (rackAmt - 1);
 		for (i = 0; i < rackAmt; i++) {
-			rackParams.len = rackLength - 70 - 2; //70 - высота кронштейна 2 - толщина кронштейна
+			rackParams.len = rackLength - handrailHolderLength - 2; //70 - высота кронштейна 2 - толщина кронштейна
 			if (i == 0 && par.type == "секция площадки"
 			) rackParams.len -= 4; //стойки разной длины для винтовой лестницы
 			var pos = {

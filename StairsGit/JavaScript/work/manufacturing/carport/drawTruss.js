@@ -120,7 +120,7 @@ function drawStrightTruss(par){
 		//cornerRad: 20,
 		holeRad: columnFlanPar.holeDiam / 2,
 		noBolts: true,
-		dxfPrimitivesArr: par.dxfPrimitivesArr,
+		dxfArr: par.dxfArr,
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -500),
 		roundHoleCenters: [
 			//{ x: par.flanWidth / 2, y: holeOffset - stripeParTop.poleProfileY},
@@ -383,11 +383,11 @@ function drawTriangleSheetTruss(par){
 	//отверстия под фланцы колонн
 	var flanPar = calcColumnFlanPar();
 	flanPar.holes.forEach(function(center){
-		addRoundHole(par.shape, dxfPrimitivesArr, center, flanPar.holeDiam / 2, par.dxfBasePoint);
+		addRoundHole(par.shape, par.dxfArr, center, flanPar.holeDiam / 2, par.dxfBasePoint);
 		if(!par.hasDivide && params.carportType == "двухскатный"){
 			var center1 = copyPoint(center);
 			center1.x = center1.x * (-1) + rightLine.p2.x * 2;
-			addRoundHole(par.shape, dxfPrimitivesArr, center1, flanPar.holeDiam / 2, par.dxfBasePoint);			
+			addRoundHole(par.shape, par.dxfArr, center1, flanPar.holeDiam / 2, par.dxfBasePoint);			
 		}
 	})
 	
@@ -399,7 +399,7 @@ function drawTriangleSheetTruss(par){
 			center1.x = center1.x * (-1) + rightLine.p3.x - partPar.column.profSize.y / 2;
 			center1.y = center1.y + rightLine.p3.y;
 			
-			addRoundHole(par.shape, dxfPrimitivesArr, center1, flanPar.holeDiam / 2, par.dxfBasePoint);
+			addRoundHole(par.shape, par.dxfArr, center1, flanPar.holeDiam / 2, par.dxfBasePoint);
 		})
 	}
 	
@@ -590,11 +590,12 @@ function drawTriangleSheetTruss(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
-		if(params.carportType == "двухскатный"){
+		if (params.carportType == "двухскатный") {
+			if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 			specObj[partName]["amt"] += 1;
 			specObj[partName]["area"] += area;
 		}
-		truss.specParams = {specObj: specObj, amt: 1, area: area, partName: partName, name: name}
+		truss.specParams = { specObj: specObj, amt: 1, area: area, partName: partName, name: name }
 	}
 	truss.specId = partName + name;
 
@@ -964,6 +965,7 @@ function drawArcSheetTruss(par){
 	var partName = "truss";
 	if (typeof specObj != 'undefined') {
 		name = par.len;
+		if (params.carportType == "двухскатный") name = par.len / 2;
 		if (!specObj[partName]) {
 			specObj[partName] = {
 				types: {},
@@ -981,6 +983,11 @@ function drawArcSheetTruss(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
+		if (params.carportType == "двухскатный") {
+			if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+			specObj[partName]["amt"] += 1;
+			specObj[partName]["area"] += area;
+		}
 		truss.specParams = {specObj: specObj, amt: 1, area: area, partName: partName, name: name}
 	}
 	truss.specId = partName + name;
