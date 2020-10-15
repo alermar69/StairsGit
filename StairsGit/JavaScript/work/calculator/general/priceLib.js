@@ -1017,14 +1017,15 @@ function calculateTotalPrice2(){
 			var priceCoefficients = getPriceCoefficients(priceObj[unit]);
 			priceObj[unit].price = Math.round(priceObj[unit].cost * priceObj[unit].priceFactor * priceCoefficients.margin);
 			priceObj[unit].cost = Math.round(priceObj[unit].cost * priceObj[unit].costFactor * priceCoefficients.costFactor);
-			if(!priceObj[unit].isOption) productionPrice += priceObj[unit].price;
-
+			
 			if (priceObj[unit].is_additional_object && priceObj[unit].objectAmt && priceObj[unit].objectAmt > 1) {
 				priceObj[unit].pricePerItem = priceObj[unit].price;
 				priceObj[unit].costPerItem = priceObj[unit].cost;
 				priceObj[unit].price *= priceObj[unit].objectAmt;
 				priceObj[unit].cost *= priceObj[unit].objectAmt;
 			}
+			
+			if(!priceObj[unit].isOption) productionPrice += priceObj[unit].price;
 		}
 	}
 
@@ -1052,7 +1053,7 @@ function calculateTotalPrice2(){
 			priceObj[unit].discountPrice = Math.round(priceObj[unit].price - priceObj[unit].discount);			
 			}
 		}
-		
+
 	if(params.discountMode != "процент"){
 		if(params.discountMode == "скидка"){
 			var discountSum = params.discountFactor;

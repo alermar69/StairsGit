@@ -181,6 +181,13 @@ function getLayersList(){
 			group: 'carcas'
 		},
 		
+		// Слои для объектов
+		timberPart: {
+			name: "Столешница/Подоконник",
+			only_for: ['objects'],
+			group: 'timber'
+		},
+		
 		
 		
 		//общие слои

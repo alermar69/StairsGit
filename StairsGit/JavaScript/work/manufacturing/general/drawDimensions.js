@@ -4,6 +4,7 @@ function drawSceneDimensions(viewType){
 	removeObjects(viewportId, "dimensions");
 	drawCustomDimensions(viewportId);
 	setDimensions(viewportId, viewType);
+	drawObjectDimensions(viewType)
 }
 
 function drawCustomDimensions(viewportId){	

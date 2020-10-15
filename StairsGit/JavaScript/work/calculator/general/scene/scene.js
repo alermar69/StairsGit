@@ -691,12 +691,12 @@ function addCustomersViewport(){
 				var angularSpeed = THREE.Math.degToRad(20); // угловая скорость - градусов в секунду
 				var radius = 3000;
 
-				camera.position.x = Math.cos(angle) * radius + view.ladderCenter.x;
+				camera.position.x = Math.cos(angle) * radius + view.sceneCenter.x;
 				camera.position.y = params.staircaseHeight + 500;
-				camera.position.z = Math.sin(angle) * radius + view.ladderCenter.z;
+				camera.position.z = Math.sin(angle) * radius + view.sceneCenter.z;
 				angle += angularSpeed * delta; // приращение угла
 
-				camera.lookAt(view.ladderCenter);
+				camera.lookAt(view.sceneCenter);
 			}
 			if( cameraState == 'excursion' ){
 				camPosIndex++;
@@ -881,8 +881,8 @@ function toggleTreadLights(algorithm, state){
  */
 function createCamCurve(){
 	var positions = [];
-	if (params.calcType == 'railing') {
-		view.ladderCenter = new THREE.Vector3(0,0,0);
+	if (getCalcTypeMeta().notStairs) {
+		view.sceneCenter = new THREE.Vector3(0,0,0);
 		return
 	}
 	
@@ -1023,8 +1023,8 @@ function createCamCurve(){
 
 	var obj = view.scene.getObjectByLayerName('treads');
 	var box3 = new THREE.Box3().setFromObject(obj);
-	view.ladderCenter = new THREE.Vector3();
-	box3.getCenter(view.ladderCenter);
+	view.sceneCenter = new THREE.Vector3();
+	box3.getCenter(view.sceneCenter);
 
 	view.camSpline = camSpline;
 }

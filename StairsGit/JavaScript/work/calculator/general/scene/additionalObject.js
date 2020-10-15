@@ -4,13 +4,14 @@ var animations = [];
 var partsAmt_dop = {}; //глобальный массив количеств эл-тов для спецификации балюстрады
 
 class AdditionalObject extends THREE.Object3D {
-	material = {};
-	color = new THREE.Color(0xcccccc);
-	par = {};
-	objId = 0;
-
 	constructor(par) {
 		super();
+
+		this.material = {};
+		this.color = new THREE.Color(0xcccccc);
+		this.par = {};
+		this.objId = 0;
+
 		if(!par) return;
 
 		this.objId = par.id;

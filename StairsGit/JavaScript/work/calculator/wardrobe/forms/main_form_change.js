@@ -208,14 +208,14 @@ function addBoxInputs(){
 		'</td>' +
 		'<td>' +
 			
-			'Утапливание: <br/>' + 
+			'Утапл.: <br/>' + 
 			'<input class="boxDoorParams" id="boxDoorPlusIn' + (rowAmt - 1) + '" type="number" value="0">' +
 			'<span class="fasadParams">' + 
 			'Увеличение: <br/>' + 
-			'Прав: <input class="boxDoorPlusRight" id="boxDoorPlusRight' + (rowAmt - 1) + '" type="number" value="0">' +
-			'Лев: <input class="boxDoorPlusLeft" id="boxDoorPlusLeft' + (rowAmt - 1) + '" type="number" value="0">' +
-			'Верх: <input class="boxDoorPlusTop" id="boxDoorPlusTop' + (rowAmt - 1) + '" type="number" value="0">' +
-			'Низ: <input class="boxDoorPlusBot" id="boxDoorPlusBot' + (rowAmt - 1) + '" type="number" value="0">' +
+			'П: <input class="boxDoorPlusRight" id="boxDoorPlusRight' + (rowAmt - 1) + '" type="number" value="0"><br>' +
+			'Л: <input class="boxDoorPlusLeft" id="boxDoorPlusLeft' + (rowAmt - 1) + '" type="number" value="0"><br>' +
+			'В: <input class="boxDoorPlusTop" id="boxDoorPlusTop' + (rowAmt - 1) + '" type="number" value="0"><br>' +
+			'Н: <input class="boxDoorPlusBot" id="boxDoorPlusBot' + (rowAmt - 1) + '" type="number" value="0">' +
 			'</span>' + 
 		'</td>' +
 		'<td><span class="removeRow">Х</span></td>' +

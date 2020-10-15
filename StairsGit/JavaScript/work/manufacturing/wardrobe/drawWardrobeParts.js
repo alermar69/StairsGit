@@ -1,5 +1,8 @@
+/** функция отрисовывает шкаф
+*/
+
 function drawWardrobe(par) {
-	
+
 	var wrCarcas1 = new THREE.Object3D();
 	var wrCarcas2 = new THREE.Object3D();
 	var wrCarcas = new THREE.Object3D();
@@ -18,6 +21,9 @@ function drawWardrobe(par) {
 	var dxfBasePoint = par.dxfBasePoint;
 	var topOnlay = par.topOnlay_wr;
 	var doorGap = 2;
+	
+	params.carcasThk_wr = 16;
+	
 //	console.log(topOnlay)
 	//параметры верха шкафа
 	//схема размеров здесь 6692035.ru/drawings/furniture/topDim.pdf
@@ -699,7 +705,7 @@ for (var i=0; i<boxes.length; i++){
 		        }
 	            slide.position.z = -boxpar.boxDoorPlusIn + par.depth_wr;
 				
-	            metis.push(slide);
+	            wrMetis.add(slide);
 				
 				//вторая направляющая
 				var slideParams = {
@@ -722,7 +728,7 @@ for (var i=0; i<boxes.length; i++){
 				slide.rotation.z = Math.PI;
 	            slide.position.z = -boxpar.boxDoorPlusIn + par.depth_wr;
 				
-	            metis.push(slide);
+	            wrMetis.add(slide);
 				boxpar.slideParams = slideParams;
 				boxpar.sideOffset = slideParams.totalThk;
 			    boxpar.depth = (boxLen + boxpar.boxDoorPlusIn) + doorsThk_wr;
@@ -1093,7 +1099,7 @@ function drawCarcas(){};  //пустая функция для навигаци�
 	plate.position.x = carcasThk_wr;
 	dxfBasePoint = newPoint_xy(dxfBasePoint, depth + 500, 0);
 		
-	carcas_wr.push(plate);
+	wrCarcas.add(plate);
 	
 	//правая панель
 	
@@ -1151,7 +1157,7 @@ function drawCarcas(){};  //пустая функция для навигаци�
 	plate.position.x = width;
 	dxfBasePoint = newPoint_xy(dxfBasePoint, depth + 500, 0);
 	
-	carcas_wr.push(plate);
+	wrCarcas.add(plate);
 	
 	//нижняя панель
 	platepar.centerFaceOffset = 40;
@@ -1179,7 +1185,7 @@ function drawCarcas(){};  //пустая функция для навигаци�
 	plate.position.y = carcasThk_wr;
 	dxfBasePoint = newPoint_xy(dxfBasePoint, depth + 500, 0);
 	
-	carcas_wr.push(plate);
+	wrCarcas.add(plate);
 
 	
 	//верхняя наклонная панель	
@@ -1221,7 +1227,7 @@ function drawCarcas(){};  //пустая функция для навигаци�
 
 	            dxfBasePoint = newPoint_xy(dxfBasePoint, depth + 500, 0);
 		
-	            carcas_wr.push(plate);
+	            wrCarcas.add(plate);
 			}
 		}
 		else if(sideFactor == -1){
@@ -1253,7 +1259,7 @@ function drawCarcas(){};  //пустая функция для навигаци�
 
 	            dxfBasePoint = newPoint_xy(dxfBasePoint, depth + 500, 0);
 		
-	            carcas_wr.push(plate);
+	            wrCarcas.add(plate);
 			}
 		}
 	}
@@ -1319,8 +1325,10 @@ function drawCarcas(){};  //пустая функция для навигаци�
 		else plate.position.z = carcasThk_wr - beamSlotsDepth;
 	    dxfBasePoint = newPoint_xy(dxfBasePoint, depth + 500, 0);
 		
-		carcas_wr.push(plate);
+
+		wrCarcas.add(plate);
 	}
+
 	
 	//задняя панель
 	var platepar={
@@ -1351,7 +1359,7 @@ function drawCarcas(){};  //пустая функция для навигаци�
 		var plate = platepar.mesh;
 		plate.position.z -= platepar.doorsThk;
 		
-		carcas_wr.push(plate);  
+		wrCarcas.add(plate);  
 		
 	//перегородки секций (слева направо)
     
@@ -1557,7 +1565,7 @@ function drawCarcas(){};  //пустая функция для навигаци�
 	var legsPar = {
 		type: "round",
 		size: 50,
-		height: params.legsHeight_wr,
+		height: par.legsHeight,
 		material: metalMaterial,
 		}
 	
@@ -1600,7 +1608,15 @@ function drawCarcas(){};  //пустая функция для навигаци�
 	par.wrDoors = wrDoors;
 	par.wrShelfs = wrShelfs;
 	par.wrMetis = wrMetis;
-
+	
+	par.mesh = new THREE.Object3D();
+	par.mesh.add(wrCarcas1)
+	par.mesh.add(wrCarcas2)
+	par.mesh.add(wrCarcas)
+	par.mesh.add(wrDoors)
+	par.mesh.add(wrShelfs)
+	par.mesh.add(wrMetis)
+//debugger	
 	return par;
 
 }//drawWardrobe;
@@ -1740,7 +1756,6 @@ function drawPlate_wr(par){
 }//end of drawPlate_wr
 
 function drawBox(par){
-console.log(par)
 	
 	par.mesh = new THREE.Object3D();
 	par.doorOffset = 2;

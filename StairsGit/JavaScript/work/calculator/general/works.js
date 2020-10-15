@@ -1530,14 +1530,15 @@ if(params.calcType != "vint" && params.calcType != "objects"){
 //обшивка бетонных лестниц
 if(params.calcType == "railing" && params.stairType != "нет" && params.isAssembling != "нет"){
 	wages.treads.items = [];
-
+	var costFactor = 1.5; //наценка 14.10.20
+	
 	//фанера
 	if(params.plywoodThk){
 		var wage = {
 			name: "Обшивка ступеней фанерой с выравниванием",
 			amt: stepAmt,
 			unitName: "подъем",
-			unitWage: 800,
+			unitWage: 800 * costFactor,
 			}
 		wages.treads.items.push(wage);
 		
@@ -1545,7 +1546,7 @@ if(params.calcType == "railing" && params.stairType != "нет" && params.isAsse
 			name: "Обшивка площадок фанерой с выравниванием",
 			amt: getPartPropVal("platformTread", "area"),
 			unitName: "м2",
-			unitWage: 1000,
+			unitWage: 1000 * costFactor,
 			}
 		wages.treads.items.push(wage);
 	}
@@ -1556,7 +1557,7 @@ if(params.calcType == "railing" && params.stairType != "нет" && params.isAsse
 			name: "Шаблонирование ступеней (рейки)",
 			amt: stepAmt,
 			unitName: "шт",
-			unitWage: 200,
+			unitWage: 200 * costFactor,
 		}
 		wages.treads.items.push(wage);
 	}
@@ -1566,7 +1567,7 @@ if(params.calcType == "railing" && params.stairType != "нет" && params.isAsse
 		name: "Установка ступеней",
 		amt: stepAmt,
 		unitName: "подъем",
-		unitWage: 400,
+		unitWage: 400 * costFactor,
 		}
 	wages.treads.items.push(wage);
 	
@@ -1574,7 +1575,7 @@ if(params.calcType == "railing" && params.stairType != "нет" && params.isAsse
 		name: "Установка площадок",
 		amt: getPartPropVal("platformTread", "area"),
 		unitName: "м2",
-		unitWage: 800,
+		unitWage: 800 * costFactor,
 		}
 	wages.treads.items.push(wage);
 }

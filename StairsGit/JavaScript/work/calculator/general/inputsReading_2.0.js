@@ -39,6 +39,13 @@ $(function () {
 	});
 });
 
+/**
+ * Функция озвращает значение в заданном промежутке
+ */
+function value_limit(val, min, max) {
+	return val < min ? min : (val > max ? max : val);
+}
+
 /*функци¤ показывает/пр¤чет блок по id*/
 function showHideDiv(id, speed) {
 	var block = "#" + id;

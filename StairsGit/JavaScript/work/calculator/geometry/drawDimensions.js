@@ -1588,6 +1588,7 @@ fitCameraToObject = function ( object, viewType ) {
 	if (params.calcType == 'timber_stock') scale = 800 / maxDim;
 	if (params.calcType == 'vint') scale = 800 / maxDim;
 	if (params.calcType == 'carport') scale = 700 / maxDim;
+	if (params.calcType == 'objects') scale = 4000 / maxDim;
 	view.camera = new THREE.OrthographicCamera( view.width / - scale, view.width / scale, view.height / scale, view.height / - scale, -20000, 50000);
 
 	//Положения камер отличаются в зависимости от типа лестниц
@@ -1621,7 +1622,7 @@ fitCameraToObject = function ( object, viewType ) {
 		}
 	}
 
-	if (params.calcType == 'carport') {
+	if (!getCalcTypeMeta().isStaircaseCalc) {
 		if (viewType == 'top') {
 			view.camera.position.set(center.x, center.y + 3000, center.z);
 		}
@@ -1663,3 +1664,79 @@ function compareDimensions(){
 
 
 } //end of compareDimensions
+
+function drawObjectDimensions(viewType){
+	var mesh = new THREE.Object3D();
+	var offset = 100;
+	view.scene.traverse(function(node){
+		if (node.userData && node.userData.setObjectDimensions) {
+			console.log(node);
+			var bbox = new THREE.Box3().setFromObject(node);
+			console.log(bbox);
+		
+			var dimPar = {
+				p1: {
+					x: bbox.max.x,
+					y: bbox.min.y,
+					z: bbox.min.z,
+				},
+				p2: {
+					x: bbox.max.x,
+					y: bbox.max.y,
+					z: bbox.max.z,
+				},
+				offset: offset,
+				basePlane: 'yz',
+				baseAxis: 'z',
+				dimSide: 'спереди',
+				alwaysOnTop: true,
+			}
+		
+			var dim = drawDimension3D_2(dimPar).mesh;
+			mesh.add(dim);
+		
+			var dimPar = {
+				p1: {
+					x: bbox.min.x,
+					y: bbox.min.y,
+					z: bbox.min.z,
+				},
+				p2: {
+					x: bbox.max.x,
+					y: bbox.max.y,
+					z: bbox.min.z,
+				},
+				offset: offset,
+				basePlane: 'xy',
+				baseAxis: 'x',
+				dimSide: 'спереди',
+				alwaysOnTop: true,
+			}
+		
+			var dim = drawDimension3D_2(dimPar).mesh;
+			mesh.add(dim);
+		
+			var dimPar = {
+				p1: {
+					x: bbox.min.x,
+					y: bbox.min.y,
+					z: bbox.min.z,
+				},
+				p2: {
+					x: bbox.min.x,
+					y: bbox.max.y,
+					z: bbox.min.z,
+				},
+				offset: -offset,
+				basePlane: 'xy',
+				baseAxis: 'y',
+				dimSide: 'спереди',
+				alwaysOnTop: true,
+			}
+		
+			var dim = drawDimension3D_2(dimPar).mesh;
+			mesh.add(dim);
+		}
+	})
+	addObjects('', mesh, 'dimensions');
+}

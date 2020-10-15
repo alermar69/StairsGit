@@ -134,6 +134,9 @@ $scripts[] = ["url" => "/calculator/banister/calcSpecBanister.js"];
 $scripts[] = ["url" => "/manufacturing/general/calcSpec.js"];
 $scripts[] = ["url" => "/orders/spec/save.js"];
 
+// <!--экономика-->
+$scripts[] = ["url" => "/calculator/general/materials.js"];
+$scripts[] = ["url" => "/calculator/general/works.js"];
 
 // <!-- сортируемая таблица -->
 // <link href="/calculator/general/tablelib/theme.default.min.css" rel="stylesheet">
@@ -163,10 +166,6 @@ $scripts[] = ["url" => "/manufacturing/general/testing/debug/testSamples.js"];
 $scripts[] = ["url" => "/calculator/general/priceLib.js"];
 $scripts[] = ["url" => "/calculator/banister/priceCalcBanister.js"];
 $scripts[] = ["url" => "/calculator/wardrobe/priceCalc.js"];
-
-// <!--экономика-->
-$scripts[] = ["url" => "/calculator/general/materials.js"];
-$scripts[] = ["url" => "/calculator/general/works.js"];
 
 // <!-- расчет срока выполнения заказа -->
 $scripts[] = ["url" => "/calculator/general/calcTime.js"];

@@ -43,7 +43,7 @@
 		],
 		[
 			'url' => '/manufacturing/metal/drawRailing_3.0.js',
-			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda'],
+			'only_for' => ['metal', 'bolz', 'console', 'vhod','veranda', 'vint'],
 		],
 		[
 			'url' => '/manufacturing/metal/drawStringerPartsLt.js',
@@ -423,7 +423,7 @@
 		
 	]);
 
-	if ($calc_type != 'wardrobe_2' && $calc_type != 'slabs' && $calc_type != 'custom') {
+	if ($calc_type != 'wardrobe_2' && $calc_type != 'slabs' && $calc_type != 'custom' && $calc_type != 'fire_2') {
 		$scripts[] = [
 			'url' => "/$template/general/main.js"
 		];
@@ -439,29 +439,54 @@
 
 	if(($template == 'calculator' || $template == 'customers') && $calc_type != 'geometry' && $calc_type != 'wardrobe_2' && $calc_type != 'objects' && $calc_type != 'carport'){
 		$scripts[] = [
-				'url' => '/calculator/' . $calc_type . '/change_offer.js',
-			];
+			'url' => '/calculator/' . $calc_type . '/change_offer.js',
+		];
 	};
+
+	if ($calc_type == 'fire_2') {
+		$scripts[] = [
+			'url' => '/manufacturing/fire_2/drawStaircase.js',
+		];
+		$scripts[] = [
+			'url' => '/calculator/general/draw2DLib.js',
+		];
+		$scripts[] = [
+			'url' => '/calculator/fire_2/change_offer.js',
+		];
+		$scripts[] = [
+			'url' => '/calculator/fire_2/priceCalc.js',
+		];
+		$scripts[] = [
+			'url' => '/manufacturing/fire_2/calcSpec.js',
+		];
+		$scripts[] = [
+			'url' => '/manufacturing/fire_2/calc_spec_2.0.js',
+		];
+		$scripts[] = [
+			'url' => '/'.$template.'/' . $calc_type . '/main.js',
+		];
+	}
 
 	if($calc_type == 'wardrobe'){
 		$scripts[] = [
 			'url' => 'priceCalc.js',
 		];
+		
 		$scripts[] = [
-			'url' => 'drawWardrobe.js',
+			'url' => '/manufacturing/wardrobe/drawWardrobe.js',
 		];
+		/*
 		$scripts[] = [
-			'url' => 'drawWardrobeParts.js',
+			'url' => '/manufacturing/wardrobe/drawWardrobeParts.js',
 		];
-		$scripts[] = [
-			'url' => 'drawWardrobe.js',
-		];
+		*/
 		$scripts[] = [
 			'url' => 'main.js',
 		];
 	};
 	
 	$scripts[] = ['url' => "/calculator/general/modals/forgedBals.js"];
+	$scripts[] = ['url' => "/calculator/general/modals/textures.js"];
 	
 	//формы
 	$formScripts = [
@@ -495,6 +520,11 @@
 
 	if ($calc_type == 'railing') {
 		$formScripts['railing'] = ['/calculator/railing/forms/railingFormChange.js'];
+	}
+
+	if ($calc_type == 'fire_2') {
+		$formScripts = [];
+		$formScripts['carcas'] = ["/calculator/fire_2/forms/carcas_form_change.js", "/calculator/fire_2/forms/assemblingFormChange.js"];
 	}
 	
 	if ($calc_type == 'carport') {

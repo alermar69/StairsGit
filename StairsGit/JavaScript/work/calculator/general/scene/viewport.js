@@ -526,14 +526,13 @@ function findIntersects(scene, viewportId, onFinish) {
 	}
 	function collectObj(obj) {
 		if (obj.name.indexOf("stl") != -1) return;
-		if (!!obj.geometry && isVisible(obj) && obj.type !== 'LineSegments') {
+		if (!!obj.geometry && isVisible(obj) && obj.type !== 'LineSegments' && obj.layerName != "tread_light") {
 			if (!!obj.parent) {
 				var nnn = nname(obj);
 				obj.updateMatrixWorld();
 				THREE.SceneUtils.detach(obj, obj.parent, scene);
 				obj.layerName = nnn;
 			}
-
 			var geometryCsg = new ThreeBSP(obj);
 			var knotBBox = new THREE.Box3().setFromObject(obj);
 			st.push(0);
@@ -1567,16 +1566,16 @@ function cameraAnimation(){
 
 	if ((cameraState == 'Вращение' || cameraState == 'Подъем') && view.splineCamera) {
 		camera = view.splineCamera;
-		if (cameraState == 'Вращение' && view.ladderCenter) {
+		if (cameraState == 'Вращение' && view.sceneCenter) {
 			var angularSpeed = THREE.Math.degToRad(20); // угловая скорость - градусов в секунду
 			var radius = 3000;
 
-			camera.position.x = Math.cos(cameraAngle) * radius + view.ladderCenter.x;
+			camera.position.x = Math.cos(cameraAngle) * radius + view.sceneCenter.x;
 			camera.position.y = params.staircaseHeight + 500;
-			camera.position.z = Math.sin(cameraAngle) * radius + view.ladderCenter.z;
+			camera.position.z = Math.sin(cameraAngle) * radius + view.sceneCenter.z;
 			cameraAngle += angularSpeed * delta; // приращение угла
 
-			camera.lookAt(view.ladderCenter);
+			camera.lookAt(view.sceneCenter);
 		}
 		if (cameraState == 'Подъем' && view.camSpline) {
 			camPosIndex++;

@@ -77,7 +77,7 @@ $(function(){
 	$.observable(model.objects).observeAll(function(e){
 		redrawObjects();
 	});
-
+	
 
 	recalculate();
 })
@@ -102,6 +102,7 @@ function recalculate(){
 		$('#loaderBlock').show({done: function(){
 			try {
 				redrawObjects();
+				window.mainObj = view.scene;
 				resolve();
 			}catch (error) {
 				prepareFatalErrorNotify(error);

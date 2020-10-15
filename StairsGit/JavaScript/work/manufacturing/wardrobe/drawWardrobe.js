@@ -55,6 +55,7 @@ function addWardrobe(viewportId, isVisible) {
 		kupeDoorAmt_wr: params.kupeDoorAmt_wr,
 		dxfBasePoint: dxfBasePoint,
 		topOnlay_wr: params.topOnlay_wr,
+		legsHeight: params.legsHeight_wr,
 		}
 	
 	//параметры секций
@@ -88,16 +89,22 @@ function addWardrobe(viewportId, isVisible) {
 		i++;		
 		});
 	
-
 wardrobeParams = drawWardrobe(wardrobeParams);
 
 carcas_wr.push(wardrobeParams.wrCarcas)
+metis.push(wardrobeParams.wrMetis)
 wrCarcas1.push(wardrobeParams.wrCarcas1)
 wrCarcas2.push(wardrobeParams.wrCarcas2)
 doors.push(wardrobeParams.wrDoors)
 shelfs.push(wardrobeParams.wrShelfs)
-metis.push(wardrobeParams.wrMetis)
 
+/*
+wrCarcas1.push(wardrobeParams.wrCarcas1)
+wrCarcas2.push(wardrobeParams.wrCarcas2)
+doors.push(wardrobeParams.wrDoors)
+shelfs.push(wardrobeParams.wrShelfs)
+
+*/
 	
 	
 //поворачиваем шкаф
@@ -173,6 +180,10 @@ addObjects(viewportId, metis, 'metis');
 
 //измерение размеров на модели
 	addMeasurement(viewportId);
+
+	setTimeout(function() {
+		if(typeof staircaseLoaded != 'undefined') staircaseLoaded();
+	}, 0);
 
 }//drawWardrobe;
 

@@ -1,10 +1,10 @@
 class Wardrobe extends AdditionalObject {
-
-	doorMesh = false;
-	doorClosed = true;
-
 	constructor(par) {
 		super(par);
+
+		this.doorMesh = false;
+		this.doorClosed = true;
+
 		var obj = this;
 
 		var sectParams = {

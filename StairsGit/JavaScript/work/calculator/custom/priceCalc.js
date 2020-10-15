@@ -54,7 +54,7 @@ function calcPrice(){
 	})
 	
 	var resultText = "<b class='yellow'>Итого: " + priceObj.total +  " руб </b><br/>";
-	$("#totalSumm").html(resultText);
+	$("#totalResult").html(resultText);
 	reindexTable();
 	
 	//сохраняем данные в глобальные объекты

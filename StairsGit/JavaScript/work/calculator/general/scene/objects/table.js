@@ -27,7 +27,9 @@ class Table extends AdditionalObject {
 				width: par.width - par.sideOverhang * 2,
 				height: par.height - par.thk,
 				len: par.len - par.frontOverhang * 2,
+				objectAmt: par.objectAmt
 			}
+			console.log(basePar)
 	
 			var base = drawTableBase(basePar).mesh;
 			par.mesh.add(base);
@@ -45,6 +47,7 @@ class Table extends AdditionalObject {
 				thk: par.thk,
 				partsGap: par.partsGap,
 				sideEdges: par.sideEdges,
+				riverWidth: par.riverWidth,
 				modifyKey: 'tabletop:' + par.objId
 			}
 			// debugger;
@@ -52,6 +55,7 @@ class Table extends AdditionalObject {
 			top.position.y = par.height;
 			par.mesh.add(top);
 		}
+		par.mesh.userData.setObjectDimensions = true;
 
 		return par
 	}

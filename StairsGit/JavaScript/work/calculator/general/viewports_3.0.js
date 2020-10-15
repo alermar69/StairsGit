@@ -166,16 +166,16 @@ $(function(){
 			var camera = view.camera;
 			if ((cameraState == 'Вращение' || cameraState == 'Подъем') && view.splineCamera) {
 				camera = view.splineCamera;
-				if (cameraState == 'Вращение' && view.ladderCenter) {
+				if (cameraState == 'Вращение' && view.sceneCenter) {
 					var angularSpeed = THREE.Math.degToRad(20); // угловая скорость - градусов в секунду
 					var radius = 3000;
 
-					camera.position.x = Math.cos(angle) * radius + view.ladderCenter.x;
+					camera.position.x = Math.cos(angle) * radius + view.sceneCenter.x;
 					camera.position.y = params.staircaseHeight + 500;
-					camera.position.z = Math.sin(angle) * radius + view.ladderCenter.z;
+					camera.position.z = Math.sin(angle) * radius + view.sceneCenter.z;
 					angle += angularSpeed * delta; // приращение угла
 
-					camera.lookAt(view.ladderCenter);
+					camera.lookAt(view.sceneCenter);
 				}
 				if( cameraState == 'Подъем' && view.camSpline){
 					camPosIndex++;

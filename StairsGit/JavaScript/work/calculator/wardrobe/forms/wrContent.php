@@ -1,7 +1,7 @@
 <h4>3. Полки, ящики:</h4>
 <input id="boxAmt_wr" type="number" value="0" style="display: none;">
 
-<table class="form_table" id="boxParamsTable"><tbody>
+<table class="form_table" id="boxParamsTable" style="min-width: 600px"><tbody>
 <tr>
 	<th>№ секции:</th>
 	<th>Позиция:</th>
@@ -14,4 +14,6 @@
 
 </tbody> </table>
 
-<p id="addBox">Добавить полку</p>
+<div style="margin: 5px">
+	<button class="btn btn-secondary" id="addBox">Добавить полку</button>
+</div>

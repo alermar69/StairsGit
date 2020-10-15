@@ -200,6 +200,8 @@ function drawSillEnv(par){
 		
 		par.mesh.add(wnd);
 	}
+
+	par.mesh.setLayer("wall1");
 	
 	
 	return par;
@@ -267,7 +269,7 @@ function drawSill(par){
 	}
 	
 	var extrudeOptions = {
-        amount: par.sillThk,
+        amount: par.thk,
         bevelEnabled: false,
         curveSegments: 12,
         steps: 1
@@ -278,6 +280,8 @@ function drawSill(par){
 	var mesh = new THREE.Mesh(geom, params.materials.additionalObjectTimber || params.materials.timber);
 	if(par.modifyKey) mesh.modifyKey = par.modifyKey;
 	mesh.rotation.x = -Math.PI / 2;
+	mesh.setLayer("timberPart");
+	par.mesh.dimObject = mesh;
 	par.mesh.add(mesh);
 	
 	//сохраняем данные для спецификации
@@ -558,9 +562,9 @@ function drawOriel(par){
 	}
 	
 	var shape = drawShapeByPoints2(shapePar).shape;
-	
+	console.log(par);
 	var extrudeOptions = {
-        amount: par.sillThk,
+        amount: par.thk,
         bevelEnabled: false,
         curveSegments: 12,
         steps: 1
@@ -572,6 +576,7 @@ function drawOriel(par){
 	if(par.modifyKey) mesh.modifyKey = par.modifyKey;
 	mesh.rotation.x = -Math.PI / 2;
 	mesh.position.y = par.height;
+	mesh.userData.setObjectDimensions = true;
 	par.mesh.add(mesh);
 	
 	

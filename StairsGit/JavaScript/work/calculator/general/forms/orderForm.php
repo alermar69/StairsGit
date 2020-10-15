@@ -67,7 +67,7 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 <!--обмен данными с базой и через файлы-->
 <!--<script type="text/javascript" src="/calculator/general/dataExchangeXml_3.1.js"></script>-->
 <script type="text/javascript" src="/orders/calcs/actions.js?06082020"></script>
-<!-- <script type="text/javascript" src="/calculator/general/exportOrderData.js"></script> -->
+<script type="text/javascript" src="/calculator/general/exportOrderData.js"></script>
 
 <!--скрипт обработки формы -->
 <script type="text/javascript" src="/calculator/general/forms/orderFormChange.js"></script>

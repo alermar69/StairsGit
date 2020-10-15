@@ -1,10 +1,10 @@
 class Fridge extends AdditionalObject {
-	doorClosed = true;
-	doorMesh = false;
-	doorMesh2 = false;
-
 	constructor(par) {
 		super(par);
+
+		this.doorClosed = true;
+		this.doorMesh = false;
+		this.doorMesh2 = false;
 
 		var objPar = Object.assign({}, this.par)
 		objPar.dxfBasePoint = {x:0,y:0}

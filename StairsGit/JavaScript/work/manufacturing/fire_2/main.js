@@ -88,6 +88,7 @@ function ChangeImgSize() {
 });
 
 function recalculate() {
+	console.log('aga');
 	try {
 		getAllInputsValues(params);
 		changeAllForms();

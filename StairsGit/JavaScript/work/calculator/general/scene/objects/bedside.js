@@ -1,9 +1,9 @@
 class Bedside extends AdditionalObject {
-	doorClosed = true;
-	doorMesh = false;
-
 	constructor(par) {
 		super(par);
+
+		this.doorClosed = true;
+		this.doorMesh = false;
 
 		var objPar = Object.assign({}, this.par)
 		objPar.dxfBasePoint = {x:0,y:0}
@@ -41,7 +41,7 @@ class Bedside extends AdditionalObject {
 		var actions = [];
 		if (this.par.doorExist) {
 			actions.push({
-				title: 'Открыть/Закрыть окно',
+				title: 'Открыть/Закрыть',
 				function: 'toggleDoor'
 			})
 		}
@@ -54,69 +54,124 @@ class Bedside extends AdditionalObject {
 		if (!par) par = {}
 		initPar(par);
 		
-		var dspThickness = 15;
-
-		var backGeometry = new THREE.BoxGeometry(par.width, par.height, 2);
-		var topGeometry = new THREE.BoxGeometry(par.width, dspThickness, par.depth);
-		var sideGeometry = new THREE.BoxGeometry(dspThickness, par.height - dspThickness, par.depth);
-
-		var shelfGeometry = new THREE.BoxGeometry(par.width - dspThickness * 2, dspThickness, par.depth);
-
-		var side = new THREE.Mesh(sideGeometry, par.material);
-		side.position.x = dspThickness / 2;
-		side.position.y = (par.height - dspThickness) / 2;
-		side.position.z = par.depth / 2;
-		par.mesh.add(side);
-
-		var side = new THREE.Mesh(sideGeometry, par.material);
-		side.position.x = par.width - dspThickness / 2;
-		side.position.y = (par.height - dspThickness) / 2;
-		side.position.z = par.depth / 2;
-		par.mesh.add(side);
-
-		var back = new THREE.Mesh(backGeometry, par.material);
-		back.position.x = par.width / 2;
-		back.position.y = par.height / 2;
-		back.position.z = -1;
-		par.mesh.add(back);
-
-		var shelf = new THREE.Mesh(shelfGeometry, par.material);
-		shelf.position.x = (par.width) / 2;
-		shelf.position.y = dspThickness / 2 + par.height * 0.7;
-		shelf.position.z = par.depth / 2;
-		par.mesh.add(shelf);
-
-		var shelf = new THREE.Mesh(shelfGeometry, par.material);
-		shelf.position.x = (par.width) / 2;
-		shelf.position.y = dspThickness / 2 + par.height * 0.35;
-		shelf.position.z = par.depth / 2;
-		par.mesh.add(shelf);
-
-		var shelf = new THREE.Mesh(shelfGeometry, par.material);
-		shelf.position.x = (par.width) / 2;
-		shelf.position.y = dspThickness / 2;
-		shelf.position.z = par.depth / 2;
-		par.mesh.add(shelf);
-
-		var top = new THREE.Mesh(topGeometry, par.material);
-		top.position.x = par.width / 2;
-		top.position.y = par.height - dspThickness + dspThickness / 2;
-		top.position.z = par.depth / 2;
-		par.mesh.add(top);
-
-		if (par.doorExist) {
-			var doorGeometry = new THREE.BoxGeometry(par.width, par.height * 0.7 + dspThickness, dspThickness);
-			doorGeometry.translate(par.width / 2, 0, dspThickness / 2);
-
-			var door = new THREE.Mesh(doorGeometry, par.material);
-			door.position.x = 0;
-			door.position.y = (par.height * 0.7) / 2 + dspThickness / 2;
-			door.position.z = par.depth;
-			par.mesh.add(door);
-			par.doorMesh = door;
+		var meshPar = {
+			angleTop_wr: 30,
+			boxes: [],
+			carcasThk_wr: 16,
+			depth_wr: par.depth,
+			doorsThk_wr: 16,
+			dxfBasePoint: {x: 0, y: 0},
+			heightLeft_wr: par.height,
+			heightRight_wr: par.height,
+			sectAmt_wr: 1,
+			sections: [],
+			topOnlay_wr: "нет",
+			width_wr: par.width,
+			height: par.height,
+			legsHeight: par.legsHeight,
 		}
+		
+		//секции
+		var sectPar = {
+			type: "открытая",
+			width: par.width - meshPar.carcasThk_wr * 2,
+		};
+		meshPar.sections.push(sectPar)
+		
+		//ящики
+		var drawerHeight = (par.height - meshPar.carcasThk_wr) / par.drawersAmt
+		for(var i=0; i<par.drawersAmt; i++){
+			var drawerPar = {
+					boxCarcasHeight: 120,
+					boxDoorPlusBot: -1,
+					boxDoorPlusIn: 0,
+					boxDoorPlusLeft: meshPar.carcasThk_wr - 2,
+					boxDoorPlusRight: meshPar.carcasThk_wr - 2,
+					boxDoorPlusTop: -1,
+					height: drawerHeight,
+					posX: 0,
+					posY: drawerHeight * i,
+					sect: "1",
+					type: "ящик",
+					width: 368,
+					widthType: "по секции",
+				};
+				
+				//увеличиваем фасад верхнего и нижнего ящика
+			//	if(i == par.drawersAmt - 1) drawerPar.boxDoorPlusTop = meshPar.carcasThk_wr - 2
+				if(i == 0) drawerPar.boxDoorPlusBot = meshPar.carcasThk_wr - 2
+				
+				meshPar.boxes.push(drawerPar)
+		}
+		
+		par.mesh.add(drawWardrobe(meshPar).mesh);
 
+	
 		return par;
+	}
+	
+	
+	static printPrice(par){
+		var priceParts = this.calcPriceParts(par);
+		var objPrice = this.calcPrice(par);
+		var priceCoeff = getPriceCoefficients(objPrice);
+		var priceHTML = "";
+		if (priceParts.carcas) priceHTML += '<tr><td>Корпус</td><td>' + Math.round(priceParts.carcas * objPrice.priceFactor * priceCoeff.margin) + '</td></tr>';
+		if (priceParts.drawers) priceHTML += '<tr><td>Наполнение</td><td>' + Math.round(priceParts.drawers * objPrice.priceFactor * priceCoeff.margin) + '</td></tr>';
+		if (priceParts.doors) priceHTML += '<tr><td>Фасады</td><td>' + Math.round(priceParts.doors * objPrice.priceFactor * priceCoeff.margin) + '</td></tr>';
+
+		return priceHTML;
+	}
+
+	/**
+	 * Расчет цены по пунктам
+	 * @param par 
+	 */
+	static calcPriceParts(par){
+		
+		var cost = {
+			total: 0,
+			carcas: 0,
+			drawers: 0,
+			doors: 0,
+		};
+		
+		//площадь деталей корпуса
+		var panelArea = (par.meshParams.height + par.meshParams.width) * par.meshParams.depth / 1000000;
+		cost.carcas = panelArea * 2000;
+		
+		//ножки
+		cost.carcas += 200 * 4;
+		
+		//ящики
+		cost.drawers = par.meshParams.drawersAmt * 1000;
+		
+		//фасады
+		var doorsCostM2 = 5000;
+		if(par.meshParams.doorsModel == "щит") doorsCostM2 = 5000
+		if(par.meshParams.doorsModel == "рамочные массив") doorsCostM2 = 8000
+		if(par.meshParams.doorsModel == "рамочные шпон") doorsCostM2 = 7000
+		if(par.meshParams.doorsModel == "плоские шпон") doorsCostM2 = 5000
+		if(par.meshParams.doorsModel == "плоские эмаль") doorsCostM2 = 6000
+		if(par.meshParams.doorsModel == "плоские лдсп") doorsCostM2 = 2000
+		cost.doors = par.meshParams.height * par.meshParams.width * doorsCostM2 / 1000000;
+		
+		$.each(cost, function(item){
+			if(item != "total") cost.total += this;
+		})
+
+		console.log(cost);
+		
+		return cost;
+	}
+
+	static calcPrice(par){
+		return {
+			name: this.getMeta().title,
+			cost: this.calcPriceParts(par).total,
+			priceFactor: 1,
+			costFactor: 1
+		}
 	}
 
 	static getMeta() {
@@ -124,29 +179,125 @@ class Bedside extends AdditionalObject {
 			title: 'Тумбочка',
 			inputs: [
 				{
+					key: 'model',
+					title: 'Модель',
+					default: 'ящики',
+					values: [
+						{
+							value: 'ящики',
+							title: 'ящики'
+						},
+						{
+							value: 'дверка+полка',
+							title: 'дверка+полка'
+						},
+					],
+					type: 'select',
+					"printable": "true",
+				},
+				
+				{
+					key: 'drawersAmt',
+					title: 'Кол-во ящиков',
+					default: 3,
+					type: 'number',
+					"printable": "true",
+				},
+				
+				{
 					key: 'height',
-					title: 'Высота тумбочки',
+					title: 'Высота',
 					default: 600,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'width',
-					title: 'Ширина тумбочки',
+					title: 'Ширина',
 					default: 400,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
 					key: 'depth',
-					title: 'Глубина тумбочки',
+					title: 'Глубина',
 					default: 400,
-					type: 'number'
+					type: 'number',
+					"printable": "true",
 				},
 				{
-					key: 'doorExist',
-					title: 'Дверка присутствует',
-					default: true,
-					type: 'boolean'
-				}
+					key: 'doorsModel',
+					title: 'Фасады',
+					default: 'щит',
+					values: [
+						{
+							value: 'щит',
+							title: 'щит'
+						},
+						{
+							value: 'рамочные массив',
+							title: 'рамочные массив'
+						},
+						{
+							value: 'рамочные шпон',
+							title: 'рамочные шпон'
+						},
+						{
+							value: 'плоские шпон',
+							title: 'плоские шпон'
+						},
+						{
+							value: 'плоские эмаль',
+							title: 'плоские эмаль'
+						},
+						{
+							value: 'плоские лдсп',
+							title: 'плоские лдсп'
+						},
+						{
+							value: 'нет',
+							title: 'нет'
+						},
+					],
+					type: 'select',
+					"printable": "true",
+				},
+				{
+					key: 'handle',
+					title: 'Ручка',
+					default: 'нет',
+					values: [{
+							value: 'нет',
+							title: 'нет'
+						},
+						{
+							value: 'скоба',
+							title: 'скоба'
+						},
+					],
+					type: 'select',
+					"printable": "true",
+				},
+				
+				{
+					key: 'legsHeight',
+					title: 'Ножки',
+					default: 90,
+					type: 'number'
+				},
+
+				{
+					type: 'delimeter',
+					"title": "Цена"
+				},
+
+				{
+					key: 'name',
+					title: 'Название',
+					default: 'Тумбочка',
+					type: 'text'
+				},
+				...AdditionalObject.defaultInputs()
 			]
 		}
 	}

@@ -9,7 +9,7 @@ function getCalcType()
 {
 	$url = getRootUrl();
 
-	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda', 'slabs', 'table', 'sill', 'sideboard', 'coupe','custom'];
+	$calc_types = ['bolz', 'console', 'metal', 'mono', 'railing', 'timber', 'timber_stock', 'vhod', 'vint', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'veranda', 'slabs', 'table', 'sill', 'sideboard', 'coupe','custom', 'fire_2'];
 	
 	$calc_type = '';
 	foreach($calc_types as $item){
@@ -32,3 +32,9 @@ function getTemplate()
 	return $template;
 }
 
+function getCalcTypeIsStair(){
+	$calc_type = getCalcType();
+	$notStairs = ['railing', 'wardrobe', 'wardrobe_2', 'carport', 'table', 'slabs', 'sill', 'sideboard', 'coupe', 'objects'];
+	
+	return !in_array($calc_type, $notStairs);
+}

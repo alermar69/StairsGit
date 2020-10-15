@@ -87,9 +87,10 @@
 
 </tbody> </table>
 
-<p id="addSect">Добавить секцию</p>
-<p id="equalSectWidth">Выровнять ширину</p>
-
+<div style="margin: 5px">
+	<button class="btn btn-secondary" id="addSect">Добавить секцию</button>
+	<button class="btn btn-secondary" id="equalSectWidth">Выровнять ширину</button>
+</div>
 
 
 <h4>3. Технологические параметры:</h4>
@@ -127,48 +128,22 @@
 		<td>
 			<select id="carcasMat_wr" size="1">
 				<option value="лдсп">ЛДСП</option>
-				<option value="сосна кл.Б">сосна кл.Б</option>
-				<option value="сосна экстра">сосна экстра</option>
-				<option value="береза паркет.">береза паркет.</option>
-				<option value="лиственница паркет.">лиственница паркет.</option>
-				<option value="дуб паркет.">дуб паркет.</option>
-				<option value="дуб ц/л">дуб ц/л</option>
+				<option value="шпон">шпон</option>
+				<option value="щит">щит</option>
 			</select>
 		</td>
 	</tr>
 	<tr> 
-		<td>Материал фасадов</td> 
+		<td>Фасады</td> 
 		<td>
 			<select id="doorsMat_wr" size="1">
-				<option value="лдсп">ЛДСП</option>
-				<option value="мдф">мдф</option>
-				<option value="береза паркет.">береза паркет.</option>
-				<option value="дуб паркет.">дуб паркет.</option>
-				<option value="дуб ц/л">дуб ц/л</option>
-			</select>
-		</td>
-	</tr>
-	
-	<tr> 
-		<td>Отделка каркаса</td> 
-		<td>
-			<select id="carcasPaint_wr" size="1">
-				<option value="нет">нет</option>
-				<option value="лак">лак</option>
-				<option value="морилка+лак">морилка+лак</option>
-				<option value="эмаль">эмаль</option>
-			</select>
-		</td>
-	</tr>
-	
-	<tr> 
-		<td>Отделка фасадов</td> 
-		<td>
-			<select id="doorsPaint_wr" size="1">
-				<option value="нет">нет</option>
-				<option value="лак">лак</option>
-				<option value="морилка+лак">морилка+лак</option>
-				<option value="эмаль">эмаль</option>
+				<option value="щит">щит</option>
+				<option value="рамочные массив">рамочные массив</option>
+				<option value="рамочные шпон">рамочные шпон</option>
+				<option value="плоские шпон">плоские шпон</option>
+				<option value="плоские эмаль">плоские эмаль</option>
+				<option value="фрезерованные эмаль">фрезерованные эмаль</option>
+				<option value="плоские лдсп">плоские лдсп</option>
 			</select>
 		</td>
 	</tr>
@@ -178,8 +153,17 @@
 		<td>
 			<select id="metisType_wr" size="1">
 				<option value="Boyard">Boyard</option>
-				<option value="Ferrari">Ferrari</option>
-				<option value="Blum">Blum</option>				
+				<option value="Hettich">Hettich</option>
+			</select>
+		</td>
+	</tr>
+	
+	<tr> 
+		<td>Направляющие</td> 
+		<td>
+			<select id="drawerSliders" size="1">
+				<option value="шариковые">шариковые</option>
+				<option value="скрытые">скрытые</option>
 			</select>
 		</td>
 	</tr>

@@ -43,15 +43,20 @@ class Sill extends AdditionalObject {
 			
 			sill.position.y = par.height + 10
 			sill.position.z = par.wallThk + par.frontNose
+			sill.userData.setObjectDimensions = true;
 			par.mesh.add(sill);
+		}else{
+
 		}
 		return par;
 	}
-
 	
 	/** STATIC **/
 	static calcPrice(par){
 		var cost = calcCountertopCost(par.meshParams);
+		
+		//вентиляционные отверстия
+		if(par.meshParams.ventHoles != "нет") cost += 1250;
 
 		return {
 			name: this.getMeta().title,

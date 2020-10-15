@@ -347,6 +347,9 @@ function getCarportRoofDescr(){
 
 function printDescr() {
 	$("#description").html("");
+
+	if(params.calcType != 'fire_2') $('#description').append(printAdditionalDescription());
+	
 	if (params.calcType != 'objects') {
 		var text = "";
 		if(params.calcType != 'carport') text += $('#zamerBlocks').html();
@@ -384,8 +387,6 @@ function printDescr() {
 			$("#description").append(text);
 		}
 	}
-
-	$('#description').append(printAdditionalDescription());
 
 	//Применяем formChange для форм доп объектов
 	if (window.additional_objects && window.additional_objects.length > 0) {
@@ -438,6 +439,28 @@ function printDescr() {
 	}
 }
 
+/**
+ * Формирует описания используемые технологии
+ */
+function getTemplatingDescription(){
+	if (
+		window.additional_objects && window.additional_objects.length > 0 &&
+		window.additional_objects.find(function(item){return item.calc_price && item.meshParams.shapeType == "по шаблону"})
+	) {
+		return {
+			images: [
+				{url: '/images/calculator/new_kp/technology_1.png'},
+				{url: '/images/calculator/new_kp/technology_2.png'},
+			],
+			title: 'Используемая технология - шаблонирование',
+			description: "Для того чтобы подоконник идеально вписался в проем, мы сперва изготавливаем шаблоны из\
+			фанеры по вашим размерам. После чего следует предварительная примерка и при\
+			необходимости, корректировка шаблонов. После того, как шаблоны идеально подходят по\
+			размерам, по ним изготавливается сам подоконник.\
+			В результате подоконник нужно будет подпиливать по месту и он встанет, как влитой."
+		}
+	}
+}
 /**
  * Формирует описание 'особенности конструкции'
  */
@@ -519,17 +542,6 @@ function printAdditionalDescription(){
 
 	var html = "<div class='newKP' style=''>";
 
-	// Материалы
-	html += Materials.getSceneDescription().html;
-
-	// Отделка дерева
-	if (getTimberPaintDescription().images.length > 0) {
-		html += paramsBlockTemplate.render(getTimberPaintDescription());
-	}
-
-	// Покраска металла
-	if (getMetalPaintDescription().images.length > 0) html += paramsBlockTemplate.render(getMetalPaintDescription());
-
 	var additionalObjectsText = ""
 	if (window.additional_objects && window.additional_objects.length > 0) {
 		window.additional_objects.forEach(function(obj){
@@ -551,11 +563,23 @@ function printAdditionalDescription(){
 
 	html += additionalObjectsText;
 
+	// Материалы
+	html += Materials.getSceneDescription().html;
+
+	// Отделка дерева
+	if (getTimberPaintDescription().images.length > 0) {
+		html += paramsBlockTemplate.render(getTimberPaintDescription());
+	}
+
+	// Покраска металла
+	if (getMetalPaintDescription().images.length > 0) html += paramsBlockTemplate.render(getMetalPaintDescription());
+
 	/**
 	 * Особенности конструкции
 	 */
 	if (params.calcType == 'objects') {
 		if(getConstructionAdditional().images.length > 0) html += paramsBlockTemplate.render(getConstructionAdditional());
+		if(getTemplatingDescription()) html += paramsBlockTemplate.render(getTemplatingDescription());
 	}
 
 	// Доставка и монтаж

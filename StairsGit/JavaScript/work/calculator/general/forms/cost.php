@@ -16,7 +16,7 @@
 				$calc_type = getCalcType();
 				
 				//лестницы
-				if ($calc_type != 'carport' && $calc_type != 'railing') {
+				if ($calc_type != 'carport' && $calc_type != 'railing' && $calc_type != 'fire_2') {
 					echo '<tr>
 						<td>Каркас:</td>
 						<td><input id="carcasCostFactor" type="number" value="1"></td>
@@ -32,6 +32,24 @@
 						<td><input id="railingPriceFactor" type="number" value="1"></td>
 					</tr>';
 				};
+
+				if ($calc_type == 'fire_2') {
+					echo '<tr>
+						<td>Лестница:</td>
+						<td><input id="carcasCostFactor" type="number" value="1"></td>
+						<td><input id="carcasPriceFactor" type="number" value="1"></td>
+					</tr>
+					<tr>
+						<td>Доставка:</td>
+						<td><input id="deliveryCostFactor" type="number" value="1"></td>
+						<td><input id="deliveryPriceFactor" type="number" value="1"></td>
+					</tr>
+					<tr>
+						<td>Испытания:</td>
+						<td><input id="testingCostFactor" type="number" value="1"></td>
+						<td><input id="testingPriceFactor" type="number" value="1"></td>
+					</tr>';
+				}
 				
 				//навесы
 				if ($calc_type == 'carport') {

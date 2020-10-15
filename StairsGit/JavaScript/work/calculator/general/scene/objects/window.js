@@ -1,10 +1,10 @@
 class Window extends AdditionalObject {
-	windowClosed = true;
-	windowMesh = false;
-	window2Mesh = false;
-
 	constructor(par) {
 		super(par);
+
+		this.windowClosed = true;
+		this.windowMesh = false;
+		this.window2Mesh = false;
 
 		var objPar = Object.assign({}, this.par)
 		objPar.material = this.material;
