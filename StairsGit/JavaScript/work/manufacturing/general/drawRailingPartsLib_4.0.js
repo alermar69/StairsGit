@@ -208,8 +208,9 @@ function drawRack3d_4(par) {
 			isForge: false,
 		}
 		if (specObj.unit == "banister") {
-			holderParams.isForge = true;
 			holderParams.railingModel = params.railingModel_bal;
+			if (holderParams.railingModel == "Кованые балясины" || holderParams.railingModel == "Кресты") holderParams.isForge = true;
+
 			if (holderParams.railingModel == "Решетка") {
 				holderParams.railingModel = "Кованые балясины";
 				//params.banister1_bal = "20х20";

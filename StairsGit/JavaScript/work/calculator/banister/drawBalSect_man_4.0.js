@@ -82,7 +82,7 @@ function drawBalSection(par) {
 		rackLength = par.sectHeight - handrailPar.profY
 	}	
 
-	var handrailHolderLength = 40; //длина кронштейна поручня
+	var handrailHolderLength = 70; //длина кронштейна поручня
 	var railingPositionZ = -20//-40;
 	var basePoint = [];
 	if (turnFactor == -1) {

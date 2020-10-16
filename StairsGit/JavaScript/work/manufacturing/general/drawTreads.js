@@ -4882,7 +4882,7 @@ function drawNotchRiser(par) {
 			specObj[par.partName] = {
 				types: {},
 				amt: 0,
-				name: "Подступенок с пазом",
+				name: "Панель клееная",
 				area: 0,
 				paintedArea: 0,
 				metalPaint: false,
@@ -4897,7 +4897,7 @@ function drawNotchRiser(par) {
 		var area = par.len * par.width / 1000000;
 		var paintedArea = area * 2 + (par.len + par.width) * 2 * thk / 1000000;
 
-		var name = Math.round(par.treadLen) + "x" + Math.round(par.width + params.treadThickness) + "x" + Math.round(len) + "x" + Math.round(par.len);
+		var name = "L=" + Math.round(par.treadLen) + " A=" + Math.round(len) + " B=" + Math.round(par.width + params.treadThickness);
 		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
 		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 		specObj[par.partName]["amt"] += 1;
