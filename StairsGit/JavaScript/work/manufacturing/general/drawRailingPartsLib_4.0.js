@@ -4031,6 +4031,7 @@ function drawHandrail_4(par) {
 		pole.userData.angle = par.poleAngle;
 		pole.position.z = par.wallOffset - par.profWidth / 2;
 		if (par.side == "in") pole.position.z = -par.wallOffset - par.profWidth / 2;
+		pole.setLayer('handrails')
 		par.mesh.add(pole);
 	}
 
@@ -4051,7 +4052,7 @@ function drawHandrail_4(par) {
 			pole.position.z = par.wallOffset;
 			if (par.side == "in") pole.position.z = -par.wallOffset;
 		}
-
+		pole.setLayer('handrails')
 		par.mesh.add(pole);
 	}
 
