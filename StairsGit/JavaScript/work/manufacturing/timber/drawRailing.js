@@ -2530,9 +2530,9 @@ function drawBanistersArr(par) {
 	var obj3D = new THREE.Object3D();
 	var drawBanisterFunction = drawTimberBanister_4;
 
-	var railingModel = params.railingModel;
-	var timberBalBotEnd = params.timberBalBotEnd;
-	var timberBalTopEnd = params.timberBalTopEnd;
+	var railingModel = par.railingModel || params.railingModel;
+	var timberBalBotEnd = par.timberBalBotEnd || params.timberBalBotEnd;
+	var timberBalTopEnd = par.timberBalTopEnd || params.timberBalTopEnd;
 
 	var svgDelta = {x:0,y:0};
 	if (par.svgBasePoint) svgDelta = par.svgBasePoint;
@@ -2607,7 +2607,7 @@ function drawBanistersArr(par) {
 
 			balDist = par.b / params.timberBalStep;
 			//позиция балясин на лестнице на косоурах
-			var balPar_kos = calcBalPos(par.marshId);
+			var balPar_kos = calcBalPos(par.marshId, par.balPar_kos);
 
 			//задаем позицию первой балясины
 			var basePoint = newPoint_xy(par.basePoint, balPar_kos.deltaX1, params.treadThickness);
@@ -2972,9 +2972,9 @@ function drawBanistersWndArr(par) {
 
 //функция рассчитывает параметры балясин на косоурах на марше
 
-function calcBalPos(marshId){
+function calcBalPos(marshId, par){
 
-	var par = getMarshParams(marshId);
+	if (!par) var par = getMarshParams(marshId);
 
 	balDist = par.b / params.timberBalStep;
 	var firstBalOffset = 10 + 50/2; //отступ оси первой балясины от переднего ребра ступени

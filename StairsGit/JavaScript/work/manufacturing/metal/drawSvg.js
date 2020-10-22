@@ -5,8 +5,8 @@ var draw = "";
 function makeSvg(){
 	
 	//инициализация
-	$("#svgOutputDiv").html("");
-	var draw = Raphael("svgOutputDiv", 800, 800);
+	$("#svgOutputDivDraw").html("");
+	var draw = Raphael("svgOutputDivDraw", 800, 800);
 	var dimScale = $("#svgDimScale").val();
 	
 	//оси координат
@@ -409,7 +409,7 @@ function makeSvg(){
 	// addForgedSections(sections, view.scene);
 	
 	//зум и сдвиг мышкой
-	var panZoom = svgPanZoom('#svgOutputDiv svg', {
+	var panZoom = svgPanZoom('#svgOutputDivDraw svg', {
 		zoomScaleSensitivity: 0.5,
 		minZoom: 0.1,
 		maxZoom: 100,

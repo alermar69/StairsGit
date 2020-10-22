@@ -3751,11 +3751,13 @@ function getTimberColorId(colorName){
 */
 
 function getPlasticColorId(colorName){
-	var colorId = 0xc8c8c8;
+	var colorId = 0x9D9D9D;
 
-	if(colorName == "прозрачный") colorId = 0x73492F
+	if(colorName == "прозрачный") colorId = 0xffffff
+	if(colorName == "черный") colorId = 0x222222
 	if(colorName == "бронза") colorId = 0x632e2e
-	if(colorName == "опал") colorId = 0x73492F
+	if(colorName == "коричневый") colorId = 0x73492F
+	if(colorName == "опал") colorId = 0xc8c8c8
 	if(colorName == "зеленый") colorId = 0x80c956
 	if(colorName == "синий") colorId = 0x4f76b5
 	if(colorName == "голубой") colorId = 0x79a8ff

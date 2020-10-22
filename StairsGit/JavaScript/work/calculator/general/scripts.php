@@ -155,7 +155,7 @@
 		],
 		[
 			'url' => '/manufacturing/railing/drawRailing.js',
-			'only_for' => ['railing'],
+			'only_for' => ['railing', 'vint'],
 		],
 		[
 			'url' => '/manufacturing/railing/testing.js',
@@ -184,7 +184,7 @@
 		],
 		[
 			'url' => '/manufacturing/timber/drawRailing.js',
-			'only_for' => ['bolz', 'console', 'metal', 'mono', 'timber', 'timber_stock', 'vint'],
+			'only_for' => ['bolz', 'console', 'metal', 'mono', 'timber', 'railing', 'timber_stock', 'vint'],
 		],
 		[
 			'url' => '/manufacturing/timber/calcSpec.js',

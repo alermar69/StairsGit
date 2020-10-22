@@ -2793,10 +2793,10 @@ function drawTableBase(par){
 				area: 0,
 				paintedArea: 0,
 				paintedArea: 0,
-				metalPaint: false,
-				timberPaint: true,
-				division: "timber",
-				group: "Каркас",
+				metalPaint: true,
+				timberPaint: false,
+				division: "metal",
+				group: "Объекты",
 			}
 		}
 		
@@ -2968,7 +2968,7 @@ function drawTableCountertop(par){
 				metalPaint: false,
 				timberPaint: true,
 				division: "timber",
-				group: "Каркас",
+				group: "Объекты",
 				}
 			}
 		var area = par.len * par.width / 1000000;

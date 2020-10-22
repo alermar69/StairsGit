@@ -6,5 +6,5 @@
 		<button id="saveDxf2">Сохранить DXF</button>
 	</div>
 	<div id="svgLayers"></div>
-	<div id='svgOutputDiv'></div>	
+	<div id='svgOutputDivDraw'></div>	
 </div>

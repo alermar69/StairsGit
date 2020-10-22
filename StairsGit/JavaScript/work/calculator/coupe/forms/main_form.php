@@ -1,11 +1,18 @@
+<div class="noPrint">
+	<button id="openDoors" class="noPrint">Открыть дверки</button>
+	<button id="fixDoors" class="noPrint">Заблокировать двери</button>
+</div>
+
 <h4>1. Общие характеристики:</h4>
 
 <table class="form_table" ><tbody>
 
 <tr><td>Модель:</td> <td> 
-	<select id="model_wr" size="1">
-		<option value="классика">распашной</option>
+	<select id="model_wr" size="1">		
 		<option value="купе" selected >купе</option>
+		<option value="распашной">распашной</option>
+		<option value="открытый">открытый</option>
+		<option value="тумба">тумба</option>
 	</select>
 </td></tr>
 
@@ -78,6 +85,7 @@
 	<td>Козырек</td> 
 	<td><input id="topPanelOffset_wr" type="number" value="0"></td>
 </tr>
+
 
 <tr class="stright">
 	<td>Ширина:</td> 
@@ -198,6 +206,24 @@
 	</select>
 </td></tr>
 
+<tr><td>Боковины:</td> <td> 
+	<select id="sideWall_wr" size="1">
+		<option value="панели">панели</option>
+		<option value="проф. труба">проф. труба</option>
+		<option value="бруски">бруски</option>
+		<option value="кресты металл">кресты металл</option>
+		<option value="кресты дерево">кресты дерево</option>		
+		<option value="рамочные">рамочные</option>
+		<option value="бруски+щит">бруски+щит</option>
+	</select>
+</td></tr>
+
+<tr><td>Двери секций:</td> <td> 
+	<select id="sectDoorsType_wr" size="1">
+		<option value="накладные">накладные</option>
+		<option value="вкладные">вкладные</option>
+	</select>
+</td></tr>
 
 </tbody> </table>
 
@@ -215,6 +241,7 @@
 			<select id="rearWallMat_wr" size="1">
 				<option value="двп">двп</option>
 				<option value="лдсп">ЛДСП</option>				
+				<option value="шпон">шпон</option>				
 			</select>
 		</td>
 	</tr>
@@ -278,6 +305,8 @@
 				<option value="лдсп">ЛДСП эконом</option>
 				<option value="лдсп стандарт">лдсп стандарт</option> 
 				<option value="лдсп премиум">лдсп премиум</option>
+				<option value="шпон">шпон</option>
+				<option value="щит">щит</option>
 			</select>
 		</td>
 	</tr>
@@ -340,17 +369,38 @@
 		<td>Выдвижная система</td> 
 		<td>
 			<select id="boxRailingModel" size="1">
-				<option value="Боярд эконом">Боярд эконом</option>
+				<option value="Боярд">Боярд</option>
 				<option value="Боярд премиум">Боярд премиум</option>	
-				<option value="Блюм эконом">Блюм эконом</option>
-				<option value="Блюм премиум">Блюм премиум</option>	
+				<option value="Hettich">Hettich</option>
+				<option value="Hettich премиум">Hettich премиум</option>	
+			</select>
+		</td>
+	</tr>
+	
+	<tr> 
+		<td>Фасады</td> 
+		<td>
+			<select id="doorsMat_wr" size="1">
+				<option value="щит">щит</option>
+				<option value="рамочные массив">рамочные массив</option>
+				<option value="рамочные шпон">рамочные шпон</option>
+				<option value="плоские шпон">плоские шпон</option>
+				<option value="плоские эмаль">плоские эмаль</option>
+				<option value="фрезерованные эмаль">фрезерованные эмаль</option>
+				<option value="плоские лдсп">плоские лдсп</option>
 			</select>
 		</td>
 	</tr>
 	
 	<tr> 
 		<td>Ручки ящиков</td> 
-		<td><input id="boxHandles" type="text" value="нет"></td>
+		<td>
+			<select id="boxHandles" size="1">
+				<option value="нет">нет</option>
+				<option value="скоба">скоба</option>
+				<option value="кнопка">кнопка</option>
+			</select>
+		</td>
 	</tr>
 	
 	<tr> 
@@ -404,7 +454,7 @@
 	
 	<tr class="rearWall"> 
 		<td>Толщина задней стенки</td> 
-		<td><input id="rearWallThk_wr" type="number" value="16"></td>
+		<td><input id="rearWallThk_wr" type="number" value="4"></td>
 	</tr>
 	
 	<tr class="rearWall"> 

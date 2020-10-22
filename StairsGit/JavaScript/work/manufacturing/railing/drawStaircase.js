@@ -78,6 +78,7 @@ dxfBasePoint = {x:0, y:-4000}
 			var propName = inputId.match(/^([^0-9]+)[0-9]+$/)[1]; //отсекаем индекс
 			sectParams[propName] = $(this).val();
 		});
+		console.log(JSON.stringify(sectParams))
 		sectParams = drawRailingSection(sectParams);
 		//console.log(sectParams)
 		var glassSection = sectParams.mesh;

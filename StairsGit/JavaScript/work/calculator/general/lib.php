@@ -1,5 +1,12 @@
 <?php
 
+if (isset($USER) && $USER->GetLogin() == 'dev_demo') {
+	if (!strpos(getRootUrl(), 'dev_demo.')) {
+		header("Location: https://dev_demo.6692035.ru/orders/orders");
+		exit;
+	}
+}
+
 function getRootUrl()
 {
 	return 'https://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];

@@ -37,7 +37,48 @@ $(function () {
 			}
 		});
 	});
+
+	$('#filterDiv').on('change', 'select, input', function(){
+		if(window.history && window.history.pushState) {
+			var mainForm = $(this).parents('#filterDiv');
+			var urlParams = new URLSearchParams(window.location.search);
+			var formData = {}
+			$(mainForm).find('input, select').each(function(){
+				urlParams.set(this.id, $(this).val());
+				formData[this.id] = $(this).val();
+			})
+			history.pushState({}, '', window.location.pathname + "?" + urlParams.toString())
+
+			if (window.localStorage) window.localStorage.setItem(getLocalStorageFilterPath(), JSON.stringify(formData))
+		}
+	});
+
+	// Сначала загружаем данные из хранилища
+	if (window.localStorage) {
+		var item = window.localStorage.getItem(getLocalStorageFilterPath())
+		if (item) {
+			item = JSON.parse(item);
+			Object.keys(item).forEach(function(key){
+				$('#filterDiv #' + key).val(item[key]);
+			})
+
+			if (window.filterFormChange) filterFormChange();
+		}
+	}
+	// Дополняем данными из url
+	var urlParams = new URLSearchParams(window.location.search);
+	urlParams.forEach(function(val, key){
+		if ($('#filterDiv #' + key).length > 0) {
+			$('#filterDiv #' + key).val(val);
+		}
+	});
 });
+
+function getLocalStorageFilterPath(){
+	var page_path = window.location.pathname.toLowerCase().replace(/^\//, '');
+	page_path = page_path.replace(/\/$/, '');
+	return "filter:" + page_path
+}
 
 /**
  * Функция озвращает значение в заданном промежутке

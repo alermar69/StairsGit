@@ -1431,62 +1431,75 @@ function isPainting(item){
 			if(params.metalPaint_railing !== 'нет')	paintColor  = params.metalBalColor || 'не указано';
 		}
 		
+		//доп. объекты
+		if(item.group == "Объекты"){
+			var paintColor = false;
+			if(params.metalPaint !== 'нет') paintColor  = params.additionalObjectsMetalColor || 'не указано';
+		}
+		
 		//добавляем цвет
 		if(paintColor) paintType += ", цвет " + paintColor;
 		
 	}
 
+	var paintColor = false;
 		
     if('timberPaint' in item && item.timberPaint && params.timberPaint !== 'нет'){
-		paintType = params.timberPaint;
-		if(params.timberPaint == "морилка+лак" || params.timberPaint == "цветное масло") paintType += ", цвет " + params.timberColorNumber;
-		}
+		paintType = params.timberPaint;		
+		if(params.timberPaint == "морилка+лак" || params.timberPaint == "цветное масло") paintColor = params.timberColorNumber;
+	}
 	
 	
     if('timberPaintRailing' in item && item.timberPaintRailing && params.timberPaint_perila !== 'нет'){
 		paintType = params.timberPaint_perila;
-		if(params.timberPaint_perila == "морилка+лак" || params.timberPaint == "цветное масло") paintType += ", цвет " + params.railingTimberColorNumber;
+		paintColor = false;
+		if(params.timberPaint_perila == "морилка+лак" || params.timberPaint == "цветное масло") paintColor = params.railingTimberColorNumber;
 		if(params.timberPaint_perila == "как на лестнице") {
 			paintType = params.timberPaint;
-			if(params.timberPaint == "морилка+лак" || params.timberPaint == "цветное масло") paintType += ", цвет " + params.carcasColorNumber;
-			}
+			if(params.timberPaint == "морилка+лак" || params.timberPaint == "цветное масло") paintColor = params.carcasColorNumber;
 		}
+	}
 	if('timberPaint_bal' in item && item.timberPaint_bal && params.timberPaint_perila_bal !== 'нет'){
-		paintType = params.timberPaint_perila_bal + ", цвет " + $("#timberColorNumber_bal").val();
+		paintType = params.timberPaint_perila_bal
+		paintColor = params.timberColorNumber_bal;
 		if(params.timberPaint_perila_bal == "как на лестнице") {
-			paintType = params.timberPaint + ", цвет " + $("#metalColorNumber").val();
-			}
+			paintType = params.timberPaint
+			paintColor = $("#metalColorNumber").val();
 		}
+	}
 			
 	 if('timberPaint_treads' in item && item.timberPaint_treads && params.timberPaint_treads !== 'нет'){
 		paintType = params.timberPaint;
-		if(params.timberPaint == "морилка+лак" || params.timberPaint == "цветное масло") paintType += ", морилка " + params.treadColorNumber;
-		}
+		paintColor = false;
+		if(params.timberPaint == "морилка+лак" || params.timberPaint == "цветное масло") paintColor = params.treadColorNumber;
+	}
 		
 	if('timberPaint_carcas' in item && item.timberPaint_carcas && params.timberPaint_carcas !== 'нет'){
 		paintType = params.timberPaint;
-		if(params.timberPaint == "морилка+лак" || params.timberPaint == "цветное масло") paintType += ", морилка " + params.stringersColor;//params.carcasColorNumber;
-		}
+		paintColor = false;
+		if(params.timberPaint == "морилка+лак" || params.timberPaint == "цветное масло") paintColor = params.stringersColor;
+	}
 	
 	//покраска дерева на деревянных лестницах
 	if(!('metalPaint' in item && item.metalPaint && params.metalPaint !== 'нет')){
 		if('timberPaint' in item && item.timberPaint && params.timberPaint !== 'нет'){
 			paintType = params.timberPaint;
-		//	if (params.timberPaint == "морилка+лак" || params.timberPaint == "цветное масло") paintType += ", цвет " + params.timberColorNumber;
-			// if(params.calcType == "vint") paintType += ", цвет " + params.timberColorNumber;
+			paintColor = false;
 			if(item.group) {
-				var groupColor = params[item.group + "Color"];
-				if(isFinite(groupColor) && groupColor < 10) groupColor = "0" + groupColor;
+				var paintColor = params[item.group + "Color"];				
+				if(item.group == "Объекты") paintColor  = params.additionalObjectsTimberColor || 'не указано'; //доп. объекты
+				if(isFinite(paintColor) && paintColor < 10) paintColor = "0" + paintColor; //коррекция названия масла
 			}
-			if(groupColor && groupColor != "без морилки") paintType += ", цвет " + groupColor;
-			if(groupColor == "без морилки") paintType += ", " + groupColor;
 		}
 	
 	}
+	
+	//добавляем цвет
+	if(paintColor) paintType += ", цвет " + paintColor;
+		
     if(!paintType)
 		paintType = "нет";
 		
-	
 		
     return paintType;
 }
@@ -1515,6 +1528,8 @@ function getMaterialName(item){
 		matName = "ПВХ " + params.handrails_pvcColor;
 	}
 	
+	//доп. объекты
+	if(item.group == "Объекты") matName  = params.additionalObjectsTimberMaterial
 	
 	return matName;
 }
@@ -1717,6 +1732,8 @@ function printSpecificationCollation(partsList, customTable) {
 		    countItem += item.amt;
 		});
 		
+		if(countItem == 0) return true;
+			
 		var isModelData = "";
 
 		if(list.isModelData) isModelData = "да"
@@ -1739,7 +1756,6 @@ function printSpecificationCollation(partsList, customTable) {
 				"</tr>";
 		}
 
-		if(countItem > 0)
 		switch(list.division){
 		    case 'stock_1': // Склад фурнитуры
 			stock1_specification += row;

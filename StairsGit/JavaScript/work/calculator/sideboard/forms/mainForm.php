@@ -1,3 +1,8 @@
+<div class="noPrint">
+	<button id="openDoors" class="noPrint">Открыть дверки</button>
+	<button id="fixDoors" class="noPrint">Заблокировать двери</button>
+</div>
+
 <div id="carcasFormWrap">
 	<h2 class="raschet">Характеристики изделия</h2>
 	<div id="carcasForm" class="toggleDiv">

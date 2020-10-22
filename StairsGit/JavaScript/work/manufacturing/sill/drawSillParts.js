@@ -300,7 +300,7 @@ function drawSill(par){
 				division: "timber",
 				purposes: [],
 				workUnitName: "amt",
-				group: "treads",
+				group: "Объекты",
 				//дополнительные данные
 				lineTemplatesAmt: 0,
 				curveTemplates: 0,

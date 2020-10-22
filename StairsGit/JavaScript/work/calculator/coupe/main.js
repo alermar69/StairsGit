@@ -63,6 +63,8 @@ $(function () {
 	//пересчитываем лестницу
 	recalculate();
 	
+
+		
 	//вешаем пересчет на все заголовки разделов
 	$('.raschet').click(function(){
 		recalculate();

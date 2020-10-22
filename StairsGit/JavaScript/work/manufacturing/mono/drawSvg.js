@@ -3,8 +3,8 @@ var draw = "";
 function makeSvg() {
 
 	//инициализация
-	$("#svgOutputDiv").html("");
-	var draw = Raphael("svgOutputDiv", 800, 800);
+	$("#svgOutputDivDraw").html("");
+	var draw = Raphael("svgOutputDivDraw", 800, 800);
 	var dimScale = $("#svgDimScale").val();
 
 	//оси координат
@@ -581,7 +581,7 @@ function makeSvg() {
 		basePoint = newPoint_xy(a4Params.basePoint, 0, -a4Params.height - 100);
 	}
 	//зум и сдвиг мышкой
-	var panZoom = svgPanZoom('#svgOutputDiv svg', {
+	var panZoom = svgPanZoom('#svgOutputDivDraw svg', {
 		zoomScaleSensitivity: 0.5,
 		minZoom: 0.1,
 		maxZoom: 100,
@@ -858,8 +858,8 @@ function drawSVGTurnRacks(par){
 
 function EqualSizeShapes(shape1, shape2) {
 	//инициализация
-	//$("#svgOutputDiv").html("");
-	//var draw = Raphael("svgOutputDiv", 800, 800);
+	//$("#svgOutputDivDraw").html("");
+	//var draw = Raphael("svgOutputDivDraw", 800, 800);
 	var paper = Raphael(10, 50, 320, 200);
 
 	var obj1 = makeSvgFromShape(shape1, paper);

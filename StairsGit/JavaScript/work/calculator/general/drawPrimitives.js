@@ -1837,22 +1837,13 @@ function calcSegmentPar(width, height){
 */
 
 function initPar(par) {
-	//if(par.dxfBasePoint) {
-	//	par.dxfArr = dxfPrimitivesArr;
-	//}
-	//else{
-	//	par.dxfBasePoint = {x:0, y:0};
-	//	par.dxfArr = [];
-	//}
-
-	if (!par.dxfBasePoint){
-		par.dxfBasePoint = { x: 0, y: 0 };
+	if(par.dxfBasePoint) {
+		par.dxfArr = dxfPrimitivesArr;
+	}
+	else{
+		par.dxfBasePoint = {x:0, y:0};
 		par.dxfArr = [];
 	}
-	if (!par.dxfArr) {
-		par.dxfArr = [];
-	}
-
 
 	par.mesh = new THREE.Object3D();
 	

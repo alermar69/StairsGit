@@ -15,7 +15,7 @@
 		<option value="10">секция 10</option>	
 	</select>
 	
-<table class="form_table" id="boxParamsTable" style="width: 500px;"><tbody>
+<table class="form_table" id="boxParamsTable" style="width: 600px;"><tbody>
 <tr>
 	<th>№ секции:</th>
 	<th>Позиция:</th>

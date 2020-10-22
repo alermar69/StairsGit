@@ -77,6 +77,7 @@ function addRailingInputs(){
 						'<option value="Решетка">решетка</option>' +
 						'<option value="Деревянные балясины">дерево</option>' +
 						'<option value="Модерн">модерн</option>' +
+						'<option value="Дерево с ковкой">Дерево с ковкой</option>' +
 						
 						
 						

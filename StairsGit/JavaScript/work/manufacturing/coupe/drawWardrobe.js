@@ -1,10 +1,4 @@
 //создаем глобальные массивы
-var carcas_wr = []; 
-var wrCarcas1 = []; 
-var wrCarcas2 = [];
-var doors = [];
-var shelfs = [];
-var metis = [];
 var dimensions = [];
 var dxfPrimitivesArr = [];
 var dxfBasePoint = {x:0, y:0,}
@@ -45,25 +39,12 @@ function drawCoupeWr(viewportId, isVisible) {
 	dxfPrimitivesArr = [];
 	
 
-//очищаем глобальные массивы
-	carcas_wr = [];
-	wrCarcas1 = []; 
-    wrCarcas2 = []; 
-	doors = [];
-	shelfs = [];
-	metis = [];
-	dimensions = [];	
+//очищаем глобальные массивы	
 	doorPos = {};
 	specObj = {};
 	boardsList = {};
 	dxfPrimitivesArr = [];
 
-//Материалы
-	var timberMaterial = params.materials.timber;//new THREE.MeshLambertMaterial( { color: 0x804000, overdraw: 0.5} );
-	var timberMaterial2 = params.materials.timber2;//new THREE.MeshLambertMaterial( { color: 0xD29252, overdraw: 0.5} );	
-	var metalMaterial = params.materials.metal;//new THREE.MeshLambertMaterial({color: 0x363636, wireframe: false});
-
-	
 //константы, локальные переменные
 	var thk = params.carcasThk_wr;
 	
@@ -92,7 +73,7 @@ var carcasParams = {
 	};
 
 var carcas = drawCarcasStright(carcasParams).mesh;
-carcas_wr.push(carcas);
+model.add(carcas, "carcas");
 
 var	leftOffset = carcasParams.leftOffset;
 var	rightOffset = carcasParams.rightOffset;
@@ -110,10 +91,10 @@ if(params.leftSect != "нет"){
 		depth: params.leftSectDepth,
 		shelfAmt: params.leftSectShelfAmt,
 		dxfBasePoint: dxfBasePoint,
-		}
-	var sideSect = drawSideSect(sideSectPar).mesh;
-	carcas_wr.push(sideSect)
 	}
+	var sideSect = drawSideSect(sideSectPar).mesh;
+	model.add(sideSect, "carcas");
+}
 	
 //правая дополнительная секция
 if(params.rightSect != "нет"){
@@ -126,16 +107,16 @@ if(params.rightSect != "нет"){
 		depth: params.rightSectDepth,
 		shelfAmt: params.rightSectShelfAmt,
 		dxfBasePoint: dxfBasePoint,
-		}
+	}
 	var sideSect = drawSideSect(sideSectPar).mesh;
 	sideSect.position.x = params.width_wr;
-	carcas_wr.push(sideSect)
-	}
+	model.add(sideSect, "carcas");
+}
 
 function drawContentStright(){}; //пустая функция для навигации
 
-		dxfBasePoint = {x:0, y: 4000,};
-//параметры секций
+	dxfBasePoint = {x:0, y: 4000,};
+	//параметры секций
 	var sections = [];
 	$("#sectParamsTable .sectParams").each(function(){
 		var sectPar = {
@@ -148,6 +129,7 @@ function drawContentStright(){}; //пустая функция для навиг
 	//параметры полок
 	var boxes = [];
 	$(".boxParams").each(function(){
+
 		var boxPar = {
 			sect: $(this).find(".boxSect").val(),
 			posX: parseFloat($(this).find(".boxPosX").val()),
@@ -156,194 +138,178 @@ function drawContentStright(){}; //пустая функция для навиг
 			type: $(this).find(".boxType").val(),
 			widthType: $(this).find(".boxWidthType").val(),
 			width: parseFloat($(this).find(".boxWidth").val()),
-			boxDoorPlusIn: parseFloat($(this).find(".boxDoorPlusIn").val()),
-			boxDoorPlusRight: parseFloat($(this).find(".boxDoorPlusRight").val()),
-			boxDoorPlusLeft: parseFloat($(this).find(".boxDoorPlusLeft").val()),
-			boxDoorPlusTop: parseFloat($(this).find(".boxDoorPlusTop").val()),
-			boxDoorPlusBot: parseFloat($(this).find(".boxDoorPlusBot").val()),
-			boxCarcasHeight: parseFloat($(this).find(".boxCarcasHeight").val()),
-			shelfSideOffset: parseFloat($(this).find(".shelfSideOffset").val()),
-			poleStart: $(this).find(".poleStart").val(),
-			poleEnd: $(this).find(".poleEnd").val(),
-			}
-		if(boxPar.sect <= params.sectAmt) boxes.push(boxPar);
-		});
+		}
 		
-var contentPar = {
-	leftOffset: leftOffset,
-	rightOffset: rightOffset,
-	topOffset: topOffset,
-	botOffset: botOffset,
-	rearOffset: rearOffset,
-	sections: sections,
-	thk: thk,
-	dxfBasePoint: dxfBasePoint,
-	timberMaterial: timberMaterial,
-	boxes: boxes,
-	side: "left",
-	isTopShelf: params.isTopShelf,
+		$(this).find("input,select").each(function(){
+			var classList = $(this).attr('class').split(/\s+/);
+			boxPar[classList[0]] = $(this).val();
+			if($(this).attr("type") == "number") boxPar[classList[0]] *= 1.0;
+		})
+
+		if(boxPar.sect <= params.sectAmt) boxes.push(boxPar);
+	});
+		
+	var contentPar = {
+		leftOffset: leftOffset,
+		rightOffset: rightOffset,
+		topOffset: topOffset,
+		botOffset: botOffset,
+		rearOffset: rearOffset,
+		sections: sections,
+		thk: thk,
+		dxfBasePoint: dxfBasePoint,
+		timberMaterial: params.materials.timber,
+		boxes: boxes,
+		side: "left",
+		isTopShelf: params.isTopShelf,
 	}
 
-if(params.leftWall_wr == "фальшпанель") contentPar.leftOffset = 0;
-if(params.rightWall_wr == "фальшпанель") contentPar.rightOffset = 0;
-if(params.topWall_wr == "фальшпанель") contentPar.topOffset = 0;
-if(params.botWall_wr == "фальшпанель") contentPar.botOffset = 0;
+	if(params.leftWall_wr == "фальшпанель") contentPar.leftOffset = 0;
+	if(params.rightWall_wr == "фальшпанель") contentPar.rightOffset = 0;
+	if(params.topWall_wr == "фальшпанель") contentPar.topOffset = 0;
+	if(params.botWall_wr == "фальшпанель") contentPar.botOffset = 0;
 
-contentPar = drawContentWr(contentPar);
+	contentPar = drawContentWr(contentPar);
 
-carcas_wr.push(contentPar.carcasMesh);
-shelfs.push(contentPar.shelfsMesh);
-
-
-//двери
-function drawDoorsStright(){};
-
-dxfBasePoint = {x:0, y: 8000,};
-
-var doorPosZ = params.depth_wr - 50;
-
-//нижняя направляющая
-var profParams = {
-	type: "bot",
-	len: params.width_wr - leftOffset - rightOffset,
-	dxfBasePoint: newPoint_xy(dxfBasePoint, -4000, 0),
-	}
-var prof = drawDoorProf(profParams).mesh;
-prof.position.x = leftOffset;
-prof.position.y = botOffset;
-prof.position.z = doorPosZ;
-doors.push(prof)
-
-//верхняя направляющая
-
-var profParams = {
-	type: "top",
-	len: params.width_wr - leftOffset - rightOffset,
-	dxfBasePoint: newPoint_xy(dxfBasePoint, -4000, -400),
-	}
-var prof = drawDoorProf(profParams).mesh;
-prof.position.x = leftOffset;
-prof.position.y = params.height_wr - topOffset;
-prof.position.z = doorPosZ;
-doors.push(prof)
+	model.add(contentPar.carcasMesh, "carcas");
+	model.add(contentPar.shelfsMesh, "shelfs");
 
 
-	//конструктивные размеры профилей
-	var constParams = getDoorParams();
-	//расчет ширины двери
-	var totalWidth = params.width_wr - leftOffset - rightOffset; //внутренняя ширина проема
-	var doorWidth = (totalWidth + constParams.doorOverHang * (params.kupeDoorAmt_wr - 1) - constParams.shlegelThk) / params.kupeDoorAmt_wr;
-	var doorOverHang = (constParams.doorOverHang * (params.kupeDoorAmt_wr - 1) - constParams.shlegelThk) / (params.kupeDoorAmt_wr - 1);
+
+	//двери купе
+	function drawDoorsStright(){};
 	
-	
-var doorPar = {
-	height: params.height_wr - topOffset - botOffset - constParams.doorOffsetTop - constParams.doorOffsetBot,
-	width: doorWidth,
-	thk: thk,
-	dxfArr: dxfPrimitivesArr,
-	dxfBasePoint: dxfBasePoint,
-	profMaterial: metalMaterial,
-	plateMaterial: timberMaterial2,
-	plates: [],
-	}
+	if(params.model_wr == "купе"){
 
-var doorRow = "row0";
-var doorMooveStep = doorWidth - doorOverHang;
+		dxfBasePoint = {x:0, y: 8000,};
 
+		var doorPosZ = params.depth_wr - 50;
 
-
-//цикл постронения дверей
-for(var i=0; i<params.kupeDoorAmt_wr; i++)	{
-	doorPar.doorId = i;
-	//считываем из формы параметры вставок дверей
-	doorPar.plates = [];
-	var selector = "#doorPar" + i
-	if(params.isDoorsEqual == "да") selector = "#doorPar0"
-	$(selector).find(".inpostParams").each(function(){
-		var platePar = {
-			height: $(this).find(".inpostHeight").val() * 1.0,
-			material: $(this).find(".inpostMat").val(),
+		//нижняя направляющая
+		var profParams = {
+			type: "bot",
+			len: params.width_wr - leftOffset - rightOffset,
+			dxfBasePoint: newPoint_xy(dxfBasePoint, -4000, 0),
 			}
-		doorPar.plates.push(platePar);
-		});
+		var prof = drawDoorProf(profParams).mesh;
+		prof.position.x = leftOffset;
+		prof.position.y = botOffset;
+		prof.position.z = doorPosZ;
 
-	var door = drawCoupeDoor(doorPar).mesh;
+		model.add(prof, "doors");
 
-	door.position.x = leftOffset + doorMooveStep * i; 
-	door.position.y = botOffset + constParams.doorOffsetBot;
-	door.position.z = doorPosZ + profParams.doorDist / 2;	
-	if(doorRow == "row1") door.position.z -= profParams.doorDist;
-	doors.push(door);
-	
-	dxfBasePoint = newPoint_xy(dxfBasePoint, doorPar.height + 500, 0);
-	doorPar.dxfBasePoint = dxfBasePoint;
-	
-	//сохраняем позицию двери
-	if(doorPos.rows == undefined){
-		doorPos = {
-			rows: {
-				row0: [],
-				row1: [],
-				},
-			leftEnd: leftOffset,
-			rightEnd: leftOffset + doorMooveStep * (params.kupeDoorAmt_wr - 1),
-			doorWidth: doorPar.width,
-			doorMooveStep: doorMooveStep,
+		//верхняя направляющая
+
+		var profParams = {
+			type: "top",
+			len: params.width_wr - leftOffset - rightOffset,
+			dxfBasePoint: newPoint_xy(dxfBasePoint, -4000, -400),
 			}
+		var prof = drawDoorProf(profParams).mesh;
+		prof.position.x = leftOffset;
+		prof.position.y = params.height_wr - topOffset;
+		prof.position.z = doorPosZ;
+		model.add(prof, "doors");
+
+
+		//конструктивные размеры профилей
+		var constParams = getDoorParams();
+		//расчет ширины двери
+		var totalWidth = params.width_wr - leftOffset - rightOffset; //внутренняя ширина проема
+		var doorWidth = (totalWidth + constParams.doorOverHang * (params.kupeDoorAmt_wr - 1) - constParams.shlegelThk) / params.kupeDoorAmt_wr;
+		var doorOverHang = (constParams.doorOverHang * (params.kupeDoorAmt_wr - 1) - constParams.shlegelThk) / (params.kupeDoorAmt_wr - 1);
+		
+		
+		var doorPar = {
+			height: params.height_wr - topOffset - botOffset - constParams.doorOffsetTop - constParams.doorOffsetBot,
+			width: doorWidth,
+			thk: thk,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: dxfBasePoint,
+			profMaterial: params.materials.metal,
+			plateMaterial: params.materials.timber2,
+			plates: [],
 		}
 
-	doorPos.rows[doorRow].push({id: i, pos: door.position.x,});
-		
-		
-	if(doorRow == "row0") doorRow = "row1";
-	else doorRow = "row0";
-	
-	} //конец цикла построения дверей 
-	
-//сохраняем параметры дверей для спецификации
-wrParams.totalDoorsWidth = Math.round(totalWidth);
-wrParams.totalDoorsHeight = Math.round(params.height_wr - topOffset - botOffset);
-wrParams.doorWidth = Math.round(doorWidth);
-wrParams.doorHeight = Math.round(doorPar.height);
+		var doorRow = "row0";
+		var doorMooveStep = doorWidth - doorOverHang;
 
+
+
+		//цикл постронения дверей
+		for(var i=0; i<params.kupeDoorAmt_wr; i++)	{
+			doorPar.doorId = i;
+			//считываем из формы параметры вставок дверей
+			doorPar.plates = [];
+			var selector = "#doorPar" + i
+			if(params.isDoorsEqual == "да") selector = "#doorPar0"
+			$(selector).find(".inpostParams").each(function(){
+				var platePar = {
+					height: $(this).find(".inpostHeight").val() * 1.0,
+					material: $(this).find(".inpostMat").val(),
+				}
+				doorPar.plates.push(platePar);
+			});
+
+			var door = drawCoupeDoor(doorPar).mesh;
+
+			door.position.x = leftOffset + doorMooveStep * i; 
+			door.position.y = botOffset + constParams.doorOffsetBot;
+			door.position.z = doorPosZ + profParams.doorDist / 2;	
+			if(doorRow == "row1") door.position.z -= profParams.doorDist;
+
+			model.add(door, "doors");
+			
+			dxfBasePoint = newPoint_xy(dxfBasePoint, doorPar.height + 500, 0);
+			doorPar.dxfBasePoint = dxfBasePoint;
+			
+			//сохраняем позицию двери
+			if(doorPos.rows == undefined){
+				doorPos = {
+					rows: {
+						row0: [],
+						row1: [],
+						},
+					leftEnd: leftOffset,
+					rightEnd: leftOffset + doorMooveStep * (params.kupeDoorAmt_wr - 1),
+					doorWidth: doorPar.width,
+					doorMooveStep: doorMooveStep,
+				}
+			}
+
+			doorPos.rows[doorRow].push({id: i, pos: door.position.x,});
+				
+				
+			if(doorRow == "row0") doorRow = "row1";
+			else doorRow = "row0";
+			
+		} //конец цикла построения дверей 
+		
+		//сохраняем параметры дверей для спецификации
+		wrParams.totalDoorsWidth = Math.round(totalWidth);
+		wrParams.totalDoorsHeight = Math.round(params.height_wr - topOffset - botOffset);
+		wrParams.doorWidth = Math.round(doorWidth);
+		wrParams.doorHeight = Math.round(doorPar.height);
+	}
 
 //размеры
 
-//высота шкафа
+	//высота шкафа
 
-var dimPar = {
-	p1: {x:0, y: 0, z: params.depth_wr + 1},
-	p2: {x:0, y: params.height_wr, z: params.depth_wr + 1},
-	offset: -100,
-	basePlane: "xy",
-	baseAxis: "y",
-	}		
-var dim = drawDimension3D_2(dimPar).mesh;
-dimensions.push(dim);
-
-//ширина шкафа
-var dimPar = {
-	p1: {x:0, y: params.height_wr, z: params.depth_wr + 1},
-	p2: {x:params.width_wr, y: params.height_wr, z: params.depth_wr + 1},
-	offset: 100,
-	basePlane: "xy",
-	baseAxis: "x",
-	}		
-var dim = drawDimension3D_2(dimPar).mesh;
-dimensions.push(dim);
-
-//размеры заполнения
-var dimPosX = leftOffset;
-if(params.leftWall_wr == "фальшпанель") dimPosX = 0;
-var dimPosZ = params.depth_wr - params.doorsOffset_wr + 1
-
-for(var sectId=0; sectId<params.sectAmt; sectId++){
-	var sectionWidth = params["sectWidth" + sectId]
-	
-	//ширина секции
 	var dimPar = {
-		p1: {x:dimPosX, y: botOffset, z: dimPosZ},
-		p2: {x:dimPosX + sectionWidth, y: botOffset, z: dimPosZ},
+		p1: {x:0, y: 0, z: params.depth_wr + 1},
+		p2: {x:0, y: params.height_wr, z: params.depth_wr + 1},
+		offset: -100,
+		basePlane: "xy",
+		baseAxis: "y",
+		}		
+	var dim = drawDimension3D_2(dimPar).mesh;
+	dimensions.push(dim);
+
+	//ширина шкафа
+	var dimPar = {
+		p1: {x:0, y: params.height_wr, z: params.depth_wr + 1},
+		p2: {x:params.width_wr, y: params.height_wr, z: params.depth_wr + 1},
 		offset: 100,
 		basePlane: "xy",
 		baseAxis: "x",
@@ -351,38 +317,34 @@ for(var sectId=0; sectId<params.sectAmt; sectId++){
 	var dim = drawDimension3D_2(dimPar).mesh;
 	dimensions.push(dim);
 
-	//высота полок и ящиков
-	dimPosX += sectionWidth * 0.3;
-	
-	var sectBoxes = calcBoxDist(sectId);
-	$(sectBoxes).each(function(){
-		if(this.type == "ящик"){
-			var dimPar = {
-				p1: {x:dimPosX, y: this.bot, z: dimPosZ},
-				p2: {x:dimPosX, y: this.top, z: dimPosZ},
-				offset: 20,
-				basePlane: "xy",
-				baseAxis: "y",
-				}		
-			var dim = drawDimension3D_2(dimPar).mesh;
-			dimensions.push(dim);
-			}
-		if(this.type == "полка"){
-			var dimPar = {
-				p1: {x:dimPosX, y: this.top, z: dimPosZ},
-				p2: {x:dimPosX, y: this.top + this.distTop, z: dimPosZ},
-				offset: 20,
-				basePlane: "xy",
-				baseAxis: "y",
-				}		
-			var dim = drawDimension3D_2(dimPar).mesh;
-			dimensions.push(dim);
-			//позиция первой полки снизу
+	//размеры заполнения
+	var dimPosX = leftOffset;
+	if(params.leftWall_wr == "фальшпанель") dimPosX = 0;
+	var dimPosZ = params.depth_wr - params.doorsOffset_wr + 1
 
-			if(this.distBot == this.bot){
+	for(var sectId=0; sectId<params.sectAmt; sectId++){
+		var sectionWidth = params["sectWidth" + sectId]
+		
+		//ширина секции
+		var dimPar = {
+			p1: {x:dimPosX, y: botOffset, z: dimPosZ},
+			p2: {x:dimPosX + sectionWidth, y: botOffset, z: dimPosZ},
+			offset: 100,
+			basePlane: "xy",
+			baseAxis: "x",
+			}		
+		var dim = drawDimension3D_2(dimPar).mesh;
+		dimensions.push(dim);
+
+		//высота полок и ящиков
+		dimPosX += sectionWidth * 0.3;
+		
+		var sectBoxes = calcBoxDist(sectId);
+		$(sectBoxes).each(function(){
+			if(this.type == "ящик"){
 				var dimPar = {
-					p1: {x:dimPosX, y: 0, z: dimPosZ},
-					p2: {x:dimPosX, y: this.bot, z: dimPosZ},
+					p1: {x:dimPosX, y: this.bot, z: dimPosZ},
+					p2: {x:dimPosX, y: this.top, z: dimPosZ},
 					offset: 20,
 					basePlane: "xy",
 					baseAxis: "y",
@@ -390,10 +352,33 @@ for(var sectId=0; sectId<params.sectAmt; sectId++){
 				var dim = drawDimension3D_2(dimPar).mesh;
 				dimensions.push(dim);
 				}
+			if(this.type == "полка"){
+				var dimPar = {
+					p1: {x:dimPosX, y: this.top, z: dimPosZ},
+					p2: {x:dimPosX, y: this.top + this.distTop, z: dimPosZ},
+					offset: 20,
+					basePlane: "xy",
+					baseAxis: "y",
+					}		
+				var dim = drawDimension3D_2(dimPar).mesh;
+				dimensions.push(dim);
+				//позиция первой полки снизу
+
+				if(this.distBot == this.bot){
+					var dimPar = {
+						p1: {x:dimPosX, y: 0, z: dimPosZ},
+						p2: {x:dimPosX, y: this.bot, z: dimPosZ},
+						offset: 20,
+						basePlane: "xy",
+						baseAxis: "y",
+					}		
+					var dim = drawDimension3D_2(dimPar).mesh;
+					dimensions.push(dim);
+				}
 			}
 		})
-		
-		dimPosX += sectionWidth * 0.7 + thk;
+			
+			dimPosX += sectionWidth * 0.7 + thk;
 	}
 
 } //конец прямого шкафа
@@ -415,7 +400,7 @@ var sidePanelsWidth_r = params.rightDepth - rearOffset;
 
 function drawCarcasCorner(){}; //пустая функция для навигации
 
-
+var carcas = new THREE.Object3D();
 	
 //левая боковая стенка
 if(params.leftWall_wr != "нет"){
@@ -427,7 +412,7 @@ if(params.leftWall_wr != "нет"){
 		dxfArr :dxfPrimitivesArr,
 		dxfBasePoint: dxfBasePoint,
 		text: "левая панель",
-		material: timberMaterial,
+		material: params.materials.timber,
 		roundHoles: [],
 		partName: "carcasPanel",
 		edging: {
@@ -445,7 +430,7 @@ if(params.leftWall_wr != "нет"){
 	plate.position.x = thk;
 	if(params.leftSect == "треугольная" || params.leftSect == "радиусная") plate.position.x += params.leftSectWidth;
 	plate.position.z = params.leftDept - platePar.width;	
-	carcas_wr.push(plate);
+	carcas.add(plate)
 	
 	dxfBasePoint = newPoint_xy(dxfBasePoint, platePar.width + 500, 0);
 	leftOffset = thk;
@@ -454,7 +439,7 @@ if(params.leftWall_wr != "нет"){
 	
 //правая боковая стенка
 	
-	if(params.rightWall_wr != "нет"){
+if(params.rightWall_wr != "нет"){
 
 	var platePar={
 		height: params.height_wr,
@@ -463,7 +448,7 @@ if(params.leftWall_wr != "нет"){
 		dxfArr :dxfPrimitivesArr,
 		dxfBasePoint: dxfBasePoint,
 		text: "левая панель",
-		material: timberMaterial,
+		material: params.materials.timber,
 		roundHoles: [],
 		partName: "carcasPanel",
 		edging: {
@@ -480,7 +465,7 @@ if(params.leftWall_wr != "нет"){
 	plate.position.x = params.leftSectWidth + params.leftWidth - params.rightDepth;
 	plate.position.z =  params.rightWidth + params.rightSectWidth - thk;
 	if(params.rightSect == "треугольная" || params.rightSect == "радиусная") plate.position.z -= params.rightSectWidth;
-	carcas_wr.push(plate);
+	carcas.add(plate)
 	
 	dxfBasePoint = newPoint_xy(dxfBasePoint, platePar.width + 500, 0);
 	rightOffset = thk;
@@ -491,7 +476,7 @@ if(params.leftWall_wr != "нет"){
 	var botPlatePar = {
 		thk: thk,
 		dxfBasePoint: dxfBasePoint,
-		material: timberMaterial,
+		material: params.materials.timber,
 		rightOffset: rightOffset,
 		leftOffset: leftOffset,
 		}
@@ -499,7 +484,8 @@ if(params.leftWall_wr != "нет"){
 	var plate = drawCornerPlate(botPlatePar).mesh;
 	plate.rotation.x = Math.PI / 2;
 	plate.position.y = params.legsHeight_wr;
-	carcas_wr.push(plate);
+	carcas.add(plate)
+	
 	botOffset = plate.position.y;
 	dxfBasePoint = newPoint_xy(dxfBasePoint, botPlatePar.width + 500, 0);
 	
@@ -507,15 +493,16 @@ if(params.leftWall_wr != "нет"){
 	var platePar = {
 		thk: thk,
 		dxfBasePoint: dxfBasePoint,
-		material: timberMaterial,
-		rightOffset: 0,
-		leftOffset: 0,
+		material: params.materials.timber,
+		rightOffset: rightOffset,
+		leftOffset: leftOffset,
 		}
 	
 	var plate = drawCornerPlate(platePar).mesh;
 	plate.rotation.x = Math.PI / 2;
-	plate.position.y = params.height_wr;
-	carcas_wr.push(plate);
+	plate.position.y = params.height_wr - thk;
+	carcas.add(plate)
+	
 	topOffset = thk
 	dxfBasePoint = newPoint_xy(dxfBasePoint, platePar.width + 500, 0);
 
@@ -529,7 +516,7 @@ if(params.leftWall_wr != "нет"){
 		dxfArr :dxfPrimitivesArr,
 		dxfBasePoint: dxfBasePoint,
 		text: "задняя левая панель",
-		material: timberMaterial,
+		material: params.materials.timber,
 		roundHoles: [],
 		partName: "rearPanel",
 		}
@@ -539,7 +526,7 @@ if(params.leftWall_wr != "нет"){
 	var plate = drawPlate(platePar).mesh;
 	plate.position.x = 0;
 	plate.position.z = 0;
-	carcas_wr.push(plate);
+	carcas.add(plate)
 	
 	dxfBasePoint = newPoint_xy(dxfBasePoint, platePar.width + 500, 0);
 	leftOffset = thk;
@@ -553,7 +540,7 @@ if(params.leftWall_wr != "нет"){
 		dxfArr :dxfPrimitivesArr,
 		dxfBasePoint: dxfBasePoint,
 		text: "задняя правая панель",
-		material: timberMaterial,
+		material: params.materials.timber,
 		roundHoles: [],
 		partName: "rearPanel",
 		}
@@ -564,10 +551,12 @@ if(params.leftWall_wr != "нет"){
 	plate.rotation.y = - Math.PI /2;
 	plate.position.x = params.leftSectWidth + params.leftWidth;	
 	plate.position.z = 0;	
-	carcas_wr.push(plate);
+	carcas.add(plate)
 	
 	dxfBasePoint = newPoint_xy(dxfBasePoint, platePar.width + 500, 0);
 	leftOffset = thk;
+
+	model.add(carcas, "carcas");
 	
 function drawCornerContent(){}; //пустая функция для навигации
 
@@ -612,7 +601,7 @@ var contentPar = {
 	sections: sections,
 	thk: thk,
 	dxfBasePoint: dxfBasePoint,
-	timberMaterial: timberMaterial,
+	timberMaterial: params.materials.timber,
 	boxes: boxes,
 	side: "left",
 	isTopShelf: params.isTopShelf,
@@ -623,8 +612,8 @@ contentPar.carcasMesh.position.x = params.leftSectWidth;
 contentPar.shelfsMesh.position.x = params.leftSectWidth;
 
 
-carcas_wr.push(contentPar.carcasMesh);
-shelfs.push(contentPar.shelfsMesh);
+model.add(contentPar.carcasMesh, "carcas");
+model.add(contentPar.shelfsMesh, "shelfs");
 
 //наполнение правой стороны
 
@@ -668,7 +657,7 @@ var contentPar = {
 	sections: sections,
 	thk: thk,
 	dxfBasePoint: dxfBasePoint,
-	timberMaterial: timberMaterial,
+	timberMaterial: params.materials.timber,
 	boxes: boxes,
 	side: "right",
 	isTopShelf: params.isTopShelf_r,
@@ -681,8 +670,8 @@ contentPar.carcasMesh.position.x = params.leftSectWidth + params.leftWidth;
 contentPar.shelfsMesh.rotation.y = -Math.PI/2;
 contentPar.shelfsMesh.position.x = params.leftSectWidth + params.leftWidth;
 
-carcas_wr.push(contentPar.carcasMesh);
-shelfs.push(contentPar.shelfsMesh);
+model.add(contentPar.carcasMesh, "carcas");
+model.add(contentPar.shelfsMesh, "shelfs");
 
 
 
@@ -705,7 +694,7 @@ var prof = drawDoorProf(profParams).mesh;
 prof.position.x = 0;
 prof.position.y = botOffset;
 prof.position.z = doorPosZ;
-//doors.push(prof)
+
 doorGroup.add(prof)
 
 //верхний профиль
@@ -719,7 +708,7 @@ var prof = drawDoorProf(profParams).mesh;
 prof.position.x = 0;
 prof.position.y = params.height_wr - topOffset;
 prof.position.z = doorPosZ;
-//doors.push(prof)
+
 doorGroup.add(prof)
 	//конструктивные размеры профилей
 	var constParams = getDoorParams();
@@ -731,8 +720,8 @@ var doorPar = {
 	dxfArr :dxfPrimitivesArr,
 	dxfBasePoint: dxfBasePoint,
 	text: "дверь",
-	profMaterial: metalMaterial,
-	plateMaterial: timberMaterial2,
+	profMaterial: params.materials.metal,
+	plateMaterial: params.materials.timber2,
 	plates: [],
 	}
 
@@ -764,7 +753,7 @@ for(var i=0; i<params.kupeDoorAmt_wr; i++)	{
 	door.position.y = botOffset + constParams.doorOffsetBot;
 	door.position.z = doorPosZ + profParams.doorDist / 2;	
 	if(doorRow == "row1") door.position.z -= profParams.doorDist;
-	//doors.push(door);
+
 	doorGroup.add(door)
 	dxfBasePoint = newPoint_xy(dxfBasePoint, params.depth_wr + 500, 0);
 	
@@ -806,8 +795,7 @@ for(var i=0; i<params.kupeDoorAmt_wr; i++)	{
 	doorGroup.position.x = basePoint.x;
 	doorGroup.position.z = basePoint.z;
 	
-	doors.push(doorGroup)
-//	console.log(doorGroup)
+	model.add(doorGroup, "doors");
 	
 	
 }	
@@ -822,7 +810,7 @@ if(params.diagDoorType != "прямая"){
 		angle: (botPlatePar.angEnd - botPlatePar.angStart) / 2,
 		dxfBasePoint: dxfBasePoint,
 		text: "Дверь",
-		material: timberMaterial,
+		material: params.materials.timber,
 		}	
 	
 	var door = drawArcPanel(doorPar).mesh;
@@ -831,7 +819,8 @@ if(params.diagDoorType != "прямая"){
 	door.position.x = botPlatePar.center.x;
 	door.position.y = params.height_wr - thk - 20;
 	door.position.z = botPlatePar.center.y;
-	doors.push(door)
+	
+	model.add(door, "doors");
  
 	//дверь 2
 	var doorPar = {
@@ -841,7 +830,7 @@ if(params.diagDoorType != "прямая"){
 		angle: (botPlatePar.angEnd - botPlatePar.angStart) / 2,
 		dxfBasePoint: dxfBasePoint,
 		text: "Дверь",
-		material: timberMaterial,
+		material: params.materials.timber,
 		}	
 	if(params.diagDoorType == "вогнутая") doorPar.rad = botPlatePar.doorRad + 50;
 	var door = drawArcPanel(doorPar).mesh;
@@ -850,87 +839,28 @@ if(params.diagDoorType != "прямая"){
 	door.position.x = botPlatePar.center.x;
 	door.position.y = params.height_wr - thk - 20;
 	door.position.z = botPlatePar.center.y;
-	doors.push(door)
+	model.add(door, "doors");
 }
- 
-/*
-rad
-height
-thk
-angle
-*/
-
 }
-	
-	
-//поворачиваем шкаф
-	var rot = 0;
-	
-	var pos = {
-		x: 0,
-		y: 0,
-		z: 0,
-		}
-	
+
+
+	for(var i=0; i<model.objects.length; i++){
+		var obj = model.objects[i].obj;
 		
-
-	var model = [
-		carcas_wr,
-		doors,
-		shelfs,
-		metis,
-		dimensions,
-		]
-	var modelObj = [];
-	
-	for (var i=0; i<model.length; i++){
-		modelObj[i] = new THREE.Object3D();
+		if(!obj) continue;
 		
-		for (var j=0; j<model[i].length; j++){
-			modelObj[i].add(model[i][j]);
-			}
-		modelObj[i].position.x += -pos.x + params.staircasePosX;
-		modelObj[i].position.y += pos.y + params.staircasePosY;
-		modelObj[i].position.z += pos.z + params.staircasePosZ;
-		modelObj[i].rotation.y = rot;
-		}
-
-		carcas_wr = [
-			modelObj[0],
-			]
-		doors = [
-			modelObj[1],
-			]
-		shelfs = [
-			modelObj[2],
-			]
-		metis = [
-			modelObj[3],
-			]
-		dimensions = [
-			modelObj[4],
-			];
+		//позиционируем
+		obj.position.x += params.staircasePosX;
+		obj.position.y += params.staircasePosY;
+		obj.position.z += params.staircasePosZ;
+		obj.rotation.y += params.stairCaseRotation;
 		
-//console.log(wrCarcas1)	
-/*
-//добавляем белые ребра для всех объектов
-for (var i = 0; i < wrCarcas1.length; i++) addWareframe(wrCarcas1[i], wrCarcas1);
-for (var i = 0; i < wrCarcas2.length; i++) addWareframe(wrCarcas2[i], wrCarcas2);
-for (var i = 0; i < carcas_wr.length; i++) addWareframe(carcas_wr[i], carcas_wr);
-for (var i = 0; i < doors.length; i++) addWareframe(doors[i], doors);
-for (var i = 0; i < shelfs.length; i++) addWareframe(shelfs[i], shelfs);
-for (var i = 0; i < metis.length; i++) addWareframe(metis[i], metis);
-*/
-
-//добавляем объекты в сцену
-addObjects(viewportId, wrCarcas1, 'wrCarcas1');
-addObjects(viewportId, wrCarcas2, 'wrCarcas2');
-addObjects(viewportId, carcas_wr, 'carcas_wr');
-addObjects(viewportId, doors, 'doors');
-addObjects(viewportId, shelfs, 'shelfs');
-addObjects(viewportId, metis, 'metis');
-addObjects(viewportId, dimensions, 'dimensions');
-
+		obj.layerName = model.objects[i].layer;
+		
+		//добавляем в сцену
+		addObjects(viewportId, obj, model.objects[i].layer);
+		
+	}
 
 //измерение размеров на модели
 addMeasurement(viewportId);

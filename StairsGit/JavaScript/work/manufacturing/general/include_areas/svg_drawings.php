@@ -8,7 +8,7 @@
 		<button id="saveDxf2">Сохранить DXF</button>
 	</div>
 	<div id="svgLayers"></div>
-	<div id='svgOutputDiv'></div>
+	<div id='svgOutputDivDraw'></div>
 	<div id="svg"></div>
 	
 	<h2>Контура для чпу</h2>

@@ -61,10 +61,6 @@ $(function () {
 	$("#wallPositionX_4").val(-5000);
 	*/
 	
-	//скрываем блоки, не нужные для моделирования
-	$('.canvas canvas:eq(1)').toggle()
-	$('.canvas canvas:eq(2)').toggle()
-	$("#2d").hide();
 
 /*	$("#mainImages").hide();
 	$("#description").hide();
@@ -101,8 +97,8 @@ $(function () {
 
 				$(this).closest("tr").find(".boxRow").val(boxRow);				
 				}
-
-		recalculate();
+console.log($(this).val())
+	//	recalculate();
 		});
 	
 	$('.tabs, .form_table').delegate('input,select,textarea', 'change', changeAllForms);

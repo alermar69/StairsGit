@@ -1,3 +1,5 @@
+var selectedItems = [];
+
 $(function () {
 
  //добавление полки
@@ -28,6 +30,20 @@ $(function () {
 		});
 		
 
+	 //изменение зазора до элемента сверху и снизу
+	$('#boxParamsTable').delegate('.distTop, .distBot', "change", function(){
+
+		var delta = $(this).val() * 1.0 - params[this.id];
+		var boxRow = $(this).closest("tr").find(".boxRow").val()*1.0;
+		
+		if($(this).hasClass("distTop")) boxRow -= delta;
+		if($(this).hasClass("distBot")) boxRow += delta;
+
+		$(this).closest("tr").find(".boxRow").val(boxRow);				
+				
+		recalculate();
+	});
+		
 		
 
 });
@@ -59,7 +75,7 @@ function changeFormContent(){
 			
 		//боковой зазор полки
 		$(this).closest("tr").find(".shelfSideOffset").closest("span").hide();
-		if($(this).val() == "полка"){
+		if($(this).val() == "полка" || $(this).val() == "полки"){
 			$(this).closest("tr").find(".shelfSideOffset").closest("span").show();
 			}
 		
@@ -69,7 +85,6 @@ function changeFormContent(){
 		if($(this).val() == "полка") {
 			$(this).closest("tr").find(".boxHeight").closest("span").hide();
 			$(this).closest("tr").find(".boxHeight").val(params.carcasThk_wr);
-			
 			}
 		
 		if($(this).val() == "штанга") {
@@ -86,12 +101,16 @@ function changeFormContent(){
 			//$(this).closest("tr").find(".boxHeight").closest("span").hide();
 			$(this).closest("tr").find(".boxHeight").val(880);
 			}
-		
 			
-		//глубина ящика
+		//параметры ящиков
 		$(this).closest("tr").find(".boxCarcasHeight").closest("span").hide();
-		if($(this).val() == "ящик") {
+		$(this).closest("tr").find(".itemsGap").closest("span").hide();
+		$(this).closest("tr").find(".boxHandles").closest("span").hide();
+		if($(this).val() == "ящик" || $(this).val() == "ящики") {
 			$(this).closest("tr").find(".boxCarcasHeight").closest("span").show();
+			$(this).closest("tr").find(".itemsGap").closest("span").show();
+			$(this).closest("tr").find(".boxHandles").closest("span").show();
+			
 			var carcasHeight = $(this).closest("tr").find(".boxCarcasHeight").val() * 1.0;
 			var posY = $(this).closest("tr").find(".boxDoorPlusBot").val() * 1.0;
 			if($(this).closest("tr").find(".boxHeight").val()*1.0 < carcasHeight + posY){				
@@ -132,7 +151,14 @@ function changeFormContent(){
 		if($(this).val() == "стойка" || $(this).val() == "штанга")
 			$(this).closest("tr").find(".poleEnds").show();
 		
-		});
+		//параметры группы полок или ящиков
+		$(this).closest("tr").find(".boxGroupPar").hide();
+		if($(this).val() == "полки" || $(this).val() == "ящики") {
+			$(this).closest("tr").find(".boxGroupPar").show();
+		}
+		
+	});
+		
 		
 	
 	//фильтр параметров полок
@@ -213,11 +239,25 @@ function addBoxInputs(){
 			'<span>Y: <input class="boxHeight" id="boxHeight' + (rowAmt - 1) + '" type="number" value="200"></span>' + 
 			'<span>Глубина: <input class="boxCarcasHeight" id="boxCarcasHeight' + (rowAmt - 1) + '" type="number" value="120"></span>' +
 			'<span>Зазор: <input class="shelfSideOffset" id="shelfSideOffset' + (rowAmt - 1) + '" type="number" value="0"></span>' +
+			'<span class="boxGroupPar">\
+				<span>Кол-во: <input class="itemAmt" id="itemAmt' + (rowAmt - 1) + '" type="number" value="1"><br></span>\
+				<span>Крышки: <select class="borderShelfs" id="borderShelfs' + (rowAmt - 1) + '" size="1">\
+					<option value="нет">нет</option>\
+					<option value="верх">верх</option>\
+					<option value="низ">низ</option>\
+					<option value="две">две</option>\
+				</select><br></span>\
+				<span>Зазор: <input class="itemsGap" id="itemsGap' + (rowAmt - 1) + '" type="number" value="2"><br></span>\
+				<span>Ручки: <select class="boxHandles" id="boxHandles' + (rowAmt - 1) + '" size="1">\
+					<option value="нет">нет</option>\
+					<option value="есть">есть</option>\
+				</select></span>\
+			</span>' +
 		'</td>' +
 		'<td>' +
 			'<select class="boxType" id="boxType' + (rowAmt - 1) + '" size="1">' +
-				'<option value="полка">полка</option>' +
-				'<option value="ящик">ящик</option>' +
+				'<option value="полки">полки</option>' + 
+				'<option value="ящики">ящики</option>' + 
 				'<option value="перегородка">перегородка</option>' +
 				'<option value="штанга">штанга</option>' +
 				'<option value="стойка">стойка</option>' + 
@@ -236,7 +276,8 @@ function addBoxInputs(){
 					'<option value="фланец">фланец</option>' +
 					'<option value="тройник">тройник</option>' +
 					'<option value="крест">крест</option>' +
-				'</select>' +
+				'</select>\
+			</span>' +			
 		'</td>' +
 		'<td>' +
 			
@@ -246,8 +287,8 @@ function addBoxInputs(){
 			'Увелич.: <br/>' + 
 			'П: <input class="boxDoorPlusRight" id="boxDoorPlusRight' + (rowAmt - 1) + '" type="number" value="-2"><br/>' +
 			'Л: <input class="boxDoorPlusLeft" id="boxDoorPlusLeft' + (rowAmt - 1) + '" type="number" value="-2"><br/>' +
-			//'В: <input class="boxDoorPlusTop" id="boxDoorPlusTop' + (rowAmt - 1) + '" type="number" value="20"><br/>' +
-			'Н: <input class="boxDoorPlusBot" id="boxDoorPlusBot' + (rowAmt - 1) + '" type="number" value="5"><br/>' +
+			'В: <input class="boxDoorPlusTop" id="boxDoorPlusTop' + (rowAmt - 1) + '" type="number" value="-2"><br/>' +
+			'Н: <input class="boxDoorPlusBot" id="boxDoorPlusBot' + (rowAmt - 1) + '" type="number" value="-2"><br/>' +
 			'</span>' + 
 		'</td>' +
 		'<td><span class="removeRow">Х</span></td>' +

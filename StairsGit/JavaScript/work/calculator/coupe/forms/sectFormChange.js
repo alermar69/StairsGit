@@ -58,13 +58,12 @@ function addSectInputs(tableId){
 	var row = '<tr class="sectParams">' + 
 			'<td class="sectNumber">' + rowAmt + '</td>' + 
 				'<td>' +
-					'<select class="door" id="door' + (rowAmt-1) + '" size="1">' +
-						'<option value="открытая">открытая</option>' +
-						'<option value="вправо">дверь правая</option>' +
-						'<option value="влево">дверь левая</option>' +
-						'<option value="две двери">две двери</option>' +
-						'<option value="выдвижная">выдвижной шкаф</option>' +
-					'</select>' +
+					'<select class="door" id="door' + (rowAmt-1) + '" size="1">\
+						<option value="открытая">открытая</option>\
+						<option value="дверь правая">дверь правая</option>\
+						<option value="дверь левая">дверь левая</option>\
+						<option value="две двери">две двери</option>\
+					</select>' +
 				'</td>' +
 				'<td><input class="sectWidth" id="sectWidth' + (rowAmt-1) + '" type="number" value="400" step="10"></td>' +
 				'<td><span class="removeRow">Х</span></td>' +

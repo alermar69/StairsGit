@@ -42,7 +42,56 @@ function drawStrightMarsh(par, marshId){
 	var carcas = drawMarshStringers(carcasParams, marshId).mesh;
 	marsh.add(carcas);
 
+	//для каждой секции формируем массив параметров
+	var railingSide = params.railingSide_1;
+	if (par.marshId == 3) {
+		railingSide = railingSide_3;
+	}
+	console.log(railingSide);
+	if (railingSide != 'нет') {
+		var sectParams = {
+			holeMooveParams: [],
+			sectID: 1,
+			railingParams: {
+				glass: [],
+				handrails: [],
+				sideHolderAmt: 0,
+				glassHolderAmt: 0
+			},
+			dxfBasePoint: {x: 0, y:0},
+			railingType: params.strightMarshRailing,
+			isSectHandrail: "есть",
+			railingParType: "с марша",
+			railingSide: "левая",
+			h_r: getMarshParams(marshId).h,
+			b_r: getMarshParams(marshId).b,
+			stairAmt_r: getMarshParams(marshId).stairAmt,
+			len: getMarshParams(marshId).stairAmt * getMarshParams(marshId).b,
+			angle: THREE.Math.radToDeg(Math.atan(getMarshParams(marshId).h / getMarshParams(marshId).b)),
+			sectHeight: 900,
+			lastRackMooveY: 0,
+			railingPosZ: params.M / 2
+		}
+		if (railingSide == 'две' || railingSide == 'внешнее') {
+			sectParams.railingSide = 'левая';
+			sectParams = drawRailingSection(sectParams);
+			sectParams.mesh.position.y += getMarshParams(marshId).h
+			sectParams.mesh.position.z = -params.M / 2;
+			if (params.strightMarshRailing != 'дерево с ковкой') {
+				sectParams.mesh.position.z -= 40;
+			}
+			marsh.add(sectParams.mesh)
+		}
+		if (railingSide == 'две' || railingSide == 'внутреннее') {
+			sectParams.railingSide = 'правая';
+			sectParams = drawRailingSection(sectParams);
+			sectParams.mesh.position.y += getMarshParams(marshId).h
+			sectParams.mesh.position.z = params.M / 2;
+			marsh.add(sectParams.mesh)
+		}
+	}
 	params.model = oldModel;
+	
 	
 	// Позицинируем объект
 	var wrapper = new THREE.Object3D();

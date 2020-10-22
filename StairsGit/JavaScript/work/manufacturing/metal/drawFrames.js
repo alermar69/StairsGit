@@ -2016,7 +2016,6 @@ function drawTreadFrame2(par){
 	if (par.isPltPFrame && turnFactor == -1) flanPar.noBolts = true;
 	if (par.isFrameSideNoBolts1) flanPar.noBolts = true;
 	if (par.isPltFrameMarshDist) flanPar.noBolts = true;
-	if (params.stairType == 'нет') flanPar.noBolts = true;
 	var sideFlan1 = drawRectFlan2(flanPar).mesh;
 	sideFlan1.position.x = flanPar.height + par.profWidth;
 	sideFlan1.position.y = - flanPar.width;
@@ -2031,7 +2030,6 @@ function drawTreadFrame2(par){
 	if (par.isFrameSideNoBolts2) flanPar.noBolts = true;
 	if (par.isPltPFrame && turnFactor == -1 && !par.isPltFrameMarshDist) flanPar.noBolts = false;
 	if (par.isPltFrameMarshDist) flanPar.noBolts = true;
-	if (params.stairType == 'нет') flanPar.noBolts = true;
 	flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -flanPar.height - 50);
 	flanPar.mirrowBolts = true;
 	

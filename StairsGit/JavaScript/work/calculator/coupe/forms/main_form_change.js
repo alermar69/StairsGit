@@ -5,11 +5,11 @@ $(function () {
 	 $("#openDoors").click(function(){
 		if(isDoorsOpened) {
 			isDoorsOpened = false;
-			$("#openDoors").text("Выдвинуть ящики");
+			$("#openDoors").text("Открыть дверки");
 			} 
 		else {
 			isDoorsOpened = true;
-			$("#openDoors").text("Задвинуть ящики");
+			$("#openDoors").text("Закрыть дверки");
 			}
 		recalculate();		
 		});

@@ -21,7 +21,6 @@
 						<option value="вправо">дверь правая</option>
 						<option value="влево">дверь левая</option>
 						<option value="две двери">две двери</option>
-						<option value="выдвижная">выдвижной шкаф</option>
 					</select>
 				</td>
 				<td><input class="sectWidth" id="sectWidth0" type="number" value="100" step="5"></td>	
@@ -64,10 +63,9 @@
 				<td>
 					<select class="door" id="door20" size="1">
 						<option value="открытая">открытая</option>
-						<option value="вправо">дверь правая</option>
-						<option value="влево">дверь левая</option>
+						<option value="дверь правая">дверь правая</option>
+						<option value="дверь левая">дверь левая</option>
 						<option value="две двери">две двери</option>
-						<option value="выдвижная">выдвижной шкаф</option>
 					</select>
 				</td>
 				<td><input class="sectWidth" id="sectWidth20" type="number" value="100" step="5"></td>	
