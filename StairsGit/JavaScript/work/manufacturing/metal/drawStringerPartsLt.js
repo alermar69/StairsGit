@@ -297,11 +297,16 @@ function drawBotStepLt_pltG(par) {
 		pt1.filletRad = pt2.filletRad = pt3.filletRad = pt4.filletRad = 0; //углы тетивы не скругляются
 
 		if (params.calcType == 'console' && params.stringerModel == 'короб') {
+			par.pointsShape.pop();
+			var pt = par.pointsShape.pop();
+			var pt1 = itercection(pt, polar(pt, par.marshParams.ang, 100), pt1, pt2)
+			pt1.filletRad = 0;
+			par.pointsShape.push(pt1);
 			par.pointsShape.push(pt2);
 			par.pointsShape.push(pt3);
-			pt4.x = p4.x;
+			var pt4 = itercection(p4, polar(p4, par.marshParams.ang, 100), pt3, pt4);
+			pt4.filletRad = 0;
 			par.pointsShape.push(pt4);
-			par.pointsShape.push(p4);
 		} else {
 			par.pointsShapeBot.push(pt1);
 			par.pointsShapeBot.push(pt2);
@@ -538,6 +543,10 @@ function drawBotStepLt_pltG(par) {
 
 	par.botUnitEnd = par.pointsShape[par.pointsShape.length - 1];
 	par.botUnitStart = par.pointsShape[0];
+	if (params.calcType == 'console' && params.stringerModel == 'короб') {
+		par.botUnitEnd = p4;
+		par.botUnitStart = botLineP1;
+	}
 	par.midUnitEnd = par.botUnitEnd;
 
 	//сохраняем координаты нижнего левого угла тетивы для самонесущего стекла
@@ -814,6 +823,14 @@ function drawBotStepLt_pltPOut(par) {
 	par.pointsShape.push(p1);
 	par.pointsShape.push(p2);
 	par.pointsShape.push(p3);
+
+	if (params.calcType == 'console' && params.stringerModel == 'короб') {
+		par.pointsShape.pop();
+		par.pointsShape.pop();
+		var pt = itercection(p3, polar(p3, par.marshParams.ang, 100), p1, p2)
+		pt.filletRad = 0;
+		par.pointsShape.push(pt);
+	}
 	//if (params.stringerType !== "прямая") par.pointsShape.push(p4);
 
 	//сохраняем точку для расчета длины
@@ -1033,8 +1050,8 @@ function drawBotStepLt_pltPOut(par) {
 
 			var framePar = calcConsoleFramePar({ marshId: par.marshId, type: 'platformBotP' });
 
-			var offsetX = 2;
-			var offsetY = 2;
+			var offsetX = 1;
+			var offsetY = 8;
 
 			for (var i = 0; i < 2; i++) {
 				var center = newPoint_xy(pTopOut, -framePar.widthTread * i - framePar.widthTread / 2, 0);
@@ -1056,6 +1073,9 @@ function drawBotStepLt_pltPOut(par) {
 	//http://6692035.ru/dev/mayorov/metal/imageLt/drawBotStepLt_pltPOut_Straight.jpg - для прямой
 
 	par.botUnitEnd = par.pointsShape[par.pointsShape.length - 1];
+	if (params.calcType == 'console' && params.stringerModel == 'короб') {
+		par.botUnitEnd = p3;
+	}
 	par.botUnitStart = par.pointsShape[0];
 	par.midUnitEnd = par.botUnitEnd;
 
@@ -1757,8 +1777,8 @@ function drawBotStepLt_wndOut(par) {
 			calcConsoleFrameWndPar(framePar);
 			calcConsoleFramePar(framePar);
 
-			var offsetX = 2;
-			var offsetY = 2;
+			var offsetX = 1;
+			var offsetY = 8;
 
 			// отверстия под первую забежную ступень
 			var center = copyPoint(pBotOut);
@@ -1840,7 +1860,8 @@ function drawMiddleStepsLt(par) {
 	var topLinePar = {
 		marshId: par.marshId,
 		type: "top",
-		prevUnitEnd: par.pointsShape[par.pointsShape.length - 1],
+		//prevUnitEnd: par.pointsShape[par.pointsShape.length - 1],
+		prevUnitEnd: par.botUnitEnd,
 		isMiddleStringer: par.isMiddleStringer,
 		};
 	var marshTopLine = drawMarshSteps(topLinePar).points;
@@ -2118,8 +2139,8 @@ function drawMiddleStepsLt(par) {
 			var framePar = { marshId: par.marshId, type: 'marsh'}
 			calcConsoleFramePar(framePar);
 
-			var offsetX = 2;
-			var offsetY = 2;
+			var offsetX = 1;
+			var offsetY = 8;
 
 			for (var i = 0; i < par.stairAmt; i++) {
 				var center = newPoint_xy(par.zeroPoint,
@@ -3113,8 +3134,8 @@ function drawTopStepLt_pltG(par) {
 
 			var framePar = calcConsoleFramePar({ marshId: par.marshId, type: 'platformTop' });
 
-			var offsetX = 2;
-			var offsetY = 2;
+			var offsetX = 1;
+			var offsetY = 8;
 
 			for (var i = 0; i < 2; i++) {
 				var center = newPoint_xy(pTopOut, -framePar.widthTread * i - framePar.widthTread / 2, 0);
@@ -3710,8 +3731,8 @@ function drawTopStepLt_pltPOut(par) {
 
 			var framePar = calcConsoleFramePar({ marshId: par.marshId, type: 'platformTopP' });
 
-			var offsetX = 2;
-			var offsetY = 2;
+			var offsetX = 1;
+			var offsetY = 8;
 
 			for (var i = 0; i < 2; i++) {
 				var center = newPoint_xy(pTopOut, -framePar.widthTread * i - framePar.widthTread / 2, 0);
@@ -4035,9 +4056,9 @@ function drawTopStepLt_wndOut(par) {
 	var p4 = newPoint_xy(p3, 0.0, par.h_next);
 	var p5 = newPoint_xy(p4, par.wndSteps[2].out.botMarsh, 0);
 	if (params.calcType == 'console') {
-		if (params.stringerModel == 'лист') p5.x += params.stringerThickness + 8 + calcStringerMoove(par.marshId).stringerOutMooveNext;
-		if (params.stringerModel == 'короб') p5.x += calcStringerMoove(par.marshId).stringerOutMooveNext;
-		
+		p5.x += params.stringerThickness + calcStringerMoove(par.marshId).stringerOutMooveNext
+		if (params.stringerModel == 'лист') p5.x += 8;
+		if (par.isWndP) p5.x += 10;
 	}
 
 	//задняя линия
@@ -4069,7 +4090,18 @@ function drawTopStepLt_wndOut(par) {
 		var p2s = polar(p2, par.marshAng, 100);
 		var p5s = newPoint_xy(p5, 0, 100);
 		p5s.filletRad = 0;
-		if (par.isWndP) p2s = newPoint_xy(p5s, -100, 0)
+		if (par.isWndP)
+			p2s = newPoint_xy(p5s, -100, 0)
+		if (params.calcType == 'console' && params.stringerModel == 'короб') {
+			if (par.isWndP) {
+				var p2s = newPoint_xy(p5s, -params.stringerThickness, 0)
+			}
+			if (!par.isWndP) {
+				//var p2s = copyPoint(p4)
+				var p4s = newPoint_xy(p5s, -params.stringerThickness, 0)
+			}
+		}
+			
 		if (par.stairAmt == 0 && par.botEnd == "floor") {
 			p2s = copyPoint(p2)
 			var p4s = copyPoint(p4)
@@ -4346,8 +4378,8 @@ function drawTopStepLt_wndOut(par) {
 			calcConsoleFrameWndPar(framePar);
 			calcConsoleFramePar(framePar);
 
-			var offsetX = 2;
-			var offsetY = 2;
+			var offsetX = 1;
+			var offsetY = 8;
 
 			// отверстия под первую забежную ступень
 			var center = copyPoint(pTopOut);

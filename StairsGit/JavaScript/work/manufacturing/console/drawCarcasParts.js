@@ -483,12 +483,28 @@ function drawConsoleFrames(par) {
 				pointsShape: framePar.wndFrames['1'].pointsFrame,
 				thk: thk,
 				width: framePar.heightBox - thk * 2,
-				isNotDraw: [0, 1, 0, 1],
+				isNotDraw: [0, 1, 0, 0, 1],
 			}
 
 			var plates = drawContourPlates(platePar).mesh;
 			plates.position.z = thk;
 			frame1.add(plates);
+
+			//нижний и верхний фланец рамки в тетиве
+			var flanPar = {
+				marshId: par.marshId,
+				dxfBasePoint: par.dxfBasePoint,
+				p1: framePar.wndFrames['1'].pointsFrame[0],
+				p2: framePar.wndFrames['1'].pointsFrame[1],
+				thk: 8,
+				heightBox: framePar.heightBox,
+				isWnd: true,
+			}
+
+			var flans = drawConsoleFrameFlans(flanPar).mesh;
+			flans.position.z = plateBot.position.z + thk;
+			frame1.add(flans);
+
 
 			frame1.position.x = posX + framePar.wndFrames['1'].p1Out.y;
 			frame1.position.y = posY;
@@ -523,6 +539,23 @@ function drawConsoleFrames(par) {
 			plates.position.z = thk;
 			frame2.add(plates);
 
+			//нижний и верхний фланец рамки в тетиве
+			flanPar.p1 = framePar.wndFrames['2'].pointsFrame[0];
+			flanPar.p2 = framePar.wndFrames['2'].pointsFrame[1];
+
+			var flans = drawConsoleFrameFlans(flanPar).mesh;
+			flans.position.z = plateBot.position.z + thk;
+			frame2.add(flans);
+
+			//--
+			flanPar.isWndTopMarsh = true;
+			flanPar.p1 = framePar.wndFrames['2'].pointsFrame[3];
+			flanPar.p2 = framePar.wndFrames['2'].pointsFrame[4];
+
+			var flans = drawConsoleFrameFlans(flanPar).mesh;
+			flans.position.z = plateBot.position.z + thk;
+			frame2.add(flans);
+
 			frame2.position.x = posX + framePar.wndFrames['2'].p1Out.y;
 			frame2.position.y = posY + marshPar.h;
 
@@ -549,12 +582,20 @@ function drawConsoleFrames(par) {
 				pointsShape: framePar.wndFrames['3'].pointsFrame,
 				thk: thk,
 				width: framePar.heightBox - thk * 2,
-				isNotDraw: [0, 1, 0, 1],
+				isNotDraw: [0, 1, 0, 1, 0],
 			}
 
 			var plates = drawContourPlates(platePar).mesh;
 			plates.position.z = thk;
 			frame3.add(plates);
+
+			//нижний и верхний фланец рамки в тетиве
+			flanPar.p1 = framePar.wndFrames['3'].pointsFrame[0];
+			flanPar.p2 = framePar.wndFrames['3'].pointsFrame[1];
+
+			var flans = drawConsoleFrameFlans(flanPar).mesh;
+			flans.position.z = plateBot.position.z + thk;
+			frame3.add(flans);
 
 			frame3.position.x = posX + params.stringerThickness + calcStringerMoove(par.marshId).stringerOutMooveNext;
 			frame3.position.y = posY + marshPar.h * 2;
@@ -618,8 +659,22 @@ function drawConsoleFrame(par) {
 		plates.position.z = thk;
 		frame.add(plates);
 
-		frame.rotation.y = Math.PI / 2 * turnFactor;
+		//нижний и верхний фланец рамки в тетиве
+		var flanPar = {
+			marshId: par.marshId,
+			dxfBasePoint: par.dxfBasePoint,
+			p1: par.pointsShapeFrame[3],
+			p2: par.pointsShapeFrame[2],
+			thk: 8,
+			heightBox: par.heightBox,
+		}
 
+		var flans = drawConsoleFrameFlans(flanPar).mesh;
+		flans.position.z = plateBot.position.z + thk;
+		frame.add(flans);
+
+
+		frame.rotation.y = Math.PI / 2 * turnFactor;
 		par.mesh.add(frame);
 	}
 
@@ -754,6 +809,126 @@ function drawConsoleFrame(par) {
 		}
 	}
 
+
+
+	return par;
+
+}
+
+/**Отрисовывает рамку ступени*/
+function drawConsoleFrameFlans(par) {
+
+	par.mesh = new THREE.Object3D();
+
+	var meshPar = {
+		points: [],
+		thk: par.thk,
+		material: params.materials.metal,
+		dxfBasePoint: par.dxfBasePoint,
+		isObject3D: true,
+	}
+
+	var turn = 1;
+	if (par.isWnd) turn = -1;
+
+	if (!par.isWndTopMarsh) {
+		//нижний фланец
+		var offset = 4;
+		var p1 = copyPoint(par.p1);
+		var p2 = copyPoint(par.p2);
+		var p3 = newPoint_xy(p2, -params.stringerThickness * turn, 0);
+		var p4 = newPoint_xy(p3, 0, -offset);
+		var p5 = newPoint_xy(p4, -offset * turn, 0);
+		var p8 = newPoint_xy(p1, -params.stringerThickness * turn, 0);
+		var p7 = newPoint_xy(p8, 0, offset);
+		var p6 = newPoint_xy(p7, -offset * turn, 0);
+
+		meshPar.points = [p1, p2, p3, p4, p5, p6, p7, p8];
+
+		var flanBot = drawMesh(meshPar).mesh;
+		par.mesh.add(flanBot);
+
+		//верхний фланец
+		var offset = 4;
+		var p1 = copyPoint(par.p1);
+		var p2 = copyPoint(par.p2);
+		var p3 = newPoint_xy(p2, -params.stringerThickness * turn, 0);
+		var p4 = newPoint_xy(p3, 0, -offset);
+		var p5 = newPoint_xy(p4, -15 * turn, 0);
+		var p6 = newPoint_xy(p3, -30 * turn, -40);
+		var p10 = newPoint_xy(p1, -params.stringerThickness * turn, 0);
+		var p9 = newPoint_xy(p10, 0, offset);
+		var p8 = newPoint_xy(p9, -15 * turn, 0);
+		var p7 = newPoint_xy(p10, -30 * turn, 40);
+
+		meshPar.points = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10];
+
+		var pc1 = newPoint_xy(p6, 10 * turn, - distance(p6, p7) / 2);
+		var pc2 = newPoint_xy(p6, 24 * turn, 22);
+		var pc3 = newPoint_xy(p7, 24 * turn, -22);
+		pc1.rad = pc2.rad = pc3.rad = 8;
+
+		meshPar.holes = [pc1, pc2, pc3];
+
+		var flanTop = drawMesh(meshPar).mesh;
+		flanTop.position.z = - par.thk - par.heightBox;
+		par.mesh.add(flanTop);
+
+		if (turnFactor == -1) {
+			flanTop.position.z = 0;
+			flanBot.position.z = - par.thk - par.heightBox;
+		}
+	}
+
+	if (par.isWndTopMarsh) {
+		//нижний фланец
+		var offset = 4;
+		var p1 = copyPoint(par.p1);
+		var p2 = copyPoint(par.p2);
+		var p3 = newPoint_xy(p2, 0, -params.stringerThickness);
+		var p4 = newPoint_xy(p3, -offset, 0);
+		var p5 = newPoint_xy(p4, 0, -offset);
+		var p8 = newPoint_xy(p1, 0, -params.stringerThickness);
+		var p7 = newPoint_xy(p8, offset, 0);
+		var p6 = newPoint_xy(p7, 0, -offset);
+
+		meshPar.points = [p1, p2, p3, p4, p5, p6, p7, p8];
+
+		var flanBot = drawMesh(meshPar).mesh;
+		par.mesh.add(flanBot);
+
+		//верхний фланец
+		var offset = 4;
+		var p1 = copyPoint(par.p1);
+		var p2 = copyPoint(par.p2);
+		var p3 = newPoint_xy(p2, 0, -params.stringerThickness);
+		var p4 = newPoint_xy(p3, -offset, 0);
+		var p5 = newPoint_xy(p4, 0, -15);
+		var p6 = newPoint_xy(p3, -40, -30);
+		var p10 = newPoint_xy(p1, 0, -params.stringerThickness);
+		var p9 = newPoint_xy(p10, offset, 0);
+		var p8 = newPoint_xy(p9, 0, -15);
+		var p7 = newPoint_xy(p10, 40, -30);
+
+		meshPar.points = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10];
+
+		var pc1 = newPoint_xy(p6, - distance(p6, p7) / 2, 10);
+		var pc2 = newPoint_xy(p6, 22, 24);
+		var pc3 = newPoint_xy(p7, 22, 24);
+		pc1.rad = pc2.rad = pc3.rad = 8;
+
+		meshPar.holes = [pc1, pc2, pc3];
+
+		var flanTop = drawMesh(meshPar).mesh;
+		flanTop.position.z = - par.thk - par.heightBox;
+		par.mesh.add(flanTop);
+
+		if (turnFactor == -1) {
+			flanTop.position.z = 0;
+			flanBot.position.z = - par.thk - par.heightBox;
+		}
+	}
+	
 
 
 	return par;
@@ -914,7 +1089,7 @@ function calcConsoleFrameWndPar(par) {
 	var p0 = { x: 0, y: 0 }; //точка внешнего угла забега
 	var pBotMarsh = newPoint_xy(p0, 0, -turnParams.turnLengthTop); //точка начала первой забежной ступени (внешняя сторона)
 	var pTopMarsh = newPoint_xy(p0, turnParams.turnLengthBot, 0); //точка начала первой ступени верхнего марша (внешняя сторона)
-	if (wndPar.plusMarshDist) pTopMarsh.x += params.marshDist - 45;
+	if (wndPar.plusMarshDist) pTopMarsh.x += params.marshDist - 50;
 
 	var ptBot = newPoint_xy(p0, wndPar.params[1].treadWidth - offsetIn, 0);
 	var ptTop = newPoint_xy(p0, 0, - wndPar.params[1].treadWidth + offsetIn);
@@ -927,7 +1102,7 @@ function calcConsoleFrameWndPar(par) {
 	var lineInStringerBot = parallel(p0, pBotMarsh, stringerMooveBot + thk);
 	var lineOutStringerBot = parallel(p0, pBotMarsh, stringerMooveBot + stringerThickness);
 
-	// определяем точки нижнего марша
+	// определяем точки верхнего марша
 	var pt1 = newPoint_xy(pTopMarsh, -wndPar.params[3].stepWidthHi + 50, 0);
 	var pt2 = newPoint_xy(p0, wndPar.params[2].stepWidthX, 0);
 	var pcTop = newPoint_xy(pt1, distance(pt1, pt2) / 2, 0);
@@ -945,10 +1120,10 @@ function calcConsoleFrameWndPar(par) {
 	var p1In = itercection(p1, p4, lineInStringerBot.p1, lineInStringerBot.p2)
 	var p2In = itercection(p2, p3, lineInStringerBot.p1, lineInStringerBot.p2)
 
-	var p1Out = itercection(p1, p4, lineOutStringerBot.p1, lineOutStringerBot.p2)
-	var p2Out = itercection(p2, p3, lineOutStringerBot.p1, lineOutStringerBot.p2)
+	var p1Out = itercection(p1In, polar(p1In, 0, 100), lineOutStringerBot.p1, lineOutStringerBot.p2)
+	var p2Out = itercection(p2In, polar(p2In, 0, 100), lineOutStringerBot.p1, lineOutStringerBot.p2)
 
-	var points = [p1Out, p2Out, p3, p4];
+	var points = [p1Out, p2Out, p2In, p3, p4];
 	points = moovePoints(points, { x: -p1Out.x, y: -p1Out.y })
 	
 	wndFrames['1'].pointsFrame = points;
@@ -1002,10 +1177,10 @@ function calcConsoleFrameWndPar(par) {
 	var p1In = itercection(p1, p4, lineInStringerTop.p1, lineInStringerTop.p2)
 	var p2In = itercection(p2, p3, lineInStringerTop.p1, lineInStringerTop.p2)
 
-	var p1Out = itercection(p1, p4, lineOutStringerTop.p1, lineOutStringerTop.p2)
-	var p2Out = itercection(p2, p3, lineOutStringerTop.p1, lineOutStringerTop.p2)
+	var p1Out = itercection(p1In, polar(p1In, Math.PI / 2, 100), lineOutStringerTop.p1, lineOutStringerTop.p2)
+	var p2Out = itercection(p2In, polar(p2In, Math.PI / 2, 100), lineOutStringerTop.p1, lineOutStringerTop.p2)
 
-	var points = [p1Out, p2Out, p3, p4];
+	var points = [p1Out, p2Out, p3, p4, p1In];
 	points = moovePoints(points, { x: -p1Out.x, y: -p1Out.y })
 
 	wndFrames['3'].pointsFrame = points;
@@ -1037,6 +1212,7 @@ function drawStringerConsoleEdges(par) {
 		pc: { x: 0, y: 0 },
 		thk: par.thk,
 		width: par.width,
+		flanThickness: 8,
 	}
 
 	calcConsoleFramePar(edgePar)
@@ -1114,12 +1290,9 @@ function drawStringerConsoleEdges(par) {
 
 		//ребра первой забежной рамки------------------------------
 		//ребро между первой и второй рамкой
-		edgePar.pc.x = dx + edgePar.wndFrames['1'].p2Out.y;
-		edgePar.angRotate = treadsObj.wndPar.params[1].edgeAngle * turnFactor;
+		edgePar.pc.x = dx + edgePar.wndFrames['1'].p2Out.y + par.thk;
 		var edge = drawConsoleEdge(edgePar).mesh;
 		par.mesh.add(edge)
-
-		edgePar.angRotate = false;
 
 		//ребро между первой и третьей (нижнего забега) рамкой
 		if (marshPar.botTurn == 'забег' && marshPar.stairAmt == 0) {
@@ -1172,11 +1345,8 @@ function drawStringerConsoleEdges(par) {
 		//ребра третьей забежной рамки------------------------------
 		//ребро между третьей и второй рамкой
 		edgePar.pc.x = dx + edgePar.wndFrames['3'].p1Out.x + par.thk;
-		edgePar.angRotate = -treadsObj.wndPar.params[3].edgeAngle * turnFactor;
 		var edge = drawConsoleEdge(edgePar).mesh;
 		par.mesh.add(edge)
-
-		edgePar.angRotate = false;
 
 
 		//опорные пластины третьей ступени
@@ -1260,10 +1430,6 @@ function drawConsoleEdge(par) {
 			var width = par.width;
 			var p1 = copyPoint(p0);
 			var p2 = newPoint_xy(p1, 0, distance(pt1, pt2) - thk * Math.tan(calcAngleX1(lines[1].p1, lines[1].p2)));
-			if (par.angRotate) {
-				width = par.width / Math.cos(par.angRotate)
-				p2.y -= par.width * Math.tan(Math.abs(par.angRotate)) * Math.tan(calcAngleX1(lines[1].p1, lines[1].p2))
-			}
 			var p3 = newPoint_xy(p2, width, 0);
 			var p4 = newPoint_xy(p1, width, 0);
 
@@ -1277,10 +1443,6 @@ function drawConsoleEdge(par) {
 			if (par.angRotate) {
 				edge.rotation.y -= par.angRotate;
 				edge.position.x += par.thk * Math.cos(par.angRotate);
-				if (par.angRotate < 0)
-					edge.position.y += par.width *
-						Math.tan(Math.abs(par.angRotate)) *
-						Math.tan(calcAngleX1(lines[1].p1, lines[1].p2));
 			}
 
 			par.mesh.add(edge);
@@ -1288,7 +1450,7 @@ function drawConsoleEdge(par) {
 
 		//опорные пластины ступеней
 		if (par.pDivide) {
-			var pt = newPoint_xy(par.pDivide, 0, -par.heightBox / 2);
+			var pt = newPoint_xy(par.pDivide, 0, -par.heightBox / 2 - par.flanThickness);
 			var pt = itercection(pt, polar(pt, 0, 100), line.p1, line.p2);
 
 			var p1 = copyPoint(p0);
@@ -1305,7 +1467,7 @@ function drawConsoleEdge(par) {
 			par.mesh.add(edge);
 
 			//-------------
-			var pt = newPoint_xy(par.pDivide, 0, par.heightBox / 2);
+			var pt = newPoint_xy(par.pDivide, 0, par.heightBox / 2 + par.flanThickness);
 			var pt = itercection(pt, polar(pt, 0, 100), line.p1, line.p2);
 
 			var p1 = newPoint_xy(p0, 0, distance(pt1, pt));
