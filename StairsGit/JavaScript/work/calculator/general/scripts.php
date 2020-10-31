@@ -144,10 +144,6 @@
 			'url' => '/manufacturing/console/drawCarcasParts.js',
 			'only_for' => ['console'],
 		],
-		[
-			'url' => '/manufacturing/console/personalScripts.js',
-			'only_for' => ['console'],
-		],
 		//railing
 		[
 			'url' => '/manufacturing/railing/drawStaircase.js',
@@ -428,9 +424,15 @@
 	]);
 
 	if ($calc_type != 'wardrobe_2' && $calc_type != 'slabs' && $calc_type != 'custom' && $calc_type != 'fire_2') {
-		$scripts[] = [
-			'url' => "/$template/general/main.js"
-		];
+		if ($template == 'customers') {
+			$scripts[] = [
+				'url' => "/customers/general/main.js"
+			];
+		}else{
+			$scripts[] = [
+				'url' => "/calculator/general/main.js"
+			];
+		}
 	}
 
 	//специфические скрипты для модулей

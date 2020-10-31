@@ -203,6 +203,30 @@ function getMaterialsConfigs(){
 				plastic_roof:{}
 			}
 		},
+		resin: {
+			main:{
+				needEnv: true,
+				matPar:{
+					opacity: 0.5,
+					metalness: 0.8,
+					roughness: 0.1,
+					color: new THREE.Color(0xCBF8F2),
+					transparent: true,
+					combine: THREE.MultiplyOperation,
+					reflectivity: 1.0,
+				}
+			},
+			textures:{
+				resin:{},
+				resin_mate:{
+					main: {
+						matPar: {
+							opacity: 0.98
+						}
+					}
+				}
+			}
+		},
 		metal_roof: {
 			main:{
 				needEnv: true,
@@ -1880,6 +1904,25 @@ function getMaterialsConfigs(){
 		$.each(config.plastic_roof.textures, function(){
 			var texture = this;
 			roofPlastColors.forEach(function(color){
+				if (!texture.colors) texture.colors = {};
+				if (!texture.colors[color]) texture.colors[color] = {};
+				if (!texture.colors[color].main) texture.colors[color].main = {};
+				if (!texture.colors[color].main.matPar) texture.colors[color].main.matPar = {};
+				if (!texture.colors[color].main.matPar.color) texture.colors[color].main.matPar.color = new THREE.Color(getPlasticColorId(color));
+			});
+		});
+	}
+
+	// Цвета для смолы
+	if ($('#resinColor').length > 0) {
+		var options = $('#resinColor option');
+		var resinColors = $.map(options ,function(option) {
+			return option.value;
+		});
+
+		$.each(config.resin.textures, function(){
+			var texture = this;
+			resinColors.forEach(function(color){
 				if (!texture.colors) texture.colors = {};
 				if (!texture.colors[color]) texture.colors[color] = {};
 				if (!texture.colors[color].main) texture.colors[color].main = {};

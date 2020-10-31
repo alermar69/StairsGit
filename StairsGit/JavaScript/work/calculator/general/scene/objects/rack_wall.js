@@ -1,3 +1,4 @@
+/** реечная перегородка **/
 class RackWall extends AdditionalObject {
 	constructor(par) {
 		super(par);

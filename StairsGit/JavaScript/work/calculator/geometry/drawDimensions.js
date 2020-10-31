@@ -1496,10 +1496,12 @@ makeDrawing = function(viewportId, viewType, callback, dimensionParams){
 		}
 	}
 	if(!params.calcType == 'carport') addTopFloorGeom(floorView)
-	setTimeout(function () {
-		addDrawingsImage(dimensionParams);
-		if (callback) callback();
-	}, 0);
+	drawAdditionalDimensions(function(){
+		setTimeout(function () {
+			addDrawingsImage(dimensionParams);
+			if (callback) callback();
+		}, 0);
+	})
 };
 
 /**

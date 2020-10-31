@@ -155,6 +155,7 @@ var isTimberPaint = false;
 var isLattice = false;
 var isTimber = false;
 var isSideHandrail = false;
+var isKovka = false;
 
 
 
@@ -321,7 +322,11 @@ var isSideHandrail = false;
 		if(railingType == "Модерн"){
 			isTimber = true;
 			isGlass = true;
-			}
+		}
+		if(railingType == "Дерево с ковкой"){
+			isTimber = true;
+			isKovka = true
+		}
 			
 		
 	})
@@ -450,7 +455,13 @@ if(isHandrail) {
 	if (isRacks){
 		$("#banisterMaterial_tr").show();		
 		$("#rackBottom").closest('tr').show();
-		}
+	}
+
+	if (isKovka) {
+		$('.kovka_tr').show();
+	}else{
+		$('.kovka_tr').hide();
+	}
 
 	//порода дерева поручня
 	if(params.handrail != "массив") $("#handrailsMaterial").closest("tr").hide();

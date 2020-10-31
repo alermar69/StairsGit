@@ -117,7 +117,7 @@ class Table extends AdditionalObject {
 		
 		//ширина реки
 		form.find('[data-propid="riverWidth"]').closest('tr').hide()
-		if(par.tabletopType == "слэб + стекло" || par.tabletopType == "слэб + смола непрозр." || par.tabletopType == "слэб + смола прозр.") form.find('[data-propid="riverWidth"]').closest('tr').show()
+		if(par.tabletopType == "слэб + стекло" || par.tabletopType == "слэб + смола") form.find('[data-propid="riverWidth"]').closest('tr').show()
 		
 		//объем заливки
 		form.find('[data-propid="resinVol"]').closest('tr').hide()
@@ -162,12 +162,8 @@ class Table extends AdditionalObject {
 							"title": "слэб + стекло"
 						},
 						{
-							"value": "слэб + смола непрозр.",
-							"title": "слэб + смола непрозр."
-						},
-						{
-							"value": "слэб + смола прозр.",
-							"title": "слэб + смола прозр."
+							"value": "слэб + смола",
+							"title": "слэб + смола"
 						},
 						{
 							"value": "нет",

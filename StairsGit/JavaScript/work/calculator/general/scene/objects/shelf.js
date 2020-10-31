@@ -1,3 +1,4 @@
+/** стеллажи, полки **/
 class Shelf extends AdditionalObject {
 	constructor(par) {
 		super(par);
@@ -147,7 +148,7 @@ class Shelf extends AdditionalObject {
 				},
 				{
 					key: 'width',
-					title: 'Ширина',
+					title: 'Ширина общая',
 					default: 700,
 					type: 'number',
 					"printable": "true",
@@ -156,6 +157,13 @@ class Shelf extends AdditionalObject {
 					key: 'depth',
 					title: 'Глубина',
 					default: 400,
+					type: 'number',
+					"printable": "true",
+				},
+				{
+					key: 'sectAmt',
+					title: 'Кол-во секций',
+					default: 1,
 					type: 'number',
 					"printable": "true",
 				},
@@ -230,7 +238,7 @@ class Shelf extends AdditionalObject {
 				{
 					key: 'bridgeProf',
 					title: 'Профиль перемычек',
-					default: '20х20',
+					default: '40х20',
 					type: 'select',
 					values: [
 						{

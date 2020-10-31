@@ -176,6 +176,7 @@ class TextureManager{
 		if (material_name == 'wireframe') {
 			par.colorId = $('#wireframeColor').val() || 0x000000;
 		}
+		if (material_name == 'resin') par.colorId = getPlasticColorId(params.resinColor);
 
 		return par;
 	}
@@ -195,6 +196,7 @@ class TextureManager{
 
 		var inoxMaterial = this.createMaterial({name: 'inox',color: 0xEEEEEE,wireframe: false});
 		var glassMaterial = this.createMaterial({name: 'glass',opacity: 0.6,color: 0x3AE2CE,transparent: true});
+		var resinMaterial = this.createMaterial({name: 'resin', opacity: 0.6,color: this.getMaterialColor('resin').colorId,transparent: true});
 		var concreteMaterial = this.createMaterial({name: 'concrete',color: 0xBFBFBF});
 		var dpcMaterial = this.createMaterial({name: 'dpc',color: 0x634D39,});
 		var boltMaterial = this.createMaterial({name: 'bolt',color: this.getMaterialColor('bolt').colorId});
@@ -268,7 +270,8 @@ class TextureManager{
 			metal_roof: metalMaterial_roof,
 			plastic_roof: plasticMaterial_roof,
 			additionalObjectTimber: additionalObjectTimber,
-			additionalObjectMetal: additionalObjectMetal
+			additionalObjectMetal: additionalObjectMetal,
+			resin: resinMaterial
 		}
 
 		return materials;
@@ -447,6 +450,11 @@ class TextureManager{
 			texture_name = getTimberTextureName(params.timberBalMaterial);
 			color_name = params.timberBalColor;
 			key = params.timberBalMaterial;
+		}
+		if (material_name == 'resin') {
+			color_name = params.resinColor;
+			texture_name = 'resin';
+			if (params.resinMaterial == 'непрозрачный') texture_name = 'resin_mate';
 		}
 		if (material_name == 'handrail') {
 			texture_name = getTimberTextureName(params.handrailsMaterial);

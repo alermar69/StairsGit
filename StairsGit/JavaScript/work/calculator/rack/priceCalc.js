@@ -40,6 +40,8 @@ function calcRackPrice(){
 	//порошковая покраска подстолья - упрощенно равна цене металла
 	staircaseCost.carcas *= 2;
 	
+	//учитываем кол-во секций
+	if(par.sectAmt) staircaseCost.carcas *= (par.sectAmt + 1) / 2;
 	
 }
 

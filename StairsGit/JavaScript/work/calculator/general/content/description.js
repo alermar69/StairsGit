@@ -503,7 +503,7 @@ function getConstructionAdditional() {
 			})
 		}
 	})
-	return {title: 'Особнности конструкции', description: "", images: images}
+	return {title: 'Особенности конструкции', description: "", images: images}
 }
 
 /**

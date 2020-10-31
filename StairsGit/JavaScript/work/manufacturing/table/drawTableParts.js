@@ -2941,7 +2941,11 @@ function drawTableCountertop(par){
 			riverThickness = 4;
 		} 
 		var riverGeometry = new THREE.BoxGeometry(riverWidth, par.len - 2, riverThickness);
-		var river = new THREE.Mesh(riverGeometry, params.materials.glass);
+		var riverMaterial = params.materials.resin;
+		if (par.type == 'слэб + стекло') {
+			riverMaterial = params.materials.glass;
+		}
+		var river = new THREE.Mesh(riverGeometry, riverMaterial);
 		river.rotation.x = Math.PI / 2;
 		if (par.type == 'слэб + стекло') {
 			river.position.y = -riverThickness / 2 + 0.1;

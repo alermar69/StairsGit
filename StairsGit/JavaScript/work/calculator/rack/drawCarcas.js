@@ -79,10 +79,10 @@ function drawShelfTower(par) {
 
 	var modelDim = getModelDimensions();
 	var sideWallDim = modelDim.sideWall;
-
-
-	// левая боковина
-	var sidePar = {
+	
+	//боковины / стойки
+	
+	var standPar = {
 		dxfBasePoint: par.dxfBasePoint,
 		side: "left",
 		shelfPositions: shelfPositions,
@@ -95,34 +95,41 @@ function drawShelfTower(par) {
 		topOffset: par.topOffset,
 	}
 	
-	var leftSideObj = drawSideWall(sidePar);
-	leftSideObj.carcas.rotation.y = -Math.PI / 2;
-	leftSideObj.carcas.position.z = legPar.sizeB;
-	leftSideObj.carcas.position.x = legPar.sizeA + par.sideOverhang;
-	leftSideObj.panels.rotation.y = leftSideObj.carcas.rotation.y;
-	leftSideObj.panels.position.z = leftSideObj.carcas.position.z;
-	leftSideObj.panels.position.x = leftSideObj.carcas.position.x;
+	if(!par.sectAmt) par.sectAmt = 1;
+	var sectWidth = (par.width - par.sideOverhang * 2 - legPar.sizeA) / par.sectAmt;
+	var startPos = legPar.sizeA + par.sideOverhang;
+	for(var i=0; i<=par.sectAmt; i++){		
+		
+		var stand = drawSideWall(standPar);
+		stand.carcas.rotation.y = -Math.PI / 2;
+		stand.carcas.position.z = legPar.sizeB;
+		stand.carcas.position.x = startPos + sectWidth * i;
+		stand.panels.rotation.y = stand.carcas.rotation.y;
+		stand.panels.position.z = stand.carcas.position.z;
+		stand.panels.position.x = stand.carcas.position.x;
 
-	par.carcas.add(leftSideObj.carcas);
-	par.panels.add(leftSideObj.panels);
+		par.carcas.add(stand.carcas);
+		par.panels.add(stand.panels);
 
-	// правая боковина
-	sidePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.depth + 200, 0);
-	sidePar.side = "right";
-
-	var rightSideObj = drawSideWall(sidePar);
-	rightSideObj.carcas.rotation.y = -Math.PI / 2;
-	rightSideObj.carcas.position.x = par.width - par.sideOverhang;
-	rightSideObj.carcas.position.z = legPar.sizeB;
-
-	rightSideObj.panels.rotation.y = rightSideObj.carcas.rotation.y;
-	rightSideObj.panels.position.x = rightSideObj.carcas.position.x;
-	rightSideObj.panels.rotation.z = rightSideObj.carcas.position.z;
-
-
-	par.carcas.add(rightSideObj.carcas);
-	par.panels.add(rightSideObj.panels);
-
+		standPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.depth + 200, 0);
+		if(i == par.sectAmt) standPar.side = "right";
+		
+		//раскосы сзади
+		if(i < par.sectAmt){
+			var crossPar = {
+				height: par.height - par.topOffset - par.botOffset,
+				width: sectWidth - legPar.sizeA,
+				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, par.height + 500),
+				isFlat: true,
+			}
+			var cross = drawCross(crossPar).mesh;
+			cross.position.x = stand.carcas.position.x;
+			cross.position.y = par.botOffset;
+			par.carcas.add(cross);
+		}
+	}
+	
+	
 	//царги
 	var bridgePar = getProfParams(par.bridgeProf)
 
@@ -299,6 +306,7 @@ function drawCross(par) {
 	pole.position.x = pos.x;
 	pole.position.y = pos.y;
 	pole.position.z = profSize * 2;
+	if(par.isFlat) pole.position.z = profSize
 	par.mesh.add(pole);
 
 	return par;

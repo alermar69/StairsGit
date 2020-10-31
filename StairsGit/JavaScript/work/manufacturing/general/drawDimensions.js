@@ -9,7 +9,6 @@ function drawSceneDimensions(viewType){
 
 function drawCustomDimensions(viewportId){	
 	var mesh = new THREE.Object3D();
-	var dimensions = [];
 	
 	var dimAmt = $("#dimAmt").val();
 	for(var i=0; i<dimAmt; i++){
@@ -34,13 +33,55 @@ function drawCustomDimensions(viewportId){
 		dim.position.y += $("#mooveY" + i).val() * 1.0;
 		dim.position.z += $("#mooveZ" + i).val() * 1.0;
 		mesh.add(dim);
-		}
-	
-	
+	}
+
+	drawAdditionalDimensions();
+
 	addObjects(viewportId, mesh, "dimensions");
-	
 	//return mesh;
 };
+
+function drawAdditionalDimensions(callback){
+	var mesh = new THREE.Object3D();
+
+	setTimeout(function(){
+		if (window.customDimensions && window.customDimensions.length > 0) {
+			window.customDimensions.forEach(function(item){
+				var target = new THREE.Vector3(); // create once an reuse it
+				item.target.getWorldPosition( target );
+				var axises = item.axises || ['x', 'y', 'z'];
+				axises.forEach(function(axis){
+					if (item.basePoint[axis] != target[axis]) {
+						var basePoint = copyPoint(item.basePoint);
+						var targetPoint = copyPoint(target);
+						
+						var dimPar = {
+							p1: basePoint,
+							p2: targetPoint,
+							offset: item.offset || 100,
+							baseAxis: axis,
+							dimSide: item.dimSide || 'спереди',
+						}
+						
+						if (item.basePlane) {
+							dimPar.basePlane = item.basePlane
+						}else{
+							if (axis == 'x') dimPar.basePlane = 'xy';
+							if (axis == 'y') dimPar.basePlane = 'xy';
+							if (axis == 'z') dimPar.basePlane = 'yz';
+						}
+	
+						var dim = drawDimension3D_2(dimPar).mesh;
+						mesh.add(dim);
+					}
+				})
+			});
+		}
+		addObjects('', mesh, "dimensions");
+
+		if(callback) callback();
+	}, 1000)
+}
 
 /** функция отрисовывает размер в 3D
 */

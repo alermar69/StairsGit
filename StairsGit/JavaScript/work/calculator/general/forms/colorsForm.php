@@ -11,6 +11,9 @@
 	$metalPaint = file_get_contents($GLOBALS['ROOT_PATH']."/calculator/general/forms/metalPaint.php");
 	$metalColors = file_get_contents($GLOBALS['ROOT_PATH']."/calculator/general/forms/metalColors.php");
 
+	$resinColors = file_get_contents($GLOBALS['ROOT_PATH']."/calculator/general/forms/resinColors.php");
+	$resinTypes = file_get_contents($GLOBALS['ROOT_PATH']."/calculator/general/forms/resinTypes.php");
+
 	$pvcTypes = '<option value="ПВХ">ПВХ</option>';
 	$pvcPaint = '<option value="нет">нет</option>';
 	$pvcColors = file_get_contents($GLOBALS['ROOT_PATH']."/calculator/general/forms/pvcColors.php");
@@ -29,6 +32,7 @@
 		'values' => [
 			'timber' => $timberTypes,
 			'metal' => $metalTypes,
+			'resin' => $resinTypes,
 			'pvc' => $pvcTypes,
 			],		
 	];
@@ -64,6 +68,7 @@
 		'values' => [
 			'timber' => $timberColors,
 			'metal' => $metalColors,
+			'resin' => $resinColors,
 			'pvc' => $pvcColors,
 			],
 	];
@@ -188,6 +193,14 @@
 		'id' => 'additionalObjectsTimber',
 		'name' => 'Доп объекты дерево',
 		'material' => "timber",
+	];
+	$elements[] = $item;
+
+	// Река
+	$item = [
+		'id' => 'resin',
+		'name' => 'Смола',
+		'material' => "resin",
 	];
 	$elements[] = $item;
 /*
