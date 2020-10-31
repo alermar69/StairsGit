@@ -144,6 +144,10 @@
 			'url' => '/manufacturing/console/drawCarcasParts.js',
 			'only_for' => ['console'],
 		],
+		[
+			'url' => '/manufacturing/console/personalScripts.js',
+			'only_for' => ['console'],
+		],
 		//railing
 		[
 			'url' => '/manufacturing/railing/drawStaircase.js',

@@ -2937,3 +2937,123 @@ layer
 	return par;
 
 };
+
+/**Создает внутренние пластины по контуру, перпендикулярно контуру
+
+  * @param pointsShape - точки контура
+  * @param thk - толщина пластины
+  * @param width - ширина пластины
+ */
+function drawContourPlates(par) {
+
+	var thk = par.thk;
+	var width = par.width;
+
+	par.pointsIn = calcPointsShapeToIn(par.pointsShape, thk);
+
+	var pointsIn = par.pointsIn.slice();
+	pointsIn.push(par.pointsIn[0]);
+	pointsIn.unshift(par.pointsIn[par.pointsIn.length - 1]);
+
+	var pointsShape = par.pointsShape.slice();
+	pointsShape.push(par.pointsShape[0]);
+	pointsShape.unshift(par.pointsShape[par.pointsShape.length - 1]);
+
+	var p0 = { x: 0, y: 0 };
+
+	par.mesh = new THREE.Object3D();
+
+	for (var j = 1; j < pointsIn.length - 1; j++) {
+
+		var pt1 = copyPoint(pointsIn[j]);
+		if (pointsIn[j].points) pt1 = pointsIn[j].points[1];
+
+		var pt2 = copyPoint(pointsIn[j + 1])
+		if (pointsIn[j + 1].points) pt2 = pointsIn[j + 1].points[0];
+
+		//если перпендикуляры из этих точек пересекаются, тогда точки сдвигаем
+		var arr = calcItercectionNormal(pointsShape[j], pointsShape[j - 1], pointsShape[j + 1], pointsIn[j])
+		if (arr) pt1 = arr[1];
+
+		if (j !== pointsIn.length - 2) var arr = calcItercectionNormal(pointsShape[j + 1], pointsShape[j], pointsShape[j + 2], pointsIn[j + 1])
+		if (j == pointsIn.length - 2) var arr = calcItercectionNormal(pointsShape[j + 1], pointsShape[j], pointsShape[2], pointsIn[j + 1])
+		if (arr) pt2 = arr[0];
+
+		var ang = angleXFull(pt2, pt1);
+
+		//если пластина горизонтальная и она стыкуется с вертикальной пластиной, тогда удлиняем горизонтальную на толщину
+		if (round6(pt1.y) == round6(pt2.y)) {
+			var pc1 = par.pointsShape[j - 1];
+			var pc2 = par.pointsShape[j];
+			if (!pc2) pc2 = par.pointsShape[0];
+
+
+			var pt11 = copyPoint(pointsIn[j - 1]);
+			var pt21 = copyPoint(pointsIn[j + 2]);
+			if (!pt21) pt21 = copyPoint(par.pointsIn[1]);
+
+			if (round6(pt1.x) == round6(pt11.x)) {
+				if (pc1.x > pt1.x) pt1 = newPoint_xy(pt1, thk, 0);
+				else pt1 = newPoint_xy(pt1, -thk, 0);
+			}
+
+			if (round6(pt2.x) == round6(pt21.x)) {
+				if (pc2.x > pt2.x) pt2 = newPoint_xy(pt2, thk, 0);
+				else pt2 = newPoint_xy(pt2, -thk, 0);
+			}
+		}
+
+		var len = distance(pt1, pt2);
+
+		var p1 = copyPoint(p0)
+		var p2 = newPoint_xy(p1, 0, width)
+		var p3 = newPoint_xy(p2, len, 0)
+		var p4 = newPoint_xy(p1, len, 0)
+
+		var meshPar = {
+			points: [p1, p2, p3, p4],
+			thk: thk,
+			material: params.materials.metal,
+			dxfBasePoint: par.dxfBasePoint,
+			isObject3D: true,
+		}
+
+		var isDraw = true;
+		if (par.isNotDraw && par.isNotDraw[j]) isDraw = false;
+
+		if (isDraw) {
+			var plate = drawMesh(meshPar).mesh;
+			plate.position.x = pt2.x;
+			plate.position.y = pt2.y;
+
+
+			plate.rotation.x = Math.PI / 2;
+			plate.rotation.y = ang;
+
+			par.mesh.add(plate);
+		}
+	}
+
+	return par;
+}
+
+/*Функция разделяет точку внутреннего контура на две точки, если перпендикуляры из этой точки на две прямые
+  которые исходят из нее пересекаются*/
+
+function calcItercectionNormal(pc, p1, p2, pIn) {
+
+	var ang1 = calcAngleX1(pc, p1);
+	var ang2 = calcAngleX1(pc, p2);
+
+	var pt1 = itercection(pc, p1, pIn, polar(pIn, ang1 + Math.PI / 2, 100));
+	var pt2 = itercection(pc, p2, pIn, polar(pIn, ang2 + Math.PI / 2, 100));
+
+	if (distance(pc, p1) < distance(pt1, p1) || distance(pc, p2) < distance(pt2, p2)) {
+		return [
+			itercection(pc, polar(pc, ang1 + Math.PI / 2, 100), pIn, polar(pIn, ang1, 100)),
+			itercection(pc, polar(pc, ang2 + Math.PI / 2, 100), pIn, polar(pIn, ang2, 100)),
+		]
+	}
+
+	return false;
+}

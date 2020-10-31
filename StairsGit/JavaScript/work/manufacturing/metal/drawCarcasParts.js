@@ -3199,6 +3199,8 @@ if(params.stairType == "рифленая сталь" || params.stairType == "л�
 	//первая ступень внешняя сторона
 		
 		wndSteps[1].out.botMarsh = turnPar.turnLengthTop - params.stringerThickness + stringerLedge - wndSteps[2].out.botMarsh;
+		if (params.calcType == 'console' && params.stringerModel == 'короб')
+			wndSteps[1].out.botMarsh = turnPar.turnLengthTop + stringerLedge - wndSteps[2].out.botMarsh;
 		}
 	
 	

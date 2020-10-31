@@ -320,7 +320,14 @@ function drawStringer(par){
 
 	var radIn = 10;
 	var radOut = 10;
-	if(params.model == "лт") radIn = 5;
+	if (params.model == "лт") radIn = 5;
+
+	//для косольных с коробом делаем тетиву без скругления
+	if (params.calcType == 'console' && params.stringerModel == 'короб') {
+		for (var j = 0; j < par.pointsShape.length; j++) {
+			par.pointsShape[j].filletRad = 0;
+		}
+	}
 
 	//создаем шейп
 	var shapePar = {
@@ -624,6 +631,9 @@ function drawStringer(par){
 		curveSegments: 12,
 		steps: 1
 	};
+
+	if (params.calcType == 'console' && params.stringerModel == 'короб') stringerExtrudeOptions.amount = 4;
+
 	if (marshShapes.length > 0) {
 		for (var i = 0; i < marshShapes.length; i++) {
 			var shape = marshShapes[i];
@@ -750,6 +760,8 @@ function drawStringer(par){
 	// par.mesh.specId = partName + name;
 
 
+
+
 	//накладки на тетивы
 	if (par.hasStringerCover) {
 		var stringerCoverPar = {
@@ -857,83 +869,85 @@ function drawStringer(par){
 	* Функция отрисовывает накладку на тетиву
 */
 function drawStringerCover(par) {
-	var pointsShape = par.points;
-	var pointsCoverShape = [];
+	//var pointsShape = par.points;
+	//var pointsCoverShape = [];
 
-	// создаем массив точек нижней части накладки между точками botPoint и topPoint
-	// (для определения направления где внутреняя сторона накладки)
-	var arr = [];
-	var flag = true;
-	for (var i = 0; i < pointsShape.length; i++) {
-		if (pointsShape[i].x.toFixed(3) == par.botPoint.x.toFixed(3) && pointsShape[i].y.toFixed(3) == par.botPoint.y.toFixed(3))
-			flag = false;
+	//// создаем массив точек нижней части накладки между точками botPoint и topPoint
+	//// (для определения направления где внутреняя сторона накладки)
+	//var arr = [];
+	//var flag = true;
+	//for (var i = 0; i < pointsShape.length; i++) {
+	//	if (pointsShape[i].x.toFixed(3) == par.botPoint.x.toFixed(3) && pointsShape[i].y.toFixed(3) == par.botPoint.y.toFixed(3))
+	//		flag = false;
 
-		if (flag) arr.push(pointsShape[i]);
+	//	if (flag) arr.push(pointsShape[i]);
 
-		if (pointsShape[i].x.toFixed(3) == par.topPoint.x.toFixed(3) && pointsShape[i].y.toFixed(3) == par.topPoint.y.toFixed(3))
-			flag = true;
-	}
+	//	if (pointsShape[i].x.toFixed(3) == par.topPoint.x.toFixed(3) && pointsShape[i].y.toFixed(3) == par.topPoint.y.toFixed(3))
+	//		flag = true;
+	//}
 
-	// создаем массив точек накладки из массива точек тетивы сдвигом на 5мм внутрь
-	var offset = 5;
-	for (var i = 0; i < pointsShape.length; i++) {
-		if(i == 0)
-			var p1 = pointsShape[pointsShape.length - 1];
-		else
-			var p1 = pointsShape[i - 1];
+	//// создаем массив точек накладки из массива точек тетивы сдвигом на 5мм внутрь
+	//var offset = 5;
+	//for (var i = 0; i < pointsShape.length; i++) {
+	//	if(i == 0)
+	//		var p1 = pointsShape[pointsShape.length - 1];
+	//	else
+	//		var p1 = pointsShape[i - 1];
 
-		var p2 = pointsShape[i];
+	//	var p2 = pointsShape[i];
 
-		if (i == (pointsShape.length - 1))
-			var p3 = pointsShape[0];
-		else
-			var p3 = pointsShape[i + 1];
+	//	if (i == (pointsShape.length - 1))
+	//		var p3 = pointsShape[0];
+	//	else
+	//		var p3 = pointsShape[i + 1];
 
-		var offset1 = -offset;
-		var offset2 = -offset;
+	//	var offset1 = -offset;
+	//	var offset2 = -offset;
 
-		// определяем направление внутренней стороны
-		for (var j = 0; j < arr.length; j++) {
-			if (p1.x == arr[j].x && p1.y == arr[j].y) {
-				offset1 *= -1;
-				break;
-			}
-		}
-		for (var j = 0; j < arr.length; j++) {
-			if (p3.x == arr[j].x && p3.y == arr[j].y) {
-				offset2 *= -1;
-				break;
-			}
-		}
-		for (var j = 0; j < arr.length; j++) {
-			if (p2.x == arr[j].x && p2.y == arr[j].y) {
-				offset1 = offset;
-				offset2 = offset;
-				break;
-			}
-		}
-		if (par.botLines) {
-			for (var j = 0; j < par.botLines.length; j++) {
-				var line = par.botLines[j];
-				if ((p2.x == line.p1.x && p2.y == line.p1.y) || (p2.x == line.p2.x && p2.y == line.p2.y)) {
-					if ((p1.x == line.p1.x && p1.y == line.p1.y) || (p1.x == line.p2.x && p1.y == line.p2.y)) {
-						offset1 *= -1;
-						break;
-					}
-					if ((p3.x == line.p1.x && p3.y == line.p1.y) || (p3.x == line.p2.x && p3.y == line.p2.y)) {
-						offset2 *= -1;
-						break;
-					}
-				}
-			}
-		}
+	//	// определяем направление внутренней стороны
+	//	for (var j = 0; j < arr.length; j++) {
+	//		if (p1.x == arr[j].x && p1.y == arr[j].y) {
+	//			offset1 *= -1;
+	//			break;
+	//		}
+	//	}
+	//	for (var j = 0; j < arr.length; j++) {
+	//		if (p3.x == arr[j].x && p3.y == arr[j].y) {
+	//			offset2 *= -1;
+	//			break;
+	//		}
+	//	}
+	//	for (var j = 0; j < arr.length; j++) {
+	//		if (p2.x == arr[j].x && p2.y == arr[j].y) {
+	//			offset1 = offset;
+	//			offset2 = offset;
+	//			break;
+	//		}
+	//	}
+	//	if (par.botLines) {
+	//		for (var j = 0; j < par.botLines.length; j++) {
+	//			var line = par.botLines[j];
+	//			if ((p2.x == line.p1.x && p2.y == line.p1.y) || (p2.x == line.p2.x && p2.y == line.p2.y)) {
+	//				if ((p1.x == line.p1.x && p1.y == line.p1.y) || (p1.x == line.p2.x && p1.y == line.p2.y)) {
+	//					offset1 *= -1;
+	//					break;
+	//				}
+	//				if ((p3.x == line.p1.x && p3.y == line.p1.y) || (p3.x == line.p2.x && p3.y == line.p2.y)) {
+	//					offset2 *= -1;
+	//					break;
+	//				}
+	//			}
+	//		}
+	//	}
 
-		var line1 = parallel1(p2, p1, offset1);
-		var line2 = parallel1(p2, p3, offset2);
-		var pt = itercection(line1.p1, line1.p2, line2.p1, line2.p2);
+	//	var line1 = parallel1(p2, p1, offset1);
+	//	var line2 = parallel1(p2, p3, offset2);
+	//	var pt = itercection(line1.p1, line1.p2, line2.p1, line2.p2);
 
-		pointsCoverShape.push(pt);
-	}
+	//	pointsCoverShape.push(pt);
+	//}
+
+	var pointsCoverShape = calcPointsShapeToIn(par.points, 5)
 
 	//создаем шейп
 	var shapePar = {
@@ -1067,13 +1081,15 @@ function calcStringerPar(par){
 		if (params.model == "лт") {
 			par.botEndLength = params.M;
 			if (params.calcType == 'console') {
-				par.botEndLength = params.M + 10 + 5 + 8 + calcStringerMoove(par.marshId).stringerOutMoovePrev;
+				par.botEndLength = params.M + 10 + par.stringerLedge + 8 + calcStringerMoove(par.marshId).stringerOutMoovePrev;
+				if (params.stringerModel == 'короб') par.botEndLength = turnParams.turnLengthBot + 35 - turnParams.topStepDelta + calcStringerMoove(par.marshId).stringerOutMoovePrev;
 			}
 			//площадка П-образной лестницы имеет длину platformLength_1
 			if (params.stairModel == "П-образная с площадкой"){
 				par.botEndLength = turnParams.turnLengthBot - params.stringerThickness;
 				if (params.calcType == 'console') {
 					par.botEndLength = turnParams.turnLengthBot + params.stringerThickness + 8 + calcStringerMoove(2).stringerOutMoove;
+					if (params.stringerModel == 'короб') par.botEndLength = turnParams.turnLengthBot + calcStringerMoove(2).stringerOutMoove;
 				}
 			}
 
@@ -1085,17 +1101,19 @@ function calcStringerPar(par){
 
 	if(marshParams.topTurn == "площадка"){
 		if(params.model == "лт") {
-			par.topEndLength = turnParams.turnLengthTop - params.stringerThickness + 5;
+			par.topEndLength = turnParams.turnLengthTop - params.stringerThickness + par.stringerLedge;
 			if (params.stairModel == 'Прямая с промежуточной площадкой') {
 				par.topEndLength = params.middlePltLength + 19 + 8;//FIX IT
 			}
 			if (params.calcType == 'console') {
-				par.topEndLength = turnParams.turnLengthTop + params.stringerThickness + 5 + 8 + calcStringerMoove(par.marshId).stringerOutMooveNext;
+				par.topEndLength = turnParams.turnLengthTop + params.stringerThickness + par.stringerLedge + 8 + calcStringerMoove(par.marshId).stringerOutMooveNext;
+				if (params.stringerModel == 'короб') par.topEndLength = turnParams.turnLengthTop + par.stringerLedge + 80 + calcStringerMoove(par.marshId).stringerOutMooveNext;
 			}
 			if (params.stairModel == "П-образная с площадкой") {
 				par.topEndLength += (params.nose - 20);
 				if (params.calcType == 'console') {
-					par.topEndLength = turnParams.turnLengthTop + params.stringerThickness + 5 + 8 + calcStringerMoove(2).stringerOutMoove - (turnParams.pltExtraLen - params.nose);
+					par.topEndLength = turnParams.turnLengthTop + params.stringerThickness + 5 + 8 - (turnParams.pltExtraLen - params.nose);
+					if (params.stringerModel == 'короб') par.topEndLength = par.topEndLength = turnParams.turnLengthTop - (turnParams.pltExtraLen - params.nose);
 				}
 			}
 
@@ -1323,3 +1341,5 @@ function parallel1(basePoint1, basePoint2, dist) {
 	line.p2 = newPoint2;
 	return line;
 }
+
+

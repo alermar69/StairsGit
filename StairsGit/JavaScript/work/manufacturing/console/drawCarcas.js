@@ -27,33 +27,61 @@ function drawMarshStringersConsole(par, marshId) {
 	if (useTopWnPar) stringerParams.turnStepsParams = par.treadsObj.wndPar2;
 	calcStringerParams(stringerParams);
 
-	var stringerType = 'лист';
-	if (stringerType == 'лист') {
+	var stringerModel = params.stringerModel;
 
-		//позиция косоуров по Z
-		var posZ = - (params.M / 2 + flanThickness + calcStringerMoove(marshId).stringerOutMoove) * turnFactor;
-		if (turnFactor == 1) posZ -= params.stringerThickness - 0.01
+
+	//позиция косоуров по Z
+	var posZ = - (params.M / 2 + flanThickness + calcStringerMoove(marshId).stringerOutMoove) * turnFactor;
+	if (turnFactor == 1) posZ -= params.stringerThickness - 0.01
+
+	//для прямой лестницы все наоборот
+	if (params.stairModel == "Прямая") {
+		posZ = (params.M / 2 + flanThickness + calcStringerMoove(marshId).stringerOutMoove) * turnFactor;
+		if (turnFactor == -1) posZ -= params.stringerThickness;
+	}
+
+	if (stringerModel == 'короб') {
+		var thk = 4;
+		var stringerThickness = params.stringerThickness;
+
+		var posZ = - (params.M / 2 + calcStringerMoove(marshId).stringerOutMoove) * turnFactor;
+		if (turnFactor == 1) posZ -= thk - 0.01
 
 		//для прямой лестницы все наоборот
 		if (params.stairModel == "Прямая") {
-			posZ = (params.M / 2 + flanThickness + calcStringerMoove(marshId).stringerOutMoove) * turnFactor;
-			if (turnFactor == -1) posZ -= params.stringerThickness;
+			posZ = (params.M / 2 + calcStringerMoove(marshId).stringerOutMoove) * turnFactor;
+			if (turnFactor == -1) posZ -= thk;
 		}
 
-
-		//внешний косоур/тетива	
-		stringerParams.wndFramesHoles = par.wndFramesHoles;
-
-		stringerParams.dxfBasePoint = par.dxfBasePoint;
-		stringerParams.key = "out";
-		var stringer2 = drawStringer(stringerParams).mesh;
-		stringer2.position.x = -stringerParams.treadFrontOverHang;
-		stringer2.position.z = posZ;
-		mesh.add(stringer2);
-
-		par.dxfBasePoint.x += stringerParams.lenX + 1000;
+	}
 
 
+	//внешний косоур/тетива	
+	stringerParams.wndFramesHoles = par.wndFramesHoles;
+
+	stringerParams.dxfBasePoint = par.dxfBasePoint;
+	stringerParams.key = "out";
+	stringerParams.number = 1;
+	var stringer2 = drawStringer(stringerParams).mesh;
+	stringer2.position.x = -stringerParams.treadFrontOverHang;
+	stringer2.position.z = posZ;
+	mesh.add(stringer2);
+
+	par.dxfBasePoint.x += stringerParams.lenX + 1000;
+
+	// Рамки внутри ступени
+	var framePar = {
+		marshId: marshId,
+		dxfBasePoint: par.dxfBasePoint,
+	}
+
+	var frames = drawConsoleFrames(framePar).mesh;
+	frames.setLayer('angles')
+	mesh.add(frames);
+
+	
+
+	if (stringerModel == 'лист') {
 		// Соединительные фланцы на внешней тетиве
 
 		var flanPar = {
@@ -66,10 +94,14 @@ function drawMarshStringersConsole(par, marshId) {
 		// Отрисовка фланцев 
 		var flans = drawStringerConsoleFlans(flanPar).mesh;
 		flans.position.z = posZ
-		if (params.stairModel == "Прямая") flans.position.z -= flanThickness * turnFactor;
-		if (params.stairModel != "Прямая") flans.position.z += flanThickness * turnFactor;
-		mesh.add(flans);
+		flans.setLayer('angles')
 
+		var offsetZ = flanThickness * turnFactor;
+
+		if (params.stairModel == "Прямая") flans.position.z -= offsetZ;
+		if (params.stairModel != "Прямая") flans.position.z += offsetZ;
+
+		mesh.add(flans);
 
 		/* болты */
 		if (typeof anglesHasBolts != "undefined" && anglesHasBolts) { //глобальная переменная
@@ -98,9 +130,77 @@ function drawMarshStringersConsole(par, marshId) {
 		}
 	}
 
-	if (stringerType == 'профиль') {
+	if (stringerModel == 'короб') {
 
+		//внешний косоур/тетива	
+		stringerParams.wndFramesHoles = par.wndFramesHoles;
+
+		stringerParams.dxfBasePoint = par.dxfBasePoint;
+		stringerParams.key = "out";
+		stringerParams.number = 2;
+		var stringer21 = drawStringer(stringerParams).mesh;
+		stringer21.position.x = stringer2.position.x;
+		stringer21.position.z = stringer2.position.z;
+		if (params.stairModel == "Прямая") stringer21.position.z += (params.stringerThickness - thk) * turnFactor;
+		if (params.stairModel !== "Прямая") stringer21.position.z -= (params.stringerThickness - thk) * turnFactor;
+		mesh.add(stringer21);
+
+		par.dxfBasePoint.x += stringerParams.lenX + 1000;
+
+		//внутренние пластины по контуру тетивы
+		var platePar = {
+			marshId: marshId,
+			dxfBasePoint: par.dxfBasePoint,
+			pointsShape: stringerParams.pointsShape,
+			thk: thk,
+			width: params.stringerThickness - thk * 2,
+		}
+
+		var plates = drawContourPlates(platePar).mesh;
+
+		plates.position.x = stringer2.position.x;
+
+		if (params.stairModel == "Прямая") {
+			plates.position.z = stringer2.position.z + thk * turnFactor;
+			if (turnFactor == -1) plates.position.z -= params.stringerThickness - thk * 2;
+		}
+		if (params.stairModel !== "Прямая") {
+			plates.position.z = stringer2.position.z + thk;
+			if (turnFactor == 1) plates.position.z -= params.stringerThickness - thk;
+		}
+		//plates.setLayer('carcas1')
+		plates.setLayer('flans')
+
+		mesh.add(plates);
+
+		//ребра тетивы
+		var edgePar = {
+			marshId: marshId,
+			dxfBasePoint: par.dxfBasePoint,
+			pointsShape: stringerParams.pointsShape,
+			thk: 4,
+			width: params.stringerThickness - thk * 2,
+			pointsIn: platePar.pointsIn,
+		}
+
+		var edges = drawStringerConsoleEdges(edgePar).mesh;
+
+		edges.position.x = stringer2.position.x;
+
+		if (params.stairModel == "Прямая") {
+			edges.position.z = stringer2.position.z + thk * turnFactor;
+			if (turnFactor == -1) edges.position.z -= params.stringerThickness - thk * 2;
+		}
+		if (params.stairModel !== "Прямая") {
+			edges.position.z = stringer2.position.z + thk;
+			if (turnFactor == 1) edges.position.z -= params.stringerThickness - thk;
+		}
+		edges.setLayer('angels')
+
+		mesh.add(edges);
+		
 	}
+
 
 	stringerParams.mesh = mesh;
 	stringerParams.angles = angles;
@@ -109,7 +209,6 @@ function drawMarshStringersConsole(par, marshId) {
 
 	return stringerParams;
 }
-
 
 
 //--------------------------------------------------------
@@ -700,7 +799,7 @@ drawStaircase = function (viewportId, isVisible) {
 		dxfBasePoint: { x: 0, y: -10000 },
 	}
 	var skirting = drawSkirting_all(skirtingPar).mesh;
-	model.add(skirting, "treads");	
+	model.add(skirting, "treads");
 
 
 	/*** РАМКИ ЗАБЕЖНЫХ РАМОК ***/

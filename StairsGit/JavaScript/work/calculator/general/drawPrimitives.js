@@ -1909,6 +1909,106 @@ function drawMesh(par) {
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	par.mesh = new THREE.Mesh(geom, par.material);
 
+	if (par.isObject3D) {
+		var obj = new THREE.Object3D();
+		obj.add(par.mesh);
+		par.mesh = obj;
+	}
+
 
 	return par
+}
+
+
+
+/**
+	* Функция вычисляет точки контура сдвинутые внутрь
+	* возвращат новый массив точек внутреннего контура
+*/
+function calcPointsShapeToIn(pointsShape, dist) {
+
+	var areaAll = Math.abs(THREE.ShapeUtils.area(pointsShape));
+
+	var points = pointsShape.slice();
+	points.unshift(pointsShape[pointsShape.length - 1])
+	points.push(pointsShape[0])
+
+	var pointsIn = [];
+	var dists1 = [1, -1, 1, -1]
+	var dists2 = [1, -1, -1, 1]
+
+	for (var i = 1; i < points.length - 1; i++) {
+		var pc = points[i];
+		var p1 = points[i - 1];
+		var p2 = points[i + 1];
+
+		var pcIn = copyPoint(pc);
+		var areaMin = areaAll;
+
+		var flag = true;
+
+		//если pc находится на прямой p1-p2
+		if (calcAngleX1(p1, pc) == calcAngleX1(pc, p2)) {
+			if (i !== 1) {
+				var pl = pointsIn[pointsIn.length - 1];
+				var pt = itercection(pl, polar(pl, calcAngleX1(p1, pc), 100), pc, polar(pc, calcAngleX1(p1, pc) + Math.PI / 2, 100))
+				pointsIn.push(pt);
+			}
+			if (i === 1) {
+
+				for (var k = 2; k < points.length - 1; k++) {
+					var pct = points[k];
+					var p1t = points[k - 1];
+					var p2t = points[k + 1];
+
+					if (calcAngleX1(p1t, pct) !== calcAngleX1(pct, p2t)) {
+						for (var j = 0; j < 4; j++) {
+							var line1 = parallel(pct, p1t, dist * dists1[j]);
+							var line2 = parallel(pct, p2t, dist * dists2[j]);
+							var pt = itercectionLines(line1, line2);
+
+							var arr = points.slice();
+							arr[k] = pt;
+							var area = Math.abs(THREE.ShapeUtils.area(arr));
+
+							if (area < areaMin) {
+								areaMin = area;
+								pcIn = pt;
+							}
+						}
+
+						for (var j = 2; j < k; j++) {
+							var pt = itercection(pcIn, polar(pcIn, calcAngleX1(p1t, pct), 100), points[k - 1], polar(points[k - 1], calcAngleX1(p1t, pct) + Math.PI / 2, 100))
+							pointsIn.push(pt);
+						}
+
+						pointsIn.push(pcIn);
+						break;
+					}
+				}
+				i = k;
+			}
+			flag = false;
+		}
+
+		if (flag) {
+			for (var j = 0; j < 4; j++) {
+				var line1 = parallel(pc, p1, dist * dists1[j]);
+				var line2 = parallel(pc, p2, dist * dists2[j]);
+				var pt = itercectionLines(line1, line2);
+
+				var arr = points.slice();
+				arr[i] = pt;
+				var area = Math.abs(THREE.ShapeUtils.area(arr));
+
+				if (area < areaMin) {
+					areaMin = area;
+					pcIn = pt;
+				}
+			}
+			pointsIn.push(pcIn);
+		}
+	}
+
+	return pointsIn;
 }

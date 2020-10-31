@@ -11,6 +11,7 @@ function drawBotStepLt_floor(par) {
 
 	var h_1 = calcFirstRise(); //подъем первой ступени
 	var p0 = newPoint_xy(par.zeroPoint, 0, par.h - h_1 + par.stringerLedge);
+
 	var p1 = newPoint_xy(p0, 0, h_1);
 	if (params.calcType == 'console') p1.y += par.addStringerWidth;
 	// проступь
@@ -264,14 +265,18 @@ function drawBotStepLt_pltG(par) {
 	if(isBotLedge) par.pointsShape.push(botLineP1);
 	par.pointsShape.push(p1);
 	p2.filletRad = 0; //нижний угол тетивы не скругляется
-	par.pointsShape.push(p2);
+	
 	if (params.calcType == 'console') {
 		pt3.filletRad = 0;
 		p34.filletRad = 0;
 	}
-	par.pointsShape.push(pt3);
-	par.pointsShape.push(p34);
-	par.pointsShape.push(p4);
+	if (!(params.calcType == 'console' && params.stringerModel == 'короб')) {
+		par.pointsShape.push(p2);
+		par.pointsShape.push(pt3);
+		par.pointsShape.push(p34);
+		par.pointsShape.push(p4);
+	}
+	
 
 	//сохраняем точку для расчета длины
 	par.keyPoints.botPoint = copyPoint(p2);
@@ -290,20 +295,30 @@ function drawBotStepLt_pltG(par) {
 		}
 
 		pt1.filletRad = pt2.filletRad = pt3.filletRad = pt4.filletRad = 0; //углы тетивы не скругляются
-		par.pointsShapeBot.push(pt1);
-		par.pointsShapeBot.push(pt2);
-		par.pointsShapeBot.push(pt3);
-		par.pointsShapeBot.push(pt4);
 
-		//сохраняем точки для колонн
-		par.keyPoints[par.key].botEnd = pt3;	// для первой колонны
-		par.keyPoints[par.key].botEnd2 = pt4;	// для второй колонны
+		if (params.calcType == 'console' && params.stringerModel == 'короб') {
+			par.pointsShape.push(pt2);
+			par.pointsShape.push(pt3);
+			pt4.x = p4.x;
+			par.pointsShape.push(pt4);
+			par.pointsShape.push(p4);
+		} else {
+			par.pointsShapeBot.push(pt1);
+			par.pointsShapeBot.push(pt2);
+			par.pointsShapeBot.push(pt3);
+			par.pointsShapeBot.push(pt4);
 
-		par.keyPoints.botPointDop = copyPoint(pt2);
-		par.keyPoints.topPointDop = copyPoint(pt4);
+			//сохраняем точки для колонн
+			par.keyPoints[par.key].botEnd = pt3;	// для первой колонны
+			par.keyPoints[par.key].botEnd2 = pt4;	// для второй колонны
+
+			par.keyPoints.botPointDop = copyPoint(pt2);
+			par.keyPoints.topPointDop = copyPoint(pt4);
+
+			//сохраняем длину для спецификации
+			par.partsLen.push(distance(pt1, pt2))
+		}
 		
-		//сохраняем длину для спецификации
-		par.partsLen.push(distance(pt1, pt2))
 	}
 
 	/*ОТВЕРСТИЯ*/
@@ -994,15 +1009,42 @@ function drawBotStepLt_pltPOut(par) {
 	}
 
 	if (params.calcType == 'console') {
-		var flanPar = calcStringerConsoleFlanPar({ marshId: par.marshId, type: 'platformBotP' });
-		var holes = flanPar.holesFlanAndStringer;
-		for (var i = 0; i < 2; i++) {
-			var pt = newPoint_xy(p2, params.nose - flanPar.widthTread * i - flanPar.shiftFlanX + par.treadFrontOverHang, - par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
+		if (params.stringerModel == 'лист') {
+			var flanPar = calcStringerConsoleFlanPar({ marshId: par.marshId, type: 'platformBotP' });
+			var holes = flanPar.holesFlanAndStringer;
+			for (var i = 0; i < 2; i++) {
+				var pt = newPoint_xy(p2,
+					params.nose - flanPar.widthTread * i - flanPar.widthTread / 2 + flanPar.widthFlan / 2 + par.treadFrontOverHang,
+					- par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
 
-			for (var j = 0; j < holes.length; j++) {
-				var center = newPoint_xy(pt, -holes[j].x, holes[j].y);
-				if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
-				if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+				for (var j = 0; j < holes.length; j++) {
+					var center = newPoint_xy(pt, -holes[j].x, holes[j].y);
+					if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
+					if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+					par.pointsHole.push(center);
+				}
+			}
+		}
+
+		if (params.stringerModel == 'короб') {
+			var pTopOut = newPoint_xy(par.zeroPoint,
+				par.turnParams.topStepDelta + par.stringerLedge,
+				 - params.treadThickness / 2);
+
+			var framePar = calcConsoleFramePar({ marshId: par.marshId, type: 'platformBotP' });
+
+			var offsetX = 2;
+			var offsetY = 2;
+
+			for (var i = 0; i < 2; i++) {
+				var center = newPoint_xy(pTopOut, -framePar.widthTread * i - framePar.widthTread / 2, 0);
+
+				center.points = [
+					newPoint_xy(center, -framePar.widthBox / 2 - offsetX, - framePar.heightBox / 2 - offsetY),
+					newPoint_xy(center, -framePar.widthBox / 2 - offsetX, framePar.heightBox / 2 + offsetY),
+					newPoint_xy(center, framePar.widthBox / 2 + offsetX, framePar.heightBox / 2 + offsetY),
+					newPoint_xy(center, framePar.widthBox / 2 + offsetX, - framePar.heightBox / 2 - offsetY),
+				]
 				par.pointsHole.push(center);
 			}
 		}
@@ -1323,6 +1365,8 @@ function drawBotStepLt_wndOut(par) {
 	var p3 = newPoint_xy(p4, -par.wndSteps[3].out.topMarsh, 0)
 	if (par.isWndP) {
 		p3.x -= (params.marshDist - 44) + params.stringerThickness;
+		if (params.calcType == 'console' && params.stringerModel == 'короб') 
+			var p3 = newPoint_xy(p4, -par.wndSteps[3].out.topMarsh - (params.marshDist - 45), 0)
 		if (params.calcType == 'bolz') p3.x -= 36;
 	}
 	if (params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && params.stairAmt2 == 0) {
@@ -1331,7 +1375,10 @@ function drawBotStepLt_wndOut(par) {
 	} 
 	var p2 = newPoint_xy(p3, 0, -par.h);
 	var p1 = newPoint_xy(p2, -par.wndSteps[2].out.topMarsh, -0); //верхний левый угол
-	if (params.calcType == 'console') p1.x -= params.stringerThickness + 8 + calcStringerMoove(par.marshId).stringerOutMoovePrev;
+	if (params.calcType == 'console') {
+		if (params.stringerModel == 'лист') p1.x -= params.stringerThickness + 8 + calcStringerMoove(par.marshId).stringerOutMoovePrev;
+		if (params.stringerModel == 'короб') p1.x -= calcStringerMoove(par.marshId).stringerOutMoovePrev;
+	}
 	var p5 = newPoint_xy(p4, 0, par.h);
 
 	//нижняя линия
@@ -1650,38 +1697,99 @@ function drawBotStepLt_wndOut(par) {
 	}
 
 	if (params.calcType == 'console') {
-		// отверстия под третью забежную ступень
-		var flanPar = {
-			marshId: par.marshId,
-			dxfBasePoint: par.dxfBasePoint,
-			type: 'winder3',
-			wndPar: par.treadsObj.wndPar,
-			wndPar2: par.treadsObj.wndPar2,
+		if (params.stringerModel == 'лист') {
+			// отверстия под третью забежную ступень
+			var flanPar = {
+				marshId: par.marshId,
+				dxfBasePoint: par.dxfBasePoint,
+				type: 'winder3',
+				wndPar: par.treadsObj.wndPar,
+				wndPar2: par.treadsObj.wndPar2,
+			}
+			calcStringerConsoleFlanPar(flanPar);
+			var holes = flanPar.holesFlanAndStringer;
+			var pt = newPoint_xy(p4,
+				flanPar.shiftFlanX + par.treadFrontOverHang,
+				- par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
+			for (var j = 0; j < holes.length; j++) {
+				var center = newPoint_xy(pt, -holes[j].x, holes[j].y);
+				if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
+				if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+				par.pointsHole.push(center);
+			}
+
+			// отверстия под вторую забежную ступень
+			flanPar.type = 'winder21'
+			calcStringerConsoleFlanPar(flanPar);
+			var holes = flanPar.holesFlanAndStringer;
+			var pt = newPoint_xy(pt,
+				-flanPar.shiftFlanX -
+				par.turnParams.turnLengthBot -
+				calcStringerMoove(par.marshId).stringerOutMoovePrev +
+				par.treadFrontOverHang,
+				-par.marshParams.h);
+
+			var wndPar = flanPar.wndPar;
+			if (flanPar.wndPar2 && par.marshId == 3) wndPar = flanPar.wndPar2;
+			if (wndPar.plusMarshDist) pt.x -= params.marshDist - 45;
+
+			for (var j = 0; j < holes.length; j++) {
+				var center = newPoint_xy(pt, holes[j].x, holes[j].y);
+				if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
+				if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+				par.pointsHole.push(center);
+			}
 		}
-		calcStringerConsoleFlanPar(flanPar);
-		var holes = flanPar.holesFlanAndStringer;
-		var pt = newPoint_xy(p4, flanPar.shiftFlanX + par.treadFrontOverHang, - par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
-		for (var j = 0; j < holes.length; j++) {
-			var center = newPoint_xy(pt, -holes[j].x, holes[j].y);
-			if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
-			if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+
+		if (params.stringerModel == 'короб') {
+			var pBotOut = newPoint_xy(par.zeroPoint,
+				par.stringerLedge - par.turnBotParams.turnLengthBot,
+				-par.h * 0 - params.treadThickness / 2);
+
+			if (par.marshId == 2 && par.stairAmt == 0) {
+				pBotOut.x += par.stringerLedge;
+			}
+
+			var prevMarshId = par.prevMarshPar.marshId
+			if (params.stairModel == "П-образная с забегом" && par.marshId == 3) prevMarshId = 2;
+
+			var framePar = { marshId: prevMarshId, type: 'marsh' }
+			calcConsoleFrameWndPar(framePar);
+			calcConsoleFramePar(framePar);
+
+			var offsetX = 2;
+			var offsetY = 2;
+
+			// отверстия под первую забежную ступень
+			var center = copyPoint(pBotOut);
+			var pc1 = framePar.wndFrames['3'].p1In;
+			var pc2 = framePar.wndFrames['3'].p2In;
+			if (par.number == 2) {
+				pc1 = framePar.wndFrames['3'].p1Out;
+				pc2 = framePar.wndFrames['3'].p2Out;
+			}
+			center.points = [
+				newPoint_xy(center, pc1.x - offsetX, - framePar.heightBox / 2 - offsetY),
+				newPoint_xy(center, pc1.x - offsetX, framePar.heightBox / 2 + offsetY),
+				newPoint_xy(center, pc2.x + offsetX, framePar.heightBox / 2 + offsetY),
+				newPoint_xy(center, pc2.x + offsetX, - framePar.heightBox / 2 - offsetY),
+			]
 			par.pointsHole.push(center);
-		}
 
-		// отверстия под вторую забежную ступень
-		flanPar.type = 'winder21'
-		calcStringerConsoleFlanPar(flanPar);
-		var holes = flanPar.holesFlanAndStringer;
-		var pt = newPoint_xy(pt, -flanPar.shiftFlanX - par.turnParams.turnLengthBot - calcStringerMoove(par.marshId).stringerOutMoovePrev + par.treadFrontOverHang, -par.marshParams.h);
-
-		var wndPar = flanPar.wndPar;
-		if (flanPar.wndPar2 && par.marshId == 3) wndPar = flanPar.wndPar2;
-		if (wndPar.plusMarshDist) pt.x -= params.marshDist - 45;
-
-		for (var j = 0; j < holes.length; j++) {
-			var center = newPoint_xy(pt, holes[j].x, holes[j].y);
-			if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
-			if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+			// отверстия под вторую забежную ступень
+			var center = newPoint_xy(pBotOut, 0, -par.h);
+			var pc1 = framePar.wndFrames['2'].p4In;
+			var pc2 = framePar.wndFrames['2'].p5In;
+			if (par.number == 2) {
+				pc1 = framePar.wndFrames['2'].p4Out;
+				pc2 = framePar.wndFrames['2'].p5Out;
+			}
+			center.points = [
+				newPoint_xy(center, pc1.x - offsetX, - framePar.heightBox / 2 - offsetY),
+				newPoint_xy(center, pc1.x - offsetX, framePar.heightBox / 2 + offsetY),
+				newPoint_xy(center, pc2.x + offsetX, framePar.heightBox / 2 + offsetY),
+				newPoint_xy(center, pc2.x + offsetX, - framePar.heightBox / 2 - offsetY),
+			]
 			par.pointsHole.push(center);
 		}
 	}
@@ -1953,53 +2061,78 @@ function drawMiddleStepsLt(par) {
 	}
 
 	if (params.calcType == 'console') {
-		var flanPar = calcStringerConsoleFlanPar({ marshId: par.marshId, type: 'marsh' });
-		var holes = flanPar.holesFlanAndStringer;
-		for (var i = 0; i < par.stairAmt; i++) {
-			var pt = newPoint_xy(p0, par.b * i + flanPar.shiftFlanX + par.treadFrontOverHang, par.h * i - par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
-			for (var j = 0; j < holes.length; j++) {
-				var center = newPoint_xy(pt, holes[j].x, holes[j].y);
-				if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
-				if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
-				par.pointsHole.push(center);
+		if (params.stringerModel == 'лист') {
+			var flanPar = calcStringerConsoleFlanPar({ marshId: par.marshId, type: 'marsh' });
+			var holes = flanPar.holesFlanAndStringer;
+			for (var i = 0; i < par.stairAmt; i++) {
+				var pt = newPoint_xy(p0,
+					par.b * i + flanPar.shiftFlanX + par.treadFrontOverHang,
+					par.h * i - par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
+				for (var j = 0; j < holes.length; j++) {
+					var center = newPoint_xy(pt, holes[j].x, holes[j].y);
+					if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
+					if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+					par.pointsHole.push(center);
+				}
+				// стыковка деталей тетивы
+
+				if (i == par.divide - 1 && i > 0) {
+					//позиция линии стыка кусков тетивы
+					divideY = par.stringerLedge + params.treadThickness + 100 / 2;
+
+					var divideP1 = newPoint_xy(center, 0.0, -divideY);
+
+					var divideP2 = itercection(divideP1, newPoint_xy(divideP1, 100, 0), p20, p21);
+					// точка пересчечения линии стыка и нижней линии марша
+					var trashShape = new THREE.Shape();
+					if (params.stringerType == "прямая" && !par.isMiddleStringer) {
+						divideP1 = itercection(divideP1, divideP2, p1, polar(p1, par.marshAng, 100.0));
+					}
+
+					addLine(trashShape, dxfPrimitivesArr, divideP1, divideP2, par.dxfBasePoint);
+
+					var franPar = {
+						divideP1: divideP1,
+						divideP2: divideP2,
+						marshId: par.marshId,
+						isMiddleStringer: par.isMiddleStringer,
+						angleHoles: {
+							center1: center,
+							center2: newPoint_xy(center, -par.holeDist, 0.0),
+						},
+					}
+
+					var holes = calcFlanHoles(franPar).holeCenters;
+					par.pointsHole.push(...holes);
+					if (par.isMiddleStringer) {
+						par.elmIns[par.key].longBolts.push(...holes);
+					}
+					//сохраняем точки для расчета длин тетив
+					par.keyPoints.divideP1 = copyPoint(divideP1);
+					par.keyPoints.divideP2 = copyPoint(divideP2);
+
+				}
 			}
-			// стыковка деталей тетивы
+		}
+		if (params.stringerModel == 'короб') {
+			var framePar = { marshId: par.marshId, type: 'marsh'}
+			calcConsoleFramePar(framePar);
 
-			if (i == par.divide - 1 && i > 0) {
-				//позиция линии стыка кусков тетивы
-				divideY = par.stringerLedge + params.treadThickness + 100 / 2;
+			var offsetX = 2;
+			var offsetY = 2;
 
-				var divideP1 = newPoint_xy(center, 0.0, -divideY);
+			for (var i = 0; i < par.stairAmt; i++) {
+				var center = newPoint_xy(par.zeroPoint,
+					par.b * i + par.a / 2 + par.stringerLedge,
+					par.h * (i + 1) - params.treadThickness / 2);
 
-				var divideP2 = itercection(divideP1, newPoint_xy(divideP1, 100, 0), p20, p21);
-				// точка пересчечения линии стыка и нижней линии марша
-				var trashShape = new THREE.Shape();
-				if (params.stringerType == "прямая" && !par.isMiddleStringer) {
-					divideP1 = itercection(divideP1, divideP2, p1, polar(p1, par.marshAng, 100.0));
-				}
-
-				addLine(trashShape, dxfPrimitivesArr, divideP1, divideP2, par.dxfBasePoint);
-
-				var franPar = {
-					divideP1: divideP1,
-					divideP2: divideP2,
-					marshId: par.marshId,
-					isMiddleStringer: par.isMiddleStringer,
-					angleHoles: {
-						center1: center,
-						center2: newPoint_xy(center, -par.holeDist, 0.0),
-					},
-				}
-
-				var holes = calcFlanHoles(franPar).holeCenters;
-				par.pointsHole.push(...holes);
-				if (par.isMiddleStringer) {
-					par.elmIns[par.key].longBolts.push(...holes);
-				}
-				//сохраняем точки для расчета длин тетив
-				par.keyPoints.divideP1 = copyPoint(divideP1);
-				par.keyPoints.divideP2 = copyPoint(divideP2);
-
+				center.points = [
+					newPoint_xy(center, -framePar.widthBox / 2 - offsetX, - framePar.heightBox / 2 - offsetY),
+					newPoint_xy(center, -framePar.widthBox / 2 - offsetX, framePar.heightBox / 2 + offsetY),
+					newPoint_xy(center, framePar.widthBox / 2 + offsetX, framePar.heightBox / 2 + offsetY),
+					newPoint_xy(center, framePar.widthBox / 2 + offsetX, - framePar.heightBox / 2 - offsetY),
+				]
+				par.pointsHole.push(center);
 			}
 		}
 	}
@@ -2956,15 +3089,42 @@ function drawTopStepLt_pltG(par) {
 	}
 
 	if (params.calcType == 'console') {
-		var flanPar = calcStringerConsoleFlanPar({ marshId: par.marshId, type: 'platformTop' });
-		var holes = flanPar.holesFlanAndStringer;
-		for (var i = 0; i < 2; i++) {
-			var pt = newPoint_xy(p2, flanPar.widthTread * i + flanPar.shiftFlanX + par.treadFrontOverHang, - par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
-		
-			for (var j = 0; j < holes.length; j++) {
-				var center = newPoint_xy(pt, holes[j].x, holes[j].y);
-				if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
-				if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+		if (params.stringerModel == 'лист') {
+			var flanPar = calcStringerConsoleFlanPar({ marshId: par.marshId, type: 'platformTop' });
+			var holes = flanPar.holesFlanAndStringer;
+			for (var i = 0; i < 2; i++) {
+				var pt = newPoint_xy(p2,
+					flanPar.widthTread * i + flanPar.widthTread / 2 - flanPar.widthFlan / 2 + par.treadFrontOverHang,
+					- par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
+
+				for (var j = 0; j < holes.length; j++) {
+					var center = newPoint_xy(pt, holes[j].x, holes[j].y);
+					if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
+					if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+					par.pointsHole.push(center);
+				}
+			}
+		}
+
+		if (params.stringerModel == 'короб') {
+			var pTopOut = newPoint_xy(par.zeroPoint,
+				par.b * (par.stairAmt) + par.stringerLedge + par.turnParams.turnLengthTop,// + calcStringerMoove(par.marshId).stringerOutMoove,
+				par.h * (par.stairAmt + 1) - params.treadThickness / 2);
+
+			var framePar = calcConsoleFramePar({ marshId: par.marshId, type: 'platformTop' });
+
+			var offsetX = 2;
+			var offsetY = 2;
+
+			for (var i = 0; i < 2; i++) {
+				var center = newPoint_xy(pTopOut, -framePar.widthTread * i - framePar.widthTread / 2, 0);
+
+				center.points = [
+					newPoint_xy(center, -framePar.widthBox / 2 - offsetX, - framePar.heightBox / 2 - offsetY),
+					newPoint_xy(center, -framePar.widthBox / 2 - offsetX, framePar.heightBox / 2 + offsetY),
+					newPoint_xy(center, framePar.widthBox / 2 + offsetX, framePar.heightBox / 2 + offsetY),
+					newPoint_xy(center, framePar.widthBox / 2 + offsetX, - framePar.heightBox / 2 - offsetY),
+				]
 				par.pointsHole.push(center);
 			}
 		}
@@ -3527,15 +3687,41 @@ function drawTopStepLt_pltPOut(par) {
 	}
 
 	if (params.calcType == 'console') {
-		var flanPar = calcStringerConsoleFlanPar({ marshId: par.marshId, type: 'platformTopP' });
-		var holes = flanPar.holesFlanAndStringer;
-		for (var i = 0; i < 2; i++) {
-			var pt = newPoint_xy(p2, flanPar.widthTread * i + flanPar.shiftFlanX + par.treadFrontOverHang, - par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
+		if (params.stringerModel == 'лист') {
+			var flanPar = calcStringerConsoleFlanPar({ marshId: par.marshId, type: 'platformTopP' });
+			var holes = flanPar.holesFlanAndStringer;
+			for (var i = 0; i < 2; i++) {
+				var pt = newPoint_xy(p2,
+					flanPar.widthTread * i + flanPar.widthTread / 2 - flanPar.widthFlan / 2 + par.treadFrontOverHang,
+					- par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
 
-			for (var j = 0; j < holes.length; j++) {
-				var center = newPoint_xy(pt, holes[j].x, holes[j].y);
-				if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
-				if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+				for (var j = 0; j < holes.length; j++) {
+					var center = newPoint_xy(pt, holes[j].x, holes[j].y);
+					if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
+					if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+					par.pointsHole.push(center);
+				}
+			}
+		}
+		if (params.stringerModel == 'короб') {
+			var pTopOut = newPoint_xy(par.zeroPoint,
+				par.b * (par.stairAmt) + par.stringerLedge + par.turnParams.turnLengthTop - (par.turnParams.pltExtraLen - par.turnParams.topStepDelta),// + calcStringerMoove(par.marshId).stringerOutMoove,
+				par.h * (par.stairAmt + 1) - params.treadThickness / 2);
+
+			var framePar = calcConsoleFramePar({ marshId: par.marshId, type: 'platformTopP' });
+
+			var offsetX = 2;
+			var offsetY = 2;
+
+			for (var i = 0; i < 2; i++) {
+				var center = newPoint_xy(pTopOut, -framePar.widthTread * i - framePar.widthTread / 2, 0);
+
+				center.points = [
+					newPoint_xy(center, -framePar.widthBox / 2 - offsetX, - framePar.heightBox / 2 - offsetY),
+					newPoint_xy(center, -framePar.widthBox / 2 - offsetX, framePar.heightBox / 2 + offsetY),
+					newPoint_xy(center, framePar.widthBox / 2 + offsetX, framePar.heightBox / 2 + offsetY),
+					newPoint_xy(center, framePar.widthBox / 2 + offsetX, - framePar.heightBox / 2 - offsetY),
+				]
 				par.pointsHole.push(center);
 			}
 		}
@@ -3848,7 +4034,11 @@ function drawTopStepLt_wndOut(par) {
 	// вторая забежная ступень
 	var p4 = newPoint_xy(p3, 0.0, par.h_next);
 	var p5 = newPoint_xy(p4, par.wndSteps[2].out.botMarsh, 0);
-	if (params.calcType == 'console') p5.x += params.stringerThickness + 8 + calcStringerMoove(par.marshId).stringerOutMooveNext;
+	if (params.calcType == 'console') {
+		if (params.stringerModel == 'лист') p5.x += params.stringerThickness + 8 + calcStringerMoove(par.marshId).stringerOutMooveNext;
+		if (params.stringerModel == 'короб') p5.x += calcStringerMoove(par.marshId).stringerOutMooveNext;
+		
+	}
 
 	//задняя линия
 	var botLineP1 = newPoint_xy(p5, 0, -backLineLength);
@@ -3910,8 +4100,10 @@ function drawTopStepLt_wndOut(par) {
 	par.keyPoints[par.key].topEnd = p1;
 	par.keyPoints[par.key].topEndCol = p5;
 	
+	
 	//сохраняем точку для расчета длины
 	par.keyPoints.topPoint = copyPoint(p5);
+	if (p5s) par.keyPoints.topPoint = copyPoint(p5s);
 
 	/*ОТВЕРСТИЯ*/
 	if (params.calcType !== 'console') {
@@ -4099,37 +4291,94 @@ function drawTopStepLt_wndOut(par) {
 	}
 
 	if (params.calcType == 'console') {
-		// отверстия под первую забежную ступень
-		var flanPar = {
-			marshId: par.marshId,
-			dxfBasePoint: par.dxfBasePoint,
-			type: 'winder1',
-			wndPar: par.treadsObj.wndPar,
-			wndPar2: par.treadsObj.wndPar2,
+		if (params.stringerModel == 'лист') {
+			// отверстия под первую забежную ступень
+			var flanPar = {
+				marshId: par.marshId,
+				dxfBasePoint: par.dxfBasePoint,
+				type: 'winder1',
+				wndPar: par.treadsObj.wndPar,
+				wndPar2: par.treadsObj.wndPar2,
+			}
+			calcStringerConsoleFlanPar(flanPar);
+			var holes = flanPar.holesFlanAndStringer;
+			var pt = newPoint_xy(p2,
+				flanPar.shiftFlanX + par.treadFrontOverHang,
+				- par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
+			for (var j = 0; j < holes.length; j++) {
+				var center = newPoint_xy(pt, holes[j].x, holes[j].y);
+				if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
+				if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+				par.pointsHole.push(center);
+			}
+
+			// отверстия под вторую забежную ступень
+			flanPar.type = 'winder2'
+			calcStringerConsoleFlanPar(flanPar);
+			var holes = flanPar.holesFlanAndStringer;
+			if (flanPar.wndPar2 && par.marshId !== 1)
+				var pt = newPoint_xy(pt,
+					par.turnParams.turnLengthTop - flanPar.wndPar2.params[2].stepWidthY,
+					par.marshParams.h_topWnd);
+			else
+				var pt = newPoint_xy(pt,
+					par.turnParams.turnLengthTop - flanPar.wndPar.params[2].stepWidthY,
+					par.marshParams.h_topWnd);
+
+			for (var j = 0; j < holes.length; j++) {
+				var center = newPoint_xy(pt, holes[j].x, holes[j].y);
+				if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
+				if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+				par.pointsHole.push(center);
+			}
 		}
-		calcStringerConsoleFlanPar(flanPar);
-		var holes = flanPar.holesFlanAndStringer;
-		var pt = newPoint_xy(p2, flanPar.shiftFlanX + par.treadFrontOverHang, - par.addStringerWidth + flanPar.shiftFlanY - par.stringerLedge);
-		for (var j = 0; j < holes.length; j++) {
-			var center = newPoint_xy(pt, holes[j].x, holes[j].y);
-			if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
-			if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+
+		if (params.stringerModel == 'короб') {
+			var pTopOut = newPoint_xy(par.zeroPoint,
+				par.b * (par.stairAmt) + par.stringerLedge + par.turnParams.turnLengthTop,
+				par.h * (par.stairAmt + 1) - params.treadThickness / 2);
+
+			if (par.marshId == 2 && par.stairAmt == 0) {
+				pTopOut.x += params.marshDist - 45;
+			}
+
+			var framePar = { marshId: par.marshId, type: 'marsh' }
+			calcConsoleFrameWndPar(framePar);
+			calcConsoleFramePar(framePar);
+
+			var offsetX = 2;
+			var offsetY = 2;
+
+			// отверстия под первую забежную ступень
+			var center = copyPoint(pTopOut);
+			var pc1 = framePar.wndFrames['1'].p1In;
+			var pc2 = framePar.wndFrames['1'].p2In;
+			if (par.number == 2) {
+				pc1 = framePar.wndFrames['1'].p1Out;
+				pc2 = framePar.wndFrames['1'].p2Out;
+			}
+			center.points = [
+				newPoint_xy(center, pc1.y - offsetX, - framePar.heightBox / 2 - offsetY),
+				newPoint_xy(center, pc1.y  - offsetX, framePar.heightBox / 2 + offsetY),
+				newPoint_xy(center, pc2.y + offsetX, framePar.heightBox / 2 + offsetY),
+				newPoint_xy(center, pc2.y + offsetX, - framePar.heightBox / 2 - offsetY),
+			]
 			par.pointsHole.push(center);
-		}
 
-		// отверстия под вторую забежную ступень
-		flanPar.type = 'winder2'
-		calcStringerConsoleFlanPar(flanPar);
-		var holes = flanPar.holesFlanAndStringer;
-		if (flanPar.wndPar2 && par.marshId !== 1)
-			var pt = newPoint_xy(pt, par.turnParams.turnLengthTop - flanPar.wndPar2.params[2].stepWidthY, par.marshParams.h_topWnd);
-		else
-			var pt = newPoint_xy(pt, par.turnParams.turnLengthTop - flanPar.wndPar.params[2].stepWidthY, par.marshParams.h_topWnd);
-
-		for (var j = 0; j < holes.length; j++) {
-			var center = newPoint_xy(pt, holes[j].x, holes[j].y);
-			if (holes[j].noZenk) center.noZenk = holes[j].noZenk;
-			if (holes[j].isFixWall) center.isFixWall = holes[j].isFixWall;
+			// отверстия под вторую забежную ступень
+			var center = newPoint_xy(pTopOut, 0, par.h);
+			var pc1 = framePar.wndFrames['2'].p1In;
+			var pc2 = framePar.wndFrames['2'].p2In;
+			if (par.number == 2) {
+				pc1 = framePar.wndFrames['2'].p1Out;
+				pc2 = framePar.wndFrames['2'].p2Out;
+			}
+			center.points = [
+				newPoint_xy(center, pc1.y - offsetX, - framePar.heightBox / 2 - offsetY),
+				newPoint_xy(center, pc1.y - offsetX, framePar.heightBox / 2 + offsetY),
+				newPoint_xy(center, pc2.y + offsetX, framePar.heightBox / 2 + offsetY),
+				newPoint_xy(center, pc2.y + offsetX, - framePar.heightBox / 2 - offsetY),
+			]
 			par.pointsHole.push(center);
 		}
 	}

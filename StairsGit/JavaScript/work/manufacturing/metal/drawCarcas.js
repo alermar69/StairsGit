@@ -1194,55 +1194,74 @@ function drawStringerHoles(par, typeDop){
 	
 	for (var i = 0; i < pointsHole.length; i++) {
 		var center = pointsHole[i];
+
 		if (!center.noDraw) {
-			var center = pointsHole[i];
-			if (!center.rad) center.rad = 6.5
-			if ((center.partName == "treadFix" || center.partName == 'wndTreadFix' || center.partName == 'otherTreadFix') && params.stringerModel == 'короб') {
-				center = Object.assign({}, center);
-				center.y += 18;
+			if (!center.points) {
+				var center = pointsHole[i];
+				if (!center.rad) center.rad = 6.5
+				if ((center.partName == "treadFix" ||
+						center.partName == 'wndTreadFix' ||
+						center.partName == 'otherTreadFix') &&
+					params.stringerModel == 'короб') {
+					center = Object.assign({}, center);
+					center.y += 18;
+				}
+
+				var hole1 = new THREE.Path();
+				addCircle(hole1, dxfPrimitivesArr, center, center.rad, par.dxfBasePoint);
+
+				// Определяем тип зенковки, для свг чертежа
+				var zenk = 'front';
+				if (center.noZenk) zenk = 'no';
+				if (center.backZenk) zenk = 'back';
+				hole1.drawing = {};
+				hole1.drawing.zenk = zenk;
+
+				stringerShape.holes.push(hole1);
+
+				var zencDiam = 20; // диаметр зенковки
+				var layer = "comments";
+				var trashShape = new THREE.Shape();
+
+				//не зенковать
+				if (center.noZenk && params.boltHead == "countersunk") {
+					layer = "comments";
+					var pz1 = newPoint_xy(center, -zencDiam, zencDiam);
+					var pz2 = newPoint_xy(center, zencDiam, -zencDiam);
+					addLine(trashShape, dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
+					pz1 = newPoint_xy(pz1, 0, -zencDiam * 2);
+					pz2 = newPoint_xy(pz2, 0, zencDiam * 2);
+					addLine(trashShape, dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
+				}
+
+				//зенковать с обратной стороны
+				if (center.backZenk) {
+					layer = "comments";
+					addRoundHole(trashShape, dxfPrimitivesArr, center, zencDiam, par.dxfBasePoint, layer);
+				}
+
+				//сохраняем координаты для вставки длинных болтов (кроме отверстий рутелей)
+
+				if (center.noZenk && center.rad < 7 && !center.noBolts) {
+					if (!par.elmIns[par.key].longBolts) par.elmIns[par.key].longBolts = [];
+					par.elmIns[par.key].longBolts.push(center);
+				}
 			}
 
-			var hole1 = new THREE.Path();
-			addCircle(hole1, dxfPrimitivesArr, center, center.rad, par.dxfBasePoint);
-			
-			// Определяем тип зенковки, для свг чертежа
-			var zenk = 'front';
-			if (center.noZenk) zenk = 'no';
-			if (center.backZenk) zenk = 'back';
-			hole1.drawing = {};
-			hole1.drawing.zenk = zenk;
-			
-			stringerShape.holes.push(hole1);
+			if (center.points) {
+				var hole = new THREE.Path();
 
-			var zencDiam = 20; // диаметр зенковки
-			var layer = "comments";
-			var trashShape = new THREE.Shape();
-			
-			//не зенковать
-			if (center.noZenk && params.boltHead == "countersunk") {
-				layer = "comments";
-				var pz1 = newPoint_xy(center, -zencDiam, zencDiam);
-				var pz2 = newPoint_xy(center, zencDiam, -zencDiam);
-				addLine(trashShape, dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
-				pz1 = newPoint_xy(pz1, 0, -zencDiam * 2);
-				pz2 = newPoint_xy(pz2, 0, zencDiam * 2);
-				addLine(trashShape, dxfPrimitivesArr, pz1, pz2, par.dxfBasePoint, layer);
-			}
+				for (var j = 0; j < center.points.length; j++) {
+					var p1 = center.points[j];
+					var p2 = center.points[j + 1];
+					if (j == center.points.length - 1) p2 = center.points[0];
 
-			//зенковать с обратной стороны
-			if (center.backZenk) {
-				layer = "comments";
-				addRoundHole(trashShape, dxfPrimitivesArr, center, zencDiam, par.dxfBasePoint, layer);
-			}
+					addLine(hole, dxfPrimitivesArr, p1, p2, par.dxfBasePoint);
+				}
 
-			//сохраняем координаты для вставки длинных болтов (кроме отверстий рутелей)
-
-			if (center.noZenk && center.rad < 7 && !center.noBolts) {
-				if(!par.elmIns[par.key].longBolts) par.elmIns[par.key].longBolts = [];
-				par.elmIns[par.key].longBolts.push(center);
+				stringerShape.holes.push(hole);
 			}
 		}
-
 	}
 	
 }
