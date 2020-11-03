@@ -3540,15 +3540,35 @@ function calcRackWallPrice(par){
 	}
 }
 
-/** функция рассчитывает стоимость столешницы
+/** функция рассчитывает стоимость деревянной панели
+par = {
+	width
+	len
+	thk
+	tabletopType
+	riverWidth
+	resinVol
+	shapeType
 */
 
-function calcCountertopCost(par){
+function calcTimberPanelCost(par){
+	
+	//параметры по умолчанию
+	if(!par.tabletopType) par.tabletopType = "щит";
+	if(!par.riverWidth) par.riverWidth = 0;
+	if(!par.resinVol) par.resinVol = 0;
+	if(!par.shapeType) par.shapeType = "прямоугольник";
 	
 	var timberPar = calcTimberParams(params.additionalObjectsTimberMaterial);
 	var paintPriceM2 = calcTimberPaintPrice(params.timberPaint, params.additionalObjectsTimberMaterial)
 	var timberVol = par.width * par.len * par.thk / 1000000000;
 	var paintedArea = par.width * par.len / 1000000
+	
+	if(!par.tabletopType) par.tabletopType = "щит";
+	if(!par.riverWidth) par.riverWidth = 0;
+	if(!par.resinVol) par.resinVol = 0;
+	if(!par.shapeType) par.shapeType = "прямоугольник";
+	
 	
 	//древесина
 	var timberCost = timberVol * timberPar.m3Price;
@@ -3565,13 +3585,13 @@ function calcCountertopCost(par){
 
 	var riverCost = 0;
 	var resinLiterCost = 1500;
-	if(par.tabletopType == "слэб + смола непрозр.") resinLiterCost *= 0.5 //к-т учитывает заполнитель
+	if(params.resinMaterial == "непрозрачный") resinLiterCost *= 0.5 //к-т учитывает заполнитель
 	
-	if(par.tabletopType == "слэб" || par.tabletopType == "слэб + смола прозр." || par.tabletopType == "слэб + смола непрозр."){
+	if (par.tabletopType && par.tabletopType.indexOf("слэб") != -1){
 		riverCost += par.resinVol * resinLiterCost;
 		if(resinVol_calc > par.resinVol) alertTrouble("ВНИМАНИЕ ОШИБКА! Расчетный объем реки превышает указанный объем заливки. Расчетный объем " + Math.ceil(resinVol_calc) + "л")
 	}
-	if(par.tabletopType == "слэб + стекло") riverCost += riverArea * 12000 + 2000; //12к - цена стекла за м2, 2к - работа по фрезеровке 
+	if(par.tabletopType == "слэб + стекло") riverCost = riverArea * 12000 + 2000; //12к - цена стекла за м2, 2к - работа по фрезеровке 
 
 	cost += riverCost;
 	
@@ -3582,6 +3602,6 @@ function calcCountertopCost(par){
 	if(par.shapeType == "по шаблону") meterCutCost = 500;
 	
 	cost += meterCutCost * perim;
-
+//debugger
 	return cost;
 }

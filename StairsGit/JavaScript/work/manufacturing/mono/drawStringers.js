@@ -1294,29 +1294,29 @@ function drawComplexStringer(par) {
 						flan.position.y = sidePlate2.position.y + par.pointsShape[par.pointsShape.length - 2].y;
 
 						par.flans.add(flan);
-						if (params.stairModel.indexOf('Г-') != -1 || params.stairModel.indexOf('П-') != -1 && par.marshId == 2) {
-							window.customDimensions.push({
-								basePoint: {
-									x: 0,
-									y: 0,
-									z: 0
-								},
-								target: flan,
-								axises: ['x', 'y']
-							});
-						}else{
-							window.customDimensions.push({
-								basePoint: {
-									x: -params.floorHoleLength,
-									y: 0,
-									z: 0
-								},
-								target: flan,
-								axises: ['y', 'z']
-							});
+						if (window.customDimensions && window.customDimensions.length > 0) {
+							if (params.stairModel.indexOf('Г-') != -1 || params.stairModel.indexOf('П-') != -1 && par.marshId == 2) {
+								window.customDimensions.push({
+									basePoint: {
+										x: 0,
+										y: 0,
+										z: 0
+									},
+									target: flan,
+									axises: ['x', 'y']
+								});
+							}else{
+								window.customDimensions.push({
+									basePoint: {
+										x: -params.floorHoleLength,
+										y: 0,
+										z: 0
+									},
+									target: flan,
+									axises: ['y', 'z']
+								});
+							}
 						}
-
-
 						
 						//фланец-заглушка
 						var flanPar = {
@@ -1499,17 +1499,19 @@ function drawComplexStringer(par) {
 				flan.position.y += sidePlate2.position.y + par.pointsShape[par.pointsShape.length - 2].y;// -flanParams.height +holOffZapTop;
 
 				par.flans.add(flan);
-
-				window.customDimensions.push({
-					basePoint: {
-						x: 0,
-						y: 0,
-						z: 0
-					},
-					target: flan,
-					axises: ['z', 'y'],
-					basePlane: 'yz'
-				});
+				
+				if (window.customDimensions && window.customDimensions.length > 0) {
+					window.customDimensions.push({
+						basePoint: {
+							x: 0,
+							y: 0,
+							z: 0
+						},
+						target: flan,
+						axises: ['z', 'y'],
+						basePlane: 'yz'
+					});
+				}
 
 				//верхний фланец-заглушка
 				//dxfBasePoint.y -= dxfStep;

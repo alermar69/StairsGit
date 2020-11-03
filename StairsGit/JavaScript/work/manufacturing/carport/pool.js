@@ -260,13 +260,13 @@ function drawSphereSegment(par){
 		rad: rad + partPar.rafter.profSize.y / 2,
 		height: partPar.rafter.profSize.y,
 		thk: params.roofThk,
-		angleWidth: arcStepAng * 1.1, //1.1 - подогнано, чтбы не было дырок
+		angleWidth: arcStepAng,
 		extraAngle: extraAngle,
 		topCutAngle: Math.atan(rafterPar.center.x / rafterPar.midRad),
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 8000, 0),
 		material: params.materials.plastic_roof,
-		dxfArr: [],
-		
+		dxfArr: dxfPrimitivesArr,
+		rafterPar: rafterPar,
 	}
 
 //цикл построения полярного массива элементов
@@ -328,6 +328,7 @@ function drawSphereSegment(par){
 			dome.add(coverSector)
 		}
 		
+		sectorPolyPar.dxfArr = []; //выводим в dxf только первую развертку
 		//ролики
 		if(par.isMovable){
 			var weelPar = {}

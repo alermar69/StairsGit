@@ -121,6 +121,7 @@ function drawShelfTower(par) {
 				width: sectWidth - legPar.sizeA,
 				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, par.height + 500),
 				isFlat: true,
+				profSize: 10,
 			}
 			var cross = drawCross(crossPar).mesh;
 			cross.position.x = stand.carcas.position.x;
@@ -261,23 +262,23 @@ function getModelDimensions() {
 
 function drawCross(par) {
 	par.mesh = new THREE.Object3D();
-	var profSize = 20;
+	if(!par.profSize) par.profSize = 20;
 	var offset = 5;
 
 	//первая итерация - приблизительный расчет длины среза профиля
 	var poleHeight = par.height - 40;
 	var angle = Math.atan(poleHeight / par.width);
-	var profSize_ang = profSize / Math.cos(angle);
+	var profSize_ang = par.profSize / Math.cos(angle);
 
 	//вторая итерация		
 	poleHeight = par.height - profSize_ang - offset * 2;
 	angle = Math.atan(poleHeight / par.width);
-	profSize_ang = profSize / Math.cos(angle);
+	profSize_ang = par.profSize / Math.cos(angle);
 	var len = poleHeight / Math.sin(angle)
 
 	var polePar = {
-		poleProfileY: profSize,
-		poleProfileZ: profSize,
+		poleProfileY: par.profSize,
+		poleProfileZ: par.profSize,
 		dxfBasePoint: par.dxfBasePoint,
 		length: len,
 		poleAngle: angle,
@@ -305,8 +306,8 @@ function drawCross(par) {
 	pole.rotation.y = Math.PI;
 	pole.position.x = pos.x;
 	pole.position.y = pos.y;
-	pole.position.z = profSize * 2;
-	if(par.isFlat) pole.position.z = profSize
+	pole.position.z = par.profSize * 2;
+	if(par.isFlat) pole.position.z = par.profSize
 	par.mesh.add(pole);
 
 	return par;

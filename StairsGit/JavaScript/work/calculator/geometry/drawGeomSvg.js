@@ -5,20 +5,20 @@ $(function(){
 		
 	})
 	
-	$("#saveSvg2").click(function(){
-		var text = $("#svgOutputDiv").html();
-		saveSvgFile(text);
-	})
+	// $("#saveSvg2").click(function(){
+	// 	var text = $("#svgOutputDiv").html();
+	// 	saveSvgFile(text);
+	// })
 	
-	$("#saveDxf2").click(function(){		
-		var svg = $("#svgOutputDiv").find("svg").clone().attr({"id": "temp"});
-		$("#svgOutputDiv").append(svg)
-		$("svg#temp g").removeAttr("transform")
-		$("svg#temp g").removeAttr("style")
-		flatten($("svg#temp")[0])
-		svgToDxf($("svg#temp")[0])
-		$("svg#temp").remove();
-	})
+	// $("#saveDxf2").click(function(){		
+	// 	var svg = $("#svgOutputDiv").find("svg").clone().attr({"id": "temp"});
+	// 	$("#svgOutputDiv").append(svg)
+	// 	$("svg#temp g").removeAttr("transform")
+	// 	$("svg#temp g").removeAttr("style")
+	// 	flatten($("svg#temp")[0])
+	// 	svgToDxf($("svg#temp")[0])
+	// 	$("svg#temp").remove();
+	// })
 
 })
 

@@ -31,6 +31,7 @@
 						<option value="Юркин Александр">Юркин Александр</option>
 						<option value="Юркин Александр">Юркин Александр</option>
 						<option value="Смирнова Олеся">Смирнова Олеся</option>
+						<option value="Прокофьев Владислав">Прокофьев Владислав</option>
 						
 						<option value="Шерышев Сергей">Шерышев Сергей</option>
 						<option value="Сергей Романов">Сергей Романов</option>

@@ -53,7 +53,7 @@ class Sill extends AdditionalObject {
 	
 	/** STATIC **/
 	static calcPrice(par){
-		var cost = calcCountertopCost(par.meshParams);
+		var cost = calcTimberPanelCost(par.meshParams);
 		
 		//вентиляционные отверстия
 		if(par.meshParams.ventHoles != "нет") cost += 1250;

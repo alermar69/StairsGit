@@ -925,7 +925,7 @@ function drawSphereSector(par){
 	const widthSegments = 1;  // ui: widthSegments
 	const heightSegments = 20;  // ui: heightSegments
 	const phiStart = 0;  // ui: phiStart
-	const phiLength = par.angleWidth;  // ui: phiLength
+	const phiLength = par.angleWidth * 1.1; //1.1 - подогнано, чтбы не было дырок  // ui: phiLength
 	const thetaStart = par.topCutAngle || 0;  // ui: thetaStart
 	const thetaLength = Math.PI / 2 + par.extraAngle;  // ui: thetaLength
 
@@ -940,9 +940,69 @@ function drawSphereSector(par){
 	par.mesh = new THREE.Mesh(geom, par.material);
 	par.mesh.setLayer('roof');
 	
+	//Развертка в dxf
+	
+	var step = 50; //примерный шаг контрольных точек на дуге - пересчитывается далее
+	var angStep = step / par.rad
+	var stepAmt = Math.round(thetaLength / angStep)
+	angStep = thetaLength / stepAmt;
+	step = angStep * par.rad;
+	
+	//рассчитываем координаты точек на дуге каркаса в плоскости XY
+	var points = []
+
+	for(var i=0; i<stepAmt; i++){
+		var ang = Math.PI / 2 - angStep * i;
+		var point = polar(par.rafterPar.center, ang, par.rad,)
+		points.push(point);		
+	}
+	
+	//рассчитываем координаты точек на дуге каркаса после поворота на угол par.angleWidth / 2 вокруг оси Y
+	var flatPoints = []; //точки развертки
+	var maxWidth = 0; //максимальная ширина листа
+	var axisOffset = 5; //отступ края поликарбоната от оси дуги каркаса - половина ширины перемычки на соединительном профиле
+	
+	for (var i = 0; i < points.length; i++) {
+		
+		//рассматриваем поворот точки в плоскости XZ, заменяя Z на Y чтобы использовать готовые функции
+		var pt = {
+			x: points[i].x,
+			y: 0,
+		}
+
+		var pt1 = rotatePoint(pt, par.angleWidth / 2);
+		
+		//формируем точку на развертке
+		var flatPoint = {
+			x: step * i,
+			y: pt1.y - axisOffset,			
+		}
+		
+		flatPoints.push(flatPoint);
+		
+		//Зеркальная точка на другой стороне развертки
+		var flatPoint2 = {
+			x: step * i,
+			y: -pt1.y + axisOffset,			
+		}
+		flatPoints.unshift(flatPoint2);
+		
+		if( flatPoint.y * 2 > maxWidth) maxWidth = flatPoint.y * 2;
+	}
+		
+	if(par.dxfArr){
+		//рисуем контур развертки в dxf
+		var shape = new THREE.Shape(); //мусорный объект
+		addLines(shape, par.dxfArr, flatPoints, par.dxfBasePoint)
+		addLine(shape, par.dxfArr, flatPoints[flatPoints.length - 1], flatPoints[0], par.dxfBasePoint) //замыкающая линия
+	}
+	
+	
 	var partName = "polySheet";
-	var len = Math.round(par.rad * thetaLength);
-	var width = Math.round(par.rad * par.angleWidth);
+	//var len = Math.round(par.rad * thetaLength);
+	//var width = Math.round(par.rad * par.angleWidth);	
+	var len = Math.round((points.length - 1) * (step));
+	var width = Math.round(maxWidth);
 	var area = len * width / 1000000;
 	
 	if (typeof specObj != 'undefined') {

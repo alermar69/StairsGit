@@ -34,18 +34,18 @@ $(function () {
 	})
 	
 	$("#saveSvg2").click(function(){
-		var text = $("#svgOutputDiv").html();
+		var text = $("#svgOutputDivDraw").html();
 		saveSvgFile(text);
 	})
 	
 	$("#saveDxf2").click(function(){		
-		var svg = $("#svgOutputDiv").find("svg").clone().attr({"id": "temp"});
-		$("#svgOutputDiv").append(svg)
-		$("svg#temp g").removeAttr("transform")
-		$("svg#temp g").removeAttr("style")
-		flatten($("svg#temp")[0])
-		svgToDxf($("svg#temp")[0])
-		$("svg#temp").remove();
+		var svg = $("#svgOutputDivDraw").find("svg").clone().attr({"id": "svgOutputDivTemp"});
+		$("#svgOutputDivDraw").append(svg)
+		$("#svgOutputDivDraw svg#svgOutputDivTemp g").removeAttr("transform")
+		$("#svgOutputDivDraw svg#svgOutputDivTemp g").removeAttr("style")
+		flatten($("#svgOutputDivDraw svg#svgOutputDivTemp")[0])
+		svgToDxf($("#svgOutputDivDraw svg#svgOutputDivTemp")[0])
+		$("#svgOutputDivDraw svg#svgOutputDivTemp").remove();
 	})
 	
 	//Обработчик удаления

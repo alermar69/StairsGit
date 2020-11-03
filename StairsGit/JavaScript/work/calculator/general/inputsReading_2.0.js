@@ -856,3 +856,103 @@ function getTurnPar(){
 	
 	return result;
 }
+
+function formatDate(date, format){
+
+	var dateString = date;
+	if(!date) return "";
+	if (date == 'Invalid Date') return "";
+	
+	//если просто строка, то преобразуем в js дату
+	if(typeof date == "string"){
+		date = new Date(date);
+	}
+	// Поддержка IOS
+	if (date == 'Invalid Date' && dateString != 'Invalid Date') {
+		date = new Date(dateString.replace(/-/g, "/"));
+	}
+	//js дата
+	if(date.getDate){
+		var dateString = date.getDate();
+		if(date.getDate() < 10) dateString = "0" + dateString;
+		if(date.getMonth() < 9) dateString += ".0" + (date.getMonth() + 1);
+		if(date.getMonth() >= 9) dateString += "." + (date.getMonth() + 1);
+		dateString += "." + (date.getFullYear() - 2000);
+			
+		if(format == "yyyy-MM-dd"){
+			var dateString = date.getFullYear();
+			if(date.getMonth() < 9) dateString += "-0" + (date.getMonth() + 1);
+			if(date.getMonth() >= 9) dateString += "-" + (date.getMonth() + 1);			
+			if(date.getDate() < 10) dateString += "-0" + date.getDate();
+			if(date.getDate() >= 10) dateString += "-" + date.getDate();
+			}
+			
+		if(format == "dd.MM" || format == "dd.MM_wd"){			
+			var dateString = "";
+			if(date.getDate() < 10) dateString += "0" + date.getDate();
+			if(date.getDate() >= 10) dateString += date.getDate();
+			if(date.getMonth() < 9) dateString += ".0" + (date.getMonth() + 1);
+			if(date.getMonth() >= 9) dateString += "." + (date.getMonth() + 1);		
+		}
+		if(format == "dd.MM.yy"){
+			var dateString = "";
+			if(date.getDate() < 10) dateString += "0" + date.getDate();
+			if(date.getDate() >= 10) dateString += date.getDate();
+			if(date.getMonth() < 9) dateString += ".0" + (date.getMonth() + 1);
+			if(date.getMonth() >= 9) dateString += "." + (date.getMonth() + 1);	
+			var year = date.getFullYear() - 2000;
+			if(year < 9) dateString += ".0" + year;
+			if(year >= 9) dateString += "." + year;
+			}
+		if(format == "dd.MM_hh.mm") {
+			var dateString = "";
+			if(date.getDate() < 10) dateString += "0" + date.getDate();
+			if(date.getDate() >= 10) dateString += date.getDate();
+			if(date.getMonth() < 9) dateString += ".0" + (date.getMonth() + 1);
+			if(date.getMonth() >= 9) dateString += "." + (date.getMonth() + 1);	
+			dateString += " - " + date.getHours() + ":" + date.getMinutes()
+			}
+		if(format == "dd.MM.yy_hh.mm"){
+			var dateString = "";
+			if(date.getDate() < 10) dateString += "0" + date.getDate();
+			if(date.getDate() >= 10) dateString += date.getDate();
+			if(date.getMonth() < 9) dateString += ".0" + (date.getMonth() + 1);
+			if(date.getMonth() >= 9) dateString += "." + (date.getMonth() + 1);	
+			var year = date.getFullYear();
+			dateString += "." + (year - 2000);
+			dateString += " - " + date.getHours() + ":" + date.getMinutes()
+		}
+		if(format == "dd.MM_wd"){			
+			dateString += " ";
+			if(date.getDay() == 1) dateString += "пн";
+			if(date.getDay() == 2) dateString += "вт";
+			if(date.getDay() == 3) dateString += "ср";
+			if(date.getDay() == 4) dateString += "чт";
+			if(date.getDay() == 5) dateString += "пт";
+			if(date.getDay() == 6) dateString += "сб";
+			if(date.getDay() == 0) dateString += "вс";
+		}
+	}
+	//php дата
+	if(date.date){
+		//выцепляем первые 10 символов
+		dateString = date.date.substring(10, -10);
+		if(format == "dd.MM") dateString = date.date.substring(10, -5);
+		if(format == "dd.MM_hh.mm") {
+			var time = date.date.substring(16, 11)
+			var day =  date.date.substring(10, 8)
+			var month =  date.date.substring(7, 5)
+			dateString = day + "." + month + " - " + time;
+			}
+		if(format == "dd.MM.yy_hh.mm" || format == "dd.MM.yy") {
+			var time = date.date.substring(16, 11)
+			var day = date.date.substring(10, 8)
+			var year = date.date.substring(4, 2)
+			var month =  date.date.substring(7, 5)
+			dateString = day + "." + month + "." + year;
+			if(format == "dd.MM.yy_hh.mm") dateString += " - " + time;
+			}
+		}
+	
+	return dateString;
+}

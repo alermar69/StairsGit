@@ -1662,10 +1662,13 @@ if(params.calcType == "railing" && params.stairType != "нет" && params.isAsse
 
 if(params.calcType == "vint"){
 	//каркас, ступени
+	var stepAmt = params.stepAmt;
+	if(params.strightMarsh == "снизу" || params.strightMarsh == "сверху и снизу") stepAmt += params.stairAmt1 + 1
+	if(params.strightMarsh == "сверху" || params.strightMarsh == "сверху и снизу") stepAmt += params.stairAmt3
 	
 	var wage = {
 		name: "Монтаж лестницы",
-		amt: params.stepAmt,
+		amt: stepAmt,
 		unitName: "подъем",
 		unitWage: 600,
 		}	

@@ -76,7 +76,7 @@ class Table extends AdditionalObject {
 	 * @param par 
 	 */
 	static calcPriceParts(par){
-		var countertopCost = calcCountertopCost(par.meshParams);
+		var countertopCost = calcTimberPanelCost(par.meshParams);
 		var cost = countertopCost;
 
 		if (par.meshParams.baseModel != 'не указано' && par.meshParams.baseModel != 'нет') {		
@@ -103,8 +103,8 @@ class Table extends AdditionalObject {
 		return {
 			name: this.getMeta().title,
 			cost: this.calcPriceParts(par).cost,
-			priceFactor: 1,
-			costFactor: 1
+			priceFactor: par.meshParams.priceFactor || 1,
+			costFactor: par.meshParams.costFactor || 1,
 		}
 	}
 	

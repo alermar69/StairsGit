@@ -59,15 +59,27 @@ class Shelf extends AdditionalObject {
 		getObjPar()
 	}
 	
-	static calcPrice(par){
+	static printPrice(par){
+		var priceParts = this.calcPriceParts(par);
+		var objPrice = this.calcPrice(par);
+		var priceCoeff = getPriceCoefficients(objPrice);
+		var priceHTML = "";
+		if (priceParts.standsCost) priceHTML += '<tr><td>Стойки</td><td>' + Math.round(priceParts.standsCost * objPrice.priceFactor * priceCoeff.margin) + '</td></tr>';
+		if (priceParts.shelfsCost) priceHTML += '<tr><td>Полки</td><td>' + Math.round(priceParts.shelfsCost * objPrice.priceFactor * priceCoeff.margin) + '</td></tr>';
+
+		return priceHTML;
+	}
+	
+	static calcPriceParts(par){
 
 		var meshPar = par.meshParams;
 		var dopSpec = partsAmt_dop[par.id];
-		var cost = 0;
 		var metalPart = 0;
+		var standsCost = 0;
+		var shelfsCost = 0;
 
 		if (dopSpec) {
-			console.log(meshPar)
+
 			var timberM3Cost = calcTimberParams(params.additionalObjectsTimberMaterial).m3Price;
 			var legProfPar = getProfParams(meshPar.legProf)
 			var timberPaintCost = calcTimberPaintPrice(params.timberPaint, params.additionalObjectsTimberMaterial)
@@ -76,36 +88,54 @@ class Shelf extends AdditionalObject {
 			
 			//материал
 			var profLen = meshPar.height * 4 + meshPar.depth * (meshPar.shelfAmt + 1)
-			var cost = profLen * legProfPar.unitCost / 1000
+			standsCost += profLen * legProfPar.unitCost / 1000
 			
 			if(meshPar.carcasModel == "бруски" || meshPar.carcasModel == "панели"){
-				cost = timberM3Cost * legProfPar.sizeA * legProfPar.sizeB / 1000000 * profLen / 1000
+				standsCost = timberM3Cost * legProfPar.sizeA * legProfPar.sizeB / 1000000 * profLen / 1000
 			}
 			
 			//изготовление
-			if(meshPar.carcasModel == "бруски" || meshPar.carcasModel == "кресты") cost += 3000;
-			else cost += 2000;
+			if(meshPar.carcasModel == "бруски" || meshPar.carcasModel == "кресты") standsCost += 3000;
+			else standsCost += 2000;
 			
 			//покраска
 			var area = meshPar.height * meshPar.depth / 1000000
-			if(meshPar.carcasModel == "бруски" || meshPar.carcasModel == "панели") cost += area * timberPaintCost
-			else cost += area * 500;
+			if(meshPar.carcasModel == "бруски" || meshPar.carcasModel == "панели") standsCost += area * timberPaintCost
+			else standsCost += area * 500;
 			
+			//учитываем кол-во секций
+			if(meshPar.sectAmt) standsCost *= (meshPar.sectAmt + 1) / 2;
+	
 			//полки
 			
-			//материал
-			var vol = meshPar.width * meshPar.depth * meshPar.shelfThk * meshPar.shelfAmt / 1000000000;
-			cost += vol * timberM3Cost
+			var shelfPar = {
+				width: meshPar.depth,
+				len: meshPar.width,
+				thk: meshPar.shelfThk,
+			};
+			shelfsCost  = calcTimberPanelCost(shelfPar) * meshPar.shelfAmt;
 			
+		
 			//доля металлического цеха в цене
-			if(meshPar.carcasModel == "проф. труба" || meshPar.carcasModel == "кресты") metalPart = 0.5;			
+			if(meshPar.carcasModel == "проф. труба" || meshPar.carcasModel == "кресты") metalPart = standsCost / (standsCost + shelfsCost);			
 		}
+		
+
 		return {
-			name: par.name || this.getMeta().title,
-			cost: cost,
-			priceFactor: meshPar.priceFactor || 1,
-			costFactor: meshPar.costFactor || 1,
+			cost: standsCost + shelfsCost,
+			standsCost: standsCost,
+			shelfsCost: shelfsCost,
 			metalPart: metalPart,
+		}
+
+	}
+	
+	static calcPrice(par){
+		return {
+			name: this.getMeta().title,
+			cost: this.calcPriceParts(par).cost,
+			priceFactor: par.meshParams.priceFactor || 1,
+			costFactor: par.meshParams.costFactor || 1,
 		}
 	}
 
@@ -291,28 +321,6 @@ class Shelf extends AdditionalObject {
 				...AdditionalObject.defaultInputs()
 			]
 		}
-	}
-	
-	/** возвращает описание объекта.
-	@param - meshParams из объекта additional_objects
-	*/
-	
-	static getDescr(objPar) {
-
-		if(!this) return {html: '', text: ''};
-		var par = objPar.meshParams;
-
-		var meta = this.getMeta();
-		var text = "Стеллаж " + par.shelfAmt + " пол. " + par.height + "х" + par.width + "х" + par.depth + "мм";
-		var html = "<h3>Параметры " + meta.title + "</h3>";
-		html += '<table class="form_table" style="max-width: 40%"><tbody>'
-		meta.inputs.forEach(function(input){
-			if (input && par[input.key] && !input.hidden) {
-				html += '<tr><td>' + input.title + '</td><td>' + par[input.key] + '</td></tr>';
-			}
-		});
-		html += '</tbody></table>'
-		return {html: html, text: text};
 	}
 }
 
