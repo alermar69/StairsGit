@@ -683,7 +683,7 @@ function drawMarshTreads2(par) {
 					}
 					if (params.lastRiser == "есть") {
 						var riserSideOffset = 20;
-						var depth = 20;
+						var depth = 40;
 						plateParams.width = par.a - depth;
 						plateParams.widthFull = par.a;
 						plateParams.notches = {
@@ -1036,7 +1036,7 @@ function drawMarshTreads2(par) {
 		if(params.calcType != "metal"){
 			plateParams.width = par.h - params.treadThickness / 2;
 			if(params.calcType == "mono") {
-				if(typeof riserSideOffset == 'undefined') var riserSideOffset = 20;
+				if(typeof riserSideOffset == 'undefined') var riserSideOffset = 40;
 				plateParams.len -= riserSideOffset * 2 + 2;
 				if (offsetYLastTread) plateParams.width += offsetYLastTread
 			}
@@ -1056,7 +1056,7 @@ function drawMarshTreads2(par) {
 			drawPlateRiser = drawNotchRiser;
 			plateParams.notchWidth = 280;
 			if (params.calcType == "mono") plateParams.notchWidth = 315;
-			plateParams.depth = 20;
+			plateParams.depth = 40;
 		}
 
 		var rad = 3;

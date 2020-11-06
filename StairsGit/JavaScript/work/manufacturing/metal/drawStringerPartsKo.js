@@ -763,6 +763,7 @@ function drawBotStepKo_wndIn(par){
 	if (params.railingModel == 'Деревянные балясины' || params.railingModel == 'Дерево с ковкой') {
 		if (par.marshPar.hasRailing.in || par.prevMarshPar.hasRailing.in) {
 			var len = 72 - distance(p6, p7)
+			if (par.isWndP) len = params.marshDist - 5 - distance(p6, p7);
 			if (params.riserType == "есть") len += params.riserThickness;
 			if (len > 0) {
 				var pt5 = copyPoint(p5);

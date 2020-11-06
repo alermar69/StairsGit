@@ -4058,9 +4058,12 @@ function drawRailingSectionForge2(par) {
 
 			//topPoint4 = polar(topPoint4, parRacks.angTop, -20);
 			var pt = newPoint_xy(parRacks.topLast, 0, 930)
-			if(parRacks.angTop != 0) topPoint4 = itercection(topPoint4, polar(topPoint4, parRacks.angTop, 100), pt, polar(pt, 0, 100));
-			var pt = newPoint_xy(parRacks.topLast, extraLen + meterHandrailPar.profY * Math.tan(parRacks.angTop / 2), 0)
-			var topPoint6 = itercection(topPoint4, polar(topPoint4, 0, 100), pt, polar(pt, Math.PI / 2, 100));
+			if (parRacks.angTop != 0) {
+				topPoint4 = itercection(topPoint4, polar(topPoint4, parRacks.angTop, 100), pt, polar(pt, 0, 100));
+				var pt = newPoint_xy(parRacks.topLast, extraLen + meterHandrailPar.profY * Math.tan(parRacks.angTop / 2), 0)
+				var topPoint6 = itercection(topPoint4, polar(topPoint4, 0, 100), pt, polar(pt, Math.PI / 2, 100));
+			}
+			
 		}
 
 		if (!topPoint5 && !topPoint6) topPoint4 = polar(topPoint4, parRacks.angTop, extraLen);

@@ -1295,7 +1295,8 @@ function drawBotStepLt_wndIn(par) {
 				center1 = newPoint_xy(p2, par.b * 0.5, par.rackTopHoleY);
 				//смещаем точку ближе к низу марша
 			if (params.rackBottom == "боковое") {
-				center1 = newPoint_x(center1, -par.b * 0.5 + 50, -par.marshAng)
+				//center1 = newPoint_x(center1, -par.b * 0.5 + 50, -par.marshAng)
+				center1 = newPoint_x(center1, -(center1.x - p1.x - 40), par.marshAng); //40 - отступ отверстия от края ступени
 
 				//если повортная стойка, сдвигаем стойку до края предыдущего марша
 				if (params.stairModel == "П-образная с забегом") par.prevMarshPar.hasRailing.in = false;
@@ -1435,7 +1436,10 @@ function drawBotStepLt_wndOut(par) {
 		var botLineP2 = newPoint_xy(botLineP1, 0.15 * params.M, 0.0);// 0.15*params.M - длина нижней горизотральной линии тетивы
 		//вспомогательные точки на нижней линии марша
 		var p20 = newPoint_xy(p4, (par.stringerWidth / Math.sin(par.marshAng)), 0) // первая точка на нижней линии марша
-		if (params.stringerType == "прямая") p20.x = par.b;
+		if (params.stringerType == "прямая") {
+			//p20.x = par.b;
+			var p20 = polar(p5, par.marshAng - Math.PI / 2, par.stringerWidth)
+		}
 		var p21 = polar(p20, par.marshAng, 100.0); // вторая точка на нижней линии
 		//вспомогательная точка на нижней линии под забегом. Угол этой линии marshAng / 2
 		var p22 = polar(botLineP2, par.marshAng / 2, 100.0)

@@ -118,6 +118,12 @@ function drawRectFlan2(par) {
 			diam: boltDiam,
 			len: boltLen,
 		};
+		if (par.boltPar) {
+			if (par.boltPar.diam) boltPar.diam = par.boltPar.diam;
+			if (par.boltPar.len) boltPar.len = par.boltPar.len;
+			if (par.boltPar.headType) boltPar.headType = par.boltPar.headType;
+		}
+
 		if (par.roundHoleCenters) {
 			for (var i = 0; i < par.roundHoleCenters.length; i++) {
 				if (!par.roundHoleCenters[i].noBolt) {

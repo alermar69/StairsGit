@@ -4680,7 +4680,7 @@ function drawMonoFlan(par) {
 			pEnd = par.pointsShape[1];
 		}
 		var flanPar = {
-			width: params.stringerThickness - 2 * params.metalThickness, //ширина фланца
+			width: params.stringerThickness - 2 * params.metalThickness - 2, //ширина фланца
 			height: pEnd.x - pStart.x - 2 * params.metalThickness - 2, //длина фланца (высота при вертикальном расположении)
 			holeRad: 6.5,
 			cornerRad: 0,
@@ -4688,6 +4688,8 @@ function drawMonoFlan(par) {
 			holeY: 20,
             dxfBasePoint: par.dxfBasePoint,
 			mirrowBolts: true,
+			boltPar: { len: 40, headType: "потай"},
+			
         };
 		if (par.pointCurrentSvg) {
 			flanPar.drawing = {
@@ -9377,6 +9379,7 @@ function drawDivideFlans(par) {
 	//нижний фланец
 	var flan = drawDivideFlan(flanPar).mesh;
 	flan.rotation.y = Math.PI / 2;
+	flan.position.x = 10; // 10 - зазор между фланцами
 	par.mesh.add(flan);
 
 	//верхний фланец
@@ -9386,6 +9389,7 @@ function drawDivideFlans(par) {
 	flanPar.isConnectPlate = true;
 	var flan = drawDivideFlan(flanPar).mesh;
 	flan.rotation.y = -Math.PI / 2;
+	//flan.position.x = -5; // 10 - зазор между фланцами
 	par.mesh.add(flan);
 
 	return par;
@@ -9482,8 +9486,8 @@ function drawDivideFlan(par) {
 	if (typeof anglesHasBolts != "undefined" && anglesHasBolts &&par.isBolt) {
 		var boltPar = {
 			diam: 16,
-			len: 40,
-			//headType: "потай",
+			len: 50,
+			headType: "шестигр.",
 		}
 
 		for (var i = 0; i < holes.length; i++) {

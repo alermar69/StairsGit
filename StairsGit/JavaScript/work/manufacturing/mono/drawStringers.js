@@ -449,7 +449,8 @@ function drawComplexStringer(par) {
 				}
 				////подложка промежуточной площадки(нижнего марша)
 
-				if (par.topEnd == "площадка" && i >= par.stepPoints.length - 2 && par.stairAmt > 1) {
+				//if (par.topEnd == "площадка" && i >= par.stepPoints.length - 2 && par.stairAmt > 1) {
+				if (par.topEnd == "площадка" && i >= par.stepPoints.length - 2) {
 					if (params.model == "сварной") {
 						if (!(params.stairModel !== "П-образная с площадкой" && params.stairType == 'лотки')) {
 							platePar.isPlt = true;
