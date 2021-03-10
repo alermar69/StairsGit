@@ -114,6 +114,90 @@ function drawBotStepKo_floor(par){
 }//end of drawBotStepKo_floor
 
 /**
+ * первый подъем если внизу винтовая часть
+ */
+function drawBotStepKo_vint(par){
+	
+	/*ТОЧКИ КОНТУРА*/
+	var botOffset = 55;
+	// Используем глобальный массив параметров винтовой лестницы
+	var botOffsetHeight = stairParams.stepHeight - params.treadThickness;
+	
+	var p0 = newPoint_xy(par.zeroPoint, params.nose + 0.01, -params.treadThickness); //левый нижний угол
+	if(params.riserType == "есть") p0.x += params.riserThickness;
+	var p1 = newPoint_xy(p0, 0, par.h);
+	
+	var botP1 = newPoint_xy(p0, -botOffset, 0);
+	var botP2 = newPoint_xy(botP1, 0, -botOffsetHeight);
+	var botP3 = newPoint_xy(p0, 0, -botOffsetHeight);
+
+	botP1.filletRad = botP2.filletRad = botP3.filletRad = 0;
+	
+	// проступь
+	var p2 = newPoint_xy(p1, par.b, 0);
+
+	// нижняя линия
+	var botLinePoints = [];
+	
+	if (params.stringerType !== "ломаная"){
+		var p20 = newPoint_xy(p2, (par.stringerWidth / Math.sin(par.marshAng)), 0.0); // первая точка на нижней линии марша
+		var p21 = polar(p20, par.marshAng, 100.0); // вторая точка на нижней линии
+		var p00 = newPoint_xy(p0, 100, 0); // вторая точка нижнего края косоура
+		var botLineP1 = itercection(p0, p00, p20, p21); // точка пересчечения нижнего края и нижней линии марша
+		//выступ при маленьком нижнем горизонтальном участке
+		if ((botLineP1.x - p0.x) < 120){
+			botLineP1 = newPoint_xy(p0, 120, 0.0);
+			var botLineP2 = itercection(botLineP1, polar(botLineP1, Math.PI * 2 / 5, 100), p20, p21);
+			botLinePoints.push(botLineP2);
+		}
+	}
+	if (params.stringerType == "ломаная"){
+		botLineP1 = newPoint_xy(p0, par.b + par.stringerWidth, 0.0);
+		var botLineP2 = newPoint_xy(p2, par.stringerWidth, -par.stringerWidth + par.h);
+		if(par.stairAmt > 1 || (par.stairAmt == 1 && par.key == "out")) botLinePoints.push(botLineP2);
+	}
+
+	// var botP1 = newPoint_xy(p0, -par.b, 0);
+	// var botP2 = newPoint_xy(botP1, )
+		
+	//сохраняем точки контура
+	p0.filletRad = 0; //угол косоура не скругляется	
+	par.pointsShape.push(...botLinePoints);
+	par.pointsShape.push(botLineP1);
+
+	par.pointsShape.push(botP3);
+	par.pointsShape.push(botP2);
+	par.pointsShape.push(botP1);
+
+	par.pointsShape.push(p0);
+	par.pointsShape.push(p1);
+
+	
+	//сохраняем точку для расчета длины
+	par.keyPoints.botPoint = copyPoint(p0);
+		
+	/*ОТВЕРСТИЯ*/
+	
+	//базовые точки для стыковки
+	par.botUnitEnd = par.pointsShape[par.pointsShape.length - 1];
+	par.botUnitStart = par.pointsShape[0];
+	par.midUnitEnd = par.botUnitEnd;
+	
+	//сохраняем координаты нижнего левого угла тетивы для самонесущего стекла
+	par.keyPoints[par.key].botLineP0 = newPoint_xy(p0, 0, -215);//FIX!
+
+	// Фланец крепления к балке винтовой части
+	var center1 = newPoint_xy(botP1, 30, -20);// 20 - расстояние от отверстия в уголке до его торца
+	var center2 = newPoint_xy(center1, 0.0, -60.0);
+	center1.hasAngle = center2.hasAngle = true;
+	center1.rotated = center2.rotated = true;
+	par.pointsHole.push(center2);
+	par.pointsHole.push(center1);
+
+}//end of drawBotStepKo_floor
+
+
+/**
  * первый подъем если снизу площадка (Г-образная и трехмаршевая лестница)
  */
 function drawBotStepKo_pltG(par){
@@ -1130,7 +1214,7 @@ function drawMiddleStepsKo(par){
 		marshId: par.marshId,
 		type: "top",
 		prevUnitEnd: par.pointsShape[par.pointsShape.length - 1],
-		};
+	};
 	var marshTopLine = drawMarshSteps(topLinePar).points;
 	par.pointsShape.push(...marshTopLine);
 	
@@ -1392,9 +1476,9 @@ function drawTopStepKo_floor(par){
 			center1 = newPoint_xy(p1, par.rutelPosX, par.stepHoleY);
 			if (par.stairAmt == 0) {
 				center1 = newPoint_xy(topLineP1, -60, -20);
-				}
+			}
 			//удлиннение последней стойки
-            var dyLastRack = calcLastRackDeltaY(); //функция в файле drawRailing_3.0;
+			var dyLastRack = calcLastRackDeltaY(); //функция в файле drawRailing_3.0;
 			center1.x += dyLastRack / Math.tan(par.marshAng);
 			if (center1.x + 30 > topLineP1.x) center1 = newPoint_x1(center1, -(30 - (topLineP1.x - center1.x)), par.marshAng);
 			//смещаем отверстие чуть назад, чтобы не было пересечения с отверстием рамки
@@ -1420,7 +1504,7 @@ function drawTopStepKo_floor(par){
 			}
 			if(params.rackBottom == "сверху с крышкой") {
 				center1 = newPoint_xy(p1, par.rutelPosX, par.stepHoleY);
-				}
+			}
 			par.railingHoles.push(center1);
 		}
 
@@ -1468,6 +1552,92 @@ function drawTopStepKo_floor(par){
 		par.pointsHole.push(center1);
 		}
 }//end of drawTopStepKo_floor
+
+/**
+ * последний подъем если сверху винтовая часть
+ */
+function drawTopStepKo_vint(par){
+	
+	var p1 = par.pointsShape[par.pointsShape.length - 1];
+
+	//размеры верхнего выступа
+	var topOffset = 150;
+	
+	/*ТОЧКИ КОНТУРА*/
+	
+	//верхний выступ
+	var topLinePoints = [];
+	
+	//верхняя проступь
+	var p3 = newPoint_xy(p1, par.b, 0.0);
+	p3.filletRad = 0; //угол тетивы не скругляется
+	topLinePoints.push(p3);
+
+	//вертикальный участок
+	var p4 = newPoint_xy(p3, 0.0, par.h - 100); // Высота опоры винтовой лестницы
+	var p5 = newPoint_xy(p4, 60, 0); //Толщина опоры винтовой лестницы
+	var p6 = newPoint_xy(p5, 0, 100);
+	
+	//горизонтальный участок
+	var topLineP1 = newPoint_xy(p3, topOffset, par.h);
+	
+	p4.filletRad = p5.filletRad = p6.filletRad = topLineP1.filletRad = 0;
+
+	topLinePoints.push(p4, p5, p6, topLineP1);
+	
+	// нижняя линия
+	var botLinePoints = [];
+	
+	if (params.stringerType != "ломаная"){
+		//вспомогательыне точки на нижней линии
+		var p0 = newPoint_xy(p1, 0, -par.h);
+		var p20 = polar(p0, (par.marshAng - Math.PI / 2), par.stringerWidth) // первая точка на нижней линии марша
+		var p21 = polar(p20, par.marshAng, 100.0);
+		var topLineP2 = itercection(p20, p21, topLineP1, newPoint_xy(topLineP1, 0, 100));
+	}
+	
+	if (params.stringerType == "ломаная"){
+		var topLineP2 = {x: topLineP1.x, y: p1.y - par.stringerWidth};
+		
+		//если проступь маленькая, то снизу нет последнего уступа
+		if(par.pointsShape[0].x >= topLineP2.x - 10){
+			topLineP2.y = par.pointsShape[0].y; //переносим topLineP2 вниз до уровня уступа
+			par.pointsShape.shift(); //удаляем первую точку
+			//если проступь еще меньше, удаляем еще одну точку
+			if(par.pointsShape[0].x >= topLineP2.x - 10){
+				topLineP2.y = par.pointsShape[0].y; //переносим topLineP2 вниз до уровня уступа
+				par.pointsShape.shift(); //удаляем первый элемент
+			}
+		}
+	}
+		
+	botLinePoints.push(topLineP2);
+	
+	//сохраняем точки контура
+	if (par.pointsShape[0].x > topLineP1.x) par.pointsShape.shift();
+	var curPos = par.pointsShape.length;
+	par.pointsShape.push(...topLinePoints);
+	topLineP1.filletRad = 0; //верхний угол тетивы не скругляется
+	par.pointsShape.push(topLineP1);
+	par.pointsShape.push(...botLinePoints);
+	
+	//сохраняем точки для отладки
+	par.keyPoints[par.key].topUnitStart = par.pointsShape[curPos];
+	par.keyPoints[par.key].topUnitEnd = par.pointsShape[par.pointsShape.length - 1];
+
+	//сохраняем точку для расчета длины
+	par.keyPoints.topPoint = copyPoint(topLineP1);
+	
+	/** ОТВЕРСТИЯ */
+	// отверстия под верхний крепежный уголок
+	var center1 = newPoint_xy(p6, 30, -20);// 20 - расстояние от отверстия в уголке до его торца
+	var center2 = newPoint_xy(center1, 0.0, -60.0);
+	center1.hasAngle = center2.hasAngle = true;
+	center1.rotated = center2.rotated = true;
+	par.pointsHole.push(center2);
+	par.pointsHole.push(center1);
+}//end of drawTopStepKo_vint
+
 
 /**
  * последний подъем если сверху площадка (Г-образная лестница либо верхняя площадка)
@@ -1612,6 +1782,9 @@ function drawTopStepKo_pltG(par) {
 			}
 		}
 	}
+	if (params.topPltRailing_4 && par.key == 'out' && params.stairModel == 'Прямая' && params.platformTop == 'увеличенная') {
+		par.hasPltRailing = true;
+	}
 	if (par.hasRailing || hasRailingTop) {
 		if (params.railingModel != "Самонесущее стекло") {
 			if (par.stringerLast || par.key == "out") {
@@ -1623,8 +1796,8 @@ function drawTopStepKo_pltG(par) {
 					center1 = newPoint_xy(pt2, -80, par.stepHoleY);
 					//if (params.rackBottom == "сверху с крышкой") center1.x -= 80;
 					railingHolesTop.push(center1);
-					}
 				}
+			}
 			if (par.key == "in" && !par.stringerLast) {
 				center1 = newPoint_xy(p0, par.b / 2, par.stepHoleY);
 
@@ -2955,6 +3128,7 @@ function drawMarshSteps(par){
 			p1.filletRad = 0;
 			};
 		*/
+
 		if(params.model == "ко" || isStartTreadStep) p1.filletRad = p2.filletRad = filletRad;
 		if(hasNotch){
 			if (par.isMiddleStringer) {

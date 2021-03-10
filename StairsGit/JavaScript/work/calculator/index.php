@@ -11,14 +11,14 @@ $APPLICATION->SetTitle("");
 <tr><th>Тип лестницы</th><th>Расчет цены</th><th>Изготовление</th></tr>
 	<tr>
 		<td class="left">Тетивы/косоуры из листа</td>
-		<td><a href="/calculator/metal/" target="_blank">Открыть</a></td>
-		<td><a href="/manufacturing/metal/" target="_blank">Открыть</a></td>
+		<td><a href="/calculator/metal/" target="_blank">Один этаж</a><br><a href="/calculator/multi?multiCalcType=metal" target="_blank">Много этажей</a></td>
+		<td><a href="/manufacturing/metal/" target="_blank">Один этаж</a><br><a href="/manufacturing/multi?multiCalcType=metal" target="_blank">Много этажей</a></td>
 	</tr>
 
 	<tr>
 		<td class="left">Монокосоуры</td>
-		<td><a href="/calculator/mono/" target="_blank">Открыть</a></td>
-		<td><a href="/manufacturing/mono/" target="_blank">Открыть</a></td>
+		<td><a href="/calculator/mono/" target="_blank">Один этаж</a><br><a href="/calculator/multi?multiCalcType=mono" target="_blank">Много этажей</a></td>
+		<td><a href="/manufacturing/mono/" target="_blank">Один этаж</a><br><a href="/manufacturing/multi?multiCalcType=mono" target="_blank">Много этажей</a></td>
 	</tr>
 	<tr>
 		<td class="left">Винтовые</td>
@@ -44,8 +44,8 @@ $APPLICATION->SetTitle("");
 
 	<tr>
 		<td class="left">Деревянные эконом</td>
-		<td><a href="/calculator/timber_stock/" target="_blank">Открыть</a></td>
-		<td><a href="/manufacturing/timber_stock/" target="_blank">Открыть</a></td>
+		<td><a href="/calculator/timber_stock/" target="_blank">Один этаж</a><br><a href="/calculator/multi?multiCalcType=timber_stock" target="_blank">Много этажей</a></td>
+		<td><a href="/manufacturing/timber_stock/" target="_blank">Один этаж</a><br><a href="/manufacturing/multi?multiCalcType=timber_stock" target="_blank">Много этажей</a></td>
 	</tr>
 	
 	<tr>
@@ -91,6 +91,12 @@ $APPLICATION->SetTitle("");
 	</tr>
 	
 	<tr>
+		<td class="left">Шкафы</td>
+		<td><a href="/calculator/coupe/" target="_blank">Открыть</a></td>
+		<td><a href="/manufacturing/coupe/" target="_blank">Открыть</a></td>
+	</tr>
+	
+	<tr>
 		<td class="left">Полностью деревянные (архив)</td>
 		<td><a href="/calculator/timber/" target="_blank">Открыть</a></td>
 		<td><a href="/manufacturing/timber/" target="_blank">Открыть</a></td>
@@ -106,11 +112,7 @@ $APPLICATION->SetTitle("");
 		<td><a href="/calculator/wardrobe/" target="_blank">Открыть</a></td>
 		<td><a href="/manufacturing/wardrobe/" target="_blank">Открыть</a></td>
 	</tr>
-	<tr>
-		<td class="left">Шкафы купе (архив)</td>
-		<td><a href="/calculator/coupe/" target="_blank">Открыть</a></td>
-		<td><a href="/manufacturing/coupe/" target="_blank">Открыть</a></td>
-	</tr>
+
 	<tr>
 		<td class="left">Комоды (архив)</td>
 		<td><a href="/calculator/sideboard/" target="_blank">Открыть</a></td>

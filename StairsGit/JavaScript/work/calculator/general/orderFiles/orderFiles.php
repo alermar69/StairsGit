@@ -8,5 +8,4 @@
 	<br/>
 	<span style='font-size: 1.2em'>Техническая информация </span> <button id="showTechInfo">Показать</button>
 	<div id="techInfo" style="display: none;"></div>
-	
 </div>

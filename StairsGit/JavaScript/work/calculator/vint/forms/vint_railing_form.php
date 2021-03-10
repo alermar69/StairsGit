@@ -25,6 +25,7 @@
 						<option value="Ригели">Ригели</option>
 						<option value="Стекло на стойках">Стекло на стойках</option>
 						<option value="Самонесущее стекло">Самонесущее стекло</option>
+						<option value="Дерево с ковкой">Дерево с ковкой</option>
 					</select>
 				</td>
 			</tr>
@@ -34,16 +35,6 @@
 				<td><select name="handrailMaterial" size="1" id="handrailMaterial" onchange="">
 						<option value="ПВХ">ПВХ Ф50</option>
 						<option value="Дуб">Дуб 40х60</option>
-					</select>
-				</td>
-			</tr>
-
-			<tr class='railingParams'>
-				<td>Цвет поручня ПВХ:</td>
-				<td>
-					<select size="1" id="handrailColor" onchange="">
-						<!-- варианты цветов поручня пвх -->
-						<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/pvcColors.php" ?>
 					</select>
 				</td>
 			</tr>
@@ -115,12 +106,50 @@
 				<td>Удлиннение поручня площадки:</td> 
 				<td><input id="topHandrailExtraLength" type="number" value="0" step="10"></td>
 			</tr>
-				
+
+			<tr class="railing_tr kovka_tr"><td>Модель балясины:</td> <td> 
+				первая: 
+				<select id="banister1" size="1" onchange="">
+					<!-- варианты кованых балясин -->
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
+				</select>
+				<br/>
+				вторая: 
+				<select id="banister2" size="1" onchange="">
+					<!-- варианты кованых балясин -->
+					<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
+				</select>
+				<button class="showForgePrv noPrint">эскизы</button>
+			</td></tr>
+			<tr class="kovka_tr"><td>Чередование балясин:</td> <td> 
+				<select id="forgeBalToggle" size="1" onchange="">
+					<option value="1-1">1-1</option>
+					<option value="2-1">2-1</option>
+					<option value="1-2">1-2</option>
+					<option value="2-2">2-2</option>
+				</select>
+			</td></tr>
+			
+			<tr class="kovka_tr railing_tr"><td>№ столбов по каталогу:</td> <td> 
+				<input id="timberRackModel" type="text" value="01">
+				<button class="showModal noPrint" data-modal="timberNewellsModal">эскизы</button>
+			</td></tr>
+
+			<tr class="kovka_tr railing_tr"><td>Навершия столбов:</td> <td> 
+				<select id="newellTopType" size="1" onchange="">
+					<option value="плоское">плоское</option>
+					<option value="пирамидка">пирамидка</option>
+					<option value="шар" >шар</option> 
+					<option value="крышка">крышка плоская</option>
+					<option value="крышка пирамидка">крышка пирамидка</option>
+				</select>
+			</td></tr>
+
 		</tbody>
 	</table>
 
-	<div id='strightMarsRailinghWrapper' class='strightMarsh'>
-			<h4>Ограждения прямого марша.</h4>
+	<div id='strightMarsRailinghWrapper' class='marshPar'>
+			<h4>Ограждения прямых маршей.</h4>
 
 			<table class="form_table" id="treadsTableWrapper">
 				<tbody>
@@ -129,7 +158,7 @@
 						<td>
 							<select id="strightMarshRailing" size="1">
 								<option value="Ригели">ригели</option>
-								<option value="Cтекло на стойках">стекло на стойках</option>
+								<option value="Стекло на стойках">Стекло на стойках</option>
 								<option value="Дерево с ковкой">Дерево с ковкой</option>
 							</select>
 						</td>
@@ -153,7 +182,7 @@
 							</select>
 					</td></tr>
 
-					<tr class="timber_tr railing_tr timber_kovka_tr"><td>Балясин на ступень:</td> <td> 
+					<tr class="railing_tr stright_kovka_tr"><td>Балясин на ступень прямого марша:</td> <td> 
 						<select id="timberBalStep" size="1" onchange="">
 							<option value="1">1</option>
 							<option value="1.5" >3/2</option> 
@@ -161,39 +190,25 @@
 						</select>
 					</td></tr>
 					<tr class="handrailParams_tr"><td>Модель поручня:</td> <td> 
-					<select id="handrail" size="1" class='handrail'>	
-						<option value="массив" selected >массив дерева</option>
-						<option value="40х20 черн.">черн. 40х20</option>
-						<option value="40х40 черн.">черн. 40х40</option>
-						<option value="60х30 черн.">черн. 60х30</option>
-						<option value="40х40 нерж.">нерж. 40х40</option>
-						<option value="Ф50 нерж.">нерж. Ф50 </option>
-						<option value="Ф50 нерж. с пазом">нерж. Ф50 с пазом</option>
-						<option value="40х60 нерж. с пазом">нерж. 40х60 с пазом</option>
-						<option value="ПВХ">ПВХ Ф50</option>
-						
-						<option value="сосна">сосна</option>
-						<option value="береза">береза</option>
-						<option value="лиственница">лиственница</option>
-						<option value="дуб паркет.">дуб паркет.</option>
-						<option value="дуб ц/л">дуб ц/л</option>
-						<option value="нет">нет</option>
+						<select id="handrail" size="1" class='handrail'>	
+							<option value="массив" selected >массив дерева</option>
+							<option value="40х20 черн.">черн. 40х20</option>
+							<option value="40х40 черн.">черн. 40х40</option>
+							<option value="60х30 черн.">черн. 60х30</option>
+							<option value="40х40 нерж.">нерж. 40х40</option>
+							<option value="Ф50 нерж.">нерж. Ф50 </option>
+							<option value="Ф50 нерж. с пазом">нерж. Ф50 с пазом</option>
+							<option value="40х60 нерж. с пазом">нерж. 40х60 с пазом</option>
+							<option value="ПВХ">ПВХ Ф50</option>
+							
+							<option value="сосна">сосна</option>
+							<option value="береза">береза</option>
+							<option value="лиственница">лиственница</option>
+							<option value="дуб паркет.">дуб паркет.</option>
+							<option value="дуб ц/л">дуб ц/л</option>
+							<option value="нет">нет</option>
 
-					</select>
-				</td></tr>
-					<tr class="railing_tr kovka_tr"><td>Модель балясины:</td> <td> 
-						первая: 
-						<select id="banister1" size="1" onchange="">
-							<!-- варианты кованых балясин -->
-							<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
 						</select>
-						<br/>
-						вторая: 
-						<select id="banister2" size="1" onchange="">
-							<!-- варианты кованых балясин -->
-							<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/forgedBals.php" ?>
-						</select>
-						<button class="showForgePrv noPrint">эскизы</button>
 					</td></tr>
 				</tbody>
 			</table>

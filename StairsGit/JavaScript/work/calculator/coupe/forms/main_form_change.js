@@ -19,15 +19,11 @@ $(function () {
 		if(isDoorsFixed) {
 			isDoorsFixed = false;
 			$("#fixDoors").text("Заблокировать двери");
-			} 
-		else {
+		} else {
 			isDoorsFixed = true;
 			$("#fixDoors").text("Разблокировать двери");
-			}
-		});
-		
-	
-			
+		}
+	});
 });
 
 function changeFormWr(){
@@ -50,9 +46,17 @@ function changeFormWr(){
 			$("#doorsPaint_wr option[value='морилка+лак']").hide();
 			}
 			
-
+	if (params.sideWall_wr == 'проф. труба' || params.sideWall_wr == 'кресты металл' || params.sideWall_wr == 'кресты дерево') {
+		$('.sideWall').show();
+	}else{
+		$('.sideWall').hide();
+	}
 		
-		
+	if ($("#sideWall_wr").val().indexOf('бруски') != -1) {
+		$('.wallProf').show();
+	}else{
+		$('.wallProf').hide();
+	}
 	
 	$(".leftSect").show();
 	if($("#leftSectWidth").val() == 0) $("#leftSectWidth").val(400);

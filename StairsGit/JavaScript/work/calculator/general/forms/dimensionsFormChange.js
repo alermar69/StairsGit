@@ -3,7 +3,7 @@ var fontGlob;
 //обработчики
 
 $(function () {
-	loadFont();
+	if(!window.IS_ISOLATION && params.calcType != 'custom') loadFont();
 
 	//добавление секции
 	$("#addDimRow").click(function(){

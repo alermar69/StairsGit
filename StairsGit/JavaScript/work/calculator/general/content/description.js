@@ -120,6 +120,17 @@ function getTreadDescr(){
 		stairsImage = "004.jpg";
 	}
 
+	if (stairType =="ясень паркет.") {
+		stairsHeader += " ясеня. ";
+		stairMaterial = "дерево";
+		stairsImage = "ash_01.jpg";
+	}
+	if (stairType =="ясень ц/л") {
+		stairsHeader += " ясеня. ";
+		stairMaterial = "дерево";
+		stairsImage = "ash.jpg";
+	}
+
 	if (stairType =="рифленая сталь") {
 		stairsHeader = "Ступени из рифленой стали";
 		// text['facts'].push("Ступени полностью металлические, изготовлены из нескользкого рифленого стального листа;");
@@ -360,30 +371,35 @@ function printDescr() {
 			text += "<div class='description-title'>Основные особенности Вашей лестницы</div>";
 		}
 		var blocks = [];
-		var units = staircaseHasUnit();
-		//каркас
-		if(units.carcas) blocks.push({type: 'carcas', content: getCarcasDescr(), images: getPreviewImages('carcas')});
 		
-		//ступени
-		if(units.treads) {
-			var images = getPreviewImages('treads');
-			//картинка по умолчанию
-			if(images.length == 0){
-				images = [{url: getTreadDescr().img}]
+		if (params.calcType != 'fire_2') {
+			var units = staircaseHasUnit();
+			//каркас
+			if(units.carcas) blocks.push({type: 'carcas', content: getCarcasDescr(), images: getPreviewImages('carcas')});
+			
+			//ступени
+			if(units.treads) {
+				var images = getPreviewImages('treads');
+				//картинка по умолчанию
+				if(images.length == 0){
+					images = [{url: getTreadDescr().img}]
+				}
+				blocks.push({type: 'treads', content: getTreadDescr(), images: images});
 			}
-			blocks.push({type: 'treads', content: getTreadDescr(), images: images});
-		}
+			
+			//ограждения
+			if(units.railing || units.banister || units.sideHandrails) blocks.push({type: 'railing', content: getRailingDescr(), images: getPreviewImages('railing')});
+			
+			if (units.carportCarcas) blocks.push({type: 'carport_carcas', content: getCarportCarcasDescr(), images: getPreviewImages('carport_carcas')});
+			if (units.carportRoof) blocks.push({type: 'carport_roof', content: getCarportRoofDescr(), images: getPreviewImages('carport_roof')});
 		
-		//ограждения
-		if(units.railing || units.banister || units.sideHandrails) blocks.push({type: 'railing', content: getRailingDescr(), images: getPreviewImages('railing')});
-		
-		if (units.carportCarcas) blocks.push({type: 'carport_carcas', content: getCarportCarcasDescr(), images: getPreviewImages('carport_carcas')});
-		if (units.carportRoof) blocks.push({type: 'carport_roof', content: getCarportRoofDescr(), images: getPreviewImages('carport_roof')});
-	
-		if ($("#descriptionTempalte").length > 0) {
-			var template = $.templates("#descriptionTempalte");
-			var html = template.render(blocks);
-			text += html;
+			if ($("#descriptionTempalte").length > 0) {
+				var template = $.templates("#descriptionTempalte");
+				var html = template.render(blocks);
+				text += html;
+				$("#description").append(text);
+			}
+		}else{
 			$("#description").append(text);
 		}
 	}
@@ -512,7 +528,7 @@ function getConstructionAdditional() {
 function getAssemblingDescription() {
 	var images = [
 		{
-			url: '/images/calculator/new_kp/assembling_1.png',
+			url: '/images/calculator/new_kp/assembling_1.jpg',
 			text: 'Доставка и монтаж готового изделия осуществляется в удобный для вас день и время.'
 		},
 		{
@@ -553,7 +569,7 @@ function printAdditionalDescription(){
 						type: blockType, 
 						images: getPreviewImages(blockType), 
 						comment: obj.meshParams.objectComment,
-						title: (obj.name || eval(obj.className).getMeta().title),
+						title: (obj.name || eval(obj.className).getMeta().title + " №" +  + obj.id),
 						description: eval(obj.className).getDescr(obj).html
 					});
 				}
@@ -587,14 +603,14 @@ function printAdditionalDescription(){
 		html += paramsBlockTemplate.render(getAssemblingDescription());
 	}
 
-	html += $.templates("#footerTemplate").render({
-		image: "/images/calculator/new_kp/assembling_1.png",
-		items:[
-			"Покажем образцы древесины, обработки, покрытия и тд - у нас в офисе больше 200 образцов!",
-			"Ответим на все ваши вопросы касаемо монтажа и дальнейшего ухода за подоконником",
-			"Проведем экскурсию по производству, расскажем обо всех нюансах",
-		]
-	});
+	// html += $.templates("#footerTemplate").render({
+	// 	image: "/images/calculator/new_kp/assembling_1.png",
+	// 	items:[
+	// 		"Покажем образцы древесины, обработки, покрытия и тд - у нас в офисе больше 200 образцов!",
+	// 		"Ответим на все ваши вопросы касаемо монтажа и дальнейшего ухода за подоконником",
+	// 		"Проведем экскурсию по производству, расскажем обо всех нюансах",
+	// 	]
+	// });
 	
 
 	html += '</div>'

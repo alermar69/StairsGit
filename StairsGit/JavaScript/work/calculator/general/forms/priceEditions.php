@@ -1,6 +1,11 @@
 <div class="priceEditions printBlock" id='priceEditions'>
-	
-	<h2 id="priceEditionsHeader">Варианты комплектации</h2>
+	<?
+		if (isset($GLOBALS['MULTI']) && $GLOBALS['MULTI']) {?>
+				<h2 id="priceEditionsHeader">Этажи</h2>
+		<?}else{?>
+			<h2 id="priceEditionsHeader">Варианты комплектации</h2>
+		<?}
+	?>
 	
 	<div class="row" id="priceItemsWrap"></div>
 	
@@ -11,9 +16,10 @@
 		<button id="replacePriceItem">Заменить</button>
 		<button id="moovePriceItem">Сдвинуть</button>	
 		<button id="reindexPriceItems">Названия</button>
-		<button id="recalculatePrices">Пересчитать все</button>
+		<button class="recalculatePrices">Пересчитать все</button>
 		<button id="updateAllItems">Изменить все</button>
 		<button id="deleteAllItems">Удалить все</button>
+		<button id="addFromOrder">Добавить из заказа</button>
 	</div>
 
 </div>

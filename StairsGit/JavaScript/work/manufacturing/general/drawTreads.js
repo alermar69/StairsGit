@@ -1135,6 +1135,7 @@ function drawPlatform2(par) {
 			thk: params.treadThickness,
 			material: params.materials.tread,
 			partName: "tread",
+			modifyKey: 'platform:' + par.botMarshId
 		}
 		if (params.stairType == 'дпк' || params.stairType == "лиственница тер." ) {
 			// plateParams.material = params.materials.dpc;
@@ -1162,6 +1163,8 @@ function drawPlatform2(par) {
 				if(i == 0) plateParams.holes = calcTimberStokPltHoles(plateParams.width, i == 0);
 				if(i == par.partsAmt - 1) plateParams.holes = calcTimberStokPltHoles(plateParams.width, i == 0);
 			}
+
+			plateParams.modifyKey = 'platform:' + par.botMarshId + ':' + i
 
 			var drawRectTread = true;
 			if (params.calcType == "mono") {
@@ -1918,6 +1921,19 @@ function drawWndTread1(par) {
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
 		specObj[partName]["paintedArea"] += area * 2 + area * 0.1; //к-т 0,1 учитывает площадь торцев
+
+		//добавляем информацию в материалы
+		var panelName_40 = calcTimberParams(params.treadsMaterial).treadsPanelName;	
+		var panelName_20 = calcTimberParams(params.treadsMaterial).riserPanelName;
+		
+		addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 60) addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 80) addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 100) {
+			addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+			addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		}
+		par.mesh.isInMaterials = true;
 	}
 	par.mesh.specId = partName + name;
 
@@ -2119,6 +2135,19 @@ function drawWndTread2(par) {
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
 		specObj[partName]["paintedArea"] += area * 2 + area * 0.1; //к-т 0,1 учитывает площадь торцев
+
+		//добавляем информацию в материалы
+		var panelName_40 = calcTimberParams(params.treadsMaterial).treadsPanelName;	
+		var panelName_20 = calcTimberParams(params.treadsMaterial).riserPanelName;
+		
+		addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 60) addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 80) addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 100) {
+			addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+			addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		}
+		par.mesh.isInMaterials = true;
 	}
 	par.mesh.specId = partName + name;
 
@@ -3508,6 +3537,7 @@ function drawWndTreadsTimber_stock(par) {
 function calcTreadLen() {
 	var treadLen = params.M;
 	var treadPar = getTreadParams(); //функция в файле calcSpecGeneral.js
+
 	if (params.model == "лт") {
 		treadLen -= params.stringerThickness * 2;
 		if (treadPar.material != "metal") treadLen -= 10;
@@ -3805,12 +3835,21 @@ function drawNotchedPlate(par){
         curveSegments: 12,
         steps: 1
     };
-	
+
+	if (par.modifyKey && window.service_data && window.service_data.shapeChanges) {
+		var modify = window.service_data.shapeChanges.find(function(change){
+			return change.modifyKey == par.modifyKey
+		})
+		if (modify) {
+			shape = getShapeFromModify(modify);
+		}
+	}
+
     var geometry = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geometry.rotateUV(Math.PI / 2);
     geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
     par.mesh = new THREE.Mesh(geometry, params.materials.tread);
-
+	par.mesh.modifyKey = par.modifyKey;
 	//сохраняем данные для спецификации
 	var treadPar = getTreadParams(); //функция в файле calcSpecGeneral.js
 	
@@ -3856,6 +3895,19 @@ function drawNotchedPlate(par){
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
 		specObj[partName]["paintedArea"] += paintedArea;
+
+		//добавляем информацию в материалы
+		var panelName_40 = calcTimberParams(params.treadsMaterial).treadsPanelName;	
+		var panelName_20 = calcTimberParams(params.treadsMaterial).riserPanelName;
+		
+		addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 60) addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 80) addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 100) {
+			addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+			addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		}
+		par.mesh.isInMaterials = true;
 	}
 	par.mesh.specId = partName + name;
 
@@ -4640,34 +4692,37 @@ function drawRectRiser(par) {
     var partName = "riser";
 
     if (typeof specObj != 'undefined' && params.stairType != "нет") {
-        if (!specObj[partName]) {
-            specObj[partName] = {
-                types: {},
-                amt: 0,
-                name: "Подступенок",
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				name: "Подступенок",
 				area: 0,
 				volume: 0,
-                paintedArea: 0,
-                metalPaint: treadPar.metalPaint,
-                timberPaint: treadPar.timberPaint,
-                division: treadPar.division,
-                workUnitName: "amt",
-                group: "risers",
-            }
-        }
-        var area = par.len * par.width / 1000000;
-        var paintedArea = area * 2 + (par.len * 1.0 + par.width * 1.0) * 2 * par.thk / 1000000;
+				paintedArea: 0,
+				metalPaint: treadPar.metalPaint,
+				timberPaint: treadPar.timberPaint,
+				division: treadPar.division,
+				workUnitName: "amt",
+				group: "risers",
+			}
+		}
+		var area = par.len * par.width / 1000000;
+		var paintedArea = area * 2 + (par.len * 1.0 + par.width * 1.0) * 2 * par.thk / 1000000;
 		
-        var name = Math.round(par.len) + "x" + par.width + "x" + par.thk;
-        if (par.ang) name += " забежн."
-        if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
-        if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
-        specObj[partName]["amt"] += 1;
+		var name = Math.round(par.len) + "x" + par.width + "x" + par.thk;
+		if (par.ang) name += " забежн."
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
 		specObj[partName]["volume"] += par.len * par.width * par.thk / 1000000000;
-        specObj[partName]["paintedArea"] += paintedArea;
-		}
-		par.mesh.specId = partName + name;
+		specObj[partName]["paintedArea"] += paintedArea;
+
+		addMaterialNeed({id: calcTreadParams().riserPanelName, amt: area, itemType:  'risers'});
+		par.mesh.isInMaterials = true;
+	}
+	par.mesh.specId = partName + name;
 
     return par;
 
@@ -4903,6 +4958,9 @@ function drawNotchRiser(par) {
 		specObj[par.partName]["amt"] += 1;
 		specObj[par.partName]["area"] += area;
 		specObj[par.partName]["paintedArea"] += paintedArea;
+
+		addMaterialNeed({id: calcTreadParams().riserPanelName, amt: area, itemType:  'risers'});
+		par.mesh.isInMaterials = true;
 	}
 
 	par.mesh.specId = par.partName + name;
@@ -5026,6 +5084,19 @@ function drawNotchedPlatePlatform(par) {
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
 		specObj[partName]["paintedArea"] += paintedArea;
+		
+		//добавляем информацию в материалы
+		var panelName_40 = calcTimberParams(params.treadsMaterial).treadsPanelName;	
+		var panelName_20 = calcTimberParams(params.treadsMaterial).riserPanelName;
+		
+		addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 60) addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 80) addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 100) {
+			addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+			addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		}
+		par.mesh.isInMaterials = true;
 	}
 	par.mesh.specId = partName + name;
 

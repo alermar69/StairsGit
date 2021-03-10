@@ -550,7 +550,7 @@ function drawPolyConnectionProfile(par){
 				group: "carcas",
 			}
 		}
-		var name = Math.round(profLength);
+		var name = "L=" + Math.round(profLength);
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
@@ -679,7 +679,7 @@ function drawPoleBeamFlan(par){
 	var p2 = newPoint_xy(p1, 0, partPar.rafter.profSize.y);
 	var p4 = newPoint_xy(p0, partPar.column.profSize.y / 2, 0);
 	var p3 = itercection(p2, polar(p2, THREE.Math.degToRad(params.roofAng), 10), p4, newPoint_xy(p4, 0, 10))
-	
+	if(par.isTop) p3 = newPoint_xy(p4, 0, partPar.rafter.profSize.y);
 	
 	//создаем шейп
 	var shapePar = {
@@ -1391,6 +1391,10 @@ function drawPolygonRoofSectorFrame(par){
 		var borderLine = leftHoleLine;
 		if(botPoint.x > 0) borderLine = rightHoleLine;		
 		var topPoint = itercection(borderLine.p1, borderLine.p2, botPoint, newPoint_xy(botPoint, 0, 1));
+		var fixPoint = itercection(p12, p13, botPoint, newPoint_xy(botPoint, 0, 1));
+		if (topPoint.y > fixPoint.y) {
+			topPoint.y = fixPoint.y;
+		}
 		
 		polePar.length = distance(botPoint, topPoint)
 		
@@ -1632,28 +1636,42 @@ function drawCarportBeam(par){
 		var flanPar = {
 			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 2000, 2000),
 			dxfArr: dxfPrimitivesArr,
+			isTop: false,
 		}
+		
+		//левая стороная
+		var posX = -params.width / 2 + params.sideOffset + partPar.column.profSize.y / 2
 		var flan = drawPoleBeamFlan(flanPar).mesh
-		flan.position.x = -params.width / 2 + params.sideOffset + partPar.column.profSize.y / 2
+		flan.position.x = posX
 		flan.position.z = -8
 		par.mesh.add(flan);
 		
 		var flan = drawPoleBeamFlan(flanPar).mesh
-		flan.position.x = -params.width / 2 + params.sideOffset + partPar.column.profSize.y / 2
+		flan.position.x = posX
 		flan.position.z = partPar.rafter.profSize.x
 		par.mesh.add(flan);
 		
 		
+		//правая сторона
+		var posX = params.width / 2 - params.sideOffset- partPar.column.profSize.y / 2
+		var posY = 0;
+		if (params.carportType == "односкатный" && params.roofType == "Арочная") {
+			posY = arcPar.topArc.height
+			flanPar.isTop = true;
+			posX = params.width / 2 - params.sideOffsetTop - partPar.column.profSize.y / 2
+		}
 		
 		var flan = drawPoleBeamFlan(flanPar).mesh
 		if (params.carportType == "двухскатный") flan.rotation.y = Math.PI
-		flan.position.x = params.width / 2 - params.sideOffset - partPar.column.profSize.y / 2
+		flan.position.x = posX
+		flan.position.y = posY		
 		flan.position.z = 0
 		par.mesh.add(flan);
 		
 		var flan = drawPoleBeamFlan(flanPar).mesh	
 		if (params.carportType == "двухскатный") flan.rotation.y = Math.PI
-		flan.position.x = params.width / 2 - params.sideOffset - partPar.column.profSize.y / 2
+		flan.position.x = posX
+		flan.position.y = posY
 		flan.position.z = partPar.rafter.profSize.x + 8
 		par.mesh.add(flan);
 	}
@@ -2030,7 +2048,7 @@ function drawRoofCarcas(par){
 	}
 	
 
-	if(params.beamModel == "проф. труба") {
+	if(params.trussType == "балки") {
 		rafterArrPar.arrSize.z = partPar.main.len;
 		rafterArrPar.itemSize.z = partPar.rafter.profSize.x;
 	}
@@ -2087,6 +2105,13 @@ function drawRoofCarcas(par){
 				itemWidth: partPar.purlin.profSize.x,
 				rot: {y: Math.PI / 2}
 			}
+			
+			if(params.beamModel == "проф. труба") {
+				//сдвигаем крайние прогоны на от края
+				var purlinMoove = 30;
+				arrPar.startAngle += purlinMoove / arrPar.rad;
+				arrPar.endAngle -= purlinMoove / arrPar.rad;
+			}
 			if(params.beamModel != "проф. труба") {
 				arrPar.itemAmt = rafterPar.progonAmt + 1;
 				arrPar.rad = topArc.rad + partPar.truss.stripeThk + 1
@@ -2108,7 +2133,7 @@ function drawRoofCarcas(par){
 			var purlinArr = drawArcArray(arrPar).mesh;
 			purlinArr.rotation.y = Math.PI / 2;
 			if(params.beamModel == "проф. труба") {
-				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x;
+				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x + (params.backOffset - params.frontOffset) / 2;
 			}
 			if(params.carportType == "сдвижной"){
 				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - par.len / 2 + partPar.rafter.profSize.x;
@@ -2162,7 +2187,7 @@ function drawRoofCarcas(par){
 				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x;
 				purlinArr.position.y = partPar.rafter.profSize.y - partPar.purlin.profSize.y
 			}
-			if(params.beamModel != "проф. труба") {				
+			if(params.beamModel != "проф. труба") {
 				purlinArr.position.y = partPar.truss.endPoint.y
 				if(params.carportType == "односкатный") purlinArr.position.x = partPar.truss.endPoint.x; //выравниваем вручную
 			}
@@ -2750,231 +2775,75 @@ function drawPyramidalRafters(par) {
 
 	var p0 = { x: 0, y: 0 }
 
-	var pt1 = newPoint_xy(p0, -par.lengthPavilion / 2 - params.sideOffset, -params.width / 2 - params.sideOffset) //точка угла секции
-	var pt2 = newPoint_xy(p0, -par.ridgeLen / 2, 0) // точка края конька
-
-	// Угловые стропильные ноги----------------------------------------------------------
+	// var pt1 = newPoint_xy(p0, -par.lengthPavilion / 2 - params.sideOffset, -params.width / 2 - params.sideOffset) //точка угла секции
+	// var pt2 = newPoint_xy(p0, -par.ridgeLen / 2, 0) // точка края конька
 
 	// определяем угол наклона угловых стропильных ног
-	var p3d1 = { x: 0, y: 0, z: 100 }
-	var p3d2 = { x: par.lengthPavilion / 2 - par.ridgeLen / 2, y: params.width / 2, z: par.roofHeight - partPar.beam.profSize.y - partPar.rafter.profSize.y}
-	var angCornerRafter = angleXY3d(p3d1, p3d2)
+	// var p3d1 = { x: 0, y: 0, z: 100 }
+	// var p3d2 = { x: par.lengthPavilion / 2 - par.ridgeLen / 2, y: params.width / 2, z: par.roofHeight - partPar.beam.profSize.y - partPar.rafter.profSize.y}
+	// var angCornerRafter = angleXY3d(p3d1, p3d2)
 
 	// длина угловых стропильных ног
-	var lenCornerRafter = distance(pt1, pt2) / Math.cos(angCornerRafter)
+	// var lenCornerRafter = distance(pt1, pt2) / Math.cos(angCornerRafter);
 
-	var rafterPar = {
-		poleProfileY: partPar.rafter.profSize.y,
-		poleProfileZ: partPar.rafter.profSize.x,
-		dxfBasePoint: par.dxfBasePoint,
-		length: lenCornerRafter,
-		poleAngle: 0,
-		material: params.materials.metal,
-		dxfArr: [],
-		type: 'rect',
-		partName: 'roofRafter'
-	};
+	var sideOffset = params.sideOffset + partPar.rafter.profSize.y * Math.sin(partPar.main.roofAng);
 
+	var pt1 = newPoint_xy(p0, -par.lengthPavilion / 2 - sideOffset, -params.width / 2 - sideOffset) //точка угла секции
+	var pt2 = newPoint_xy(p0, -par.ridgeLen / 2, 0) // точка края конька
+	
+	// Угол боковых частей каркаса кровли, подогнан но не меняется от размера
+	var ang = 1.4;
 	//передняя, задняя сторона
+	var halfRidge = par.ridgeLen / 2;
 	for (var k = 0; k < 2; k++) {
-
-		//боковые стороны
-		for (var j = 0; j < 2; j++) {
-			var cornerRafter = drawPole3D_4(rafterPar).mesh;
-
-			var angRot = calcAngleX1(pt1, pt2) // угол поворота угловых стропильных ног
-
-			cornerRafter.rotation.y = -Math.PI / 2 + angRot;
-			cornerRafter.rotation.z = angCornerRafter;
-			cornerRafter.position.x = pt1.y;
-			cornerRafter.position.z = pt1.x;
-			cornerRafter.position.y = - params.sideOffset * Math.tan(partPar.main.roofAng) + partPar.beam.profSize.y;
-			if (j == 1) {
-				cornerRafter.rotation.y = -Math.PI / 2 - angRot;
-				cornerRafter.position.x = -pt1.y;
-			}
-			if (k == 0) {
-				if (j == 0) cornerRafter.position.x += partPar.rafter.profSize.x / 2 / Math.cos(angRot)
-				if (j == 1) cornerRafter.position.z += partPar.rafter.profSize.x / 2 / Math.cos(angRot)
-			}
-
-			
-			if (k == 1) {
-				if (j == 0)cornerRafter.rotation.y += Math.PI / 2;
-				if (j == 1)cornerRafter.rotation.y -= Math.PI / 2;
-				cornerRafter.position.z = -pt1.x;
-				if (j == 0) cornerRafter.position.z -= partPar.rafter.profSize.x / 2 / Math.cos(angRot)
-				if (j == 1) cornerRafter.position.x -= partPar.rafter.profSize.x / 2 / Math.cos(angRot)
-			}
-
-			cornerRafter.setLayer('racks');
-			par.mesh.add(cornerRafter);
+		var framePar = {
+			ang: ang,
+			edgeLen: distance(pt1, pt2), //длина ребра
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: { x: 0, y: 3500 * (k + 1) },
+			sideOffset: 0,
+			topOffset: 100,
 		}
+
+		var frame = drawPolygonRoofSectorFrame(framePar).mesh;
+		var wrapper = new THREE.Object3D();
+		wrapper.add(frame);
+		wrapper.rotation.x = Math.PI / 2 - partPar.main.roofAng;
+		wrapper.position.z = -par.ridgeLen / 2;
+		if (k == 1) {
+			wrapper.position.z = par.ridgeLen / 2;
+			wrapper.rotation.x = -Math.PI / 2 + partPar.main.roofAng;
+		}
+		if (k == 1) {
+			wrapper.position.y += partPar.rafter.profSize.y * Math.cos(partPar.main.roofAng);
+		}
+		
+		par.mesh.add(wrapper);
 	}
 
-
-	// Стропильные ноги боковых сторон----------------------------------------------
-
-	//боковые стороны
+	//Боковые
+	var halfRidge = par.ridgeLen / 2;
 	for (var k = 0; k < 2; k++) {
+		var framePar = {
+			ang: ang,
+			edgeLen: distance(pt1, pt2), //длина ребра
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: { x: 4000, y: 3500 * (k + 1) },
+			sideOffset: -halfRidge,
+			topOffset: 100,
+		}
 
-		var rafterPar = {
-			poleProfileY: partPar.rafter.profSize.y,
-			poleProfileZ: partPar.rafter.profSize.x,
-			dxfBasePoint: par.dxfBasePoint,
-			length: (par.lengthPavilion / 2 - par.ridgeLen / 2 + params.sideOffset + partPar.rafter.profSize.y * Math.sin(partPar.main.roofAng)) / Math.cos(partPar.main.roofAng),
-			poleAngle: 0,
-			angEnd: partPar.main.roofAng,
-			material: params.materials.metal,
-			dxfArr: [],
-			type: 'rect',
-			partName: 'roofRafter'
-		};
-
-		// Средняя нога
-		var middleRafter = drawPole3D_4(rafterPar).mesh;
-
-		middleRafter.rotation.y = -Math.PI / 2;
-		middleRafter.rotation.z = partPar.main.roofAng;
-		middleRafter.position.x = rafterPar.poleProfileZ / 2;
-		middleRafter.position.z = pt1.x;
-		middleRafter.position.y = - params.sideOffset * Math.tan(partPar.main.roofAng) + partPar.beam.profSize.y;
+		var frame = drawPolygonRoofSectorFrame(framePar).mesh;
+		var wrapper = new THREE.Object3D();
+		wrapper.add(frame);
+		wrapper.rotation.z = Math.PI / 2;
+		wrapper.rotation.x = Math.PI / 2;
+		wrapper.rotation.y = -partPar.main.roofAng;
 		if (k == 1) {
-			middleRafter.rotation.y += -Math.PI;
-			middleRafter.position.z = -pt1.x;
-			middleRafter.position.x = -rafterPar.poleProfileZ / 2;
+			wrapper.rotation.z = -Math.PI / 2;
+			wrapper.rotation.y = partPar.main.roofAng;
 		}
-		middleRafter.setLayer('racks');
-		par.mesh.add(middleRafter);
-
-
-		// вспомогательные ноги
-		rafterPar.angEnd = 0;
-
-		var line = parallel(pt1, pt2, rafterPar.poleProfileZ / 2) // линия угловой ноги
-		var step = 600
-		var len = params.width / 2 - partPar.beam.profSize.x
-		var count = Math.floor(len / step)
-		var step = len / (count + 1)
-
-		// левая и правая сторона от средней ноги
-		for (var j = 0; j < 2; j++) {
-			var turn = 1;
-			if (j == 1) turn = -1;
-			for (var i = 1; i <= count; i++) {
-
-				var pt = { x: pt1.x, y: pt2.y - rafterPar.poleProfileZ / 2 - step * i }
-				var pi = itercection(line.p1, line.p2, pt, polar(pt, Math.PI / 2, 100))
-				rafterPar.length = distance(pt, pi) / Math.cos(partPar.main.roofAng)
-
-				var rafter = drawPole3D_4(rafterPar).mesh;
-
-				rafter.rotation.y = middleRafter.rotation.y;
-				rafter.rotation.z = middleRafter.rotation.z;
-				rafter.position.z = middleRafter.position.z;
-				rafter.position.y = middleRafter.position.y;
-				rafter.position.x = - step * i * turn;
-				if (k==0 && j == 1) rafter.position.x += rafterPar.poleProfileZ / 2;
-				if (k == 1 && j == 0) rafter.position.x -= rafterPar.poleProfileZ;
-
-				rafter.setLayer('racks');
-				par.mesh.add(rafter);
-			}
-		}
-	}
-
-
-	// Стропильные ноги передней и задней стороны----------------------------------------------
-
-	//передняя и задняя сторона
-	for (var k = 0; k < 2; k++) {
-		var rafterPar = {
-			poleProfileY: partPar.rafter.profSize.y,
-			poleProfileZ: partPar.rafter.profSize.x,
-			dxfBasePoint: par.dxfBasePoint,
-			length: (params.width / 2 + params.sideOffset - partPar.rafter.profSize.x / 2) / Math.cos(partPar.main.roofAng) + partPar.rafter.profSize.y * Math.tan(partPar.main.roofAng),
-			poleAngle: 0,
-			angEnd: partPar.main.roofAng,
-			material: params.materials.metal,
-			dxfArr: [],
-			type: 'rect',
-			partName: 'roofRafter'
-		};
-
-
-		// Средняя нога
-		var middleRafter = drawPole3D_4(rafterPar).mesh;
-
-		middleRafter.rotation.z = partPar.main.roofAng;
-		middleRafter.position.x = pt1.y;
-		middleRafter.position.z = -rafterPar.poleProfileZ / 2;
-		middleRafter.position.y = - params.sideOffset * Math.tan(partPar.main.roofAng) + partPar.beam.profSize.y;
-		if (k == 1) {
-			middleRafter.rotation.y = -Math.PI;
-			middleRafter.rotation.z = partPar.main.roofAng;
-			middleRafter.position.x = -pt1.y;
-			middleRafter.position.z = rafterPar.poleProfileZ / 2;
-		}
-
-		middleRafter.setLayer('racks');
-		par.mesh.add(middleRafter);
-
-		// вспомогательные ноги
-
-		//расчет кол-ва и шаг вспомогательных ног от средней ноги до края конька
-		var step = 600
-		var count = Math.floor(par.ridgeLen / 2 / step)
-		var step = par.ridgeLen / 2 / (count + 1)
-		count += 1;
-
-		//расчет кол-ва и шаг вспомогательных ног от края конька до края стороны
-		var line = parallel(pt1, pt2, -rafterPar.poleProfileZ / 2)// линия угловой ноги
-		var step1 = 600
-		var len1 = par.lengthPavilion / 2 - par.ridgeLen / 2 - partPar.beam.profSize.x
-		var count1 = Math.floor(len1 / step1)
-		var step1 = len1 / (count1 + 1)
-
-		// левая и правая сторона от средней ноги
-		for (var j = 0; j < 2; j++) {
-			var turn = 1;
-			if (j == 1) turn = -1;
-
-			//вспомогательные ноги от средней ноги до края конька
-			for (var i = 1; i <= count; i++) {
-				rafterPar.length = (params.width / 2 + params.sideOffset - partPar.rafter.profSize.x / 2) / Math.cos(partPar.main.roofAng) + partPar.rafter.profSize.y * Math.tan(partPar.main.roofAng)
-				rafterPar.angEnd = partPar.main.roofAng; 
-
-				var rafter = drawPole3D_4(rafterPar).mesh;
-
-				rafter.rotation.y = middleRafter.rotation.y;
-				rafter.rotation.z = middleRafter.rotation.z;
-				rafter.position.x = middleRafter.position.x;
-				rafter.position.z = middleRafter.position.z - step * i * turn;
-				if (i == count) rafter.position.z += rafterPar.poleProfileZ / 2 * turn;
-				rafter.position.y = middleRafter.position.y;
-				rafter.setLayer('racks');
-				par.mesh.add(rafter);
-			}
-
-			//вспомогательные ноги от края конька до края стороны
-			for (var i = 1; i <= count1; i++) {
-
-				var pt = { x: pt2.x - step1 * i, y: pt1.y }
-				var pi = itercection(line.p1, line.p2, pt, polar(pt, Math.PI / 2, 100))
-				rafterPar.length = distance(pt, pi) / Math.cos(partPar.main.roofAng)
-				rafterPar.angEnd = 0; 
-
-				var rafter1 = drawPole3D_4(rafterPar).mesh;
-
-				rafter1.rotation.y = middleRafter.rotation.y;
-				rafter1.rotation.z = middleRafter.rotation.z;
-				rafter1.position.x = middleRafter.position.x;
-				rafter1.position.z = rafter.position.z - step1 * i * turn;
-				rafter1.position.y = middleRafter.position.y;
-				rafter1.setLayer('racks');
-				par.mesh.add(rafter1);
-			}
-		}
+		par.mesh.add(wrapper);
 	}
 
 	return par;

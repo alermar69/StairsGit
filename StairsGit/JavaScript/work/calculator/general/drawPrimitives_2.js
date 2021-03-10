@@ -742,7 +742,7 @@ function addArc2(shape, dxfArr, centerPoint, radius, startAngle, endAngle, clock
 		temp = startAngle;
 		startAngle = endAngle;
 		endAngle = temp;
-		}
+	}
 		
 	shape.absarc(centerPoint.x, centerPoint.y, radius, startAngle, endAngle, clockwise)
 

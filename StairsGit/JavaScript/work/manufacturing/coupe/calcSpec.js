@@ -19,6 +19,7 @@ function printModelInfo() {
 		partsParams.glassSeal = {
 			name: "Уплотнитель для стекла 4мм",
 			amt: Math.ceil(specObj.mirrow.perim * 10) / 10,
+			division: 'metal'
 		}
 	}
 	//шлегель

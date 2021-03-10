@@ -154,6 +154,7 @@ function drawStrightTruss(par){
 			specObj[partName] = {
 				types: {},
 				amt: 0,
+				sumLength: 0,
 				area: 0,
 				name: "Ферма боковая",
 				metalPaint: true,
@@ -166,6 +167,7 @@ function drawStrightTruss(par){
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
+		specObj[partName]["sumLength"] += Math.round(par.len / 100) / 10;
 		specObj[partName]["area"] += s;
 		truss.specParams = {specObj: specObj, amt: 1, area: s, partName: partName, name: name}
 	}
@@ -346,7 +348,14 @@ function drawTriangleSheetTruss(par){
 		//если для последнего отверстия меньшая высота меньше удвоенного радиуса, делаем треугольное отверстие
 		if(params.beamModel == "сужающаяся" && (ph2.y - ph1.y) < holeCornerRad * 2){
 			ph1 = itercectionLines(holeTopLine, holeBotLine)
+			ph1.filletRad = 10; //минимальный радиус
+			
+			if(ph3.y - ph4.y < holeCornerRad * 2){
+				ph3.filletRad = ph4.filletRad = (ph3.y - ph4.y) * 0.4 //0.4 - подогнано
+			}
+				
 			holePoints = [ph1, ph3, ph4];
+			
 		}
 		
 		if(params.trussHolesType != "круги"){
@@ -569,6 +578,8 @@ function drawTriangleSheetTruss(par){
 	var height_r = distance(rightLine.p1, rightLine.p2);
 	if(params.beamModel == "постоянной ширины") height_l = height_r;
 	var area = (height_l + height_r) / 2 * distance(topLine.p1, rightLine.p1) / 1000000;
+	
+	par.stripeLength = stripeParTop.length + stripeParBot.length
 
 	var partName = "truss";
 	if (typeof specObj != 'undefined') {
@@ -578,6 +589,7 @@ function drawTriangleSheetTruss(par){
 				types: {},
 				amt: 0,
 				area: 0,
+				stripeLength: 0,
 				name: "Ферма поперечная",
 				metalPaint: true,
 				timberPaint: false,
@@ -590,10 +602,12 @@ function drawTriangleSheetTruss(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
+		specObj[partName]["stripeLength"] += Math.round(par.stripeLength / 100) / 10;
 		if (params.carportType == "двухскатный") {
 			if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 			specObj[partName]["amt"] += 1;
 			specObj[partName]["area"] += area;
+			specObj[partName]["stripeLength"] += Math.round(par.stripeLength / 100) / 10;
 		}
 		truss.specParams = { specObj: specObj, amt: 1, area: area, partName: partName, name: name }
 	}
@@ -758,30 +772,31 @@ function drawArcSheetTruss(par){
 
 	//отверстия для болтов
 	
-	//отверстия под фланцы колонн
-	var flanPar = calcColumnFlanPar();
-	flanPar.holes.forEach(function(center){
-		addRoundHole(par.shape, dxfPrimitivesArr, center, flanPar.holeDiam / 2, par.dxfBasePoint);
-		if(!par.hasDivide && params.carportType == "двухскатный"){
-			var center1 = copyPoint(center);
-			center1.x = center1.x * (-1) + topArc.center.x * 2;
-			addRoundHole(par.shape, dxfPrimitivesArr, center1, flanPar.holeDiam / 2, par.dxfBasePoint);			
-		}
-	})
-	
-	//отверстия под верхний фланец односкатного навеса
-	
-	if(params.carportType == "односкатный") {
-		var flanPar = calcColumnFlanPar({isTop: true})
+	if(params.trussType != "балки"){
+		//отверстия под фланцы колонн
+		var flanPar = calcColumnFlanPar();
 		flanPar.holes.forEach(function(center){
-			var center1 = copyPoint(center);
-			center1.x = center1.x * (-1) + rightLine.p2.x - partPar.column.profSize.y / 2;
-			center1.y = center1.y + rightLine.p2.y;
-			
-			addRoundHole(par.shape, dxfPrimitivesArr, center1, flanPar.holeDiam / 2, par.dxfBasePoint);
+			addRoundHole(par.shape, dxfPrimitivesArr, center, flanPar.holeDiam / 2, par.dxfBasePoint);
+			if(!par.hasDivide && params.carportType == "двухскатный"){
+				var center1 = copyPoint(center);
+				center1.x = center1.x * (-1) + topArc.center.x * 2;
+				addRoundHole(par.shape, dxfPrimitivesArr, center1, flanPar.holeDiam / 2, par.dxfBasePoint);			
+			}
 		})
+		
+		//отверстия под верхний фланец односкатного навеса
+		
+		if(params.carportType == "односкатный") {
+			var flanPar = calcColumnFlanPar({isTop: true})
+			flanPar.holes.forEach(function(center){
+				var center1 = copyPoint(center);
+				center1.x = center1.x * (-1) + rightLine.p2.x - partPar.column.profSize.y / 2;
+				center1.y = center1.y + rightLine.p2.y;
+				
+				addRoundHole(par.shape, dxfPrimitivesArr, center1, flanPar.holeDiam / 2, par.dxfBasePoint);
+			})
+		}
 	}
-	
 	// отверстия под соединительный фланец для ферм
 	
 	if(par.hasDivide){
@@ -832,7 +847,7 @@ function drawArcSheetTruss(par){
 	truss.setLayer('carcas');
 	
 	//полоса сверху
-	var stripeWidth = 60;
+	var stripeWidth = partPar.truss.chord.profSize.y;
 	var arcAngle = topArc.startAngle - topArc.endAngle;
 
 	var stripePar = {
@@ -883,29 +898,29 @@ function drawArcSheetTruss(par){
 	par.mesh.add(stripe);
 	
 	//левый фланец крепления к колонне
-	
-	var flanParams = {
-		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -500),
-		dxfPrimitivesArr: par.dxfArr,
+	if(params.trussType != "балки")	{
+		var flanParams = {
+			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -500),
+			dxfPrimitivesArr: par.dxfArr,
+		}
+		
+		var flan = drawColumnFlan(flanParams).mesh;
+		flan.position.z = -flanParams.thk;
+		par.mesh.add(flan);
+		
+		//правый фланец	
+		if(params.carportType == "односкатный") flanParams.isTop = true;
+		
+		flanParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, params.width, -500);
+		var flan = drawColumnFlan(flanParams).mesh;
+		flan.rotation.y = Math.PI
+		flan.position.x = topArc.center.x * 2
+		if(params.carportType == "односкатный") {
+			flan.position.x = topArc.center.x - partPar.column.profSize.y / 2
+			flan.position.y = rightLine.p2.y
+		}
+		par.mesh.add(flan);
 	}
-	
-	var flan = drawColumnFlan(flanParams).mesh;
-	flan.position.z = -flanParams.thk;
-	par.mesh.add(flan);
-	
-	//правый фланец	
-	if(params.carportType == "односкатный") flanParams.isTop = true;
-	
-	flanParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, params.width, -500);
-	var flan = drawColumnFlan(flanParams).mesh;
-	flan.rotation.y = Math.PI
-	flan.position.x = topArc.center.x * 2
-	if(params.carportType == "односкатный") {
-		flan.position.x = topArc.center.x - partPar.column.profSize.y / 2
-		flan.position.y = rightLine.p2.y
-	}
-	par.mesh.add(flan);
-
 	
 	//соединительный фланец
 	if(par.hasDivide && params.carportType == "двухскатный"){
@@ -951,8 +966,9 @@ function drawArcSheetTruss(par){
 	par.topRad = topArc.rad;
 	par.centerY = rightLine.p1.y;
 	par.centerYBot = rightLine.p2.y;
-	par.arcLength = topArc.rad * arcAngle;	
+	par.arcLength = topArc.rad * (topArc.startAngle - topArc.endAngle);	
 	par.topArc = topArc;
+	par.stripeLength = topArc.rad * (topArc.startAngle - topArc.endAngle) + botArc.rad * (botArc.startAngle - botArc.endAngle)
 	
 	//для двухскатных навесов далее используем полную верхнюю дугу
 	if (params.carportType == 'двухскатный') {
@@ -965,12 +981,13 @@ function drawArcSheetTruss(par){
 	var partName = "truss";
 	if (typeof specObj != 'undefined') {
 		name = par.len;
-		if (params.carportType == "двухскатный") name = par.len / 2;
+		if(par.hasDivide && params.carportType == "двухскатный") name = par.len / 2;
 		if (!specObj[partName]) {
 			specObj[partName] = {
 				types: {},
 				amt: 0,
 				area: 0,
+				stripeLength: 0,
 				name: "Ферма поперечная",
 				metalPaint: true,
 				timberPaint: false,
@@ -983,10 +1000,12 @@ function drawArcSheetTruss(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
-		if (params.carportType == "двухскатный") {
+		specObj[partName]["stripeLength"] += Math.round(par.stripeLength / 100) / 10;
+		if(par.hasDivide && params.carportType == "двухскатный") {
 			if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 			specObj[partName]["amt"] += 1;
 			specObj[partName]["area"] += area;
+			specObj[partName]["stripeLength"] += Math.round(par.stripeLength / 100) / 10;
 		}
 		truss.specParams = {specObj: specObj, amt: 1, area: area, partName: partName, name: name}
 	}
@@ -1206,6 +1225,7 @@ partPar.main.arcPar.topArc = topArc;
 				types: {},
 				amt: 0,
 				area: 0,
+				stripeLength: 0,
 				name: "Ферма поперечная",
 				metalPaint: true,
 				timberPaint: false,
@@ -1247,7 +1267,8 @@ function addTrussHoles(par){
 	
 	var holeStepAng = (par.topArc.startAngle - par.topArc.endAngle) / holeAmt;
 	
-	var hidenHolesAmt = 1; //не отрисовываем крайние отверстия
+	var hidenHolesAmt = 0; 
+	if(params.trussType != "балки") hidenHolesAmt = 1; //не отрисовываем крайние отверстия
 	hidenHolesAmt += Math.floor(params.sideOffset / 300);
 	
 	if(params.trussHolesType == "круги"){
@@ -1281,12 +1302,13 @@ function addTrussHoles(par){
 		//уменьшаем первое отверстие
 		if(params.trussHolesType == "вытянутые" && i == 0){
 			if(par.isHalf) rightLineAng += bridgeWidthAng * 0.2;
-			//if(!par.isHalf) rightLineAng += holeStepAng / 2;
+			if(!par.isHalf && params.trussType == "балки") rightLineAng += holeStepAng / 3;
 		}
-		/*
-		//уменьшаем крайнее отверстие		
-		if(i == holeAmt-1 && params.carportType != "консольный" && params.carportType != "консольный двойной") leftLineAng -= holeStepAng / 2;
-		*/
+		
+		//уменьшаем крайнее отверстие
+		if(params.trussHolesType == "вытянутые" && i == holeAmt-1){		
+			if(params.trussType == "балки") leftLineAng -= holeStepAng / 3;
+		}
 		//точки без учета скругления
 		var ph2 = polar(par.topArc.center, leftLineAng, par.topArc.rad - par.sideWidth) //левая верхняя
 		var ph3 = polar(par.topArc.center, rightLineAng, par.topArc.rad - par.sideWidth) //правая верхняя
@@ -2197,8 +2219,9 @@ function drawArcTubeTruss(par) {
 				types: {},
 				amt: 0,
 				area: 0,
+				stripeLength: 0,
 				name: "Ферма поперечная",
-				metalPaint: false,
+				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
 				workUnitName: "amt",
@@ -2766,8 +2789,9 @@ function drawTriangleTubeTruss(par) {
 				types: {},
 				amt: 0,
 				area: 0,
+				stripeLength: 0,
 				name: "Ферма поперечная",
-				metalPaint: false,
+				metalPaint: true,
 				timberPaint: false,
 				division: "metal",
 				workUnitName: "amt",

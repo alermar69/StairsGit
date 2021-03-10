@@ -77,7 +77,7 @@ function drawSideWall(par) {
 		}
 		if(par.carcasModel == "бруски") {
 			polePar.material = params.materials.timber
-			polePar.poleProfileY = 20;
+			//polePar.poleProfileY = 20;
 		}
 		
 		//верхняя перемычка
@@ -101,6 +101,12 @@ function drawSideWall(par) {
 					x: 0,
 					y: this - par.shelfThk - polePar.poleProfileY,
 				}
+				
+				if(par.carcasModel == "бруски") {
+					if(i == par.shelfPositions.length - 1) return true;
+					pos.y += 200;
+				}
+					
 				polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y);
 				//polePar.poleProfileY = botBeamSize;
 				var beam = drawPole3D_4(polePar).mesh;
@@ -185,5 +191,110 @@ function drawSideWall(par) {
 	}
 	par.carcas.specId = partName + name;
 	
+	return par;
+}
+
+
+/** функция устанавливает основные размеры, зависящие от модели
+ */
+function getModelDimensions() {
+	var thinBoardThk = 20;
+	var thickBoardThk = 40;
+	var mdfThk = 4;
+	
+	var par = {
+		leg: 125, //высота ножек
+		bridgeThk: 0, //толщина горизонтальных перемычек между ящиками
+		vertBridgeThk: thinBoardThk, //толщина вертикальных перемычек между ящиками
+		sectWallThk: thinBoardThk, //толщина перегородок между секциями
+		sideWall: {
+			newellSize: 50, //сечение стоевых	
+			topBeamSize: thinBoardThk, //сечение верхней перемычки по У
+			botBeamSize: thinBoardThk, //сечение нижней перемычки
+			panelThk: mdfThk, //толщина панели вставки
+			panelLedge: 5, //выступ вставки на одну сторону
+			panelOffset: 10, //смещение плоскости вставки от внешней плоскости боковины
+		},
+		rearWall: {
+			thk: mdfThk,
+			offset: 2, //утапливание задней стенки относительно задней плоскости шкафа
+			ledge: 10,
+		},
+		countertop: {
+			ledge: 15,
+			thk: thickBoardThk,
+			cornerRad: 10,
+		},
+		door: {
+			thk: thinBoardThk,
+			gap: 2,
+			topBeamSize: thinBoardThk, //сечение верхней перемычки по У
+			botBeamSize: thinBoardThk, //сечение нижней перемычки
+		},
+		drawer: {
+			sideThk: thinBoardThk,
+			botThk: mdfThk,
+			botOffset: 10, //Отступ днища от низа ящика
+			botLedge: 10, //вхожнение днища в паз по одной стороне
+			deltaLen: 10, //коррекция длины ящика под направляющие
+			sideOffset: 15, //боковой зазор от боковины ящика до каркаса
+			deltaHeight: 40, // разница высоты фасада и корпуса
+		}
+	}
+
+	return par;
+
+} //end of getModelDimensions
+
+function drawCross(par) {
+	par.mesh = new THREE.Object3D();
+	if(!par.profSize) par.profSize = 20;
+	var offset = 5;
+
+	//первая итерация - приблизительный расчет длины среза профиля
+	var poleHeight = par.height - 40;
+	var angle = Math.atan(poleHeight / par.width);
+	var profSize_ang = par.profSize / Math.cos(angle);
+
+	//вторая итерация		
+	poleHeight = par.height - profSize_ang - offset * 2;
+	angle = Math.atan(poleHeight / par.width);
+	profSize_ang = par.profSize / Math.cos(angle);
+	var len = poleHeight / Math.sin(angle)
+
+	var polePar = {
+		poleProfileY: par.profSize,
+		poleProfileZ: par.profSize,
+		dxfBasePoint: par.dxfBasePoint,
+		length: len,
+		poleAngle: angle,
+		angStart: angle,
+		angEnd: angle,
+		partName: "shelfCrossProfile",
+	}
+
+	var pos = {
+		x: 0,
+		y: offset,
+	}
+	polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y)
+	var pole = drawPole3D_4(polePar).mesh;
+	pole.position.x = pos.x;
+	pole.position.y = pos.y;
+	par.mesh.add(pole);
+
+	var pos = {
+		x: par.width,
+		y: offset,
+	}
+	polePar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, pos.x, pos.y)
+	var pole = drawPole3D_4(polePar).mesh;
+	pole.rotation.y = Math.PI;
+	pole.position.x = pos.x;
+	pole.position.y = pos.y;
+	pole.position.z = par.profSize * 2;
+	if(par.isFlat) pole.position.z = par.profSize
+	par.mesh.add(pole);
+
 	return par;
 }

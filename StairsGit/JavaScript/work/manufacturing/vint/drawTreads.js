@@ -56,19 +56,27 @@ function addVintTreads(par) {
 	return par;
 }
 
+var vintTreadsObj = {};
+
 function addStrightTreads(par, marshId){
-	var treadsObj = new THREE.Object3D();
+	var mesh = new THREE.Object3D();
 	var treadParams = {
 		marshId: marshId,
-		dxfBasePoint: {x:0,y:0}
+		dxfBasePoint: {x:0,y:-2000}
 	}
+
 	var marshObj = drawMarshTreads2(treadParams)
     var marshTreads = marshObj.treads;
     var marshRisers = marshObj.risers;
 	marshTreads.marshId = marshId;
 
-	treadsObj.add(marshTreads);
-	treadsObj.add(marshRisers);
+	mesh.add(marshTreads);
+	mesh.add(marshRisers);
+	
+	vintTreadsObj[marshId] = {
+		treads: marshTreads,
+		risers: marshRisers
+	}
 
-	return treadsObj;
+	return mesh;
 }

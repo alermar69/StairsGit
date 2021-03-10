@@ -53,58 +53,218 @@ class Bedside extends AdditionalObject {
 	static draw(par){
 		if (!par) par = {}
 		initPar(par);
-		
+
+		//общие параметры
 		var meshPar = {
-			angleTop_wr: 30,
-			boxes: [],
 			carcasThk_wr: 16,
-			depth_wr: par.depth,
 			doorsThk_wr: 16,
-			dxfBasePoint: {x: 0, y: 0},
-			heightLeft_wr: par.height,
-			heightRight_wr: par.height,
-			sectAmt_wr: 1,
-			sections: [],
-			topOnlay_wr: "нет",
+			dxfBasePoint: {
+				x: 0,
+				y: 0
+			},
+			sectAmt: 1,
 			width_wr: par.width,
-			height: par.height,
-			legsHeight: par.legsHeight,
+			height_wr: par.height,
+			depth_wr: par.depth,
+			legsHeight_wr: par.legsHeight,
+			sections: [],
+			boxes: [],
+			wrModel: par.wrModel,
+			doorsHandles: par.handle,
+			doorsOffset_wr: 20,
+			contentThk_wr: 16,
+			doorsMat_wr: par.doorsModel,
+			contentMat: 'лдсп',
+			sideWall_wr: 'панель',
+			sectDoorsType_wr: 'накладные'
 		}
-		
-		//секции
-		var sectPar = {
-			type: "открытая",
-			width: par.width - meshPar.carcasThk_wr * 2,
-		};
-		meshPar.sections.push(sectPar)
-		
-		//ящики
-		var drawerHeight = (par.height - meshPar.carcasThk_wr) / par.drawersAmt
-		for(var i=0; i<par.drawersAmt; i++){
-			var drawerPar = {
-					boxCarcasHeight: 120,
-					boxDoorPlusBot: -1,
+
+		meshPar.legsHeight_wr += meshPar.carcasThk_wr;
+
+		var wrDoorType = par.side;
+
+		//наполнение полки
+		if (par.contentType == "ящики") {
+			var shelfPar = {
+				boxDoorPlusIn: 16,
+				boxType: "ящики",
+				boxWidth: 1468,
+				boxWidthType: "по секции",
+				boxDoorPlusRight: meshPar.carcasThk_wr - 2,
+				boxDoorPlusBot: meshPar.carcasThk_wr - 2,
+				boxDoorPlusLeft: meshPar.carcasThk_wr - 2,
+				boxDoorPlusTop: meshPar.carcasThk_wr - 2,
+				height: par.height - meshPar.legsHeight_wr - meshPar.carcasThk_wr,
+				itemAmt: par.drawersAmt,
+				posX: 0,
+				posY: meshPar.legsHeight_wr,
+				sect: "1",
+				shelfSideOffset: 0,
+				type: "ящики",
+				width: par.width - meshPar.carcasThk_wr * 2,
+				widthType: "по секции",
+				boxHandles: 'есть',
+				boxCarcasHeight: 120
+			};
+			if (par.width > 600) shelfPar.boxHandles = 'две'
+
+			meshPar.boxSideGap = 15.5;
+			meshPar.boxHandles = par.handle;
+			meshPar.boxes.push(shelfPar);
+		}else if (par.contentType == "ящики+полка") {
+			var shelfHeight = 200;
+			var shelfPar = {
+				boxDoorPlusIn: 16,
+				boxType: "полки",
+				boxWidth: 1468,
+				boxWidthType: "по секции",
+				height: 0,
+				itemAmt: 1,
+				posX: 0,
+				posY: par.height - shelfHeight - meshPar.carcasThk_wr + 8,
+				sect: "1",
+				shelfSideOffset: 0,
+				type: "полки",
+				width: par.width - meshPar.carcasThk_wr * 2,
+				widthType: "по секции",
+			};
+
+			meshPar.boxes.push(shelfPar)
+
+			var shelfPar = {
+				boxDoorPlusIn: 0,
+				boxType: "ящики",
+				boxWidth: 1468,
+				boxWidthType: "по секции",
+				boxDoorPlusRight: -2,
+				boxDoorPlusBot: -2,
+				boxDoorPlusLeft: -2,
+				boxDoorPlusTop: -2,
+				height: par.height - meshPar.legsHeight_wr - meshPar.carcasThk_wr - shelfHeight,
+				itemAmt: par.drawersAmt,
+				posX: 0,
+				posY: meshPar.legsHeight_wr,
+				sect: "1",
+				shelfSideOffset: 0,
+				type: "ящики",
+				width: par.width - meshPar.carcasThk_wr * 2,
+				widthType: "по секции",
+				boxHandles: 'есть',
+				boxCarcasHeight: 120
+			};
+			if (par.width > 600) shelfPar.boxHandles = 'две'
+
+			meshPar.boxSideGap = 15.5;
+			meshPar.boxHandles = par.handle;
+			meshPar.boxes.push(shelfPar);
+		}else if(par.contentType == 'дверка+полка'){
+			var shelfPar = {
+				boxDoorPlusIn: 0,
+				boxType: "полки",
+				boxWidth: 1468,
+				boxWidthType: "по секции",
+				height: 0,
+				itemAmt: 1,
+				posX: 0,
+				posY: par.height - 200,
+				sect: "1",
+				shelfSideOffset: 0,
+				type: "полки",
+				width: par.width - meshPar.carcasThk_wr * 2,
+				widthType: "по секции",
+			};
+
+			meshPar.boxes.push(shelfPar)
+
+			if (par.side != 'открытая') {
+				var doorType = 'левая дверь';
+				if (par.side == 'дверь правая') doorType = 'правая дверь';
+				if (par.side == 'две двери') doorType = 'две двери';
+				wrDoorType = 'открытая';
+				var shelfPar = {
 					boxDoorPlusIn: 0,
-					boxDoorPlusLeft: meshPar.carcasThk_wr - 2,
-					boxDoorPlusRight: meshPar.carcasThk_wr - 2,
-					boxDoorPlusTop: -1,
-					height: drawerHeight,
+					boxType: doorType,
+					boxWidth: 1468,
+					boxWidthType: "по секции",
+					height: par.height - 200 - 8 - meshPar.legsHeight_wr,
+					itemAmt: 1,
 					posX: 0,
-					posY: drawerHeight * i,
+					posY: meshPar.legsHeight_wr,
 					sect: "1",
-					type: "ящик",
-					width: 368,
+					shelfSideOffset: 0,
+					type: doorType,
+					width: par.width - meshPar.carcasThk_wr * 2,
 					widthType: "по секции",
 				};
-				
-				//увеличиваем фасад верхнего и нижнего ящика
-			//	if(i == par.drawersAmt - 1) drawerPar.boxDoorPlusTop = meshPar.carcasThk_wr - 2
-				if(i == 0) drawerPar.boxDoorPlusBot = meshPar.carcasThk_wr - 2
-				
-				meshPar.boxes.push(drawerPar)
+	
+				meshPar.boxes.push(shelfPar)
+			}
 		}
+
+		//секции
+		meshPar.sections = [{
+			width: par.width,
+			type: wrDoorType,
+		}];
+
+		var wrPar = drawWR(meshPar);
+		par.mesh.add(wrPar.mesh);
+		par.doorMesh = wrPar.door1;
+		par.doorMesh2 = wrPar.door2;
+
+		return par;
 		
-		par.mesh.add(drawWardrobe(meshPar).mesh);
+		// var meshPar = {
+		// 	angleTop_wr: 30,
+		// 	boxes: [],
+		// 	carcasThk_wr: 16,
+		// 	depth_wr: par.depth,
+		// 	doorsThk_wr: 16,
+		// 	dxfBasePoint: {x: 0, y: 0},
+		// 	heightLeft_wr: par.height,
+		// 	heightRight_wr: par.height,
+		// 	sectAmt_wr: 1,
+		// 	sections: [],
+		// 	topOnlay_wr: "нет",
+		// 	width_wr: par.width,
+		// 	height: par.height,
+		// 	legsHeight: par.legsHeight,
+		// }
+		
+		// //секции
+		// var sectPar = {
+		// 	type: "открытая",
+		// 	width: par.width - meshPar.carcasThk_wr * 2,
+		// };
+		// meshPar.sections.push(sectPar)
+		
+		// //ящики
+		// var drawerHeight = (par.height - meshPar.carcasThk_wr) / par.drawersAmt
+		// for(var i=0; i<par.drawersAmt; i++){
+		// 	var drawerPar = {
+		// 			boxCarcasHeight: 120,
+		// 			boxDoorPlusBot: -1,
+		// 			boxDoorPlusIn: 0,
+		// 			boxDoorPlusLeft: meshPar.carcasThk_wr - 2,
+		// 			boxDoorPlusRight: meshPar.carcasThk_wr - 2,
+		// 			boxDoorPlusTop: -1,
+		// 			height: drawerHeight,
+		// 			posX: 0,
+		// 			posY: drawerHeight * i,
+		// 			sect: "1",
+		// 			type: "ящик",
+		// 			width: 368,
+		// 			widthType: "по секции",
+		// 		};
+				
+		// 		//увеличиваем фасад верхнего и нижнего ящика
+		// 	//	if(i == par.drawersAmt - 1) drawerPar.boxDoorPlusTop = meshPar.carcasThk_wr - 2
+		// 		if(i == 0) drawerPar.boxDoorPlusBot = meshPar.carcasThk_wr - 2
+				
+		// 		meshPar.boxes.push(drawerPar)
+		// }
+		
+		// par.mesh.add(drawWardrobe(meshPar).mesh);
 
 	
 		return par;
@@ -165,12 +325,17 @@ class Bedside extends AdditionalObject {
 		return cost;
 	}
 
-	static calcPrice(par){
+	static calcPrice(par) {
+		var meshParams = par.meshParams;
+		var wrParams = getWrParams();
+		var dopSpec = partsAmt_dop[par.id];
+		var wrPriceParams = calcWrPriceParams(dopSpec, wrParams);
+
 		return {
-			name: this.getMeta().title,
-			cost: this.calcPriceParts(par).total,
-			priceFactor: 1,
-			costFactor: 1
+			name: meshParams.name || this.getMeta().title,
+			cost: wrPriceParams.totalPrice.cost,
+			priceFactor: meshParams.priceFactor || 1,
+			costFactor: meshParams.costFactor || 1
 		}
 	}
 
@@ -179,7 +344,7 @@ class Bedside extends AdditionalObject {
 			title: 'Тумбочка',
 			inputs: [
 				{
-					key: 'model',
+					key: 'contentType',
 					title: 'Модель',
 					default: 'ящики',
 					values: [
@@ -191,6 +356,10 @@ class Bedside extends AdditionalObject {
 							value: 'дверка+полка',
 							title: 'дверка+полка'
 						},
+						{
+							value: 'ящики+полка',
+							title: 'ящики+полка',
+						}
 					],
 					type: 'select',
 					"printable": "true",
@@ -228,11 +397,11 @@ class Bedside extends AdditionalObject {
 				{
 					key: 'doorsModel',
 					title: 'Фасады',
-					default: 'щит',
+					default: 'шоколад',
 					values: [
 						{
-							value: 'щит',
-							title: 'щит'
+							value: 'шоколад',
+							title: 'шоколад(щит)'
 						},
 						{
 							value: 'рамочные массив',
@@ -265,19 +434,41 @@ class Bedside extends AdditionalObject {
 				{
 					key: 'handle',
 					title: 'Ручка',
-					default: 'нет',
-					values: [{
-							value: 'нет',
-							title: 'нет'
+					default: 'скоба',
+					values: [
+						{
+							value: "скоба",
+							title: "скоба"
 						},
 						{
-							value: 'скоба',
-							title: 'скоба'
+							value: "кнопка круглая",
+							title: "кнопка круглая"
 						},
+						{
+							value: "кнопка квадратная",
+							title: "кнопка квадратная"
+						},
+						{
+							value: "рейлинг 96",
+							title: "рейлинг 96"
+						},
+						{
+							value: "рейлинг 128",
+							title: "рейлинг 128"
+						},
+						{
+							value: "рейлинг 160",
+							title: "рейлинг 160"
+						},
+						{
+							value: "нет",
+							title: "нет"
+						}
 					],
 					type: 'select',
 					"printable": "true",
 				},
+
 				
 				{
 					key: 'legsHeight',

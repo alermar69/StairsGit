@@ -384,7 +384,7 @@ function drawRailingSection_4_pltP(par){
 			dxfBasePoint: stringerParams.dxfBasePoint,
 			marshId: par.marshId,
 			side: "out",
-			isPRear: true, 
+			isPRear: params.railingModel == 'П-образная с забегом', 
 			handrailPosition: newPoint_xy(handrail.position, 0, -par.h),
 			h: par.h,
 		}
@@ -393,7 +393,11 @@ function drawRailingSection_4_pltP(par){
 		}
 
 		var balArr = drawBanistersArr(balParams);
-		balArr.position.y = par.h;
+		if (params.stairModel == 'П-образная с забегом') {
+			balArr.position.y = par.h;
+		}else{
+			balArr.position.y = 0;
+		}
 		if(params.timberBalBotEnd == "круг") {
 			//balArr.position.y = 100;
 		}
@@ -408,6 +412,8 @@ function drawRailingSection_4_pltP(par){
 	if (hasBotRack) {
 		//первый столб
 		var rackPar = newPoint_xy(marshFirstRailingPoint, 0, par.h);
+		if (params.stairModel == 'П-образная с площадкой') rackPar.y = marshFirstRailingPoint.y;
+
 		rackPar.len = 1000; //костыль
 		racks.push(rackPar);
 	}
@@ -1552,7 +1558,8 @@ function drawRailingSection_4(par) {
 				if (params.timberBalStep == 2 && marshPar.botTurn == 'пол') {
 					balParams.extraBanisterBot = true;
 				}
-        if (params.stairModel == 'П-образная с площадкой' && marshPar.botTurn == 'площадка') {
+				
+				if (params.stairModel == 'П-образная с площадкой' && marshPar.botTurn == 'площадка') {
 					balParams.extraBanisterTop = false;
 					balParams.extraBanisterBot = true;
 				}
@@ -1598,6 +1605,9 @@ function drawRailingSection_4(par) {
 				if (params.timberBalStep == 1) balParams.balLen -= 15 * Math.tan(handrailAngle);
 
 				for (var i = 0; i < marshPoints.length; i++) {
+					if (params.timberBalStep == 2 && i > 0) {
+						balParams.extraBanisterBot = true;
+					}
 					balParams.basePoint = copyPoint(balsBasePoint);
 
 					if (i > 0 && marshPoints[i - 1].stairNumber && side == 'in' && par.marshId > 1) {
@@ -2731,7 +2741,7 @@ function drawBanistersArr(par) {
 
 			//дополнительная балясина если снизу площадка
 			if (par.extraBanisterBot && params.timberBalStep == 2) {
-				balId = -1;
+				balId = 1;
 				var balPar = {
 					len: par.balLen - balPar_kos.deltaLen2,
 					botAng: 0,

@@ -1,5 +1,5 @@
 <div id="carcasFormWrap">
-	<h2 class="raschet">Характеристики лестницы</h2>
+	<h2 class="raschet">Характеристики кровли</h2>
 	<div id="carcasForm" class="toggleDiv">
 		
 		<h4>Позиция</h4>
@@ -32,6 +32,16 @@
 			</tbody>
 		</table>
 		
+		<br>
+		Шаблон:
+		<select id="roofTemplate">
+			<option value="нет">нет</option>
+			<option value="прямое крыльцо">прямое крыльцо</option>
+			<option value="боковое крыльцо">боковое крыльцо</option>
+		</select>
+		
+		<button class="btn btn-secondary" id="applyRoofTemplate">Выровнять</button><br>
+				
 	<!-- форма параметров с навеса -->
 	<?php include $GLOBALS['ROOT_PATH']."/calculator/carport/forms/main_form.php" ?>
 

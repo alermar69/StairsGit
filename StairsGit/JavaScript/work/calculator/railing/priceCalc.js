@@ -1,4 +1,5 @@
-var costMarkup = 1.3; //07.05 было 1.25;
+//var costMarkup = 1.3; //07.05.20;
+var costMarkup = 1.56; //11.01.21
 
 function calcRailingModulePrice() {
 	//расчет стоимости ограждений кроме самонесущего стекла
@@ -21,6 +22,9 @@ function calcRailingModulePrice() {
 
 	railingParams.rackAmt = 0;
 	if (partsAmt.racks) railingParams.rackAmt = partsAmt.racks.amt;
+	
+	railingParams.timberNewellAmt = 0;
+	if (partsAmt.timberTurnNewell) railingParams.timberNewellAmt = partsAmt.timberTurnNewell.amt;
 
 	railingParams.balAmt1 = 0;
 	railingParams.balAmt2 = 0;
@@ -35,6 +39,9 @@ function calcRailingModulePrice() {
 		railingParams.glassAmt = partsAmt.glasses.amt;
 		railingParams.glassArea = partsAmt.glasses.sumArea;
 	}
+	
+	//деревянные балясины
+	railingParams.balAmt = 0;
 
 	/***  РАСЧЕТ ЦЕНЫ  ***/
 
@@ -137,15 +144,17 @@ function calcRailingModulePrice() {
 	// Стоимость обшивки
 	if (params.stairType == 'массив') {
 		var treadsTotalCost = 0;
+		
+		var treadPriceKf = params.treadThickness / 1000;
 
 		// Ступени
-		var turnTreadCost = calcTimberParams(params.treadsMaterial).m2Price_40 * getPartPropVal('timberTurnTread', 'area');
+		var turnTreadCost = (calcTimberParams(params.treadsMaterial).m3Price * treadPriceKf) * getPartPropVal('timberTurnTread', 'area');
 		treadsTotalCost += turnTreadCost;
 
-		var treadCost = calcTimberParams(params.treadsMaterial).m2Price_40 * getPartPropVal('tread', 'area');
+		var treadCost = (calcTimberParams(params.treadsMaterial).m3Price * treadPriceKf) * getPartPropVal('tread', 'area');
 		treadsTotalCost += treadCost;
 
-		var platformTreadCost = calcTimberParams(params.treadsMaterial).m2Price_40 * getPartPropVal('platformTread', 'area');
+		var platformTreadCost = (calcTimberParams(params.treadsMaterial).m3Price * treadPriceKf) * getPartPropVal('platformTread', 'area');
 		treadsTotalCost += platformTreadCost;
 
 		treadsTotalCost = Math.floor(treadsTotalCost);

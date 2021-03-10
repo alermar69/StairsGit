@@ -128,10 +128,7 @@ if (M > 1200) strigerPrice = strigerPrice * 1.5; //добавляется тре
 	stringerMeterPrice = stringerMeterPrice * 1.15;
 	if (model == "косоуры") stringerArea = stringerArea * 1.1;
 	strigerPrice = stringerMeterPrice * stringerArea;
-	
-	//расход материала
-	if(carcasPlateName) materials[carcasPlateName].amt += stringerArea;
-	
+		
 	/*цена работы*/
 	
 	var cncCarcasPartsAmt = 0; //кол-во сложных деталей каркаса	
@@ -171,10 +168,6 @@ var riserPanelName = treadParams.riserPanelName;
 var timberPaintMeterPrice = treadParams.timberPaintMeterPrice;
 var treadMeterPrice = treadParams.treadMeterPrice;
 
-if(treadParams.treadsPanelName) materials[treadsPanelName].amt += treadParams.treadShieldArea;
-if(treadParams.riserPanelName) materials[riserPanelName].amt += treadParams.riserShieldArea;
-
-	
 	/*плинтус*/
 	
 function calcSkirting(){}; //пустая функция для навигации
@@ -215,8 +208,7 @@ if(model == "косоуры" && riserType == "есть"){
 	
 	treadsTotalPrice += skirtingPrice;
 	timberPaintedArea += 0.08 * skirtingAmt;
-	if(riserPanelName) materials[riserPanelName].amt += 0.03 * skirtingAmt;	
-	}
+}
 
 //end of calcSkirting
 	

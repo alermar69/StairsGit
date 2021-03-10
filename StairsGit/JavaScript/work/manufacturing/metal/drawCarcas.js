@@ -416,6 +416,7 @@ function drawMarshStringers(par, marshId){
 		}
 
 		mesh.add(stringer1);
+		console.log(stringerParams.carcasHoles)
 
 		//уголки на внутренней тетиве
 		var anglesIn = drawCarcasAngles(stringerParams.carcasHoles, sideIn);
@@ -639,7 +640,6 @@ function drawMarshStringers(par, marshId){
 	
 	
 	//прямые рамки и ребра лотковых ступеней
-
 	if(hasTreadFrames() && !stringerParams.isWndP){
 		par.dxfBasePoint.x += 2000;
 		var framePar = {

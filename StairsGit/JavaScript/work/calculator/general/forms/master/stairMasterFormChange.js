@@ -17,7 +17,7 @@ $(function(){
 	$('#open_master_modal').click(function(){
 		setMasterState(true)
 	});
-
+	
 	$('.toggleWallsMaster').click(function(){
 		menu.wallall = !menu.wallall;
 	});
@@ -527,6 +527,6 @@ function sceneFormChange(){
 
 function recalculateMaster(){
 	recalculate().finally(function(){
-		$('#priceBlockMaster #price').html(staircasePrice.finalPrice);
+		$('#priceBlockMaster #price').html(priceObj['total'].discountPrice);
 	});
 }

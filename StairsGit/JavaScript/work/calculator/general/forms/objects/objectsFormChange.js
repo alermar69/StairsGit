@@ -342,6 +342,7 @@ function addAdditionalObjectTable(par){
 
 	var text = '\
 		<tr class="additionalObjectRow" data-object_selector="additionalObjectRow" style="width: 100%" data-object_id='+ par.id +' data-id='+ par.id +'>\
+			<td>'+par.id+'</td>\
 			<td>\
 				Тип: <select class="additionalObjectClass">';
 					AdditionalObject.getAvailableClasses().forEach(function(c){

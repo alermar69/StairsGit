@@ -602,7 +602,7 @@ if(par.railingModel == "Редкие стойки" || par.railingModel == "Ча�
 				poleMaterial: par.treadMaterial,
 				mesh: new THREE.Object3D(),	
 				}		
-				console.log(handrailParams)
+				//console.log(handrailParams)
 				var handrailParams1 = drawHandrail(handrailParams);
 				var handrail1 = handrailParams1.mesh;
 				handrail1.position.x = - par.M + 150;
@@ -666,7 +666,7 @@ if(par.railingModel == "Редкие стойки" || par.railingModel == "Ча�
 			var poleAngle = Math.atan(par.h/par.b)
 			var length = par.b/Math.cos(poleAngle) * (balStepAmt - 1);
 			if(par.topEnd == "floor") length = par.b/Math.cos(poleAngle) * balStepAmt;
-			console.log(length)
+			//console.log(length)
 			
 			var handrailParams = {
 				poleType: "round",
@@ -680,7 +680,7 @@ if(par.railingModel == "Редкие стойки" || par.railingModel == "Ча�
 				basePoint: [0,0,0],
 				dxfBasePoint: {x:0, y:0},
 				}
-			console.log(handrailParams)
+			//console.log(handrailParams)
 			
 			handrailParams = drawPole3D_2(handrailParams);
 			var handrail = handrailParams.mesh;

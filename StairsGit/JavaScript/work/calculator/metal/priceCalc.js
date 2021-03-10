@@ -1,4 +1,5 @@
-var costMarkup = 1.3; //07.05 было 1.25;
+//var costMarkup = 1.3; //07.05.20;
+var costMarkup = 1.56; //11.01.21
 var priceObj = {};
 
 function calculateCarcasPrice(){
@@ -16,14 +17,17 @@ var stringerArea = getPartPropVal('stringer', 'area') + getPartPropVal('bridge',
 
 strigerPrice = stringerMeterPrice * stringerArea;
 
-if(params.isCarcas != "нет"){
-	materials.sheet8.amt += stringerArea;
-}
+// if(params.isCarcas != "нет"){
+// 	materials.sheet8.amt += stringerArea;
+// }
 
 //уголки
-var anglePrice = 60;
-var angleAmt = getPartAmt("carcasAngle") + getPartAmt("treadAngle") + getPartAmt("adjustableLeg");
-var totalAnglePrice = anglePrice * angleAmt;
+var pricePar = calcAnglesCost();
+var angleAmt = pricePar.angleAmt;
+var totalAnglePrice = pricePar.price;
+// var anglePrice = 60;
+// var angleAmt = getPartAmt("carcasAngle") + getPartAmt("treadAngle") + getPartAmt("adjustableLeg");
+// var totalAnglePrice = anglePrice * angleAmt;
 
 //болты
 var boltPrice = 10; //комплект болт, гайка, шайба
@@ -51,13 +55,16 @@ if (params.stairType == "рифленая сталь" ||
 var totalBoltPrice = boltPrice * boltAmt;
 
 //рамки
-var framePrice = 400;
 
-var totalFramePrice = framePrice * (getPartAmt("treadFrame") + getPartAmt("vertFrame"));
+var totalFramePrice = calcFramesPrice(); // Расчет цены в general/priceLib.js
 
-var wndFramePrice = 1000;
-if(params.wndFrames == "профиль") wndFramePrice = 2000;
-totalFramePrice += wndFramePrice * (getPartAmt("wndFrame1") + getPartAmt("wndFrame2") + getPartAmt("wndFrame3"))
+// var framePrice = 400;
+
+// var totalFramePrice = framePrice * (getPartAmt("treadFrame") + getPartAmt("vertFrame"));
+
+// var wndFramePrice = 1000;
+// if(params.wndFrames == "профиль") wndFramePrice = 2000;
+// totalFramePrice += wndFramePrice * (getPartAmt("wndFrame1") + getPartAmt("wndFrame2") + getPartAmt("wndFrame3"))
 
 var totalFrameAmt = 
 	getPartAmt("treadFrame") + 
@@ -66,9 +73,9 @@ var totalFrameAmt =
 	getPartAmt("wndFrame2") + 
 	getPartAmt("wndFrame3");
 
-if(params.isCarcas != "нет"){
-	materials.sheet4.amt += getPartPropVal('wndFrame1', 'area') + getPartPropVal('wndFrame2', 'area') + getPartPropVal('wndFrame3', 'area');
-}	
+// if(params.isCarcas != "нет"){
+// 	materials.sheet4.amt += getPartPropVal('wndFrame1', 'area') + getPartPropVal('wndFrame2', 'area') + getPartPropVal('wndFrame3', 'area');
+// }	
 
 //Колонны
 var colAmt = getPartAmt("column");
@@ -142,11 +149,6 @@ var treadsPanelName = treadParams.treadsPanelName;
 var riserPanelName = treadParams.riserPanelName;
 var timberPaintMeterPrice = treadParams.timberPaintMeterPrice;
 var treadMeterPrice = treadParams.treadMeterPrice;
-
-if(params.stairType != "нет"){
-	if(treadParams.treadsPanelName) materials[treadsPanelName].amt += treadParams.treadShieldArea;
-	if(treadParams.riserPanelName) materials[riserPanelName].amt += treadParams.riserShieldArea;
-}
 
 var existFactor = 1; //каркас есть
 if(params.isCarcas == "нет") existFactor = 0;

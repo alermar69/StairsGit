@@ -1,3 +1,5 @@
+//var costMarkup = 1.3; //07.05.20;
+var costMarkup = 1.56; //11.01.21
 
 function calculatePrice(){
 	var markup = 3;
@@ -194,15 +196,15 @@ testingCost = Math.round(testingCost);
 totalCost = Math.round(totalCost);
 
 //сохраняем данные в глобальный объект
-staircasePrice.carcasFinal = totalStaircasePrice + testingPrice - discount;
-staircasePrice.delivery = deliveryPrice;
-staircasePrice.assemblingFinal = assemblingPrice;
-staircasePrice.testing = testingPrice;
-staircasePrice.finalPrice = finalPrice;
+setPrice('carcas', totalStaircasePrice + testingPrice - discount);
+setPrice('delivery', deliveryPrice);
+setPrice('assembling', assemblingPrice);
+setPrice('testing', testingPrice);
+setPrice('total', finalPrice);
 
 //исправляем ошибку округления
-var delta = staircasePrice.finalPrice - staircasePrice.carcasFinal - staircasePrice.delivery - staircasePrice.assemblingFinal;
-staircasePrice.carcasFinal += delta;
+var delta = priceObj['total'].discountPrice - priceObj['carcas'].discountPrice - priceObj['delivery'].discountPrice - priceObj['assembling'].discountPrice;
+priceObj['carcas'].discountPrice += delta;
 
 
 

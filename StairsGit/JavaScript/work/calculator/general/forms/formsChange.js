@@ -14,6 +14,10 @@ $(function () {
 			$("#production_data").slideUp();
 		}
 	});
+
+	$("#botFloorsDist").change(function(){
+		$("#floorOffsetBot").val($(this).val());
+	})
 		
 	//кнопка свернуть все блоки
 	$("#toggleAll").click(function(){
@@ -97,7 +101,7 @@ $(function () {
 		changeDimTextScale($(this).val() * 1.0);
 	});
 	
-	$('#createConstructionTask').click(function(){createConstructionTask()});
+	// $('#createConstructionTask').click(function(){createConstructionTask()});
 	
 	//удаление строки в динамических таблицах
 	$(".form_table").delegate('.removeRow', 'click',  function(){
@@ -112,15 +116,20 @@ $(function () {
 	//вычисление формул для числовых инпутов
 	$("body").delegate("input[type='number']", "dblclick", function(){
 		var string = prompt("Введите формулу");
-		
-		//если содержит что-то кроме цифр и математических знаков, выдаем ошибку
-		if (string.search(/[^\d-+*/.()]/g) !== -1) {
-			alert("Не удалось вычислить результат")
-			return false;
+		if (string) {
+			string = string.replace(/\s/g, '');
+			string = string.replace(/\=/g, '');
+	
+			//если содержит что-то кроме цифр и математических знаков, выдаем ошибку
+			if (string.search(/[^\d-+*/.()]/g) !== -1) {
+				alert("Не удалось вычислить результат")
+				return false;
+			}
+			
+			var result = eval(string);
+			$(this).val(result);
+			$(this).change();
 		}
-		
-		var result = eval(string);
-		$(this).val(result);
 	})
 	
 	//делаем весь текст из textarea полностью видиымым
@@ -196,9 +205,9 @@ if (params.platformTop == "площадка") {
 if(params.calcType == "vint"){
 	$('.marsh1').hide();
 	$('.marsh3').hide();
-	$('.treadsTableWrapper').hide();
+	$('.marshPar').hide();
 	if (params.strightMarsh != "нет") {
-		$('.treadsTableWrapper').show();
+		$('.marshPar').show();
 		if (params.strightMarsh == "снизу" || params.strightMarsh == "сверху и снизу") $('.marsh1').show();
 		if (params.strightMarsh == "сверху" || params.strightMarsh == "сверху и снизу"){
 			$('.marsh3').show();
@@ -274,7 +283,10 @@ if(params.fixPart1 == "саморезы" && params.calcType == "mono") {
 
 //уровень чернового пола
 $('#botFloorsDist_tr').hide();
-if (params.botFloorType == "черновой") $('#botFloorsDist_tr').show();
+if (params.botFloorType == "черновой") {
+	$('#botFloorsDist_tr').show();
+	$("#floorOffsetBot").val($('#botFloorsDist').val());
+}
 
 //тип кронштейна пристенного поручня
 $("#sideHandrailHolders").closest("tr").hide();
@@ -415,6 +427,11 @@ if(handrail_new == "лиственница") $("#handrailsMaterial").val("лис
 if(handrail_new == "дуб паркет.") $("#handrailsMaterial").val("дуб паркет.");
 if(handrail_new == "дуб ц/л") $("#handrailsMaterial").val("дуб ц/л");
 
+var oldNames = ["сосна", "береза", "лиственница", "дуб паркет.", "дуб ц/л" ]
+if(oldNames.indexOf(handrail) != -1){
+	$("#" + handrailSelectId).val("массив");
+}
+
 
 }//end of replaceOldHandrails
 
@@ -501,7 +518,7 @@ if(params.handrail == "сосна" ||
 	
 	//цвет поручня пвх
 	$("#handrailColor").closest("tr").hide();
-	if(params.handrail == "ПВХ") $("#handrailColor").closest("tr").show();
+	if(params.handrail == "ПВХ" && params.calcType != 'vint') $("#handrailColor").closest("tr").show();
 	
 	//горизонтальный участок в конце
 	$("#handrailEndHeight").closest("tr").hide();
@@ -585,8 +602,7 @@ function configPaintingInputs(){
 
 	if(params.calcType == "vint"){
 		$("#handrailColor_tr").hide();
-		if (params.handrailMaterial == "ПВХ")$("#handrailColor_tr").show();
-		}
+	}
 		
 	
 	//цвета и материалы
@@ -632,51 +648,36 @@ function configPaintingInputs(){
 	var hasMetalHandrail = false;
 	var hasPvcHandrail = false;
 	var hasRigels = false;
-	var hasNewells = false;
 	var hasTimberBal = false;
-
-	if(params.calcType == "timber" && params.stairModel == "Прямая") hasNewells = true;
-
+	var rackRailingTypes = ["Ригели", "Стекло на стойках", "Экраны лазер"]
+	
 	if(hasUnit.railing){
 		if(params.railingModel == "Ригели") hasRigels = true;
 		
-		if(params.railingModel == "Деревянные балясины" || 
-			params.railingModel == "Дерево с ковкой" ||
-			params.railingModel == "Стекло"){
-			hasNewells = true;
-		}
-		
+	
 		if(params.railingModel == "Деревянные балясины") hasTimberBal = true;
-		if(	params.railingModel == "Ригели" ||
-			params.railingModel == "Стекло на стойках" ||
-			params.railingModel == "Экраны лазер"){
-			if(params.banisterMaterial == "40х40 нерж+дуб") hasTimberBal = true;
-		}
+		if(rackRailingTypes.indexOf(params.railingModel) != -1 && params.banisterMaterial == "40х40 нерж+дуб") hasTimberBal = true;
 		if(params.railingModel == "Реечные") {
 			if(params.racksType == "массив" || params.racksType == "шпон") hasTimberBal = true;
 		}
 	}
 
 	if(hasUnit.banister){
-		if(params.railingModel_bal == "Ригели") hasRigels = true;
-		
-		if(params.railingModel_bal == "Деревянные балясины" || 
-			params.railingModel_bal == "Дерево с ковкой" ||
-			params.railingModel_bal == "Стекло"){
-			hasNewells = true;
-		}
-		
+		if(params.railingModel_bal == "Ригели") hasRigels = true;		
 		if(params.railingModel_bal == "Деревянные балясины") hasTimberBal = true;
-		if(	params.railingModel_bal == "Ригели" ||
-			params.railingModel_bal == "Стекло на стойках" ||
-			params.railingModel_bal == "Экраны лазер"){
-			if(params.banisterMaterial_bal == "40х40 нерж+дуб") hasTimberBal = true;
-		}
-		
+		if(rackRailingTypes.indexOf(params.railingModel_bal) != -1 && params.banisterMaterial_bal == "40х40 нерж+дуб") hasTimberBal = true;
 	}
-
+	
+	//для модуля railing перебираем все секции
+	if(params.calcType == "railing" && params.banisterMaterial == "40х40 нерж+дуб"){
+		$(".railingType").each(function(){
+			if(rackRailingTypes.indexOf($(this).val()) != -1) hasTimberBal = true;
+			console.log($(this).val(), rackRailingTypes.indexOf($(this).val()))
+		})
+	}
+				
 	//поручни
-	if(hasNewells) hasTimberHandrail = true;
+	if(hasUnit.timberNewells) hasTimberHandrail = true;
 
 	if(hasUnit.railing || hasUnit.sideHandrails){
 		//параметры поручня
@@ -701,12 +702,13 @@ function configPaintingInputs(){
 		if(handrailMat == "metal" || handrailMat == "inox") hasMetalHandrail = true;
 		if(params.handrail == "ПВХ") hasPvcHandrail = true;
 	}
+	if (params.calcType == "vint" && params.handrailMaterial == "ПВХ") hasPvcHandrail = true;
 
 	if(!hasTimberHandrail) $("#colorsFormTable #handrailsParams").hide();
 	if(!hasMetalHandrail) $("#colorsFormTable #handrails_metParams").hide();
 	if(!hasPvcHandrail) $("#colorsFormTable #handrails_pvcParams").hide();
 	if(!hasRigels) $("#colorsFormTable #rigelsParams").hide();
-	if(!hasNewells) $("#colorsFormTable #newellsParams").hide();
+	if(!hasUnit.timberNewells) $("#colorsFormTable #newellsParams").hide();
 	if(!hasTimberBal) $("#colorsFormTable #timberBalParams").hide();
 	if(!hasUnit.railingMetalPaint || params.metalPaint_railing == "нет") $("#colorsFormTable #metalBalParams").hide();
 	if(params.calcType == "vint" && params.metalPaint == "порошок") $("#colorsFormTable #metalBalParams").show();
@@ -941,7 +943,7 @@ function alertTrouble(message, type, noAlert){
 }
 
 function fontLoadedCallback(){
-	drawSceneDimensions();
+	if(params.calcType != 'custom') drawSceneDimensions();
 }
 
 function changeAllForms() {
@@ -991,10 +993,11 @@ function changeAllForms() {
 		changeFormContent();
 	}
 	 
-	
-	textureManager = getTextureMangerInstance()
-	if (textureManager) {
-		textureManager.updateMaterials();
+	if (window.getTextureMangerInstance) {
+		textureManager = getTextureMangerInstance()
+		if (textureManager) {
+			textureManager.updateMaterials();
+		}
 	}
 
 	if (changeOrderForm) changeOrderForm();
@@ -1026,7 +1029,7 @@ function configDinamicInputs() {
 		
 	}
 	
-	addDimRows();
+	if(window.addDimRows) addDimRows();
 	if(typeof changeFormLedges == 'function') changeFormLedges();
 }
 
@@ -1045,8 +1048,10 @@ function reindexId(tableId){
 		$(val).attr('data-id', self - 1);
 		//перебираем элементы в строке
 		$.each(input, function(i, val){
-			var id = val.id.match(/^([^0-9]+)[0-9]+$/)[1];
-			val.id = id+(self-1);
+			
+			var id = val.id.match(/^([^0-9]+)[0-9]+$/);
+			if(!id) return true;
+			val.id = id[1] + (self - 1);
 		});
 		amt = i;
 	});

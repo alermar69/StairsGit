@@ -1,3 +1,5 @@
+var currentPriceItem = null;
+
 $(function () {
 	//выделение блока
 	$("#priceItemsWrap").delegate(".priceItem", "click", function(){
@@ -59,7 +61,7 @@ $(function () {
 					return false;
 				}
 			})
-			addPriceBlock(true);
+			addPriceBlock();
 		});
 	});
 	
@@ -85,12 +87,12 @@ $(function () {
 	//кнопка применить
 	$(document).on('click','.show-price-item button',function(){
 		var id = $(".priceItem.selected").data('id');
-		applyPriceItem(id);
+		applyPriceItem({id: id});
 		$("#priceItemsSelectWrap select").val(id);
 	});
 
 	//Пересчитать цены
-	$("#recalculatePrices").click(function(){
+	$(".recalculatePrices").click(function(){
 		updatePriceItems();
 	});
 
@@ -118,6 +120,25 @@ $(function () {
 			redrawPriceItems();
 		}
 	});
+
+	$("#addFromOrder").click(function(){
+		var orderName = prompt('Введите номер заказа');
+		var loadWalls = confirm('Загружать обстановку?');
+		if (orderName) {
+			var settings = {
+				dataType: 'json',
+				url: '/orders/calc-controller/get-by-ordername/' + orderName,
+				type: 'GET',
+				success: function (data) {
+					var orderData = JSON.parse(data.order_data)
+					var id = addPriceBlock(orderData);
+					applyPriceItem({id: id, allInputs: loadWalls});
+				},
+				error: function (a, b) {}
+			};
+			$.ajax(settings);
+		}
+	})
 
 	$('#acceptEditionsChanges').click(function (e) {
 		var names = getChangingForms().map(function(form){return form.name})
@@ -157,7 +178,7 @@ $(function () {
 	//применить конфигурацию при изменении селекта в шапке
 	$("#priceItemsSelectWrap").delegate('select', 'change', function(){
 		var id = $(this).val();
-		applyPriceItem(id);
+		applyPriceItem({id: id});
 	})
 	
 });
@@ -185,7 +206,7 @@ function setMainPriceItem(id){
 	var index = params.priceItems.indexOf(priceItem);
 	console.log(index);
 	[params.priceItems[0], params.priceItems[index]] = [params.priceItems[index], params.priceItems[0]];
-	applyPriceItem(id);
+	applyPriceItem({id: id});
 	redrawPriceItems()
 }
 
@@ -235,31 +256,76 @@ function updatePriceItems(i){
 
 function updatePriceItem(priceItem){
 	return new Promise(function(resolve){
-		applyPriceItem(priceItem.id, function(){
-			priceItem.price = staircasePrice.finalPrice;
+		applyPriceItem({id: priceItem.id, callback: function(){
+			priceItem.price = priceObj['total'].discountPrice;
 			$('.priceItem[data-id="' + i + '"] .price-old').html(' ' + Math.round(priceItem.price / 0.7) + ' ');
 			$('.priceItem[data-id="' + i + '"] .price-new').html(priceItem.price + ' руб.');
 
 			redrawPriceItems();
 			resolve();
-		});
+		}});
 	});
 }
 
-function applyPriceItem(id, callback){
+var isMultiLoading = false;
+function applyPriceItem(par){
+	var id = par.id;
+	var callback = par.callback;
 	if(id == null) return;
 
 	var priceItem = getArrItemByProp(params.priceItems, 'id', id);
+	currentPriceItem = priceItem.id;
+
+	// // Фикс динамических инпутов для ограждений модуля railing
+	// // Решение скорее временное, нужно рефакторить загрузку данных из params
+	// if (params.calcType == 'railing') {
+	// 	if (priceItem.params.railingSectAmt > $("#railingParamsTable .sectParams").length) {
+	// 		var needSectionsCount = priceItem.params.railingSectAmt - $("#railingParamsTable .sectParams").length;
+	// 		if (needSectionsCount > 0) {
+	// 			for (var i = 0; i < needSectionsCount; i++) {
+	// 				addRailingInputs();
+	// 			}
+	// 		}
+	// 	}
+	// }
+
 	var keys = Object.keys(priceItem.params);
 	var ignoreIds = getServiceInputsIds();
+	
+	//общие параметры для всех этажей
+	if (window.isMulti && !par.allInputs) {
+		
+		var notGeneralParams = ["discountFactor"]; //параметры, находящиеся в общийх блоках, но разные для разных этажей
+		
+		$('#openingFormWrap, #wallsFormWrapper, #cost').find("input, select").each(function(){
+			var parId = $(this).attr('id')
+			if(notGeneralParams.indexOf(parId) == -1) ignoreIds.push(parId)
+		});
+	}
+
+	isMultiLoading = true;
 	$.each(keys, function(){
-		if(this != "" && ignoreIds.indexOf(this.toString()) == -1) $('#' + this).val(priceItem.params[this]);
+		if (window.isMulti && !par.allInputs && (this.indexOf('floorHole') !=  -1 || this.indexOf('wallLedge') !=  -1)) return;
+		if(this != "" && ignoreIds.indexOf(this.toString()) == -1) setInputValue2({selector: '#' + this, value: priceItem.params[this]});
 	});
 
+	// В случае если загружаем вместе с динамическими инпутами, делаем загрузку еще раз
+	if (par.allInputs) {
+		configDinamicInputs();
+		$.each(keys, function(){
+			if (window.isMulti && !par.allInputs && (this.indexOf('floorHole') !=  -1 || this.indexOf('wallLedge') !=  -1)) return;
+			if(this != "" && ignoreIds.indexOf(this.toString()) == -1) setInputValue2({selector: '#' + this, value: priceItem.params[this]});
+		});
+	}
+
 	changeAllForms();
-	recalculate().finally(function(){
-		if (callback) callback();
-	});
+	isMultiLoading = false;
+	var promise = recalculate();
+	if (promise) {
+		promise.finally(function(){
+			if (callback) callback();
+		})
+	}
 }
 
 /**
@@ -276,8 +342,8 @@ function redrawPriceItems(forceUpdate){
 				priceItem: priceItem,
 				forceUpdate: forceUpdate,
 			};
-			var text = getPriceBlockText(priceBlockTextPar);			
-			$("#priceItemsWrap").append(text);			
+			var text = getPriceBlockText(priceBlockTextPar);
+			$("#priceItemsWrap").append(text);
 		}
 		formatNumbers();
 		$(".priceItem").removeClass("selected")
@@ -288,7 +354,7 @@ function redrawPriceItems(forceUpdate){
 function updatePriceItemsSelect(){
 	$("#priceItemsSelectWrap").html("");
 	
-	if (params.priceItems && params.priceItems.length > 0) {
+	if (params.priceItems && params.priceItems.length > 1) {
 		var select = "<select class='form-control'>";
 		for (var i = 0; i < params.priceItems.length; i++) {
 			var id = params.priceItems[i].id;
@@ -303,6 +369,78 @@ function updatePriceItemsSelect(){
 }
 
 function getPriceBlockText(par){
+	if (window.isMulti) {
+		return getPriceBlockTextFloors(par);
+	}else{
+		return getPriceBlockTextEditions(par);
+	}
+}
+
+function getPriceBlockTextFloors(par){
+	var id = par.id;
+	par.name = getPriceBlockName(id);
+
+	var parameters = params;//Параметры из которых берутся данные;
+	if (par.priceItem) parameters = par.priceItem.params;
+
+	if (!par.priceItem || par.forceUpdate) {
+		var price = priceObj['total'].discountPrice;
+		var stairDescr = getExportData_com().product_descr;
+	}
+	
+	if (par.priceItem && !par.forceUpdate) {
+		if (par.priceItem.priceObj) {
+			var price = par.priceItem.priceObj.total.discountPrice;
+		}else{
+			var price = priceObj.total.discountPrice;
+		}
+		var stairDescr = par.priceItem.stairDescr || getExportData_com().product_descr;
+	}
+
+	var sections = {
+		stairDescr: {
+			name: "Описание",
+			text: stairDescr,
+		}
+	};
+
+	var text = 
+	'<div class="priceItem selected" data-id="' + id + '">' + 
+		'<div class="prices-block clearfix">' + 
+			'<div class="price-name text-center editable" data-key="name">' + par.name + '</div>' + 
+			'<div class="text-wrap text-center">';
+	
+	for(var sectId in sections){
+		var section = sections[sectId]
+		text += '<div class="info-block ' + sectId + '">' + 
+			'<div class="name">' + section.name + ':</div>' + 
+			'<p class="editable" data-key="' + section.name + '">' + section.text +'</p>' + 
+		'</div>' + 
+		'<div class="shadow"></div>';
+	}
+
+	text +=
+		'</div>' + 
+			'<div class="price-block text-center">' + 
+				'<span class="price-old  number"> ' + Math.round(price / 0.7) + ' </span>' + 
+				'<span class="price-new  number">' + price + ' руб.</span>' + 
+			'</div>' + 
+			'<div class="show-price-item text-center noPrint">' + 
+				'<button class="btn btn-primary">Применить</button>' +
+			'</div>' + 
+		'</div>' + 
+	'</div>';
+
+	if (!par.priceItem) par.priceItem = {};	
+	for(var sectId in sections){
+		par.priceItem[sectId] = sections[sectId].text;
+	}
+	par.priceItem.price = price;
+	
+	return text;//{text: text, item: priceItem};
+}
+
+function getPriceBlockTextEditions(par){
 	var id = par.id;
 	par.name = getPriceBlockName(id);
 
@@ -324,6 +462,10 @@ function getPriceBlockText(par){
 			else timberPaint += ", отделка " + parameters.timberPaint;
 		}
 		
+		if(parameters.calcType == "railing"){
+			carcasDescr = "бетон";
+		}
+		
 		//ступени
 		var treadsDescr = "";
 		if(parameters.stairType != "массив") treadsDescr += parameters.stairType;
@@ -339,6 +481,18 @@ function getPriceBlockText(par){
 		
 		var railingDescr = parameters.railingModel;	
 		
+		if(parameters.calcType == "railing"){
+			var railingTypes = [];
+			railingDescr = ""
+			$(".railingType").each(function(){
+				var val = $(this).val();
+				if(railingTypes.indexOf(val) == -1) {					
+					if(railingTypes.length > 0) railingDescr += ", "
+					railingDescr += val;
+					railingTypes.push(val);
+				}
+			})
+		}
 	
 		//поручень
 		if(parameters.calcType == 'vint') railingDescr += ", поручень " + parameters.handrailMaterial;
@@ -360,7 +514,7 @@ function getPriceBlockText(par){
 		if(parameters.isAssembling == "есть") assemblingDescr += ", сборка включена"
 		
 	
-		var price = staircasePrice.finalPrice;
+		var price = priceObj['total'].discountPrice;
 	}
 	
 	if (par.priceItem && !par.forceUpdate) {
@@ -467,17 +621,20 @@ function getPriceBlockName(id){
 		var priceItem = getArrItemByProp(params.priceItems, 'id', id);
 		name = priceItem.name;
 	}
-	if(!name) name = "Вариант " + (id+1);
+	if(!name && !window.isMulti) name = "Вариант " + (id+1);
+	if(!name && window.isMulti) name = "Лестница " + (id+1);
 	return name;
 }
 
-function addPriceBlock(noPrint){
+function addPriceBlock(priceItemParams){
 	var id = 0;
 	if(params.priceItems) {
 		$.each(params.priceItems, function(){
 			if(this.id >= id) id = this.id + 1;
 		})
 	}
+
+	if(currentPriceItem == null) currentPriceItem = id;
 
 	var priceBlockTextPar = {
 		id: id,
@@ -495,15 +652,21 @@ function addPriceBlock(noPrint){
 		assemblingDescr: priceBlockTextPar.priceItem.assemblingDescr,
 		price: priceBlockTextPar.priceItem.price
 	}
-	// Записываем текущие значения инпутов
-	getAllInputsValues(priceItem.params);
+	if (priceItemParams) {
+		priceItem.params = priceItemParams;
+	}else{
+		// Записываем текущие значения инпутов
+		getAllInputsValues(priceItem.params);
+	}
 	var isUniq = true;
-	params.priceItems.forEach(function(pi){
-		var result = compareParams(pi.params, priceItem.params);
-		if (result.isEqual) {
-			isUniq = false;
-		}
-	});
+	if (!window.isMulti) {
+		params.priceItems.forEach(function(pi){
+			var result = compareParams(pi.params, priceItem.params);
+			if (result.isEqual) {
+				isUniq = false;
+			}
+		});
+	}
 
 	if (isUniq) {
 		params.priceItems.push(priceItem);
@@ -511,6 +674,8 @@ function addPriceBlock(noPrint){
 	}else{
 		alert('Комплектации должны различаться');
 	}
+
+	return id
 }
 
 /*!
@@ -711,6 +876,18 @@ function setTreadDescr(par){
 		stairsHeader = "Ступени из слэбов карагача";
 		stairMaterial = "дерево";
 		stairsImage = "elm_slab.jpg";
+	}
+	
+	if (stairType =="ясень ц/л") {
+		stairsHeader = "Ступени из ясеня";
+		stairMaterial = "дерево";
+		stairsImage = "ash.jpg";
+	}
+
+	if (stairType =="ясень паркет.") {
+		stairsHeader = "Ступени из ясеня";
+		stairMaterial = "дерево";
+		stairsImage = "ash_01.jpg";
 	}
 
 	if (stairType =="рифленая сталь") {

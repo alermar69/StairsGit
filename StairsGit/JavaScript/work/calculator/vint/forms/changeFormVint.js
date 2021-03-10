@@ -23,7 +23,7 @@ function changeFormVint(){
 		$("#treadThickness").val(60);
 	}
 	if (params.stairType == "рамки") {
-		$("#treadThickness").val(20);
+		// $("#treadThickness").val(20);
 		$('.frameTreads').show();
 	}else{
 		$('.frameTreads').hide();
@@ -69,10 +69,24 @@ function changeFormVint(){
 	$(".balParams").hide();
 	$(".rackType").show();
 
-	if($("#railingModel").val() == "Частые стойки"){
+	if($("#railingModel").val() == "Частые стойки" || $("#railingModel").val() == "Дерево с ковкой"){
 		$(".balParams").show();
-		if (params.rackType == "нержавейка+дуб") $("#rackType").val("черная сталь");	
-		} 
+		if (params.rackType == "нержавейка+дуб") $("#rackType").val("черная сталь");
+	} 
+
+	if ($("#railingModel").val() == "Дерево с ковкой") {
+		$('.kovka_tr').show();
+	}else{
+		$('.kovka_tr').hide();
+	}
+	
+	if ($("#strightMarshRailing").val() == "Дерево с ковкой") {
+		$('.kovka_tr').show();
+		$('.stright_kovka_tr').show();
+	}else{
+		if($("#railingModel").val() != "Дерево с ковкой")$('.kovka_tr').hide();
+		$('.stright_kovka_tr').hide();
+	}
 
 	$(".rigelParams").hide();	
 	if($("#railingModel").val() == "Ригели") $(".rigelParams").show();
@@ -86,7 +100,7 @@ function changeFormVint(){
 
 	//цвет поручня пвх
 	$("#handrailColor").closest('tr').hide();
-	if(params.handrailMaterial == "ПВХ") $("#handrailColor").closest('tr').show();
+	// if(params.handrailMaterial == "ПВХ") $("#handrailColor").closest('tr').show();
 
 	//скрываем параметры если нет совсем никаких ограждений
 	if(params.railingSide == "нет" && $("#platformSectionLength").val() == 0) $(".railingParams").hide();

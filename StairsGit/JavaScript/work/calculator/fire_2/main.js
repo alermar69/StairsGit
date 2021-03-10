@@ -54,17 +54,17 @@ function recalculate(){
 		getAllInputsValues(params);
 		changeAllForms();
 		drawStaircase();
+
+		//расчет цены
+		createMaterialsList(); // обнуляем список материалов
+		calculatePrice();
+		printMaterialsNeed();
+
 		//данные для производства
 		createMaterialsList(); // обнуляем список материалов		
 		crateWorksList();
 		calcWorks(partsAmt, "staircase");
 		printWorks2();
-		
-		//расчет цены
-		createMaterialsList(); // обнуляем список материалов
-		staircasePrice = {}; //очищаем глобальный массив цен элементов лестницы
-		calculatePrice();
-		printMaterialsNeed();
 	} catch (error) {
 		prepareFatalErrorNotify(error);
 	}

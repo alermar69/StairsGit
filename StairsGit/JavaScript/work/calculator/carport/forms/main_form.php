@@ -32,13 +32,23 @@
 			</tr>
 			
 			<tr class="truss">
+				<td>Несущие конструкции:</td>
+				<td>
+					<select id="trussType">
+						<option value="рамы">рамы</option>						
+						<option value="балки">балки</option>	
+					</select>
+				</td>
+			</tr>
+			
+			<tr class="truss">
 				<td>Поперечные балки:</td>
 				<td>
 					<select id="beamModel">
 						<option value="сужающаяся">из листа сужающаяся</option>						
 						<option value="постоянной ширины">из листа постоянной ширины</option>	
-						<option value="ферма постоянной ширины">ферма постоянной ширины</option>	
-						<option value="проф. труба">проф. труба</option>	
+						<option value="проф. труба">проф. труба</option>
+						<option value="ферма постоянной ширины">ферма постоянной ширины</option>							
 					</select>
 				</td>
 			</tr>
@@ -103,21 +113,24 @@
 				<td><input type="number" id="doorAng"value="90"></td>
 			</tr>
 			
-			<tr class="dome">
-				<td>Цилиндрическое основание:</td>
+			<tr class="truss">
+				<td>Подкосы:</td>
 				<td>
-					<select id="cylinderBase">						
+					<select id="consoleHolder">						
 						<option value="нет">нет</option>
-						<option value="есть">есть</option>
+						<option value="спереди">спереди</option>
+						<option value="сзади">сзади</option>
+						<option value="две">две стороны</option>
 					</select>
 				</td>
 			</tr>
-			
+		
 			<tr>
 				<td>Покраска металла:</td>
 				<td>
 					<select id="carportMetalPaint" size="1">
 						<option value="порошок">порошок</option>
+						<option value="нет">нет</option>
 					</select>
 				</td>
 			</tr>
@@ -196,6 +209,12 @@
 						<option value="80х80">80х80</option>
 						<option value="100х100">100х100</option>
 						<option value="120х120">120х120</option>
+						
+						<option value="40х4">40х4</option>
+						<option value="60х4">60х4</option>
+						<option value="80х5">80х5</option>
+						<option value="100х6">100х6</option>
+						<option value="100х10">100х10</option>
 					</select>
 				</td>
 			</tr>
@@ -229,15 +248,24 @@
 			</tr>
 			
 			<tr class="truss">
+				<td>Высота фермы на краю:</td>
+				<td><input type="number" id="trussHeightEnd" value="200"></td>
+			</tr>
+			
+			<tr class="truss">
 				<td>Толщина ребра фермы:</td>
 				<td><input type="number" id="trussThk" value="4"></td>
 			</tr>
 			
-			<tr class="dome">
+			<tr class="truss">
 				<td>Макс. шаг прогонов:</td>
 				<td><input type="number" id="progonMaxStep"value="800"></td>
 			</tr>
 			
+			<tr class="truss">
+				<td>Макс. шаг балок:</td>
+				<td><input type="number" id="beamMaxStep"value="2100"></td>
+			</tr>
 			
 			<tr class="truss">
 				<td>Колонны:</td>
@@ -284,6 +312,8 @@
 						<option value="6" class="polyPar">6 мм</option>
 						<option value="8" class="polyPar">8 мм</option>
 						<option value="10" class="polyPar">10 мм</option>
+						<option value="0.35" class="profSheetPar">0.35 мм</option>
+						<option value="0.4" class="profSheetPar">0.4 мм</option>
 						<option value="0.5" class="profSheetPar">0.5 мм</option>
 						<option value="0.7" class="profSheetPar">0.7 мм</option>
 					</select>

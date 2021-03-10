@@ -13,10 +13,25 @@
 	position: fixed;
 	top: 10px;
 	right: 0;
-	height: 0;
+	height: 95%;
 	z-index: 1;
 	float: right;
 	display:inline-block;
+}
+
+#rightMenuWrapper .tabs{
+	height: 95%;
+}
+
+.rightMenuContent{
+	height: 95%;
+	background: white;
+	box-shadow: 0px 10px 30px -15px black;
+}
+
+#rightMenuShow{
+	position: absolute;
+	left: -40px;
 }
 /*
 #rightMenuShow{
@@ -32,20 +47,22 @@
 }
 */
 #rightMenuResizer{
-	width: 5px;
+	width: 15px;
+	border-radius: 20px;
     height: 100px;
+	border: 1px solid gray;
     background-color: #d0d0d0;
     float: left;
     cursor: w-resize;
     font-size: 20px;
     position: absolute;
-    top: 100px;
+    top: 120px;
     left: -5px;
 }
 
 .tabs > div{
     overflow: auto;
-    height: 70vh;
+    /* height: 70vh; */
     border: 1px solid grey;
     padding: 3px;
 	min-width: 30vh;

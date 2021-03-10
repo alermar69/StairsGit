@@ -394,6 +394,8 @@ function drawVintTreadShape(par) {
 			y: 0,
 		}
 
+		if (par.isFrameTop) dxfBasePoint = {x: 1000, y: 1000};
+
 		/*вычерчиваем конутр ступени*
 
 		var treadShape = new THREE.Shape();
@@ -516,6 +518,7 @@ function drawVintTreadShape(par) {
 			x: 0,
 			y: 0,
 		}
+		if (par.isFrameTop) dxfBasePoint = {x: 1000, y: 1000};
 
 		var stairRadAngle = extraAngle;
 		if (!par.isFrameTop && params.stairType == 'рамки'){
@@ -597,6 +600,7 @@ function drawVintTreadShape(par) {
 			x: 0,
 			y: 0,
 		}
+		if (par.isFrameTop) dxfBasePoint = {x: 1000, y: 1000};
 
 		/*вычерчиваем конутр ступени*/
 
@@ -732,7 +736,7 @@ function drawVintTreadShape(par) {
 	//сохраняем данные для спецификации
 	var partName = "vintTread";
 	if (params.stairType == 'рамки' && !par.isFrameTop) partName = "vintTreadTop";
-	console.log(partName);
+	//console.log(partName);
 
 	if (typeof specObj != 'undefined') {
 		if (!specObj[partName]) {
@@ -766,7 +770,24 @@ function drawVintTreadShape(par) {
 		specObj[partName]["area"] += area;
 		specObj[partName]["paintedArea"] += area * 2 + area * 0.1; //к-т 0,1 учитывает площадь торцев
 	}
+	
+	//расход материала
+	if (type == "timber"){
 
+		var panelName_40 = calcTimberParams(params.treadsMaterial).treadsPanelName;	
+		var panelName_20 = calcTimberParams(params.treadsMaterial).riserPanelName;
+
+		if(params.treadThickness == 20) addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 40) addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 60) {
+			addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+			addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		}	
+		
+		par.mesh.isInMaterials = true;
+		
+	}
+		
 	par.articul = partName + name;
 
 	return par;
@@ -854,7 +875,7 @@ function drawVintTread(par) {
 			dxfArr: par.dxfArr,
 			dxfBasePoint: {
 				x: 2000,
-				y: 0,
+				y: -2000,
 			},
 			material: par.material,
 		}
@@ -1248,7 +1269,7 @@ function drawVintPlatform(par) {
 			var center2 = newPoint_xy(center1, 0, 100); //50 отступ отверстия от края стекла
 			addRoundHole(shape, par.dxfArr, center1, 9, dxfBasePoint);
 			addRoundHole(shape, par.dxfArr, center2, 9, dxfBasePoint);
-			// console.log(topPlateParams.p2.y + topPlateParams.edgeLength2)
+			// //console.log(topPlateParams.p2.y + topPlateParams.edgeLength2)
 			if (topPlateParams.p2.y + topPlateParams.edgeLength2 >= params.platformSectionLength - 60) {
 				var center3 = newPoint_xy(center1, (params.platformSectionLength - 41) - 95 * 2, 0); // 41 подогнал, по факту на 1000 получается размер стекла 959 95 отступ отверстия от бокового края стекла
 				var center4 = newPoint_xy(center3, 0, 100); //50 отступ отверстия от края стекла
@@ -1920,7 +1941,7 @@ function drawVintPlatformShape(par) {
 			test.pt1 = pt1;
 			test.pt1 = pt2;
 			signKeyPoints(test, dxfBasePoint);
-			//	console.log(par.pm2)
+			//	//console.log(par.pm2)
 
 
 			//Отверстия под болты крепления секции ограждения
@@ -2030,7 +2051,24 @@ function drawVintPlatformShape(par) {
 		specObj[partName]["area"] += area;
 		specObj[partName]["paintedArea"] += area * 2 + area * 0.1; //к-т 0,1 учитывает площадь торцев
 	}
+	
+	//расход материала
+	if (type == "timber"){
 
+		var panelName_40 = calcTimberParams(params.treadsMaterial).treadsPanelName;	
+		var panelName_20 = calcTimberParams(params.treadsMaterial).riserPanelName;
+
+		if(params.treadThickness == 20) addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 40) addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		if(params.treadThickness == 60) {
+			addMaterialNeed({id: panelName_20, amt: area, itemType:  'treads'});
+			addMaterialNeed({id: panelName_40, amt: area, itemType:  'treads'});
+		}	
+		
+		par.mesh.isInMaterials = true;
+		
+	}
+	
 	par.articul = partName + name;
 
 	return par;
@@ -2213,32 +2251,32 @@ function drawPlatformFrame(par) {
 				par.metalFrame.add(flan);
 			}
 		}
-	}
-
-	//болты крепления к перекрытию
-	//if (typeof isFixPats != "undefined" && isFixPats && par.isFixPart) { //глобальная переменная		
-	if (typeof isFixPats != "undefined" && isFixPats && !testingMode) { //глобальная переменная		
-		par.fixPar = getFixPart(0, 'topFloor'); // параметры крепления к стенам
-		if (par.fixPar.fixPart !== 'нет') {
-			var fix = drawFixPart(par.fixPar).mesh;
-			fix.rotation.x = -Math.PI / 2 * par.turnFactor;
-			fix.rotation.z = Math.PI;
-			fix.position.x = (params.staircaseDiam / 2 + params.platformLedgeM + 160) / 2 - flanParams.width / 2 + sizeB / 2 - 100;
-			fix.position.y = -par.thk - profHeight / 2;
-			if (par.turnFactor == 1) fix.position.y -= flanThk;
-			fix.position.z = -(params.staircaseDiam / 2 + params.platformLedge - profWidth) * par.turnFactor;
-			par.metalFrame.add(fix);
-
-			var fix = drawFixPart(par.fixPar).mesh;
-			fix.rotation.x = -Math.PI / 2 * par.turnFactor;
-			fix.rotation.z = Math.PI;
-			fix.position.x = (params.staircaseDiam / 2 + params.platformLedgeM + 160) / 2 - flanParams.width / 2 - sizeB / 2 + 100;
-			fix.position.y = -par.thk - profHeight / 2;
-			if (par.turnFactor == 1) fix.position.y -= flanThk;
-			fix.position.z = -(params.staircaseDiam / 2 + params.platformLedge - profWidth) * par.turnFactor;
-			par.metalFrame.add(fix);
+		//болты крепления к перекрытию
+		//if (typeof isFixPats != "undefined" && isFixPats && par.isFixPart) { //глобальная переменная		
+		if (typeof isFixPats != "undefined" && isFixPats && !testingMode) { //глобальная переменная		
+			par.fixPar = getFixPart(0, 'topFloor'); // параметры крепления к стенам
+			if (par.fixPar.fixPart !== 'нет') {
+				var fix = drawFixPart(par.fixPar).mesh;
+				fix.rotation.x = -Math.PI / 2 * par.turnFactor;
+				fix.rotation.z = Math.PI;
+				fix.position.x = (params.staircaseDiam / 2 + params.platformLedgeM + 160) / 2 - flanParams.width / 2 + sizeB / 2 - 100;
+				fix.position.y = -par.thk - profHeight / 2;
+				if (par.turnFactor == 1) fix.position.y -= flanThk;
+				fix.position.z = -(params.staircaseDiam / 2 + params.platformLedge - profWidth) * par.turnFactor;
+				par.metalFrame.add(fix);
+	
+				var fix = drawFixPart(par.fixPar).mesh;
+				fix.rotation.x = -Math.PI / 2 * par.turnFactor;
+				fix.rotation.z = Math.PI;
+				fix.position.x = (params.staircaseDiam / 2 + params.platformLedgeM + 160) / 2 - flanParams.width / 2 - sizeB / 2 + 100;
+				fix.position.y = -par.thk - profHeight / 2;
+				if (par.turnFactor == 1) fix.position.y -= flanThk;
+				fix.position.z = -(params.staircaseDiam / 2 + params.platformLedge - profWidth) * par.turnFactor;
+				par.metalFrame.add(fix);
+			}
 		}
 	}
+
 
 
 	//сохраняем данные для спецификации
@@ -2749,7 +2787,7 @@ function drawRadProfile(par){
 		var p1 = polar(p0_1, par.ang1, sideLength1);
 		var p2 = newPoint_xy(p0, 0, -profileLength / 2);
 		var p3 = polar(p2, par.ang2, sideLength2);
-		// console.log(par.ang2, sideLength2, p2)
+		// //console.log(par.ang2, sideLength2, p2)
 		
 		// if (par.ang1 < 0) {
 		// 
@@ -3206,7 +3244,7 @@ function drawMidFixFlan(par) {
 	addLine(shape, par.dxfArr, p4, p21, dxfBasePoint);
 	addArc2(shape, par.dxfArr, p0, rad, Math.PI * 2 / 3, -Math.PI * 2 / 3, false, dxfBasePoint)
 	addLine(shape, par.dxfArr, p11, p1, dxfBasePoint);
-console.log("ghgh")
+//console.log("ghgh")
 	var holeRad = 26 / 2;
 	addRoundHole(shape, par.dxfArr, p0, holeRad, dxfBasePoint); //функция в файле drawPrimitives
 
@@ -3260,7 +3298,7 @@ function drawMidFixHolder(par){
 	flanPar.roundHoleCenters.push({ x: flanPar.width - flanPar.holeX, y: flanPar.height - flanPar.holeY, holeData: { zenk: 'no' }, isFixPart: flanPar.isFixPart });
 	flanPar.roundHoleCenters.push({ x: flanPar.width - flanPar.holeX, y: flanPar.holeY, holeData: { zenk: 'no' }, isFixPart: flanPar.isFixPart });
 
-console.log(flanPar, par)
+//console.log(flanPar, par)
 	var flan = drawRectFlan2(flanPar).mesh;
 	flan.position.x = par.pos.x + par.holderLength;
 	flan.position.y = par.pos.y - flanPar.height / 2 - par.profWidth / 2;

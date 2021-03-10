@@ -41,6 +41,8 @@
 			<input id="calcVersion" type="text" value="4.2" >
 		</div>
 		';
+	// Контейнер для Iframe'ов изолирующих код
+	echo '<div id="isolationIframes" style="width: 0px; height: 0px;position: absolute;width: 1px;height: 1px;opaciy: 0;"></div>';
 	if($template != 'customers' && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) echo '<h1 id="mainTitle" contenteditable="true">' . $title . '</h1>';
 
 	//форма параметров заказа
@@ -59,6 +61,11 @@
 	$ignor_calc_types = ['railing', 'geometry', 'wardrobe', 'wardrobe_2', 'carport', 'objects', 'slabs', 'fire_2'];
 	if ($template == 'calculator' && !in_array($calc_type, $ignor_calc_types) && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
 		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/main.php";
+	}
+	
+	//экспресс-расчет для подоконников
+	if ($template == 'calculator' && $calc_type == "objects" && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
+		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/objects.php";
 	}
 	
 	if($template != 'customers' && $calc_type != 'slabs' && $calc_type != 'custom' && $calc_type != 'fire_2') {
@@ -101,9 +108,12 @@
 			if ($calc_type != 'objects') {
 				echo	'<button id="open_master_modal" class="btn btn-outline-primary">Конфигуратор</button>';
 			}
+			
+			if ($calc_type == 'objects') {
+				echo '<button id="open_master_modal_obj" class="btn btn-outline-primary">Конфигуратор</button>';
+			}
 
 			echo	'<button id="sendMessageModalShow" class="btn btn-outline-primary">Отправить КП</button>
-					<button id="print" class="btn btn-outline-primary">Печать</button>
 					<button onclick="saveCanvasImg(0)" class="btn btn-outline-secondary">Сохранить png</button>
 					
 				</div>
@@ -124,7 +134,6 @@
 			'<div class="noPrint mainButtons">
 				<button id="cloneCanvas" onclick="cloneCanvas()">Дублировать</button>
 				<button onclick="saveCanvasImg(0)">Сохранить png</button>
-				<button id="print">Печать</button>
 			</div>
 			<div class="printBlock" id="geomDescrWrapper">
 				<h2>Геометрия</h2>
@@ -136,7 +145,6 @@
 		if($template == 'installation') {
 			echo
 				'<div class="noPrint">
-					<button id="createConstructionTask">Стр. задание</button>
 					<button id="toggleAll">Развернуть</button>
 				</div>';
 		};
@@ -213,6 +221,14 @@
 		]],  $tabs);
 	}
 
+	if (isset($GLOBALS['MULTI']) && $GLOBALS['MULTI']) {
+		$tabs['multi'] = [
+			'name' => 'Этаж',
+			'url' => '/calculator/general/forms/multi.php',
+			'group' => 'form',
+		];
+	}
+
 	if($calc_type == 'bolz'){
 		$tabs['carcas']['url']  = "/calculator/bolz/forms/carcas_form.php";
 	};
@@ -285,7 +301,7 @@
 		$tabs['railing']['scripts'] = ["/calculator/metal/forms/railing_form_change.js"];
 	};
 	if($calc_type == 'vint'){
-		$tabs['geom'] = false;
+		$tabs['geom']["url"] = "/calculator/vint/forms/vint_geometry_form.php";
 		$tabs['carcas']['url']  = "/calculator/vint/forms/vint_carcas_form.php";
 		$tabs['carcas']['scripts'] = ["/calculator/vint/forms/changeFormVint.js"];
 		$tabs['railing']['url']  = "/calculator/vint/forms/vint_railing_form.php";
@@ -315,7 +331,8 @@
 		$tabs['geom'] = false;
 		$tabs['carcas']['name'] = "Площадка";
 		$tabs['carcas']['url'] = "/calculator/veranda/forms/platform_form.php";
-	//	$tabs['railing'] = false;
+		//$tabs['railing']['scripts'] = ["/calculator/metal/forms/railing_form_change.js"];
+		//$tabs['railing'] = false;
 		$tabs['floor_form'] = false;
 		$tabs['walls'] = false;
 		
@@ -362,8 +379,6 @@
 		$tabs['carcas'] = false;
 		$tabs['banister'] = false;
 		$tabs['railing'] = false;
-		$tabs['banister'] = false;
-		$tabs['railing'] = false;
 		$tabs['floor_form'] = false;
 		$tabs['walls'] = false;
 		$tabs['assembling'] = false;
@@ -388,8 +403,6 @@
 		$tabs['carcas'] = false;
 		$tabs['banister'] = false;
 		$tabs['railing'] = false;
-		$tabs['banister'] = false;
-		$tabs['railing'] = false;
 		$tabs['floor_form'] = false;
 		$tabs['walls'] = false;
 		$tabs['assembling'] = false;
@@ -412,8 +425,6 @@
 		$tabs['geom'] = false;
 		$tabs['carcas']['name'] = "Стол";
 		$tabs['carcas']['url'] = "/calculator/table/forms/mainForm.php";
-		$tabs['banister'] = false;
-		$tabs['railing'] = false;
 		$tabs['banister'] = false;
 		$tabs['railing'] = false;
 		$tabs['floor_form'] = false;
@@ -532,6 +543,15 @@
 		$tabs['geom_params'] = [
 				'name' => 'Параметры',
 				'url' => '/calculator/vint/content/geom_params.php',
+				'group' => 'data',
+			];
+
+	};
+	
+	if($calc_type == 'coupe'){
+		$tabs['geom_params'] = [
+				'name' => 'Параметры',
+				'url' => '/calculator/coupe/forms/geom_params.php',
 				'group' => 'data',
 			];
 
@@ -697,7 +717,7 @@
 	$data_body = '';
 	//$data_nav = '<nav class="topMenu navbar fixed-top navbar-expand-lg navbar-light bg-light nav-pills noPrint">
 
-	$data_nav = '<nav class="topMenu navbar fixed-top navbar-expand-md navbar-light bg-light noPrint">
+	$data_nav = '<nav class="topMenu navbar fixed-top navbar-expand-md navbar-light bg-light">
 		<div>
 			<div class="row">
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -721,9 +741,16 @@
 			</div>
 		</span>
 		<span class="nav-item dropdown">
+			<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Вид</a>
+			<div class="dropdown-menu">
+				<span class="dropdown-item toggleViewTemplate" data-view_type="editing">Редактирование</span>
+				<span class="dropdown-item toggleViewTemplate" data-view_type="print">Печать</span>
+				<span class="dropdown-item toggleViewTemplate" data-view_type="construction_task">Строительное задание</span>
+			</div>
+		</span>
+		<span class="nav-item dropdown">
 			<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Действия</a>
 			<div class="dropdown-menu">
-				<span class="dropdown-item" id="createConstructionTask">Стр. задание</span>
 				<span class="dropdown-item" id="makeSnapshot">Снимок</span>
 				<span class="dropdown-item"  id="validate">Проверить</span>
 				<span class="dropdown-item"  id="compareModalShow">Сравнить с другим</span>';
@@ -789,6 +816,14 @@
 	//вывод на страницу
 	if($template != 'customers'){
 		echo '<div>'.$data_nav . $data_body.'</div>';
+		$recalculate_multi = '';
+		if(isset($GLOBALS['MULTI']) && $GLOBALS['MULTI']) {
+			$recalculate_multi = '
+			<button class="btn btn-success d-none recalculatePrices">
+				<i class="fa fa-refresh"></i>
+				Обновить все
+			</button>';
+		}
 		echo
 			'<div class="panelWrap">
 				<div class="panelResizer d-none"></div>
@@ -797,6 +832,7 @@
 						<i class="fa fa-refresh"></i>
 						Обновить
 					</button>
+					'.$recalculate_multi.'
 
 					<div id="panelToggle" class="btn btn-secondary btn-lg">
 						<i class="fa fa-chevron-circle-left"></i>
@@ -838,21 +874,20 @@
 
 <script>
 	$(function(){
-		//отправка на печать
-		$("#print").click(function(){	
+		// //отправка на печать
+		// $("#print").click(function(){	
 
-			if($(this).text() == "Печать"){
-				//window.print();
-				$(this).text("Редактировать")
-				togglePrintMode(true);
-			}
-			else {
-				togglePrintMode(false);
-				$(this).text("Печать");
-			}
+		// 	if($(this).text() == "Печать"){
+		// 		//window.print();
+		// 		$(this).text("Редактировать")
+		// 		togglePrintMode(true);
+		// 	}
+		// 	else {
+		// 		togglePrintMode(false);
+		// 		$(this).text("Печать");
+		// 	}
 			
-		})
-		
+		// });
 		//включение/выключение печати блоков
 		$("body").delegate(".togglePrint", "click", function(){
 			$(this).toggleClass("grey") //добавляем кнопке класс, чтобы можно было отличить блоки, отключенные пользователем
@@ -869,6 +904,7 @@
 			$(".panelWrap").toggleClass("visible");
 			$(".panelResizer").toggleClass("d-none");
 			$(".panelWrap button.recalculate").toggleClass("d-none");
+			$(".panelWrap button.recalculatePrices").toggleClass("d-none");
 			
 			
 			if(cond == "block") $("#panelToggle").html('<i class="fa fa-chevron-circle-left"></i>')

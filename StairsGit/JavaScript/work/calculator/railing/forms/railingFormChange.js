@@ -55,7 +55,6 @@ function addRailingRows(){
 var rowAmt = $("#railingSectAmt").val();
 for(var i=0; i<rowAmt; i++){
 	addRailingInputs();
-	//console.log(i)
 	}	
 }
 
@@ -64,7 +63,7 @@ function addRailingInputs(){
 	
 	
 	var rowAmt = $("#railingParamsTable tr").length;
-	var row = '<tr class="sectParams">' + 
+	var row = '<tr class="sectParams railingParRow" data-object_selector="railingParRow" data-id="'+ rowAmt +'">' + 
 			'<td class="sectNumber">' + rowAmt + '</td>' + 
 				'<td>' +
 					'<span>Модель:<select class="railingType" id="railingType' + (rowAmt-1) + '" size="1">' +
@@ -72,7 +71,7 @@ function addRailingInputs(){
 						'<option value="стекло проф.">стекло проф.</option>' +						
 						'<option value="поручень">поручень</option>' +
 						'<option value="Ригели">ригели</option>' +
-						'<option value="Cтекло на стойках">стекло на стойках</option>' +
+						'<option value="Стекло на стойках">Стекло на стойках</option>' +
 						'<option value="Экраны лазер">экраны лазер</option>' +
 						'<option value="Решетка">решетка</option>' +
 						'<option value="Деревянные балясины">дерево</option>' +
@@ -218,7 +217,7 @@ var isKovka = false;
 							var turnFactor = -1;
 							if(railingSide == "правая") turnFactor = 1;
 							
-							if(railingType == "Ригели" || railingType == "Cтекло на стойках" || railingType == "Кованые балясины" || railingType == "Экраны лазер"){
+							if(railingType == "Ригели" || railingType == "Стекло на стойках" || railingType == "Кованые балясины" || railingType == "Экраны лазер"){
 								railingThk = 40;
 								railingOffset = 0;								
 								if(params.rackBottom == "сверху с крышкой") {
@@ -244,7 +243,7 @@ var isKovka = false;
 								offset += (params.glassSideOffset + railingThk / 2) * turnFactor;
 								}
 							
-							if(railingType == "Ригели" || railingType == "Cтекло на стойках" || railingType == "Кованые балясины" || railingType == "Экраны лазер"){
+							if(railingType == "Ригели" || railingType == "Стекло на стойках" || railingType == "Кованые балясины" || railingType == "Экраны лазер"){
 								offset += railingThk / 2 * turnFactor;
 								mooveY = -40;
 								if(params.rackBottom == "сверху с крышкой") {
@@ -306,7 +305,7 @@ var isKovka = false;
 			isRigels = true;
 			isRacks = true;
 			}
-		if(railingType == "Cтекло на стойках" || railingType == "Экраны лазер"){
+		if(railingType == "Стекло на стойках" || railingType == "Экраны лазер"){
 			isRacks = true;
 			isGlass = true;
 			}
@@ -397,7 +396,6 @@ if(isHandrail) {
 
 	//тип крепления поручня
 	$("#handrailFixType").closest("tr").hide();
-	console.log(isRacks, isTimber)
 	if (!isRacks && !isTimber) {
 		$("#handrailFixType").closest("tr").show();
 	}
@@ -415,8 +413,8 @@ if(isHandrail) {
 	$(".kovka_tr").hide();	
 	if (isForge) $(".kovka_tr").show();
 	
+	$("#balDist").closest("tr").hide();
 	if(isLattice) {
-		console.log(railingModel)
 		$("#balDist").closest("tr").show();
 		$("#banister1").val("20х20");
 		$("#banister2").val("20х20");
@@ -435,12 +433,11 @@ if(isHandrail) {
 	
 	$("#rutelGlassParams").hide();
 	if(isRutel) {
-		console.log(isRutel)
 		$("#rutelGlassParams").show();
 	}
 
-	$(".timberRailing_tr").hide();
-	if (isTimber) $(".timberRailing_tr").show();
+	$(".timber_tr").hide();
+	if (isTimber) $(".timber_tr").show();
 	
 	if(isGlass && params.handrailFixType == "паз") {
 		$("#handrailConnectionType").val("без зазора премиум");
@@ -458,15 +455,20 @@ if(isHandrail) {
 	}
 
 	if (isKovka) {
-		$('.kovka_tr').show();
+		$('.timber_kovka_tr').show();
 	}else{
-		$('.kovka_tr').hide();
+		$('.timber_kovka_tr').hide();
 	}
 
 	//порода дерева поручня
 	if(params.handrail != "массив") $("#handrailsMaterial").closest("tr").hide();
 	
-	
+	//скрываем неактуальные инпуты
+	$('#banisterSize').closest("tr").hide();
+	$('#lastNewellMooveX').closest("tr").hide();
+	$('#lastNewellType').closest("tr").hide();
+	$('#startNewellType').closest("tr").hide();
+	$('#timberBalModel').closest("tr").hide();
 	
 	
 

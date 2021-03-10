@@ -88,16 +88,7 @@
 
 			<!-- параметры кованых ограждений -->
 
-			<tr class="railing_tr kovka_tr"><td>Столбы:</td> <td> 
-				<select id="rackTypeKovka" size="1" onchange="">
-					<option value="40х40">Гладкий 40х40</option>
-					<option style="display:none;" value="stolb_1">Корзинка</option>
-					<option style="display:none;" value="stolb_2">Поковка</option>
-					<option style="display:none;" value="stolb_3">Кручение</option>
-				</select>
-			</td></tr>
-
-			<tr class="railing_tr kovka_tr"><td>Модель балясины:</td> <td> 
+			<tr class="railing_tr timber_kovka_tr"><td>Модель балясины:</td> <td> 
 				первая: 
 				<select id="banister1" size="1" onchange="">
 					<!-- варианты кованых балясин -->
@@ -112,15 +103,25 @@
 				<button class="showForgePrv noPrint">эскизы</button>
 			</td></tr>
 			
+		<tr class="railing_tr timber_kovka_tr"><td>Чередование балясин:</td> <td> 
+			<select id="forgeBalToggle" size="1" onchange="">
+				<option value="1-1">1-1</option>
+				<option value="2-1">2-1</option>
+				<option value="1-2">1-2</option>
+				<option value="2-2">2-2</option>
+			</select>
+		</td></tr>
+
+		<tr class="railing_tr timber_kovka_tr">
+			<td>Примерный шаг балясин:</td> 
+			<td><input id="balDist" type="number" value="200"></td>
+		</tr>
+
 			
-
-
-			<tr class="railing_tr kovka_tr">
-				<td>Примерный шаг балясин:</td> 
-				<td><input id="balDist" type="number" value="100"></td>
-			</tr>
-
-			<!--Ограждения с деревянными балясинами -->
+		<!-- параметры деревянных ограждений -->
+		<?php include $GLOBALS['ROOT_PATH']."/calculator/timber/forms/timberRailing.php" ?>
+		
+	<!--
 			<tr class="railing_tr timberRailing_tr"><td>Кол-во балясин на ступень:</td> <td> 
 				<select id="timberBalStep" size="1" onchange="">
 					<option value="1">1</option>
@@ -166,7 +167,7 @@
 					<option value="дуб">дуб</option>
 				</select>
 			</td></tr>
-
+	-->
 			</tbody> </table>
 
 

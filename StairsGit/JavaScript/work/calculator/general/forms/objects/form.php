@@ -17,6 +17,7 @@
 				<table class="form_table objectsTable" id='objectsTable'>
 					<thead>
 						<tr>
+							<th>ID</th>
 							<th>Данные</th>
 							<th style="min-width: 190px">Позиция</th>
 							<!-- <th>Цвет</th> -->

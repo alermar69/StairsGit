@@ -710,7 +710,7 @@ function makeSvgFromShape(shape, draw, isRotate){
 	return path;
 }
 
-function makePathStringFromShape(shape, isRotate){
+function makePathStringFromShape(shape, isRotate, noHole){
 	var curveArr = [];
 	var curvesArr = shape.curves.concat();
 
@@ -720,30 +720,32 @@ function makePathStringFromShape(shape, isRotate){
 		curvesArr[3].v1.y = y;
 	}
 
-	if (shape.holes.length == 0) {
-		// '40' вызывает ошибки построения, пока убрал. Вероятно это вызовет проблему там, для чего костыль, появление костыля - ревизия 162
-		var pt1 = newPoint_xy(shape.curves[1].v1, 0, 0);//40);
-		var pt2 = newPoint_xy(shape.curves[1].v2, 0, 0);//40);
+	// if (shape.holes.length == 0) {
+	// 	// '40' вызывает ошибки построения, пока убрал. Вероятно это вызовет проблему там, для чего костыль, появление костыля - ревизия 162
+	// 	var pt1 = newPoint_xy(shape.curves[1].v1, 0, 0);//40);
+	// 	var pt2 = newPoint_xy(shape.curves[1].v2, 0, 0);//40);
 
-		var line = new THREE.LineCurve(pt1, pt2);
-		//curvesArr.push(line);
-	}
+	// 	var line = new THREE.LineCurve(pt1, pt2);
+	// 	//curvesArr.push(line);
+	// }
 
 	//добавлем отверстия
 
-	$.each(shape.holes, function(){
-		if (this.drawing) {
-			if (this.drawing.zenk == 'no') {
-				var noZenkCurves = createNoZenkCurve(this.curves[0]);
-				curvesArr.push(...noZenkCurves);
+	if (!noHole) {
+		$.each(shape.holes, function(){
+			if (this.drawing) {
+				if (this.drawing.zenk == 'no') {
+					var noZenkCurves = createNoZenkCurve(this.curves[0]);
+					curvesArr.push(...noZenkCurves);
+				}
+				if (this.drawing.zenk == 'back') {
+					var backCurves = createBackZenkCurve(this.curves[0]);
+					curvesArr.push(backCurves);
+				}
 			}
-			if (this.drawing.zenk == 'back') {
-				var backCurves = createBackZenkCurve(this.curves[0]);
-				curvesArr.push(backCurves);
-			}
-		}
-		curvesArr.push(...this.curves);
-	});
+			curvesArr.push(...this.curves);
+		});
+	}
 
 	$.each(curvesArr, function(){
 		

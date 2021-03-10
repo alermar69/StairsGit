@@ -113,8 +113,9 @@ function drawStringer(par){
 
 			if (par.wndFramesHoles1 && par.marshId > 2) par.wndFramesHoles = par.wndFramesHoles1;
 
-
-			if (par.botEnd == "floor") drawBotStepKo_floor(par);
+			if (par.botEnd == "floor" && params.calcType != 'vint') drawBotStepKo_floor(par);
+			if (par.botEnd == "floor" && params.calcType == 'vint' && par.marshId == 1) drawBotStepKo_floor(par);
+			if (par.botEnd == 'floor' && params.calcType == 'vint' && par.marshId == 3) drawBotStepKo_vint(par);
 			if (par.botEnd == "platformG") {
 				if (params.stairModel == "П-образная трехмаршевая1" && par.marshId == 2 && params.stairAmt2 == 0)
 					drawBotStepKo_pltG_3marsh0(par);
@@ -145,7 +146,9 @@ function drawStringer(par){
 			par.wndFramesHoles = wndFramesHoles;
 			if (par.wndFramesHoles1 && par.marshId > 1) par.wndFramesHoles = par.wndFramesHoles1;
 
-			if (par.topEnd == "floor") drawTopStepKo_floor(par);
+			if (par.topEnd == "floor" && params.calcType != 'vint') drawTopStepKo_floor(par);
+			if (par.topEnd == "floor" && params.calcType == 'vint' && par.marshId == 3) drawTopStepKo_floor(par);
+			if (par.topEnd == 'floor' && params.calcType == 'vint' && par.marshId == 1) drawTopStepKo_vint(par);
 			if (par.topEnd == "platformG") drawTopStepKo_pltG(par);
 			if (par.topEnd == "platformP") drawTopStepKo_pltP(par);
 			if (par.topEnd == "winder" && par.key == "in") drawTopStepKo_wndIn(par);
@@ -217,7 +220,7 @@ function drawStringer(par){
 			//средний марш трехмаршевой с 0 ступеней во 2 марше
 			if(params.stairModel == "П-образная трехмаршевая" && par.marshId == 2 && params.stairAmt2 == 0) drawBotStepLt_pltG_3marsh0(par);
 			else drawBotStepLt_pltG(par);
-			}
+		}
 		if (par.botEnd == "platformP" && par.key == "in") drawBotStepLt_pltPIn(par);
 		if (par.botEnd == "platformP" && par.key == "out") drawBotStepLt_pltPOut(par);
 		if (par.botEnd == "winder" && par.key == "in") drawBotStepLt_wndIn(par);
@@ -676,7 +679,7 @@ function drawStringer(par){
 	par.carcasHoles.push(...par.pointsHole, ...par.pointsHoleBot, ...par.pointsHoleTop);
 
 	//формируем единый массив центров отверстий для ограждений
-	stringerParams.elmIns[stringerParams.key].racks.push(...par.railingHolesBot, ...par.railingHoles, ...par.railingHolesTop)
+	stringerParams.elmIns[stringerParams.key].racks.push(...par.railingHolesBot, ...par.railingHoles, ...par.railingHolesTop);
 	//удаляем из массива центров отверстий для ограждений отверстия которые не нужно учитывать в ограждениях
 	var racks = [];
 	for (var k = 0; k < stringerParams.elmIns[stringerParams.key].racks.length; k++) {
@@ -752,6 +755,8 @@ function drawStringer(par){
 			specObj[partName]["paintedArea"] += area * 2;
 
 			par.meshes[i].specId = partName + name;
+			addMaterialNeed({id: 'sheet8', amt: area, itemType:  'carcas'});
+			par.meshes[i].isInMaterials = true;
 		}
 	}
 

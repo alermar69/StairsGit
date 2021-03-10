@@ -555,18 +555,20 @@ function drawTurnStep(par){
 			}
 		}
 		var name = '';
-
+		var box3 = new THREE.Box3().setFromObject(par.mesh);
+		var area = ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
-		var box3 = new THREE.Box3().setFromObject(par.mesh);
-		specObj[partName]["area"] += ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
+		specObj[partName]["area"] += area;
 		specObj[partName]["volume"] += (box3.max.x - box3.min.x) * (box3.max.y - box3.min.y) * par.thk / 1000000000;
 		specObj[partName]["paintedArea"] += ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
 				
 		par.mesh.specParams = {specObj: specObj, amt: 1, partName: partName, name: name}
 
 		par.mesh.specId = partName + name;
+		addMaterialNeed({id: calcTreadParams().treadsPanelName, amt: area, itemType:  'treads'});
+		par.mesh.isInMaterials = true;
 	}
 	
 	return par;
@@ -777,6 +779,8 @@ function drawPlatform(par){
 			specObj[partName]["area"] += area;
 			specObj[partName]["volume"] += par.sectLen * par.sectWidth * treadThickness / 1000000000;
 			specObj[partName]["paintedArea"] += paintedArea;
+			addMaterialNeed({id: calcTreadParams().treadsPanelName, amt: area, itemType:  'treads'});
+			tread.isInMaterials = true;
 		}
 
 		tread.specId = partName + name;

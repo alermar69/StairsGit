@@ -20,7 +20,7 @@ class TextureManager{
 		this.materialsConfigs = getMaterialsConfigs();
 		params.materials = this.createMaterials();
 
-		if (!texturesOn) {
+		if (!texturesOn && !window.IS_ISOLATION) {
 			view.lights[0].color = new THREE.Color(0xFFFFFF);
 		}
 
@@ -153,7 +153,7 @@ class TextureManager{
 		if (material_name == 'handrail') {
 			par.colorName = params.handrailsColor
 			if(params.calcType == "vint"){
-				if(params.handrailMaterial == "ПВХ") par.colorName = params.handrailColor
+				if(params.handrailMaterial == "ПВХ") par.colorName = params.handrails_pvcColor
 				if(params.handrailMaterial == "Дуб") par.colorName = params.timberColorNumber
 			}
 			par.colorId = getTimberColorId(par.colorName);
@@ -283,6 +283,7 @@ class TextureManager{
 	 */
 	createMaterial(options){
 		var material = new THREE.MeshStandardMaterial(options);
+		material.side = THREE.DoubleSide; // Добавлено в качестве эксперимента, посмотреть на влияение этой опции
 		this.loadMaterialConfig(material, material.name);
 		return material;
 	}
@@ -460,6 +461,16 @@ class TextureManager{
 			texture_name = getTimberTextureName(params.handrailsMaterial);
 			color_name = params.handrailsColor;
 			key = params.handrailsMaterial;
+			if(params.calcType == "vint"){
+				if(params.handrailMaterial == "ПВХ") {
+					color_name = params.handrails_pvcColor
+					key = 'ПВХ';
+				}
+				if(params.handrailMaterial == "Дуб"){
+					color_name = params.timberColorNumber
+					key = params.handrailMaterial;
+				} 
+			}
 		}
 		if (material_name == 'metal' || material_name == 'metal2') {
 			texture_name = 'metal';
@@ -889,7 +900,7 @@ function toggleTreadLights(algorithm, state){
  */
 function createCamCurve(){
 	var positions = [];
-	if (getCalcTypeMeta().notStairs) {
+	if (getCalcTypeMeta().notStairs.indexOf(params.calcType) != -1) {
 		view.sceneCenter = new THREE.Vector3(0,0,0);
 		return
 	}
@@ -899,16 +910,14 @@ function createCamCurve(){
 
 	var humanHeight = 1700;
 	view.scene.traverse(function(node){
-		if (node.layerName == 'treads') {
-			if (node.userData && node.userData.marshId) {
-				var box3 = new THREE.Box3().setFromObject(node);
-				var position = new THREE.Vector3();
-				box3.getCenter(position);
-				var size = new THREE.Vector3();
-				box3.getSize(size);
-				position.y += humanHeight;
-				positions.push(position);
-			}
+		if (node.modifyKey && node.modifyKey.indexOf('treads:') != -1) {
+			var box3 = new THREE.Box3().setFromObject(node);
+			var position = new THREE.Vector3();
+			box3.getCenter(position);
+			var size = new THREE.Vector3();
+			box3.getSize(size);
+			position.y += humanHeight;
+			positions.push(position);
 		}
 	});
 	// if (params.calcType == 'vint') {
@@ -1035,6 +1044,13 @@ function createCamCurve(){
 	box3.getCenter(view.sceneCenter);
 
 	view.camSpline = camSpline;
+}
+
+function getCurrentObjectName(){
+	var id = 1;
+	if (window.currentPriceItem != null && window.isMulti) id = currentPriceItem;
+	var name = 'Main-'+id;
+	return name;
 }
 
 function createProjectionTexture(){

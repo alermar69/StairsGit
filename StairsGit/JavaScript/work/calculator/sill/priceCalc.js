@@ -1,3 +1,6 @@
+//var costMarkup = 1.3; //07.05.20;
+var costMarkup = 1.56; //11.01.21
+
 function calculateCarcasPrice(){
 // 	staircaseCost = {};
 	

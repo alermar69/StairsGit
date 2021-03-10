@@ -27,7 +27,22 @@ class Table extends AdditionalObject {
 				width: par.width - par.sideOverhang * 2,
 				height: par.height - par.thk,
 				len: par.len - par.frontOverhang * 2,
-				objectAmt: par.objectAmt
+				objectAmt: par.objectAmt,
+				prof: par.baseProf,
+				legsAmt: par.legsAmt,
+				counterTop: {
+					geom: par.tableGeom,
+					len: par.len,
+					width: par.width,
+				},
+				legType: par.legType,
+				oneSideLegs: par.oneSideLegs,
+				objId: par.objId,
+				fixingAmt: par.fixingAmt
+			}
+			if (par.tableGeom == 'круглый') {
+				basePar.len =  basePar.width
+				basePar.counterTop.len =  basePar.counterTop.width
 			}
 			console.log(basePar)
 	
@@ -48,7 +63,11 @@ class Table extends AdditionalObject {
 				partsGap: par.partsGap,
 				sideEdges: par.sideEdges,
 				riverWidth: par.riverWidth,
-				modifyKey: 'tabletop:' + par.objId
+				modifyKey: 'tabletop:' + par.objId,
+				objId: par.objId,
+				objectAmt: par.objectAmt,
+				tableGeom: par.tableGeom,
+				resinVol: par.resinVol,
 			}
 			// debugger;
 			var top = drawTableCountertop(topPar).mesh;
@@ -78,8 +97,9 @@ class Table extends AdditionalObject {
 	static calcPriceParts(par){
 		var countertopCost = calcTimberPanelCost(par.meshParams);
 		var cost = countertopCost;
+		var metalPart = 0;
 
-		if (par.meshParams.baseModel != 'не указано' && par.meshParams.baseModel != 'нет') {		
+		if (par.meshParams.baseModel != 'не указано' && par.meshParams.baseModel != 'нет') {
 			var tableBaseCost = 5000;
 			var model = par.meshParams.baseModel
 			if(model.indexOf("S") != -1) tableBaseCost = 7500;
@@ -91,25 +111,60 @@ class Table extends AdditionalObject {
 			
 			var table_base = tableBaseCost * 0.7 + (tableBaseCost * 0.3 * profLen / nominalProfLen);
 			cost += table_base
+			
+			//доля металлического цеха в цене
+			metalPart = table_base / cost;			
+
 		}
+
 		return {
 			cost: cost,
 			tableBase: table_base,
-			countertopCost: countertopCost
+			countertopCost: countertopCost,
+			metalPart: metalPart,
 		}
 	}
 
 	static calcPrice(par){
+		var priceParts = this.calcPriceParts(par);
+		
 		return {
 			name: this.getMeta().title,
-			cost: this.calcPriceParts(par).cost,
+			cost: priceParts.cost,
 			priceFactor: par.meshParams.priceFactor || 1,
 			costFactor: par.meshParams.costFactor || 1,
+			metalPart: priceParts.metalPart,
 		}
 	}
 	
 	static formChange(form, data){
 		var par = data.meshParams
+		
+		//параметры круглого стола
+		form.find('[data-propid="len"]').closest('tr').show()
+		form.find('[data-propid="frontOverhang"]').closest('tr').show()
+		if(par.tableGeom == "круглый") {
+			form.find('[data-propid="len"]').closest('tr').hide()
+			form.find('[data-propid="frontOverhang"]').closest('tr').hide()
+		}
+
+		if(par.baseModel == "T-13") {
+			form.find('[data-propid="legType"]').closest('tr').show()
+		}else{
+			form.find('[data-propid="legType"]').closest('tr').hide()
+		}
+
+		if(par.baseModel == "K-1") {
+			form.find('[data-propid="fixingAmt"]').closest('tr').show()
+		}else{
+			form.find('[data-propid="fixingAmt"]').closest('tr').hide()
+		}
+
+		if(par.baseModel == "T-20") {
+			form.find('[data-propid="legsAmt"]').closest('tr').show()
+		}else{
+			form.find('[data-propid="legsAmt"]').closest('tr').hide()
+		}
 		
 		//зазор между частями столешницы
 		form.find('[data-propid="partsGap"]').closest('tr').hide()
@@ -125,6 +180,12 @@ class Table extends AdditionalObject {
 		if(par.tabletopType.indexOf("слэб") != -1) {
 			form.find('[data-propid="resinVol"]').closest('tr').show()
 			form.find('[data-propid="sideEdges"]').closest('tr').show()
+		}
+
+		if (par.cornerRad > 0 && par.cornerRad <= 25) {
+			if (par.cornerRad != 3 && par.cornerRad != 6 && par.cornerRad != 12 && par.cornerRad != 25) {
+				alert('Радиус скругления может быть только 3,6,12,25 или больше');
+			}
 		}
 
 		getObjPar()
@@ -193,7 +254,6 @@ class Table extends AdditionalObject {
 					"default": "прямоугольный",
 					"type": "select"
 				},
-				
 				{
 					"key": "len",
 					"title": "Длина:",
@@ -464,10 +524,80 @@ class Table extends AdditionalObject {
 					{
 						"value": "T-18",
 						"title": "T-18"
-					}
+					},
+					{
+						"value": "T-20",
+						"title": "T-20"
+					},
+					{
+						"value": "K-1",
+						"title": "K-1"
+					},
 					],
 					"default": "T-1",
 					"type": "select",
+					"printable": "true",
+				},
+				{
+					"key": "oneSideLegs",
+					"title": "Половина:",
+					"values": [
+						{
+							"value": "да",
+							"title": "да"
+						},
+						{
+							"value": "нет",
+							"title": "нет"
+						}
+					],
+					"default": "нет",
+					"type": "select"
+				},
+				{
+					"key": "legsAmt",
+					"title": "Кол-во ног:",
+					"values": [
+					{
+						"value": "4",
+						"title": "4"
+					},
+					{
+						"value": "3",
+						"title": "3"
+					}
+					],
+					"default": "4",
+					"type": "select",
+					"printable": "true",
+				},
+				
+				{
+					"key": "legType",
+					"title": "Тип ножек:",
+					"values": [
+						{
+							"value": "шпильки",
+							"title": "шпильки"
+						},
+						{
+							"value": "круглые",
+							"title": "круглые"
+						},
+						{
+							"value": "квадратные",
+							"title": "квадратные"
+						},
+					],
+					"default": "шпильки",
+					"type": "select",
+					"printable": "true",
+				},
+				{
+					"key": "fixingAmt",
+					"title": "Кол-во кронштейнов:",
+					"default": 2,
+					"type": "number",
 					"printable": "true",
 				},
 				{
@@ -492,6 +622,60 @@ class Table extends AdditionalObject {
 					"default": 100,
 					"type": "number",
 					"class": 'basPar',
+					"printable": "true",
+				},
+				
+				{
+					"key": "baseProf",
+					"title": "Профиль:",
+					"values": [
+					{
+						"value": "авто",
+						"title": "авто"
+					},
+					{
+						"value": "40х20",
+						"title": "40х20"
+					},
+					{
+						"value": "40х40",
+						"title": "40х40"
+					},
+					{
+						"value": "40х60",
+						"title": "40х60"
+					},
+					{
+						"value": "40х80",
+						"title": "40х80"
+					},
+					{
+						"value": "40х100",
+						"title": "40х100"
+					},
+					{
+						"value": "60х30",
+						"title": "60х30"
+					},
+					{
+						"value": "60х60",
+						"title": "60х60"
+					},
+					{
+						"value": "80х80",
+						"title": "80х80"
+					},
+					{
+						"value": "100х50",
+						"title": "100х50"
+					},
+					{
+						"value": "100х100",
+						"title": "100х100"
+					},
+					],
+					"default": "авто",
+					"type": "select",
 					"printable": "true",
 				},
 				

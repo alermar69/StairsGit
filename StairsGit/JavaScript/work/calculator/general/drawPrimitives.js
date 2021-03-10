@@ -1828,7 +1828,7 @@ function calcSegmentPar(width, height){
 	par.basePoint = {x: -width/2, y:0},
 	par.rad = height / 2 + (width * width) / (8 * height);
 	par.center = {x: 0, y: height - par.rad};
-	par.halfAngle = angle(par.basePoint, par.center)
+	par.halfAngle = angle(par.basePoint, par.center) + Math.PI / 2;
 
 	return par;
 }

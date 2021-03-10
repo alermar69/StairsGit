@@ -21,7 +21,7 @@
 <input type="number" id="beamPosZ" value="0" step="10"><br>
 
 
-<input type="hidden" id="topFloorAmt" value="0">
+<input type="number" id="topFloorAmt" value="0" style='visible: none'>
 <table class="form_table" ><tbody>
 <tr><th>Базовая кромка</th><th>Длина</th><th>Ширина</th><th>Смещение</th></tr> 
 

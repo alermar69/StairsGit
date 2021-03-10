@@ -127,10 +127,7 @@ if (M > 1200) strigerPrice = strigerPrice * 1.5; //добавляется тре
 	stringerMeterPrice = stringerMeterPrice * 1.15;
 	if (model == "косоуры") stringerArea = stringerArea * 1.1;
 	strigerPrice = stringerMeterPrice * stringerArea;
-	
-	//расход материала
-	if(carcasPlateName) materials[carcasPlateName].amt += stringerArea;
-	
+		
 	/*цена работы*/
 	
 	var cncCarcasPartsAmt = 0; //кол-во сложных деталей каркаса	
@@ -169,10 +166,6 @@ var treadsPanelName = treadParams.treadsPanelName;
 var riserPanelName = treadParams.riserPanelName;
 var timberPaintMeterPrice = treadParams.timberPaintMeterPrice;
 var treadMeterPrice = treadParams.treadMeterPrice;
-
-if(treadParams.treadsPanelName) materials[treadsPanelName].amt += treadParams.treadShieldArea;
-if(treadParams.riserPanelName) materials[riserPanelName].amt += treadParams.riserShieldArea;
-
 	
 	/*плинтус*/
 	
@@ -214,7 +207,6 @@ if(model == "косоуры" && riserType == "есть"){
 	
 	treadsTotalPrice += skirtingPrice;
 	timberPaintedArea += 0.08 * skirtingAmt;
-	if(riserPanelName) materials[riserPanelName].amt += 0.03 * skirtingAmt;	
 	}
 
 //end of calcSkirting
@@ -246,29 +238,6 @@ staircaseCost.carcasMetalPaint = metalPaintTotalPrice;
 staircaseCost.treads = treadsTotalPrice;
 staircaseCost.carcasTimberPaint = timberPaintPrice;
 staircaseCost.carcas = totalCostCarcas;
-
-
-/*** ОБЩАЯ СТОИМОСТЬ ЛЕСТНИЦЫ ***
-var margin = 2 / costMarkup;
-var marginPaint = 2 / costMarkup; //наценка на покраску
-
-totalCarcasPrice = Math.round((strigerPrice + totalAnglePrice + totalBoltPrice + totalFramePrice + columnTotalPrice) * margin);
-treadsTotalPrice = Math.round(treadsTotalPrice * margin);
-metalPaintTotalPrice = Math.round(metalPaintTotalPrice * marginPaint);
-timberPaintPrice = Math.round(timberPaintPrice * marginPaint);
-var totalPrice_0 = Math.round(totalCarcasPrice + treadsTotalPrice);
-var totalPrice_1 = Math.round(totalCarcasPrice + treadsTotalPrice + metalPaintTotalPrice + timberPaintPrice);
-var totalInstalPrice = Math.round(totalPrice_1 * 0.2);
-
-var totalPrice_2 = Math.round(totalPrice_1 + totalInstalPrice);
-
-/*сохраняем цены в глобальный объект*
-staircasePrice.carcas = totalCarcasPrice;
-staircasePrice.treads = treadsTotalPrice;
-staircasePrice.carcasMetalPaint = metalPaintTotalPrice;
-staircasePrice.carcasTimberPaint = timberPaintPrice;
-*/
-
 }//Конец функции calculateCarcasPrice()
 
 

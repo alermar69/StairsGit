@@ -1,5 +1,6 @@
 <div id="kp_inputs">
 	<input type="number" id='currentOrderId' hidden>
+
 	<table class="form_table">
 		<tbody>
 			<tr>
@@ -29,9 +30,11 @@
 						<option value="Артем Николаев">Артем Николаев</option>
 						<option value="Алексей Степин">Алексей Степин</option>						
 						<option value="Юркин Александр">Юркин Александр</option>
-						<option value="Юркин Александр">Юркин Александр</option>
 						<option value="Смирнова Олеся">Смирнова Олеся</option>
 						<option value="Прокофьев Владислав">Прокофьев Владислав</option>
+						<option value="Афанасьев Юрий">Афанасьев Юрий</option>
+						<option value="Бурдаков Денис">Бурдаков Денис</option>
+						<option value="Валавин Павел">Валавин Павел</option>
 						
 						<option value="Шерышев Сергей">Шерышев Сергей</option>
 						<option value="Сергей Романов">Сергей Романов</option>

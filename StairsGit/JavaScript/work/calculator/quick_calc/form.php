@@ -4,7 +4,6 @@
 <script src="/calculator/general/tablelib/jquery.tablesorter.widgets.min.js"></script>
 <link rel="stylesheet" href="/orders/libs/styles.css">
 <script src="/orders/libs/table.js"></script>
-<script src="/orders/libs/main.js"></script>
 <script src="/orders/libs/loadData.js"></script>
 <script src="/orders/libs/tableHeadFixer.js"></script>
 
@@ -18,7 +17,7 @@
 				<h4 class="modal-title">Шаблоны</h4>
 			</div>
 			<div class="modal-body">
-				<div id='outputDiv' style='overflow: auto;max-height: 60vh;'></div>
+				<div id='editCalcOutputDiv' style='overflow: auto;max-height: 60vh;'></div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-success" id='selectTemplate'>Применить</button>

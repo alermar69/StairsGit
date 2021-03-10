@@ -365,9 +365,8 @@ function calculateGlassPoints(par){
 		finalGlassPoints.push(pt);
 	}
 
-	if(params.handrail != "нет"){
-		par.handrailPoints = handrailPoints;
-	}
+	par.handrailPoints = handrailPoints;
+
 
 	//удаляем некорректные точки из массива - костыль
 	for (var i = 0; i < finalGlassPoints.length; i++) {
@@ -923,7 +922,6 @@ function drawGlassSectionMono(par){
 			
 		}
 	}
-
 
 	var result = {
 		mesh: section,
@@ -1786,7 +1784,8 @@ function drawRackMono(par){
 	var rackLen = topPoint.y - p3.y;
 	
 	//стойка в сборе
-	
+	var profParmas = getProfParams(rackProfile + 'х' + rackProfile);
+	addMaterialNeed({id: profParmas.materialNeedId, amt: Math.round(par.len) / 1000, area: (rackProfile + rackProfile) * 2 * rackLen / 1000000, itemType: 'railing'})
 	var partName = "racks";
 	if(par.type == 'turnRackStart' || par.type == 'turnRackEnd') partName = "turnRack";
 	if(typeof specObj !='undefined'){

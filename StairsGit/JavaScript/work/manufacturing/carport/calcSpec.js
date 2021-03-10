@@ -35,6 +35,7 @@ function calculateSpec() {
 	crateWorksList();
 	// calcWorks(partsAmt, "staircase");
 	// calcWorks(partsAmt_bal, "banister");
+	calculateTotalPrice2();
 	printWorks2();
 
 	//материалы

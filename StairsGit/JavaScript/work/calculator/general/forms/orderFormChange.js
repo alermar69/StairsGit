@@ -185,7 +185,6 @@ function changeOrderForm(){
 	if(params.hedarBgImg == "дерево") bgImg = "/images/calculator/new_kp/timber_bg.jpg"
 	if(params.hedarBgImg == "металл") bgImg = "/images/calculator/new_kp/rif-steel.jpg"
 	if(params.hedarBgImg == "нет") bgImg = ""
-	console.log(bgImg)
 	$(".kp_header").css("background-image", "url(" + bgImg + ")")
 	
 }

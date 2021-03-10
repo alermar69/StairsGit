@@ -4856,7 +4856,7 @@ var MakerJs;
             //http://images.autodesk.com/adsk/files/acad_dxf0.pdf
             if (options === void 0) { options = {}; }
             var opts = {};
-            var layerIds = [];
+            var layerIds = ['holes'];
             var dxf = { "top": [], "bottom": [] };
             var dxfIndex = "top";
             function append(value) {
@@ -5012,8 +5012,9 @@ var MakerJs;
                 append("LAYER");
                 layerIds.forEach(function (layerId) {
                     var layerOptions = colorLayerOptions(layerId);
-                    if (layerOptions) {
-                        layerOut(layerId, layerOptions.color);
+                    var color = layerOptions ? layerOptions.color : exporter.colors.white;
+                    if (color) {
+                        layerOut(layerId, color);
                     }
                 });
             }
@@ -5085,6 +5086,7 @@ var MakerJs;
             append("0");
             append("EOF");
             return dxf["top"].concat(dxf["bottom"]).join('\n');
+            
         }
         exporter.toDXF = toDXF;
         /**

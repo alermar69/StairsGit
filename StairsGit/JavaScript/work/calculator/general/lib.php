@@ -23,14 +23,23 @@ function getCalcType()
 		if (strpos($url,'/'.$item.'/') !== false) $calc_type = $item;
 	};
 
-	return $calc_type;
+	if (isset($_GET['multiCalcType'])) {
+		return $_GET['multiCalcType'];
+	}else{
+		return $calc_type;
+	}
+}
+
+function userIsBoss(){
+	global $USER;
+	return $USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray());
 }
 
 function getTemplate()
 {
 	$url = getRootUrl();
 
-	$templates = ['calculator', 'manufacturing', 'installation', 'customers'];
+	$templates = ['calculator', 'manufacturing', 'installation', 'customers', 'cnc'];
 	$template = '';
 	foreach($templates as $item){
 		if (strpos($url,'/'.$item) !== false) $template = $item;

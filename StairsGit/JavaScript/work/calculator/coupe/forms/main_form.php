@@ -206,9 +206,11 @@
 	</select>
 </td></tr>
 
-<tr><td>Боковины:</td> <td> 
+<tr><td>Каркас:</td> <td> 
 	<select id="sideWall_wr" size="1">
-		<option value="панели">панели</option>
+		<option value="панели лдсп">панели лдсп</option>
+		<option value="панели шпон">панели шпон</option>
+		<option value="панели щит">панели щит</option>
 		<option value="проф. труба">проф. труба</option>
 		<option value="бруски">бруски</option>
 		<option value="кресты металл">кресты металл</option>
@@ -216,6 +218,48 @@
 		<option value="рамочные">рамочные</option>
 		<option value="бруски+щит">бруски+щит</option>
 	</select>
+</td></tr>
+
+<tr class='sideWall'><td>Профиль ножек:</td> <td> 
+	<select id="legProf">
+		<option value="20х20">20х20</option>
+		<option value="40х40">40х40</option>
+		<option value="50х50">50х50</option>
+		<option value="60х60">60х60</option>
+		<option value="40х20">40х20</option>
+		<option value="60х30">60х30</option>
+		<option value="60х40">60х40</option>
+		<option value="80х40">80х40</option>
+		<option value="20х60">20х60</option>
+		<option value="40х60">40х60</option>
+	</select>
+</td></tr>
+
+<tr class='sideWall'><td>Профиль перегородок:</td> <td> 
+	<select id="bridgeProf">
+		<option value="20х20">20х20</option>
+		<option value="40х40">40х40</option>
+		<option value="50х50">50х50</option>
+		<option value="60х60">60х60</option>
+		<option value="40х20">40х20</option>
+		<option value="60х30">60х30</option>
+		<option value="60х40">60х40</option>
+		<option value="80х40">80х40</option>
+		<option value="20х60">20х60</option>
+		<option value="40х60">40х60</option>
+	</select>
+</td></tr>
+
+<tr class='sideWall'><td>Отступ снизу:</td> <td> 
+	<input type="number" name="" id="bridgeBotOffset" value='100'>
+</td></tr>
+
+<tr class='sideWall'><td>Отступ сверху:</td> <td> 
+	<input type="number" name="" id="bridgeTopOffset" value='100'>
+</td></tr>
+
+<tr class='wallProf'><td>Ширина бруска:</td> <td> 
+	<input type="number" name="" id="wallProfX" value='60'>
 </td></tr>
 
 <tr><td>Двери секций:</td> <td> 
@@ -297,8 +341,21 @@
 			</select>
 		</td>
 	</tr>
-	
+
 	<tr> 
+		<td>Материал наполнения</td> 
+		<td>
+			<select id="contentMat" size="1">
+				<option value="лдсп">ЛДСП эконом</option>
+				<option value="лдсп стандарт">лдсп стандарт</option> 
+				<option value="лдсп премиум">лдсп премиум</option>
+				<option value="шпон">шпон</option>
+				<option value="щит">щит</option>
+			</select>
+		</td>
+	</tr>
+	
+	<!-- <tr> 
 		<td>Материал каркаса</td> 
 		<td>
 			<select id="carcasMat" size="1">
@@ -310,6 +367,19 @@
 			</select>
 		</td>
 	</tr>
+
+	<tr> 
+		<td>Материал фасадов</td> 
+		<td>
+			<select id="doorsMat" size="1">
+				<option value="лдсп">ЛДСП эконом</option>
+				<option value="лдсп стандарт">лдсп стандарт</option> 
+				<option value="лдсп премиум">лдсп премиум</option>
+				<option value="шпон">шпон</option>
+				<option value="щит">щит</option>
+			</select>
+		</td>
+	</tr> -->
 	
 	<tr> 
 		<td>Цвет деталей каркаса</td> 
@@ -381,24 +451,43 @@
 		<td>Фасады</td> 
 		<td>
 			<select id="doorsMat_wr" size="1">
-				<option value="щит">щит</option>
+				<option value="шоколад">шоколад</option>
 				<option value="рамочные массив">рамочные массив</option>
 				<option value="рамочные шпон">рамочные шпон</option>
 				<option value="плоские шпон">плоские шпон</option>
 				<option value="плоские эмаль">плоские эмаль</option>
-				<option value="фрезерованные эмаль">фрезерованные эмаль</option>
 				<option value="плоские лдсп">плоские лдсп</option>
+				<option value="фрезерованные эмаль">фрезерованные эмаль</option>
 			</select>
 		</td>
 	</tr>
 	
 	<tr> 
+		<td>Ручки дверей</td> 
+		<td>
+			<select id="doorsHandles" size="1">
+				<option value="скоба">скоба</option>
+				<option value="кнопка круглая">кнопка круглая</option>
+				<option value="кнопка квадратная">кнопка квадратная</option>
+				<option value="рейлинг 96">рейлинг 96</option>
+				<option value="рейлинг 128">рейлинг 128</option>
+				<option value="рейлинг 160">рейлинг 160</option>
+				<option value="нет">нет</option>
+			</select>
+		</td>
+	</tr>
+
+	<tr> 
 		<td>Ручки ящиков</td> 
 		<td>
 			<select id="boxHandles" size="1">
-				<option value="нет">нет</option>
 				<option value="скоба">скоба</option>
-				<option value="кнопка">кнопка</option>
+				<option value="кнопка круглая">кнопка круглая</option>
+				<option value="кнопка квадратная">кнопка квадратная</option>
+				<option value="рейлинг 96">рейлинг 96</option>
+				<option value="рейлинг 128">рейлинг 128</option>
+				<option value="рейлинг 160">рейлинг 160</option>
+				<option value="нет">нет</option>
 			</select>
 		</td>
 	</tr>
@@ -442,6 +531,11 @@
 		<td><input id="carcasThk_wr" type="number" value="16"></td>
 	</tr>
 	
+	<tr> 
+		<td>Толщина деталей наполнения</td> 
+		<td><input id="contentThk_wr" type="number" value="16"></td>
+	</tr>
+
 	<tr> 
 		<td>Толщина вставок дверей из лдсп</td> 
 		<td>

@@ -40,17 +40,18 @@
 				</select>
 			</td></tr>
 
-			<tr class="installation_tr"><td>Выезд инженера:</td> <td> 
-				<select id="engineer" size="1" onchange="">
+			<tr class="installation_tr">
+				<td>Кол-во выездов:</td>
+				<td><input id="transfersAmt" type="number" value="1" onchange=""></td>
+			</tr>
+			
+			<tr class="installation_tr"><td>Минималка:</td> <td> 
+				<select id="minWage" size="1" onchange="">					
+					<option value="да">да</option>
 					<option value="нет">нет</option>
-					<option value="1">1</option>
-					<option value="2">2</option>
-					<option value="3">3</option>
-					<option value="4">4</option>
-					<option value="5">5</option>
 				</select>
 			</td></tr>
-
+			
 			<tr class="installation_tr"><td>Шаблонировние:</td> <td> 
 				<select id="needMockup" size="1" onchange="">
 					<option value="нет">нет</option>

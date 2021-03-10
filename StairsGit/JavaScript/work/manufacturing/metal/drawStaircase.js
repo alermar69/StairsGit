@@ -9,10 +9,8 @@ var temp = {};
 
 drawStaircase = function (viewportId, isVisible) {
 	//удаляем старую лестницу
-	for(var layer in layers){
-		removeObjects(viewportId, layer);
-	}
-	
+	clearScene();
+
 	//очищаем глобальный массив параметров для спецификации
 	staircasePartsParams = {
 		handrails: [],
@@ -40,6 +38,9 @@ drawStaircase = function (viewportId, isVisible) {
 			this.objects.push(objInfo);
 		},
 	};
+
+	var mesh = new THREE.Object3D();
+	mesh.name = getCurrentObjectName();
 	
 	//обнуляем счетчики спецификации
 	partsAmt = {};
@@ -227,12 +228,12 @@ drawStaircase = function (viewportId, isVisible) {
 			obj.position.y += 4;
 		}
 		
-		obj.layerName = model.objects[i].layer;
+		obj.setLayer(model.objects[i].layer);
 		
 		//добавляем в сцену
-		addObjects(viewportId, obj, model.objects[i].layer);
-		
+		mesh.add(obj);
 	}
+	addObjects(viewportId, mesh);
 
 	//измерение размеров на модели
 	addMeasurement(viewportId);

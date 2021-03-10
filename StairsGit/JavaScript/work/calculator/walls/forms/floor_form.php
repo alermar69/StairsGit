@@ -154,7 +154,7 @@
 <label for="topThreadsWidth" style="display: none;">Ширина марша</label>
 <input type="number" id="topThreadsWidth" value="900" style="display: none;"><br>
 
-<input type="hidden" id="topFloorAmt" value="0">
+<input type="number" id="topFloorAmt" value="0" style='visible: none'>
 
 <table class="form_table" id="topFloorLedgesTable" data-counter="topFloorAmt">
 	<tbody>

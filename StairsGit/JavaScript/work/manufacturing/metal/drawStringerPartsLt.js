@@ -2957,6 +2957,7 @@ function drawTopStepLt_pltG(par) {
 
 				if (par.hasPltRailing) {
 					var isPlatformTopRailing = true;
+					if (params.stairModel == "Прямая с промежуточной площадкой") isPlatformTopRailing = false;
 					// отверстия под стойку 1
 					var glassSectionLength = par.platformLength - par.b;
 					center1 = newPoint_xy(p2, 425, par.stepHoleY + (topLineP1.y - p2.y));

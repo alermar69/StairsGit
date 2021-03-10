@@ -445,8 +445,9 @@ function drawSVGWndFrames(par) {
 			set = draw.set();
 			set.marshId = par.marshId;
 			set.frameId = par.frameId;
-
-			var listText = "Рамка " + set.frameId + " забежной ступени марш " + par.marshId;
+			var sideText = "ПРАВАЯ";
+			if(turnFactor == -1) sideText = "ЛЕВАЯ";
+			var listText = "Рамка " + set.frameId + " забежной ступени марш " + par.marshId + "\n Вид снизу (лестница " + sideText + ")";
 			set.listText = listText;
 			set.wndFrame = draw.set();
 			sets.push(set);

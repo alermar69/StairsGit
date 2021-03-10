@@ -1,5 +1,14 @@
 <div id="commentsFormWrap">
 	<h2 class="raschet">Дополнительные требования</h2>
+	
+	<b>Конструкция:</b>
+	<select id="designType" size="1">
+		<option value="стандартная">стандартная</option>
+		<option value="доработанная">стандартная с доработками</option>
+		<option value="индивидуальный проект">индивидуальный проект</option>
+	</select>
+	<br>
+	<br>
 	<div id="commentsForm" class="toggleDiv">
 		<table class="form_table"><tbody>
 		<tr><td>

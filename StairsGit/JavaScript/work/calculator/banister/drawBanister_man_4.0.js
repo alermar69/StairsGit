@@ -46,6 +46,7 @@ $(function(){
 				var banisterSectionDirection = $('#banisterSectionDirection' + i).val();
 				var banisterSectionLength = $('#banisterSectionLength' + i).val();
 				var banisterSectionConnection = $('#banisterSectionConnection' + i).val();
+				var banisterSectionCustomAngle = THREE.Math.degToRad($('#banisterSectionCustomAngle' + i).val());
 
 				//рассчитываем точки вставки секций
 				banisterSectionBasePoint[i+1] = {x:0,z:0};
@@ -55,6 +56,7 @@ $(function(){
 					case "назад": sectionTyrnAngle = Math.PI; break;
 					case "влево": sectionTyrnAngle = -Math.PI/2; break;
 					case "вправо": sectionTyrnAngle = Math.PI/2; break;
+					case "угол": sectionTyrnAngle = banisterSectionCustomAngle; break;
 				}
 
 				deltaX = Math.cos(sectionTyrnAngle) * banisterSectionLength;
@@ -99,23 +101,28 @@ $(function(){
 					if(sectTypeNext == "секция"){
 						if(sectDirNext == "назад") angleEnd = -Math.PI / 4;
 						if(sectDirNext == "вперед") angleEnd = Math.PI / 4;
-						}
+					}
 				}
 				if(banisterSectionDirection == "влево"){
 					if(sectTypePrev == "секция"){
 						if(sectDirPrev == "назад") angleStart = -Math.PI / 4;
 						if(sectDirPrev == "вперед") angleStart = Math.PI / 4;
-						}
+					}
 					if(sectTypeNext == "секция"){
 						if(sectDirNext == "назад") angleEnd = Math.PI / 4;
 						if(sectDirNext == "вперед") angleEnd = -Math.PI / 4;
-						}
+					}
 				}
-				if(banisterSectionDirection == "вправо"){
-					
-				}
-				if(banisterSectionDirection == "влево"){
-					
+
+				if(banisterSectionDirection == "угол"){
+					if(sectTypePrev == "секция"){
+						if(sectDirPrev == "назад") angleStart = -banisterSectionCustomAngle;
+						if(sectDirPrev == "вперед") angleStart = banisterSectionCustomAngle;
+					}
+					if(sectTypeNext == "секция"){
+						if(sectDirNext == "назад") angleEnd = banisterSectionCustomAngle;
+						if(sectDirNext == "вперед") angleEnd = -banisterSectionCustomAngle;
+					}
 				}
 				
 				if(banisterSectionType == "секция") {
@@ -145,13 +152,18 @@ $(function(){
 					if(params.railingModel_bal == "Деревянные балясины" || params.railingModel_bal == "Стекло" || params.railingModel_bal == "Дерево с ковкой"){
 						rackSize = 95;
 						if(params.rackSize != undefined) rackSize = params.rackSize;				
-						}
+					}
 					switch (banisterSectionDirection){
 						case "вперед": section.position.z = section.position.z + rackSize/2; break;
 						case "назад": sectionTyrnAngle = section.position.z = section.position.z - rackSize/2; break;
 						case "влево": sectionTyrnAngle = section.position.x = section.position.x + rackSize/2; break;
 						case "вправо": sectionTyrnAngle = section.position.x = section.position.x - rackSize/2; break;
-						}
+						case "угол": 
+							var movePoint = polar({x: section.position.x, y: section.position.z}, sectionTyrnAngle + Math.PI / 4, rackSize/2)
+							section.position.x = movePoint.x;
+							section.position.z = movePoint.y;
+							break;
+					}
 
 					
 						section.name = 'banisterSections';

@@ -81,12 +81,14 @@ function addBanisterSect(){
 				</select>\
 			</td>\
 			<td>\
-				<select id="banisterSectionDirection0" size="1" onchange="">\
+				<select class="banisterSectionDirection" id="banisterSectionDirection0" size="1" onchange="">\
 					<option value="вперед">вперед</option>\
 					<option value="назад" selected>назад</option>\
 					<option value="вправо">вправо</option>\
 					<option value="влево">влево</option>\
+					<option value="угол">угол</option>\
 				</select>\
+				<div class="banisterCustomAngle">Угол: <input type="number" id="banisterSectionCustomAngle0"></div>\
 			</td>\
 			<td>\
 				<input type="number" id="banisterSectionLength0" value="1000" step="100" />\

@@ -145,6 +145,7 @@
 	height: 100%!important;
 	border: none!important;
 	height: auto!important;
+	z-index: 1020;
 }
 
 .print .panelHeader{
@@ -152,7 +153,7 @@
 }
 
 
-.print nav{
+.print nav:not(.topMenu){
 	display: none;
 }
 

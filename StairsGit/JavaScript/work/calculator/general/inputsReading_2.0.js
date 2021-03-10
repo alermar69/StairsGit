@@ -10,9 +10,11 @@ $(function () {
 		}
 	}
 
-	$.fancybox.defaults.btnTpl.rotate = '<button data-fancybox-rotate class="fancybox-button fancybox-button--rotate" title="Rotate">' +
-		'<i class="fa fa-repeat"></i>' + 
-	'</button>';
+	if ($.fancybox) {
+		$.fancybox.defaults.btnTpl.rotate = '<button data-fancybox-rotate class="fancybox-button fancybox-button--rotate" title="Rotate">' +
+			'<i class="fa fa-repeat"></i>' + 
+		'</button>';
+	}
 
 	$('body').on('click', '[data-fancybox-rotate]', function() {
 		var instance = $.fancybox.getInstance();
@@ -59,7 +61,7 @@ $(function () {
 		if (item) {
 			item = JSON.parse(item);
 			Object.keys(item).forEach(function(key){
-				$('#filterDiv #' + key).val(item[key]);
+				if (key) $('#filterDiv #' + key).val(item[key]);
 			})
 
 			if (window.filterFormChange) filterFormChange();
@@ -68,8 +70,10 @@ $(function () {
 	// Дополняем данными из url
 	var urlParams = new URLSearchParams(window.location.search);
 	urlParams.forEach(function(val, key){
-		if ($('#filterDiv #' + key).length > 0) {
-			$('#filterDiv #' + key).val(val);
+		if (key){
+			if ($('#filterDiv #' + key).length > 0) {
+				$('#filterDiv #' + key).val(val);
+			}
 		}
 	});
 });
@@ -122,6 +126,12 @@ function getInputValue(inputId) {
 function getAllInputsValues(par) {
 	$("input, select, textarea").each(function () {
 		par[this.id] = getInputValue(this.id);
+		if (window.isMulti && params.priceItems) {
+			var priceItem = getArrItemByProp(params.priceItems, 'id', currentPriceItem);
+			if (priceItem && !isMultiLoading) {
+				priceItem.params[this.id] = getInputValue(this.id);
+			}
+		}
 	})
 }
 
@@ -138,6 +148,24 @@ function setInputValue(selectId, value) {
 		}
 		if (input.tagName == "INPUT") input.value = value;
 		if (input.tagName == "TEXTAREA") input.value = value;
+	}
+}
+
+/*функция устанавливает значение пол¤ формы по id*/
+function setInputValue2(par) {
+	var el = $(par.selector);
+	var setVal = true; //устанавливать ли значение инпута
+	if (el.length > 0) {
+		if(el[0].tagName == 'SELECT'){
+			//проверяем, есть ли такое значение в селекте
+			var sel = el.find('option[value="'+par.value+'"]');
+			if(sel.length == 0) setVal = false; //оставляем по умолчанию
+		}
+		if(el.attr('type') == 'radio'  || el.attr('type') == 'checkbox'){
+			el.prop('checked', par.value);
+			setVal = false;
+		}
+		if(setVal) el.val(par.value);
 	}
 }
 
@@ -515,7 +543,9 @@ function staircaseHasUnit() {
 		stringerCovers: false,
 		dopTimber: false,
 		dopMetal: false,
+		timberNewells: false,
 	}
+	if(params.calcType == 'cnc') return par
 	var marshPar_1 = getMarshParams(1);
 	var marshPar_2 = getMarshParams(2);
 	var marshPar_3 = getMarshParams(3);
@@ -608,7 +638,6 @@ function staircaseHasUnit() {
 			par.railingMetalPaint = true;
 		if (params.railingModel == "Реечные" && params.racksType == "металл")
 			par.railingMetalPaint = true;
-		
 	}
 	if (params.calcType == "vint") par.railingMetalPaint = true;
 
@@ -622,14 +651,26 @@ function staircaseHasUnit() {
 	//наличие окрашиваемых деревянных деталей ограждений
 
 	if (par.railing) {
-		if (params.railingModel == "Деревянные балясины") par.railingTimberPaint = true;
-		if (params.railingModel == "Дерево с ковкой") par.railingTimberPaint = true;
+		if (params.railingModel == "Деревянные балясины" || params.railingModel == "Дерево с ковкой" || params.railingModel == "Стекло") {
+			par.railingTimberPaint = true;
+			par.timberNewells = true;
+		}
 		if (params.railingModel == "Стекло") par.railingTimberPaint = true;
 		if (params.railingModel == "Ригели" || params.railingModel == "Стекло на стойках") {
 			if (params.banisterMaterial == "40х40 нерж+дуб") par.railingTimberPaint = true;
 		}
 		if (params.railingModel == "Реечные" && (params.racksType == "массив" || params.racksType == "шпон"))
 			par.railingMetalPaint = true;
+	}
+	
+	//параметры ограждений в модуле railing
+	if (params.calcType == 'railing') {
+		$(".sectParams").each(function(){
+			var hasMetalTypes = ["Ригели", "Стекло на стойках", "Экраны лазер", "Решетка", "Дерево с ковкой"];
+			var hasTimberNewels = ["Дерево с ковкой", "Стекло"];
+			if(hasMetalTypes.indexOf($(this).find(".railingType").val()) != -1) par.railingMetalPaint = true;
+			if(hasTimberNewels.indexOf($(this).find(".railingType").val()) != -1) par.timberNewells = true;
+		})
 	}
 
 	if (par.handrail) {
@@ -669,7 +710,6 @@ function staircaseHasUnit() {
 
 		//наличие окрашиваемых деревянных деталей балюстрады
 		if (
-			params.railingModel_bal == "Деревянные балясины" ||
 			params.handrail_bal == "сосна" ||
 			params.handrail_bal == "береза" ||
 			params.handrail_bal == "лиственница" ||
@@ -677,7 +717,14 @@ function staircaseHasUnit() {
 			params.handrail_bal == "дуб ц/л" ||
 			params.banisterMaterial_bal == "40х40 нерж+дуб"
 		) par.balTimberPaint = true;
+		
+		if (params.railingModel_bal == "Деревянные балясины" || params.railingModel_bal == "Дерево с ковкой" || params.railingModel_bal == "Стекло") {
+			par.balTimberPaint = true;
+			par.timberNewells = true;
+		}
+		
 		if (params.banisterSectionAmt == 0) par.balTimberPaint = false;
+		
 	}
 
 	//наличие забежных ступеней
@@ -698,6 +745,9 @@ function staircaseHasUnit() {
 			carportRoof: true
 		}
 	}
+	if (params.calcType == 'coupe') {
+		par.dopTimber = true;
+	}
 	
 	//деревянные и металлические детали доп. объектов
 	if(typeof additional_objects != "undefined"){
@@ -710,6 +760,9 @@ function staircaseHasUnit() {
 				if (this.className == "Shelf") {
 					par.dopTimber = true;
 					par.dopMetal = true;
+				}
+				if (this.className == "Wardrobe") {
+					par.dopTimber = true;
 				}
 				if(this.className == "MetalPlatform" || this.className == "Column" || this.className == "Canopy"){
 					par.dopMetal = true;
@@ -956,3 +1009,14 @@ function formatDate(date, format){
 	
 	return dateString;
 }
+
+function matchInArray(expression, items) {
+	var results = [];
+	for (var i = 0; i < items.length; i++) {
+		var item = items[i];
+		if (item.match(expression)) {
+			results.push(item);
+		}
+	}
+	return results;
+};

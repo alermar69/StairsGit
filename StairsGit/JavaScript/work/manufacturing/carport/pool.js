@@ -228,15 +228,15 @@ function drawSphereSegment(par){
 	var bridgePosRad = rad * Math.cos(bridgePosAng) - partPar.rafter.profSize.x + rafterPar.center.x;
 	
 	var bridgePar = {
-		poleProfileY: partPar.purlin.profSize.x,
-		poleProfileZ: partPar.purlin.profSize.y,
+		poleProfileY: partPar.purlin.profSize.y,
+		poleProfileZ: partPar.purlin.profSize.x,
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 5000, 0),
-		length: bridgePosRad * arcStepAng, //упрощенная формула - надо править
+		length: bridgePosRad * arcStepAng - partPar.rafter.profSize.y, //упрощенная формула - надо править
 		poleAngle: 0,
 		material: params.materials.metal,
 		dxfArr: dxfPrimitivesArr,
 		type: 'rect',
-		partName: 'carportColumn'
+		partName: 'carportBridge'
 	};
 		
 	//фланцы крепления дуг к основанию
@@ -268,6 +268,15 @@ function drawSphereSegment(par){
 		dxfArr: dxfPrimitivesArr,
 		rafterPar: rafterPar,
 	}
+	
+	//параметры соединиельных профилей поликарбоната
+	var polyProfilePar = {
+		rad: rad + partPar.rafter.profSize.y / 2,
+		thk: params.roofThk + 2,
+		angle: Math.PI / 2 + extraAngle,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+		dxfPrimitivesArr: []
+	}
 
 //цикл построения полярного массива элементов
 	for(var i=0; i<= arcAmt; i++){
@@ -285,10 +294,14 @@ function drawSphereSegment(par){
 		
 		//перемычки между дугами
 		if(params.cylinderBase == "нет" && i != arcAmt){
-			var bridgePos = polar({x:0, y:0}, -arcStepAng * i, bridgePosRad)
+			var extraPosAngle = partPar.rafter.profSize.y / 2 / bridgePosRad
+			var bridgePos = polar({x:0, y:0}, -arcStepAng * i - extraPosAngle, bridgePosRad)
+			//bridgePos = polar(bridgePos, -arcStepAng * i + Math.PI / 2, -partPar.rafter.profSize.y / 2)
+			
 			
 			var bridge = drawPole3D_4(bridgePar).mesh;
-			bridge.rotation.y = arcStepAng * (i + 0.5) + Math.PI / 2;
+			bridge.rotation.y = arcStepAng * (i + 0.5) + Math.PI / 2;		
+			
 			bridge.position.x = bridgePos.x;
 			bridge.position.y = bridgePosY;
 			bridge.position.z = bridgePos.y;
@@ -328,6 +341,22 @@ function drawSphereSegment(par){
 			dome.add(coverSector)
 		}
 		
+		// Соединительный профиль
+		if (i > 0 && i != arcAmt) {
+			
+			var polyProfile = drawPolyConnectionProfile(polyProfilePar);
+	
+			polyProfile.rotation.z = arcProf.rotation.z;
+			polyProfile.rotation.y = arcProf.rotation.y;
+
+			polyProfile.position.x = arcProf.position.x;
+			polyProfile.position.y = arcProf.position.y;
+			polyProfile.position.z = arcProf.position.z
+			
+			polyProfile.setLayer('roof');
+			if(!testingMode) dome.add(polyProfile);
+		}
+			
 		sectorPolyPar.dxfArr = []; //выводим в dxf только первую развертку
 		//ролики
 		if(par.isMovable){

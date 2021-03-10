@@ -2,6 +2,7 @@ var hovered = null;
 var animations = [];
 // var rightClickObject = null;
 var partsAmt_dop = {}; //глобальный массив количеств эл-тов для спецификации балюстрады
+var lastDxfX = 0; // Координата для dxf от которой рисуем следующий объект
 
 class AdditionalObject extends THREE.Object3D {
 	constructor(par) {
@@ -11,11 +12,22 @@ class AdditionalObject extends THREE.Object3D {
 		this.color = new THREE.Color(0xcccccc);
 		this.par = {};
 		this.objId = 0;
+		this.type = par.className;
 
 		if(!par) return;
 
+		// Обогощаем объект новыми параметрами
+		var itemMeta = eval(par.className).getMeta();
+		itemMeta.inputs.forEach(function(inp){
+			if (par.meshParams[inp.key] == undefined) {
+				par.meshParams[inp.key] = inp.default;
+			}
+		})
+
 		this.objId = par.id;
 		this.par = par.meshParams;
+
+		
 		this.calc_price = par.calc_price;
 		this.objPar = par;
 
@@ -140,7 +152,7 @@ class AdditionalObject extends THREE.Object3D {
 		if (objPar.name) {
 			title = objPar.name
 		}else{
-			title = meta.title
+			title = meta.title + " №" + objPar.id;
 		}
 		var html = '<div id="object_description_' + objPar.id + '">';//<table class="form_table" style="max-width: 40%"><tbody>'
 		html += getObjetParamsHtml(objPar.id, true);
@@ -161,7 +173,7 @@ class AdditionalObject extends THREE.Object3D {
 			html += '</tbody></table>'
 		}
 		html += '</div>';
-		return {html: html, text: text};
+		return {html: html, text: text, title: title};
 	}
 
 	static calcPrice(par){
@@ -237,7 +249,7 @@ class AdditionalObject extends THREE.Object3D {
 		if (!json.className) {
 			throw 'Создание без className невозможно'
 		}
-
+		
 		if (json.color) json.meshParams.color = json.color;
 		return eval('new ' + json.className + '(json)');
 	}
@@ -247,6 +259,23 @@ class AdditionalObject extends THREE.Object3D {
 			title: 'Объект',
 			inputs: []
 		}
+	}
+
+	static getDefaultObject(className){
+		var item = {
+			id: getAdditionalObjectCurrentId(),
+			className: className,
+			meshParams: eval(className).getDefaults(),
+			position: {
+				x: 0,
+				y: 0,
+				z: 0,
+			},
+			rotation: 0,
+			color: '#cccccc'
+		};
+
+		return item
 	}
 
 	/**
@@ -299,6 +328,10 @@ class AdditionalObject extends THREE.Object3D {
 
 	static getAvailableClasses() {
 		return [
+			{
+				className: 'Stair',
+				title: 'Лестница'
+			},
 			{
 				className: 'ConcretePlatform',
 				title: 'Площадка бетон'

@@ -76,7 +76,4 @@ $(function(){
 		}
 	configurator.addParToTest(parParams);
 
-	console.log(configurator.configs);
-
-
 });

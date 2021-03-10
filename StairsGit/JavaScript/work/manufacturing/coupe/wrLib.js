@@ -1,6 +1,6 @@
 var simpleDraw = true; //упрощенная отрисовка модели
 
-function drawPlate(par){
+function drawPlateWr(par){
 
 	/*
 	функция отрисовывает панель из дсп с кромкой
@@ -71,9 +71,10 @@ function drawPlate(par){
 		bevelEnabled: false,
 		curveSegments: 12,
 		steps: 1
-		};
+	};
 		
 	var geom = new THREE.ExtrudeGeometry(shape, treadExtrudeOptions);
+	if (par.rotateUV) geom.rotateUV(par.rotateUV);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var board = new THREE.Mesh(geom, par.material);
 	par.mesh.add(board);
@@ -202,7 +203,7 @@ function drawPlate(par){
 		pole.position.x = pos.x;
 		pole.position.y = pos.y;
 		par.mesh.add(pole);
-		}
+	}
 	
 	
 	//площадь
@@ -220,47 +221,53 @@ function drawPlate(par){
 				sumLength: 0,
 				name: "ДСП",
 				unit: "carcas",
+				division: 'timber',
 				area: 0,
 				perim: 0,
-				}
+			}
 			if(partName == "carcasPanel") specObj[partName].name = "Панель каркаса лдсп";
 			if(partName == "mirrow") {
 				specObj[partName].name = "Зеркало";
 				specObj[partName].unit = "doors";
-				}
+			}
 			if(partName == "boxBotPanel") {
 				specObj[partName].name = "Дно ящика двп";
 				specObj[partName].unit = "content";
-				}
+			}
 			if(partName == "rearPanel") {
-				specObj[partName].name = "Задняя стенка " + params.rearWallMat_wr;
+				specObj[partName].name = "Задняя стенка " + (params.rearWallMat_wr || '');
 				specObj[partName].unit = "carcas";
-				}
+			}
 			if(partName == "metalBoxPanel") {
 				specObj[partName].name = "Боковина ящика мет.";
 				specObj[partName].unit = "content";
-				}
+			}
 			if(partName == "boxPanel") {
 				specObj[partName].name = "Панель ящика лдсп";
 				specObj[partName].unit = "content";
-				}
+			}
 			if(partName == "shelf") {
 				specObj[partName].name = "Полка лдсп";
 				specObj[partName].unit = "content";
-				}
+			}
 			if(partName == "doorPanel") {
 				specObj[partName].name = "Вставка двери лдсп";
 				specObj[partName].unit = "doors";
-				}
 			}
+			if(partName == "doorPanelMetal") {
+				specObj[partName].name = "Вставка двери металл";
+				specObj[partName].unit = "doors";
+			}
+		}
 
-		var name = par.width + "x" + par.height + "х" + par.thk;
+		var name = Math.round(par.width) + "x" + Math.round(par.height) + "х" + Math.round(par.thk);
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += par.area;
 		specObj[partName]["perim"] += par.perim;
-		}
+	}
+	par.mesh.specId= partName + name;
 		
 	//сохраняем данные для ведомости раскроя материалов
 	if(typeof boardsList !='undefined' && partName){
@@ -468,7 +475,8 @@ function drawPole3D_4_1(par) {
 				sumLength: 0,
 				name: "Профиль",
 				unit: "doors",
-				}
+				division: 'timber'
+			}
 			if(partName == "botCoupeProf") specObj[partName].name = "Нижний профиль двери";
 			if(partName == "topCoupeProf") specObj[partName].name = "Верхний профиль двери";
 			if(partName == "vertCoupeProf") specObj[partName].name = "Вертикальный профиль двери";
@@ -476,17 +484,18 @@ function drawPole3D_4_1(par) {
 			if(partName == "rail") {
 				specObj[partName].name = "Штанга хром";
 				specObj[partName].unit = "carcas";
-				}
-			
-			
 			}
+			
+			
+		}
 		var name = Math.round(par.poleProfileZ) + "x" + Math.round(par.poleProfileY) + "х" + Math.round(par.length);
 		if(par.type == "round") name = "Ф" + Math.round(par.poleProfileY) + "х" + Math.round(par.length);
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["sumLength"] += Math.round(par.length) / 1000;
-		}
+	}
+	par.mesh.specId = partName + name;
 
     return par;
 } //end of drawPole3D_4_1
@@ -1035,7 +1044,8 @@ function drawDoorProf(par){
 				sumLength: 0,
 				name: "Верхняя направляющая",
 				unit: "doors",
-				}
+				division: 'metal',
+			}
 			if(partName == "botRail") specObj[partName].name = "Нижняя напрвляющая";
 			}
 		var name = Math.round(par.poleProfileZ) + "x" + Math.round(par.poleProfileY) + "х" + Math.round(par.len);
@@ -1043,7 +1053,9 @@ function drawDoorProf(par){
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["sumLength"] += Math.round(par.len) / 1000;
-		}
+	}
+
+	par.mesh.specId = partName + name;
 		
 	return par;
 
@@ -1157,8 +1169,9 @@ function drawFixPart(par){
 				amt: 0,
 				name: "Крепежный уголок",
 				unit: "content",
-				}
+				division: 'metal',
 			}
+		}
 		if(partName == "screw") specObj[partName].name = "Конфирмат"
 		if(partName == "legM8") specObj[partName].name = "Опора рег."
 		
@@ -1168,7 +1181,9 @@ function drawFixPart(par){
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
-		}
+	}
+
+	par.mesh.specId = partName + name;
 		
 	return par;
 	

@@ -16,7 +16,8 @@
 				$calc_type = getCalcType();
 				
 				//лестницы
-				if ($calc_type != 'carport' && $calc_type != 'railing' && $calc_type != 'fire_2') {
+				$notStairs = ['carport', 'railing', 'fire_2', 'coupe'];
+				if (!in_array($calc_type, $notStairs)) {
 					echo '<tr>
 						<td>Каркас:</td>
 						<td><input id="carcasCostFactor" type="number" value="1"></td>
@@ -94,6 +95,22 @@
 							<td><input id="otherPriceFactor" type="number" value="1"></td>
 						</tr>';
 				};
+				if ($calc_type == 'coupe') {
+					echo '<tr>
+							<td>Каркас:</td>
+							<td><input id="carcasCostFactor" type="number" value="1"></td>
+							<td><input id="carcasPriceFactor" type="number" value="1"></td>
+						</tr>
+						<tr>
+							<td>Двери:</td>
+							<td><input id="doorsCostFactor" type="number" value="1"></td>
+							<td><input id="doorsPriceFactor" type="number" value="1"></td>
+						<tr>
+							<td>Наполнение:</td>
+							<td><input id="contentCostFactor" type="number" value="1"></td>
+							<td><input id="contentPriceFactor" type="number" value="1"></td>
+						</tr>';
+				};
 				
 			?>
 			
@@ -137,8 +154,18 @@
 			</div>
 		</div>";
 	};
+
+	if ($calc_type == 'coupe') {
+		echo '
+			<h3>Параметры</h3>
+			<div id="modelInfo"></div>
+			<div id="cost_full_wr"></div>
+			<div id="total_cost_wr"></div>
+			<div id="totalResult_wr"></div>
+		';
+	}
 	
-	if ($calc_type != 'carport' && $calc_type != 'railing') {
+	if ($calc_type != 'carport' && $calc_type != 'railing' && $calc_type != 'coupe') {
 		echo "
 		<h3>Себестоимость каркаса и ступеней</h3>
 		<div id='cost_carcas' class='toggleDiv'>
@@ -155,7 +182,7 @@
 			<p>Расчет еще не произведен</p>
 		</div>";
 	};
-	if ($calc_type != 'carport'){
+	if ($calc_type != 'carport' && $calc_type != 'coupe'){
 		echo "
 		<h3>Себестоимость ограждений лестницы</h3>
 		<div id='cost_perila' class='toggleDiv'>

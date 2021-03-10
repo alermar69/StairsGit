@@ -45,6 +45,7 @@ function drawAdditionalDimensions(callback){
 	var mesh = new THREE.Object3D();
 
 	setTimeout(function(){
+		//console.log(window.customDimensions);
 		if (window.customDimensions && window.customDimensions.length > 0) {
 			window.customDimensions.forEach(function(item){
 				var target = new THREE.Vector3(); // create once an reuse it

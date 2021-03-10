@@ -514,6 +514,8 @@ function drawPltStringer(par) {
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
 		specObj[partName]["paintedArea"] += area * 2;
+		addMaterialNeed({id: 'sheet8', amt: area, itemType:  'carcas'});
+		par.mesh.isInMaterials = true;
 	}
 	par.mesh.specId = partName + name;
 
@@ -869,7 +871,9 @@ function drawCarcasPart(par, len) {
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
-		specObj[partName]["paintedArea"] += area * 2;		
+		specObj[partName]["paintedArea"] += area * 2;
+		addMaterialNeed({id: 'sheet8', amt: area, itemType:  'carcas'});
+		par.mesh.isInMaterials = true;
 	}
 	par.mesh.specId = partName + name;
 
@@ -1183,6 +1187,8 @@ function drawTopPltStringer(par) {
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
 		specObj[partName]["paintedArea"] += area * 2;
+		addMaterialNeed({id: 'sheet8', amt: area, itemType:  'carcas'});
+		par.mesh.isInMaterials = true;
 	}
 	par.mesh.specId = partName + name;
 
@@ -2120,6 +2126,10 @@ function drawBridge_2(par) {
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
 		specObj[partName]["paintedArea"] += area * 2;
+
+		addMaterialNeed({id: 'sheet8', amt: area, itemType:  'carcas'});
+		par.mesh.isInMaterials = true;
+		bridge.isInMaterials = true;
 	}
 	par.mesh.specId = partName + name;
 	
@@ -2769,7 +2779,7 @@ function drawBrace(par) {
 			headType: "шестигр.",
 		}
 
-		console.log(centers);
+		//console.log(centers);
 
 		for (var i = 0; i < centers.length; i++) {
 			var center = centers[i];

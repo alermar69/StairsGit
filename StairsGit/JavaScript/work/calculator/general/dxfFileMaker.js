@@ -16,7 +16,7 @@ function exportToDxf(dxfPrimitivesArr) {
         saveAs(
             new BB([byteArray], {type: "application/octet-stream"}), 
             fileName
-            );
+        );
 	}
 
 

@@ -310,8 +310,6 @@ function drawCarcas(par) {
 		par.carcas.add(parTurn.mesh1);
 	}
 
-
-
 	return par;
 }
 

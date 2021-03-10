@@ -138,11 +138,12 @@ class Canopy extends AdditionalObject {
 		}
 	}
 	
-	/** возвращает описание объекта.
+	/** старая функция - сейчас не используется
+	возвращает описание объекта.
 	@param - meshParams из объекта additional_objects
 	*/
 
-	static getDescr(objPar) {
+	static getDescr_(objPar) {
 		console.log(this)
 		if(!this) return {html: '', text: ''};
 		var par = objPar.meshParams;

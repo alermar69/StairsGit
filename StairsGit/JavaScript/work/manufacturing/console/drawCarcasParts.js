@@ -343,6 +343,11 @@ function drawStringerConsoleFlan(par) {
 		specObj[partName]["amt"] += 1;
 		specObj[partName]["area"] += area;
 		specObj[partName]["paintedArea"] += area * 2;
+
+		if (partName.indexOf('wndFrame') != -1) {
+			addMaterialNeed({id: 'sheet4', amt: area, itemType:  'carcas'});
+			mesh.isInMaterials = true;
+		}
 	}
 
 	mesh.specId = partName;
@@ -747,7 +752,7 @@ function drawConsoleFrame(par) {
 				box.rotation.z = Math.PI / 2;
 			}
 
-			mesh.add(box);
+			par.mesh.add(box);
 		}
 
 		//для второй забежной ступени
@@ -805,10 +810,37 @@ function drawConsoleFrame(par) {
 			box.rotation.x = -Math.PI / 2 * turnFactor;
 			box.rotation.z = -Math.PI / 2;
 
-			mesh.add(box);
+			par.mesh.add(box);
 		}
 	}
 
+		//сохраняем данные для спецификации
+	var partName = "treadFrame";
+	if(par.type == "winder1") partName = "wndFrame1";
+	if(par.type == "winder2") partName = "wndFrame2";
+	if(par.type == "winder3") partName = "wndFrame3";
+	
+	if (!specObj[partName]){
+		specObj[partName] = {
+			types: {},
+			amt: 0,
+			name: "Рама ступени прямая",
+			metalPaint: true,
+			timberPaint: false,
+			division: "metal",
+		//	comment: params.riserType == "есть" ? "Сверлить под подступенки" : '',
+			workUnitName: "amt", //единица измерения
+			group: "Каркас",
+		}
+		if(partName.indexOf("wnd") != -1) specObj[partName].name = "Рама забежной ступени"
+	}
+	
+	var name = Math.round(par.lenghtBox) + "x" + Math.round(par.widthBox) + "x" + Math.round(par.heightBox);
+	if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+	if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+	specObj[partName]["amt"] += 1;
+	
+	par.mesh.specId = partName + name;
 
 
 	return par;

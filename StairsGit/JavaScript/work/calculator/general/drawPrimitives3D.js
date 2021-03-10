@@ -63,9 +63,26 @@ function drawPlate(par) {
 
 	if (par.isTreadLigts) extrudeOptions.amount -= par.treadLigtsThk;
 
+
+	// Достаем переменные из объекта, чтобы можно было менять для одной ступени
+	var len = par.len;
+	var width = par.width;
+	if (par.modifyKey && window.service_data && window.service_data.shapeChanges && window.service_data.shapeChanges.length > 0) {
+		var modify = window.service_data.shapeChanges.find(function(change){
+			return change.modifyKey == par.modifyKey
+		})
+		if (modify) {
+			shape = getShapeFromModify(modify);
+			var bbox = findBounds(shape.getPoints());
+			len = bbox.x;
+			width = bbox.y;
+		}
+	}
+
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var mesh = new THREE.Mesh(geom, par.material);
+	mesh.modifyKey = par.modifyKey;
 	par.mesh.add(mesh)
 	par.shape = shape;
 
@@ -165,17 +182,43 @@ function drawPlate(par) {
 			}
 
 		}
-		var area = par.len * par.width / 1000000;
-		var paintedArea = area * 2 + (par.len * 1.0 + par.width * 1.0) * 2 * thk / 1000000;
+		var area = len * width / 1000000;
+		var paintedArea = area * 2 + (len * 1.0 + width * 1.0) * 2 * thk / 1000000;
 
-		var name = Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(thk);
+		var name = Math.round(len) + "x" + Math.round(width) + "x" + Math.round(thk);
 		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
 		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 		specObj[par.partName]["amt"] += 1;
 		specObj[par.partName]["area"] += area;
-		specObj[par.partName]["volume"] += par.len * par.width * thk / 1000000000;
+		specObj[par.partName]["volume"] += len * width * thk / 1000000000;
 		specObj[par.partName]["paintedArea"] += paintedArea;
+
+		
 	}
+	
+	//добавляем информацию в материалы
+	var materialName = params.additionalObjectsTimberMaterial
+	if (par.partName == "tread") materialName = params.treadsMaterial
+	if (par.partName == "riser") materialName = params.risersMaterial
+		
+	if(materialName){
+		var panelName_40 = calcTimberParams(materialName).treadsPanelName;	
+		var panelName_20 = calcTimberParams(materialName).riserPanelName;
+
+		if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: area, itemType: par.partName});
+		if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: area, itemType: par.partName});
+		if(par.thk == 60) {
+			addMaterialNeed({id: panelName_20, amt: area, itemType: par.partName});
+			addMaterialNeed({id: panelName_40, amt: area, itemType: par.partName});
+		}
+		if(par.thk == 80) addMaterialNeed({id: panelName_40, amt: area * 2, itemType: par.partName});
+		if(par.thk == 100) {
+			addMaterialNeed({id: panelName_20, amt: area, itemType: par.partName});
+			addMaterialNeed({id: panelName_40, amt: area * 2, itemType: par.partName});
+		}
+		par.mesh.isInMaterials = true;
+	}
+
 
 	par.mesh.specId = par.partName + name;
 
@@ -273,22 +316,52 @@ function updateModifyChanges(){
 					// }
 
 					newShape.fromJSON(par.shapeData)
-					node.oldGeometry = node.geometry;
+					if(!node.oldGeometry) node.oldGeometry = node.geometry;
 					node.geometry = new THREE.ExtrudeGeometry(newShape, options);
 					node.geometryChanged = true;
 				}
 			});
+			if (node.oldGeometry && !window.service_data.shapeChanges.find(function(change){return change.modifyKey == node.modifyKey})) {
+				node.geometry = node.oldGeometry;
+				node.oldGeometry = null;
+			}
 		}
 	})
 
-	// window.service_data.shapeChanges.forEach(function(change){
-	// 	var fakeShape = new THREE.Shape();
-	// 	for (var i = 0; i < change.points.length; i++) {
-	// 		var point = change.points[i];
-	// 		var nextIndex = i + 1;
-	// 		if (nextIndex > change.points.length - 1) nextIndex = 0;
-	// 		var nextPoint = change.points[nextIndex];
-	// 		addLine(fakeShape,dxfPrimitivesArr,point,nextPoint, {x:0,y:0}, 'default')
-	// 	}
-	// })
+	window.service_data.shapeChanges.forEach(function(change){
+		var fakeShape = new THREE.Shape();
+
+		var newShape = new THREE.Shape();
+		newShape.fromJSON(change.shapeData);
+		
+		var dxfBasePoint = {x: -3000, y: -3000};
+
+		var shapes = [newShape, ...newShape.holes]
+		shapes.forEach(function(shape){
+			shape.curves.forEach(function(curve){
+				if (curve.type == "LineCurve") {
+					addLine(fakeShape, dxfPrimitivesArr, curve.v1, curve.v2, dxfBasePoint, 'modified');
+				}
+				if (curve.type == 'EllipseCurve') {
+					addArc2(fakeShape, dxfPrimitivesArr, {x: curve.aX, y: curve.aY}, curve.xRadius, curve.aStartAngle, curve.aEndAngle, curve.aClockwise, dxfBasePoint, 'modified')
+				}
+			});
+		})
+	})
+}
+
+function findBounds(points) {
+	var n = points.length
+	if(n === 0) {
+		return {x: 0, y:0}
+	}
+	var minX, maxX, minY, maxY;
+	points.forEach(function(point){
+		if (minX == undefined || minX > point.x) minX = point.x;
+		if (maxX == undefined || maxX < point.x) maxX = point.x;
+		if (minY == undefined || minY > point.y) minY = point.y;
+		if (maxY == undefined || maxY < point.y) maxY = point.y;
+	})
+
+	return {x: maxX - minX, y: maxY - minY}
 }

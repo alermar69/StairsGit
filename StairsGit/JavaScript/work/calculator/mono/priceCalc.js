@@ -1,4 +1,5 @@
-var costMarkup = 1.3; //07.05 было 1.25;
+//var costMarkup = 1.3; //07.05.20;
+var costMarkup = 1.56; //11.01.21
 
 function calculateCarcasPrice(){
 
@@ -146,13 +147,13 @@ if(params.model == "гнутый") {
 }
 
 
-if(params.model == "сварной"){
-	materials.sheet4.amt = stringerLength * 0.3 * 2 + stringerLength * params.stringerThickness/1000 * 3;
-	}
-if(params.model == "труба"){
-	materials.sheet4.amt = stringerLength * 0.2 * 2;
-	materials.prof_100_100.amt = stringerLength;
-	}
+// if(params.model == "сварной"){
+// 	materials.sheet4.amt = stringerLength * 0.3 * 2 + stringerLength * params.stringerThickness/1000 * 3;
+// 	}
+// if(params.model == "труба"){
+// 	materials.sheet4.amt = stringerLength * 0.2 * 2;
+// 	materials.prof_100_100.amt = stringerLength;
+// 	}
 
 } //end of calcStringer()
 
@@ -261,13 +262,13 @@ totalBoltPrice = boltAmt * boltPrice;
 totalFramePrice += framePrice * frameAmt;
 
 //расход материала
-	if(params.model == "сварной" || params.model == "гнутый"){
-		materials.sheet8.amt += treadPlatesAmt * 0.3 * 0.6;
-	}
-	if(params.model == "труба"){
-		materials.sheet2.amt += treadPlatesAmt * (0.3 * 0.6 + 0.2*0.6 + 0.3*0.2 * 2);
-		materials.prof_60_30.amt += frameAmt * 0.6 * 4;
-	}
+	// if(params.model == "сварной" || params.model == "гнутый"){
+	// 	materials.sheet8.amt += treadPlatesAmt * 0.3 * 0.6;
+	// }
+	// if(params.model == "труба"){
+	// 	materials.sheet2.amt += treadPlatesAmt * (0.3 * 0.6 + 0.2*0.6 + 0.3*0.2 * 2);
+	// 	materials.prof_60_30.amt += frameAmt * 0.6 * 4;
+	// }
 
 
 } //end of calcCarcasParts()
@@ -347,9 +348,6 @@ var riserPanelName = treadParams.riserPanelName;
 var timberPaintMeterPrice = treadParams.timberPaintMeterPrice;
 var treadMeterPrice = treadParams.treadMeterPrice;
 
-if(treadParams.treadsPanelName) materials[treadsPanelName].amt += treadParams.treadShieldArea;
-if(treadParams.riserPanelName) materials[riserPanelName].amt += treadParams.riserShieldArea;
-
 //наценка на сварной короб
 var carcasCostFactor = 1;
 if(params.model == "сварной" || params.model == "гнутый") carcasCostFactor = 1.3;
@@ -383,26 +381,6 @@ staircaseCost.treads = treadsTotalPrice;
 staircaseCost.carcasTimberPaint = timberPaintPrice;
 staircaseCost.carcas = totalCostCarcas;
 staircaseCost.treadLigts = treadParams.treadLigtsCost
-
-/*
-/*** ОБЩАЯ СТОИМОСТЬ ЛЕСТНИЦЫ ***
-var margin = 3 / costMarkup;
-var marginPaint = 2 / costMarkup; //наценка на покраску
-
-totalCarcasPrice = Math.round((strigerPrice + totalAnglePrice + totalBoltPrice + totalFramePrice + columnTotalPrice) * margin);
-treadsTotalPrice = Math.round(treadsTotalPrice * margin);
-metalPaintTotalPrice = Math.round(metalPaintTotalPrice * marginPaint);
-timberPaintPrice = Math.round(timberPaintPrice * marginPaint);
-var totalPrice_0 = Math.round(totalCarcasPrice + treadsTotalPrice);
-var totalPrice_1 = Math.round(totalCarcasPrice + treadsTotalPrice + metalPaintTotalPrice + timberPaintPrice);
-var totalInstalPrice = Math.round(totalPrice_1 * 0.2);
-
-/*сохраняем цены в глобальный объект*
-staircasePrice.carcas = totalCarcasPrice;
-staircasePrice.treads = treadsTotalPrice;
-staircasePrice.carcasMetalPaint = metalPaintTotalPrice;
-staircasePrice.carcasTimberPaint = timberPaintPrice;
-*/
 
 }//Конец функции calculateCarcasPrice()
 

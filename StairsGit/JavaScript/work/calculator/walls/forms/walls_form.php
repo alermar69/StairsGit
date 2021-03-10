@@ -63,7 +63,7 @@
 	
 	<h3>Выступы и блоки</h3>
 	
-	<input type="hidden" id="wallLedgeAmt" value="0"/>
+	<input type="number" id="wallLedgeAmt" value="0" style='visible: none'/>
 	
 	<table class="form_table wallsParams" id='wallLedgesTable' data-counter="wallLedgeAmt">
 		<tbody>

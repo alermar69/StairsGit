@@ -3,33 +3,16 @@ class Wardrobe extends AdditionalObject {
 		super(par);
 
 		this.doorMesh = false;
+		this.doorMesh2 = false;
 		this.doorClosed = true;
 
-		var obj = this;
+		var objPar = Object.assign({}, this.par)
+		objPar.objId = this.objId;
+		objPar = Wardrobe.draw(objPar);
+		this.add(objPar.mesh);
 
-		var sectParams = {
-			dxfArr: [],
-			dxfBasePoint: {
-				x: 0,
-				y: 0
-			},
-			posX: 0,
-			posY: 0,
-			posZ: 0,
-			posAng: 0,
-			material: params.materials.timber
-		};
-
-		var meta = Wardrobe.getMeta();
-		meta.inputs.forEach(function (input) {
-			sectParams[input.key] = obj.par[input.key];
-		})
-
-		sectParams = Wardrobe.draw(sectParams);
-
-		obj.add(sectParams.mesh);
-
-		this.doorMesh = sectParams.doorMesh;
+		this.doorMesh = objPar.doorMesh;
+		this.doorMesh2 = objPar.doorMesh2;
 	}
 
 
@@ -48,10 +31,12 @@ class Wardrobe extends AdditionalObject {
 	animationProgress(animationName, progress) {
 		switch (animationName) {
 			case 'openDoor':
-				this.doorMesh.rotation.y = (-Math.PI / 2) * progress;
+				if (this.doorMesh) this.doorMesh.rotation.y = (-Math.PI / 2) * progress;
+				if (this.doorMesh2) this.doorMesh2.rotation.y = Math.PI - (Math.PI / 2) * progress;
 				break;
 			case 'closeDoor':
-				this.doorMesh.rotation.y = -Math.PI / 2 + (Math.PI / 2) * progress;
+				if (this.doorMesh) this.doorMesh.rotation.y = -Math.PI / 2 + (Math.PI / 2) * progress;
+				if (this.doorMesh2) this.doorMesh2.rotation.y = (Math.PI - Math.PI / 2) + (Math.PI / 2) * progress;
 				break;
 		}
 	}
@@ -67,12 +52,37 @@ class Wardrobe extends AdditionalObject {
 		return actions;
 	}
 
+	static formChange(form, data){
+		var par = data.meshParams
+		if(par.useLoadedData == 'да'){
+			form.find('tr.loadedInputs').show()
+			form.find('tr:not(.loadedInputs)').hide()
+		}else{
+			form.find('tr.loadedInputs').hide()
+			form.find('tr:not(.loadedInputs)').show()
+		}
+		form.find('.alwaysVisible').show()
+
+		if (par.useLoadedData != 'да') {
+			if (par.legsHeight <= 120) {
+				if (par.legsHeight != 80 && par.legsHeight != 120) {
+					alert('Высота ножек может быть 80, 120 или больше 120')
+				}
+			}
+		}
+
+		getObjPar();
+	}
+
 	static calcPrice(par) {
 		var meshParams = par.meshParams;
-		var price = meshParams.height * 12; // Пример
+		var wrParams = getWrParams();
+		var dopSpec = partsAmt_dop[par.id];
+		var wrPriceParams = calcWrPriceParams(dopSpec, wrParams);
+
 		return {
 			name: meshParams.name || this.getMeta().title,
-			cost: price,
+			cost: wrPriceParams.totalPrice.cost,
 			priceFactor: meshParams.priceFactor || 1,
 			costFactor: meshParams.costFactor || 1
 		}
@@ -80,245 +90,340 @@ class Wardrobe extends AdditionalObject {
 
 	static draw(par) {
 		if (!par) par = {};
-		initPar(par)
+		initPar(par);
 
-		var dspThikness = par.dspThickness || 16;
+		if (par.loadedData && par.useLoadedData == 'да') {
+			meshPar = par.loadedData;
+			var wrPar = drawWR(meshPar);
+			par.mesh.add(wrPar.mesh);
+			par.doorMesh = wrPar.door1;
+			par.doorMesh2 = wrPar.door2;
 
-		var radAngle = THREE.Math.degToRad(par.angle);
-		var p0 = {
-			x: 0,
-			y: par.height - par.legsHeight
-		};
-		var p1 = itercection(p0, polar(p0, radAngle, 100), {
-			x: par.width,
-			y: 0
-		}, {
-			x: par.width,
-			y: 100
-		});
-		var length = distance(p0, p1);
-
-		if (par.side == 'левый') {
-			var side1Geometry = new THREE.BoxGeometry(dspThikness, par.height - par.legsHeight, par.depth);
-			var side2Geometry = new THREE.BoxGeometry(dspThikness, p1.y - dspThikness * Math.tan(radAngle), par.depth);
-		} else {
-			var side1Geometry = new THREE.BoxGeometry(dspThikness, p1.y - dspThikness * Math.tan(radAngle), par.depth);
-			var side2Geometry = new THREE.BoxGeometry(dspThikness, par.height - par.legsHeight, par.depth);
-		}
-		var botGeometry = new THREE.BoxGeometry(par.width, dspThikness, par.depth);
-		var topGeometry = new THREE.BoxGeometry(length - dspThikness / Math.cos(radAngle), dspThikness, par.depth);
-		topGeometry.translate(0, -dspThikness / 2, 0);
-		var topPos = polar(p0, radAngle, (length - dspThikness / Math.cos(radAngle)) / 2);
-
-		if (radAngle == 0) {
-			topGeometry = botGeometry;
-			side1Geometry = new THREE.BoxGeometry(dspThikness, par.height - par.legsHeight - dspThikness * 2, par.depth);
-			side2Geometry = side1Geometry
-			topPos = newPoint_xy(p0, par.width / 2, -dspThikness / 2)
+			return par;
 		}
 
-		var top = new THREE.Mesh(topGeometry, par.material);
-
-
-		top.position.x = topPos.x;
-		top.position.y = topPos.y;
-		top.position.z = par.depth / 2;
-
-		if (par.side == 'левый') {
-			top.rotation.z = radAngle;
-		} else {
-			top.rotation.z = -radAngle;
-		}
-
-		par.mesh.add(top);
-
-
-		var side1 = new THREE.Mesh(side1Geometry, par.material);
-		side1.position.x = dspThikness / 2;
-		side1.position.y = side1Geometry.parameters.height / 2 + dspThikness;
-		side1.position.z = par.depth / 2;
-		par.mesh.add(side1);
-
-		var side2 = new THREE.Mesh(side2Geometry, par.material);
-		side2.position.x = par.width - dspThikness / 2;
-		side2.position.y = side2Geometry.parameters.height / 2 + dspThikness;
-		side2.position.z = par.depth / 2;
-		par.mesh.add(side2);
-
-		var bot = new THREE.Mesh(botGeometry, par.material);
-		bot.position.x = par.width / 2;
-		bot.position.y = dspThikness / 2;
-		bot.position.z = par.depth / 2;
-		par.mesh.add(bot);
-
-		//наполнение
-		var shelfOffset = 20; //утапливание полки относительно передней кромки
-		var step = (par.height - par.legsHeight - dspThikness) / (par.shelfsAmt + 1)
-		var shelfGeometry = new THREE.BoxGeometry(par.width - dspThikness * 2, dspThikness, par.depth - shelfOffset);
-
-		for (let i = 1; i <= par.shelfsAmt; i++) {
-			var offset = step * i;
-			var shelf = new THREE.Mesh(shelfGeometry, par.material);
-			shelf.position.x = par.width / 2;
-			shelf.position.y = dspThikness / 2 + offset;
-			shelf.position.z = par.depth / 2 - shelfOffset / 2;
-			par.mesh.add(shelf);
-		}
-
-		var doorP1 = {
-			x: 0,
-			y: 0
-		};
-		var doorP2 = p0;
-		var doorP3 = p1;
-		var doorP4 = {
-			x: par.width,
-			y: 0
-		};
-
-		if (par.side == 'правый') {
-			var doorP1 = {
-				x: 0,
-				y: 0
-			};
-			var doorP2 = {
-				x: 0,
-				y: p1.y
-			};
-			var doorP3 = {
-				x: par.width,
-				y: par.height - par.legsHeight
-			};
-			var doorP4 = {
-				x: par.width,
-				y: 0
-			};
-		}
-
-		//создаем шейп
-		var shapePar = {
-			points: [doorP1, doorP2, doorP3, doorP4],
-			dxfArr: [],
+		//общие параметры
+		var meshPar = {
+			carcasThk_wr: 16,
+			doorsThk_wr: 16,
 			dxfBasePoint: {
 				x: 0,
 				y: 0
 			},
+			sectAmt: 1,
+			width_wr: par.width,
+			height_wr: par.height,
+			depth_wr: par.depth,
+			legsHeight_wr: par.legsHeight,
+			sections: [],
+			boxes: [],
+			wrModel: par.wrModel,
+			doorsHandles: par.doorsHandles,
+			doorsOffset_wr: 20,
+			contentThk_wr: 16,
+			doorsMat_wr: par.doorsMat_wr
 		}
 
-		var shape = drawShapeByPoints2(shapePar).shape;
+		if (par.wrModel == 'шоколад') {
+			// meshPar.carcasMat = 'щит';
+			// meshPar.doorsMat = 'щит';
+			meshPar.contentMat = 'щит';
+			meshPar.sideWall_wr = 'бруски+щит';
+			// meshPar.doorsMat_wr = 'составная панель';
+			meshPar.sectDoorsType_wr = 'вкладные';
+			meshPar.carcasThk_wr = 40;
+			meshPar.doorsThk_wr = 20;
+		}
+		if (par.wrModel == 'лдсп') {
+			// meshPar.carcasMat = 'лдсп';
+			// meshPar.doorsMat = 'лдсп';
+			meshPar.contentMat = 'лдсп';
+			meshPar.sideWall_wr = 'панель';
+			// meshPar.sectDoorsModel_wr = 'панель';
+			meshPar.sectDoorsType_wr = 'накладные';
+		}
 
-		var extrudeOptions = {
-			amount: 1,
-			bevelEnabled: false,
-			curveSegments: 12,
-			steps: 1
-		};
-		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
-		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		meshPar.legsHeight_wr += meshPar.carcasThk_wr;
 
-		var back = new THREE.Mesh(geom, par.material);
-		back.position.z -= 1;
-		par.mesh.add(back);
+		var wrDoorType = par.side;
 
-		//дверка
-		if (par.door != "нет") {
-			var extrudeOptions = {
-				amount: dspThikness,
-				bevelEnabled: false,
-				curveSegments: 12,
-				steps: 1
+		//наполнение полки
+
+		if (par.contentType == "полки") {
+			var shelfPar = {
+				boxDoorPlusIn: 0,
+				boxType: "полки",
+				boxWidth: 1468,
+				boxWidthType: "по секции",
+				height: par.height,
+				itemAmt: par.shelfAmt,
+				posX: 0,
+				posY: 0,
+				sect: "1",
+				shelfSideOffset: 0,
+				type: "полки",
+				width: par.width - meshPar.carcasThk_wr * 2,
+				widthType: "по секции",
 			};
-			var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
-			geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-			var doorWrapper = new THREE.Object3D();
-			var door = new THREE.Mesh(geom, par.material);
-			doorWrapper.position.z = par.depth;
-			doorWrapper.add(door);
-			par.mesh.add(doorWrapper);
 
-			par.doorMesh = doorWrapper;
+			meshPar.boxes.push(shelfPar)
+		}else if (par.contentType == "ящики") {
+			var shelfPar = {
+				boxDoorPlusIn: 0,
+				boxType: "ящики",
+				boxWidth: 1468,
+				boxWidthType: "по секции",
+				boxDoorPlusRight: -2,
+				boxDoorPlusBot: -2,
+				boxDoorPlusLeft: -2,
+				boxDoorPlusTop: -2,
+				height: par.height - meshPar.legsHeight_wr - meshPar.carcasThk_wr,
+				itemAmt: par.shelfAmt,
+				posX: 0,
+				posY: meshPar.legsHeight_wr,
+				sect: "1",
+				shelfSideOffset: 0,
+				type: "ящики",
+				width: par.width - meshPar.carcasThk_wr * 2,
+				widthType: "по секции",
+				boxHandles: 'есть',
+				boxCarcasHeight: 120
+			};
+			if (par.width > 600) shelfPar.boxHandles = 'две'
 
-			//ручка
-			if (par.handle != "нет") {
-				var handle = drawHandle().mesh;
-				handle.position.y = par.height / 2;
-				handle.position.x = 50;
-				if (par.side == 'левый') handle.position.x = par.width - 50;
-				handle.position.z = dspThikness;
-				doorWrapper.add(handle);
+			meshPar.boxSideGap = 15.5;
+			meshPar.boxHandles = par.doorsHandles;
+			meshPar.boxes.push(shelfPar);
+		}else if (par.contentType == "ящики+полка") {
+			var shelfHeight = 200;
+			var shelfPar = {
+				boxDoorPlusIn: 0,
+				boxType: "полки",
+				boxWidth: 1468,
+				boxWidthType: "по секции",
+				height: 0,
+				itemAmt: 1,
+				posX: 0,
+				posY: par.height - shelfHeight - meshPar.carcasThk_wr + 8,
+				sect: "1",
+				shelfSideOffset: 0,
+				type: "полки",
+				width: par.width - meshPar.carcasThk_wr * 2,
+				widthType: "по секции",
+			};
+
+			meshPar.boxes.push(shelfPar)
+
+			var shelfPar = {
+				boxDoorPlusIn: 0,
+				boxType: "ящики",
+				boxWidth: 1468,
+				boxWidthType: "по секции",
+				boxDoorPlusRight: -2,
+				boxDoorPlusBot: -2,
+				boxDoorPlusLeft: -2,
+				boxDoorPlusTop: -2,
+				height: par.height - meshPar.legsHeight_wr - meshPar.carcasThk_wr - shelfHeight,
+				itemAmt: par.shelfAmt,
+				posX: 0,
+				posY: meshPar.legsHeight_wr,
+				sect: "1",
+				shelfSideOffset: 0,
+				type: "ящики",
+				width: par.width - meshPar.carcasThk_wr * 2,
+				widthType: "по секции",
+				boxHandles: 'есть',
+				boxCarcasHeight: 120
+			};
+			if (par.width > 600) shelfPar.boxHandles = 'две'
+
+			meshPar.boxSideGap = 15.5;
+			meshPar.boxHandles = par.doorsHandles;
+			meshPar.boxes.push(shelfPar);
+		}else if(par.contentType == 'тумба'){
+			var shelfPar = {
+				boxDoorPlusIn: 0,
+				boxType: "полки",
+				boxWidth: 1468,
+				boxWidthType: "по секции",
+				height: 0,
+				itemAmt: 1,
+				posX: 0,
+				posY: par.height - 200,
+				sect: "1",
+				shelfSideOffset: 0,
+				type: "полки",
+				width: par.width - meshPar.carcasThk_wr * 2,
+				widthType: "по секции",
+			};
+
+			meshPar.boxes.push(shelfPar)
+
+			if (par.side != 'открытая') {
+				var doorType = 'левая дверь';
+				if (par.side == 'дверь правая') doorType = 'правая дверь';
+				if (par.side == 'две двери') doorType = 'две двери';
+				wrDoorType = 'открытая';
+				var shelfPar = {
+					boxDoorPlusIn: 0,
+					boxType: doorType,
+					boxWidth: 1468,
+					boxWidthType: "по секции",
+					height: par.height - 200 - 8 - meshPar.legsHeight_wr,
+					itemAmt: 1,
+					posX: 0,
+					posY: meshPar.legsHeight_wr,
+					sect: "1",
+					shelfSideOffset: 0,
+					type: doorType,
+					width: par.width - meshPar.carcasThk_wr * 2,
+					widthType: "по секции",
+				};
+	
+				meshPar.boxes.push(shelfPar)
 			}
+		} else {
+			// Копируем объект чтобы не изменять базовый
+			var fillingPar = wrFilling[par.contentType];
+			// fillingPar.boxes = Object.assign([], fillingPar.boxes);
+
+			meshPar.isTopShelf = fillingPar.isTopShelf;
+			if (meshPar.isTopShelf == 'есть') {
+				meshPar.topShelfPosY = (par.height - meshPar.carcasThk_wr) * (fillingPar.topShelfPosY / fillingPar.height_wr);
+			}
+
+			var boxes = [];
+			//  Если есть наполнение, адаптируем под наши размеры
+			if (fillingPar.boxes.length > 0) {
+				fillingPar.boxes.forEach(function (boxPar) {
+					var box = {};
+					// Копируем значения по умолчанию из шаблона
+					Object.keys(boxPar).forEach(function (key) {
+						box[key] = boxPar[key];
+					})
+					if (box.boxWidthType == 'задается' || box.widthType == 'задается' || box.type == 'перегородка') {
+						if (box.type != 'перегородка') {
+							if (box.width > fillingPar.width_wr / 2) {
+								box.width = par.width * (box.width / fillingPar.width_wr);
+							} else {
+								box.width = par.width * 0.5 - meshPar.contentThk_wr / 2 - meshPar.carcasThk_wr;
+							}
+							// box.width = par.width * (box.width / fillingPar.width_wr);
+							box.boxWidth = box.width;
+						}
+						if (box.posX != 0) {
+							box.posX = par.width * 0.5 - meshPar.contentThk_wr / 2 - meshPar.carcasThk_wr;
+							if (box.type != 'перегородка') box.posX += meshPar.contentThk_wr;
+						}
+					}
+					if (box.boxWidthType == 'по секции') {
+						box.width = par.width - meshPar.carcasThk_wr * 2;
+					}
+					if (box.itemAmt > 1 && box.boxType == 'полки') box.itemAmt = par.shelfAmt;
+					box.boxHeight = box.height = (par.height - meshPar.carcasThk_wr) * (box.height / fillingPar.height_wr);
+					if (box.posy != 0) box.posY = (par.height - meshPar.carcasThk_wr) * (box.posY / fillingPar.height_wr);
+					boxes.push(box);
+				})
+			}
+			meshPar.boxes = boxes;
 		}
 
-		//ножки
-		if (par.legsHeight) {
-			par.legPar = {
-				diam: 50,
-				sideOffset: 20,
-			}
-			var pipeGeometry = new THREE.CylinderGeometry(par.legPar.diam / 2, par.legPar.diam / 2, par.legsHeight, 32);
+		//секции
+		meshPar.sections = [{
+			width: par.width,
+			type: wrDoorType,
+		}];
 
-			var legMoove = par.legPar.sideOffset + par.legPar.diam / 2;
+		var wrPar = drawWR(meshPar);
+		par.mesh.add(wrPar.mesh);
+		par.doorMesh = wrPar.door1;
+		par.doorMesh2 = wrPar.door2;
 
-			var legPos = {
-				frontZ: par.depth - legMoove,
-				rearZ: legMoove,
-				leftX: legMoove,
-				rightX: par.width - legMoove,
-				y: -par.legsHeight / 2,
-			}
-
-			//левая задняя
-			var pipe = new THREE.Mesh(pipeGeometry, params.materials.inox);
-			pipe.position.x = legPos.leftX;
-			pipe.position.y = legPos.y;
-			pipe.position.z = legPos.rearZ;
-
-			par.mesh.add(pipe);
-
-			//левая передняя
-			var pipe = new THREE.Mesh(pipeGeometry, params.materials.inox);
-			pipe.position.x = legPos.leftX;
-			pipe.position.y = legPos.y;
-			pipe.position.z = legPos.frontZ;
-
-			par.mesh.add(pipe);
-
-			//правая задняя
-			var pipe = new THREE.Mesh(pipeGeometry, params.materials.inox);
-			pipe.position.x = legPos.rightX;
-			pipe.position.y = legPos.y;
-			pipe.position.z = legPos.rearZ;
-
-			par.mesh.add(pipe);
-
-			//правая передняя
-			var pipe = new THREE.Mesh(pipeGeometry, params.materials.inox);
-			pipe.position.x = legPos.rightX;
-			pipe.position.y = legPos.y;
-			pipe.position.z = legPos.frontZ;
-
-			par.mesh.add(pipe);
-		}
-
-		return par
+		return par;
 	}
 
 	static getMeta() {
 		return {
 			title: 'Шкаф',
 			inputs: [
-
+				{
+					key: 'useLoadedData',
+					title: 'Использовать загруженные данные',
+					default: 'нет',
+					class: 'alwaysVisible',
+					type: 'select',
+					values: [{
+							value: 'да',
+							title: 'Да'
+						},
+						{
+							value: 'нет',
+							title: 'Нет'
+						}
+					]
+				},
+				{
+					key: 'wrModel',
+					title: 'Коллекция',
+					default: 'шоколад',
+					type: 'select',
+					values: [{
+							value: 'шоколад',
+							title: 'шоколад'
+						},
+						{
+							value: 'лдсп',
+							title: 'лдсп'
+						}
+					]
+				},
+				{
+					key: 'doorsMat_wr',
+					title: 'Материал фасадов',
+					default: 'плоские лдсп',
+					type: 'select',
+					values:[
+						{
+							value: "шоколад",
+							title: "шоколад"
+						},
+						{
+							value: "рамочные массив",
+							title: "рамочные массив"
+						},
+						{
+							value: "рамочные шпон",
+							title: "рамочные шпон"
+						},
+						{
+							value: "плоские шпон",
+							title: "плоские шпон"
+						},
+						{
+							value: "плоские эмаль",
+							title: "плоские эмаль"
+						},
+						{
+							value: "плоские лдсп",
+							title: "плоские лдсп"
+						},
+						{
+							value: "фрезерованные эмаль",
+							title: "фрезерованные эмаль"
+						},
+					]
+				},
 				{
 					key: 'height',
 					title: 'Высота',
-					default: 1700,
+					default: 2000,
 					type: 'number',
 					"printable": "true",
 				},
 				{
 					key: 'width',
 					title: 'Ширина',
-					default: 600,
+					default: 1500,
 					type: 'number',
 					"printable": "true",
 				},
@@ -329,104 +434,136 @@ class Wardrobe extends AdditionalObject {
 					type: 'number',
 					"printable": "true",
 				},
+
 				{
-					key: 'angle',
-					title: 'Угол верха',
-					default: 0,
-					type: 'number'
-				},
-				{
-					key: 'shelfsAmt',
-					title: 'Кол-во полок',
-					default: 2,
-					type: 'number',
-					"printable": "true",
-				},
-				{
-					key: 'door',
-					title: 'Дверка',
-					default: 'плоская',
+					key: 'side',
+					title: 'Дверки',
+					default: 'открытая',
+					type: 'select',
 					values: [{
-							value: 'плоская',
-							title: 'плоская'
+							value: 'открытая',
+							title: 'открытая'
 						},
 						{
-							value: 'рамочная',
-							title: 'рамочная'
+							value: 'дверь правая',
+							title: 'дверь правая'
 						},
 						{
-							value: 'стекло в рамке',
-							title: 'стекло в рамке'
+							value: 'дверь левая',
+							title: 'дверь левая'
 						},
 						{
-							value: 'нет',
-							title: 'нет'
+							value: 'две двери',
+							title: 'две двери'
 						},
+					]
+				},
+
+				{
+					key: 'doorsHandles',
+					title: 'Ручка',
+					default: 'скоба',
+					values: [
+						{
+							value: "скоба",
+							title: "скоба"
+						},
+						{
+							value: "кнопка круглая",
+							title: "кнопка круглая"
+						},
+						{
+							value: "кнопка квадратная",
+							title: "кнопка квадратная"
+						},
+						{
+							value: "рейлинг 96",
+							title: "рейлинг 96"
+						},
+						{
+							value: "рейлинг 128",
+							title: "рейлинг 128"
+						},
+						{
+							value: "рейлинг 160",
+							title: "рейлинг 160"
+						},
+						{
+							value: "нет",
+							title: "нет"
+						}
 					],
 					type: 'select',
 					"printable": "true",
 				},
-				{
-					key: 'handle',
-					title: 'Ручка',
-					default: 'нет',
-					values: [{
-							value: 'нет',
-							title: 'нет'
-						},
-						{
-							value: 'скоба',
-							title: 'скоба'
-						},
-					],
-					type: 'select'
-				},
 
 				{
-					key: 'content',
+					key: 'contentType',
 					title: 'Наполнение',
 					default: 'полки',
+					type: 'select',
 					values: [{
 							value: 'полки',
 							title: 'полки'
+						},
+
+						{
+							value: 'штанга',
+							title: 'штанга'
+						},
+
+						{
+							value: 'штанга+полки',
+							title: 'штанга+полки'
+						},
+						{
+							value: 'тумба',
+							title: 'тумба'
 						},
 						{
 							value: 'ящики',
 							title: 'ящики'
 						},
-					],
-					type: 'select',
-					"printable": "true",
+						{
+							value: 'ящики+полка',
+							title: 'ящики+полка',
+						}
+					]
 				},
 
 				{
-					key: 'side',
-					title: 'Направление',
-					default: 'левый',
-					values: [{
-							value: 'левый',
-							title: 'Левый'
-						},
-						{
-							value: 'правый',
-							title: 'Правый'
-						}
-					],
-					type: 'select'
+					key: 'shelfAmt',
+					title: 'Кол-во полок',
+					default: 4,
+					type: 'number',
+					"printable": "true",
 				},
 
 				{
 					key: 'legsHeight',
 					title: 'Ножки',
-					default: 90,
+					default: 80,
 					type: 'number'
 				},
 
 				{
-					type: 'delimeter',
-					"title": "Цена"
+					key: "wardrobeOrder",
+					title: "Номер заказа",
+					type: "text",
+					class: 'loadedInputs',
+					printable: "true",
+				},
+				{
+					key: "getWardrobeOrderData",
+					title: "Загрузить данные заказа",
+					type: "action",
+					class: 'loadedInputs'
 				},
 
+				{
+					type: 'delimeter',
+					title: "Цена"
+				},
 				{
 					key: 'name',
 					title: 'Название',
@@ -438,3 +575,90 @@ class Wardrobe extends AdditionalObject {
 		}
 	}
 }
+
+/**
+ * 
+ * @param {object} context элемент массива additional_objects - из параметров получаем ид слэба и обратно кладем цену
+ */
+function getWardrobeOrderData(form, context) {
+	var orderName = context.meshParams.wardrobeOrder;
+	if (!orderName) {
+		alert('Неверный номер заказа');
+		return;
+	}
+	$.ajax({
+		dataType: 'json',
+		url: '/orders/calc-controller/get-by-ordername/' + orderName,
+		type: 'GET',
+		success: function (data) {
+			if (data.result && data.result == 'error') {
+				alert(data.message);
+				return;
+			}
+			if (data.calc_type == "coupe") {
+				console.log(data);
+				var orderdata = JSON.parse(data.order_data);
+				if (orderdata.boxAmt_wr > 0) {
+					orderdata.sections = [];
+					orderdata.boxes = [];
+
+					for (var i = 0; i < orderdata.sectAmt; i++) {
+						orderdata.sections.push({
+							width: orderdata['sectWidth' + i],
+							type: orderdata['door' + i]
+						});
+					}
+
+					for (var i = 0; i < orderdata.boxAmt_wr; i++) {
+						orderdata.boxes.push({
+							sect: orderdata['boxSect' + i],
+							boxSect: orderdata['boxSect' + i],
+							posX: orderdata['boxPosX' + i],
+							posY: orderdata['boxRow' + i],
+							height: orderdata['boxHeight' + i],
+							type: orderdata['boxType' + i],
+							widthType: orderdata['boxWidthType' + i],
+							width: orderdata['boxWidth' + i],
+
+							boxPosX: orderdata['boxPosX' + i],
+							boxRow: orderdata['boxRow' + i],
+							distTop: orderdata['distTop' + i],
+							distBot: orderdata['distBot' + i],
+							boxWidthType: orderdata['boxWidthType' + i],
+							boxWidth: orderdata['boxWidth' + i],
+							boxHeight: orderdata['boxHeight' + i],
+							boxCarcasHeight: orderdata['boxCarcasHeight' + i],
+							shelfSideOffset: orderdata['shelfSideOffset' + i],
+							itemAmt: orderdata['itemAmt' + i],
+							borderShelfs: orderdata['borderShelfs' + i],
+							itemsGap: orderdata['itemsGap' + i],
+							boxHandles: orderdata['boxHandles' + i],
+							boxType: orderdata['boxType' + i],
+							poleStart: orderdata['poleStart' + i],
+							poleEnd: orderdata['poleEnd' + i],
+							boxDoorPlusIn: orderdata['boxDoorPlusIn' + i],
+							boxDoorPlusRight: orderdata['boxDoorPlusRight' + i],
+							boxDoorPlusLeft: orderdata['boxDoorPlusLeft' + i],
+							boxDoorPlusTop: orderdata['boxDoorPlusTop' + i],
+							boxDoorPlusBot: orderdata['boxDoorPlusBot' + i]
+						})
+						// if (boxPar.sect < 20) boxes.push(boxPar);
+					}
+					console.log(orderdata.boxes);
+				}
+
+				context.meshParams.loadedData = orderdata;
+				alert('Данные загружены');
+				redrawAdditionalObjects();
+			} else {
+				alert('Неверный тип расчета!')
+			}
+		},
+		error: function (a, b) {
+			console.log(a)
+			alertTrouble(b, 'data');
+		}
+	});
+}
+
+function calcBoxDist() {}

@@ -4,14 +4,14 @@ $(function(){
 		getLinks($("#orderName").val(), "photos", "photos");
 		if($(this).text() == "Показать") $(this).text("Свернуть")
 		else $(this).text("Показать");
-		});
+	});
 	//техническая информация с объекта	
 	$("#showTechInfo").click(function(){
 		getLinks($("#orderName").val(), "techInfo", "techInfo");
 		if($(this).text() == "Показать") $(this).text("Свернуть")
 		else $(this).text("Показать");
 		
-		});
+	});
 		
 	$('#photos').delegate('.rotate-right', 'click',  function(){
 		var self = $(this);
@@ -44,7 +44,7 @@ function getLinks(offerName, target, divId){
 	if(offerName == ""){
 		alert("Не указан номер заказа!");
 		return;
-		}
+	}
 
 	//выделяем номер заказа из имени расчета
 	if(offerName.charAt(0) != "w"){

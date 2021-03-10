@@ -1,3 +1,6 @@
+//var costMarkup = 1.3; //07.05.20;
+var costMarkup = 1.56; //11.01.21
+
 function calculateCarcasPrice_stock(){
 
 var model = params.model;
@@ -169,10 +172,10 @@ staircaseCost.carcasTimberPaint = 0;
 staircaseCost.carcas = totalCostCarcas;
 
 //сохраняем цену в глобальный объект
-staircasePrice.carcas = totalCarcasPrice;
-staircasePrice.treads = treadsTotalPrice;
-staircasePrice.carcasMetalPaint = 0;
-staircasePrice.carcasTimberPaint = 0;
+priceObj['carcas'].discountPrice = totalCarcasPrice;
+priceObj['treads'].discountPrice = treadsTotalPrice;
+priceObj['carcasMetalPaint'].discountPrice = 0;
+priceObj['carcasTimberPaint'].discountPrice = 0;
 
 
 }//Конец функции calculateCarcasPrice_stock()
@@ -266,7 +269,7 @@ if(rackType == "нержавейка") rackPrice = 2150;
 	totalRailingPrice = totalRailingPrice * nacenka;
 	
 	//сохраняем рассчитанные параметры в глобальный объект
-	staircasePrice.railing = totalRailingPrice
+	priceObj['railing'].discountPrice = totalRailingPrice
 	staircaseCost.railing = totalRailingPrice * 0.7 / nacenka;
 	
 

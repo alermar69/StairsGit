@@ -1,5 +1,5 @@
 //
-function drawRailing(par){
+function drawRailing(par) {
 	var railingMesh = new THREE.Object3D();
 
 	var banistrPositionAngle0 = par.treadExtraAngle - calcTriangleParams().treadOverlayAngle / 2 - par.startAngle;
@@ -36,9 +36,9 @@ function drawRailing(par){
 		var handrail = railingParams.handrail;
 		sect.rotation.y = rigels.rotation.y = handrail.rotation.y = -banistrPositionAngle0;
 
-		railingMesh.add(sect);//, "railing");
-		railingMesh.add(rigels);//, "railing");
-		railingMesh.add(handrail);//, "handrails");
+		railingMesh.add(sect); //, "railing");
+		railingMesh.add(rigels); //, "railing");
+		railingMesh.add(handrail); //, "handrails");
 	}
 
 	//ограждение по внутренней стороне
@@ -52,15 +52,15 @@ function drawRailing(par){
 		var handrail = railingParams.handrail;
 		sect.rotation.y = rigels.rotation.y = handrail.rotation.y = -banistrPositionAngle0;
 
-		railingMesh.add(sect);//, "railing");
-		railingMesh.add(rigels);//, "railing");
-		railingMesh.add(handrail);//, "handrails");
+		railingMesh.add(sect); //, "railing");
+		railingMesh.add(rigels); //, "railing");
+		railingMesh.add(handrail); //, "handrails");
 	}
 
 	return railingMesh;
 }
 
-function drawPlatformRailing(par){
+function drawPlatformRailing(par) {
 	var platformRailing = new THREE.Object3D();
 	specObj = partsAmt_bal; //задаем объект, куда будут сохраняться данные для спецификации
 
@@ -107,8 +107,8 @@ function drawPlatformRailing(par){
 
 	var railingSection = drawBalSection(balSectionParams); //функция в файле drawBalSect_man_4.0.js
 	railingSection.rotation.y = sectionTyrnAngle;
-	
-	
+
+
 	var offsetX = 40 / 2;
 	var offsetZ = 40 / 2;
 
@@ -119,7 +119,7 @@ function drawPlatformRailing(par){
 	}
 	if (params.railingModel_bal == "Самонесущее стекло") {
 		railingSection.rotation.y = sectionTyrnAngle;
-		if (turnFactor == 1) offsetZ = - 95 / 2;
+		if (turnFactor == 1) offsetZ = -95 / 2;
 		if (turnFactor == -1) offsetZ = 95;
 		offsetZ = 50 / 2;
 	}
@@ -127,18 +127,18 @@ function drawPlatformRailing(par){
 	translateObject(railingSection, offsetX, 150 + par.stepHeight * (par.stairAmt + 1) + par.regShimAmt * par.regShimThk, offsetZ);
 
 	if (!testingMode) {
-		platformRailing.add(railingSection);//, "railing");
+		platformRailing.add(railingSection); //, "railing");
 	}
 
 	//замыкание поручня на площадке
-	if (params.pltHandrailConnection == 'есть' && params.platformType == "triangle" && par.vintPlatformParams.lengthConnection){
+	if (params.pltHandrailConnection == 'есть' && params.platformType == "triangle" && par.vintPlatformParams.lengthConnection) {
 		var railingPar = {
 			lengthHandrail: par.vintPlatformParams.lengthConnection,
 			dxfBasePoint: balSectionParams.dxfBasePoint,
 			railingModel: params.railingModel_bal,
 		}
 
-		
+
 		var railingSection1 = drawRailingConnectionPlatform(railingPar).mesh;
 		if (par.vintPlatformParams.pointRack) {
 			railingSection1.position.y = 150 + par.stepHeight * (par.stairAmt + 1) + par.regShimAmt * par.regShimThk;
@@ -147,7 +147,7 @@ function drawPlatformRailing(par){
 
 
 			if (!testingMode) {
-				platformRailing.add(railingSection1);//, "railing");
+				platformRailing.add(railingSection1); //, "railing");
 			}
 		}
 	}
@@ -176,6 +176,8 @@ function drawSpiralRailing(par) {
 	var rigels = new THREE.Object3D();
 
 	var railingHeight = 900; //номинальная высота ограждения в начале ступени
+	if (params.model == "Винтовая с тетивой") var railingHeight = 950; //номинальная высота ограждения в начале ступени
+	if (params.railingModel == "Дерево с ковкой") var railingHeight = 1100; //номинальная высота ограждения в начале ступени
 	var glassMaterial = new THREE.MeshLambertMaterial({
 		opacity: 0.6,
 		color: 0x3AE2CE,
@@ -215,7 +217,7 @@ function drawSpiralRailing(par) {
 		stairParams.startBanisterLength = startBanisterLength;
 
 		var banisterPositionRad = params.staircaseDiam / 2 + 0.1;
-		
+
 		//длинные балясины
 		var longBanisterLength = railingHeight + stepHeight + botLedge;
 		stairParams.longBanisterLength = longBanisterLength;
@@ -242,7 +244,7 @@ function drawSpiralRailing(par) {
 			angleShift: 0,
 			text: "Первая балясина"
 		}
-		
+
 		if (params.botFloorType == 'черновой') balParams.length += params.botFloorsDist;
 
 		//сохраняем размеры для спецификации
@@ -394,7 +396,6 @@ function drawSpiralRailing(par) {
 
 
 	/*стойки для ограждений с ригелями или стеклом на стойках*/
-
 	if (par.model == "Ригели" || par.model == "Стекло на стойках") {
 		var isBolz = false;
 		if (params.model !== "Винтовая с тетивой") isBolz = true;
@@ -406,12 +407,14 @@ function drawSpiralRailing(par) {
 		par.railingLength = Math.sqrt((stepAngle * rad) * (stepAngle * rad) + stepHeight * stepHeight) * stairAmt;
 		var rackAmt = Math.ceil(par.railingLength / 900) + 1;
 		var topRackOffset = 0.3;
-		if (isBolz) topRackOffset = 0; 
+		if (isBolz) topRackOffset = 0;
 		var rackAngleDist = stepAngle * (stairAmt - topRackOffset) / (rackAmt - 1);
 		var rackDistY = stepHeight * (stairAmt - topRackOffset) / (rackAmt - 1);
 		var banisterProfileSize = 40;
+
 		var longBanisterLength = railingHeight + 150;
-		
+		if (params.model == "Винтовая с тетивой") var longBanisterLength = railingHeight;
+
 		var banisterPositionRad = rad + 0.1;
 		if (par.side == "in") banisterPositionRad = rad - banisterProfileSize - 0.1;
 		if (isBolz) banisterPositionRad -= banisterProfileSize + 5
@@ -425,14 +428,17 @@ function drawSpiralRailing(par) {
 				var pos = stepRack * i + 1;
 				if (stairAmt + 1 - pos > 1) racksPos.push(pos);
 			}
-			racksPos.push(stairAmt+1);
+			racksPos.push(stairAmt + 1);
 
 			rackAmt = racksPos.length;
 		}
 
 		//var banisterPositionRad = params.staircaseDiam / 2 + 0.1;
 
-		var dxfBasePoint = { x: 0, y: 1000 }
+		var dxfBasePoint = {
+			x: 0,
+			y: 1000
+		}
 
 		var rackParams = {
 			len: longBanisterLength,
@@ -455,7 +461,7 @@ function drawSpiralRailing(par) {
 		}
 
 		//угол верхнего кронштейна
-		var stepLen = Math.PI * par.rad * params.stepAngle / 180;		
+		var stepLen = Math.PI * par.rad * params.stepAngle / 180;
 		rackParams.holderAng = -Math.atan(stairParams.stepHeight / stepLen)
 
 		var modelTemp = params.model;
@@ -476,6 +482,7 @@ function drawSpiralRailing(par) {
 			}
 
 			rackParams.len = longBanisterLength - dy;
+			if (params.model == "Винтовая с тетивой") rackParams.len = longBanisterLength;
 
 			rackParams = drawRack3d_4(rackParams);
 
@@ -500,7 +507,10 @@ function drawSpiralRailing(par) {
 			var triangleParams = calcTriangleParams();
 			var bolzPar = {
 				marshId: 1,
-				dxfBasePoint: { x: 5000, y: 0, },
+				dxfBasePoint: {
+					x: 5000,
+					y: 0,
+				},
 				h: stepHeight,
 				bolzProfile: 40,
 				isRack: false,
@@ -531,8 +541,8 @@ function drawSpiralRailing(par) {
 				if (params.stairType == 'рамки') {
 					bolzPar.regShimThk = 4;
 					bolzPar.frameThicknessFix = 4;
-					if ( i > params.regShimAmt) bolzPar.h -= regShimThk;
-					if ( i == (params.regShimAmt + 1)) {
+					if (i > params.regShimAmt) bolzPar.h -= regShimThk;
+					if (i == (params.regShimAmt + 1)) {
 						posY += regShimThk;
 					}
 				}
@@ -547,7 +557,7 @@ function drawSpiralRailing(par) {
 					bolzPar.isPlateTread = false;
 				}
 
-				if (racksPos.indexOf(i+1) !== -1) {
+				if (racksPos.indexOf(i + 1) !== -1) {
 					bolzPar.isRack = true;
 				}
 
@@ -561,7 +571,7 @@ function drawSpiralRailing(par) {
 					mesh1.position.x += 40 * Math.cos(ang);
 					mesh1.position.z += 40 * Math.sin(ang);
 				}
-				mesh1.rotation.y = Math.PI / 2*turnFactor - ang;
+				mesh1.rotation.y = Math.PI / 2 * turnFactor - ang;
 				mesh.add(mesh1);
 
 				mesh.position.y = posY;
@@ -574,73 +584,6 @@ function drawSpiralRailing(par) {
 		}
 
 
-		//уголки для крепления ступеней
-		if (params.railingModel == "Частые стойки") {
-		//if (params.railingModel == "Частые стойки" || params.model != "Спиральная (косоур)") {
-			var angleGap = 0.1; //зазор чтобы проходили тесты
-			var angleParams = {
-				material: params.materials.metal2,
-				dxfArr: [],
-			}
-
-			var banisterBottomOverhang = 36; //выступ балясини ниже нижней поверхности ступени
-
-			var anglePositionRad = banisterPositionRad;
-			if (par.side == "in") anglePositionRad += banisterProfileSize
-			var banistrPositionAngle;
-
-			posY = stepHeight - params.treadThickness - banisterBottomOverhang;
-
-			for (var i = 0; i < stairAmt; i++) {
-				var shimDelta = 0;
-				//учитываем регулировочную шайбу
-				if (i <= params.regShimAmt) {
-					posY += regShimThk;
-					if (par.stairType == 'metal') shimDelta = -regShimThk;
-				}
-
-				angleParams = drawBanisterAngle(angleParams);
-				var angle = angleParams.mesh;
-
-				banistrPositionAngle = (-stepAngle * i * turnFactor);
-				angle.rotation.y = -banistrPositionAngle - Math.PI / 2;
-				if (par.side == "in") angle.rotation.y = -banistrPositionAngle + Math.PI / 2;
-				angle.position.x = anglePositionRad * Math.cos(banistrPositionAngle);
-				angle.position.y = posY + shimDelta - 0.1 + 20 - angleParams.holeOffset;
-				angle.position.z = anglePositionRad * Math.sin(banistrPositionAngle) + 0.1;
-				angle.castShadow = true;
-				railingSection.add(angle);
-				//--------------------------------------------
-
-				angleParams = drawBanisterAngle(angleParams);
-				var angle = angleParams.mesh;
-				banistrPositionAngle = (-stepAngle * (i + 1) * turnFactor + banistrPositionAngle0);
-				angle.rotation.y = -banistrPositionAngle - Math.PI / 2;
-				if (par.side == "in") angle.rotation.y = -banistrPositionAngle + Math.PI / 2;
-				angle.position.x = (anglePositionRad) * Math.cos(banistrPositionAngle);
-				angle.position.y = posY + shimDelta - 0.1 + 20 - angleParams.holeOffset;
-				angle.position.z = anglePositionRad * Math.sin(banistrPositionAngle);
-				angle.castShadow = true;
-				railingSection.add(angle);
-
-				//-----------------------------------
-
-
-				angleParams = drawBanisterAngle(angleParams);
-				var angle = angleParams.mesh;
-				var banistrPositionAngle = -stepAngle * i * turnFactor - stepAngle / 2 * turnFactor;
-				angle.rotation.y = -banistrPositionAngle - Math.PI / 2;
-				if (par.side == "in") angle.rotation.y = -banistrPositionAngle + Math.PI / 2;
-				angle.position.x = anglePositionRad * Math.cos(banistrPositionAngle);
-				angle.position.y = posY + shimDelta - 0.1 + 20 - angleParams.holeOffset;
-				angle.position.z = anglePositionRad * Math.sin(banistrPositionAngle);
-				angle.castShadow = true;
-				railingSection.add(angle);
-
-				posY += stepHeight;
-			}
-
-		} //конец частых стоек
 	}
 
 	/*ригели*/
@@ -666,6 +609,117 @@ function drawSpiralRailing(par) {
 		for (var i = 0; i < params.rigelAmt * 1.0; i++) {
 			rigelParams.posY = (longBanisterLength - 200) * (i + 1) / (params.rigelAmt * 1.0 + 1) + 150;
 			rigels.add(drawVinPole(rigelParams));
+		}
+	}
+
+	// Кованные балясины
+	if (par.model == "Дерево с ковкой") {
+		var dxfBasePoint = {
+			x: 0,
+			y: 1000
+		}
+
+		var rackSize = 95;
+
+		var angleDelta = 0;
+		if (params.stairType == 'рамки') var angleDelta = -22 / (params.staircaseDiam / 2);
+
+		//считаем длину ограждения
+		par.railingLength = Math.sqrt((stepAngle * rad) * (stepAngle * rad) + stepHeight * stepHeight) * stairAmt;
+		var banisterProfileSize = 40;
+
+		var banisterLength = railingHeight - 10;
+		var stepLen = Math.PI * par.rad * params.stepAngle / 180;
+
+		var longBanisterLength = railingHeight; // Для отрисовки поручня
+		var banisterPositionRad = rad + 0.1;
+		if (par.side == "in") banisterPositionRad = rad - banisterProfileSize - 0.1;
+		banisterPositionRad -= banisterProfileSize / 2 + 5;
+
+		var newellParams = {
+			type: params.timberNewellType,
+			len: railingHeight + 50,
+			rackSize: rackSize - 0.02,
+			topType: params.newellTopType,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: newPoint_xy(dxfBasePoint, rackSize / 2, 0),
+		}
+
+		// Начальный столб
+		if(params.strightMarsh != 'снизу' && params.strightMarsh != 'сверху и снизу'){
+			var firstRackAng = angleDelta + stepAngle * ((rackSize / 2) / stepLen) * turnFactor;
+			var rackPar = {};
+			
+			rackPar.x = (banisterPositionRad - rackSize / 2) * Math.cos(firstRackAng);
+			rackPar.y = 0;
+			rackPar.z = (banisterPositionRad - rackSize / 2) * Math.sin(firstRackAng);
+			
+			newellParams.dxfBasePoint = newPoint_xy(dxfBasePoint, rackPar.x - rackSize / 2, rackPar.y);
+			
+			var turnNewell = drawTimberNewell_4(newellParams).mesh;
+			turnNewell.position.x = rackPar.x;
+			turnNewell.position.y = rackPar.y + 0.05;
+			turnNewell.position.z = rackPar.z;
+			turnNewell.rotation.y = Math.PI / 2 - firstRackAng;
+			railingSection.add(turnNewell);
+		}
+		
+		if(params.strightMarsh != 'сверху' && params.strightMarsh != 'сверху и снизу'){
+			var stepAmt = params.stepAmt;
+			if (params.platformType != 'нет') stepAmt -= 1;
+			var lastRackAng = angleDelta - stepAngle * stepAmt * turnFactor;
+			lastRackAng += stepAngle * ((rackSize / 2) / stepLen);
+
+			var rackPar = {};
+			rackPar.x = (banisterPositionRad - rackSize / 2) * Math.cos(lastRackAng);
+			rackPar.z = (banisterPositionRad - rackSize / 2) * Math.sin(lastRackAng);
+			// Фикс положения на прямоугольной площадке
+			if (params.platformType == 'square') {
+				rackPar.x += rackSize / 2;
+				rackPar.z += rackSize / 2;
+			}
+			rackPar.y = params.stepAmt * stepHeight + params.regShimAmt * regShimThk;
+			newellParams.dxfBasePoint = newPoint_xy(dxfBasePoint, rackPar.x - rackSize / 2, rackPar.y);
+				
+			var turnNewell = drawTimberNewell_4(newellParams).mesh;
+			turnNewell.position.x = rackPar.x;
+			turnNewell.position.y = rackPar.y + 0.05;
+			turnNewell.position.z = rackPar.z;
+			turnNewell.rotation.y = Math.PI / 2 - lastRackAng;
+			railingSection.add(turnNewell);
+		}
+
+		var balPar = {
+			len: banisterLength,
+			type: 'bal_1',
+			dxfBasePoint: dxfBasePoint,
+			material: params.materials.metal_railing,
+			topAng: -Math.atan(stairParams.stepHeight / stepLen)
+		}
+		var banisterPerStep = params.banisterPerStep;
+		var balId = 0;
+		for (var i = 0; i < stairAmt; i++) {
+			var banisterAngle = stepAngle / banisterPerStep;
+			var banisterHeightDelta = stepHeight / banisterPerStep;
+			for (var j = 0; j < banisterPerStep; j++) {
+				balPar.type = getBalType(balId);
+				var dy = stepHeight + 4;
+				if (j == 0) dy = -4;
+				if (i > 0 && i < params.regShimAmt) dy += regShimThk * i;
+				if (i >= params.regShimAmt) dy += regShimThk * (params.regShimAmt - 1);
+
+				balPar.len = banisterLength - dy + j * banisterHeightDelta;
+
+				var banister = drawForgedBanister_5(balPar).mesh;
+				banistrPositionAngle = angleDelta - stepAngle * i * turnFactor + banisterAngle * j;
+				banister.position.x = banisterPositionRad * Math.cos(banistrPositionAngle);
+				banister.position.y = stepHeight * i + dy;
+				banister.position.z = banisterPositionRad * Math.sin(banistrPositionAngle);
+				banister.rotation.y = Math.PI / 2 - banistrPositionAngle;
+				banister.castShadow = true;
+				railingSection.add(banister);
+				balId += 1;
+			}
 		}
 	}
 
@@ -699,7 +753,7 @@ function drawSpiralRailing(par) {
 			railingSection.add(glass);
 		}
 	}
-	
+
 	if (par.model == "Самонесущее стекло") {
 
 		//считаем длину ограждения
@@ -771,16 +825,16 @@ function drawSpiralRailing(par) {
 		handrailParams.posY += 50;
 		handrailParams.poleRad += 20;
 	}
+	if (par.model == "Дерево с ковкой") {
+		handrailParams.endOffset = 0;
+		handrailParams.startOffset = 0.2;
+	}
+	handrailParams.material = params.materials.handrail;
 
 	if (handrailMaterial == "Нержавейка" || handrailMaterial == "Алюминий")
 		handrailParams.material = params.materials.metal;
 
 	handrail.add(drawVinPole(handrailParams));
-
-
-
-
-
 
 	function drawVinPole(par) {
 
@@ -827,8 +881,8 @@ function drawSpiralRailing(par) {
 			}
 		}
 		var handrailSpline = new THREE.CatmullRomCurve3(handrailPoints);
-		
-		
+
+
 		var shape = new THREE.Shape();
 		shape.absarc(0, 0, par.poleSize / 2, 0, 2 * Math.PI, true)
 
@@ -837,7 +891,7 @@ function drawSpiralRailing(par) {
 			bevelEnabled: false,
 			extrudePath: handrailSpline
 		};
-	
+
 		var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
 		var handrail = new THREE.Mesh(geometry, par.material);
 
@@ -882,7 +936,7 @@ function drawSpiralRailing(par) {
 			// plug.rotation.x = Math.PI / 2;
 			// plug.rotation.y = startAngle;
 			// plug.rotation.z = 0;
-			if(!testingMode) mesh.add(plug);
+			if (!testingMode) mesh.add(plug);
 
 			var plug = drawPlug(plugParams);
 			plug.position.x = handrailPoints[handrailPoints.length - 1].x;
@@ -891,7 +945,7 @@ function drawSpiralRailing(par) {
 			// plug.rotation.x = Math.PI / 2;
 			// plug.rotation.y = endAngle;
 			// plug.rotation.z = 0;
-			if(!testingMode) mesh.add(plug);
+			if (!testingMode) mesh.add(plug);
 		}
 
 		//сохраняем данные для спецификации
@@ -927,20 +981,20 @@ function drawSpiralRailing(par) {
 					specObj[partName].timberPaint = false;
 				}
 			}
-			
+
 			//рассчитываем кол-во кусков исходя из максимальной длины куска
 			var maxLen = 3000;
-			if(partName == "spiralRigel") maxLen = 6000;
+			if (partName == "spiralRigel") maxLen = 6000;
 			var partsAmt_l = Math.ceil(sumLen / maxLen);
-			
+
 			//рассчитываем кол-во кусков с учетом максимальной высоты стапеля
 			var maxHeight = 1800;
 			var partsAmt_h = Math.ceil(par.staircaseHeight / maxHeight);
-			
+
 			var polePartsAmt = Math.max(partsAmt_l, partsAmt_h);
-			
+
 			var partLen = Math.round(sumLen / polePartsAmt)
-			
+
 			var name = " L=" + partLen;
 			if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += polePartsAmt;
 			if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = polePartsAmt;
@@ -950,7 +1004,7 @@ function drawSpiralRailing(par) {
 		}
 		mesh.specId = partName + name;
 
-		if (polePartsAmt > 1  && par.partName !== "spiralRigel") {
+		if (polePartsAmt > 1 && par.partName !== "spiralRigel") {
 			for (var i = 0; i < polePartsAmt - 1; i++) {
 				var pos = Math.floor(handrailPoints.length / polePartsAmt) * (i + 1);
 				if (params.handrailMaterial == 'ПВХ') {
@@ -959,9 +1013,9 @@ function drawSpiralRailing(par) {
 					ring.position.y = handrailPoints[pos].y;
 					ring.position.z = handrailPoints[pos].z;
 					ring.rotation.x = Math.PI / 2;
-					if(!testingMode) mesh.add(ring);
+					if (!testingMode) mesh.add(ring);
 				}
-				if(params.handrailMaterial == 'Дуб'){
+				if (params.handrailMaterial == 'Дуб') {
 					var bolt = drawHandrailZipBolt();
 					bolt.position.x = handrailPoints[pos].x;
 					bolt.position.y = handrailPoints[pos].y;
@@ -969,7 +1023,7 @@ function drawSpiralRailing(par) {
 					bolt.rotation.x = Math.PI / 2;
 					if (!testingMode) mesh.add(bolt);
 
-					
+
 					var plug = drawTimberPlug(25);
 					plug.position.x = handrailPoints[pos].x;
 					plug.position.y = handrailPoints[pos].y;
@@ -993,10 +1047,10 @@ function drawSpiralRailing(par) {
 
 }; //end of drawSpiralRailing
 
-function drawHandrailZipBolt(){
+function drawHandrailZipBolt() {
 	var material = params.materials.inox;
 
-	var geometry = new THREE.CylinderGeometry( 5, 5, 30, 32 );
+	var geometry = new THREE.CylinderGeometry(5, 5, 30, 32);
 	var ring = new THREE.Mesh(geometry, material);
 
 	var partName = "zipBolt"
@@ -1021,16 +1075,16 @@ function drawHandrailZipBolt(){
 		specObj[partName]["amt"] += 1;
 	}
 
-	ring.specId = partName;	
+	ring.specId = partName;
 	ring.setLayer("metis");
 
 	return ring;
 }
 
-function drawHandrailRing(){
+function drawHandrailRing() {
 	var material = params.materials.inox;
 
-	var geometry = new THREE.CylinderGeometry( 30, 30, 10, 32 );
+	var geometry = new THREE.CylinderGeometry(30, 30, 10, 32);
 	var ring = new THREE.Mesh(geometry, material);
 
 	var partName = "handrailRing_model";
@@ -1055,14 +1109,14 @@ function drawHandrailRing(){
 		specObj[partName]["amt"] += 1;
 	}
 
-	ring.specId = partName;	
+	ring.specId = partName;
 	ring.setLayer("metis");
 
 	return ring;
 }
 
 /** функция отрисовывает участок ограждения на площадке для замыкания спирального ограждения лестницы и балюстрады
-*/
+ */
 
 function drawRailingConnectionPlatform(par) {
 	var railingSection = new THREE.Object3D();
@@ -1110,7 +1164,11 @@ function drawRailingConnectionPlatform(par) {
 		dxfArr: dxfPrimitivesArr,
 		fixType: "нет",
 		side: "in",
-		drawing: { group: 'handrails', unit: 'balustrade', ang: 0 }
+		drawing: {
+			group: 'handrails',
+			unit: 'balustrade',
+			ang: 0
+		}
 		//drawing: { group: 'handrails', unit: 'balustrade', pos: basePoint, ang: 0 }
 	}
 
@@ -1122,7 +1180,7 @@ function drawRailingConnectionPlatform(par) {
 
 
 	var pole = drawHandrail_4(handrailParams).mesh;
-	pole.position.x = - par.lengthHandrail / 2 - params.topHandrailExtraLength;
+	pole.position.x = -par.lengthHandrail / 2 - params.topHandrailExtraLength;
 	pole.position.y = params.handrailHeight_bal - 150 - handrailPar.profY + 25;
 	if (testingMode) pole.position.y += 2; //2 подогнано чтобы не было пересечений
 	pole.position.z = 50 + handrailPar.profZ / 2;

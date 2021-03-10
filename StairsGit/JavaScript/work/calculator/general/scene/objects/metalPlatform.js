@@ -42,8 +42,9 @@ class MetalPlatform extends AdditionalObject{
 			midPositions.forEach(function(pos){
 				var beamLength = getPartPropVal('platformBeam_' + pos, 'sumLength', dopSpec);
 				var beamCost = getProfParams(par.meshParams['beamProf_' + pos]).unitCost * beamLength;
-				cost += beamCost;
-				console.log(pos, beamLength, beamCost, )
+				cost += beamCost * 2; //2 цены металла - изготовление
+				//покраска металла
+				if(params.metalPaint != "нет") cost += beamCost				
 			});
 
 			if (par.meshParams.coverType != 'нет') {
@@ -64,7 +65,7 @@ class MetalPlatform extends AdditionalObject{
 
 	static getMeta(){
 		//справочник профилей
-		var profiles = ['60х30', '80х40', '100х50', '-150х8', '-200х8', '-250х8', 'нет']
+		var profiles = ['Швеллер 120х50','Швеллер 180х60','Швеллер 200х100','60х30', '80х40', '100х50', '-150х8', '-200х8', '-250х8','нет']
 		var _profiles = [];
 		profiles.forEach(function(name){
 			var item = {value: name, title: name};
@@ -91,14 +92,14 @@ class MetalPlatform extends AdditionalObject{
 				{
 					key: 'beamStep',
 					title: 'Шаг перемычек',
-					default: 500,
+					default: 750,
 					type: 'number'
 				},
 				
 				{
 					key: 'beamProf_front',
 					title: 'Профиль передний',
-					default: '-200х8',
+					default: 'Швеллер 180х60',
 					values: _profiles,
 					type: 'select'
 				},
@@ -106,7 +107,7 @@ class MetalPlatform extends AdditionalObject{
 				{
 					key: 'beamProf_rear',
 					title: 'Профиль задний',
-					default: '-200х8',
+					default: 'Швеллер 180х60',
 					values: _profiles,
 					type: 'select'
 				},
@@ -114,7 +115,7 @@ class MetalPlatform extends AdditionalObject{
 				{
 					key: 'beamProf_left',
 					title: 'Профиль левый',
-					default: '-200х8',
+					default: 'Швеллер 180х60',
 					values: _profiles,
 					type: 'select'
 				},
@@ -122,7 +123,7 @@ class MetalPlatform extends AdditionalObject{
 				{
 					key: 'beamProf_right',
 					title: 'Профиль правый',
-					default: '-200х8',
+					default: 'Швеллер 180х60',
 					values: _profiles,
 					type: 'select'
 				},
@@ -130,7 +131,7 @@ class MetalPlatform extends AdditionalObject{
 				{
 					key: 'beamProf_mid',
 					title: 'Профиль перемычек',
-					default: '80х40',
+					default: 'Швеллер 120х50',
 					values: _profiles,
 					type: 'select'
 				},

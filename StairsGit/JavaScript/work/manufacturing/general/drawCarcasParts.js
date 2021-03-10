@@ -357,6 +357,11 @@ function drawColumn2(par) {
 	}
 	par.mesh.specId = partName + name;
 
+	var poleType = par.profWidth + "х" + par.profHeight;
+	var profParmas = getProfParams(poleType);
+	addMaterialNeed({id: profParmas.materialNeedId, amt: Math.round(colLength) / 1000, area: (par.profWidth + par.profHeight) * 2 * colLength / 1000000})
+	par.mesh.isInMaterials = true;
+
 	par.dxfBasePoint.x += par.profWidth + 100;
 
 	return par;
@@ -471,7 +476,8 @@ function drawBolt(par) {
         boltMaterial = params.materials.bolt;
     }
     var boltLen = par.len;
-    if (menu.boltHead && !testingMode && par.headType != "шестигр.") boltLen -= headHeight;
+
+	if (menu.boltHead && !testingMode && par.headType != "шестигр.") boltLen -= headHeight;
 
     var geometry = new THREE.CylinderGeometry(par.diam / 2, par.diam / 2, boltLen, 10, 1, false);
     var bolt = new THREE.Mesh(geometry, boltMaterial);
@@ -516,6 +522,7 @@ function drawBolt(par) {
         //	head.position.z = polygonParams.edgeLength * Math.cos(Math.PI / 6);
         //head.position.y = par.len / 2// + par.diam / 2;
         head.position.y = -par.len / 2 - headHeight;
+
         par.mesh.add(head);
     }
 
@@ -560,7 +567,7 @@ function drawBolt(par) {
         head.position.y = -par.len / 2 - headHeight * 0.1;
         par.mesh.add(head);
 
-        //заглушка дна чтобы не просвечивал белый материал
+		//заглушка дна чтобы не просвечивал белый материал
         var geometry = new THREE.CylinderGeometry(par.diam / 2, par.diam / 2, 0.1, 10, 1, false);
         var cyl = new THREE.Mesh(geometry, boltMaterial);
         cyl.position.y = -par.len / 2 + headHeight;
@@ -617,7 +624,7 @@ function drawBolt(par) {
 	par.mesh.setLayer("metis");
 	return par;
 }
-
+var cc = 0
 function drawPlasticCap(diam){
 	if (menu.simpleMode) return new THREE.Object3D();
 
@@ -800,6 +807,7 @@ function drawNut(par){
 				division: "stock_1",
 				workUnitName: "amt",
 				group: "Метизы",
+				typeComments: {}
 			}
 		}
 		var name = "М" + par.diam;
@@ -807,6 +815,9 @@ function drawNut(par){
 		if(par.isLong) name += " удлин."
 		if (par.isCap) name += " колп."
 
+		if (par.diam == 8 && par.isSelfLock || par.diam == 20 && par.isLong){
+			specObj[par.partName].typeComments[name] = 'Выдать в цех';
+		} 
 		if (specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
 		if (!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 		specObj[par.partName]["amt"] += 1;
@@ -1551,6 +1562,7 @@ function drawVint(par){
 				workUnitName: "amt",
 				group: "",
 			}
+			if (par.id == "vint_M6x10") specObj[par.partName].comment = 'Выдать в цех'; 
 			if (par.group) specObj[par.partName].group = par.group;
 		}
 		if (par.description) {
@@ -2775,7 +2787,8 @@ function drawRivet(par) {
                 timberPaint: false,
                 division: "stock_1",
                 workUnitName: "amt",
-                group: "Метизы",
+				group: "Метизы",
+				comment: 'Выдать в цех'
             }
         }
         var name = "М" + par.diam;
@@ -2895,6 +2908,7 @@ layer
 		var partName = par.partName;
 		var arcLength = Math.round(par.rad * par.angle);
 		var arcLength_out = Math.round((par.rad + par.thk / 2) * par.angle);
+		var endsDist = Math.round(distance(p2, p3));
 		var sumLength = arcLength / 1000;
 		var area = (arcLength / 1000) * (par.height / 1000);
 		if (partName == 'polySheet') {
@@ -2920,6 +2934,7 @@ layer
 				}
 				if (partName == 'carportBeam'){
 					specObj[partName].name = 'Дуга навеса';
+					specObj[partName].metalPaint = true;
 				}
 				if (partName == 'carportBeamConnector'){
 					specObj[partName].name = 'Соединитель';
@@ -2927,7 +2942,7 @@ layer
 			}
 			var name = arcLength;
 			if (partName == 'polySheet') name = arcLength.toFixed(2)+'x'+par.height.toFixed(2);
-			if (partName == 'carportBeam' || partName == 'carportBeamConnector') name = "R=" + Math.round(par.rad - par.thk / 2)  + " L=" + arcLength_out
+			if (partName == 'carportBeam' || partName == 'carportBeamConnector') name = "R=" + Math.round(par.rad - par.thk / 2)  + " L=" + arcLength_out +" A=" + endsDist
 			
 			if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 			if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;

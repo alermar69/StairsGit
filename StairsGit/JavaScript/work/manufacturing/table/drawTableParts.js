@@ -10,6 +10,9 @@ function drawTableBase(par){
 	var modelPar = getTableBasePar(par);
 	var profPar = getProfParams(modelPar.legProf)
 	par.legProfPar = profPar;
+	
+	par.prodPar = []; //размеры для производства
+	console.log(par)
 
 	var thk = 8;
 	var widthFlanTop = 100;
@@ -26,28 +29,41 @@ function drawTableBase(par){
 	
 	for (var i = 0; i < modelPar.partsAmt; i++){
 
+		if (i > 0 && modelPar.partsAmt == 2 && par.oneSideLegs == 'да') continue
 		if (i == 1) turn = -1;
+
 		
 		//модель T-1, T-3, T-4
 		if (par.model == "T-1" || par.model == "T-3" || par.model == "T-4"){
 			var posZ = 0;
 			var turn = 1;
 			var ang = 0; //угол наклона ног
+			
+			
 
 			if (i == 1) {
 				posZ = par.len - profPar.sizeA
 				turn = -1;
 			}
+						
 
 			if (par.model == "T-3") ang = Math.PI / 15;
-			if (par.model == "T-4") ang = -Math.PI / 6;
+			if (par.model == "T-4") {				
+				ang = Math.atan(par.len / 2 / (par.height - thk)); //примерный угол
+				//первое приближение
+				var cutLen = profPar.sizeA / Math.cos(ang)
+				ang = Math.atan((par.len / 2 - cutLen) / (par.height - thk));
+				//второе приближение
+				cutLen = profPar.sizeA / Math.cos(ang)
+				ang = Math.atan((par.len / 2 - cutLen) / (par.height - thk));
+			}
 
 			var p0 = { x: 0, y: 0 };
 			var pt = newPoint_xy(p0, 0, par.height);
 			if (par.model == "T-4") pt.y -= 8;
 
 			var p1 = copyPoint(p0);
-			if (par.model == "T-4") p1.y += 4;
+			//if (par.model == "T-4") p1.y += 8;
 			var p2 = itercection(p1, polar(p1, Math.PI / 2 - ang, 100), pt, polar(pt, 0, 100));
 			var line = parallel(p1, p2, -profPar.sizeA)
 			var p3 = itercection(line.p1, line.p2, pt, polar(pt, 0, 100));
@@ -56,7 +72,9 @@ function drawTableBase(par){
 			var meshPar = {
 				points: [p1, p2, p3, p4],
 				thk: profPar.sizeB,
-				material: params.materials.additionalObjectMetal
+				material: params.materials.additionalObjectMetal,
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: {x: 0, y: par.height * (i + 1)},
 			}
 
 			//левая нога
@@ -104,8 +122,10 @@ function drawTableBase(par){
 			}
 
 			//верхняя пластина
+			
+			
 			var platePar = {
-				width: 100,
+				width: profPar.sizeB / Math.cos(ang) + 20,
 				len: par.width,
 				legProfPar: profPar,
 				notch: 1,
@@ -113,9 +133,11 @@ function drawTableBase(par){
 			}
 			if (par.model == "T-3") platePar.notch = 2;
 			if (par.model == "T-4") platePar.notch = 0;
+			if(platePar.width < 100) platePar.width = 100;
 			
 			var plate = drawTableBasePlate(platePar).mesh;
 			plate.position.x = -profPar.sizeB;
+			
 			plate.position.y = par.height;
 			plate.position.z = posZ;
 			if(i==1) {
@@ -123,7 +145,33 @@ function drawTableBase(par){
 				plate.position.y -= platePar.thk
 				plate.position.z += profPar.sizeA
 			}
+			
+		//	if (par.model == "T-4") plate.position.z -= profPar.sizeA * turn
+			
 			par.mesh.add(plate);
+			
+			//размеры для производства
+			par.prodPar.A = Math.round(par.len);
+			par.prodPar.L = Math.round(distance(p1, p2));
+			par.prodPar.f = Math.round(ang * 180 / Math.PI * 10) / 10 + "гр.";
+		}
+
+		if (par.model == "K-1"){
+			console.log(i)
+			var fixingStep = par.width / par.fixingAmt;
+
+			var posZ = 0;
+			if (i == 1) posZ = par.len;
+
+			for (var j = 0; j < par.fixingAmt; j++) {
+				var mesh = drawTableFixing();
+				if (i == 1)	mesh.rotation.y = Math.PI;
+				mesh.position.z = posZ;
+				mesh.position.y = par.height
+				mesh.position.x = fixingStep * j;
+
+				par.mesh.add(mesh)
+			}
 		}
 
 		//модель T-2
@@ -151,7 +199,10 @@ function drawTableBase(par){
 			pole1.position.x = par.width - profPar.sizeB;
 			pole1.position.z = posZ;
 			par.mesh.add(pole1);
-
+			
+			//размеры для производства
+			par.prodPar.A = Math.round(polePar.length);
+			
 			//нижняя перемычка
 			polePar.length = par.width - profPar.sizeB * 2
 			polePar.poleAngle = 0;
@@ -640,163 +691,178 @@ function drawTableBase(par){
 
 		//модель T-9
 		if (par.model == "T-9") {
+			
 			var mesh = new THREE.Object3D();
-
-
-			//точки ноги, вид сбоку
-			var height1 = par.height - thk;
-
-			var pt = newPoint_xy(p0, par.len / 2 - profPar.sizeB / 2, height1 / 2);
-
-			//точки нижней ноги
-			var p1 = copyPoint(p0)
-			var p2 = copyPoint(pt)
-			var line = parallel(p1, p2, -profPar.sizeA);
-			var p3 = itercection(line.p1, line.p2, pt, polar(pt, Math.PI / 2, 100));
-			var p4 = itercection(line.p1, line.p2, p0, polar(p0, 0, 100));
-			var points = [p1, p2, p3, p4];
-
-			//точки верхней ноги
-			var p1 = copyPoint(pt)
-			var p2 = newPoint_xy(p0, 0, height1);
-			var line = parallel(p1, p2, profPar.sizeA);
-			var p3 = itercection(line.p1, line.p2, p2, polar(p2, 0, 100));
-			var p4 = itercection(line.p1, line.p2, pt, polar(pt, Math.PI / 2, 100));
-
-			var points1 = [p1, p2, p3, p4];
-
-			if (i == 1) {
-				points = mirrowPoints(points, 'y')
-				points = moovePoints(points, newPoint_xy(p0, par.len, 0))
-
-				points1 = mirrowPoints(points1, 'y')
-				points1 = moovePoints(points1, newPoint_xy(p0, par.len, 0))
-			}
-
-			var meshPar = {
-				points: points,
-				thk: profPar.sizeB,
-				material: params.materials.additionalObjectMetal
-			}
-
-			//нижняя нога
-			var pole1 = drawMesh(meshPar).mesh;
-			mesh.add(pole1);
-
-			//верхняя нога
-			meshPar.points = points1
-			var pole1 = drawMesh(meshPar).mesh;
-			mesh.add(pole1);
-
-			mesh.rotation.y = Math.PI / 2;
-			mesh.position.x = par.width / 2 - profPar.sizeB / 2;
-
-			par.mesh.add(mesh)
-
-			if (i == 0) {
-				var mesh = new THREE.Object3D();
-
-				var pt = newPoint_xy(p0, par.width, height1);
-				var ang = calcAngleX1(p0, pt);
-				var pt1 = polar(pt, ang + Math.PI / 2, profPar.sizeA)
-				ang = calcAngleX1(p0, pt1);
-
-				//точки длинной ноги
-				var p1 = copyPoint(p0)
-				var p2 = itercection(p0, polar(p0, ang, 100), pt, polar(pt, 0, 100));
-				var p3 = copyPoint(pt)
-				var p4 = itercection(pt, polar(pt, ang, 100), p0, polar(p0, 0, 100));
-				var points3 = [p1, p2, p3, p4];
-
-				var meshPar = {
-					points: points3,
-					thk: profPar.sizeB,
-					material: params.materials.additionalObjectMetal
+			var width = par.width;
+			if(par.partsAmt == 4 && i % 2) width = par.len
+			var flanThk = 4;
+			var flanOffset = 20
+			var halfWidth = width / 2 - par.legProfPar.sizeB / 2 - flanOffset
+			
+			var ang = Math.atan( halfWidth / (par.height / 2 - flanThk) ) // угол наклона верхней палки подстолья
+			//первое приближение
+			var L5 = par.legProfPar.sizeA / Math.sin(ang)			
+			ang = Math.atan( halfWidth / (par.height / 2 - flanThk + L5 / 2) )
+			
+			//второе приближение
+			var L5 = par.legProfPar.sizeA / Math.sin(ang)			
+			ang = Math.atan( halfWidth / (par.height / 2 - flanThk + L5 / 2) )
+			var centerPoint = {x: par.legProfPar.sizeB / 2, y: par.height / 2}
+			
+			var cutLenTop = par.legProfPar.sizeA / Math.cos(ang) //примерная цифра
+	
+			//ось верхней палки
+			var topPoleAxis = {
+				p1: copyPoint(centerPoint),
+				p2: {
+					x: width / 2 - cutLenTop / 2 - flanOffset,
+					y: par.height - flanThk,
 				}
-
-				var pole1 = drawMesh(meshPar).mesh;
-				mesh.add(pole1);
-
-				//точки коротких ног
-				var p1 = newPoint_xy(p0, 0, height1);
-				var p4 = itercection(p1, polar(p1, -ang, 100), p0, polar(p0, 0, 100));
-				var p3 = newPoint_xy(p0, par.width, 0)
-				var p2 = itercection(p3, polar(p3, -ang, 100), pt, polar(pt, 0, 100));
-
-				var widthTopFlan = distance(p1, p2);
-
-				var pt1 = itercection(p1, p4, points3[2], points3[3])
-				var pt2 = itercection(p2, p3, points3[2], points3[3])
-				var pt3 = itercection(p1, p4, points3[0], points3[1])
-				var pt4 = itercection(p2, p3, points3[0], points3[1])
-
-				var meshPar = {
-					points: [p3, p4, pt1, pt2],
-					thk: profPar.sizeB,
-					material: params.materials.additionalObjectMetal
+			}
+			
+			//ось нижней палки
+			var botPoleAxis = {
+				p1: copyPoint(centerPoint),
+				p2: {
+					x: width / 2 - cutLenTop / 2,
+					y: 0,
 				}
-
-				var pole1 = drawMesh(meshPar).mesh;
-				mesh.add(pole1);
-
-				meshPar.points = [p1, p2, pt4, pt3]
-				var pole1 = drawMesh(meshPar).mesh;
-				mesh.add(pole1);
-
-				mesh.position.z = -(par.len / 2 + profPar.sizeB / 2);
-
-				par.mesh.add(mesh)
 			}
-
-
-			//верхний фланец-----------------------------
-			var mesh = new THREE.Object3D();
-
-			var p1 = newPoint_xy(p0, par.width / 2 - (profPar.sizeB + 40) / 2, -20)
-			var p4 = newPoint_xy(p0, par.width / 2 + (profPar.sizeB + 40) / 2, -20)
-			var p2 = newPoint_xy(p1, 0, distance(points1[1], points1[2]) + 20)
-			var p3 = newPoint_xy(p4, 0, distance(points1[1], points1[2]) + 20)
-
-			var pointsTop = [p1, p2, p3, p4];
-			if (i == 0) {
-				pointsTop = mirrowPoints(pointsTop, 'x')
-				pointsTop = moovePoints(pointsTop, newPoint_xy(p0, 0, par.len))
+			
+			//верхняя палка
+			var topPoleLines = {
+				top: parallel(topPoleAxis.p1, topPoleAxis.p2,  par.legProfPar.sizeA / 2 ),
+				bot: parallel(topPoleAxis.p1, topPoleAxis.p2,  -par.legProfPar.sizeA / 2 ),
 			}
-
+			
+			//нижняя палка
+			var botPoleLines = {
+				top: parallel(botPoleAxis.p1, botPoleAxis.p2,  par.legProfPar.sizeA / 2 ),
+				bot: parallel(botPoleAxis.p1, botPoleAxis.p2,  -par.legProfPar.sizeA / 2),
+			}
+			
+			var leftLine = {
+				p1: {x: par.legProfPar.sizeB / 2, y: 0},
+				p2: {x: par.legProfPar.sizeB / 2, y: par.height},
+			}
+			
+			var botLine = {
+				p1: {x: 0, y: 0},
+				p2: {x: 100, y: 0},
+			}
+			
+			var topLine = {
+				p1: {x: 0, y: par.height - flanThk},
+				p2: {x: 100, y: par.height - flanThk},
+			}
+			
+			//верхняя палка
+			var p1 = itercectionLines(leftLine, topPoleLines.top);
+			//var p1 = topPoleLines.top.p1
+			var p2 = itercectionLines(topLine, topPoleLines.top);
+			var p3 = itercectionLines(topLine, topPoleLines.bot);
+			var p4 = itercectionLines(leftLine, topPoleLines.bot);
+			//var p4 = topPoleLines.bot.p1
+			
 			var meshPar = {
-				points: pointsTop,
-				thk: thk,
-				material: params.materials.additionalObjectMetal
+				points: [p1, p2, p3, p4],
+				thk: par.legProfPar.sizeB,
+				material: params.materials.additionalObjectMetal,
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: {x: 0, y: par.height * (i + 1)},
 			}
 
-			var pole1 = drawMesh(meshPar).mesh;
-			pole1.position.z = par.height - thk;
-			mesh.add(pole1);
-
-			//-------------------
-			var p1 = newPoint_xy(p0, -20, par.len / 2 - (profPar.sizeB + 40) / 2)
-			var p4 = newPoint_xy(p0, -20, par.len / 2 + (profPar.sizeB + 40) / 2)
-			var p2 = newPoint_xy(p1, widthTopFlan + 20, 0)
-			var p3 = newPoint_xy(p4, widthTopFlan + 20, 0)
-
-			var pointsTop = [p1, p2, p3, p4];
-			if (i == 0) {
-				pointsTop = mirrowPoints(pointsTop, 'y')
-				pointsTop = moovePoints(pointsTop, newPoint_xy(p0, par.width, 0))
-			}
-
+			var pole = drawMesh(meshPar).mesh;
+			pole.position.z = -par.legProfPar.sizeB / 2
+			mesh.add(pole);
+			
+			//нижняя палка
+			var p5 = itercectionLines(topPoleLines.bot, botPoleLines.bot);
+			//var p5 = botPoleLines.bot.p1
+			var p6 = itercectionLines(topPoleLines.bot, botPoleLines.top);
+			//var p6 = botPoleLines.top.p1
+			var p7 = itercectionLines(botLine, botPoleLines.top);
+			var p8 = itercectionLines(botLine, botPoleLines.bot);
+			
 			var meshPar = {
-				points: pointsTop,
-				thk: thk,
-				material: params.materials.additionalObjectMetal
+				points: [p5, p6, p7, p8],
+				thk: par.legProfPar.sizeB,
+				material: params.materials.additionalObjectMetal,
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: {x: 0, y: par.height * (i + 1)},
 			}
 
-			var pole1 = drawMesh(meshPar).mesh;
-			pole1.position.z = par.height - thk;
-			mesh.add(pole1);
+			var pole = drawMesh(meshPar).mesh;
+			pole.position.z = -par.legProfPar.sizeB / 2
+			mesh.add(pole);
+			
+			//верхний фланец
+			var flanPar = {
+				width: distance(p2, p3) + flanOffset * 2,
+				height: par.legProfPar.sizeB + 50,
+				cornerRad: 10,
+				thk: 4,
+				noBolts: true,
+				roundHoleCenters: {},
+				holeRad: 9 / 2,
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: {x: 500, y: par.height * (i + 1)},				
+			}
+			
+			var holeOffset = 10;
+			flanPar.roundHoleCenters = [
+				{x: holeOffset, y: holeOffset},
+				{x: flanPar.width - holeOffset, y: holeOffset},
+				{x: holeOffset, y: flanPar.height - holeOffset},
+				{x: flanPar.width - holeOffset, y: flanPar.height - holeOffset},
+			];
+			
+			var flan = drawRectFlan2(flanPar).mesh;
+			flan.rotation.x = Math.PI / 2
+			flan.position.y = par.height;
+			flan.position.x = p3.x - flanPar.width + flanOffset;
+			flan.position.z = -flanPar.height / 2;
+			
+			mesh.add(flan);
 
-			mesh.rotation.x = -Math.PI / 2
+			//профиль-заглушка в центре
+			var midPoleLen = 0;
+			if((i==0 && par.width <= par.len) || (i==1 && par.width > par.len)){
+				midPoleLen = distance(p1, p4);
+				
+				var pole3DParams = {
+					poleProfileY: par.legProfPar.sizeB,
+					poleProfileZ: par.legProfPar.sizeB,
+					length: midPoleLen,
+					poleAngle: Math.PI / 2,
+				}
+				
+				var pole = drawPole3D_4(pole3DParams).mesh
+				pole.position.x = par.legProfPar.sizeB / 2
+				pole.position.y = p4.y
+				pole.position.z = -par.legProfPar.sizeB / 2
+				
+				mesh.add(pole);				
+				
+			}
+			
+			mesh.rotation.y = Math.PI * 2 / par.partsAmt * i
 			par.mesh.add(mesh);
+			
+			//размеры для производства
+			
+			if(par.len != par.width && i % 2){
+				par.prodPar.B = Math.round(p3.x * 2)
+				par.prodPar.L3 = Math.round(distance(p3, p4));
+				par.prodPar.L4 = Math.round(distance(p6, p7));
+			}
+			else{
+				par.prodPar.A = Math.round(p3.x * 2)
+				par.prodPar.L1 = Math.round(distance(p3, p4));
+				par.prodPar.L2 = Math.round(distance(p6, p7));
+			}
+			if(midPoleLen) par.prodPar.L3 = Math.round(midPoleLen); 
+			
 		}
 
 		//модель T-10
@@ -1029,72 +1095,30 @@ function drawTableBase(par){
 
 		//модель T-13
 		if (par.model == "T-13") {
-
-			if (i == 0) {
-				//верхняя пластина-------------
-				var p1 = copyPoint(p0)
-				var p2 = newPoint_xy(p1, 0, widthFlanTop)
-				var p3 = newPoint_xy(p2, widthFlanTop / 2, 0)
-				var p4 = newPoint_xy(p3, 0, -widthFlanTop / 2)
-				var p5 = newPoint_xy(p4, widthFlanTop / 2, 0)
-				var p6 = newPoint_xy(p1, widthFlanTop, 0)
-				var points = [p1, p2, p3, p4, p5, p6]
-
-				var partsPar = {
-					points: points,
-					width: par.width,
-					len: par.len,
-					thk: thk,
-					posY: par.height - thk,
-				}
-
-				var mesh = drawTableBaseParts(partsPar).mesh;
-
-				mesh.rotation.x -= Math.PI / 2;
-				par.mesh.add(mesh)
+			var legType = par.legType
+			var legPar = {
+				type: legType,
+				dxfBasePoint: par.dxfBasePoint,
+				height: par.height,
+				thk: thk,
+				profPar: profPar,
+				widthFlanTop: widthFlanTop
 			}
 
-			//ноги из круглых палок---------------
-
+			// Ноги стола
 			var mesh1 = new THREE.Object3D();
 
-			for (var k = 0; k < 2; k++) {
-				var mesh = new THREE.Object3D();
+			var leg1 = drawTableLeg(legPar).mesh;
+			mesh1.add(leg1);
 
-				var polePar = {
-					type: "round",
-					poleProfileY: 10,
-					dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
-					length: par.height - thk,
-					poleAngle: Math.PI / 2,
-				}
-
-				var pole1 = drawPole3D_4(polePar).mesh;
-				mesh.add(pole1);
-
-				var ang = Math.atan((par.height - thk) / (widthFlanTop - polePar.poleProfileY * 2))
-				polePar.poleAngle = ang;
-				polePar.length = polePar.length / Math.sin(ang);
-
-				var pole2 = drawPole3D_4(polePar).mesh;
-				pole2.position.x += polePar.poleProfileY;
-				mesh.add(pole2);
-
-				var pole3 = drawPole3D_4(polePar).mesh;
-				pole3.rotation.y = Math.PI / 2
-				pole3.position.z -= polePar.poleProfileY;
-				pole3.position.x -= polePar.poleProfileY;
-				mesh.add(pole3);
-
-				mesh.position.x = polePar.poleProfileY;
-				mesh.position.z = -polePar.poleProfileY;
-
-				if (k == 1) {
-					mesh.rotation.y = Math.PI / 2
-					mesh.position.x += par.width - polePar.poleProfileY * 2;
-				}
-				mesh1.add(mesh)
+			var leg2 = drawTableLeg(legPar).mesh;
+			if (legType != 'квадратные') {
+				leg2.rotation.y = Math.PI / 2
+				leg2.position.x += par.width - legPar.legProfile * 2;
+			}else{
+				leg2.position.x += par.width;
 			}
+			mesh1.add(leg2);
 
 			if (i == 1) {
 				mesh1.rotation.y = Math.PI
@@ -1601,6 +1625,63 @@ function drawTableBase(par){
 			par.mesh.add(mesh)
 		}
 
+		//модель T-20 - еж на 3 ногах
+		if (par.model == "T-20"){
+			
+			var offset = 50; //подогнано
+			var diam = par.width - offset * 2
+			var ang = Math.atan(diam / par.height); //угол наклона ног
+			var legMesh = new THREE.Object3D();
+			var plateThk = 4;
+
+			var p0 = { x: -diam / 2 - offset, y: 0 };
+			var pt = newPoint_xy(p0, 0, par.height);
+			pt.y -= plateThk;
+
+			var p1 = copyPoint(p0);
+			p1.y += 4;
+			var p2 = itercection(p1, polar(p1, Math.PI / 2 - ang, 100), pt, polar(pt, 0, 100));
+			var line = parallel(p1, p2, -profPar.sizeA)
+			var p3 = itercection(line.p1, line.p2, pt, polar(pt, 0, 100));
+			var p4 = itercection(line.p1, line.p2, p1, polar(p1, 0, 100));
+
+			var meshPar = {
+				points: [p1, p2, p3, p4],
+				thk: profPar.sizeB,
+				material: params.materials.additionalObjectMetal,
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: {x: 0, y: par.height * (i + 1)},
+			}
+
+			//левая нога
+			var pole = drawMesh(meshPar).mesh;
+			pole.position.z = profPar.sizeB / 2 * Math.sin(ang);
+			legMesh.add(pole);
+
+
+			//верхняя пластина
+			var platePar = {
+				width: 100,
+				len: profPar.sizeB / Math.cos(ang) + 20,
+				legProfPar: profPar,
+				notch: 0,
+				ang: ang,
+				thk: plateThk,
+			}
+			
+			var plate = drawTableBasePlate(platePar).mesh;
+			plate.position.x = p3.x - platePar.len + 10;
+			plate.position.y = par.height;
+			plate.position.z = pole.position.z + profPar.sizeB / 2 - platePar.width / 2;
+			
+			legMesh.add(plate);
+			
+			//смещаем и поворачиваем ногу
+			legMesh.rotation.y = Math.PI * 2 / modelPar.partsAmt * i; //угол поворота ноги
+			par.mesh.add(legMesh)
+			
+			par.prodPar.А = Math.round(distance(p1, p2))
+		}
 
 	//модель D-1
 		if (par.model == "D-1") {
@@ -2208,7 +2289,9 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: thk,
-					material: params.materials.additionalObjectMetal
+					material: params.materials.additionalObjectMetal,
+					dxfArr: dxfPrimitivesArr,
+					dxfBasePoint: {x: 0, y: -2000},
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -2234,7 +2317,9 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: thk,
-					material: params.materials.additionalObjectMetal
+					material: params.materials.additionalObjectMetal,
+					dxfArr: dxfPrimitivesArr,
+					dxfBasePoint: {x: 0, y: -1800},
 				}
 
 				for (var k = 0; k < 2; k++) {
@@ -2260,6 +2345,7 @@ function drawTableBase(par){
 
 					mesh.add(pole1);
 					par.mesh.add(mesh);
+					meshPar.dxfBasePoint.x += 200;
 				}
 
 				//верхняя пластина
@@ -2271,7 +2357,9 @@ function drawTableBase(par){
 				var meshPar = {
 					points: [p1, p2, p3, p4],
 					thk: thk,
-					material: params.materials.additionalObjectMetal
+					material: params.materials.additionalObjectMetal,
+					dxfArr: dxfPrimitivesArr,
+					dxfBasePoint: {x: 0, y: -2200},
 				}
 
 				var pole1 = drawMesh(meshPar).mesh;
@@ -2655,7 +2743,7 @@ function drawTableBase(par){
 
 			//модель S-9
 			if (par.model == "S-9") {
-				var rad = par.width;
+				var rad = par.width / 2;
 				var mesh = new THREE.Object3D();
 
 				var ang = Math.PI * 2 / 3;
@@ -2680,14 +2768,15 @@ function drawTableBase(par){
 				for (var j = 0; j < 3; j++) {
 					var meshPar = {
 						points: arr[j],
-						thk: par.height - thk * 2,
+						thk: par.height,
 						material: params.materials.additionalObjectMetal
 					}
 					var pole1 = drawMesh(meshPar).mesh;
-					pole1.position.z = thk;
 					mesh.add(pole1);
 				}
-
+				
+				par.prodPar.A = Math.round(par.height)
+				
 				//верхняя, нижняя пластина
 				var points = []
 
@@ -2745,18 +2834,32 @@ function drawTableBase(par){
 			par.mesh.add(frame);
 		}
 		if (par.model == "T-4") {
-			var width = par.width / 2
-			var len = par.len / 2
+			var width = par.counterTop.width / 2
+			var len = par.counterTop.len /2
+			if(width < 500) width = 500
+			if(len < 500) len = 500
+			
 			var p0 = { x: 0, y: 0 };
 			var p1 = newPoint_xy(p0, -width / 2, -len / 2);
 			var p2 = newPoint_xy(p0, -width / 2, len / 2);
 			var p3 = newPoint_xy(p0, width / 2, len / 2);
 			var p4 = newPoint_xy(p0, width / 2, -len / 2);
 
+			var poleX = profPar.sizeB;
+			var poleY = profPar.sizeA / Math.cos(ang) * 2 + 8 * Math.tan(ang) * 2;
+
+			var holeP0 = {x:-poleX / 2, y: -poleY / 2}
+			var holeP1 = {x:-poleX / 2, y: poleY / 2}
+			var holeP2 = {x:poleX / 2, y: poleY / 2}
+			var holeP3 = {x:poleX / 2, y: -poleY / 2}
+
 			var meshPar = {
 				points: [p1, p2, p3, p4],
-				thk: 4,
-				material: params.materials.additionalObjectMetal
+				pointsHole: [holeP0, holeP1, holeP2, holeP3],
+				thk: 8,
+				material: params.materials.additionalObjectMetal,
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: {x:0, y: -1000,}
 			}
 
 			//левая передняя нога
@@ -2797,18 +2900,264 @@ function drawTableBase(par){
 				timberPaint: false,
 				division: "metal",
 				group: "Объекты",
+				comment: "",
+				typeComments: {},
 			}
 		}
 		
-		if(specObj[par.partName]["types"][name]) specObj[par.partName]["types"][0] += partsAmt;
-		if(!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][0] = partsAmt;
+		var name = '№' + par.objId + ' ' + Math.round(par.len) + "x" + Math.round(par.width) + " h=" + Math.round(par.height);
+		
+		//добавляем размеры для производства в комментарии
+		specObj[par.partName].typeComments[name] = "Профиль " + modelPar.legProf;
+		for(var key in par.prodPar){
+			specObj[par.partName].typeComments[name] += "; "
+			specObj[par.partName].typeComments[name] += key + "=" + par.prodPar[key];
+		};
+		if(par.model == "T-9") specObj[par.partName].typeComments[name] += "; углы см. чертеж"
+		
+		
+		if(specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += partsAmt;
+		if(!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = partsAmt;
 		specObj[par.partName]["amt"] += partsAmt;
+		
 		
 		par.mesh.specParams = {specObj: specObj, amt: partsAmt, partName: par.partName}
 	}
 	
-	par.mesh.specId = par.partName;
+	par.mesh.specId = par.partName + name;
 	par.mesh.setLayer("carcas");
+	if(modelPar.partsAmt == 2 && par.oneSideLegs == 'да') par.mesh.position.z = -par.len / 2;
+
+	return par;
+}
+
+/**
+ * Функция отрисовывает кронштейн стола
+ * @param par 
+ */
+function drawTableFixing(par){
+	var fixing = new THREE.Object3D();
+
+	var b = 60;
+	var c = 100;
+	var a = 280;
+
+	var flanThk = 2;
+
+	var p0 = {x:0,y:0};
+	var p1 = newPoint_xy(p0, b / 2, 0);
+	var p2 = newPoint_xy(p1, 0, -40);
+	var p3 = newPoint_xy(p0, b / 4, -c);
+
+	var p4 = newPoint_xy(p0, -b / 4, -c);
+	var p6 = newPoint_xy(p0, -b / 2, 0);
+	var p5 = newPoint_xy(p6, 0, -40);
+
+	p1.filletRad = p2.filletRad = p3.filletRad = 
+	p4.filletRad = p5.filletRad = p6.filletRad = 4;
+
+	var shapePar = {
+		points: [p0, p1, p2, p3, p4, p5, p6],
+		dxfArr: dxfPrimitivesArr,
+		dxfBasePoint: {x:0,y:0}
+	}
+	var backPlateShape = drawShapeByPoints2(shapePar).shape
+	var extrudeOptions = {
+		amount: flanThk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+	var geom = new THREE.ExtrudeGeometry(backPlateShape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	
+	var flan = new THREE.Mesh(geom, params.materials.metal);
+	fixing.add(flan);
+
+	var p0 = {x:0,y:0};
+	var p1 = newPoint_xy(p0, a, 0);
+	var p2 = newPoint_xy(p1, 0, -20);
+	var p3 = newPoint_xy(p0, a / 2, -c / 3);
+	var p4 = newPoint_xy(p0, 5, -c * 0.75);
+	var p5 = newPoint_xy(p0, 0, -c * 0.75);
+
+	var shapePar = {
+		points: [p0, p1, p2, p3, p4, p5],
+		dxfArr: dxfPrimitivesArr,
+		dxfBasePoint: {x:0,y:0}
+	};
+
+	p2.filletRad = p4.filletRad = 15;
+
+	var flanShape = drawShapeByPoints2(shapePar).shape
+	var extrudeOptions = {
+		amount: flanThk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+	var geom = new THREE.ExtrudeGeometry(flanShape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	
+	var flan = new THREE.Mesh(geom, params.materials.metal);
+	flan.rotation.y = -Math.PI / 2;
+	flan.position.x = -10;
+	flan.position.z = flanThk;
+	fixing.add(flan);
+
+	var geom = new THREE.BoxGeometry(20, flanThk, a);
+	var mesh = new THREE.Mesh(geom, params.materials.additionalObjectMetal);
+	mesh.position.y -= flanThk / 2;
+	mesh.position.z = a / 2 + flanThk / 2;
+	fixing.add(mesh);
+
+	return fixing;
+}
+
+/**
+ * Функция отрисовывает ножку стола
+ * @param par 
+ */
+function drawTableLeg(par){
+	par.mesh = new THREE.Object3D();
+
+	var p0 = {x:0,y:0};
+	if (par.type != 'квадратные') {
+		//верхняя пластина-------------
+		var p1 = copyPoint(p0)
+		var p2 = newPoint_xy(p1, 0, par.widthFlanTop)
+		var p3 = newPoint_xy(p2, par.widthFlanTop / 2, 0)
+		var p4 = newPoint_xy(p3, 0, -par.widthFlanTop / 2)
+		var p5 = newPoint_xy(p4, par.widthFlanTop / 2, 0)
+		var p6 = newPoint_xy(p1, par.widthFlanTop, 0)
+		var points = [p1, p2, p3, p4, p5, p6]
+
+		var shapePar = {
+			points: points,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: par.dxfBasePoint
+		}
+		var legFlanShape = drawShapeByPoints2(shapePar).shape
+		var extrudeOptions = {
+			amount: par.thk,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+		
+		//стенки
+		var geom = new THREE.ExtrudeGeometry(legFlanShape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));	
+		
+		var legFlan = new THREE.Mesh(geom, params.materials.metal);
+		legFlan.rotation.x = Math.PI / 2;
+		legFlan.rotation.z = -Math.PI / 2;
+		legFlan.position.y = par.height;
+		
+		// Размещаем фланец в зависимости от типа ножки
+		legFlan.position.x = -10;
+		legFlan.position.z = 10;
+	
+		if (par.type == 'круглые') {
+			legFlan.position.x = -par.widthFlanTop / 2 - 10;
+			legFlan.position.z = par.widthFlanTop / 2 + 10;
+		}
+	
+		par.mesh.add(legFlan);
+	}
+	
+	if (par.type == 'квадратные') {
+		//верхний фланец
+		var flanPar = {
+			width: par.profPar.sizeA + 50,
+			height: par.profPar.sizeB + 50,
+			cornerRad: 10,
+			thk: 4,
+			noBolts: true,
+			roundHoleCenters: {},
+			holeRad: 9 / 2,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: {x: 500, y: par.height * (i + 1)},				
+		}
+		
+		var holeOffset = 10;
+		flanPar.roundHoleCenters = [
+			{x: holeOffset, y: holeOffset},
+			{x: flanPar.width - holeOffset, y: holeOffset},
+			{x: holeOffset, y: flanPar.height - holeOffset},
+			{x: flanPar.width - holeOffset, y: flanPar.height - holeOffset},
+		];
+		
+		var flan = drawRectFlan2(flanPar).mesh;
+		flan.rotation.x = Math.PI / 2
+		flan.position.y = par.height;
+		flan.position.x = -par.profPar.sizeA / 2 - flanPar.width / 2;
+		flan.position.z = - flanPar.height / 2 +par.profPar.sizeB / 2;
+		
+		par.mesh.add(flan);
+	}
+
+	// Сама ножка
+	if (par.type == 'круглые') {
+		var polePar = {
+			type: "round",
+			poleProfileY: 60,
+			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+			length: par.height - par.thk,
+			poleAngle: Math.PI / 2,
+		}
+		par.legProfile = polePar.poleProfileY;
+
+		var pole1 = drawPole3D_4(polePar).mesh;
+		par.mesh.add(pole1);
+		par.mesh.position.x = polePar.poleProfileY;
+		par.mesh.position.z = -polePar.poleProfileY;
+	}
+	if (par.type == 'квадратные') {
+		var polePar = {
+			type: "rect",
+			poleProfileY: par.profPar.sizeA,
+			poleProfileZ: par.profPar.sizeB,
+			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+			length: par.height - par.thk / 2,
+			poleAngle: Math.PI / 2,
+		}
+		par.legProfile = polePar.poleProfileY;
+		var pole1 = drawPole3D_4(polePar).mesh;
+		par.mesh.add(pole1);
+		par.mesh.position.x = polePar.poleProfileY / 2;
+		par.mesh.position.z = -polePar.poleProfileZ;
+	}
+	if (par.type == 'шпильки') {
+		var polePar = {
+			type: "round",
+			poleProfileY: 10,
+			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+			length: par.height - par.thk,
+			poleAngle: Math.PI / 2,
+		}
+		par.legProfile = polePar.poleProfileY;
+
+		var pole1 = drawPole3D_4(polePar).mesh;
+		par.mesh.add(pole1);
+		
+		var ang = Math.atan((par.height - par.thk) / (par.widthFlanTop - polePar.poleProfileY * 2))
+		polePar.poleAngle = ang;
+		polePar.length = polePar.length / Math.sin(ang);
+
+		var pole2 = drawPole3D_4(polePar).mesh;
+		pole2.position.x += polePar.poleProfileY;
+		par.mesh.add(pole2);
+
+		var pole3 = drawPole3D_4(polePar).mesh;
+		pole3.rotation.y = Math.PI / 2
+		pole3.position.z -= polePar.poleProfileY;
+		pole3.position.x -= polePar.poleProfileY;
+		par.mesh.add(pole3);
+
+		par.mesh.position.x = polePar.poleProfileY;
+		par.mesh.position.z = -polePar.poleProfileY;
+	}
 
 	return par;
 }
@@ -2829,6 +3178,8 @@ function drawTableCountertop(par){
 		// par.width -= par.riverWidth * 1.0;
 		par.partsGap = par.riverWidth * 1.0;
 	}
+	//временный костыль
+	if(par.tableGeom != "прямоугольный") par.hasGap = false
 	
 	if(par.hasGap) par.width = (par.width - par.partsGap) / 2;
 
@@ -2900,7 +3251,7 @@ function drawTableCountertop(par){
 
 		var shape = new THREE.Shape();
 
-		var rad = par.width;
+		var rad = par.width / 2;
 
 		addCircle(shape, dxfPrimitivesArr, p0, rad, par.dxfBasePoint)
 	}
@@ -2978,14 +3329,36 @@ function drawTableCountertop(par){
 		var area = par.len * par.width / 1000000;
 		var paintedArea = area * 2 + (par.len + par.width) * 2 * par.thk / 1000000;
 		
-		var name = Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(par.thk);
-		if(specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
-		if(!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
-		specObj[par.partName]["amt"] += 1;
+		var name = '№' + par.objId + ' ' + Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(par.thk);
+	
+		if(specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1 * par.objectAmt;
+		if(!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1 * par.objectAmt;
+		specObj[par.partName]["amt"] += 1 * par.objectAmt;
 		specObj[par.partName]["area"] += area;
 		specObj[par.partName]["paintedArea"] += paintedArea;
 		
-		par.mesh.specParams = {specObj: specObj, amt: 1, partName: par.partName, name: name}
+		par.mesh.specParams = {specObj: specObj, amt: 1 * par.objectAmt, partName: par.partName, name: name}
+	}
+	
+	//расход материала
+	if (par.type == "щит"){
+		//добавляем информацию в материалы
+		var panelName_40 = calcTimberParams(params.additionalObjectsTimberMaterial).treadsPanelName;	
+		var panelName_20 = calcTimberParams(params.additionalObjectsTimberMaterial).riserPanelName;
+
+		if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: area, itemType:  'counterTop'});
+		if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: area, itemType:  'counterTop'});
+		if(par.thk == 60) {
+			addMaterialNeed({id: panelName_20, amt: area, itemType:  'counterTop'});
+			addMaterialNeed({id: panelName_40, amt: area, itemType:  'counterTop'});
+		}	
+		par.mesh.isInMaterials = true;
+	}
+	
+	if(par.type.indexOf('слэб') != -1){
+		addMaterialNeed({id: "slab", amt: 1 * par.objectAmt, itemType:  'counterTop'});
+		addMaterialNeed({id: "resin", amt: par.resinVol * par.objectAmt, itemType:  'counterTop'});
+		par.mesh.isInMaterials = true;
 	}
 	
 	par.mesh.specId = par.partName + name;
@@ -3045,10 +3418,35 @@ function getTableBasePar(par){
 		par.partsAmt = 1;
 	}
 	
+	if(par.model == 'T-20' || par.model == 'T-9') par.partsAmt = par.legsAmt || 4;
+//	if(par.model == 'T-9') par.partsAmt = 4;
+	
 	//профили
-	par.legProf = "60х30";
-	if(par.width > 600) par.legProf = "80х40";
-	if(par.width > 800) par.legProf = "100х40";
+	if(!par.prof || par.prof == "авто"){
+		par.legProf = "60х30";
+		if(par.width > 600) par.legProf = "80х40";
+		if(par.width > 800) par.legProf = "100х40";
+
+		if(par.model == 'T-13') par.legProf = "60х60";
+
+		if(par.model == 'T-4'){
+			par.legProf = "40х60";		
+			if(par.counterTop.width > 700 || par.counterTop.len > 1200) par.legProf = "50х100";
+			if(par.counterTop.width > 1000 || par.counterTop.len > 1400) par.legProf = "100х100";
+			if(par.counterTop.geom == "круглый") {
+				par.legProf = "40х60";
+				if(par.counterTop.width > 900) par.legProf = "50х100";
+				if(par.counterTop.width > 1200) par.legProf = "100х100";
+			}
+		}
+		
+		//подстолья с квадратной трубой
+		if(par.model == "T-10" || par.model == 'T-20') {
+			par.legProf = "40х40";
+			if(par.width >= 600) par.legProf = "60х60";
+		}
+	}
+	else par.legProf = par.prof;
 	
 	return par;
 }

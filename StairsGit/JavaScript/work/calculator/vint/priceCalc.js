@@ -1,15 +1,14 @@
-var costMarkup = 1.3; //07.05 было 1.25;
+//var costMarkup = 1.3; //07.05.20;
+var costMarkup = 1.56; //11.01.21
 
 /*расчет цены винтовой лестницы*/
 
 var staircaseCost={};
-var staircasePrice={};
 
 function calculateCarcasPrice(){
 
 /*получаем переменные из формы*/
-	var treadsMaterial = getInputValue("treadsMaterial");
-	var stairType = getInputValue("stairType");
+
 	var staircaseHeight = getInputValue("staircaseHeight");
 	var stepAmt = getInputValue("stepAmt");
 	var staircaseDiam = getInputValue("staircaseDiam");
@@ -44,7 +43,7 @@ var treadMeterPrice = treadParams.treadMeterPrice;
 var totalTreadsPrice = 0;
 var totalPlatformPrice = 0;
 
-if ((stairType == 'массив' || stairType == 'рамки') && (treadsMaterial == "береза паркет." || treadsMaterial == "дуб паркет." || params.treadsMaterial == "дуб ц/л")) {
+if (params.stairType == 'массив' || params.stairType == 'рамки') {
 	
 	//ступени (tread)
 
@@ -56,15 +55,12 @@ if ((stairType == 'массив' || stairType == 'рамки') && (treadsMateria
 	var treadsMaterialPrice = billetLength * billetWidth * treadMeterPrice / 2;
 	var treadWorkPrice = 150;
 	//var treadPaintPrice = 700;
-	var m2PaintPrice = calcTimberPaintPrice(timberPaint, treadsMaterial);
+	var m2PaintPrice = calcTimberPaintPrice(timberPaint, params.treadsMaterial);
 	
 	
 	totalTreadsPrice += (treadsMaterialPrice + treadWorkPrice) * stairAmt;
 	timberPaintPrice += m2PaintPrice * stairAmt * 0.7;
-	/*
-	if (timberPaint == "лак") timberPaintPrice += treadPaintPrice * stairAmt;
-	if (timberPaint == "морилка+лак") timberPaintPrice += treadPaintPrice * stairAmt * 1.3;
-	*/
+
 	//площадка (platform)
 	var platformLength = (staircaseDiam + params.platformLedge) * 0.7 / 1000 //длина заготовки площадки, приблизительная формула;
 	var platformWidth = 0.6 //ширина заготовки площадки
@@ -82,25 +78,12 @@ if ((stairType == 'массив' || stairType == 'рамки') && (treadsMateria
 	
 	totalPlatformPrice += platformMaterialPrice + platformWorkPrice;
 	if(params.platformType != "нет"){
-		var m2PaintPrice = calcTimberPaintPrice(timberPaint, treadsMaterial);
+		var m2PaintPrice = calcTimberPaintPrice(timberPaint, params.treadsMaterial);
 		timberPaintPrice += m2PaintPrice * 1.5;
-		/*
-		if (timberPaint == "лак") timberPaintPrice += platformPaintPrice;
-		if (timberPaint == "морилка+лак") timberPaintPrice += platformPaintPrice * 1.3;
-		*/
 	}
 	
-	//расход материала
-	/*
-	var treadsPanelName = "";
-	if (treadsMaterial == "береза паркет.") treadsPanelName = "panelBirch_40";
-	if (treadsMaterial == "дуб паркет.") treadsPanelName = "panelOak_40";
-	if (treadsMaterial == "дуб ц/л") treadsPanelName = "panelOakPremium_40";
-	*/
-	var treadsPanelName = calcTimberParams(treadsMaterial).treadsPanelName;
 
-	materials[treadsPanelName].amt += billetLength * billetWidth * stairAmt / 2;
-	if(params.platformType != "нет") materials[treadsPanelName].amt += platformLength * platformWidth;
+	var treadsPanelName = calcTimberParams(params.treadsMaterial).treadsPanelName;
 		
 	timberPrice += totalTreadsPrice + totalPlatformPrice;
 }
@@ -109,7 +92,7 @@ if ((stairType == 'массив' || stairType == 'рамки') && (treadsMateria
 
 /* Лестница с металлическими ступенями*/
 
-if (stairType == "рифленая сталь" || stairType == "лотки под плитку" || stairType == 'рамки') {
+if (params.stairType == "рифленая сталь" || params.stairType == "лотки под плитку" || stairType == 'рамки') {
 	
 	var treadsMaterialPrice;
 	var treadPaintPrice;
@@ -144,6 +127,13 @@ if (stairType == "рифленая сталь" || stairType == "лотки по�
 	
 }
 
+// Ступени прямого марша
+if (params.strightMarsh != 'нет') {
+	var meterPrice = calcTimberParams(params.treadsMaterial).m2Price_40
+	var treadArea = getPartPropVal('tread', 'area');
+	totalTreadsPrice += meterPrice * treadArea;
+}
+
 //крышка нижнего фланца из дерева
 if(params.botFlanCover == "есть") totalTreadsPrice += 2000;
 
@@ -163,7 +153,13 @@ if(params.model != "Спиральная" && params.model != "Спиральна
 	totalSpacerPrice = spacerPrice * (stairAmt + 1);
 	materials.pipe_127.amt += 0.2 * stairAmt;
 }
-	
+
+// Уголки и рамки прямого марша
+if (params.strightMarsh != 'нет') {
+	totalSpacerPrice += calcAnglesCost().price;
+	totalSpacerPrice += calcFramesPrice();
+}
+
 //Тетивы
 var stringerPrice = 0;
 var staircaseAngle = params.stepAngle * params.stepAmt;
@@ -189,6 +185,11 @@ if(params.model == "Спиральная (косоур)"){
 	if (metalPaint == "порошок") metalPaintPrice += (stringerAreaIn + stringerAreaOut) * 1.5 * 300;
 }
 
+if (params.strightMarsh != 'нет') {
+	var stringerMeterPrice = 4000; //цена тетивы из листа за м2
+	var stringerArea = getPartPropVal('stringer', 'area') + getPartPropVal('bridge', 'area') + getPartPropVal('pltStringer', 'area')
+	stringerPrice += stringerMeterPrice * stringerArea;
+}
 
 /*стойки ограждений (rack)*/
 
@@ -218,21 +219,26 @@ if(params.railingModel == "Частые стойки"){
 		totalRackPrice += rackPrice * banisterPerStep * stairAmt;
 	if(params.railingSide == "внутреннее" || params.railingSide == "две")
 		totalRackPrice += rackPrice * stairAmt;
-	}
+}
 	
-if(params.railingModel != "Частые стойки"){
+if(params.railingModel != "Частые стойки" && params.railingModel != "Дерево с ковкой"){
 	var railingMeterPrice = 5000;
 	if(params.railingModel == "Стекло на стойках") railingMeterPrice = 20000;
 	if(params.railingModel == "Самонесущее стекло") railingMeterPrice = 50000;
+	if(params.railingModel == "Дерево с ковкой") railingMeterPrice = 8000;
 	
 	var railingLength = 0;
 	if(params.railingSide == "внешнее" || params.railingSide == "две") railingLength += stringerLengthOut / 1000;
 	if(params.railingSide == "внутреннее" || params.railingSide == "две") railingLength += stringerLengthIn / 1000;
 	totalRackPrice = railingLength * railingMeterPrice;	
-	}
-	
-	
-	
+}
+
+if (params.railingModel == "Дерево с ковкой") {
+	var balPrice1 = getBalPrice(params.banister1) * getPartPropVal("forgedBal", "amt1");
+	var balPrice2 = getBalPrice(params.banister2) * getPartPropVal("forgedBal", "amt2");
+	totalRackPrice += balPrice1 + balPrice2;
+}
+
 //расход материала
 	var treadArea = 0.3 * 0.5 * staircaseDiam/1000 * 0.6 + 0.5 * staircaseDiam/1000 * 0.1 * 2;
 	var platformArea = 0.6 * 0.5 * staircaseDiam/1000 + 0.5 * staircaseDiam/1000 * 0.1 * 3;
@@ -290,6 +296,7 @@ if(params.pltHandrailConnection == "есть") {
 var balustradeMeterPrice = 0;
 var totalBalustradePrice = 0;
 
+
 /*итоговая цена*/
 
 totalTreadsPrice *= costMarkup;
@@ -306,15 +313,15 @@ var margin = 3 / costMarkup
 var marginPaint = 2 / costMarkup
 
 /*данные по цене*/
-staircasePrice.treads = totalTreadsPrice * margin;
-staircasePrice.platform = totalPlatformPrice * margin;
-staircasePrice.spacers = totalSpacerPrice * margin;
-staircasePrice.stringers = stringerPrice * margin;
-staircasePrice.racks = totalRackPrice * margin;
-staircasePrice.handrail = totalHandrailPrice * margin;
-staircasePrice.staircase = totalStairPrice * margin;
-staircasePrice.staircaseMetalPaint = metalPaintPrice * marginPaint;
-staircasePrice.staircaseTimberPaint = timberPaintPrice * marginPaint;
+setPrice('treads', totalTreadsPrice * margin);
+setPrice('platform', totalPlatformPrice * margin);
+setPrice('spacers', totalSpacerPrice * margin);
+setPrice('stringers', stringerPrice * margin);
+setPrice('racks', totalRackPrice * margin);
+setPrice('handrail', totalHandrailPrice * margin);
+setPrice('staircase', totalStairPrice * margin);
+setPrice('staircaseMetalPaint', metalPaintPrice * marginPaint);
+setPrice('staircaseTimberPaint', timberPaintPrice * marginPaint);
 
 /*данные по себестоимости*/
 

@@ -40,8 +40,11 @@ function drawStaircase(viewportId, isVisible) {
 				layer: layer,
 				}
 			this.objects.push(objInfo);
-			},
-		};
+		},
+	};
+
+	var mesh = new THREE.Object3D();
+	mesh.name = getCurrentObjectName();
 
 	//обнуляем счетчики спецификации
 	partsAmt = {};
@@ -155,9 +158,13 @@ model.add(skirting, "treads");
 		obj.rotation.y = moove.rot;
 
 		//добавляем в сцену
-		addObjects(viewportId, obj, model.objects[i].layer);
-
-		}
+		// addObjects(viewportId, obj, model.objects[i].layer);
+		obj.setLayer(model.objects[i].layer);
+		
+		//добавляем в сцену
+		mesh.add(obj);
+	}
+	addObjects(viewportId, mesh);
 
 	//измерение размеров на модели
 	addMeasurement(viewportId);

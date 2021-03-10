@@ -102,7 +102,7 @@ function drawSillEnv(par){
 		//создаем шейп
 		var shapePar = {
 			points: points,
-			dxfArr: dxfPrimitivesArr,
+			dxfArr: [],
 			dxfBasePoint: par.dxfBasePoint,
 			//radIn: radIn, //Радиус скругления внутренних углов
 			radOut: 0, //радиус скругления внешних углов
@@ -217,13 +217,12 @@ function drawSill(par){
 //	par.len = par.windowWidth + par.rightNose + par.leftNose;
 //	par.width = par.windowPosZ + par.frontNose;
 //	if(par.geom == "подоконный блок") par.width = par.wallThk + par.frontNose * 2
-	
+
 	var p0 = {x: 0, y:0}; //точка в середине передней кромки
 	var p1 = newPoint_xy(p0, -par.windowWidth / 2 - par.leftNose, 0);
 	var p2 = newPoint_xy(p1, 0, par.width);
 	var p4 = newPoint_xy(p0, par.windowWidth / 2 + par.rightNose, 0);
 	var p3 = newPoint_xy(p4, 0, par.width);
-	
 
 	p1.filletRad = par.cornerRadLeft
 	p4.filletRad = par.cornerRadRight
@@ -231,30 +230,78 @@ function drawSill(par){
 		p2.filletRad = par.cornerRadLeft
 		p3.filletRad = par.cornerRadRight
 	}
-	
-	
+
+	if (par.cutWallHole == 'да') {
+		var p21 = newPoint_xy(p2, 0, -par.windowPosZ);
+		var p22 = newPoint_xy(p21, par.rightNose, 0);
+		var p23 = newPoint_xy(p22, par.wallSideBevel, par.windowPosZ);
+
+		var p31 = newPoint_xy(p3, 0, -par.windowPosZ);
+		var p32 = newPoint_xy(p31, -par.leftNose, 0);
+		var p33 = newPoint_xy(p32, -par.wallSideBevel, par.windowPosZ);
+
+		var points = [p1, p21, p22, p23, p33, p32, p31, p4];
+	}else{
 	var points = [p1, p2, p3, p4];
-	
-	//создаем шейп
-	var shapePar = {
-		points: points,
-		dxfArr: par.dxfArr,
-		dxfBasePoint: par.dxfBasePoint,
 	}
+
 	
-	var shape = drawShapeByPoints2(shapePar).shape;
+	var len = par.len;
+	var width = par.width;
+	if (par.modifyKey && window.service_data && window.service_data.shapeChanges && window.service_data.shapeChanges.length > 0) {
+		var modify = window.service_data.shapeChanges.find(function(change){
+			return change.modifyKey == par.modifyKey
+		})
+		if (modify) {
+			shape = getShapeFromModify(modify);
+			var bbox = findBounds(shape.getPoints());
+			len = bbox.x;
+			width = bbox.y;
+		}
+	}
+
+	if (!shape) {
+		//создаем шейп
+		var shapePar = {
+			points: points,
+			dxfArr: par.dxfArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		var shape = drawShapeByPoints2(shapePar).shape;
+	}
+
+	if (par.len > 3000) {
+		var sideOffset = par.splitOffset * 1.0 || 1000;
+		var holeSize = 0.5;
+		var splitP1 = newPoint_xy(p1, sideOffset, 0.01);
+		var splitP2 = newPoint_xy(p2, sideOffset, -0.01);
+		var splitP3 = newPoint_xy(splitP2, holeSize, 0);
+		var splitP4 = newPoint_xy(splitP1, holeSize, 0);
+
+		var shapePar = {
+			points: [splitP1, splitP2, splitP3, splitP4],
+			dxfArr: par.dxfArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		var hole = drawShapeByPoints2(shapePar).shape;
+		shape.holes.push(hole);
+	}
 
 	//Отверстия
 	if(par.ventHoles != "нет"){
+
+		if(par.ventHolesOffsetRight == undefined) par.ventHolesOffsetRight = par.ventHolesSideOffset
 		var holesArr = {
-			len: par.windowWidth - par.ventHolesSideOffset * 2,
+			len: par.windowWidth - par.ventHolesSideOffset - par.ventHolesOffsetRight,
 			centers: [],
 		}
 		holesArr.amt = Math.ceil(holesArr.len / par.ventHolesStep) + 1;
 		holesArr.step = holesArr.len / (holesArr.amt - 1)
 
 		for(var i=0; i<holesArr.amt; i++){
-			var center = newPoint_xy(p0, -holesArr.len / 2 + holesArr.step * i, par.ventHolesFrontOffset)
+			var center = newPoint_xy(p0, -par.windowWidth / 2 + par.ventHolesSideOffset + holesArr.step * i, par.ventHolesFrontOffset)
 
 			if(par.ventHoles == "круглые"){
 				addRoundHole(shape, par.dxfArr, center, par.ventHolesSize / 2, par.dxfBasePoint)
@@ -264,16 +311,15 @@ function drawSill(par){
 				if(par.ventHoles == "овальные поперек") drawHoleFunc = addOvalHoleY				
 				drawHoleFunc(shape, par.dxfArr, center, par.ventHolesSize / 2, par.ventHolesLen, par.dxfBasePoint, true)
 			}
-			
 		}
 	}
 	
 	var extrudeOptions = {
-        amount: par.thk,
-        bevelEnabled: false,
-        curveSegments: 12,
-        steps: 1
-		};
+		amount: par.thk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
@@ -283,9 +329,96 @@ function drawSill(par){
 	mesh.setLayer("timberPart");
 	par.mesh.dimObject = mesh;
 	par.mesh.add(mesh);
+
+
+	if (par.botPoleType == 'спереди') {
+		var p0 = {x: 0, y:0}; //точка в середине передней кромки
+		var p1 = newPoint_xy(p0, -par.windowWidth / 2 - par.leftNose, 0);
+		var p2 = newPoint_xy(p1, 0, par.botPoleWidth);
+		var p4 = newPoint_xy(p0, par.windowWidth / 2 + par.rightNose, 0);
+		var p3 = newPoint_xy(p4, 0, par.botPoleWidth);
+
+		p1.filletRad = par.cornerRadLeft
+		p4.filletRad = par.cornerRadRight
+		if(par.geom == "подоконный блок") {
+			p2.filletRad = par.cornerRadLeft
+			p3.filletRad = par.cornerRadRight
+		}
+
+		var points = [p1, p2, p3, p4];
+		
+		//создаем шейп
+		var shapePar = {
+			points: points,
+			dxfArr: par.dxfArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		var shape = drawShapeByPoints2(shapePar).shape;
+
+		var extrudeOptions = {
+			amount: par.botPoleThk,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+	
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var mesh = new THREE.Mesh(geom, params.materials.additionalObjectTimber || params.materials.timber);
+		mesh.rotation.x = -Math.PI / 2;
+		mesh.position.y = -par.botPoleThk;
+		par.mesh.add(mesh);
+	}
+
+	if (par.botPoleType == '3 ребра') {
+		var p0 = {x: 0, y:0}; //точка в середине передней кромки
+		var p1 = newPoint_xy(p0, -par.windowWidth / 2 - par.leftNose, 0);
+		var p2 = newPoint_xy(p1, 0, par.width);
+		var p3 = newPoint_xy(p2, par.botPoleWidth, 0);
+		var p4 = newPoint_xy(p1, par.botPoleWidth, par.botPoleWidth);
+		
+		var p8 = newPoint_xy(p0, par.windowWidth / 2 + par.rightNose, 0);
+		var p7 = newPoint_xy(p8, 0, par.width);
+		var p6 = newPoint_xy(p7, -par.botPoleWidth, 0);
+		var p5 = newPoint_xy(p8, -par.botPoleWidth, par.botPoleWidth);
+
+		p1.filletRad = par.cornerRadLeft
+		p8.filletRad = par.cornerRadRight
+		if(par.geom == "подоконный блок") {
+			p2.filletRad = par.cornerRadLeft
+			p7.filletRad = par.cornerRadRight
+		}
+
+		var points = [p1, p2, p3, p4, p5, p6, p7, p8];
+		
+		//создаем шейп
+		var shapePar = {
+			points: points,
+			dxfArr: par.dxfArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		var shape = drawShapeByPoints2(shapePar).shape;
+
+		var extrudeOptions = {
+			amount: par.botPoleThk,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+	
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var mesh = new THREE.Mesh(geom, params.materials.additionalObjectTimber || params.materials.timber);
+		mesh.rotation.x = -Math.PI / 2;
+		mesh.position.y = -par.botPoleThk;
+		par.mesh.add(mesh);
+	}
 	
 	//сохраняем данные для спецификации
 	var partName = 'sill';
+	
 	if (typeof specObj != 'undefined') {
 		if (!specObj[partName]) {
 			specObj[partName] = {
@@ -293,6 +426,7 @@ function drawSill(par){
 				amt: 0,
 				sumLength: 0,
 				area: 0,
+				paintedArea: 0,
 				name: 'Подоконник',
 				metalPaint: false,
 				timberPaint: true,
@@ -305,27 +439,307 @@ function drawSill(par){
 				lineTemplatesAmt: 0,
 				curveTemplates: 0,
 				breaking: 0,
+				typeComments: {},
+				size: {}
 			}
 		}
 		
-		name = par.shapeType + " " + Math.round(par.len) + "х" + Math.round(par.width);
+		var area = len * width / 1000000 * par.objectAmt
+		name = '№' + par.objId + ' ' + par.shapeType + " " + Math.round(len) + "х" + Math.round(width) + "х" + Math.round(par.thk);
+		
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1 * par.objectAmt;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1 * par.objectAmt;
+		specObj[partName]["amt"] += 1 * par.objectAmt;
+		specObj[partName]["sumLength"] += len / 1000 * par.objectAmt;
+		specObj[partName]["area"] += area;
+		specObj[partName]["paintedArea"] += len * width / 1000000 * par.objectAmt;
+		
+		specObj[partName].typeComments[name] = getSillSpecComment(par);
+		specObj[partName].size[name] = {
+			width: width,
+			len: len
+		};
+		
+		par.mesh.specParams = {specObj: specObj, amt: 1 * par.objectAmt, partName: partName, name: name}
+		
+		//дополнительные данные
+		if(par.shapeType == "по шаблону") specObj[partName]["lineTemplatesAmt"] += 1 * par.objectAmt;
+		if(par.shapeType == "по шаблону (криволин.)") specObj[partName]["curveTemplates"] += 1 * par.objectAmt;
+		if(par.breaking == "есть") specObj[partName]["breaking"] += 1 * par.objectAmt;
+	}
+	
+	par.mesh.specId = partName + name;
+	
+//добавляем информацию в материалы
+	
+	//учитывем обрезки
+	var billetPar = calcBilletSize({
+		len: len,
+		width: width,
+		thk: par.thk,
+		type: "щит"
+	});
+	
+	var panelName_40 = calcTimberParams(params.additionalObjectsTimberMaterial).treadsPanelName;	
+	var panelName_20 = calcTimberParams(params.additionalObjectsTimberMaterial).riserPanelName;
+
+	if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+	if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+	if(par.thk == 60) {
+		addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+		addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+	}
+
+	par.mesh.isInMaterials = true;
+	
+	return par
+}
+
+function drawRadOriel(par){
+	if(!par) par = {};
+	initPar(par)
+	
+	var orielWindowCount = par.orielWindowCount;
+
+	var sPar = calcSegmentPar(par.orielSizeA, par.orielSizeC);
+	var ang = Math.abs(sPar.halfAngle) * 2;
+	if (ang == 0) ang = Math.PI / 2;
+	// var windowSize = (sPar.rad * (ang * 2)) / orielWindowCount;
+	var angleStep = ang / orielWindowCount;
+	var windowSize = sPar.rad * Math.sin(angleStep / 2) * 2
+	var startAngle = (Math.PI - ang) / 2;
+
+	var windowPointStart = polar(sPar.center, startAngle, sPar.rad);
+	windowPointStart = polar(windowPointStart, startAngle + angleStep * 0.5, par.windowPosZ);
+
+	var windowPointEnd = polar(sPar.center, startAngle + angleStep, sPar.rad);
+	windowPointEnd = polar(windowPointEnd, startAngle + angleStep * 1.5, par.windowPosZ);
+
+	var wndSize = distance(windowPointStart,windowPointEnd);
+	var orielWrapper = new THREE.Object3D();
+	for(var i=0; i < orielWindowCount; i++){
+		var p0 = {x: 0, y:0}; //точка в середине передней кромки
+		var p1 = newPoint_xy(p0, windowSize, 0);
+		var p2 = newPoint_xy(p1, 0, par.height);
+		var p3 = newPoint_xy(p2, -windowSize, 0);
+		var points = [p0, p1, p2, p3];
+		//создаем шейп
+		var shapePar = {
+			points: points,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		var shape = drawShapeByPoints2(shapePar).shape;
+		
+		var extrudeOptions = {
+			amount: par.wallThk,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var mesh = new THREE.Mesh(geom, params.materials.wall);
+
+		var basePointPart = polar(sPar.center, startAngle + angleStep * i, sPar.rad);
+		mesh.rotation.y = Math.PI / 2 + angleStep * (i + 0.5) + startAngle;
+		mesh.position.x = basePointPart.x;
+		mesh.position.z = -basePointPart.y;
+
+		orielWrapper.add(mesh);
+
+		var windowPar = {
+			width: wndSize,
+			windowsCount: 1,
+			height: par.windowHeight,
+			mat: params.materials.whitePlastic,
+		}
+		var basePointWindow = polar(sPar.center, startAngle + angleStep * i, sPar.rad + par.windowPosZ);
+		// if (i == 0) {
+		// 	basePointWindow = polar(basePointWindow, startAngle + angleStep * (i + 0.5), par.windowPosZ)
+		// 	windowPar.width -= par.windowPosZ * Math.tan(angleStep / 2);
+		// }else{
+		// 	basePointWindow = polar(sPar.center, startAngle + angleStep * i, sPar.rad + par.windowPosZ);
+		// }
+
+		// if (i == orielWindowCount - 1) {
+		// 	windowPar.width -= par.windowPosZ * Math.tan(angleStep / 2);
+		// }
+		var wnd = drawWindow(windowPar).mesh
+		wnd.rotation.y = Math.PI / 2 + angleStep * (i + 0.5) + startAngle;
+		wnd.position.y = par.height
+		wnd.position.x = basePointWindow.x
+		wnd.position.z = -basePointWindow.y
+		orielWrapper.add(wnd);
+	}
+	par.mesh.add(orielWrapper);
+
+	// Отрисовка шейпа подоконника
+	var sillPoints = [];
+	var rightOffsetAngle = par.rightNose / sPar.rad;
+	var leftOffsetAngle = par.leftNose / sPar.rad;
+
+	if (par.radSillType == 'дуга') {
+		var shape = new THREE.Shape();
+		// Точки у окна
+		var firstPoint = null;
+		var lastPoint = null;
+		// Правый свес
+		var p1 = polar(sPar.center, startAngle - rightOffsetAngle, sPar.rad + par.windowPosZ);
+		var p2 = polar(sPar.center, startAngle, sPar.rad + par.windowPosZ);
+		addLine(shape, dxfPrimitivesArr, p1, p2, par.dxfBasePoint);
+		firstPoint = p1;
+		for(var i=0; i < orielWindowCount; i++){
+			var point = polar(sPar.center, startAngle + angleStep * i, sPar.rad + par.windowPosZ);
+			var nextPoint = polar(sPar.center, startAngle + angleStep * (i + 1), sPar.rad + par.windowPosZ);
+			addLine(shape, dxfPrimitivesArr, point, nextPoint, par.dxfBasePoint);
+			lastPoint = nextPoint;
+		}
+		// Левый свес
+		var p1 = polar(sPar.center, startAngle + angleStep * orielWindowCount + leftOffsetAngle, sPar.rad + par.windowPosZ);
+		addLine(shape, dxfPrimitivesArr, lastPoint, p1, par.dxfBasePoint);
+		lastPoint = p1;
+
+		// Внутренняя часть
+		var p1 = polar(sPar.center, startAngle + angleStep * orielWindowCount + leftOffsetAngle, sPar.rad - par.frontNose);
+		addLine(shape, dxfPrimitivesArr, lastPoint, p1, par.dxfBasePoint);
+
+		addArc2(shape, dxfPrimitivesArr, sPar.center, sPar.rad - par.frontNose, startAngle + angleStep * (orielWindowCount), startAngle, true, par.dxfBasePoint)
+		
+		var p2 = polar(sPar.center, startAngle - rightOffsetAngle, sPar.rad - par.frontNose);
+		addLine(shape, dxfPrimitivesArr, p2, firstPoint, par.dxfBasePoint);
+	}else{
+		var outerPoints = []
+
+		// Правый свес
+		var point = polar(sPar.center, startAngle - rightOffsetAngle, sPar.rad + par.windowPosZ);
+		outerPoints.push(point);
+		// Точки у окна
+		for(var i=0; i <= orielWindowCount; i++){
+			var point = polar(sPar.center, startAngle + angleStep * i, sPar.rad + par.windowPosZ);
+			outerPoints.push(point);
+		}
+		// Левый свес
+		var point = polar(sPar.center, startAngle + angleStep * orielWindowCount + leftOffsetAngle, sPar.rad + par.windowPosZ);
+		outerPoints.push(point);
+
+		var innerPoints = []
+		// Правый свес
+		var point = polar(sPar.center, startAngle - rightOffsetAngle, sPar.rad - par.frontNose);
+		innerPoints.push(point);
+		// Внутренние точки
+		for(var i=0; i <= orielWindowCount; i++){
+			var point = polar(sPar.center, startAngle + angleStep * i, sPar.rad - par.frontNose)
+			
+			innerPoints.push(point);
+		}
+		// Левый свес
+		var point = polar(sPar.center, startAngle + angleStep * orielWindowCount + leftOffsetAngle, sPar.rad - par.frontNose);
+		innerPoints.push(point);
+
+		sillPoints = [...outerPoints, ...innerPoints.reverse()]
+
+		//создаем шейп
+		var shapePar = {
+			points: sillPoints,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		var shape = drawShapeByPoints2(shapePar).shape;
+	}
+
+	if (par.ventHoles != "нет") {
+		var fullAngle = (angleStep * orielWindowCount);
+		var arcLength = sPar.rad * fullAngle;
+		console.log(arcLength)
+		var holesAngleStart = startAngle + (fullAngle * (par.ventHolesOffsetRight / arcLength));
+		var holesAngleEnd = (startAngle + angleStep * orielWindowCount) - (fullAngle * (par.ventHolesSideOffset / arcLength));
+		var holeCount = Math.round(arcLength - par.ventHolesSideOffset - par.ventHolesOffsetRight) / par.ventHolesStep;
+		var holeSize = 30;
+		var holeAngleStep = (holesAngleEnd - holesAngleStart) / holeCount;
+		console.log(sPar)
+		for (var i = 0; i < holeCount; i++) {
+			var holeCenter = polar(sPar.center, holesAngleStart + holeAngleStep * i, sPar.rad - par.frontNose + par.ventHolesFrontOffset);
+			addRoundHole(shape, dxfPrimitivesArr, holeCenter, holeSize / 2, par.dxfBasePoint)
+		}		
+	}
+	
+	var extrudeOptions = {
+		amount: par.thk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var sillMesh = new THREE.Mesh(geom, params.materials.additionalObjectTimber || params.materials.timber);
+	sillMesh.rotation.x = -Math.PI / 2;
+	sillMesh.position.y = par.height;
+	par.mesh.add(sillMesh);
+
+
+
+	//сохраняем данные для спецификации
+	var partName = 'sill';
+
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				sumLength: 0,
+				area: 0,
+				paintedArea: 0,
+				name: 'Подоконник криволинейный',
+				metalPaint: false,
+				timberPaint: true,
+				isModelData: true,
+				division: "timber",
+				purposes: [],
+				workUnitName: "amt",
+				group: "Объекты",
+				//дополнительные данные
+				lineTemplatesAmt: 0,
+				curveTemplates: 0,
+				breaking: 0,
+				typeComments: {},
+				size: {}
+			}
+		}
+		
+		var box3 = new THREE.Box3().setFromObject(sillMesh);
+		var len = box3.max.x - box3.min.x;
+		var width = box3.max.z - box3.min.z;
+		
+		name = '№' + par.objId + ' ' + par.shapeType + " " + Math.round(len) + "x" + Math.round(width) + "х" + Math.round(par.thk);
 		
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1 * par.objectAmt;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1 * par.objectAmt;
 		specObj[partName]["amt"] += 1 * par.objectAmt;
 		specObj[partName]["sumLength"] += par.len / 1000 * par.objectAmt;
 		specObj[partName]["area"] += par.len * par.width / 1000000 * par.objectAmt;
+		specObj[partName]["paintedArea"] += par.len * par.width / 1000000 * par.objectAmt;
+		
+		specObj[partName].typeComments[name] = getSillSpecComment(par);
+		specObj[partName].size[name] = {
+			width: width,
+			len: len
+		};
+		
 		par.mesh.specParams = {specObj: specObj, amt: 1 * par.objectAmt, partName: partName, name: name}
 		
 		//дополнительные данные
-		if(par.makingTemplates == "прямолинейные") specObj[partName]["lineTemplatesAmt"] += 1 * par.objectAmt;
-		if(par.makingTemplates == "криволинейные") specObj[partName]["curveTemplates"] += 1 * par.objectAmt;
+		if(par.shapeType == "по шаблону") specObj[partName]["lineTemplatesAmt"] += 1 * par.objectAmt;
+		if(par.shapeType == "по шаблону (криволин.)") specObj[partName]["curveTemplates"] += 1 * par.objectAmt;
 		if(par.breaking == "есть") specObj[partName]["breaking"] += 1 * par.objectAmt;
 	}
 	
 	par.mesh.specId = partName + name;
-		
-	
+
 	return par
 }
 
@@ -339,7 +753,6 @@ function drawOriel(par){
 	var p4 = newPoint_xy(p0, par.orielSizeA / 2, 0);
 	var p3 = newPoint_xy(p4, 0, par.orielSizeC);
 	var points = [p1, p2, p3, p4];
-	
 	
 	
 	//корректируем внутренний контур
@@ -526,13 +939,6 @@ function drawOriel(par){
 	//подоконник
 	var leftLine = parallel(p15, p2, -par.frontNose)
 	var toptLine = parallel(p2, p3, -par.frontNose)
-	if(par.sillGeom == "столешница"){
-		toptLine = parallel(pw2, pw3, -par.countertopDepth)
-		if(par.orielType == 3){
-			toptLine = parallel(newPoint_xy(pw2, -10, 0), newPoint_xy(pw3, 10, 0), -par.countertopDepth)
-		}
-		
-	}
 	var rightLine = parallel(p3, p45, -par.frontNose)
 	
 	var ps1 = leftLine.p1
@@ -549,7 +955,13 @@ function drawOriel(par){
 	var leftSideLine = parallel(pw1, ps1, -par.leftNose)
 	var rightSideLine = parallel(pw4, ps4, -par.rightNose)
 	
-	points = [leftSideLine.p1, pw2, pw3, rightSideLine.p1, rightSideLine.p2, ps3, ps2, leftSideLine.p2];
+	points = [leftSideLine.p1, pw2, pw3, rightSideLine.p1, rightSideLine.p2];
+	
+	//точки на внутренней линии
+	if(par.sillGeom != "столешница"){
+		points.push(ps3, ps2);		
+	}
+	points.push(leftSideLine.p2);	
 	
 	leftSideLine.p2.filletRad = par.cornerRadLeft
 	rightSideLine.p2.filletRad = par.cornerRadRight
@@ -562,7 +974,64 @@ function drawOriel(par){
 	}
 	
 	var shape = drawShapeByPoints2(shapePar).shape;
-	console.log(par);
+	
+	//Отверстия
+	if(par.ventHoles != "нет"){
+		
+		var centerLines = []
+		
+		var holesLeftLine = parallel(p15, p2, -par.frontNose + par.ventHolesFrontOffset)
+		var holesToptLine = parallel(p2, p3, -par.frontNose + par.ventHolesFrontOffset)
+		var holesRightLine = parallel(p3, p45, -par.frontNose + par.ventHolesFrontOffset)
+		
+		var ph1 = holesLeftLine.p1
+		var ph2 = itercectionLines(holesLeftLine, holesToptLine)
+		var ph3 = itercectionLines(holesRightLine, holesToptLine)
+		var ph4 = holesRightLine.p2
+		
+		if(par.orielType == 3) {
+			ph2 = itercection(holesLeftLine.p1, holesLeftLine.p2, holesRightLine.p1, holesRightLine.p2)
+			ph3 = copyPoint(ph2)
+		}
+	
+		//учитывваем отступ
+		if(par.ventHolesOffsetRight == undefined) par.ventHolesOffsetRight = par.ventHolesSideOffset
+		ph1 = polar(ph1, angle(ph1, ph2), par.ventHolesSideOffset)
+		ph4 = polar(ph4, angle(ph4, ph3), -par.ventHolesSideOffset)
+		
+		var centerLinePoints = [ph1, ph2, ph3, ph4]
+		if(par.orielType == 3) centerLinePoints = [ph1, ph2, ph4]
+		
+		//перебираем все точки
+		for(var i=0; i < centerLinePoints.length-1; i++){
+			
+			var dist = distance(centerLinePoints[i], centerLinePoints[i+1])
+			//пропускаем точку если расстояние маленькое
+			if(dist < par.ventHolesStep) continue;
+			var holesArr = {
+				len: dist,
+				centers: [],
+			}
+			holesArr.amt = Math.ceil(holesArr.len / par.ventHolesStep) + 1;
+			holesArr.step = holesArr.len / (holesArr.amt - 1)
+			if(i < centerLinePoints.length-2) holesArr.amt -= 1; //Не отрисовываем последнее отверстие, чтобы они не задваивались
+			
+			for(var j=0; j<holesArr.amt; j++){
+				var center = polar(centerLinePoints[i], angle(centerLinePoints[i], centerLinePoints[i+1]), holesArr.step * j)
+
+				if(par.ventHoles == "круглые"){
+					addRoundHole(shape, par.dxfArr, center, par.ventHolesSize / 2, par.dxfBasePoint)
+				}
+				if(par.ventHoles != "круглые"){
+					var drawHoleFunc = addOvalHoleX
+					if(par.ventHoles == "овальные поперек") drawHoleFunc = addOvalHoleY				
+					drawHoleFunc(shape, par.dxfArr, center, par.ventHolesSize / 2, par.ventHolesLen, par.dxfBasePoint, true)
+				}
+			}
+		}
+	}
+	
+	
 	var extrudeOptions = {
         amount: par.thk,
         bevelEnabled: false,
@@ -579,7 +1048,129 @@ function drawOriel(par){
 	mesh.userData.setObjectDimensions = true;
 	par.mesh.add(mesh);
 	
+	//длину подоконника считаем по внешнему периметру
+	var len = distance(leftSideLine.p1, pw2) + distance(pw2, pw3) + distance(pw3, rightSideLine.p1)
+	var width = par.width
+	
+	//для столешницы считаем размеры по описанному прямоугольнику
+	if(par.sillGeom == "столешница"){
+		var bbox = findBounds(shape.getPoints());
+		len = bbox.x;
+		width = bbox.y;
+	}
+	
+	//сохраняем данные для спецификации
+	var partName = 'sill';
+	
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				sumLength: 0,
+				area: 0,
+				paintedArea: 0,
+				name: 'Подоконник',
+				metalPaint: false,
+				timberPaint: true,
+				isModelData: true,
+				division: "timber",
+				purposes: [],
+				workUnitName: "amt",
+				group: "Объекты",
+				//дополнительные данные
+				lineTemplatesAmt: 0,
+				curveTemplates: 0,
+				breaking: 0,
+				typeComments: {},
+				size: {},
+			}
+		}
+		
+		var area = len * width / 1000000 * par.objectAmt
+		name = '№' + par.objId + ' ' + par.shapeType + " " + Math.round(len) + "х" + Math.round(width) + "х" + Math.round(par.thk);
+		
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1 * par.objectAmt;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1 * par.objectAmt;
+		specObj[partName]["amt"] += 1 * par.objectAmt;
+		specObj[partName]["sumLength"] += len / 1000 * par.objectAmt;
+		specObj[partName]["area"] += area;
+		specObj[partName]["paintedArea"] += len * width / 1000000 * par.objectAmt;
+		
+		specObj[partName].typeComments[name] = getSillSpecComment(par);
+		specObj[partName].size[name] = {
+			width: width,
+			len: len
+		};
+		
+		par.mesh.specParams = {specObj: specObj, amt: 1 * par.objectAmt, partName: partName, name: name}
+		
+		//дополнительные данные
+		if(par.shapeType == "по шаблону") specObj[partName]["lineTemplatesAmt"] += 1 * par.objectAmt;
+		if(par.shapeType == "по шаблону (криволин.)") specObj[partName]["curveTemplates"] += 1 * par.objectAmt;
+		if(par.breaking == "есть") specObj[partName]["breaking"] += 1 * par.objectAmt;
+	}
+	
+	par.mesh.specId = partName + name;
+	
+//добавляем информацию в материалы
+	//учитывем обрезки
+	var billetPar = calcBilletSize({
+		len: len,
+		width: width,
+		thk: par.thk,
+		type: "щит"
+	});
+	
+	var panelName_40 = calcTimberParams(params.additionalObjectsTimberMaterial).treadsPanelName;	
+	var panelName_20 = calcTimberParams(params.additionalObjectsTimberMaterial).riserPanelName;
+
+	if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+	if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+	if(par.thk == 60) {
+		addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+		addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+	}
+
+	par.mesh.isInMaterials = true;
+	
+	//добавляем информацию в материалы
+	//учитывем обрезки
+	var billetPar = calcBilletSize({
+		len: len,
+		width: width,
+		thk: par.thk,
+		type: "щит"
+	});
+	
+	var panelName_40 = calcTimberParams(params.additionalObjectsTimberMaterial).treadsPanelName;	
+	var panelName_20 = calcTimberParams(params.additionalObjectsTimberMaterial).riserPanelName;
+
+	if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+	if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+	if(par.thk == 60) {
+		addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+		addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+	}
+
+	par.mesh.isInMaterials = true;
 	
 	
 	return par
+}
+
+/** функция возвращает описание подоконника для цеха **/
+
+function getSillSpecComment(par){
+	console.log(par);
+	var comment = "";
+	if (par.edgeGeomTop) comment += 'Фаска: ' +  par.edgeModel + " " + par.edgeGeomTop + ';\n';
+	if (par.cornerRadRight) comment += 'Скругление справа ' + par.cornerRadRight + ';\n';
+	if (par.cornerRadLeft) comment += 'Скругление слева ' + par.cornerRadLeft + ';\n';
+	if (par.botPoleType && par.botPoleType != 'нет') comment += 'Доклейка ' + par.botPoleType + ' ' + Math.round(par.botPoleWidth)  + "х" + Math.round(par.botPoleThk) + '; ';
+	if (par.slabModel) comment += 'Модель слэба: ' + par.slabModel + ';\n';
+	if (par.resinVol > 0) {
+		comment += 'Объем смолы: ' + par.resinVol + ';\n';
+	}
+	return comment;
 }

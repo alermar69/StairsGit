@@ -35,6 +35,11 @@ drawVeranda = function (par) {
 	shapesList = [];
 	dxfPrimitivesArr = [];
 	
+	/*направление поворота (глобальные переменные)*/
+
+	if (params.turnSide == "правое") turnFactor = 1;
+	if (params.turnSide == "левое") turnFactor = -1;
+	
 	//параметры всех деталей
 	
 	//var axis = new THREE.AxisHelper( 2000 );
@@ -53,10 +58,14 @@ drawVeranda = function (par) {
 	partPar = calcCarportPartPar();
 	var carport = drawRectCarport(params);
 	carport.rotation.y = THREE.Math.degToRad(params.carportRot);
-	carport.position.x = params.pltWidth / 2 + params.carportPosX
-	carport.position.y = params.pltHeight + params.carportPosY
-	carport.position.z = params.pltLen / 2 + params.carportPosZ
+	carport.position.x = params.pltWidth - (params.sectLen * params.sectAmt) / 2 + params.carportPosX
 	
+	carport.position.y = params.carportPosY
+	carport.position.z = params.pltLen / 2 + params.carportPosZ
+	if(params.carportType == "односкатный") {
+		if(params.carportRot == -90) carport.position.z -= (params.sideOffset - params.sideOffsetTop) / 2;
+		if(params.carportRot == 90) carport.position.z += (params.sideOffset - params.sideOffsetTop) / 2;
+	}
 	model.add(carport, "carport");
 
 	if (params.pltType == 'единая с лестницей') {
@@ -125,6 +134,11 @@ drawVeranda = function (par) {
 	params.floorHoleLength = -params.pltWidth
 	params.floorHoleWidth = params.pltLen
 	var moove = calcStaircaseMoove(treadsObj.lastMarshEnd);
+	if(turnFactor == -1) {
+		moove.z *= -1;
+		if(params.platformTop == "увеличенная") moove.z += params.platformWidth_3 - params.M
+	}
+	
 	
 	for(var i=0; i<model.objects.length; i++){		
 		var obj = model.objects[i].obj;

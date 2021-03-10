@@ -251,6 +251,7 @@ function addBoxInputs(){
 				<span>Ручки: <select class="boxHandles" id="boxHandles' + (rowAmt - 1) + '" size="1">\
 					<option value="нет">нет</option>\
 					<option value="есть">есть</option>\
+					<option value="две">две</option>\
 				</select></span>\
 			</span>' +
 		'</td>' +
@@ -263,6 +264,9 @@ function addBoxInputs(){
 				'<option value="стойка">стойка</option>' + 
 				'<option value="выдв. штанга">выдв. штанга</option>' +
 				'<option value="пантограф">пантограф</option>' + 
+				'<option value="левая дверь">левая дверь</option>' +
+				'<option value="правая дверь">правая дверь</option>' +
+				'<option value="две двери">две двери</option>' +
 			'</select>' +
 			'<span class="poleEnds">' + 
 				'Н: <select class="poleStart" id="poleStart' + (rowAmt - 1) + '" size="1">' +
@@ -374,15 +378,15 @@ function copyBox(){
 function calcBoxDist(sectId){
 	//console.log(sectId)
 	//высота низа верхней панели
-	var topPos = params.height_wr;
-	if(params.topWall_wr != "нет") topPos -= params.carcasThk_wr;
-	if(params.isTopShelf == "есть" && sectId >= params.topShelfSect1-1 && sectId <= params.topShelfSect2-1){
-		topPos = params.topShelfPosY - params.carcasThk_wr;
-		}
+	var topPos = wrPar.height_wr;
+	if(wrPar.topWall_wr != "нет") topPos -= wrPar.carcasThk_wr;
+	if(wrPar.isTopShelf == "есть" && sectId >= wrPar.topShelfSect1-1 && sectId <= wrPar.topShelfSect2-1){
+		topPos = wrPar.topShelfPosY - wrPar.carcasThk_wr;
+	}
 	
 	//высота верха нижней панели
 	var botPos = 0;
-	if(params.botWall_wr == "цоколь") botPos = params.legsHeight_wr;
+	if(wrPar.botWall_wr == "цоколь") botPos = wrPar.legsHeight_wr;
 	
 	//сохраняем в массив позиции всех элементов той же секции
 	var sectBoxes = [];
@@ -394,10 +398,10 @@ function calcBoxDist(sectId){
 				tr: this,
 				height: $(this).find(".boxHeight").val()*1.0,
 				type: $(this).find(".boxType").val(),
-				}
-			sectBoxes.push(item);			
 			}
-		});
+			sectBoxes.push(item);			
+		}
+	});
 	
 	//рассчитываем расстояние до ближайшего элемента для всех элементов
 	for(var i=0; i<sectBoxes.length; i++){

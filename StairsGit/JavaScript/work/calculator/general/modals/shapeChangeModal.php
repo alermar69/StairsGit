@@ -16,8 +16,8 @@
 				<button class='btn btn-success' id='downloadModifyDxf'>Скачать DXF</button>
 				<button class='btn btn-primary' id='uploadModifyDxf'>Загрузить DXF</button>
 				<input type="file" name="dxfModifyFile" id="dxfModifyFile" style='display: none;'>
-				<button class='btn btn-primary' id='openEditor'>Открыть редактор</button>
-				<button class='btn btn-primary' id='loadShapeFromEditor'>Загрузить шейп из редактора</button>
+				<button class='btn btn-primary' id='openEditor'>Обновить</button>
+				<button class='btn btn-primary' id='loadShapeFromEditor'>Применить</button>
 				<div class='iframe-wrapper'>
 					<!-- <iframe src="/jsketcher/sketcher.html" frameborder="0"></iframe> -->
 				</div>

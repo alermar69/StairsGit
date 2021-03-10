@@ -17,13 +17,10 @@ function drawVintCarcas(par){
 
 function drawStrightMarsh(par, marshId){
 	var marsh = new THREE.Object3D();
-
-	var treads = addStrightTreads(par, marshId);
-	marsh.add(treads);
-
+	
 	var carcasParams = {
 		marshId: marshId,
-		dxfBasePoint: {x:0,y:0},
+		dxfBasePoint: {x:4000,y:4000},
 		addStringerWidth: 70,
 		treadsObj: {
 			turnEnd: {x:0,y:0},
@@ -33,21 +30,66 @@ function drawStrightMarsh(par, marshId){
 			}
 		}
 	};
+	if (marshId == 3) carcasParams.dxfBasePoint = {x:4000,y:0};
 	params.stringerThickness = 8;
 	params.stairModel = 'Прямая';
 	var oldModel = params.model;
-	params.model = "ко";
+	params.model = params.strightCarcasModel;
+	params.stairFrame = (params.stairType == 'рамки' ? 'есть': 'нет');
 	params.sideOverHang = 70;
 	params.stringerMoove_1 = 0;
-	var carcas = drawMarshStringers(carcasParams, marshId).mesh;
-	marsh.add(carcas);
+
+	var treads = addStrightTreads(par, marshId);
+	marsh.add(treads);
+
+	var carcasPar = drawMarshStringers(carcasParams, marshId);
+	marsh.add(carcasPar.mesh);
+	marsh.add(carcasPar.angles);
+
+	// Отрисовка опоры на винтовую часть
+	if (marshId == 1) {
+		var holdePar = {
+			length: params.M - params.sideOverHang,
+			height: params.stairAmt1 * params.h1 + par.stepHeight - params.treadThickness
+		}
+		if (params.strightCarcasModel == 'лт') holdePar.length = params.M
+		var mesh = drawVintConnectionPart(holdePar).mesh;
+		mesh.position.z = params.M / 2;
+		mesh.position.y = holdePar.height;
+		mesh.position.x = getMarshParams(1).len + 25;//Профиль опоры 100x50
+		if (turnFactor == 1){
+			mesh.rotation.y = Math.PI;
+			mesh.position.z -= holdePar.length + 8;
+			mesh.position.x += 50;
+		}
+		marsh.add(mesh);
+	}
+	if (marshId == 3) {
+		var height = par.staircaseHeight + par.strightPartHeight;// - strightPartHeight2;
+		if (params.platformPosition == 'ниже') {
+			height -= params.h3;
+		}
+		var holdePar = {
+			length: params.M - params.sideOverHang * 2,
+			height: height
+		}
+		if (params.strightCarcasModel == 'лт') holdePar.length = params.M - 80;
+		var mesh = drawVintConnectionPart(holdePar).mesh;
+		mesh.position.z = params.M / 2 - params.sideOverHang;
+		mesh.position.y = -params.treadThickness;
+		mesh.position.x = -55-30;//Профиль опоры 100x60;
+		if (turnFactor == 1){
+			mesh.rotation.y = Math.PI;
+			mesh.position.z -= holdePar.length + 8;
+			mesh.position.x += 50;
+		}
+		marsh.add(mesh);
+	}
 
 	//для каждой секции формируем массив параметров
 	var railingSide = params.railingSide_1;
-	if (par.marshId == 3) {
-		railingSide = railingSide_3;
-	}
-	console.log(railingSide);
+	if (marshId == 3) railingSide = params.railingSide_3;
+
 	if (railingSide != 'нет') {
 		var sectParams = {
 			holeMooveParams: [],
@@ -58,7 +100,7 @@ function drawStrightMarsh(par, marshId){
 				sideHolderAmt: 0,
 				glassHolderAmt: 0
 			},
-			dxfBasePoint: {x: 0, y:0},
+			dxfBasePoint: {x:0,y:4000},
 			railingType: params.strightMarshRailing,
 			isSectHandrail: "есть",
 			railingParType: "с марша",
@@ -68,21 +110,25 @@ function drawStrightMarsh(par, marshId){
 			stairAmt_r: getMarshParams(marshId).stairAmt,
 			len: getMarshParams(marshId).stairAmt * getMarshParams(marshId).b,
 			angle: THREE.Math.radToDeg(Math.atan(getMarshParams(marshId).h / getMarshParams(marshId).b)),
-			sectHeight: 900,
+			sectHeight: 1020,
 			lastRackMooveY: 0,
 			railingPosZ: params.M / 2
 		}
+		if (marshId == 3) sectParams.dxfBasePoint = {x:0,y:0};
 		if (railingSide == 'две' || railingSide == 'внешнее') {
+			sectParams.dxfBasePoint.x -= 2000;
 			sectParams.railingSide = 'левая';
 			sectParams = drawRailingSection(sectParams);
 			sectParams.mesh.position.y += getMarshParams(marshId).h
 			sectParams.mesh.position.z = -params.M / 2;
-			if (params.strightMarshRailing != 'дерево с ковкой') {
+			if (params.strightMarshRailing != 'Дерево с ковкой') {
 				sectParams.mesh.position.z -= 40;
 			}
 			marsh.add(sectParams.mesh)
 		}
 		if (railingSide == 'две' || railingSide == 'внутреннее') {
+			sectParams.dxfBasePoint.x -= 4000;
+			console.log(railingSide);
 			sectParams.railingSide = 'правая';
 			sectParams = drawRailingSection(sectParams);
 			sectParams.mesh.position.y += getMarshParams(marshId).h
@@ -99,7 +145,9 @@ function drawStrightMarsh(par, marshId){
 		marsh.position.x = -getMarshParams(1).len - par.columnDiam / 2 + 10;
 		marsh.position.z = (params.M / 2) * turnFactor;
 		wrapper.add(marsh)
-		wrapper.rotation.y = THREE.Math.degToRad(params.strightTreadsAngle) - Math.PI / 2 * turnFactor;//THREE.Math.degToRad(params.firstStepAngle) + par.startAngle - Math.PI / 2;
+		wrapper.rotation.y = THREE.Math.degToRad(params.strightTreadsAngle) + Math.PI / 2;
+		if(turnFactor == 1) wrapper.rotation.y = -THREE.Math.degToRad(params.strightTreadsAngle) - Math.PI / 2;
+		//THREE.Math.degToRad(params.firstStepAngle) + par.startAngle - Math.PI / 2;
 		if (params.platformType == "triangle") wrapper.rotation.y = THREE.Math.degToRad(params.strightTreadsAngle) - Math.PI * turnFactor;
 	}
 
@@ -112,6 +160,46 @@ function drawStrightMarsh(par, marshId){
 	}
 
 	return wrapper;
+}
+
+/**
+ * Часть с опорой для соединения с винтовой частью
+ * @param par 
+ */
+function drawVintConnectionPart(par){
+	par.mesh = new THREE.Object3D;
+
+	var poleParams = {
+		poleProfileY: 100,
+		poleProfileZ: 50,
+		length: par.length,
+		material: params.materials.carcas,
+		dxfBasePoint: {x:0,y:0,z:0},
+		dxfArr: [],
+	}
+
+	var columnParams = {
+		poleProfileY: 50,
+		poleProfileZ: 100,
+		length: par.height - 100,
+		material: params.materials.carcas,
+		dxfBasePoint: {x:0,y:0,z:0},
+		dxfArr: [],
+	}
+
+	var pole = drawPole3D_4(poleParams).mesh;
+	pole.rotation.y = Math.PI / 2;	
+	pole.position.y -= 100;
+	par.mesh.add(pole);
+
+	
+	var column = drawPole3D_4(columnParams).mesh;
+	column.rotation.z = -Math.PI / 2;
+	column.position.z = -par.length;
+	column.position.y -= 100;
+	par.mesh.add(column);
+	
+	return par;
 }
 
 /**
@@ -171,7 +259,7 @@ function drawMidFixings(par){
  * Отрисовывает бобышки
  * @param par общие параметры
  */
-function drawDrums(par){
+function drawDrums(par){	
 	var drums = new THREE.Object3D();
 	/*бобышки*/
 	if (params.model.indexOf("Спиральная") == -1) {
@@ -294,7 +382,7 @@ function drawDrums(par){
 		//крышка нижнего фланца
 		if (params.botFlanCover == "есть") {
 			var flanCover = drawBotFlanCover();
-			flanCover.position.y = 0;
+			flanCover.position.y = -par.strightPartHeight;
 			drums.add(flanCover);//, "treads");
 		}
 
@@ -430,7 +518,7 @@ function drawDrums(par){
 		var nut = drawNut(nutParams).mesh;
 		nut.position.y = par.stepHeight * params.stepAmt + params.regShimAmt * par.regShimThk + 8 + 4 + 0.5;
 		if (params.platformPosition == "ниже") nut.position.y -= par.stepHeight;
-		console.log(nut.position.y, posY0)
+		//console.log(nut.position.y, posY0)
 		drums.add(nut);//, "shims");
 		var nutTopPos = nut.position.y + nutParams.nutHeight;
 
@@ -451,10 +539,11 @@ function drawDrums(par){
 function drawStringers(par){
 	var stringers = new THREE.Object3D();
 	if (params.model != "Винтовая" && params.model !== "Винтовая с больцами") {
-		var stringerMaterial = new THREE.MeshLambertMaterial({
-			color: 0x363636,
-			wireframe: false
-		});
+		var stringerMaterial = params.materials.metal;
+		// var stringerMaterial = new THREE.MeshLambertMaterial({
+		// 	color: 0x363636,
+		// 	wireframe: false
+		// });
 		stringerMaterial.side = THREE.DoubleSide;
 
 		var stringerExtraStep = 0.5;
@@ -484,10 +573,10 @@ function drawStringers(par){
 			stairAmt: par.stairAmt,
 			stepHeight: par.stepHeight,
 			staircaseHeight: par.staircaseHeight,
-			dxfBasePoint: {x:4000, y: 0,}
+			dxfBasePoint: {x:4000, y: -4000,}
 		}
 		var stringerDXF = drawStringerDXF(dxfStringerPar);
-		console.log(dxfStringerPar, par.platformExtraAngle, par.platformAngle)
+		//console.log(dxfStringerPar, par.platformExtraAngle, par.platformAngle)
 		var stringer = stringerDXF.mesh;
 		
 		stringer.rotation.y = (par.platformExtraAngle - par.platformAngle / 2 + Math.PI);
@@ -519,15 +608,18 @@ function drawStringers(par){
 		//stringers.push(stringer);
 		stringers.add(stringer);//, "stringers");
 
-		var floorAngle = drawAngleSupport("У4-70х70х100");
-		floorAngle.rotation.y = stairParams.stairCaseAngle + Math.PI / 2;
-		if (params.turnFactor == 1) {
-			floorAngle.rotation.y = -stairParams.stairCaseAngle + Math.PI / 2;
-			floorAngle.position.x += 100 * Math.cos(Math.PI * 2 - (stairParams.stairCaseAngle + Math.PI / 2));
-			floorAngle.position.z -= 100 * Math.sin(Math.PI * 2 - (stairParams.stairCaseAngle + Math.PI / 2));
+
+		if (params.strightMarsh != 'снизу' && params.strightMarsh != 'сверху и снизу') {
+			var floorAngle = drawAngleSupport("У4-70х70х100");
+			floorAngle.rotation.y = stairParams.stairCaseAngle + Math.PI / 2;
+			if (params.turnFactor == 1) {
+				floorAngle.rotation.y = -stairParams.stairCaseAngle + Math.PI / 2;
+				floorAngle.position.x += 100 * Math.cos(Math.PI * 2 - (stairParams.stairCaseAngle + Math.PI / 2));
+				floorAngle.position.z -= 100 * Math.sin(Math.PI * 2 - (stairParams.stairCaseAngle + Math.PI / 2));
+			}
+			translateObject(floorAngle, 0, 0, -params.staircaseDiam / 2);
+			stringers.add(floorAngle);//, "stringers");
 		}
-		translateObject(floorAngle, 0, 0, -params.staircaseDiam / 2);
-		stringers.add(floorAngle);//, "stringers");
 	}
 	
 	//внутренняя спиральная тетива*/
@@ -678,7 +770,7 @@ function drawStringerDXF(par){
 	var p1 = newPoint_xy(p1_1, 0, botFaceOffset);
 	//var p2 = polar(p1, angle, length);
 	var p2 = newPoint_xy(p0, lenX, height);
-	console.log(p2)
+	//console.log(p2)
 	var p3 = newPoint_xy(p2, 0, topFaceHeight - topFlanHeightOffset);
 	var p4 = newPoint_xy(p3, -topFlanDepthOffset, 0);
 	var p5 = newPoint_xy(p4, 0, topFlanHeightOffset);

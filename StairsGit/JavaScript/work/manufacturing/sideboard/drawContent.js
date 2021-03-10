@@ -64,8 +64,8 @@ function drawContent(par){
 				drawBrdge: true, //отрисовывать ли перемычку каркаса под рядом
 				doorOnlayLeft: 0, 
 				doorOnlayRight: 0,
-				}
-			
+			}
+
 			if(row.type == "два ящика" || row.type == "две дверки") rowPar.unitAmt = 2;
 			if(row.type == "три ящика") rowPar.unitAmt = 3;
 			if(row.type == "четыре ящика") rowPar.unitAmt = 4; 
@@ -462,55 +462,103 @@ function drawContentUnit(par){
 
 function drawHandle(par){
 	if(!par) par = {};
-	initPar(par)
+	initPar(par);
+
+	if (!par.handleType || par.handleType == 'скоба') {
+		par.len = 120;
+		par.width = 15;
+		par.height = 20;
+		par.legThk = 20;
+		par.thk = 5;
+		
+		var p0 = {x: 0, y:0};
+		var p1 = copyPoint(p0);
+		var p2 = newPoint_xy(p1, 0, par.legThk);
+		var p3 = newPoint_xy(p2, par.height - par.thk, 0);
+		var p4 = newPoint_xy(p1, par.height - par.thk, par.len - par.legThk);
+		var p5 = newPoint_xy(p1, 0, par.len - par.legThk);
+		var p6 = newPoint_xy(p1, 0, par.len);
+		var p7 = newPoint_xy(p6, par.height, 0);
+		var p8 = newPoint_xy(p1, par.height, 0);
+		
+		p3.filletRad = p4.filletRad = 10;
+		p7.filletRad = p8.filletRad = 20;
+		
+		var points = [p1, p2, p3, p4, p5, p6, p7, p8];
+		
+		//создаем шейп
+		var shapePar = {
+			points: points,
+			dxfArr: par.dxfArr,
+			dxfBasePoint: par.dxfBasePoint,
+			radIn: 0, //Радиус скругления внутренних углов
+			radOut: 0, //радиус скругления внешних углов
+			//markPoints: true,
+		}
+		
+		var shape = drawShapeByPoints2(shapePar).shape;
+		
+		var extrudeOptions = {
+			amount: par.width,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+			};
 	
-	par.len = 120;
-	par.width = 15;
-	par.height = 20;
-	par.legThk = 20;
-	par.thk = 5;
-	
-	var p0 = {x: 0, y:0};
-	var p1 = copyPoint(p0);
-	var p2 = newPoint_xy(p1, 0, par.legThk);
-	var p3 = newPoint_xy(p2, par.height - par.thk, 0);
-	var p4 = newPoint_xy(p1, par.height - par.thk, par.len - par.legThk);
-	var p5 = newPoint_xy(p1, 0, par.len - par.legThk);
-	var p6 = newPoint_xy(p1, 0, par.len);
-	var p7 = newPoint_xy(p6, par.height, 0);
-	var p8 = newPoint_xy(p1, par.height, 0);
-	
-	p3.filletRad = p4.filletRad = 10;
-	p7.filletRad = p8.filletRad = 20;
-	
-	var points = [p1, p2, p3, p4, p5, p6, p7, p8];
-	
-	//создаем шейп
-	var shapePar = {
-		points: points,
-		dxfArr: par.dxfArr,
-		dxfBasePoint: par.dxfBasePoint,
-		radIn: 0, //Радиус скругления внутренних углов
-		radOut: 0, //радиус скругления внешних углов
-		//markPoints: true,
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var mesh = new THREE.Mesh(geom, params.materials.metal2);
+		mesh.rotation.y = -Math.PI / 2;
+		mesh.position.x = par.width / 2;
+		mesh.position.y = -par.len / 2;
+		par.mesh.add(mesh);
+	}else if (par.handleType == 'кнопка круглая'){
+		var handleDiam = 16;
+		var geom = new THREE.CylinderGeometry(handleDiam, handleDiam, handleDiam, 32);
+		var mesh = new THREE.Mesh(geom, params.materials.metal2);
+		mesh.rotation.x = -Math.PI / 2;
+		mesh.position.x = handleDiam / 2;
+		mesh.position.z = handleDiam / 2;
+		par.mesh.add(mesh);
+	}else if (par.handleType == 'кнопка квадратная'){
+		var handleProf = 24;
+		var geom = new THREE.BoxGeometry(handleProf, handleProf / 2, handleProf);
+		var mesh = new THREE.Mesh(geom, params.materials.metal2);
+		mesh.rotation.x = -Math.PI / 2;
+		mesh.position.x = handleProf / 2;
+		mesh.position.z = handleProf / 4;
+		par.mesh.add(mesh);
+	}else if (par.handleType.indexOf('рейлинг') != -1){
+		var handleDiam = 5;
+		var handleWidth = 96;
+		var handleHeight = 25;
+
+		if(par.handleType == 'рейлинг 128')var handleWidth = 128;
+		if(par.handleType == 'рейлинг 160')var handleWidth = 160;
+
+		var baseGeom = new THREE.CylinderGeometry(handleDiam, handleDiam, handleHeight, 32); // Геометрия основания ручки
+		var mesh = new THREE.Mesh(baseGeom, params.materials.metal2);
+		mesh.rotation.x = -Math.PI / 2;
+		mesh.position.x = -handleDiam / 2;
+		mesh.position.y = -handleWidth / 2 + 15;
+		mesh.position.z = handleHeight / 2;
+		par.mesh.add(mesh);
+
+		var mesh = new THREE.Mesh(baseGeom, params.materials.metal2);
+		mesh.rotation.x = -Math.PI / 2;
+		mesh.position.x = -handleDiam / 2;
+		mesh.position.y = handleWidth / 2 - 15;
+		mesh.position.z = handleHeight / 2;
+		par.mesh.add(mesh);
+
+		var handleGeom = new THREE.CylinderGeometry(handleDiam, handleDiam, handleWidth, 32); // Геометрия самой ручки
+		var mesh = new THREE.Mesh(handleGeom, params.materials.metal2);
+		mesh.position.x = -handleDiam / 2;
+		mesh.position.z = handleHeight;
+
+		par.mesh.add(mesh);
 	}
 	
-	var shape = drawShapeByPoints2(shapePar).shape;
-	
-	var extrudeOptions = {
-        amount: par.width,
-        bevelEnabled: false,
-        curveSegments: 12,
-        steps: 1
-		};
-
-	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
-	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var mesh = new THREE.Mesh(geom, params.materials.metal2);
-	mesh.rotation.y = -Math.PI / 2;
-	mesh.position.x = par.width / 2;
-	mesh.position.y = -par.len / 2;
-	par.mesh.add(mesh);
 	
 	//сохраняем данные для спецификации
 	par.partName = "handle";
@@ -532,13 +580,13 @@ function drawHandle(par){
 	//	var area = par.len * par.width / 1000000;
 	//	var paintedArea = area * 2 + (par.len + par.width) * 2 * par.thk / 1000000;
 		
-		var name = Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(par.height);
+		var name = par.handleType || (Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(par.height));
 		if(specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1;
 		if(!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1;
 		specObj[par.partName]["amt"] += 1;
 	//	specObj[par.partName]["area"] += area;
 	//	specObj[par.partName]["paintedArea"] += paintedArea;
-		}
+	}
 
 	return par;	
 

@@ -45,6 +45,15 @@ if (railingModel == "Кресты"){
 	$(".banister_crossrailing_tr").hide();
 }
 
+$.each($(".banisterSectionDirection"), function(){
+	if ($(this).val() == 'угол') {
+		$(this).parent().find('.banisterCustomAngle').show();
+	}else{
+		$(this).parent().find('.banisterCustomAngle').hide();
+	}
+})
+// banisterCustomAngle
+
 //параметры кованых ограждений
 	$(".kovka_bal_tr").hide();	
 	if (railingModel == "Кованые балясины") $(".kovka_bal_tr").show();

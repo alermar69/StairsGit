@@ -783,6 +783,92 @@ function drawPolygonSegment(par) {
 	return par;
 }
 
+/** функция отрисовывает сегмент многоугольного павильона
+	angle  - полный угол сектора
+*/
+
+function drawPolygonSegmentRect(par) {
+
+	par.mesh = new THREE.Object3D();
+	if (!par.dxfArr) par.dxfArr = [];
+	if (!par.dxfBasePoint) par.dxfBasePoint = { x: 0, y: 0 };
+	if (!par.extraRad) par.extraRad = 0;
+
+	//длина ребра
+	var edgeWidth = par.width / 2;
+	var edgeLen = par.len / 2;
+	var roofHeight = 200;
+
+	//параметры колонн
+	// var columnProfPar = getProfParams(params.columnProf)
+	// var columnPar = {
+	// 	poleProfileY: columnProfPar.sizeA,
+	// 	poleProfileZ: columnProfPar.sizeB,
+	// 	dxfBasePoint: par.dxfBasePoint,
+	// 	length: params.height,
+	// 	poleAngle: 0,
+	// 	material: params.materials.metal,
+	// 	dxfArr: [],
+	// 	type: 'rect',
+	// 	partName: 'carportColumn'
+	// };
+
+	// //колонна
+	// var rack1 = drawPole3D_4(columnPar).mesh;
+	// rack1.rotation.z = Math.PI / 2;
+	// // rack1.position.x = -edgeWidth / 2 + columnPar.poleProfileZ;
+	// rack1.position.z = -edgeLen;
+
+	// rack1.setLayer('racks');
+	// par.mesh.add(rack1);
+
+	//балки мауэрлата
+	// var horBeamPar = {
+	// 	poleProfileY: columnProfPar.sizeA,
+	// 	poleProfileZ: columnProfPar.sizeB,
+	// 	dxfBasePoint: par.dxfBasePoint,
+	// 	length: edgeLen,
+	// 	poleAngle: 0,
+	// 	material: params.materials.metal,
+	// 	dxfArr: [],
+	// 	type: 'rect',
+	// 	partName: 'carportBeam'
+	// };
+	// var horBeam = drawPole3D_4(horBeamPar).mesh;
+
+	// //horBeam.rotation.y = par.angle + Math.PI;
+	// horBeam.position.x = -horBeamPar.length / 2;
+	// horBeam.position.z = -par.minRad;
+	// horBeam.position.y = params.height;
+
+	// horBeam.setLayer('racks');
+	// par.mesh.add(horBeam);
+
+	// par.poleProfileY = horBeamPar.poleProfileY
+
+	//рамки кровли
+
+	var framePar = {
+		ang: Math.PI / 4,
+		edgeLen: edgeLen, //длина ребра
+		dxfArr: dxfPrimitivesArr,
+		dxfBasePoint: { x: 2000, y: 0 },
+		sideOffset: 50 + (edgeLen-edgeWidth) * 2,
+		topOffset: 200,
+	}
+	if (edgeWidth < edgeLen) {
+		framePar.sideOffset = 50;
+	}
+
+	var frame = drawPolygonRoofSectorFrame(framePar).mesh;
+	frame.rotation.x = Math.PI / 2;//-params.roofAng / 180 * Math.PI + Math.PI / 2;
+	frame.position.y = params.height;
+
+	par.mesh.add(frame);
+	
+	return par;
+}
+
 /** функция отрисовывает сдвижной навес для бассейна
 */
 
@@ -972,7 +1058,7 @@ function drawRectCarport(par){
 
 		if(params.roofType == "Арочная") {
 			deltaHeight = partPar.main.arcPar.topArc.height - partPar.truss.width - 50
-			if(params.beamModel == "проф. труба") deltaHeight = partPar.main.arcPar.topArc.height - partPar.rafter.profSize.y - partPar.beam.profSize.y
+			if(params.trussType == "балки") deltaHeight = partPar.main.arcPar.topArc.height - partPar.rafter.profSize.y - partPar.beam.profSize.y
 		}
 		columnArrPar.modifier = function(counter, itemPar, itemMoove){
 			itemPar.len = params.height;
@@ -1030,7 +1116,7 @@ function drawRectCarport(par){
 	
 	
 	if(params.carportType == "консольный") beamArrPar.amt.x = 1;
-	if(params.beamModel == "проф. труба") {
+	if(params.trussType == "балки") {
 		var beamPar = {
 			poleProfileY: partPar.beam.profSize.x,
 			poleProfileZ: partPar.beam.profSize.y,
@@ -1055,11 +1141,11 @@ function drawRectCarport(par){
 	}
 	
 	//задаем разную высоту колонн справа и слева для односкатного навеса. Также переворачиваем балки из листа
-	if(params.carportType == "односкатный" || params.beamModel != "проф. труба"){
+	if(params.carportType == "односкатный" || params.trussType != "балки"){
 		beamArrPar.modifier = function(counter, itemPar, itemMoove){
 			if(counter.x == 1) {
 				if(params.carportType == "односкатный") itemMoove.y = deltaHeight;
-				if(params.beamModel != "проф. труба") itemPar.isLeft = true;
+				if(params.trussType != "балки") itemPar.isLeft = true;
 			}
 		}
 	}
@@ -1073,8 +1159,9 @@ function drawRectCarport(par){
 	if(params.carportType == "двухскатный") deltaWidth = -flanHolesPos * 2 + partPar.truss.thk; 
 
 	
-	if(params.beamModel == "проф. труба"){
-		deltaWidth = params.sideOffset
+	if(params.trussType == "балки"){
+		//deltaWidth = params.sideOffset
+		deltaWidth = 0
 	}
 	
 	beamArrPar.arrSize.x += deltaWidth
@@ -1092,10 +1179,15 @@ function drawRectCarport(par){
 	}
 	
 	if(params.carportType == "односкатный"){
-		beamArr.position.x = -params.width / 2 + params.sideOffset + flanHolesPos
+		beamArr.position.x = -params.width / 2 + params.sideOffset
+		if(params.trussType != "балки") beamArr.position.x += flanHolesPos
 	}
-	if(params.beamModel != "проф. труба") {
+	if(params.trussType != "балки") {
 		beamArr.position.z += 2;
+	}
+	
+	if(params.trussType == "балки") {
+		beamArr.position.z -= (params.backOffset - params.frontOffset) / 2
 	}
 	
 	
@@ -1112,17 +1204,25 @@ function drawRectCarport(par){
 	var roofCarcas = drawRoofCarcas(roofCarcasPar).mesh;
 	roofCarcas.position.y += params.height
 	
-	if(params.beamModel == "проф. труба" && params.carportType != "сдвижной") {
+	if(params.trussType == "балки" && params.carportType != "сдвижной") {
 		roofCarcas.position.y += partPar.beam.profSize.y
 	}
 	
 	
 	
 	
-	if (params.carportType == "односкатный") roofCarcas.position.x = -params.width / 2 + partPar.column.profSize.x / 2 + params.sideOffset;
-	if (params.beamModel != "проф. труба") roofCarcas.position.z += 6;
+	if (params.carportType == "односкатный") {
+		roofCarcas.position.x = -params.width / 2 + partPar.column.profSize.x / 2 + params.sideOffset;
+		if(params.trussType == "балки") roofCarcas.position.x = 0;
+	}
+	if (params.trussType != "балки") roofCarcas.position.z += 6;
 	if (params.frontOffset !== params.backOffset) roofCarcas.position.z += (params.frontOffset - params.backOffset) / 2;
 	if (params.carportType == "консольный") roofCarcas.position.z = 0;
+	/*
+	if(params.trussType == "балки") {
+		roofCarcas.position.z  = 0
+	}
+	*/
 	carport.add(roofCarcas);
 		
 	//кровля
@@ -1135,7 +1235,7 @@ function drawRectCarport(par){
 		
 		var roof = drawRoof(roofPar)
 		roof.position.y = params.height
-		if(params.beamModel == "проф. труба" && params.carportType != "сдвижной") {
+		if(params.trussType == "балки" && params.carportType != "сдвижной") {
 			roof.position.y += partPar.beam.profSize.y
 		}
 		
@@ -1151,10 +1251,10 @@ function drawRectCarport(par){
 		}
 		
 		var roof = drawRoof(roofPar)
-		if(params.beamModel == "проф. труба") {
+		if(params.trussType == "балки") {
 			roof.position.y = params.height + partPar.rafter.profSize.y / Math.cos(params.roofAng / 180 * Math.PI)
 		}
-		if(params.beamModel != "проф. труба") {
+		if(params.trussType != "балки") {
 			roof.position.y = params.height
 		}
 		roof.setLayer('roof');
@@ -1317,18 +1417,6 @@ function drawPyramidalPavilion(par) {
 		par.mesh.add(horBeam);
 	}
 
-
-	/* конек крыши */
-	var ridge = drawPole3D_4(ridgePar).mesh;
-
-	ridge.rotation.y = -Math.PI / 2;
-	ridge.position.x = ridgePar.poleProfileZ / 2;
-	ridge.position.z = - ridgePar.length / 2;
-	ridge.position.y = params.height + par.roofHeight - ridgePar.poleProfileY;
-
-	ridge.setLayer('racks');
-	par.mesh.add(ridge);
-
 	/* стропильные ноги */
 	var rafterPar = {
 		dxfBasePoint: par.dxfBasePoint,
@@ -1343,7 +1431,8 @@ function drawPyramidalPavilion(par) {
 	};
 
 	var rafter = drawPyramidalRafters(rafterPar).mesh
-	rafter.position.y = params.height;
+	var box3 = new THREE.Box3().setFromObject(rafter);
+	rafter.position.y = params.height + (box3.max.y - box3.min.y);
 
 	rafter.setLayer('racks');
 	par.mesh.add(rafter);

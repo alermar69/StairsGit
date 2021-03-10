@@ -86,7 +86,7 @@ function draw3DDimensions(par){
 	}
 
 	// размеры прямой лестницы
-	if (params.stairModel == 'Прямая') {
+	if (params.stairModel == 'Прямая' && window.treadsObj) {
 		if (!additionalParams.hideTreadDimensions) {
 			//Размер ступени 1 марша
 			var treadDimensions = setTreadsDimensions(treadsObj, 1, viewType);
@@ -514,6 +514,7 @@ function draw3DDimensions(par){
 	}
 
 	if (params.calcType == 'vint' && window.vintStaircaseMoove) {
+		console.log('aga');
 		var dimPar = {
 			p1: {
 				x: window.vintStaircaseMoove.x + params.staircasePosX,
@@ -1430,7 +1431,6 @@ makeDrawings = function(callback, dimensionParams){
 	if(!dimensionParams) dimensionParams = {};
 	$('#geomDrawings').html(null);
 	view.renderer.setClearColor(new THREE.Color(0xFFFFFF))
-	// params.dimScale = "2.5";
 	var viewportId = 'vl_1';
 	makeDrawing(viewportId, "front", function(){
 		makeDrawing(viewportId, "left", function(){
@@ -1456,7 +1456,6 @@ makeDrawings = function(callback, dimensionParams){
 			}
 		},dimensionParams);
 	},dimensionParams);
-
 };
 
 /**
@@ -1471,14 +1470,16 @@ makeDrawing = function(viewportId, viewType, callback, dimensionParams){
 		}else if(params.calcType == 'carport' && window.carportColumns){
 			var mainObj = window.carportColumns;
 		}else{
-			var mainObj = new THREE.Object3D();
+			var mainObj = window.floor;//new THREE.Object3D();
 		}
 	}else{
 		var mainObj = treadsObj.treads;
 	}
+	
 
 	fitCameraToObject(mainObj, viewType);
 	setDimensions(viewportId, viewType, callback, dimensionParams);
+	drawCustomDimensions();
 	var floorView = viewType;
 	if (floorView == 'left' || floorView == 'right') floorView = 'side';
 	if (params.stairModel == 'П-образная с площадкой' || params.stairModel == 'П-образная с забегом' || params.stairModel == 'П-образная трехмаршевая') {
@@ -1495,7 +1496,7 @@ makeDrawing = function(viewportId, viewType, callback, dimensionParams){
 			floorView = 'front';
 		}
 	}
-	if(!params.calcType == 'carport') addTopFloorGeom(floorView)
+	// if(params.calcType != 'carport' && params.calcType != 'vint' && params.calcType != 'railing') addTopFloorGeom(floorView)
 	drawAdditionalDimensions(function(){
 		setTimeout(function () {
 			addDrawingsImage(dimensionParams);
@@ -1513,7 +1514,7 @@ addDrawingsImage = function(dimensionParams){
 	var height = "100%";
 	if (dimensionParams.imageWidth) width = dimensionParams.imageWidth;
 	if (dimensionParams.imaegHeight) height = dimensionParams.imaegHeight;
-	var elem = '<img ';
+	var elem = '<div><button class="btn btn-danger deleteGeomImage" style="display: none;"><i class="fa fa-trash"/></button><img ';
 /*	
 	//Ориентируемся на ширину
 	if (dimensionParams.imageWidth) {
@@ -1524,7 +1525,7 @@ addDrawingsImage = function(dimensionParams){
 		elem += ` height='${height}' `;
 	}
 */	
-	elem += `src="${imgData}" alt="">`;
+	elem += `src="${imgData}" alt=""></div>`;
 	$('#geomDrawings').append(elem + "<br><br>");
 }
 
@@ -1579,18 +1580,26 @@ fitCameraToObject = function ( object, viewType ) {
 	boundingBox.setFromObject( object );
 
 	const center = boundingBox.getCenter();
-	console.log(object, center)
+	
 	const size = boundingBox.getSize();
+	
+	if (window.floor && object == window.floor) {
+		console.log('aga');
+		center.y = 1700;
+	}
 	//Получаем максимальный размер
 	const maxDim = Math.max( size.x, size.y, size.z);
 
-
 	//Масштаб изображения 1500 / maxDim примерно в притык
-	var scale = 1000 / maxDim;
+	var scale = 900 / maxDim;
 	if (params.calcType == 'timber_stock') scale = 800 / maxDim;
-	if (params.calcType == 'vint') scale = 800 / maxDim;
-	if (params.calcType == 'carport') scale = 700 / maxDim;
+	if (params.calcType == 'vint') scale = 700 / maxDim;
+	if (params.calcType == 'vint' && params.strightMarsh != 'нет' && params.strightMarsh != 'сверху и снизу') scale = 500 / maxDim;
+	if (params.calcType == 'vint' && params.strightMarsh == 'сверху и снизу') scale = 350 / maxDim;
+	if (params.calcType == 'carport') scale = 600 / maxDim;
 	if (params.calcType == 'objects') scale = 4000 / maxDim;
+	if (params.calcType == 'veranda') scale = 150 / maxDim;
+	if (params.calcType == 'railing') scale = 2000 / maxDim;
 	view.camera = new THREE.OrthographicCamera( view.width / - scale, view.width / scale, view.height / scale, view.height / - scale, -20000, 50000);
 
 	//Положения камер отличаются в зависимости от типа лестниц

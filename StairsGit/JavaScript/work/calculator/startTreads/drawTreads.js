@@ -15,12 +15,14 @@ function drawStartUnit() {
 		dxfBasePoint: { x: -3000, y: 0 },
 		radiusFactor: params.radiusFactor, //определяет радиус передней кромки
 		asymmetryFactor: params.asymmetryFactor, //определяет симметричность ступени
+		widthFactor: params.widthFactor, //определяет ширину для прямоугольных
 		fullArcFront: false,
 		stepFactor: params.stepFactor,
 		rearLedge: {
 			width: 50,
 			len: params.M - sideOverHang * 2 + 1, //1мм зазор чтобы не было пересечений
 		},
+		template: params.startTreadsTemplate,
 	}
 	if (params.fullArcFront == "да") treadPar.fullArcFront = true;
 	if (params.model == "лт") treadPar.rearLedge = { width: 50, len: params.M, }
@@ -30,15 +32,19 @@ function drawStartUnit() {
 			treadPar.radiusFactor = params.radiusFactor1;
 			treadPar.asymmetryFactor = params.asymmetryFactor1;
 			treadPar.stepFactor = params.stepFactor1
+			treadPar.widthFactor = params.widthFactor1
 		}
 		if (i == 2) {
 			treadPar.radiusFactor = params.radiusFactor2;
 			treadPar.asymmetryFactor = params.asymmetryFactor2;
 			treadPar.stepFactor = params.stepFactor2
+			treadPar.widthFactor = params.widthFactor2
 		}
 		if (i == params.startTreadAmt - 1) treadPar.lastStartTread = true;
-		treadPar.stepFactor = treadPar.stepFactor * (params.startTreadAmt - i);
+		if(treadPar.template != "прямоугольные") treadPar.stepFactor *= (params.startTreadAmt - i); //костыль для совместимости со старым кодом
+		if(treadPar.template == "прямоугольные") treadPar.stepFactor += (params.startTreadAmt - i - 1) * 100;
 		treadPar.rearLedge.width = params.b1 * (params.startTreadAmt - i - 1);
+		treadPar.modifyKey = 'startTread:' + i;
 		var treadObj = drawStartTread(treadPar);
 		var startTreads = treadObj.mesh;
 		startTreads.position.x = params.startTreadAmt * params.b1 - treadPar.width + params.a1 - params.b1;
@@ -75,29 +81,30 @@ function drawStartUnit() {
 
 } //end of drawStartUnit
 
+/**
+функция отрисовывает криволинейную пригласительную ступень
+Обозначение параметров здесь /drawings/treads/startTread.pdf
+var startTreadsPar = {
+		side: //скругление: right || left || two
+		dxfBasePoint: {x:0, y:-1000},
+		radiusFactor: params.radiusFactor, //определяет радиус передней кромки
+		asymmetryFactor: params.asymmetryFactor, //определяет симметричность ступени
+		fullArcFront: false, //наличие прямого участка на криволинейной передней кромке
+		stepFactor: params.stepFactor, //определяет ширину проступи
+		rearLedge: {
+			width: 50,
+			len: params.M - params.sideOverHang * 2,
+			},
+		}
+Физический смысл параметров:
+radiusFactor - угол в градусах, на который уменьшается боковая дуга
+stepFactor - к-т ширина в процентах от a1
+asymmetryFactor - смещение центра передней дуги по X относительно центра ступени в процентах от М
 
+точки тут 6692035.ru/drawings/treads/startTread.png
+**/
 
 function drawStartTread(par) {
-	/*
-	функция отрисовывает криволинейную пригласительную ступень
-	Обозначение параметров здесь /drawings/treads/startTread.pdf
-	var startTreadsPar = {
-			side: //скругление: right || left || two
-			dxfBasePoint: {x:0, y:-1000},
-			radiusFactor: params.radiusFactor, //определяет радиус передней кромки
-			asymmetryFactor: params.asymmetryFactor, //определяет симметричность ступени
-			fullArcFront: false, //наличие прямого участка на криволинейной передней кромке
-			stepFactor: params.stepFactor, //определяет ширину проступи
-			rearLedge: {
-				width: 50,
-				len: params.M - params.sideOverHang * 2,
-				},
-			}
-	Физический смысл параметров:
-	radiusFactor - угол в градусах, на который уменьшается боковая дуга
-	stepFactor - к-т ширина в процентах от a1
-	asymmetryFactor - смещение центра передней дуги по X относительно центра ступени в процентах от М
-	*/
 
 	par.mesh = new THREE.Object3D();
 
@@ -109,24 +116,28 @@ function drawStartTread(par) {
 	var shape = new THREE.Shape();
 
 	var thk = params.treadThickness;
-	par.width = params.a1 * par.stepFactor / 100;
+	par.width = params.b1 * par.stepFactor / 100 + params.nose;
 	par.len = params.M;
-
-
+	
 	var p0 = { x: 0, y: 0 };
+	
+	if(par.template == "прямоугольные") {
+		par.len = params.M * par.widthFactor / 100;
+		var deltaLen = par.len - params.M;
+		if (par.side == "two") p0.x -= deltaLen / 2
+		if (par.side == "left") p0.x -= deltaLen;
+	}
 
 	var p1 = newPoint_xy(p0, 0, 0);
 	var p2 = newPoint_xy(p0, 0, par.width);
-	var p3 = newPoint_xy(p2, par.len, 0.0);
-	var p4 = newPoint_xy(p1, par.len, 0.0);
+	var p3 = newPoint_xy(p0, par.len, par.width);
+	var p4 = newPoint_xy(p0, par.len, 0.0);
 
 	if (!par.lastStartTread && params.riserType == "есть") {
 		p2.y += params.riserThickness;
 		p3.y += params.riserThickness;
 		//par.width += params.riserThickness;
 	}
-
-	
 
 	//параметры боковых дуг
 
@@ -260,15 +271,21 @@ function drawStartTread(par) {
 	//построение контура
 
 	//правая боковая линия
-
-	if (par.side == "right" || par.side == "two") {
-		addArc2(shape, dxfPrimitivesArr, sideArcs.right.center, sideArcs.right.rad, sideArcs.right.angStart, sideArcs.right.angEnd, true, par.dxfBasePoint)
+	if (par.template != "прямоугольные"){
+		 if(par.side == "right" || par.side == "two") {
+			addArc2(shape, dxfPrimitivesArr, sideArcs.right.center, sideArcs.right.rad, sideArcs.right.angStart, sideArcs.right.angEnd, true, par.dxfBasePoint)
+		}
+		else {
+			p3.y -= par.rearLedge.width;
+			addLine(shape, dxfPrimitivesArr, p3, p4, par.dxfBasePoint);
+		}
 	}
-	else {
-		p3.y -= par.rearLedge.width;
+	
+	if (par.template == "прямоугольные"){
+		if(par.side == "left") p3.y -= par.rearLedge.width;
 		addLine(shape, dxfPrimitivesArr, p3, p4, par.dxfBasePoint);
 	}
-
+	
 	//передняя линия
 
 	if (par.radiusFactor == 0) {
@@ -286,23 +303,35 @@ function drawStartTread(par) {
 	}
 
 	//левая боковая линия
-
-	if (par.side == "left" || par.side == "two") {
-		addArc2(shape, dxfPrimitivesArr, sideArcs.left.center, sideArcs.left.rad, sideArcs.left.angStart, sideArcs.left.angEnd, true, par.dxfBasePoint)
+	if (par.template != "прямоугольные"){
+		if (par.side == "left" || par.side == "two") {
+			addArc2(shape, dxfPrimitivesArr, sideArcs.left.center, sideArcs.left.rad, sideArcs.left.angStart, sideArcs.left.angEnd, true, par.dxfBasePoint)
+		}
+		else {
+			p2.y -= par.rearLedge.width;
+			addLine(shape, dxfPrimitivesArr, p1, p2, par.dxfBasePoint);
+		}
 	}
-	else {
-		p2.y -= par.rearLedge.width;
+	if (par.template == "прямоугольные"){
+		if(par.side == "right") p2.y -= par.rearLedge.width;
 		addLine(shape, dxfPrimitivesArr, p1, p2, par.dxfBasePoint);
 	}
-
 
 	//задняя линия
 
 	if (par.rearLedge) {
-		var p21 = newPoint_xy(p2, (par.len - par.rearLedge.len) / 2, 0);
+		//ширина заднего выступа
+		var len1 = (par.len - par.rearLedge.len) / 2;
+		if (par.template == "прямоугольные" && par.side != "two") {
+			len1 = len1 * 2
+			if(params.model == "ко") len1 -= params.sideOverHang;
+		}
+		//левая сторона
+		var p21 = newPoint_xy(p2, len1, 0);
 		var p22 = newPoint_xy(p21, 0, - par.rearLedge.width);
 		if (par.side != "left" && par.side != "two") p22 = copyPoint(p21);
-		var p31 = newPoint_xy(p3, -(par.len - par.rearLedge.len) / 2, 0);
+		//правая сторона
+		var p31 = newPoint_xy(p3, - len1, 0);
 		var p32 = newPoint_xy(p31, 0, - par.rearLedge.width);
 		if (par.side != "right" && par.side != "two") p32 = copyPoint(p31);
 
@@ -319,13 +348,32 @@ function drawStartTread(par) {
 		addLine(shape, dxfPrimitivesArr, p2, p3, par.dxfBasePoint);
 	}
 
-
 	var extrudeOptions = {
 		amount: thk,
 		bevelEnabled: false,
 		curveSegments: 12,
 		steps: 1
 	};
+
+	// Достаем переменные из объекта, чтобы можно было менять для одной ступени
+	var sizeA = par.width;
+	if (p5) sizeA += -p5.y
+	var sizeB = par.len;
+	if (par.side == "left" || par.side == "two") sizeB += rad;
+	if (par.side == "right" || par.side == "two") sizeB += rad;
+	var treadPar = getTreadParams(); //функция в файле calcSpecGeneral.js
+
+	if (par.modifyKey && window.service_data && window.service_data.shapeChanges && window.service_data.shapeChanges.length > 0) {
+		var modify = window.service_data.shapeChanges.find(function(change){
+			return change.modifyKey == par.modifyKey
+		})
+		if (modify) {
+			shape = getShapeFromModify(modify);
+			var bbox = findBounds(shape.getPoints());
+			sizeA = bbox.x;
+			sizeB = bbox.y;
+		}
+	}
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
@@ -334,6 +382,7 @@ function drawStartTread(par) {
 	tread.rotation.z = Math.PI / 2;
 	tread.rotation.y = Math.PI;
 	tread.position.y = -params.treadThickness;
+	tread.modifyKey = par.modifyKey;
 	par.mesh.add(tread);
 
 	//сохраняем данные для построения подступенков
@@ -344,17 +393,10 @@ function drawStartTread(par) {
 		p2: p2,
 		p3: p3,
 		p4: p4,
-		p5: p5,
+		p5: p5,		
 	}
 
 	//сохраняем данные для спецификации
-
-	var sizeA = par.width;
-	if (p5) sizeA += -p5.y
-	var sizeB = par.len;
-	if (par.side == "left" || par.side == "two") sizeB += rad;
-	if (par.side == "right" || par.side == "two") sizeB += rad;
-	var treadPar = getTreadParams(); //функция в файле calcSpecGeneral.js
 
 	var partName = "startTread";
 	if (typeof specObj != 'undefined' && params.stairType !== "нет") {
@@ -428,7 +470,20 @@ function drawStartRiser(par) {
 	var p4 = newPoint_xy(par.points.p4, 0, nose);
 	var p3 = newPoint_xy(p4, 0, params.riserThickness);
 	var p5 = newPoint_xy(par.points.p5, 0, nose);
-
+	
+	//добавляем боковой свес для прямоугольных ступеней
+	if(par.template == "прямоугольные") {
+		if (par.side == "left" || par.side == "two"){
+			p1.x += nose
+			p2.x += nose
+		}
+		if (par.side == "right" || par.side == "two"){
+			p3.x -= nose
+			p4.x -= nose
+		}
+		
+	}
+	
 	//смещаем переднюю линию и рассчитываем конечне точки
 	if (frontArc) {
 		frontArc.rad -= nose;
@@ -438,15 +493,28 @@ function drawStartRiser(par) {
 
 	//внешний контур
 	var sizeA = 0; //длина развертки подступенка
+	
+	//прямой участок до косоура
+	var len1 = (par.len - par.rearLedge.len) / 2 - 1; //1мм зазор чтобы не было пересечений
+	if (par.template == "прямоугольные"){
+		if(par.side != "two"){
+			len1 = len1 * 2 - nose;
+			if(params.model == "ко") len1 -= params.sideOverHang;
+		}
+		if(par.side == "two"){
+			len1 -= nose;
+		}
+	}
 
 	//правая линия
+	
 	if (par.side == "right" || par.side == "two") {
 		var p32 = newPoint_xy(par.points.p3, 0, -nose);
+		if(par.template == "прямоугольные") p32.x -= nose
 		var p31 = newPoint_xy(p32, 0, -params.riserThickness);
 
 		if (par.rearLedge) {
 			//прямой участок до косоура
-			var len1 = (par.len - par.rearLedge.len) / 2 - 1; //1мм зазор чтобы не было пересечений
 			var p30 = newPoint_xy(p31, -len1, 0);
 			var p33 = newPoint_xy(p32, -len1, 0);
 			addLine(shape, dxfPrimitivesArr, p31, p30, par.dxfBasePoint);
@@ -458,14 +526,21 @@ function drawStartRiser(par) {
 		else {
 			addLine(shape, dxfPrimitivesArr, p31, p32, par.dxfBasePoint);
 		}
-		addArc2(shape, dxfPrimitivesArr, sideArcs.right.center, sideArcs.right.rad - nose, sideArcs.right.angStart, sideArcs.right.angEnd, true, par.dxfBasePoint);
+		if(par.template != "прямоугольные") {
+			addArc2(shape, dxfPrimitivesArr, sideArcs.right.center, sideArcs.right.rad - nose, sideArcs.right.angStart, sideArcs.right.angEnd, true, par.dxfBasePoint);
+		}
+		if(par.template == "прямоугольные") {
+			addLine(shape, dxfPrimitivesArr, p32, p4, par.dxfBasePoint);
+		}
 		sizeA += (sideArcs.right.rad - nose) * Math.abs(sideArcs.right.angStart - sideArcs.right.angEnd);
 	}
 	else {
 		addLine(shape, dxfPrimitivesArr, p3, p4, par.dxfBasePoint);
 		sizeA += distance(p3, p4);
 	}
-
+	
+	
+	
 	//передняя линия
 
 	if (par.radiusFactor == 0) {
@@ -491,16 +566,23 @@ function drawStartRiser(par) {
 	//левая линия
 
 	if (par.side == "left" || par.side == "two") {
-		addArc2(shape, dxfPrimitivesArr, sideArcs.left.center, sideArcs.left.rad - nose, sideArcs.left.angStart, sideArcs.left.angEnd, true, par.dxfBasePoint)
+		var p21 = newPoint_xy(par.points.p2, 0, -nose);
+		if(par.template == "прямоугольные") p21.x += nose
+		var p22 = newPoint_xy(p21, 0, -params.riserThickness);
+		//прямой участок до косоура
+		var p20 = newPoint_xy(p21, len1, 0);
+		var p23 = newPoint_xy(p22, len1, 0);
+		
+		if(par.template != "прямоугольные") {
+			addArc2(shape, dxfPrimitivesArr, sideArcs.left.center, sideArcs.left.rad - nose, sideArcs.left.angStart, sideArcs.left.angEnd, true, par.dxfBasePoint)
+		}
+		if(par.template == "прямоугольные") {
+			addLine(shape, dxfPrimitivesArr, p1, p21, par.dxfBasePoint);
+		}
 		sizeA += (sideArcs.left.rad - nose) * Math.abs(sideArcs.left.angStart - sideArcs.left.angEnd);
 
-		var p21 = newPoint_xy(par.points.p2, 0, -nose);
-		var p22 = newPoint_xy(p21, 0, -params.riserThickness);
-		if (par.rearLedge) {
-			//прямой участок до косоура
-			var len1 = (par.len - par.rearLedge.len) / 2 - 1; //1мм зазор чтобы не было пересечений
-			var p20 = newPoint_xy(p21, len1, 0);
-			var p23 = newPoint_xy(p22, len1, 0);
+		
+		if (par.rearLedge) {			
 			addLine(shape, dxfPrimitivesArr, p21, p20, par.dxfBasePoint);
 			addLine(shape, dxfPrimitivesArr, p20, p23, par.dxfBasePoint);
 			addLine(shape, dxfPrimitivesArr, p23, p22, par.dxfBasePoint);
@@ -519,7 +601,12 @@ function drawStartRiser(par) {
 	//внутренняя линия
 
 	if (par.side == "left" || par.side == "two") {
-		addArc2(shape, dxfPrimitivesArr, sideArcs.left.center, sideArcs.left.rad - nose - params.riserThickness, sideArcs.left.angStart, sideArcs.left.angEnd, false, par.dxfBasePoint)
+		if(par.template != "прямоугольные") {
+			addArc2(shape, dxfPrimitivesArr, sideArcs.left.center, sideArcs.left.rad - nose - params.riserThickness, sideArcs.left.angStart, sideArcs.left.angEnd, false, par.dxfBasePoint)
+		}
+		if(par.template == "прямоугольные") {
+			addLine(shape, dxfPrimitivesArr, p22, p2, par.dxfBasePoint);
+		}
 	}
 
 	if (par.radiusFactor == 0) {
@@ -530,7 +617,12 @@ function drawStartRiser(par) {
 	}
 
 	if (par.side == "right" || par.side == "two") {
-		addArc2(shape, dxfPrimitivesArr, sideArcs.right.center, sideArcs.right.rad - nose - params.riserThickness, sideArcs.right.angStart, sideArcs.right.angEnd, false, par.dxfBasePoint);
+		if(par.template != "прямоугольные") {
+			addArc2(shape, dxfPrimitivesArr, sideArcs.right.center, sideArcs.right.rad - nose - params.riserThickness, sideArcs.right.angStart, sideArcs.right.angEnd, false, par.dxfBasePoint);
+		}
+		if(par.template == "прямоугольные") {
+			addLine(shape, dxfPrimitivesArr, p3, p31, par.dxfBasePoint);
+		}
 	}
 
 	/*	else {

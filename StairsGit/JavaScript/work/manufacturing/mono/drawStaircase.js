@@ -15,9 +15,8 @@ drawStaircase = function(viewportId, isVisible) {
 		boltLen = 16;
 	}
 
-	for (var layer in layers) {
-		removeObjects(viewportId, layer);
-	}
+	//удаляем старую лестницу
+	clearScene();
 
 	var model = {
 		objects: [],
@@ -29,6 +28,9 @@ drawStaircase = function(viewportId, isVisible) {
 			this.objects.push(objInfo);
 		},
 	};
+
+	var mesh = new THREE.Object3D();
+	mesh.name = getCurrentObjectName();
 
 	//обнуляем счетчики спецификации
 	partsAmt = {};
@@ -88,6 +90,8 @@ drawStaircase = function(viewportId, isVisible) {
 	model.add(stringerParams.flans, "flans");
 	model.add(stringerParams.treadPlates, "treadPlates");
 
+	window.treadsObj.treads = stringerParams.treadPlates;
+
 	// рамка под площадкой для лестницы на профиле
 	if (params.model == "труба") {
 		var framePlatformParams = {
@@ -145,10 +149,14 @@ drawStaircase = function(viewportId, isVisible) {
 		obj.position.z += moove.z;// + params.staircasePosZ + params.M / 2 * turnFactor;
 		obj.rotation.y = moove.rot;
 
+		// //добавляем в сцену
+		// addObjects(viewportId, obj, model.objects[i].layer);
+		obj.setLayer(model.objects[i].layer);
+		
 		//добавляем в сцену
-		addObjects(viewportId, obj, model.objects[i].layer);
-
+		mesh.add(obj);
 	}
+	addObjects(viewportId, mesh);
 
 
 	//измерение размеров на модели

@@ -23,8 +23,8 @@ class Door extends AdditionalObject {
 		var doorPar = Door.draw(objPar);
 		this.add(doorPar.mesh);
 
-		this.doorMesh = par.doorMesh;
-		this.doorMesh2 = par.doorMesh2;
+		this.doorMesh = doorPar.doorMesh;
+		this.doorMesh2 = doorPar.doorMesh2;
 		
 	}
 

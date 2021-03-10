@@ -505,13 +505,13 @@ printCost(staircaseCost, staircasePrice);
 
 //расход материала
 
-var timberParams = calcTimberParams(params.treadsMaterial);
+// var timberParams = calcTimberParams(params.treadsMaterial);
 
-materials[timberParams.treadsPanelName].amt = 
-	treadAmt * 0.3 * 1 + 
-	platformAmt * 1 * 1 + 
-	turnTreadAmt1 * 1 * 0.6 + 
-	turnTreadAmt2 * 1.5 * 0.5;
+// materials[timberParams.treadsPanelName].amt = 
+// 	treadAmt * 0.3 * 1 + 
+// 	platformAmt * 1 * 1 + 
+// 	turnTreadAmt1 * 1 * 0.6 + 
+// 	turnTreadAmt2 * 1.5 * 0.5;
 
 }//end of calculateCarcasPrice 
 

@@ -133,10 +133,6 @@
 			'url' => '/manufacturing/curve/drawCarcasParts.js',
 			'only_for' => ['mono'],
 		],
-		[
-			'url' => '/manufacturing/mono/personalScripts.js',
-			'only_for' => ['mono'],
-		],
 		//mono
 		
 		//console
@@ -317,6 +313,10 @@
 			'only_for' => ['veranda'],
 		],
 		[
+			'url' => '/calculator/carport/forms/carport_form_change.js',
+			'only_for' => ['veranda', 'carport'],
+		],
+		[
 			'url' => '/calculator/slabs/forms/mainFormChange.js',
 			'only_for' => ['slabs'],
 		],
@@ -381,15 +381,23 @@
 		//coupe
 		[
 			'url' => '/manufacturing/coupe/wrLib.js',
-			'only_for' => ['coupe'],
+			// 'only_for' => ['coupe'],
+		],
+		[
+			'url' => '/calculator/coupe/wrPrice.js',
+			// 'only_for' => ['coupe'],
 		],
 		[
 			'url' => '/manufacturing/coupe/drawWardrobe.js',
-			'only_for' => ['coupe'],
+			// 'only_for' => ['coupe'],
+		],
+		[
+			'url' => '/manufacturing/coupe/wardrobeParams.js',
+			// 'only_for' => ['coupe'],
 		],
 		[
 			'url' => '/manufacturing/coupe/drawWardrobeParts.js',
-			'only_for' => ['coupe'],
+			// 'only_for' => ['coupe'],
 		],
 		[
 			'url' => '/calculator/coupe/modelActions.js',
@@ -433,9 +441,15 @@
 				'url' => "/customers/general/main.js"
 			];
 		}else{
-			$scripts[] = [
-				'url' => "/calculator/general/main.js"
-			];
+			if ($GLOBALS['ISOLATION']) {
+				$scripts[] = [
+					'url' => "/calculator/general/instance_main.js"
+				];
+			}else{
+				$scripts[] = [
+					'url' => "/calculator/general/main.js"
+				];
+			}
 		}
 	}
 
@@ -498,6 +512,12 @@
 	$scripts[] = ['url' => "/calculator/general/modals/forgedBals.js"];
 	$scripts[] = ['url' => "/calculator/general/modals/textures.js"];
 	
+	// Изоляция кода
+	$scripts[] = ['url' => "/calculator/general/isolation/isolationManger.js"];
+	$scripts[] = ['url' => "/calculator/general/isolation/isolationInstance.js"];
+	$scripts[] = ['url' => "/calculator/general/isolation/instanceManager.js"];
+	$scripts[] = ['url' => "/calculator/general/isolation/sceneInstance.js"];
+
 	//формы
 	$formScripts = [
 		'carcas' => ["/calculator/startTreads/forms/formChange.js", "/calculator/metal/forms/carcas_form_change.js"],
@@ -554,6 +574,7 @@
 			'assembling' => ["/calculator/general/forms/assemblingFormChange.js"],
 			'walls' => ["/calculator/walls/forms/walls_form_change.js"],
 			'banister' => ["/calculator/banister/forms/banister_construct_form_change.js", "/calculator/banister/forms/changeFormBanister.js"],
+			'railing' => ["/calculator/metal/forms/railing_form_change.js"],
 		];
 	}
 

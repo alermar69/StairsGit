@@ -4,14 +4,14 @@ $(function () {
 
 function calcPrice(){
 	
-	var priceObj = {
-		product: 0,
-		assembling: 0,
-		delivery: 0,
-		metal: 0,
-		timber: 0,
-		partners: 0,
-		total: 0,		
+	priceObj = {
+		product: {discountPrice: 0},
+		assembling: {discountPrice: 0},
+		delivery: {discountPrice: 0},
+		metal: {discountPrice: 0},
+		timber: {discountPrice: 0},
+		partners: {discountPrice: 0},
+		total: {discountPrice: 0},
 	}
 	var costObj = {
 		product: 0,
@@ -34,32 +34,28 @@ function calcPrice(){
 
 		var summ = amt * unitPrice;
 		$(this).closest('tr').find(".summ").text(summ);
-		priceObj.total += summ;
+		priceObj['total'].discountPrice += summ;
 		costObj.total += cost;
 		if(type == "изделие"){
-			priceObj.product += summ;
+			priceObj['product'].discountPrice += summ;
 			costObj.product += cost;
-			priceObj.metal += summ * metalPart / 100;
-			priceObj.timber += summ * timberPart / 100;
-			priceObj.partners += summ * partnersPart / 100;
+			priceObj['metal'].discountPrice += summ * metalPart / 100;
+			priceObj['timber'].discountPrice += summ * timberPart / 100;
+			priceObj['partners'].discountPrice += summ * partnersPart / 100;
 		}
 		if(type == "монтаж"){
-			priceObj.assembling += summ;
+			priceObj['assembling'].discountPrice += summ;
 			costObj.assembling += cost;
 		}
 		if(type == "доставка"){
-			priceObj.delivery += summ;
+			priceObj['delivery'].discountPrice += summ;
 			costObj.delivery += cost;
 		}		
 	})
 	
-	var resultText = "<b class='yellow'>Итого: " + priceObj.total +  " руб </b><br/>";
+	var resultText = "<b class='yellow'>Итого: " + priceObj['total'].discountPrice +  " руб </b><br/>";
 	$("#totalResult").html(resultText);
 	reindexTable();
-	
-	//сохраняем данные в глобальные объекты
-	staircasePrice = priceObj;
-	staircasePrice.finalPrice = priceObj.total;
 	
 	printCost(costObj)
 	
@@ -73,8 +69,8 @@ function calcPrice(){
 }
 
 function printCost(par){
-	var vp = staircasePrice.finalPrice - par.total;
-	var vpPart = Math.round(vp / staircasePrice.finalPrice * 100)
+	var vp = priceObj['total'].discountPrice - par.total;
+	var vpPart = Math.round(vp / priceObj['total'].discountPrice * 100)
 	var text = "<b>Общая себестоимость: " + par.total + " руб<br/>\
 		ВП: <span id='vpSum'>" + vp + "</span> руб (" + vpPart + "%)</b>";
 	/*

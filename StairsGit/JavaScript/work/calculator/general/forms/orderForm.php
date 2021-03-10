@@ -32,7 +32,10 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 
 </div>
 
-<?};?>
+<?}else{?>
+	<input type="number" id='orderId' hidden>
+
+<?}?>
 <!-- параметры для шапки кп -->
 <? if ($template == 'calculator') { ?>
 	<div class="kp_header-wrapper">
@@ -46,7 +49,7 @@ if ($USER->IsAdmin() || in_array(9, $USER->GetUserGroupArray())) {
 			</div>
 		</div>
 	</div>
-<? } if ($template == 'manufacturing' || $template == 'installation') { ?>
+<? } if ($template == 'manufacturing' || $template == 'installation' || $template == 'cnc') { ?>
 	<div class="pz_info printBlock">
 		<?php include $GLOBALS['ROOT_PATH'].'/calculator/general/forms/orderDataForm.php' ?>
 	</div>

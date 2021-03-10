@@ -13,7 +13,7 @@ function calcTurnParams(botMarshId){
 		model: "mono",
 		turnTypeName: turnType,
 		marshId: botMarshId,
-		}
+	}
 	if(params.model == "лт" || params.model == "ко") modelParams.model = params.model;
 	if(params.calcType == "timber") modelParams.model = "timber";
 	if(params.calcType == "timber_stock") modelParams.model = "timber_stock";
@@ -62,19 +62,19 @@ function calcTurnParams(botMarshId){
 		//отступ низа тетивы верхнего марша от плоскости первой ступени верхнего марша
 		par.stringerBotOffset = getMarshParams(marshPar.nextMarshId).h + 20 + params.treadThickness;
 
-		}
+	}
 
 
 	//длина поворота вдоль нижнего марша
 	par.turnLengthTop = 0;
-	if(marshPar.topTurn != "нет") par.turnLengthTop = params.M + par.topMarshOffsetX;
+	if(marshPar.topTurn != "нет" && params.calcType != 'vint') par.turnLengthTop = params.M + par.topMarshOffsetX;
 
 	if(botMarshId == 1 && params.stairModel == "Г-образная с площадкой" && hasCustomMidPlt())
 		par.turnLengthTop = params.middlePltLength + par.topMarshOffsetX;
 
 	//для верхней площадки лестницы длина берется из параметров
-	if(botMarshId == 3) par.turnLengthTop = params.platformLength_3;
-	if(params.stairModel == "Прямая" && params.platformTop != "нет") par.turnLengthTop = params.platformLength_3;
+	if(botMarshId == 3 && params.calcType != 'vint') par.turnLengthTop = params.platformLength_3;
+	if(params.stairModel == "Прямая" && params.platformTop != "нет" && params.calcType != 'vint') par.turnLengthTop = params.platformLength_3;
 	//для промежуточной площадки П-образной лестницы длина берется из параметров
 	if(marshPar.topTurn == "площадка" && botMarshId == 1 && params.stairModel == "П-образная с площадкой")
 		 par.turnLengthTop = params.platformLength_1 + par.topMarshOffsetX;
@@ -244,14 +244,14 @@ function calcStaircaseMoove(lastMarshEnd){
 	var pos = {
 		x: lastMarshEnd.z,
 		y: lastMarshEnd.x,
-		}
+	}
 	
 	var ang0 = -lastMarshEnd.rot
 	if(params.floorHoleBaseSide == 1) ang0 += Math.PI / 2
 	if(params.floorHoleBaseSide == 2) ang0 += -Math.PI / 2
 	if(params.floorHoleBaseSide == 4) ang0 += Math.PI
 
-	var newPos = rotatePoint(pos, ang0)
+	var newPos = rotatePoint(pos, ang0);
 
 	
 	var moove = {
@@ -342,7 +342,11 @@ function calcStaircaseMoove(lastMarshEnd){
 	}
 
 	if(params.floorHoleBaseSide == 3){
-		moove.z += params.M / 2 * turnFactor;
+		if (window.isMulti) {
+			moove.z += params.M / 2;
+		}else{
+			moove.z += params.M / 2 * turnFactor;
+		}
 	}
 
 	if(params.floorHoleBaseSide == 4){
@@ -370,6 +374,21 @@ function calcStaircaseMoove(lastMarshEnd){
 
 	moove.y += params.staircasePosY;
 	moove.rot += params.stairCaseRotation / 180 * Math.PI;
+
+	if (window.isMulti) {
+		if (params.connectToFloorHole == 'Да') {
+			moove.x += params.floorPosX;
+			moove.y += params.floorPosY;
+			moove.z += params.floorPosZ;
+			moove.rot += params.floorRotation / 180 * Math.PI;
+		}else{
+			moove.x = params.floorPosX;
+			moove.y = params.floorPosY;
+			moove.z = params.floorPosZ;
+			moove.rot = params.floorRotation / 180 * Math.PI;
+		}
+	}
+
 
 	return moove;
 	

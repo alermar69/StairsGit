@@ -81,6 +81,10 @@ function calcBeam(par){
 
 function getProfStrengthPar(name){
 	var profParams = {
+		"Швеллер гн. 120х50х3": {Ix: 133.77, Wx: 22.29, meterWeight: 4.91},
+		"Швеллер гн. 180х60х4": {Ix: 541, Wx: 59.01, meterWeight: 9.4}, //примерные цифры
+		"Швеллер гн. 200х100х6": {Ix: 1400.08, Wx: 140.08, meterWeight: 17.79},
+		
 		"20х20х1.5": {Ix: 0.637, Wx: 0.637, meterWeight: 0.84},
 		"40х20х1.5": {Ix: 3.49, Wx: 1.75, meterWeight: 1.31},
 		"40х40х1.5": {Ix: 5.71, Wx: 2.85, meterWeight: 1.78},

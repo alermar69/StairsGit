@@ -1,6 +1,6 @@
 <?
   require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-  $APPLICATION->SetTitle("Шкаф купе");
+  $APPLICATION->SetTitle("КП на мебель");
 ?>
 
 <!-- все формы -->

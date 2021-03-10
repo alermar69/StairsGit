@@ -337,10 +337,10 @@ class Menu{
 			return '<div class="menu-item" data-menu_delimeter><span>' + element.title + '</span></div>';
 		}
 		if (element.type == 'checkbox' || element.type == 'layer') {
-			return '<div class="menu-item menu-item__clickable"><span>' + element.title + '</span><input data-menu_checkbox data-element_id=' + element.id + ' data-element_variable="' + (element.variableName || "") + '" type="checkbox" ' + (element.value ? 'checked' : '') + '></div>';
+			return '<div class="menu-item menu-item__clickable"><span>' + element.title + '</span><input data-menu_checkbox data-element_id=' + element.id + ' data-element_layer="' + (element.layerName || "") + '" data-element_variable="' + (element.variableName || "") + '" type="checkbox" ' + (element.value ? 'checked' : '') + '></div>';
 		}
 		if (element.type == 'select' && element.options) {
-			var selectHTML = '<div class="menu-item"><span>' + element.title + '</span><select data-menu_select data-element_id=' + element.id + ' data-element_variable="' + (element.variableName || "") + '">';
+			var selectHTML = '<div class="menu-item"><span>' + element.title + '</span><select data-menu_select data-element_id=' + element.id + ' data-element_layer="' + (element.layerName || "") + '" data-element_variable="' + (element.variableName || "") + '">';
 			element.options.forEach(function(option){
 				selectHTML += '<option value="' + option + '" ' + (element.value == option ? 'selected' : '') + '>' + option + '</option>'
 			});

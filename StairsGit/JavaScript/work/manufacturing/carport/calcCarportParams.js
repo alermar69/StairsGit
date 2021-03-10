@@ -45,112 +45,132 @@ function setCarportProfs(){
 	
 	if(params.beamModel == "проф. труба"){
 		//макс. шаг стропил 700мм - уточнить арочный или плоский
-		if(params.width <= 3000) {
+		if(params.width <= 2000) {
+			beamProf = "40х40"
 			if(params.sectLen <= 2000){
 				beamProf2 = "60х40"
-				columnProf = "60х60"
-				beamProf = "40х40"
+				columnProf = "60х60"				
 			}
-			if(params.sectLen <= 2500){
+			if(params.sectLen > 2000){
 				beamProf2 = "60х60"
 				columnProf = "60х60"
-				beamProf = "40х40"
 			}
-			if(params.sectLen <= 3000){
+			if(params.sectLen > 3000){
 				beamProf2 = "80х80"
 				columnProf = "60х60"
-				beamProf = "40х40"
 			}			
 		}
 		
-		if(params.width <= 3500) {
+		if(params.width > 2000) {
+			beamProf = "60х40"
+			if(params.sectLen <= 2000){
+				beamProf2 = "60х40"
+				columnProf = "60х60"				
+			}
+			if(params.sectLen > 2000){
+				beamProf2 = "60х60"
+				columnProf = "60х60"
+			}
+			if(params.sectLen > 3000){
+				beamProf2 = "80х80"
+				columnProf = "60х60"
+			}			
+		}
+		
+		if(params.width > 3000) {
+			beamProf = "60х40"
+			if(params.sectLen <= 2000){
+				beamProf2 = "60х40"
+				columnProf = "60х60"				
+			}
+			if(params.sectLen > 2000){
+				beamProf2 = "60х60"
+				columnProf = "60х60"
+			}
+			if(params.sectLen > 3000){
+				beamProf2 = "80х80"
+				columnProf = "60х60"
+			}			
+		}
+		
+		if(params.width > 3500) {
+			beamProf = "60х40"
 			if(params.sectLen <= 2000){
 				beamProf2 = "60х60"
 				columnProf = "60х60"
-				beamProf = "40х40"
 			}
-			if(params.sectLen <= 2500){
+			if(params.sectLen > 2000){
 				beamProf2 = "60х60"
 				columnProf = "80х80"
-				beamProf = "60х40"
 			}
-			if(params.sectLen <= 3000){
+			if(params.sectLen > 3000){
 				beamProf2 = "80х80"
 				columnProf = "80х80"
-				beamProf = "60х40"
 			}			
 		}
 		
-		if(params.width <= 4000) {
+		if(params.width > 4000) {
+			beamProf = "80х40"
 			if(params.sectLen <= 2000){
 				beamProf2 = "80х80"
 				columnProf = "80х80"
-				beamProf = "60х40"
 			}
-			if(params.sectLen <= 2500){
+			if(params.sectLen > 2000){
 				beamProf2 = "80х80"
 				columnProf = "80х80"
-				beamProf = "60х40"
 			}
-			if(params.sectLen <= 3000){
+			if(params.sectLen > 3000){
 				beamProf2 = "100х100"
 				columnProf = "100х100"
-				beamProf = "60х40"
 			}			
 		}
 		
-		if(params.width <= 4500) {
+		if(params.width > 4500) {
+			beamProf = "80х40"
 			if(params.sectLen <= 2000){
 				beamProf2 = "80х80"
-				columnProf = "80х80"
-				beamProf = "80х40"
+				columnProf = "80х80"				
 			}
-			if(params.sectLen <= 2500){
+			if(params.sectLen > 2000){
 				beamProf2 = "80х80"
 				columnProf = "100х100"
-				beamProf = "80х40"
 			}
-			if(params.sectLen <= 3000){
+			if(params.sectLen > 3000){
 				beamProf2 = "120х120"
 				columnProf = "120х120"
-				beamProf = "80х40"
 			}			
 		}
 		
 		
-		if(params.width <= 5000) {
+		if(params.width > 5000) {
+			beamProf = "100х50"
 			if(params.sectLen <= 2000){
 				beamProf2 = "80х80"
-				columnProf = "80х80"
-				beamProf = "80х40"
+				columnProf = "80х80"				
 			}
-			if(params.sectLen <= 2500){
+			if(params.sectLen > 2000){
 				beamProf2 = "100х100"
 				columnProf = "100х100"
-				beamProf = "80х40"
 			}
-			if(params.sectLen <= 3000){
+			if(params.sectLen > 3000){
 				beamProf2 = "120х120"
 				columnProf = "120х120"
-				beamProf = "80х40"
 			}			
 		}
 		
-		if(params.width <= 6000) {
+		if(params.width > 6000) {
+			beamProf = "100х50"
 			if(params.sectLen <= 2000){
 				beamProf2 = "100х100"
-				columnProf = "100х100"
-				beamProf = "100х50"
+				columnProf = "100х100"				
 			}
-			if(params.sectLen <= 2500){
+			if(params.sectLen > 2000){
 				beamProf2 = "120х120"
 				columnProf = "120х120"
-				beamProf = "100х50"
 			}
-			if(params.sectLen <= 3000){
+			if(params.sectLen > 3000){
 				beamProf2 = "120х120"
 				columnProf = "120х120"
-				beamProf = "100х50"
 			}			
 		}
 		
@@ -164,6 +184,7 @@ function setCarportProfs(){
 		
 		if(params.carportType == "купол"){
 			beamProf = "40х40"
+			if(params.domeDiam > 5000) beamProf = "60х40"
 		}
 		
 		
@@ -219,6 +240,20 @@ function setCarportProfs(){
 	$("#trussHeight").val(midHeight)
 	
 	
+	//высота фермы над колонной
+	
+	var endHeight = 200;
+	if(params.width > 4900) endHeight = 250;
+
+	
+	if(params.beamModel == "ферма постоянной ширины") {		
+		endHeight = Math.floor(params.width/100) * 10; //формула подогнана		
+		if(endHeight < 200) endHeight = 200;		
+	}
+	
+	$("#trussHeightEnd").val(endHeight)
+	
+	
 	//пояса и раскосы сварных ферм из профиля
 	var chordProf = "40х40"
 	var webProf = "20х20"
@@ -241,10 +276,18 @@ function setCarportProfs(){
 		webProf = "60х60"
 	}
 	
+	//сечение полосы фермы
+	if(params.beamModel == "сужающаяся" || params.beamModel == "постоянной ширины"){
+		chordProf = "40х4"
+		if(params.width > 3900) chordProf = "60х4"
+		if(params.width > 4900) chordProf = "80х5"
+		if(params.width > 5900) chordProf = "100х6"
+		if(params.width > 6900) chordProf = "100х10"
+	}
+	
+	
 	$("#chordProf").val(chordProf)
 	$("#webProf").val(webProf)
-	
-	
 	
 	
 	//шаг прогонов
@@ -252,6 +295,14 @@ function setCarportProfs(){
 	if(params.roofMat == "металлочерепица") progonMaxStep = 350;
 	if(params.beamModel == "проф. труба" && params.roofMat.indexOf("поликарбонат") != -1) progonMaxStep = 3000;
 	$("#progonMaxStep").val(progonMaxStep)
+	
+	//шаг балок
+	var beamMaxStep = params.sectLen;
+	if(params.trussType == "балки") {
+		beamMaxStep = 2100 / 3;
+		if(params.beamModel != "проф. труба") beamMaxStep = 2100;
+	}
+	$("#beamMaxStep").val(beamMaxStep)
 	
 	//сечение колонн для навеса с фермами
 	if(params.beamModel != "проф. труба"){
@@ -273,7 +324,7 @@ function setCarportProfs(){
 	
 	$("#roofThk").val(roofThk)
 	
-
+	
 	
 }
 
@@ -304,7 +355,13 @@ function calcCarportPartPar(){
 
 	//стропила
 	
-	par.rafter.amt = params.sectAmt + 1;
+	par.rafter = {
+		profSize: {
+			x: 4,
+			y: 4,
+		},
+		amt: params.sectAmt + 1,
+	}
 	
 	if(params.beamModel == "проф. труба") {
 		var rafterProfPar = getProfParams(params.beamProf);
@@ -314,10 +371,11 @@ function calcCarportPartPar(){
 				y: rafterProfPar.sizeA,
 			}
 		}
-		var maxStep = 2100 / 3;
-		par.rafter.amt = Math.ceil(par.main.len / maxStep) + 1;		
 	}
 	
+	if(params.trussType == "балки"){
+		par.rafter.amt = Math.ceil(par.main.len / params.beamMaxStep) + 1;	
+	}
 	
 	//арочный двухскатный навеса
 	if(params.carportType == "двухскатный"){
@@ -343,10 +401,11 @@ function calcCarportPartPar(){
 		profSize: {
 			x: columnProfPar.sizeB,
 			y: columnProfPar.sizeA,
-		}
+		},
+		holeDist: 180 - 60,
 	}
 	
-	if(params.beamModel != "проф. труба"){
+	if(params.trussType != "балки"){
 		par.beam = {
 			profSize: {
 				x: 60,
@@ -362,29 +421,25 @@ function calcCarportPartPar(){
 		stripeThk: 4,
 		width: 200,
 		endPoint: {x:0, y:0}, //точка перезаписывается при отрисовке фермы
-		sideWidth: 60, //Отступ отверстия от края
-		bridgeWidth: 60, //минимальная ширина перемычки между отверстиями
+		sideWidth: 30, //Отступ отверстия от края
+		bridgeWidth: 40, //минимальная ширина перемычки между отверстиями
 		midHeight: params.trussHeight, //высота в центре фермы
+		endHeight: params.trussHeightEnd, //высота фермы над колонной
 	}
-	
-	//высота фермы над колонной
-	par.truss.endHeight = 200;
-	if(params.width > 4900) par.truss.endHeight = 250;
 
-	
-	if(params.beamModel == "ферма постоянной ширины") {		
-		par.truss.endHeight = Math.floor(params.width/100) * 10; //формула подогнана		
-		if(par.truss.endHeight < 200) par.truss.endHeight = 200;		
-	}
-	
 	//параметры отвертсий для ферм из листа
+	if(params.width > 1200){
+		par.truss.sideWidth = 40
+		par.truss.bridgeWidth = 60
+	}
+	if(params.width > 2100){
 		par.truss.sideWidth = 60
 		par.truss.bridgeWidth = 80
+	}
 	if(params.width > 4900){
 		par.truss.sideWidth = 80
 		par.truss.bridgeWidth = 100
 	}
-	if(params.roofType == "Арочная") par.truss.bridgeWidth = 100;
 	
 	//Раскосы фермы
 	var webProfPar = getProfParams(params.webProf);
@@ -404,6 +459,7 @@ function calcCarportPartPar(){
 		}
 	}
 	
+	par.truss.stripeThk = chordProfPar.sizeB
 
 	//прогоны
 	var purlinProfPar = getProfParams(params.progonProf);

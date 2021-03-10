@@ -33,7 +33,7 @@
 </div>
 
 
-<script type="text/javascript" src="/bitrix/templates/calc/jquery-1.10.2.min.js"></script>
+<!-- <script type="text/javascript" src="/bitrix/templates/calc/jquery-1.10.2.min.js"></script> -->
 <script type="text/javascript" src="testing.js"></script>
 
 </body></html>

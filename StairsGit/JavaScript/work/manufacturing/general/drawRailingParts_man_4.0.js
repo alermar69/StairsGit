@@ -1807,17 +1807,27 @@ function drawForgedBanister_(length, type, basePoint, scale, railingMaterial, ra
 				name: "Кованая балясина",
 				}
 			}
-		var name = type;
+		var name = getBalName(type);
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		if(type == params.banister1) specObj[partName]["amt1"] += 1;
 		if(params.banister2 != params.banister1 && type == params.banister2) specObj[partName]["amt2"] += 1;
 	}
+	addMaterialNeed({id: type, amt: 1, itemType: 'railing'});
 	railingSection.specId = partName + name;
 
 	return railingSection;
 }
 
+/**
+ * Получает имя балясины из ее типа
+ * @param balType тип балясины
+ */
+function getBalName(balType){
+	var balName = $('option[value="'+balType+'"').html();
+	if (balName) return balName
+	return balType;
+}
 
 /*кованый бублик */
 
@@ -3116,13 +3126,13 @@ function drawForgedBanister_4(par) {
 				name: "Кованая балясина",
 				}
 			}
-		var name = type;
+		var name = getBalName(type);
 		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		if(type == params.banister1) specObj[partName]["amt1"] += 1;
 		if(params.banister2 != params.banister1 && type == params.banister2) specObj[partName]["amt2"] += 1;
 	}
-	
+	addMaterialNeed({id: type, amt: 1, itemType: 'railing'});
 	par.mesh.specId = partName + name;
 	return par;
 
@@ -3267,7 +3277,7 @@ function drawForgedBanister_5(par) {
 				amt2: 0,
 				name: "Кованая балясина",
 				}
-			if(railingModel == "Дерево с ковкой") {
+			if(railingModel == "Дерево с ковкой" || params.calcType == "railing") {
 				specObj[partName].division = "metal";
 				specObj[partName].group = "Ограждения";
 				specObj[partName].metalPaint = true;
@@ -3276,8 +3286,8 @@ function drawForgedBanister_5(par) {
 			}
 		}
 		
-		var name = par.type + " L=" + Math.round(par.len);
-		if (railingModel == "Дерево с ковкой") {
+		var name = getBalName(par.type) + " L=" + Math.round(par.len);
+		if (railingModel == "Дерево с ковкой" || params.calcType == "railing") {
 			if (specObj.unit == "banister") name += ' с прямой лодочкой';
 			else name += ' с шарниром';
 		}
@@ -3287,6 +3297,7 @@ function drawForgedBanister_5(par) {
 		if(par.type == params.banister1) specObj[partName]["amt1"] += 1;
 		if(params.banister2 != params.banister1 && par.type == params.banister2) specObj[partName]["amt2"] += 1;
 	}
+	addMaterialNeed({id: par.type, amt: 1, itemType: 'railing'});
 	par.mesh.specId = partName + name;
 	
 	return par;

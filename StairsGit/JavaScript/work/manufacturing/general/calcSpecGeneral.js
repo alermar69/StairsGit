@@ -21,8 +21,9 @@ function addGeneralItems(list){
         metalPaint: false,
         timberPaint: false,
         division: "stock_1",
-        items: []
-		};
+		items: [],
+		comment: "Выдать в цех"
+	};
 
     list.nut_M10 = {
         name:  "Гайка М10",
@@ -66,8 +67,9 @@ function addGeneralItems(list){
         metalPaint: false,
         timberPaint: false,
         division: "stock_1",
-        items: []
-		};
+        items: [],
+		comment: "Выдать в цех"
+	};
 		
 	list.capNut_M6 = {
         name:  "Гайка М6 колп.",
@@ -674,8 +676,9 @@ function addGeneralItems(list){
         metalPaint: false,
         timberPaint: false,
         division: "stock_1",
-        items: []
-		};
+		items: [],
+		comment: "Выдать в цех"
+	};
 		
 	list.vint_M6x70 = {
         name:  "Винт М6х70 потай крест",
@@ -684,7 +687,7 @@ function addGeneralItems(list){
         timberPaint: false,
         division: "stock_1",
         items: []
-		};
+	};
 /*		
 	list.rivet_M6 = {
         name:  "Заклепка резьбовая M6",
@@ -833,7 +836,7 @@ function addGeneralItems(list){
         division: "stock_2",
 		group: "Ограждения",
         items: []
-		};
+	};
 		
 		
 	//Крышка фланца черн.
@@ -845,7 +848,8 @@ function addGeneralItems(list){
 		division: "stock_1",
 		group: "Ограждения",
 		items: [],
-		};
+		comment: "Выдать в цех"
+	};
 		
 	//Крышка фланца нерж.
 	list.stainlessCover = {
@@ -855,7 +859,8 @@ function addGeneralItems(list){
 		timberPaint: false,
 		division: "stock_1",
 		items: [],
-		};
+		comment: "Выдать в цех"
+	};
 	
 	//Крепление поручня к стойкам
 	list.handrailHolderBase = {
@@ -866,7 +871,7 @@ function addGeneralItems(list){
 		division: "stock_1",
 		items: [],
 		comment: "Выдать в цех"
-		};
+	};
 	
 	//Кронштейн штырь с шарниром 
 	list.handrailHolderTurn = {
@@ -876,6 +881,7 @@ function addGeneralItems(list){
 		timberPaint: false,
 		division: "stock_1",
 		items: [],
+		comment: "Выдать в цех"
 	};
 	
 	//Кронштейн штырь прямой
@@ -886,6 +892,7 @@ function addGeneralItems(list){
 		timberPaint: false,
 		division: "stock_1",
 		items: [],
+		comment: "Выдать в цех"
 	};
 
 	//Кронштейн штырь прямой
@@ -906,7 +913,8 @@ function addGeneralItems(list){
 		timberPaint: false,
 		division: "stock_1",
 		items: [],
-		};
+		comment: "Выдать в цех"
+	};
 	
 	//Лодочка под круглый поручень
 	list.handrailHolderFlanArc = {
@@ -916,6 +924,7 @@ function addGeneralItems(list){
 		timberPaint: false,
 		division: "stock_1",
 		items: [],
+		comment: "Выдать в цех"
 		};
 		
 	//Лодочка под плоский поручень
@@ -926,6 +935,7 @@ function addGeneralItems(list){
 		timberPaint: false,
 		division: "stock_1",
 		items: [],
+		comment: "Выдать в цех"
 	};
 	
 	//Лодочка под плоский поручень черная
@@ -937,6 +947,7 @@ function addGeneralItems(list){
 		division: "stock_1",
 		group: "Ограждения",
 		items: [],
+		comment: "Выдать в цех"
 	};
 	
 		
@@ -1060,7 +1071,8 @@ function addGeneralItems(list){
 		timberPaint: false,
 		division: "stock_2",
 		items: [],
-		};
+		comment: "Выдать в цех"
+	};
 		
 	//Крепление к нижнему перекрытию
 	list.angle_u5_100 = {
@@ -1525,7 +1537,7 @@ function getMaterialName(item){
 	
 	//поручни пвх
 	if(item.group == "handrails" && params.handrail == "ПВХ"){
-		matName = "ПВХ " + params.handrails_pvcColor;
+		matName = "ПВХ " + params.handrailColor;
 	}
 	
 	//доп. объекты

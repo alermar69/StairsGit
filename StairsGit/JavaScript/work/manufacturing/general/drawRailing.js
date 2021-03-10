@@ -643,7 +643,7 @@ function drawMarshRailing(par, marshId) {
 	
 		}
 	*/
-	if (marshId == "topPlt" && params.topPltRailing_4 && params.platformTop == 'увеличенная') {
+	if (params.stairModel != 'Прямая' && marshId == "topPlt" && params.topPltRailing_4 && params.platformTop == 'увеличенная') {
 		sectionPar.key = "side";
 		var sectionObj = drawRailingSection(sectionPar);
 		var section = sectionObj.mesh;
@@ -846,6 +846,7 @@ function drawMarshRailing_racks(par){
 		railingSectionParams.topEnd = 'нет';
 		railingSectionParams.botEnd = 'нет';
 	}
+	
 	if (marshParams.lastMarsh && marshParams.topTurn !== 'пол') {
 		railingSectionParams.topEnd = 'нет';
 		if (par.key == 'in' && marshParams.hasTopPltRailing.in) railingSectionParams.topEnd = marshParams.topTurn;
@@ -1274,8 +1275,7 @@ function drawRailingSectionNewel2(par) {
 				marsh: " нижнего марша "
 			}
 		}
-
-
+	
 		/*Стойки*/
 
 		//выделяем из массива racks первые и последние стойки поворотов и марша, рассчтываем длины и углы
@@ -1476,7 +1476,7 @@ function drawRailingSectionNewel2(par) {
 
 	} //конец ригелей
 
-	/* стекло на стойках */
+	/* Стекло на стойках */
 	if (params.railingModel == "Стекло на стойках" || params.railingModel == "Экраны лазер") {
 
 		var glassDist = rackProfile / 2 + 22;
@@ -3159,7 +3159,7 @@ function drawRailingSectionForge2(par) {
 		if (params.rackBottom == "сверху с крышкой") dyRackTop = 40 * Math.tan(parRacks.angMarsh);
 		var turnRacksParams = setTurnRacksParams(par.marshId, par.key); //параметры поворотной стойки
 		var rackAddLen = 0; //Увелечение стойки для поворота
-		if (turnRacksParams.rackLenAdd) rackAddLen = turnRacksParams.rackLenAdd;
+		if (turnRacksParams.rackLenAdd && params.rackBottom != 'сверху с крышкой') rackAddLen = turnRacksParams.rackLenAdd;
 		//rackPar.len += rackAddLen;
 
 		//если нет нижнего участка
@@ -4219,7 +4219,8 @@ function drawCrossFill(par){
 			material: params.materials.metal_railing,
 			dxfBasePoint: newPoint_xy(par.dxfBasePoint, point.x, point.y),
 			dxfArr: par.dxfArr,
-			fixDirection: 'horizontal'
+			fixDirection: 'horizontal',
+			fixType: 'поверх'
 		}
 
 		var cross = drawCross2(crossPar);
@@ -5671,7 +5672,7 @@ function getBalType(balId, unitPos){
 	var balToggleType = params.forgeBalToggle;
 	var balType1 = params.banister1;
 	var balType2 = params.banister2;
-	
+
 	if(unitPos == "balustrade") {
 		balToggleType = params.forgeBalToggle_bal;
 		balType1 = params.banister1_bal;

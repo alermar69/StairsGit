@@ -942,7 +942,7 @@ function calcColumnParams(par, stringerParams){
 			var localPos = localPosX * Math.cos(top2.topAngle);
 			top2.position = newPoint_xy(pStart, localPos, localPos * Math.tan(top2.topAngle) - topLengthDelta / Math.cos(top2.topAngle) - 0.02);//Не уверен в этом рещении, обдумать
 
-			if (!columnLogicParams.topConnection && params.stairModel == 'П-образная с площадкой') {
+			if (!columnLogicParams.topConnection && params.stairModel == 'П-образная с площадкой' && params.platformTop != "площадка") {
 				top2.position.x = columnPosition.top1.x;
 				top2.position.z = (params.M / 2 + params.stringerLedge2 - 220/2)*turnFactor;
 				top2.rotation = Math.PI / 2;

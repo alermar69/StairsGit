@@ -147,39 +147,58 @@
 			</table>
 		</div>
 
-		<div id='strightMarshWrapper'>
-			<h4>Параметры прямого марша лестницы.</h4>
-
-			<table class="form_table" id="treadsTableWrapper">
-				<tbody>
-					<tr>
-						<td>Прямой марш:</td>
-						<td>
-							<select id="strightMarsh" size="1">
-								<option value="нет">нет</option>
-								<option value="снизу">Снизу</option>
-								<option value="сверху">Сверху</option>
-								<option value="сверху и снизу">Сверху и снизу</option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td>Свес ступени:</td>
-						<td><input name="nose" type="number" id="nose" value="20" /></td>
-					</tr>
-					<tr>
-						<td>Угол прямого марша:</td>
-						<td>
-							<input type="number" id='strightTreadsAngle' value='180'>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-
+		<h4>Прямые марши</h4>
+		<table class="form_table">
+			<tbody>
+				<tr>
+					<td>Прямые марши:</td>
+					<td>
+						<select id="strightMarsh" size="1">
+							<option value="нет">нет</option>
+							<option value="снизу">Снизу</option>
+							<option value="сверху">Сверху</option>
+							<option value="сверху и снизу">Сверху и снизу</option>
+						</select>
+					</td>
+				</tr>
+				<tr class="marshPar">
+					<td>Свес ступени:</td>
+					<td><input name="nose" type="number" id="nose" value="20" /></td>
+				</tr>
+				<tr class="marshPar">
+					<td>Угол винтовой части:</td>
+					<td>
+						<input type="number" id='strightTreadsAngle' value='180'>
+					</td>
+				</tr>
+				<tr class="marshPar">
+					<td>Тип каркаса:</td>
+					<td>
+						<select id="strightCarcasModel" size="1">
+							<option value="ко">Косоуры</option>
+							<option value="лт">Тетивы</option>
+						</select>
+					</td>
+				</tr>
+				<tr class="marshPar">
+					<td>Тип тетив</td>
+					<td>
+						<select id="stringerType" size="1">
+							<option value="пилообразная" selected="" style="display: block;">пилообразная</option>
+							<option value="ломаная" style="display: block;">ломаная</option>
+							<option value="прямая" style="display: block;">прямая</option>
+						</select>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		
+		<div class="marshPar">
 			<h5>2. Параметры ступеней:</h5>
 			<table class="form_table">
 				<tbody>
 					<tr>
+						<th style="width: 20%;">Марш</th>
 						<th>Кол-во прямых ступеней</th>
 						<th>Подъем ступени</th>
 						<th>Проступь</th>
@@ -187,12 +206,14 @@
 					</tr>
 
 					<tr class="marsh1">
+						<td style="width: 20%;">Нижний</td>
 						<td><input id="stairAmt1" type="number" value="5"></td>
 						<td><input id="h1" type="number" value="180"></td>
 						<td><input id="b1" type="number" value="290"></td>
 						<td><input id="a1" type="number" value="300"></td>
 					</tr>
 					<tr class="marsh3">
+						<td>Верхний</td>
 						<td><input id="stairAmt3" type="number" value="5"></td>
 						<td><input id="h3" type="number" value="180"></td>
 						<td><input id="b3" type="number" value="290"></td>

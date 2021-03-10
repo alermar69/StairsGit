@@ -1295,7 +1295,7 @@ function drawComplexStringer(par) {
 						flan.position.y = sidePlate2.position.y + par.pointsShape[par.pointsShape.length - 2].y;
 
 						par.flans.add(flan);
-						if (window.customDimensions && window.customDimensions.length > 0) {
+						if (window.customDimensions) {
 							if (params.stairModel.indexOf('Г-') != -1 || params.stairModel.indexOf('П-') != -1 && par.marshId == 2) {
 								window.customDimensions.push({
 									basePoint: {
@@ -1501,7 +1501,7 @@ function drawComplexStringer(par) {
 
 				par.flans.add(flan);
 				
-				if (window.customDimensions && window.customDimensions.length > 0) {
+				if (window.customDimensions) {
 					window.customDimensions.push({
 						basePoint: {
 							x: 0,
@@ -1964,6 +1964,7 @@ function drawComplexStringer(par) {
 		specObj[partName]["sumLength"] += stringerLen / 1000;		
 	}
 	par.mesh2.specId = partName + name;
+	addMaterialNeed({id: 'sheet4', amt: area, itemType:  'carcas'});
 
 	par.dxfBasePoint = copyPoint(dxfBasePoint2);
 

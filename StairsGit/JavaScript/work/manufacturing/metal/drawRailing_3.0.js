@@ -375,6 +375,7 @@ function drawGlassSectionMetal(par) {
 			holes: [],
 			dxfBasePoint: par.dxfBasePoint,
 			dxfArr: dxfPrimitivesArr,
+			side: par.railingSide,
 		}
 
 
@@ -458,10 +459,10 @@ function drawGlassSectionMetal(par) {
 		marshSectLen = par.keyPoints.botLineP10.x;
 		marshSectLen -= glassDist;
 
-		//if (par.key == "in") {
-		//	marshSectLen = par.keyPoints.botLineP10.x - glassDist - par.glassOffsetZ - par.keyPoints.botLineP0.x;
-		//}
-		marshSectLen = par.keyPoints.botLineP10.x - glassDist - par.glassOffsetZ - par.keyPoints.botLineP0.x;
+		if (par.key == "in") {
+			marshSectLen = par.keyPoints.botLineP10.x - glassDist - par.glassOffsetZ - par.keyPoints.botLineP0.x;
+		}
+		// marshSectLen = par.keyPoints.botLineP10.x - glassDist - par.glassOffsetZ - par.keyPoints.botLineP0.x;
 	}
 
 	if (params.startTreadAmt > 0 && par.marshId == 1) marshSectLen -= params.startTreadAmt * par.b + 20;
@@ -573,6 +574,7 @@ function drawGlassSectionMetal(par) {
 			holes: [],
 			dxfBasePoint: par.dxfBasePoint,
 			dxfArr: dxfPrimitivesArr,
+			side: par.railingSide,
 		}
 
 		//срез низа первого стекла первого марша
@@ -675,6 +677,7 @@ function drawGlassSectionMetal(par) {
 				holes: [],
 				dxfBasePoint: par.dxfBasePoint,
 				dxfArr: dxfPrimitivesArr,
+				side: par.railingSide,
 			}
 
 			//формирование массива holes для рутелей из массива отверстий par.racks
@@ -768,6 +771,7 @@ function drawGlassSectionMetal(par) {
 					holes: [],
 					dxfBasePoint: par.dxfBasePoint,
 					dxfArr: dxfPrimitivesArr,
+					side: par.railingSide,
 				}
 
 				glassPar.width = glassLengths[i];
@@ -858,6 +862,7 @@ function drawGlassSectionMetal(par) {
 			holes: [],
 			dxfBasePoint: par.dxfBasePoint,
 			dxfArr: dxfPrimitivesArr,
+			side: par.railingSide,
 		}
 
 		//срез низа первого стекла первого марша если в марше 0 ступеней
@@ -1227,7 +1232,7 @@ function setRacksParams(par) {
 	if (params.stairModel == "Прямая горка") {
 		var topFirst = {};
 		for (var i = 0; i < racks.length; i++) {
-			if (!topFirst.x && racks[i].y == racks[i + 1].y) {
+			if (!topFirst.x && racks[i] && racks[i + 1] && racks[i].y == racks[i + 1].y) {
 				topFirst = racks[i];
 			}
 			if (racks[i].y == topFirst.y) parRacks.topLast = racks[i];

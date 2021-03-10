@@ -89,6 +89,24 @@ function getMaterialsConfigs(){
 						}
 					}
 				},
+				ash:{
+					main:{
+						mapUrl: baseUrl + '/timber/ash.jpg',
+						mapPar:{
+							repeat: {x: 1/500, y: 1/500},
+							offset: {x: 0.5, y: 0.5}
+						}
+					}
+				},
+				ash_2:{
+					main:{
+						mapUrl: baseUrl + '/timber/ash_2.jpg',
+						mapPar:{
+							repeat: {x: 1/500, y: 1/500},
+							offset: {x: 0.5, y: 0.5}
+						}
+					}
+				},
 				elm_slab:{
 					main:{
 						mapUrl: baseUrl + '/timber/elm_slab_white.jpg',
@@ -1866,6 +1884,13 @@ function getMaterialsConfigs(){
 		return option.value;
 	});
 
+	var options = $('#handrails_pvcColor option');
+	$.each(options ,function(i) {
+		if (timberColors.indexOf(this.value) == -1) {
+			timberColors.push(this.value)
+		}
+	});
+
 	// Загружаем цвета для дерева
 	$.each(config.timber.textures, function(){
 		var texture = this;
@@ -3568,6 +3593,8 @@ function getTimberTextureName(timberType){
 	if(timberType == "дуб натур") return "oak_slab";
 	if(timberType == "карагач натур") return "elm_slab";
 	if(timberType == "шпон") return "oak_veneer";
+	if(timberType == "ясень ц/л") return "ash_2";
+	if(timberType == "ясень паркет.") return "ash";
 	return "oak";
 }
 
@@ -3656,6 +3683,20 @@ function getTimberMatConfig(){
 			mapUrl: baseUrl + '/timber/oak_prem_white.jpg',
 			mapPar:{
 				repeat: {x: 1/2000, y: 1/1000},
+				offset: {x: 0.1, y: 0.5}
+			}
+		},
+		ash:{
+			mapUrl: baseUrl + '/timber/ash.jpg',
+			mapPar:{
+				repeat: {x: 1/500, y: 1/500},
+				offset: {x: 0.1, y: 0.5}
+			}
+		},
+		ash_2:{
+			mapUrl: baseUrl + '/timber/ash_2.jpg',
+			mapPar:{
+				repeat: {x: 1/500, y: 1/500},
 				offset: {x: 0.1, y: 0.5}
 			}
 		},

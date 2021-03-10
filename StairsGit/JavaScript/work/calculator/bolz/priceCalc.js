@@ -1,4 +1,5 @@
-var costMarkup = 1.3; //07.05 было 1.25;
+//var costMarkup = 1.3; //07.05.20;
+var costMarkup = 1.56; //11.01.21
 var priceObj = {};
 
 function calculateCarcasPrice(){
@@ -11,9 +12,9 @@ var stringerArea = getPartPropVal('stringer', 'area') + getPartPropVal('bridge',
 
 strigerPrice = stringerMeterPrice * stringerArea;
 
-if(params.isCarcas != "нет"){
-	materials.sheet8.amt += stringerArea;
-}
+// if(params.isCarcas != "нет"){
+// 	materials.sheet8.amt += stringerArea;
+// }
 
 //уголки
 var anglePrice = 60;
@@ -136,11 +137,6 @@ var treadsPanelName = treadParams.treadsPanelName;
 var riserPanelName = treadParams.riserPanelName;
 var timberPaintMeterPrice = treadParams.timberPaintMeterPrice;
 var treadMeterPrice = treadParams.treadMeterPrice;
-
-if(params.stairType != "нет"){
-	if(treadParams.treadsPanelName) materials[treadsPanelName].amt += treadParams.treadShieldArea;
-	if(treadParams.riserPanelName) materials[riserPanelName].amt += treadParams.riserShieldArea;
-}
 
 var existFactor = 1; //каркас есть
 if(params.isCarcas == "нет") existFactor = 0;

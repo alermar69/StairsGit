@@ -6,7 +6,7 @@ function changeFormStartTreads(){
 	$(".startTreadsPar").show();
 	if(startTreadAmt < 1)  $(".startTreadsPar").hide();
 	$(".noTemplate").hide();
-	if(template == "тонкая настройка") {
+	if(template == "тонкая настройка" || template == "прямоугольные") {
 		for(var i=0; i<startTreadAmt; i++){
 			$(".noTemplate").eq(i).show();
 			}
@@ -14,7 +14,7 @@ function changeFormStartTreads(){
 	
 	$("#fullArcFront").closest("tr").show();
 	
-	if(template == "прямые"){
+	if(template == "прямые" || template == "прямоугольные" ){
 		$("#radiusFactor").val(0);
 		$("#radiusFactor1").val(0);
 		$("#radiusFactor2").val(0);
@@ -39,6 +39,12 @@ function changeFormStartTreads(){
 		$("#asymmetryFactor").val(30);
 		$("#asymmetryFactor1").val(20);
 		$("#asymmetryFactor2").val(10);
-		}
-			
+	}
+	
+	$(".radStartTreadPar").show()
+	$(".rectStartTreadPar").hide()
+	if(template == "прямые" || template == "прямоугольные" ){
+		$(".radStartTreadPar").hide()
+		$(".rectStartTreadPar").show()
+	}
 }

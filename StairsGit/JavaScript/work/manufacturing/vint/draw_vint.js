@@ -92,6 +92,20 @@ function drawStaircase(viewportId, isVisible) {
 		midHoldersParams.pos.push(params["holderPos_" + i]);
 	}
 
+	// if (params.strightMarsh == "снизу" || params.strightMarsh == "сверху и снизу") {
+	// 	midHoldersParams.holderLength.push(params.M - 70 * 2); // 70 - боковой свес и прочее(заменить)
+	// 	midHoldersParams.angle.push(params.strightTreadsAngle - 180);
+	// 	midHoldersParams.pos.push(1);
+
+	// 	params.holderAmt += 1;
+	// }
+	// if (params.strightMarsh == "сверху" || params.strightMarsh == "сверху и снизу") {
+	// 	midHoldersParams.holderLength.push(params.M - 70 * 2); // 70 - боковой свес и прочее(заменить)
+	// 	midHoldersParams.angle.push(180);
+	// 	midHoldersParams.pos.push(params.stepAmt - 1);
+	// 	params.holderAmt += 1;
+	// }
+
 	var strightPartHeight1 = 0;
 	if (params.strightMarsh == "снизу" || params.strightMarsh == "сверху и снизу") {
 		if (params.platformType == "square") {
@@ -239,12 +253,14 @@ function drawStaircase(viewportId, isVisible) {
 	if (params.strightMarsh != 'нет') {
 		params.M = params.staircaseDiam / 2;// - columnDiam / 2;
 		$("#M").val(params.M);
+		//нижний марш
 		if (params.strightMarsh == "снизу" || params.strightMarsh == "сверху и снизу"){
 			var treads = drawStrightMarsh(mainParams, 1);
 			treads.position.y -= strightPartHeight1;
 			model.add(treads, 'treads');
 		}
-
+		
+		//верхний марш
 		if (params.strightMarsh == "сверху" || params.strightMarsh == "сверху и снизу"){
 			var treads = drawStrightMarsh(mainParams, 3);
 			treads.position.y = staircaseHeight;// - strightPartHeight2;
@@ -305,6 +321,14 @@ function drawStaircase(viewportId, isVisible) {
 		}
 	}
 	
+	if (params.strightMarsh == "сверху" || params.strightMarsh == "сверху и снизу") {
+		moove.x -= getMarshParams(3).len;
+
+		if(turnFactor == 1) {
+			moove.rot -= Math.PI / 2;
+		}
+	}
+	
 	window.vintStaircaseMoove = moove;
 	//window.vintStaircaseMoove.x += params.staircasePosX;
 	//window.vintStaircaseMoove.z += params.staircasePosZ * 2;
@@ -316,10 +340,6 @@ function drawStaircase(viewportId, isVisible) {
 		obj.position.y += params.staircasePosY + (strightPartHeight1 || 0);
 		obj.position.z += moove.z + params.staircasePosZ;
 		obj.rotation.y = moove.rot;
-
-		if (params.strightMarsh == "сверху" || params.strightMarsh == "сверху и снизу") {
-			obj.position.x -= getMarshParams(3).len;
-		}
 
 		//добавляем в сцену
 		addObjects(viewportId, obj, model.objects[i].layer);
@@ -347,4 +367,3 @@ function getIndexDivide(point, divides) {
 	}
 	return index;
 }
-

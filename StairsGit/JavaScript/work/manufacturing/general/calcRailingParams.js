@@ -135,6 +135,10 @@ function setRailingParams(par) {
 		par.isPlatform = true;
 	}
 
+	if (params.topPltRailing_4 && par.key == 'out' && params.stairModel == 'Прямая' && params.platformTop == 'увеличенная') {
+		par.topEnd = 'площадка';
+	}
+
 	//длина верхнего участка
 
 	par.platformLengthTop = 0;

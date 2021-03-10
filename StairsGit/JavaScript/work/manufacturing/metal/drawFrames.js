@@ -1544,7 +1544,7 @@ function drawTopFixFrame2(par){
 	var width = params.M - params.stringerThickness * 2;
 	if (params.model == "ко") {
 		width -= 2 * params.sideOverHang;
-		console.log(par)
+		//console.log(par)
 		par.marshId = 3;
 		if (params.stairModel == "Прямая") par.marshId = 1;
 		par.stringerOutMoove = calcStringerMoove(par.marshId).stringerOutMoove;

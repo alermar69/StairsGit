@@ -1,3 +1,6 @@
+//var costMarkup = 1.3; //07.05.20;
+var costMarkup = 1.56; //11.01.21
+
 /** функия обертка для совместимости с общей структурой **/
 function calculateCarcasPrice(){
 	calcCarportCost()
@@ -10,13 +13,13 @@ function calcCarportCost(){
 	var profParmas = getProfParams(params.columnProf);
 	var amt = getPartPropVal('carportColumn', "sumLength")
 	var columnsCost = profParmas.unitCost * amt;
-	addMaterialNeed(profParmas.materialNeedId, amt)
+	addMaterialNeed({id: profParmas.materialNeedId, amt: amt})
 	
 	//прогоны
 	profParmas = getProfParams(params.progonProf);
 	amt = getPartPropVal('purlinProf', 'sumLength')
 	var progonCost = profParmas.unitCost * amt;
-	addMaterialNeed(profParmas.materialNeedId, amt)
+	addMaterialNeed({id: profParmas.materialNeedId, id: amt})
 	
 	if(params.carportType == "купол") progonCost *= 3;
 	
@@ -29,26 +32,42 @@ function calcCarportCost(){
 	var profParmas = getProfParams(params.beamProf);
 	amt = getPartPropVal('carportBeam', 'sumLength')
 	beamCost += profParmas.unitCost * amt;
-	addMaterialNeed(profParmas.materialNeedId, amt)
+	addMaterialNeed({id: profParmas.materialNeedId, id: amt})
 	
+	if(params.beamModel == "сужающаяся" || params.beamModel == "постоянной ширины"){
+		// Продольные балки (18 швеллер)
+		var beamMeterCost = 700; //500р/м цена материала, 200р/м - плазма + приварка фланцев
+		beamCost = getPartPropVal('trussSide', 'sumLength') * beamMeterCost;
+	}
+
 	//кровля
 	var roofMeterCost = 200; //цена кровельного материала за м2
 	
 	if(params.roofMat.indexOf("поликарбонат") != -1){
-		if(params.roofThk == '4') var roofMeterCost = 160;
-		if(params.roofThk == '6') var roofMeterCost = 200;
-		if(params.roofThk == '8') var roofMeterCost = 270;
-		if(params.roofThk == '10') var roofMeterCost = 350;
+		//цена поликарбоната взята отсюда https://polidin.ru/sotoviy-polikarbonat-petalex-primavera/ 
+		if(params.roofPlastColor == "прозрачный"){
+			if(params.roofThk == '4') var roofMeterCost = 193;
+			if(params.roofThk == '6') var roofMeterCost = 315;
+			if(params.roofThk == '8') var roofMeterCost = 350;
+			if(params.roofThk == '10') var roofMeterCost = 385;
+		}
+		if(params.roofPlastColor != "прозрачный"){
+			if(params.roofThk == '4') var roofMeterCost = 202;
+			if(params.roofThk == '6') var roofMeterCost = 331;
+			if(params.roofThk == '8') var roofMeterCost = 368;
+			if(params.roofThk == '10') var roofMeterCost = 404;
+		}
 		
 		if(params.roofMat == "монолитный поликарбонат") roofMeterCost *= 8;
+		
+		roofMeterCost *= 1.2; //к-т учитывающий обрезки
 	}
 	
 	if(params.roofMat == "профнастил" || params.roofMat == "металлочерепица"){
-		if(params.roofThk == 0.5) var roofMeterCost = 350;
-		if(params.roofThk == 0.7) var roofMeterCost = 450;
-
-		
-		if(params.roofMat == "монолитный поликарбонат") roofMeterCost *= 8;
+		if(params.roofThk == 0.35) var roofMeterCost = 350;
+		if(params.roofThk == 0.4) var roofMeterCost = 400;
+		if(params.roofThk == 0.5) var roofMeterCost = 500;
+		if(params.roofThk == 0.7) var roofMeterCost = 600;
 	}
 	
 	var roofCoverCost = getPartPropVal('polySheet', 'area') * roofMeterCost;
@@ -75,12 +94,11 @@ function calcCarportCost(){
 		widthCost *= 2; //к-т учитывает метизы, соединители и т.п.
 	}
 		
-		
-	//полоса по верху фермы
-	widthCost += getPartPropVal('trussLine', 'area') * list4mmPrice;
-	
-	// Продольные фермы
-	var trussLenCost = getPartPropVal('trussSide', 'area') * trussListPrice;
+	//полоса фермы
+	stripeCost = getProfParams(params.chordProf).unitCost + 200; //200р/м - приварка полосы	
+	widthCost += getPartPropVal('truss', 'stripeLength') * stripeCost;
+
+	var trussLenCost = 0
 	
 	//сварные фермы из профилей
 	if(params.beamModel == "ферма постоянной ширины"){
@@ -163,6 +181,12 @@ function calcCarportCost(){
 		if(params.carportType == "двухскатный") drainCost *= 2;
 		if(params.gutter == "круглый") drainCost *= 1.5;
 	}
+	
+	//покраска металла
+	if(params.carportMetalPaint == "порошок") {
+		var metalPaintCost = (widthCost + trussLenCost + beamCost + columnsCost + progonCost) * 0.2; //упрощенная формула
+		metalPaintCost *= calcMetalPaintCostFactor(); //функция в файле priceLib, добавляет к-т в зависимости от цвета покраски
+	}
 
 	staircaseCost.truss = Math.round(widthCost + trussLenCost);
 	staircaseCost.beams = Math.round(beamCost);
@@ -174,6 +198,7 @@ function calcCarportCost(){
 	staircaseCost.roofProf = Math.round(roofProfPrice)
 	staircaseCost.roofShim = Math.round(roofShimPrice)
 	staircaseCost.drain = Math.round(drainCost)
+	staircaseCost.carcasMetalPaint = Math.round(metalPaintCost);
 
 	staircaseCost.total = 
 		staircaseCost.truss
@@ -185,6 +210,7 @@ function calcCarportCost(){
 		+ staircaseCost.roof
 		+ staircaseCost.roofProf
 		+ staircaseCost.drain
-		+ staircaseCost.roofShim;
+		+ staircaseCost.roofShim + 
+		+ staircaseCost.carcasMetalPaint;
 	
 }

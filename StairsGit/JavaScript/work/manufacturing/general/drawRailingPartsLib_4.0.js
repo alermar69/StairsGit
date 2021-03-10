@@ -47,6 +47,9 @@ function drawRack3d_4(par) {
 	var timberPartLen = 600;
 	var botLen = len - topLen - timberPartLen;
 	if (rackModel != "40х40 нерж+дуб") botLen = len;
+	
+	//принудительно задаем материал для нержавеющих стоек
+	if (rackModel == "40х40 нерж+дуб" || rackModel == "40х40 нерж.") par.material = params.materials.inox;
 
 	//тело стойки
 	var p0 = { x: 0, y: 0 }
@@ -158,7 +161,7 @@ function drawRack3d_4(par) {
 		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 		geom.rotateUV(Math.PI / 2);
 		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-		var rack = new THREE.Mesh(geom, params.materials.timber);
+		var rack = new THREE.Mesh(geom, params.materials.banister);
 		par.mesh.add(rack);
 
 		//верх
@@ -343,7 +346,6 @@ function drawRack3d_4(par) {
 	}
 
 	//сохраняем данные для спецификации
-
 	var partName = "racks";
 	if (typeof specObj != 'undefined') {
 		if (!specObj[partName]) {
@@ -375,8 +377,10 @@ function drawRack3d_4(par) {
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		specObj[partName]["amt"] += 1;
-
 	}
+	var profParmas = getProfParams(profSize + 'х' + profSize);
+	addMaterialNeed({id: profParmas.materialNeedId, amt: Math.round(par.len) / 1000, area: (profSize + profSize) * 2 * par.len / 1000000, itemType: 'railing'})
+	par.mesh.isInMaterials = true;
 	par.mesh.specId = partName + name;
 
 	//окончания комбинированных стоек
@@ -1334,11 +1338,21 @@ function drawPole3D_4(par) {
 			specObj[partName]["area"] += polyArea;
 			par.mesh.specParams.area = polyArea;
 			par.mesh.specParams.sumLength = null;
+		}else{
+			if(par.partName == 'handrails') specObj[partName]["area"] += (par.profileY * par.poleProfileZ) / 40;
 		}
 
 		par.mesh.specId = partName + name;
 	}
 
+	var poleType = par.poleProfileY + "х" + par.poleProfileZ;
+	var profParmas = getProfParams(poleType);
+	addMaterialNeed({
+		id: profParmas.materialNeedId, amt: Math.round(par.length) / 1000, 
+		area: (par.poleProfileZ + par.poleProfileY) * 2 * par.length / 1000000,
+		itemType: ['rigels', 'handrails', 'crossProfile', 'ladderBal'].indexOf(par.partName) == -1 ? 'carcas' : 'railing'
+	});
+	par.mesh.isInMaterials = true;
 
 	//сохраняем данные для ведомости деталей
 	var addToPoleList = false;
@@ -1553,6 +1567,13 @@ function getPoleSpecParams(par){
 		specObjPart.metalPaint = true;
 	}
 	
+	if (partName == 'carportBridge') {
+		specObjPart.name = 'Перемычка';
+		specObjPart.division = "metal";
+		specObjPart.group = 'carcas';
+		specObjPart.metalPaint = true;
+	}
+	
 	if (partName == 'polySheet') {
 		specObjPart.name = 'Поликарбонат';
 		specObjPart.division = "metal";
@@ -1612,91 +1633,128 @@ function drawCross2(par){
 		partName: 'crossProfile'
 	}
 	
-	// Расчет для вертикального крепления
-	if (par.fixDirection == 'vertical') {
-		var tempPoint = polar(par.p2, angle(par.p0, par.p2) + Math.PI / 2, -par.profileY);
-		var p2Modified = itercection(par.p0, tempPoint, par.p3, par.p2);
-		var pole1Angle = angle(par.p0, p2Modified);
-		var poleLength = distance(par.p0, p2Modified);
-	
-		crossPoleParams.angStart = crossPoleParams.angEnd = pole1Angle;
-		crossPoleParams.length = poleLength;
-		var pole = drawPole3D_4(crossPoleParams).mesh;
-		pole.rotation.z = pole1Angle;
-		cross.add(pole);
+	if (par.fixType == 'поверх' && par.fixDirection == 'horizontal') {
+		if (par.fixDirection == 'horizontal') {
+			var sectionAngle = angle(par.p0, par.p3);
+			var tempPoint = polar(par.p0, angle(par.p0, par.p2) + Math.PI / 2, -par.profileY);
+			var p0Modified = itercection(par.p2, tempPoint, par.p0, par.p3);
+			var pole1Angle = angle(par.p2, p0Modified);
+			var poleLength = distance(par.p2, p0Modified);
 		
-		var pole2Angle = angle(par.p1, par.p3);
-		var tempPoint = polar(par.p1, pole2Angle + Math.PI / 2, -par.profileY);
-		var p1Modified = itercection(par.p3, tempPoint, par.p0, par.p1);
-	
-		var crossIntercection = itercection(par.p0, p2Modified, par.p3, p1Modified);
-		var poleStartAngle = angle(par.p3, p1Modified);
-		var poleEndAngle = poleStartAngle - pole1Angle - Math.PI / 2;
+			crossPoleParams.angStart = crossPoleParams.angEnd = pole1Angle - sectionAngle + Math.PI / 2;
+			crossPoleParams.length = poleLength;
+			crossPoleParams.poleAngle = pole1Angle;
+			crossPoleParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, p0Modified.x, p0Modified.y);
+			var pole = drawPole3D_4(crossPoleParams).mesh;
+			pole.position.x = p0Modified.x;
+			pole.position.y = p0Modified.y;
+			pole.position.z = -par.profileX / 2
+			cross.add(pole);
+
+			var tempPoint = polar(par.p1, angle(par.p1, par.p3) + Math.PI / 2, par.profileY);
+			var p1Modified = itercection(par.p3, tempPoint, par.p1, par.p2);
+			var poleLength = distance(par.p3, p1Modified);
+
+			var poleAngle = angle(par.p3, p1Modified);
+			var endAngle = poleAngle - pole1Angle + Math.PI / 2;
+
+			crossPoleParams.angStart = crossPoleParams.angEnd = poleAngle - sectionAngle + Math.PI / 2;
+			crossPoleParams.length = poleLength;
+			crossPoleParams.poleAngle = poleAngle;
+			crossPoleParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, p0Modified.x, p0Modified.y);
+			var pole = drawPole3D_4(crossPoleParams).mesh;
+			pole.position.x = par.p1.x;
+			pole.position.y = par.p1.y;
+			pole.position.z = par.profileX / 2
+			cross.add(pole);
+		}
+	}else{
+		// Расчет для вертикального крепления
+		if (par.fixDirection == 'vertical') {
+			var tempPoint = polar(par.p2, angle(par.p0, par.p2) + Math.PI / 2, -par.profileY);
+			var p2Modified = itercection(par.p0, tempPoint, par.p3, par.p2);
+			var pole1Angle = angle(par.p0, p2Modified);
+			var poleLength = distance(par.p0, p2Modified);
 		
-		crossPoleParams.length = distance(crossIntercection, par.p3);
-		crossPoleParams.angEnd = poleEndAngle;
-		crossPoleParams.angStart = poleStartAngle;
+			crossPoleParams.angStart = crossPoleParams.angEnd = pole1Angle;
+			crossPoleParams.length = poleLength;
+			var pole = drawPole3D_4(crossPoleParams).mesh;
+			pole.rotation.z = pole1Angle;
+			cross.add(pole);
+			
+			var pole2Angle = angle(par.p1, par.p3);
+			var tempPoint = polar(par.p1, pole2Angle + Math.PI / 2, -par.profileY);
+			var p1Modified = itercection(par.p3, tempPoint, par.p0, par.p1);
+		
+			var crossIntercection = itercection(par.p0, p2Modified, par.p3, p1Modified);
+			var poleStartAngle = angle(par.p3, p1Modified);
+			var poleEndAngle = poleStartAngle - pole1Angle - Math.PI / 2;
+			
+			crossPoleParams.length = distance(crossIntercection, par.p3);
+			crossPoleParams.angEnd = poleEndAngle;
+			crossPoleParams.angStart = poleStartAngle;
+		
+			var pole = drawPole3D_4(crossPoleParams).mesh;
+			pole.position.x = par.p3.x;
+			pole.position.y = par.p3.y + par.profileY / Math.cos(poleStartAngle);
+			pole.rotation.z = poleStartAngle + Math.PI;
+			cross.add(pole);
+		
+			crossPoleParams.angStart = poleStartAngle;
+			crossPoleParams.angEnd = poleEndAngle;
+		
+			var pole = drawPole3D_4(crossPoleParams).mesh;
+			pole.position.x = p1Modified.x;
+			pole.position.y = p1Modified.y;
+			pole.rotation.z = poleStartAngle;
+			cross.add(pole);
+		}
+		if (par.fixDirection == 'horizontal') {
+			var sectionAngle = angle(par.p0, par.p3);
+			var tempPoint = polar(par.p0, angle(par.p0, par.p2) + Math.PI / 2, -par.profileY);
+			var p0Modified = itercection(par.p2, tempPoint, par.p0, par.p3);
+			var pole1Angle = angle(par.p2, p0Modified);
+			var poleLength = distance(par.p2, p0Modified);
+		
+			crossPoleParams.angStart = crossPoleParams.angEnd = pole1Angle - sectionAngle + Math.PI / 2;
+			crossPoleParams.length = poleLength;
+			crossPoleParams.poleAngle = pole1Angle;
+			crossPoleParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, p0Modified.x, p0Modified.y);
+			var pole = drawPole3D_4(crossPoleParams).mesh;
+			pole.position.x = p0Modified.x;
+			pole.position.y = p0Modified.y;
+			cross.add(pole);
 	
-		var pole = drawPole3D_4(crossPoleParams).mesh;
-		pole.position.x = par.p3.x;
-		pole.position.y = par.p3.y + par.profileY / Math.cos(poleStartAngle);
-		pole.rotation.z = poleStartAngle + Math.PI;
-		cross.add(pole);
+			var tempPoint = polar(par.p1, angle(par.p1, par.p3) + Math.PI / 2, par.profileY);
+			var p1Modified = itercection(par.p3, tempPoint, par.p1, par.p2);
 	
-		crossPoleParams.angStart = poleStartAngle;
-		crossPoleParams.angEnd = poleEndAngle;
+			var poleAngle = angle(par.p3, p1Modified);
+			var endAngle = poleAngle - pole1Angle + Math.PI / 2;
 	
-		var pole = drawPole3D_4(crossPoleParams).mesh;
-		pole.position.x = p1Modified.x;
-		pole.position.y = p1Modified.y;
-		pole.rotation.z = poleStartAngle;
-		cross.add(pole);
-	}
-	if (par.fixDirection == 'horizontal') {
-		var sectionAngle = angle(par.p0, par.p3);
-		var tempPoint = polar(par.p0, angle(par.p0, par.p2) + Math.PI / 2, -par.profileY);
-		var p0Modified = itercection(par.p2, tempPoint, par.p0, par.p3);
-		var pole1Angle = angle(par.p2, p0Modified);
-		var poleLength = distance(par.p2, p0Modified);
+			var crossIntercection = itercection(p1Modified, par.p3, p0Modified, par.p2);
+			var poleLength = distance(p1Modified, crossIntercection) - par.profileY / Math.cos(endAngle);
 	
-		crossPoleParams.angStart = crossPoleParams.angEnd = pole1Angle - sectionAngle + Math.PI / 2;
-		crossPoleParams.length = poleLength;
-		crossPoleParams.poleAngle = pole1Angle;
-		crossPoleParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, p0Modified.x, p0Modified.y);
-		var pole = drawPole3D_4(crossPoleParams).mesh;
-		pole.position.x = p0Modified.x;
-		pole.position.y = p0Modified.y;
-		cross.add(pole);
-
-		var tempPoint = polar(par.p1, angle(par.p1, par.p3) + Math.PI / 2, par.profileY);
-		var p1Modified = itercection(par.p3, tempPoint, par.p1, par.p2);
-
-		var poleAngle = angle(par.p3, p1Modified);
-		var endAngle = poleAngle - pole1Angle + Math.PI / 2;
-
-		var crossIntercection = itercection(p1Modified, par.p3, p0Modified, par.p2);
-		var poleLength = distance(p1Modified, crossIntercection) - par.profileY / Math.cos(endAngle);
-
-		crossPoleParams.angStart = poleAngle - sectionAngle + Math.PI / 2
-		crossPoleParams.angEnd = endAngle;
-		crossPoleParams.length = poleLength;
-		crossPoleParams.poleAngle = poleAngle + Math.PI;;
-		crossPoleParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.p3.x, par.p3.y);
-		var pole = drawPole3D_4(crossPoleParams).mesh;
-		pole.position.x = par.p3.x;
-		pole.position.y = par.p3.y;
-		cross.add(pole);
-
-		crossPoleParams.angEnd = endAngle;
-		crossPoleParams.angStart = poleAngle - sectionAngle + Math.PI / 2;
-		crossPoleParams.length = poleLength;
-		crossPoleParams.poleAngle = poleAngle;
-		crossPoleParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.p1.x, par.p1.y);
-		var pole = drawPole3D_4(crossPoleParams).mesh;
-		pole.position.x = par.p1.x;
-		pole.position.y = par.p1.y;
-		cross.add(pole);
-
+			crossPoleParams.angStart = poleAngle - sectionAngle + Math.PI / 2
+			crossPoleParams.angEnd = endAngle;
+			crossPoleParams.length = poleLength;
+			crossPoleParams.poleAngle = poleAngle + Math.PI;;
+			crossPoleParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.p3.x, par.p3.y);
+			var pole = drawPole3D_4(crossPoleParams).mesh;
+			pole.position.x = par.p3.x;
+			pole.position.y = par.p3.y;
+			cross.add(pole);
+	
+			crossPoleParams.angEnd = endAngle;
+			crossPoleParams.angStart = poleAngle - sectionAngle + Math.PI / 2;
+			crossPoleParams.length = poleLength;
+			crossPoleParams.poleAngle = poleAngle;
+			crossPoleParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, par.p1.x, par.p1.y);
+			var pole = drawPole3D_4(crossPoleParams).mesh;
+			pole.position.x = par.p1.x;
+			pole.position.y = par.p1.y;
+			cross.add(pole);
+	
+		}
 	}
 
 	return cross;
@@ -2421,12 +2479,15 @@ function drawHandrailHolder(par) {
 				division: "stock_1",
 				workUnitName: "amt",
 				group: "Ограждения",
+				type_comments: {},
+				comment: 'Выдать в цех'
 			}
 			if (partName == "handrailHolderStr") specObj[partName].name = "Кронштейн поручня штырь";
 			if (partName == "tube12") specObj[partName].name = "Трубка нерж.";
 			if (par.isHor) specObj[partName].name = "Кронштейн поручня с двумя лодочками";
 		}
 		name = "с шарниром";
+		specObj[partName].type_comments[name] = 'Выдать в цех'; 
 		if (partName == "handrailHolderStr") name = "прямой";
 		if (partName == "tube12") name = 'Ф12х40';
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
@@ -2592,7 +2653,7 @@ function drawHolderFlan(par){
 			if (partName == "holderFlan_model") {
 				specObj[partName].name = "Лодочка плоская черн.";
 				specObj[partName].metalPaint = true;
-				
+				specObj[partName].comment = 'Выдать в цех';
 			}
 			if (partName == "handrailHolderFlanPlane_model") specObj[partName].name = "Лодочка под плоский поручень нерж.";
 			if (partName == "handrailHolderFlanArc_model") specObj[partName].name = "Лодочка под круглый поручень";
@@ -3670,7 +3731,7 @@ function drawForgedBanister(type, basePoint, scale, railingMaterial, railingSect
 			}
 		}
 
-		var name = type;
+		var name = getBalName(type);
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
 		if (specObj.unit != "banister") {
@@ -3682,6 +3743,7 @@ function drawForgedBanister(type, basePoint, scale, railingMaterial, railingSect
 			if (params.banister2_bal != params.banister1_bal && type == params.banister2_bal) specObj[partName]["amt2"] += 1;
 		}
 	}
+	addMaterialNeed({id: type, amt: 1, itemType: 'railing'});
 	railingSection.specId = partName + name;
 
 	return railingSection;
@@ -3943,8 +4005,8 @@ function drawHandrail_4(par) {
 	//рассчитываем абсолютные углы
 	var angStart = par.poleAngle + par.startAngle;
 	var angEnd = par.poleAngle + par.endAngle;
-	var startCutLen = par.profHeight / Math.sin(par.startAngle)
-	var endCutLen = par.profHeight / Math.sin(par.endAngle)
+	var startCutLen = par.profHeight / Math.sin(par.startAngle);
+	var endCutLen = par.profHeight / Math.sin(par.endAngle);
 
 	var p0 = { x: 0, y: 0 };
 	//круглый поручень строится по оси
@@ -4342,6 +4404,13 @@ function drawMeshBal(par) {
 		if (par.insetName == "screw") par.insetLen = 400;
 		if (par.insetName == "screw_sm") par.insetLen = 200;
 		var poleSize = 12;
+
+		// Для дерева с ковкой высота балясины считается от эталонной, чтобы вставка была на одном уровне вне зависимости от ступени
+		if (params.railingModel == 'Дерево с ковкой') {
+			var nominalLen = 800;
+		}else{
+			var nominalLen = par.len;
+		}
 	}
 	if (par.type == "timber") {
 		par.len = 900;
@@ -4355,7 +4424,7 @@ function drawMeshBal(par) {
 		var poleSize = 100;
 	}
 
-	var poleLen = (par.len - par.insetLen * par.insetAmt) / (par.insetAmt + 1);
+	var poleLen = (nominalLen - par.insetLen * par.insetAmt) / (par.insetAmt + 1);
 	var profPar = {
 		type: "rect",
 		poleProfileY: poleSize,
@@ -4367,11 +4436,23 @@ function drawMeshBal(par) {
 		dxfArr: [], //профиль не выводим в dxf
 	};
 	if (par.type == "timber" || par.type == "timberNewell") profPar.material = params.materials.banister;
+	
+	// Для дерева с ковкой высота балясины считается от эталонной, чтобы вставка была на одном уровне вне зависимости от ступени
+	if (params.railingModel == 'Дерево с ковкой') {
+		var firstPoleLen = poleLen + (par.len - nominalLen);
+	}else{
+		var firstPoleLen = poleLen;
+	}
 
 	var complexObj = new THREE.Object3D();
 	for (var i = 0; i <= par.insetAmt; i++) {
 		//палка
-		if (i == 0) profPar.type = par.botEnd;
+		if (i == 0) {
+			profPar.type = par.botEnd;
+			profPar.length = firstPoleLen;
+		}else{
+			profPar.length = poleLen;
+		}
 		if (i == par.insetAmt) profPar.type = par.topEnd;
 		if (profPar.type == "round") profPar.poleProfileY = 25;
 		// if (par.drawing && i == 0) {
@@ -4380,7 +4461,7 @@ function drawMeshBal(par) {
 		// }
 		var pole = drawPole3D_4(profPar).mesh;
 		pole.position.x = profPar.poleProfileY / 2;
-		pole.position.y = (poleLen + par.insetLen) * i;
+		if (i > 0) pole.position.y = firstPoleLen + poleLen * (i - 1) + par.insetLen * i;
 		pole.position.z = -profPar.poleProfileY / 2;
 		complexObj.add(pole);
 
@@ -4392,7 +4473,7 @@ function drawMeshBal(par) {
 				obj: complexObj,
 				basePoint: {
 					x: 0,
-					y: (poleLen + par.insetLen) * (i + 1),
+					y: firstPoleLen + poleLen * i + par.insetLen * (i + 1),
 					z: 0,
 				}
 			}
@@ -4422,7 +4503,7 @@ function drawMeshBal(par) {
 
 function drawMeshInset(par) {
 	var url = "/dev/rodionov/forge/banisters/" + par.name + ".json";
-	if (params.calcType == "railing") url = "/images/forge/" + par.name + ".json";
+	url = "/images/forge/" + par.name + ".json";
 	if (par.type == "timber") url = "/images/timberBal/json/" + par.name + ".json";
 	if (par.type == "timberNewell") url = "/images/timberNewell/json/" + par.name + ".json";
 	if (par.type == "startNewell") url = "/images/startNewell/json/" + par.name + ".json";

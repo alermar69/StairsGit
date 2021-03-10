@@ -113,6 +113,11 @@ function moveObjectByAxis(axis, factor){
 		
 			objectMovingId = false;		
 		}
+		if(window.objectMovingId && window.objectMovingType == 'stair'){
+			var oldVal = $('#floorPos' + axis.toUpperCase()).val();
+			$('#floorPos' + axis.toUpperCase()).val(oldVal * 1.0 + value * (factor || 1));
+			recalculate();
+		}
 		// Перемещение бетон
 		if (window.objectMovingId && window.objectMovingType == 'concrete') {
 			var axisInputId = ""
@@ -199,6 +204,24 @@ function moveObjectTwoPoints(){
 		item.position.z = (differencez + point.z).toFixed(2) * 1.0;
 
 		redrawAdditionalObjects();
+
+		objectMovingId = false;
+	}
+
+	//перемещение объекта
+	if(window.objectMovingId && window.objectMovingType == 'stair'){
+		var item = getAdditionalObject(objectMovingId);
+
+		var differenceX = $('#floorPosX').val() * 1.0 - lastSelectedPoint1.x;
+		var differenceY = $('#floorPosY').val() * 1.0 - lastSelectedPoint1.y;
+		var differencez = $('#floorPosZ').val() * 1.0 - lastSelectedPoint1.z;
+
+		var point = lastSelectedPoint; //глобавльная переменная из файла viewports
+		$('#floorPosX').val((differenceX + point.x).toFixed(2));
+		$('#floorPosY').val((differenceY + point.y).toFixed(2));
+		$('#floorPosZ').val((differencez + point.z).toFixed(2));
+		
+		recalculate();
 
 		objectMovingId = false;
 	}

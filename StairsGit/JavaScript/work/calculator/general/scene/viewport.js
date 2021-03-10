@@ -9,9 +9,13 @@ var menu = {};
 var selectedSpecObj = null;
 var allSpecsShowed = false;
 var cameraState = '';
+var IS_ISOLATION = false;
+var additional_objects_contexts = {};
 
 $(function () {
 	selectMaterial = new THREE.MeshLambertMaterial({ color: 0xFF00FF });
+
+	instanceManager = new InstanceManager();
 
 	// window.optionalDrawing = new OptionalDrawing();
 
@@ -77,7 +81,7 @@ $(function () {
 
 			unselectAllObjects();
 			$('#objectContextMenu').hide();
-			// recalculate();
+			updateModifyChanges()
 		}
 	});
 
@@ -158,23 +162,35 @@ $(function () {
 	});
 });
 
-function getSelectedObjectDxf(){
+function getSelectedObjectDxf(layer){
 	var obj = window.selectedObject;
 	if ((!obj || !obj.geometry) && window.clickedObject && window.clickedObject.geometry) obj = clickedObject;
 
 	if (obj) {
-		var shape = obj.geometry.parameters.shapes;
-		console.log(shape);
-		var d = makePathStringFromShape(shape);
 		
 		initMakerJs(function(){
 			var models = {};
+			
+			var shape = obj.geometry.parameters.shapes;
+			var d = makePathStringFromShape(shape, false, true);
 			if (d) {
 				console.log(i);
 				models[i] = makerjs.importer.fromSVGPathData(d);
-				models[i].layer = $(this).attr('data-layer');
+				models[i].layer = layer || $(this).attr('data-layer');
 			}
-			var dxf = makerjs.exporter.toDXF({models: models});
+
+			// models[i - 1] = makerjs.importer.fromSVGPathData('M 10,10 h 10');
+			// models[i - 1].layer = 'holes';
+
+			if (shape.holes) {
+				shape.holes.forEach(function(hole, j){
+					var d = makePathStringFromShape(hole, false, true);
+					models[i + j + 1] = makerjs.importer.fromSVGPathData(d);
+					models[i + j + 1].layer = 'holes';
+				})
+			}
+			var dxf = makerjs.exporter.toDXF({models: models, layerOptions: {'main': {}, 'holes': {}}});
+			console.log(models)
 			
 			var byteCharacters = unicodeToWin1251_UrlEncoded(dxf);
 			var byteArray = new Uint8Array(byteCharacters);
@@ -262,7 +278,6 @@ function addMeasurement(viewportId) {
 		spEnd.visible = false;
 		sConnection.visible = false;
 		sphereHelper.visible = false;
-
 		if (!window.objectMovingId) {
 			$('#selectedObjectInfo').hide();
 			$('#popuup_div').stop(true, true).hide();
@@ -302,13 +317,8 @@ function addMeasurement(viewportId) {
 						var obj = window.selectedObject;
 						if ((!obj || !obj.modifyKey) && window.clickedObject && window.clickedObject.modifyKey) obj = clickedObject;
 
-						if (obj.modifyKey) {
-							if (!obj.oldGeometry) {
-								$('#objectContextMenu').append("<a class='dropdown-item changeGeometry'>Изменить геометрию</a>");
-							}else{
-								$('#objectContextMenu').append("<a class='dropdown-item deleteGeometryChange'>Отменить изменения</a>");
-							}
-						}
+						$('#objectContextMenu').append("<a class='dropdown-item changeGeometry'>Изменить геометрию</a>");
+						$('#objectContextMenu').append("<a class='dropdown-item deleteGeometryChange'>Отменить изменения</a>");
 						if (typeof AdditionalObject == 'function') AdditionalObject.onClick(selectedObject, evt);
 					}
 				}
@@ -658,6 +668,8 @@ function showSpecInfo(selectedObj, e) {
 				$('#selectedObjectInfo .object-info').html("Артикул: " + selectedObj.specId + " Имя: " + parts[selectedObj.specId].name);
 			} else {}
 		}
+		$('#selectedObjectInfo .object-info').append("<br>Добавлен в материалы - " + (selectedObj.isInMaterials ? 'Да' : 'Нет'));
+
 		$('#showAllObjects').show();
 	} else {
 		$('#selectedObjectInfo .object-info').html("Этому объекту артикул не присвоен")
@@ -696,6 +708,7 @@ function selectObject(object){
 	console.log(object)
 	if (selectedObject) unselectObject();
 	selectedObject = findNearestObject3D(object);
+	console.log(selectedObject);
 	clickedObject = object;
 	if (selectedObject) {
 		selectedObject.traverse(function (node) {
@@ -798,6 +811,12 @@ function addObjects(viewportId, objectsArr, layerName) {
 
 	$.each(objectsArr, function () {
 
+		if (!menu.textures && window.location.href.indexOf('/customers') == -1 && window.isMulti && this.name.indexOf('Main-') != -1) {
+			var boxHelper = new THREE.BoxHelper( this, 0xffff00 );
+			boxHelper.name = 'MultiHelper';
+			view.scene.add(boxHelper)
+		}
+
 		this.setLayer(layerName, false);
 
 		//добавляем ребра
@@ -817,11 +836,36 @@ function addObjects(viewportId, objectsArr, layerName) {
 	// updateGUI();
 }
 
+function clearScene(){
+	if (!window.isMulti) {
+		//удаляем старую лестницу
+		for(var layer in layers){
+			removeObjects('vl_1', layer);
+		}
+	}
+	
+	view.scene.remove(view.scene.children.find(function(obj){return obj.name == getCurrentObjectName()}));
+	if (window.isMulti) {
+		view.scene.children.forEach(function(child){
+			if (child.name == 'MultiHelper') {
+				view.scene.remove(child);
+			}
+			if (child.name.indexOf('Main-') != -1) {
+				var id = child.name.split('-')[1];
+				var priceItem = getArrItemByProp(params.priceItems, 'id', id);
+				if (!priceItem) {
+					view.scene.remove(child);
+				}
+			}
+		})
+	}
+}
+
 function removeObjects(viewportId, layerName) {
 	//удаляем объекты из сцены
 	var removeObjects = [];
 	view.scene.traverse(function (node) {
-		if (node.layerName == layerName || node.layerName == layerName + "_wf") {
+		if ((node.layerName == layerName || node.layerName == layerName + "_wf") && !node.noRemoveObject) {
 			removeObjects.push(node);
 		}
 	});
@@ -939,11 +983,16 @@ function drawFloorPlane(thickness, offsetY, isVisible, viewportId, color) {
 	floor.geometry.computeVertexNormals();
 
 	floorObj.add(floor)
+	window.floor = floor
 	addObjects(viewportId, floorObj, 'floorBottom');
 
 }
 
 function _addWalls(viewportId, turnFactor) {
+
+	var turnSide = $("#turnSide").val();
+	// Обстановка не имеет поворота в калькуляторе этажей
+	if (window.isMulti) turnSide = 'правое';
 
 	for (var i = 1; i < 5; i++) {
 		//текущая стена
@@ -961,7 +1010,7 @@ function _addWalls(viewportId, turnFactor) {
 			var wallMesh =  addLedges(wall, i);
 			wallMesh.position.set(positionX, height / 2, positionZ * turnFactor);
 			wallMesh.rotation.y = i == 3 ? 1.5 * Math.PI : i == 4 ? 0.5 * Math.PI : i == 2 ? Math.PI : 0;
-			if ($("#turnSide").val() == 'левое' && (i == 1 || i == 2)) wallMesh.rotation.y -= Math.PI;
+			if (turnSide == 'левое' && (i == 1 || i == 2)) wallMesh.rotation.y -= Math.PI;
 			
 			wallMesh.objectRowClass = 'wallRow';
 			wallMesh.objectRowId = i;
@@ -977,6 +1026,8 @@ function addWalls(viewportId, isVisible) {
 	var wall, length, height, positionX, positionY, positionZ, thickness, turnSide, turnFactor;
 	var turnSide = $("#turnSide").val();
 	var turnFactor = turnSide == "правое" ? 1 : turnSide == "левое" ? -1 : 1;
+	// Обстановка не имеет поворота в калькуляторе этажей
+	if (window.isMulti) turnFactor = 1;
 	//создаем стены
 	//1 - дальняя, 2 - ближняя, 3 - правая, 4 - левая
 	menu.wall1 = isVisible;
@@ -990,6 +1041,8 @@ function addWalls(viewportId, isVisible) {
 function redrawWalls() {
 	var turnSide = $("#turnSide").val();
 	var turnFactor = turnSide == "правое" ? 1 : turnSide == "левое" ? -1 : 1;
+	// Обстановка не имеет поворота в калькуляторе этажей
+	if (window.isMulti) turnFactor = 1;
 
 	var k = 'vl_1';
 	//перебираем выдовые экраны
@@ -1046,6 +1099,10 @@ function addLedges(wall, n){
 		return this.value == n;
 	});
 	var complexWall = new THREE.Object3D();
+
+	var turnSide = $("#turnSide").val();
+	// Обстановка не имеет поворота в калькуляторе этажей
+	if (window.isMulti) turnSide = 'правое';
 	
 	//если есть выступы для этой стены
 	if (wallLedgeWidths.length) {
@@ -1120,7 +1177,7 @@ function addLedges(wall, n){
 					ledge.position.x = wallLedgePosX * 1.0 + wallLedgeWidth / 2 + w / 2;
 					ledge.position.z = wallLedgePosZ * 1.0 + wallLedgeDepth / 2 + d / 2;
 
-					if ($('#turnSide').val() == 'левое') {
+					if (turnSide == 'левое') {
 						ledge.position.x = wallLedgePosX * -1.0 - wallLedgeWidth / 2 - w / 2;
 						ledge.position.z = wallLedgePosZ * -1.0 - wallLedgeDepth / 2;
 					}
@@ -1293,7 +1350,16 @@ function mirrorWalls(){
 function addAdditionalObject(json){
 	// Валидируем параметры
 	if(!json.className) return;
-	var mesh = AdditionalObject.fromJson(json);
+	var meta = eval(json.className).getMeta();
+	
+	var redrawObject = !meta.noRedraw || !window.additional_objects_contexts[json.id] || window.additional_objects_contexts[json.id].type != json.className;
+	console.log(meta, redrawObject)
+	if (redrawObject) {
+		var mesh = AdditionalObject.fromJson(json);
+	}else{
+		var mesh = additional_objects_contexts[json.id];
+	}
+	console.log(mesh);
 	if (mesh) {
 		if (json.position) {
 			mesh.position.x = json.position.x || 0;
@@ -1304,7 +1370,7 @@ function addAdditionalObject(json){
 			mesh.rotation.y = THREE.Math.degToRad(json.rotation) || 0;
 		}
 
-		if (!testingMode) addObjects('', mesh, json.layer || 'additionalObject');
+		if (!testingMode && redrawObject) addObjects('', mesh, json.layer || 'additionalObject');
 	}
 	return mesh;
 }
@@ -1315,7 +1381,9 @@ function redrawAdditionalObjects(){
 
 	if (obj) {
 		for (var i = 0; i < obj.length; i++) {
-			view.scene.remove(obj[i]);
+			if (!obj[i].noRemoveObject) {
+				view.scene.remove(obj[i]);
+			}
 		}
 	}
 
@@ -1327,6 +1395,7 @@ function redrawAdditionalObjects(){
 	partsAmt_dop = {};
 	
 	// Отсекаем несуществуюищие классы
+
 	window.additional_objects = window.additional_objects.filter(function(item){
 		try {
 			eval(item.className);
@@ -1338,7 +1407,8 @@ function redrawAdditionalObjects(){
 	})
 	$.each(window.additional_objects, function(i){
 		addAdditionalObjectTable(this);
-		addAdditionalObject(this);
+		var context = addAdditionalObject(this);
+		additional_objects_contexts[this.id] = context;
 	});
 
 	if (window.selectedObject && selectedObject.objectRowClass == "additionalObjectRow") {
@@ -1359,36 +1429,40 @@ function addViewport() {
 
 	window.scene = view.scene = new THREE.Scene();
 
-	// Отныне строим сцену сразу как с текстурами
-	createRenderer();
-	createCamera();
-
 	//добавляем свет
-	createLights();
+	view.lights = createLights(view.scene);
+	
+	if (!window.IS_ISOLATION) {
+		// Отныне строим сцену сразу как с текстурами
+		createRenderer();
+		createCamera();
 
-	//управление камерой
-	view.orbitControls = new THREE.OrbitControls(view.camera, view.renderer.domElement);
+		//управление камерой
+		view.orbitControls = new THREE.OrbitControls(view.camera, view.renderer.domElement);
 
-	//вывод на страницу
-	$('#' + view.outputDivId).html(view.renderer.domElement);
+		//вывод на страницу
+		$('#' + view.outputDivId).html(view.renderer.domElement);
 
-	cameraAngle = 0;
-	camPosIndex = 0;
-	cameraState = 'Стандартная';
-	view.clock = new THREE.Clock();
+		cameraAngle = 0;
+		camPosIndex = 0;
+		cameraState = 'Стандартная';
+		view.clock = new THREE.Clock();
 
-	renderScene();
+		renderScene();
+	}
 
 	// Создаем менеджер текстур, в последствии он управляет всеми текстурами
 	window.textureManager = new TextureManager(false);
+	
+	// Создаем менеджер изолированного кода
+	window.isolationManger = new IsolationManger();
 
 	//Для поддержки старого кода, пока окончательно не выпилим
 	$['vl_1'] = view.scene;
-	// $sceneStruct = {
-	// 	vl_1: {}
-	// };
 
-	createMenu();
+	if (!window.IS_ISOLATION) {
+		createMenu();
+	}
 }
 
 function createMenu(){
@@ -1557,8 +1631,14 @@ function render() {
 	var camera = cameraAnimation();
 	
 	processAnimations();
-	
+	view.renderer.autoClear = true;
 	view.renderer.render(view.scene, camera);
+	if (window.instanceManager && instanceManager.instances.length > 0) {
+		view.renderer.autoClear = false;
+		instanceManager.instances.forEach(function(instance){
+			if (instance.scene && instance.ready) view.renderer.render(instance.scene, camera)
+		})
+	}
 }
 
 function cameraAnimation(){
@@ -1773,6 +1853,10 @@ function addTopFloor(viewportId, isVisible) {
 
 function drawTopFloor() {
 	var floorThickness = $("#floorThickness").val() * 1;
+	
+	var turnSide = $("#turnSide").val();
+	// Обстановка не имеет поворота в калькуляторе этажей
+	if (window.isMulti) turnSide = 'правое';
 
 	var obj;
 	if (view.scene) {
@@ -1817,11 +1901,11 @@ function drawTopFloor() {
 			beam.position.y = params.staircaseHeight - params.beamWidth / 2 - params.beamPosY;
 			if(params.floorHoleBaseSide == 1){
 			beam.position.z = -beamThk / 2 - 0.01
-			if (params.turnSide == "левое") beam.position.z -= params.floorHoleWidth;
+			if (turnSide == "левое") beam.position.z -= params.floorHoleWidth;
 			}
 			if(params.floorHoleBaseSide == 2){
 				beam.position.z = params.floorHoleWidth + beamThk / 2 + 0.01
-				if (params.turnSide == "левое") beam.position.z -= params.floorHoleWidth;
+				if (turnSide == "левое") beam.position.z -= params.floorHoleWidth;
 			}
 		}
 		
@@ -1829,7 +1913,7 @@ function drawTopFloor() {
 			
 			beam.position.y = params.staircaseHeight - params.beamWidth / 2 - params.beamPosY;
 			beam.position.z = params.floorHoleWidth / 2 + params.beamPosZ
-			if (params.turnSide == "левое") beam.position.z -= params.floorHoleWidth;
+			if (turnSide == "левое") beam.position.z -= params.floorHoleWidth;
 			if(params.floorHoleBaseSide == 3 ){
 				beam.position.x = beamThk / 2 + params.beamPosX + 0.01;
 			}
@@ -1850,6 +1934,10 @@ function drawTopFloorPlane(thickness, color, offsetY, isCeil) {
 
 	var mat = params.materials.topFloor;
 	if (isCeil) mat = params.materials.ceil;
+
+	var turnSide = $("#turnSide").val();
+	// Обстановка не имеет поворота в калькуляторе этажей
+	if (window.isMulti) turnSide = 'правое';
 
 	//сохраняем значение параметра видимости верхнего перекрытия для текущего видового экрана
 	var isVisible = menu.topFloor;
@@ -2087,7 +2175,7 @@ function drawTopFloorPlane(thickness, color, offsetY, isCeil) {
 		topFloor.position.x = 0;
 		topFloor.position.y = params.staircaseHeight - floorThickness - offsetY;
 		topFloor.position.z = 0 //params.topThreadsPosition;
-		if (params.turnSide == "левое") topFloor.position.z -= params.floorHoleWidth;
+		if (turnSide == "левое" && !window.isMulti) topFloor.position.z -= params.floorHoleWidth;
 	
 		addObjects('vl_1', topFloor, 'topFloor');
 	
@@ -2140,15 +2228,15 @@ function updateTextures() {
 /** функция возвращает стандартный свет для сцены без текстур
  */
 
-function createLights() {
-	view.lights = [];
+function createLights(scene) {
+	var lights = [];
 	if (window.location.href.includes('/geometry/')) {
 		var ambientLight = new THREE.AmbientLight(0xffffff);
-		view.scene.add(ambientLight);
-		view.lights.push(ambientLight);
+		scene.add(ambientLight);
+		lights.push(ambientLight);
 	} else {
 		var ambientLight = new THREE.AmbientLight(0xfffbdf);
-		view.scene.add(ambientLight);
+		scene.add(ambientLight);
 
 		var sunLight = new THREE.SpotLight(0xffffff, 0.4, 0, Math.PI / 2);
 		sunLight.position.set(1000, params.staircaseHeight - params.floorThickness - 100, 3000 * turnFactor);
@@ -2159,8 +2247,9 @@ function createLights() {
 
 		sunLight.shadow.mapSize.width = 4096;
 		sunLight.shadow.mapSize.height = 4096;
-		view.scene.add(sunLight);
+		scene.add(sunLight);
 
-		view.lights.push(ambientLight, sunLight);
+		lights.push(ambientLight, sunLight);
 	}
+	return lights
 }

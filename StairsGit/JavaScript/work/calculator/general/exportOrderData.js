@@ -3,44 +3,14 @@
 	$("#makeAccepted").click(function(){
 		//привязка заказа невозможна в упрощенном режиме отрисовки
 		if(menu.simpleMode){
-			alert("ВНИМЕНИЕ! Не удалось привязать заказ. Отключите упрощенный режим отрисовки модели!")
-			return;
+			// Так сделано чтобы не сработал обработчик setter, для того чтобы мы могли сами вызывать recalculate и дождаться завершения
+			menu.elements.find(e => e.title == 'Настройки').elements.find(e => e.title == 'Упрощённый режим').value = false;
+			recalculate().finally(function(){
+				makeAccepted()
+			})
+		}else{
+			makeAccepted();
 		}
-		
-		//из раздела /dev/ добавляем в тестовую базу
-		var testDb = false;
-		var url = document.location.href;
-		if(url.indexOf("dev") != -1) testDb = true;
-		
-		var queryUrl = "/orders/offer-controller/action-get-data";
-		if(testDb) queryUrl = "/dev/rodionov/orders/offer-controller/action-get-data";
-		
-		$.ajax({
-			url: queryUrl,
-			type: "GET",
-			dataType: 'json',
-			data: {
-				name: $("#orderName").val(),
-				},
-
-			success: function (data) {
-				var wrightData = false;
-				if(data.id) {
-					wrightData = confirm("Этот расчет уже запущен в работу. Обновить данные в базе?");
-					};
-				if(wrightData || data.result == "not_found"){
-					//формируем объект для выгрузки					
-					var exportObj = getExportData_com();
-					addOfferToOrder(exportObj);
-				};
-			},
-			error: function( jqXhr, textStatus, errorThrown ){
-				console.log(jqXhr, textStatus, errorThrown)
-				alert('Ошибка на сервере ' + errorThrown );
-			}
-
-		});
-		
 	});
 	
 	//ручные или автоматические данные для экспорта
@@ -58,6 +28,42 @@
 	})
 
 });
+
+function makeAccepted(){
+	//из раздела /dev/ добавляем в тестовую базу
+	var testDb = false;
+	var url = document.location.href;
+	if(url.indexOf("dev") != -1) testDb = true;
+	
+	var queryUrl = "/orders/offer-controller/action-get-data";
+	if(testDb) queryUrl = "/dev/rodionov/orders/offer-controller/action-get-data";
+	
+	$.ajax({
+		url: queryUrl,
+		type: "GET",
+		dataType: 'json',
+		data: {
+			name: $("#orderName").val(),
+			},
+
+		success: function (data) {
+			var wrightData = false;
+			if(data.id) {
+				wrightData = confirm("Этот расчет уже запущен в работу. Обновить данные в базе?");
+				};
+			if(wrightData || data.result == "not_found"){
+				//формируем объект для выгрузки					
+				var exportObj = getExportData_com();
+				addOfferToOrder(exportObj);
+			};
+		},
+		error: function( jqXhr, textStatus, errorThrown ){
+			console.log(jqXhr, textStatus, errorThrown)
+			alert('Ошибка на сервере ' + errorThrown );
+		}
+
+	});
+}
 
 /** функция проверяем сумму вручную введенного распределения по цехам */
 function checkDeptSum(){
@@ -78,7 +84,7 @@ function checkDeptSum(){
 
 
 /** функция создает объект с данными из КП для экспорта в базу заказов
-Работает с глобальными объектами staircasePrice, workList, materials
+Работает с глобальными объектами priceObj, workList, materials
 */
 
 function getExportData_com(checkSumm){
@@ -87,49 +93,57 @@ function getExportData_com(checkSumm){
 	if(url.indexOf('calculator') != -1 && url.indexOf('dev') == -1) checkPrice = true;
 
 	//данные по цене
+	if (params.calcType == 'cnc') {
+		priceObj = {};
+		workList = {};
+		materials = {};
+	}
 
-	var price_data = {
-		carcas: {
-			name: "Каркас",
-			price: staircasePrice.carcasFinal,
-			metalPaint: staircasePrice.carcasMetalPaint,
-			timberPaint: 0,
-			stage: params.carcasAssmStage,
-			},
-		treads: {
-			name: "Ступени",
-			price: staircasePrice.treadsFinal,
-			metalPaint: 0,
-			timberPaint: staircasePrice.carcasTimberPaint,
-			stage: params.treadsAssmStage,
-			},
-		railing: {
-			name: "Ограждения",
-			price: staircasePrice.railingFinal,
-			metalPaint: staircasePrice.railingMetalPaint,
-			timberPaint: staircasePrice.railingTimberPaint,
-			stage: params.railingAssmStage,
-			},
-		banister: {
-			name: "Балюстрада",
-			price: staircasePrice.banisterFinal,
-			metalPaint: staircasePrice.banisterMetalPaint,
-			timberPaint: staircasePrice.banisterTimberPaint,
-			stage: params.banisterAssmStage,
+	if (params.calcType != "carport" && params.calcType != "railing") {
+		var price_data = {
+			carcas: {
+				name: "Каркас",
+				price: priceObj['carcas'].discountPrice,
+				metalPaint: priceObj['carcasMetalPaint'] ? priceObj['carcasMetalPaint'].discountPrice : 0,
+				timberPaint: 0,
+				stage: params.carcasAssmStage,
+				},
+			treads: {
+				name: "Ступени",
+				price: priceObj['treads'] ? priceObj['treads'].discountPrice : 0,
+				metalPaint: 0,
+				timberPaint: priceObj['carcasTimberPaint'] ? priceObj['carcasTimberPaint'].discountPrice : 0,
+				stage: params.treadsAssmStage,
+				},
+			railing: {
+				name: "Ограждения",
+				price: priceObj['railing'] ? priceObj['railing'].discountPrice : 0,
+				metalPaint: priceObj['railingMetalPaint'] ? priceObj['railingMetalPaint'].discountPrice : 0,
+				timberPaint: priceObj['railingTimberPaint'] ? priceObj['railingTimberPaint'].discountPrice : 0,
+				stage: params.railingAssmStage,
+				},
+			banister: {
+				name: "Балюстрада",
+				price: priceObj['banister'] ? priceObj['banister'].discountPrice : 0,
+				metalPaint: priceObj['banisterMetalPaint'] ? priceObj['banisterMetalPaint'].discountPrice : 0,
+				timberPaint: priceObj['banisterTimberPaint'] ? priceObj['banisterTimberPaint'].discountPrice : 0,
+				stage: params.banisterAssmStage,
 			},
 		};
-	
+		
+	}
+
 	if(params.calcType == "railing"){
 		var price_data = {
 			railing: {
 				name: "Ограждения",
-				price: staircasePrice.railingFinal,
+				price: priceObj['railing'].discountPrice,
 				metalPaint: 0,
 				timberPaint: 0,
 			},
 			treads: {
 				name: "Обшивка",
-				price: staircasePrice.treadsFinal,
+				price: priceObj['treads'].discountPrice,
 				metalPaint: 0,
 				timberPaint: 0,
 			},
@@ -143,7 +157,7 @@ function getExportData_com(checkSumm){
 		var price_data = {
 			product: {
 				name: "Изделие",
-				price: staircasePrice.product,
+				price: priceObj['product'].discountPrice,
 				metalPaint: 0,
 				timberPaint: 0,
 			},
@@ -155,13 +169,13 @@ function getExportData_com(checkSumm){
 		var price_data = {
 			carcas: {
 				name: "Каркас",
-				price: staircasePrice.carcas,
+				price: priceObj['carcas'].discountPrice,
 				metalPaint: 0,
 				timberPaint: 0,
 			},
 			roof: {
 				name: "Кровля",
-				price: staircasePrice.roof,
+				price: priceObj['roof'].discountPrice,
 				metalPaint: 0,
 				timberPaint: 0,
 			},
@@ -171,49 +185,13 @@ function getExportData_com(checkSumm){
 	if(params.calcType == "veranda"){
 		price_data.cannopy = {
 			name: "Навес",
-			price: staircasePrice.cannopy,
+			price: priceObj['cannopy'].discountPrice,
 			metalPaint: 0,
 			timberPaint: 0,
 		};			
 	};
 
-
-	if(params.calcType == "slabs"){
-		var price_data = {};
-		var discountFactor = staircasePrice.finalPrice / staircasePrice.total;
-		$(".estimateItem").each(function(){
-			var id = $(this).find(".id").text();
-
-			price_data[id] = {
-				name: $(this).find(".name").val(),
-				price: $(this).find(".summ").text() * discountFactor,
-				metalPaint: 0,
-				timberPaint: 0,
-			};
-			
-			//распределение по участкам
-			price_data[id].production = price_data[id].price;
-			price_data[id].assembling = 0;
-			price_data[id].delivery = 0;
-			
-			if($(this).find(".unitType").val() == "сборка"){
-				price_data[id].production = 0;
-				price_data[id].assembling = price_data[id].price;
-				price_data[id].delivery = 0;
-			}
-			if($(this).find(".unitType").val() == "доставка"){
-				price_data[id].production = 0;
-				price_data[id].assembling = 0;
-				price_data[id].delivery = price_data[id].price;
-			}
-			
-		});
-		
-	};
-
-
-	//доп. объекты
-
+	//доп. объекты\
 	$.each(priceObj, function(key){
 		if (this.is_additional_object) {
 			price_data[key] = {
@@ -240,7 +218,7 @@ function getExportData_com(checkSumm){
 			metalPaint: 0,
 			timberPaint: 0,
 			production: 0,
-			assembling: staircasePrice.assemblingFinal
+			assembling: priceObj['assembling'].discountPrice
 		};
 		
 		if(!price_data.main.assembling) price_data.main.assembling = 0;
@@ -259,27 +237,27 @@ function getExportData_com(checkSumm){
 						}
 					};
 				price_data[unit].production = totalPrice;			
-				};
 			};
+		};
 		//распределяем монтаж пропорционально между всеми позициями
 
 		var assemblingSum = 0; //контрольная сумма
 		for(var unit in price_data){
 			if(unit != "main"){
-				price_data[unit].assembling = staircasePrice.assemblingFinal * (price_data[unit].production / price_data.main.production);
+				price_data[unit].assembling = priceObj['assembling'].discountPrice * (price_data[unit].production / price_data.main.production);
 				//округляем сумму монтажа
 				price_data[unit].assembling = Math.round(price_data[unit].assembling);
 				if(!price_data[unit].assembling) price_data[unit].assembling = 0;
 				assemblingSum += price_data[unit].assembling;
-				};
 			};
+		};
 		
 		//исправляем ошибку округления сумм монтажа про разным узлам
-		if(staircasePrice.assemblingFinal != assemblingSum){
+		if(priceObj['assembling'].discountPrice != assemblingSum){
 			//добавляем разницу в первый ненулевой пункт
 			for(var unit in price_data){
 				if(unit != "main" && price_data[unit].assembling){
-					price_data[unit].assembling += staircasePrice.assemblingFinal - assemblingSum;
+					price_data[unit].assembling += priceObj['assembling'].discountPrice - assemblingSum;
 					break;
 				};
 			};
@@ -287,38 +265,19 @@ function getExportData_com(checkSumm){
 		
 		//доставка
 		
-		price_data.main.delivery = staircasePrice.delivery;
+		price_data.main.delivery = priceObj['delivery'].discountPrice;
 		if(!price_data.main.delivery) price_data.main.delivery = 0;
 
 	}
-	if(params.calcType == "slabs"){
-		price_data.main = {
-			price: staircasePrice.total,
-			metalPaint: 0,
-			timberPaint: 0,
-			production: 0,
-			assembling: 0,
-			delivery: 0,
-		}
-		var discountFactor = staircasePrice.finalPrice / staircasePrice.total;
-		$("#estimate_mat .estimateItem").each(function(){
-			price_data.main.production += $(this).find(".summ").text() * discountFactor;
-		})
-		$("#estimate_works .estimateItem").each(function(){
-			var dept = "assembling"
-			if($(this).find(".unitType").val() == "доставка") dept = "delivery";
-			price_data.main[dept] += $(this).find(".summ").text() * discountFactor;
-		})
-	};
 	
 	if(params.calcType == "custom"){
 		price_data.main = {
-			price: staircasePrice.total,
+			price: priceObj['total'].discountPrice,
 			metalPaint: 0,
 			timberPaint: 0,
-			production: staircasePrice.finalPrice,
-			assembling: staircasePrice.assembling,
-			delivery: staircasePrice.delivery,
+			production: priceObj['total'].discountPrice,
+			assembling: priceObj['assembling'].discountPrice,
+			delivery: priceObj['delivery'].discountPrice,
 		}
 	}
 
@@ -326,8 +285,8 @@ function getExportData_com(checkSumm){
 
 	var totalPrice = price_data.main.production + price_data.main.assembling + price_data.main.delivery
 
-	if(Math.abs(staircasePrice.finalPrice - totalPrice) > 0.01 && checkPrice && totalPrice){
-		console.log("Ошибка расчета цены для выгрузки: " + totalPrice + " != " + staircasePrice.finalPrice )
+	if(Math.abs(priceObj['total'].discountPrice - totalPrice) > 0.01 && checkPrice && totalPrice){
+		console.log("Ошибка расчета цены для выгрузки: " + totalPrice + " != " + priceObj['total'].discountPrice )
 		// отправка сообщения об ошибке в багтрекер
 		
 		var reportPar = {
@@ -336,14 +295,14 @@ function getExportData_com(checkSumm){
 			link: url,
 			user: $("#userName").text(),
 			noAlerts: true,
-			}
+		}
 		sendBugReport(reportPar); //функция в файле sendReport.js
 	}
 
 	price_data.main.total = totalPrice;
 
 
-//краткое описание лестницы
+	//краткое описание лестницы
 
 	var description = "";
 	
@@ -366,8 +325,6 @@ function getExportData_com(checkSumm){
 	if(params.calcType == "vint" && params.carcasColor == "см.комментарий") hasColorComment = true;
 	if(hasColorComment) timberPaintName += " (нестандартынй цвет)"
 
-	
-	
 	var calcTypes = ['metal', 'mono', 'bolz', 'console'];
 	if(calcTypes.indexOf(params.calcType) != -1){
 		if(staircaseHasUnit().carcas){
@@ -396,30 +353,29 @@ function getExportData_com(checkSumm){
 			description += " " + calcTotalStepAmt() + " подъемов. " + metalPaintName;
 			
 			};
-		};
+	};
 		
 	if(params.calcType.indexOf("timber") != -1){
 		description = "Деревянная " + params.stairModel + " " + calcTotalStepAmt() + " подъемов. " + 		
 			"Каркас " + params.model + " " + params.stringersMaterial + ". "
-		};
+	};
 		
 	if(params.calcType == "vhod"){
 		description = "Входная " + params.staircaseType + " " + params.stairModel + " " + calcTotalStepAmt() + " подъемов. " + 		
 			"Верхняя площадка: " + params.platformTop + ". " + metalPaintName;
-		};
+	};
 		
 	if(params.calcType == "fire_2"){
 		description = " " + params.staircaseType + " L=" + Math.round(params.stairCaseLength / 100) / 10 + " м.п. " + 		
 			"Площадка " + params.pltLength + " мм";
-		};
+	};
 	if(params.calcType == "custom"){
 		description = params.descr;
-	};	
-		
+	};
 	
-//ступени, ограждения
-	
-	if(params.calcType == "metal" || params.calcType == "mono" || params.calcType == "vhod"){
+	//ступени, ограждения
+	var calcTypes = ['metal', 'mono', 'bolz', 'console', 'vhod'];
+	if(calcTypes.indexOf(params.calcType) != -1){
 		var treadsName = params.stairType;
 		if(params.stairType == "массив") {
 			treadsName = params.treadsMaterial;
@@ -437,8 +393,7 @@ function getExportData_com(checkSumm){
 		if(params.treadLigts == "есть") description += " Есть подсветка."
 
 		if(staircaseHasUnit().railing) description += " Ограждения " + params.railingModel;
-
-		}
+	}
 		
 	if(params.calcType.indexOf("timber") != -1){
 		
@@ -451,26 +406,50 @@ function getExportData_com(checkSumm){
 			
 		if(staircaseHasUnit().skirting) description += " Есть плинтус.";
 
-
 		if(staircaseHasUnit().railing) description += " Ограждения " + params.railingModel;
-
-		}
+	}
 	
 	if(params.calcType == "vint"){
+		var treadMaterial = params.stairType;
+		if (treadMaterial == 'массив') {
+			treadMaterial += ' ' + params.treadsMaterial;
+			if(params.treadThickness > 40) treadMaterial += " " + params.treadThickness + "мм"
+		}
 		description = params.model + " Ф" + params.staircaseDiam;
 		if(params.platformType == "triangle") description += ", площадка треугольная,"
 		if(params.platformType == "square") description += ", площадка прямоугольная,"
 		description += " " + params.stepAmt + " подъемов. " + metalPaintName + 
-			" Ступени " + params.treadMaterial;
-		if(params.treadMaterial != "рифленая сталь" && params.treadMaterial != "лотки под плитку")
+			" Ступени " + treadMaterial;
+		if(params.stairType != "рифленая сталь" && params.stairType != "лотки под плитку")
 			description += ", покраска " + timberPaintName + ".";
 		description += " Ограждения " + params.railingModel + " " + params.rackType + ", поручень " + params.handrailMaterial;
-		
-		}
+	}
 	
 	if(params.calcType == "railing"){
 		description = "";
-		if(params.railingSectAmt > 0) description = "Ограждения";
+		
+		//обшивка бетонных маршей
+		if(params.stairType != "нет"){
+			description = "Обшивка "
+			var sectTypes = {};
+
+			$(".sectType").each(function(){
+				var sectType = $(this).val();
+				if(!sectTypes[sectType]) sectTypes[sectType] = 0;
+				sectTypes[sectType] += 1;
+			})
+
+			$.each(sectTypes, function(name){
+				description += name + " " + this + " шт, "
+			})
+			
+			description += "Ступени " + params.treadsMaterial;
+			if(params.treadThickness > 40) description += " " + params.treadThickness + "мм"
+			if(params.riserType == "есть") description += " подступенки " + params.risersMaterial; 
+			description += ", покраска " + timberPaintName + " " + params.surfaceType + ".";
+		}
+		
+		if(params.railingSectAmt > 0) description += " Ограждения";
 		
 		var types = {};
 		for(var i=0; i<params.railingSectAmt; i++){
@@ -491,6 +470,9 @@ function getExportData_com(checkSumm){
 			description += " " + type + " " + Math.round(types[type].len * 10) / 10 + " м.п. (" + types[type].amt + " секц.)";
 		}
 		
+		var handrailName = params.handrail;
+		if(params.handrail == "массив") handrailName = params.handrailsMaterial
+		description += " поручень " + handrailName;
 	}
 		
 	if(params.calcType == "slabs"){
@@ -527,60 +509,121 @@ function getExportData_com(checkSumm){
 		if(params.wallMat != "нет") description += ". Стенки " + params.wallMat;
 	}
 	
-			
 	if(staircaseHasUnit().banister) description += ", Балюстрада " + params.railingModel_bal + " " + calcBanisterLen() + "м.п. ";
 	
 	//доп. объекты
 	if (window.additional_objects) {
-		var objDescr = "";		
+		var objDescr = "";
+		var sillTypes = {}
+		var tableTypes = {}
 		
+		//группируем стандартные позиции
+		var groupNames = ["Sill", "Table"];
+		var groups = {total: 0,}
+		groupNames.forEach(function(name){
+			var classes = AdditionalObject.getAvailableClasses()
+			var descr = classes.find(item => item.className === name).title;
+			groups[name] = {amt: 0, name: descr, comment: ""};
+		})
+
 		$.each(additional_objects, function(i){
 			if(this.calc_price){
 				var className = this.className
-				
-				var classes = AdditionalObject.getAvailableClasses()
-				var descr = classes.find(item => item.className === className).title;
-				
-				//используем метод класса если есть
-				var AdditionalObjectClass =  eval(className);
-				if(AdditionalObjectClass) descr = AdditionalObjectClass.getDescr(this).text
-	
-				if(i > 0 && objDescr) objDescr += ", "
-				objDescr += descr;
+				if(groupNames.indexOf(className) != -1){
+					groups[className].amt += this.meshParams.objectAmt;
+					groups.total += this.meshParams.objectAmt;
+					
+					//дополнительная информация по подоконникам
+					if(className == "Sill"){
+						var type = this.meshParams.shapeType;
+						if(!sillTypes[type]) sillTypes[type] = 0
+						sillTypes[type] += this.meshParams.objectAmt
+					}
+					//дополнительная информация по столам
+					if(className == "Table"){						
+						if(this.meshParams.baseModel == "нет") var type  = "только "
+						else type = "подстолье " + this.meshParams.baseModel + ", ";
+						type += "столешница " + this.meshParams.tabletopType;
+						if(type.indexOf("слэб") != -1) type += " (слэб " + this.meshParams.slabModel + ")"
+						if(!tableTypes[type]) tableTypes[type] = 0
+						tableTypes[type] += this.meshParams.objectAmt
+					}
+				}
+				else{
+					var classes = AdditionalObject.getAvailableClasses()
+					var descr = classes.find(item => item.className === className).title;
+					
+					//используем метод класса если есть
+					var AdditionalObjectClass =  eval(className);
+					if(AdditionalObjectClass) descr = AdditionalObjectClass.getDescr(this).text
+		
+					if(i > 0 && objDescr) objDescr += ", "
+					objDescr += descr;
+				}
 			}
 		});
-		
+		if(groups.total > 0){
+			if(objDescr != "") objDescr += ", ";
+			for(var item in groups){
+				if(item != "total" && groups[item].amt > 0){
+					objDescr += groups[item].name + " " + groups[item].amt + "шт, "
+					//дополнительная информация по подоконникам
+					if(item == "Sill"){
+						objDescr += " (";
+						var counter = 0;
+						$.each(sillTypes, function(type){
+							if(counter > 0) objDescr += ", "
+							objDescr += type + " " + this + "шт";
+							counter ++;
+						})
+						objDescr += ")"
+					}
+					
+					//дополнительная информация по столам
+					if(item == "Table"){
+						objDescr += " (";
+						var counter = 0;
+						$.each(tableTypes, function(type){
+							if(counter > 0) objDescr += ", "
+							objDescr += type + " " + this + "шт";
+							counter ++;
+						})
+						objDescr += ")"
+					}
+				}
+			}
+		}
+
 		if(objDescr) {
 			if(description != "") description += ". Объекты: "
-			description += objDescr;
+			description += objDescr + " " + params.additionalObjectsTimberMaterial + ", " + params.timberPaint;
 		}
 	}
-			
-	
+
 	//установка
 	if(params.isAssembling == "нет") description += ". Без монтажа"
 	if(params.isAssembling == "есть") {
 		if(params.workers == 1) description += ". Монтаж 1 этап"
 		if(params.workers > 1) description += ". Монтаж " + params.workers + " этапа"
 	}
-	
-	
 
-description =  description.split("undefined").join("не указано");;
+	description =  description.split("undefined").join("не указано");;
 
-if(params.product_descr_type == "вручную") description = $("#product_descr_manual").val()
-	
-//данные по цехам
+	if (window.isMulti) {
+		description += '. ' + params.priceItems.length + ' этажа. '
+	}
 
+	if(params.product_descr_type == "вручную") description = $("#product_descr_manual").val()
+
+	//данные по цехам
 	var dept_data = {
 		metal: 0,
 		timber: 0,
 		partners: 0,
 		assembling: price_data.main.assembling + price_data.main.delivery,
-		}
+	}
 
 	if(params.calcType != "vint" && params.calcType != "custom" && params.calcType != "slabs" && params.calcType != "carport"){
-
 		//каркас
 		if(params.calcType != "railing"){
 			if(params.calcType.indexOf("timber") == -1) dept_data.metal += price_data.carcas.production;
@@ -591,32 +634,35 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 			dept_data.metal += price_data.treads.production;
 		}
 		if (params.stairType == "стекло") dept_data.partners += price_data.treads.production;
-		if (calcTreadParams().isTimberPaint || params.stairType == "дпк") dept_data.timber += price_data.treads.production;
+		if (params.calcType != 'cnc') {
+			if (calcTreadParams().isTimberPaint || params.stairType == "дпк") dept_data.timber += price_data.treads.production;
+		}
 			
 			
 		//ограждения
-		
-		var metal = staircasePrice.railing_metal + price_data.railing.metalPaint;
-		var timber = staircasePrice.railing_timber + price_data.railing.timberPaint;
-		var partners = staircasePrice.railing_glass;
-		if(params.calcType == "vhod" && params.staircaseType == "Готовая"){
-			metal = price_data.railing.price;
-			timber = partners = 0;
-			}
-		var sum = metal + timber + partners;
-		var discount = sum - price_data.railing.production;
 
-		//распределяем скидку равномерно по всем позициями
-		if(sum){
-			metal -= discount * metal / sum;
-			timber -= discount * timber / sum;
-			partners -= discount * partners / sum;		
-			
-			dept_data.metal += metal;
-			dept_data.timber += timber;
-			dept_data.partners += partners;
+		if (priceObj['railing_metal']) {
+			var metal = priceObj['railing_metal'].discountPrice + price_data.railing.metalPaint;
+			var timber = priceObj['railing_timber'].discountPrice + price_data.railing.timberPaint;
+			var partners = priceObj['railing_glass'].discountPrice;
+			if(params.calcType == "vhod" && params.staircaseType == "Готовая"){
+				metal = price_data.railing.price;
+				timber = partners = 0;
+			}
+			var sum = metal + timber + partners;
+			var discount = sum - price_data.railing.production;
+
+			//распределяем скидку равномерно по всем позициями
+			if(sum){
+				metal -= discount * metal / sum;
+				timber -= discount * timber / sum;
+				partners -= discount * partners / sum;		
+				
+				dept_data.metal += metal;
+				dept_data.timber += timber;
+				dept_data.partners += partners;
+			}
 		}
-	
 	}
 
 	if(params.calcType == "vint"){
@@ -625,38 +671,40 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 	}
 		
 	if(params.calcType == "fire_2"){
-		dept_data.partners += staircasePrice.testing;
-		dept_data.metal -= staircasePrice.testing;
+		dept_data.partners += priceObj['testing'].discountPrice;
+		dept_data.metal -= priceObj['testing'].discountPrice;
 	}
 
 	//балюстрада
 	if(params.calcType != "railing" && params.calcType != "custom" && params.calcType != "carport" && params.calcType != "slabs"){
-		var metal = staircasePrice.banister_metal + price_data.banister.metalPaint;
-		var timber = staircasePrice.banister_timber + price_data.banister.timberPaint;
-		var partners = staircasePrice.banister_glass;
-		var sum = metal + timber + partners;
-		var discount = sum - price_data.banister.production;
-		
-		//распределяем скидку равномерно по всем позициями
-		if(sum){
-			metal -= discount * metal / sum;
-			timber -= discount * timber / sum;
-			partners -= discount * partners / sum;		
+		if (priceObj['banister_metal']) {
+			var metal = priceObj['banister_metal'].discountPrice + price_data.banister.metalPaint;
+			var timber = priceObj['banister_timber'].discountPrice + price_data.banister.timberPaint;
+			var partners = priceObj['banister_glass'].discountPrice;
+			var sum = metal + timber + partners;
+			var discount = sum - price_data.banister.production;
 			
-			dept_data.metal += metal;
-			dept_data.timber += timber;
-			dept_data.partners += partners;
+			//распределяем скидку равномерно по всем позициями
+			if(sum){
+				metal -= discount * metal / sum;
+				timber -= discount * timber / sum;
+				partners -= discount * partners / sum;		
+				
+				dept_data.metal += metal;
+				dept_data.timber += timber;
+				dept_data.partners += partners;
+			}
 		}
 	}
 	if(params.calcType == "custom"){		
-		dept_data.metal = staircasePrice.metal;
-		dept_data.timber = staircasePrice.timber;
-		dept_data.partners = staircasePrice.partners;
+		dept_data.metal = priceObj['metal'].discountPrice;
+		dept_data.timber = priceObj['timber'].discountPrice;
+		dept_data.partners = priceObj['partners'].discountPrice;
 	}
 
 	if(params.calcType == "carport"){
-		dept_data.metal = staircasePrice.carcas;
-		dept_data.partners = staircasePrice.roof;
+		dept_data.metal = priceObj['carcas'].discountPrice;
+		dept_data.partners = priceObj['roof'].discountPrice;
 		
 	}
 	
@@ -665,23 +713,7 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		
 	}
 	
-	if(params.calcType == "slabs"){		
-		var discountFactor = staircasePrice.finalPrice / staircasePrice.total;
-		dept_data.metal = 0
-		dept_data.timber = 0
-		dept_data.partners = 0
-		
-		$("#estimate_mat .estimateItem").each(function(){
-			var sum = $(this).find(".summ").text() * discountFactor;
-			dept_data.metal += sum * $(this).find(".metalPart").val() / 100;
-			dept_data.timber += sum * $(this).find(".timberPart").val() / 100;
-			dept_data.partners += sum * $(this).find(".partnersPart").val() / 100;
-		})
-	}
-	
-	
 	//доп. объекты
-
 	$.each(priceObj, function(key){
 		if (this.is_additional_object) {
 			var metalPartPrice = this.discountPrice * this.metalPart;
@@ -691,10 +723,9 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 			dept_data.timber += this.discountPrice - metalPartPrice
 		}
 	});
-	
+
 	//проверка
 	var deptsSum = dept_data.metal + dept_data.timber + dept_data.partners;
-
 
 	if(Math.abs(deptsSum - price_data.main.production) > 1 && checkPrice){
 		var errorText = "Ошибка расчета сумм по цехам - сумма стоимости по цехам не равна стоимости изделия: " + deptsSum + " != " + price_data.main.production;
@@ -710,32 +741,30 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 			}
 		//не добавляем ошибки из папки разработчиков
 		if(url.indexOf("dev") == -1) sendBugReport(reportPar); //функция в файле sendReport.js
-		};
-	
+	};
+
 	//ручной ввод распределения по цехам
-		if(params.dept_data_type == "вручную"){
-			//исправляем некорректные значения
-			checkDeptSum();
-			var deptsSum = params.metalDeptPart + params.timberDeptPart + params.partnersDeptPart
-			if(Math.abs(deptsSum - price_data.main.production) > 1){
-				var errorText = "Введено неверное распределение сумм по цехам - сумма стоимости по цехам должна совпадать с общей стоимостью изделия: " + deptsSum + " != " + price_data.main.production + " Будет установлено расчетное распределение."
-				alert(errorText);
-				$("input.deptPart").each(function(){					
-					$(this).val(dept_data[$(this).attr('data-dept')])
-				})
-			}
-			else{
-				var dept_data = {
-					metal: params.metalDeptPart,
-					timber: params.timberDeptPart,
-					partners: params.partnersDeptPart,
-					assembling: price_data.main.assembling + price_data.main.delivery,
-				}
-				
+	if(params.dept_data_type == "вручную"){
+		//исправляем некорректные значения
+		checkDeptSum();
+		var deptsSum = params.metalDeptPart + params.timberDeptPart + params.partnersDeptPart
+		if(Math.abs(deptsSum - price_data.main.production) > 1){
+			var errorText = "Введено неверное распределение сумм по цехам - сумма стоимости по цехам должна совпадать с общей стоимостью изделия: " + deptsSum + " != " + price_data.main.production + " Будет установлено расчетное распределение."
+			alert(errorText);
+			$("input.deptPart").each(function(){					
+				$(this).val(dept_data[$(this).attr('data-dept')])
+			})
+		}
+		else{
+			var dept_data = {
+				metal: params.metalDeptPart,
+				timber: params.timberDeptPart,
+				partners: params.partnersDeptPart,
+				assembling: price_data.main.assembling + price_data.main.delivery,
 			}
 		}
-	
-	
+	}
+
 	// формируем объект с данными о трудоемкости без нулевых позиций для сохранения в базу
 	var workList_sm = {};
 	for(var dept in workList){
@@ -749,18 +778,18 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		for(var work in workList[dept]){
 			if(workList[dept][work]["amt"]){
 				workList_sm[dept][work] = workList[dept][work];
-			}		
+			}
 		}
 	}
 	
 	var materials_sm = {};
-	
+
 	for(var mat in materials){
-		if(materials[mat]["amt"] != 0){
+		if(materials[mat]["amt"] != 0 && materials[mat]["amt"]){
 			materials_sm[mat] = materials[mat];
 			materials_sm[mat].amt = Math.round(materials_sm[mat].amt * 10) / 10;
-			}
 		}
+	}
 
 	//данные по времени производства
 	var mainDepts = ["metal", "timber", "painting", "plasma", "powder", "cnc", "timber"];	
@@ -808,7 +837,7 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 				workList_sm[dept].planningTimes.push(opTime);
 			}
 		} //конец лт-ко
-		
+
 		if(params.calcType == "mono"){
 			//стандартное время
 			var opTime = {
@@ -874,7 +903,6 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 				};
 				workList_sm[dept].planningTimes.push(opTime);
 			}
-			
 		}//конец винтовой
 		
 		//общие позиции для всех типов лестниц
@@ -949,8 +977,6 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 				};
 				workList_sm[dept].planningTimes.push(opTime);
 			}
-			
-			
 		} //конец деревянных
 		
 		//общие позиции
@@ -976,12 +1002,12 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		workList_sm[dept].planningTimes.push(opTime);
 	}
 	
-//данные по себестоимости
-		var cost_data = {};
-		if(params.isAssembling == "есть") cost_data.assembling = calcAssemblingWage().totalWage;
-		cost_data.vp = $("#vpSum").text() * 1.0;
+	//данные по себестоимости
+	var cost_data = {};
+	if(params.isAssembling == "есть") cost_data.assembling = calcAssemblingWage().totalWage;
+	cost_data.vp = $("#vpSum").text() * 1.0;
 		
-//данные по этапам монтажа
+	//данные по этапам монтажа
 	var assembling_data = {};
 	//монтаж
 	assembling_data.isAssembling = params.isAssembling
@@ -1010,8 +1036,7 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 	assembling_data.comment_assm = $("#comments_assm").val();
 	assembling_data.comment_prod = $("#comments_prod").val();
 	
-//возвращаемый объект
-
+	//возвращаемый объект
 	var exportObj = {
 		price_data: price_data,
 		dept_data: dept_data,
@@ -1020,13 +1045,58 @@ if(params.product_descr_type == "вручную") description = $("#product_desc
 		materials_data: materials_sm,
 		cost_data: cost_data,
 		assembling_data: assembling_data,
-		}
+	}
 
 	return exportObj;
-	
 } //end of getExportData_com
 
-function addOfferToOrder(data){
+function makeStagesData(){
+	var stagesData = {
+		carcas: {
+			name: "Каркас",
+			dept_data: {
+				metal: priceObj['carcas'].discountPrice
+			},
+			stage: params.carcasAssmStage
+		},
+		treads: {
+			name: "Ступени",
+			dept_data:{
+				timber: priceObj['treads'].discountPrice
+			},
+			stage: params.treadsAssmStage
+		},
+		railing: {
+			name: "Ограждения",
+			price: priceObj['railing'].discountPrice,
+			dept_data: {
+				metal: priceObj['railing_metal'].discountPrice,
+				timber: priceObj['railing_timber'].discountPrice,
+				partners: priceObj['railing_glass'].discountPrice
+			},
+			stage: params.railingAssmStage
+		},
+		banister: {
+			name: "Балюстрада",
+			dept_data: {
+				metal: priceObj['banister_metal'].discountPrice,
+				timber: priceObj['banister_timber'].discountPrice,
+				partners: priceObj['railing_glass'].discountPrice
+			},
+			stage: params.banisterAssmStage
+		},
+	};
+
+	var stages = {};
+	$.each(stagesData, function(key){
+		if(!stages[this.stage]) stages[this.stage] = []
+		this.element = key;
+		stages[this.stage].push(this)
+	})
+	return Object.values(stages);
+}
+
+function addOfferToOrder(data, callback){
 	
 	//из раздела /dev/ добавляем в тестовую базу
 	var testDb = false;
@@ -1060,6 +1130,7 @@ function addOfferToOrder(data){
 
         success: function (data) {
         	alert(data.message);
+			if (callback) callback();
 			/*
 			if (data.result === 'ok'){
         		callback(event,data.id);

@@ -38,5 +38,9 @@ if($("#calcType").val() == "railing"){
 //подъем на этаж
 $("#floorAmt").closest("tr").hide();
 if($("#noLiftCare").val() == "да") $("#floorAmt").closest("tr").show();
-		
+
+//количество выездов не меньше количества этапов
+if($("#workers").val() > $("#transfersAmt").val()) $("#transfersAmt").val($("#workers").val());
+
+
 } //end of changeFormAssembling

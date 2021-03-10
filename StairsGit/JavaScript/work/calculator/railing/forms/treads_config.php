@@ -53,7 +53,13 @@
 		<tr class="treadParams">
 			<td>Толщина ступени:</td>
 			<td>
-				<input type="number" id="treadThickness" value="40">
+				<!-- <input type="number" id="treadThickness" value="40"> -->
+				<select name="" id="treadThickness">
+					<option value="40">40</option>
+					<option value="60">60</option>
+					<option value="80">80</option>
+					<option value="100">100</option>
+				</select>
 			</td>
 		</tr>
 		

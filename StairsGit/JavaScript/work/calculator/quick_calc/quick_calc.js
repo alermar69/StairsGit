@@ -1,7 +1,6 @@
 var templates = [];
 
 $(function(){
-	console.log('ok1');
 	$("#showEditModal").on('click', function () {
 		console.log('ok');
 		$("#editCalcTempaltes").modal('show');
@@ -60,7 +59,7 @@ $(function(){
 		var template_id = $(this).attr("data-template_id");
 		if (template_id) {
 			selectedId = template_id;
-			$("#outputDiv tr").removeClass("selected");
+			$("#editCalcOutputDiv tr").removeClass("selected");
 			$(this).addClass("selected");
 		}
 	});
@@ -263,7 +262,7 @@ function printTemplatesTable(templates) {
 	}
 	text += "</tbody></table>";
 
-	$("#outputDiv").html(text)
+	$("#editCalcOutputDiv").html(text)
 
 	//включаем сортировку и поиск по таблице
 	$('.tab_4').tablesorter({
@@ -304,7 +303,10 @@ function showInputs() {
 function updateUrl() {
 	var url_calculator = '/calculator/' + currentTemplate.calc_type + '?orderName=' + currentTemplate.order_name + '&' + getNewUrlParams();
 	var url_customers = '/customers/' + currentTemplate.calc_type + '?orderName=' + currentTemplate.order_name + '&calculate_price=1&' + getNewUrlParams();
-	
+	if (window.isMulti) {
+		var url_calculator = '/calculator/multi?orderName=' + currentTemplate.order_name + '&multiCalcType='+ currentTemplate.calc_type +'&' + getNewUrlParams();
+		var url_customers = '/customers/multi?orderName=' + currentTemplate.order_name + '&multiCalcType='+ currentTemplate.calc_type +'&calculate_price=1&' + getNewUrlParams();
+	}
 	$('#customerLink').attr('href', url_customers);
 
 	$('#urlResultCalculator').attr('href', url_calculator);

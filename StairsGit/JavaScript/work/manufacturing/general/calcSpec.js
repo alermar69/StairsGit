@@ -76,6 +76,10 @@ function addSpecObjItems(par) {
 			if (par.specObj[partName].purposes) {
 				item.discription = par.specObj[partName].purposes.join(', '); //Добавляем назначение если оно есть
 			}
+			// debugger;
+			if (par.specObj[partName].typeComments && par.specObj[partName].typeComments[type]) {
+				this[itemId].comment += par.specObj[partName].typeComments[type];
+			}
 			// if (par.specObj[partName].isModelData && !this[itemId].isModelData) this[itemId].isModelData = true;
 			//округляем длину шпильки
 			if (item.amt > 0) this[itemId].items.push(item);

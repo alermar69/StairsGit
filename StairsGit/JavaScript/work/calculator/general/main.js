@@ -1,7 +1,7 @@
 var params = {}; //глобальный массив значений инпутов
 var dxfPrimitivesArr = []; //глобоальный массив примитивов для экспорта в dxf
 var dxfPrimitivesArr0 = []; //вспомогательный глобоальный массив
-var staircasePrice = {}; //глобальный массив цен элементов лестницы
+// var staircasePrice = {}; //глобальный массив цен элементов лестницы
 var staircaseCost = {}; //глобальный массив себестоимости элементов лестницы
 var railingParams = {}; //глобальный массив параметров ограждений
 var banisterParams = {}; //глобальный массив параметров балюстрады
@@ -12,7 +12,7 @@ var balPartsParams = {
 	handrails: [],
 	rigels: [],
 	};
-var dxfBasePoint = {};
+var dxfBasePoint = {x:0,y:0,z:0};
 var workList = {}; //сдельные расценки для цеха
 var isDoorsOpened = false;
 var wrPrice = {}; //глобальный массив цен элементов шкафа
@@ -35,6 +35,7 @@ var modelSpec = {};//Сюда попадает итоговая специфик
 var calculatedSpec = {};//Сюда попадает итоговая спецификация
 var additional_objects = [];
 var boltDiamNoTest = typeof boltDiam != 'undefined' ? boltDiam : 10;
+var firstLoad = true;
 
 $(function () {
 	getAllInputsValues(params);
@@ -67,7 +68,7 @@ $(function () {
 	}
 	
 	//создаем номенклатуру материалов
-	createMaterialsList(); //в файле /calculator/general/materials.js
+	// createMaterialsList(); //в файле /calculator/general/materials.js
 
 	var wallsSelector = '#nav-walls';
 	if (window.location.href.indexOf('/installation/') != -1) {
@@ -137,7 +138,7 @@ $(function () {
 		$("#wallThickness_4").val(0);
 	}
 	
-	if(!isStaircaseCalc || params.calcType == "mono") {
+	if(params.calcType == "mono") {
 		if(params.discountMode == "процент") $("#discountFactor").val(20);
 	}
 	if(params.calcType == "timber" || params.calcType == "timber_stock") {
@@ -153,19 +154,27 @@ $(function () {
 		
 	//пересчитываем лестницу
 	if (window.loadedData) {
-		setLoadedData(window.loadedData, true);
+
+		if (window.loadedData.is_multi == '1' && window.location.href.indexOf('multiCalcType=') == -1) {
+			window.location.href = window.location.href += '&multiCalcType=' + loadedData.calc_type;
+		}else{
+			setLoadedData(window.loadedData, true);
+		}
 	}else{
 		recalculate();
 	}
 });
 function recalculate() {
 	window.customDimensions = [];
+	if (window.isMulti && !params.priceItems) params.priceItems = [];
+
 	rt1 = performance.now();
 	var isStaircaseCalc = getCalcTypeMeta().isStaircaseCalc; //является ли текущий расчет расчетом лестницы
 	if (!testingMode) boltDiam = boltDiamNoTest;
 	return new Promise(function(resolve, reject){
 		$('#loaderBlock').show({done: function(){
 			try {
+				createMaterialsList();
 				shapesList = []; //Очищаем
 				changeAllForms();
 				if (window.location.href.includes('/timber_stock')) setStockParams();
@@ -180,7 +189,7 @@ function recalculate() {
 				else if($("#calcType").val() == "objects") drawFunc = drawObjects;
 				else drawFunc = drawStaircase;
 				
-				drawFunc('vl_1', true);
+				if(!window.isMulti || window.isMulti && currentPriceItem != null) drawFunc('vl_1', true);
 				redrawWalls();
 				
 				if(isStaircaseCalc){
@@ -193,17 +202,21 @@ function recalculate() {
 
 				//данные для производства
 				if (!menu.simpleMode) {
-					createMaterialsList(); // обнуляем список материалов
+					// createMaterialsList(); // обнуляем список материалов
 					crateWorksList();
 					calcWorks(partsAmt, "staircase");
 					calcWorks(partsAmt_bal, "banister");
+					$.each(partsAmt_dop, function(){
+						calcWorks(this, "objects");
+					});
+					
 					if (window.location.href.indexOf('/manufacturing/') != -1) {
 						calculateSpec();
 						if(!testingMode) checkSpec();
 					}
 				}
 
-				if(params.calcType != "objects") drawSceneDimensions();
+				if(params.calcType != "objects")drawSceneDimensions();
 				
 				
 				if((isStaircaseCalc || params.calcType == "veranda") && window.location.href.indexOf('/installation/') == -1) printGeomDescr();
@@ -211,10 +224,12 @@ function recalculate() {
 				if (window.location.href.indexOf('/manufacturing/') != -1) {
 					setHiddenLayers(); //скрываем слои в режиме тестирования
 				}
-			
+				
+				calculatePrintMaterials(); // Расчет потребности в материалах
+				
 				//расчет цены
 				if(params.calcType != "geometry"){
-					staircasePrice = {}; //очищаем глобальный массив цен элементов лестницы
+					// staircasePrice = {}; //очищаем глобальный массив цен элементов лестницы
 					if ($("#calcType").val() == "railing") {
 						calcRailingModulePrice()
 					}else{
@@ -236,7 +251,7 @@ function recalculate() {
 
 					printMaterialsNeed();
 					calcProductionTime();
-					if($("#calcType").val() != "objects") printWorks2();
+					printWorks2();
 					formatNumbers();
 					printDescr();
 
@@ -264,7 +279,11 @@ function recalculate() {
 
 				updateModifyChanges();
 
-				if ($("#calcType").val() == "objects") staircaseLoaded();
+				setTimeout(function(){
+					if(params.calcType == "objects")drawSceneDimensions();
+				}, 0);
+
+				if ($("#calcType").val() == "objects" || window.isMulti && currentPriceItem == null) staircaseLoaded();
 				resolve();
 			}catch (error) {
 				prepareFatalErrorNotify(error);
@@ -278,7 +297,13 @@ function staircaseLoaded(){
 	$('#loaderBlock').hide();
 
 	var rt2 = performance.now();
-	console.log('recalculate time: ' + (rt2 - rt1) / 1000)
+	console.log('recalculate time: ' + (rt2 - rt1) / 1000);
+
+	if (firstLoad) {
+		var event = new Event('staircaseLoaded');
+		window.dispatchEvent(event);
+		firstLoad = false;
+	}
 	
 	//Создаем после построения лестницы
 	createCamCurve();

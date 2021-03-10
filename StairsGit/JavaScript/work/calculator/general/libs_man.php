@@ -20,6 +20,10 @@ $scripts[] = ["url" => "/calculator/general/scene/mooveObjects.js"];
 $scripts[] = ["url" => "/calculator/general/dxf_tools/dxf_tools.js"];
 $scripts[] = ["url" => "/calculator/general/dxf_tools/dxf-parser.js"];
 
+// if ($template == 'customers') {
+//     $scripts[] = ["url" => "/calculator/general/three_libs/three.min.js"];
+// }else{
+// }
 $scripts[] = ["url" => "/calculator/general/three_libs/three.js"];
 $scripts[] = ["url" => "/calculator/general/three_libs/stats.js"];
 $scripts[] = ["url" => "/calculator/general/three_libs/OrbitControls.js"];
@@ -67,6 +71,8 @@ $scripts[] = ["url" => "/calculator/general/scene/objects/sill.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/roof.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/fence.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/bed.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/stair.js"];
+
 $scripts[] = ["url" => "/calculator/rack/drawCarcas.js"];
 
 $scripts[] = ["url" => "/orders/docs/russianNames.js"];
@@ -102,7 +108,11 @@ $scripts[] = ["url" => "/calculator/geometry/drawDimensions.js"];
 $scripts[] = ["url" => "/calculator/geometry/drawGeomSvg.js"];
 
 // <!--svg чертежи-->
-$scripts[] = ["url" => "/manufacturing/general/svg/raphael.js"];
+$scripts[] = ["url" => "/manufacturing/general/svg/raphael.min.js"];
+// if ($temlpate == 'customers') {
+// }else{
+//     $scripts[] = ["url" => "/manufacturing/general/svg/raphael.js"];
+// }
 $scripts[] = ["url" => "/manufacturing/general/svg/svgPrimitives.js"];
 $scripts[] = ["url" => "/manufacturing/general/svg/flattenPath.js"];
 $scripts[] = ["url" => "/manufacturing/general/svg/svg-to-shape.js"];
@@ -137,6 +147,10 @@ $scripts[] = ["url" => "/orders/spec/save.js"];
 // <!--экономика-->
 $scripts[] = ["url" => "/calculator/general/materials.js"];
 $scripts[] = ["url" => "/calculator/general/works.js"];
+
+// Файлы
+$scripts[] = ["url" => "/orders/files/files.js"];
+$scripts[] = ["url" => "/orders/libs/main.js"];
 
 // <!-- сортируемая таблица -->
 // <link href="/calculator/general/tablelib/theme.default.min.css" rel="stylesheet">
@@ -178,6 +192,9 @@ $scripts[] = ["url" => "/bugs/sendReport2.js"];
 
 // <!--строительное задание для заказчика-->
 $scripts[] = ["url" => "/calculator/general/content/construction_task.js"];
+
+// Менеджер видов
+$scripts[] = ["url" => "/calculator/general/forms/viewTempaltes.js"];
 
 // //вывод скриптов на страницу
 // foreach($scripts as $script){
