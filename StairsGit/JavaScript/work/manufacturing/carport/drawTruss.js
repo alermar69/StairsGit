@@ -2879,3 +2879,154 @@ function drawBindingTruss(par) {
 
 	return bind;
 }
+
+/** функция отрисовывает подкосы для конструкции - балки
+*/
+
+function drawArcBrace(par) {
+	if (!par) par = {};
+	if (!par.dxfBasePoint) par.dxfBasePoint = { x: 0, y: 0 };
+	if (!par.dxfArr) par.dxfArr = dxfPrimitivesArr;
+
+	par.mesh = new THREE.Object3D();
+
+	var extrudeOptions = {
+		amount: 2,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var thk = 4;
+	var offset = 100;
+	var len = par.length - thk - offset;
+
+	var p0 = { x: 0, y: 0 };
+
+	var box1 = {
+		p1: copyPoint(p0),
+		p2: newPoint_xy(p0, 0, -len),
+		p3: newPoint_xy(p0, len, -len),
+		p4: newPoint_xy(p0, len, 0),
+	}
+
+	var pt1 = newPoint_xy(box1.p2, 0, -offset);
+	var pt2 = newPoint_xy(box1.p4, offset, 0);
+
+	var pc1 = box1.p3;
+	var pc2 = newPoint_xy(box1.p3, 350, -350);
+
+	var rad1 = distance(pc1, box1.p2);
+	var rad2 = distance(pc2, pt1);
+
+	var shape = new THREE.Shape();
+
+	addLine(shape, par.dxfArr, pt1, box1.p2, par.dxfBasePoint, par.layer);
+	addArc2(shape, par.dxfArr, pc1, rad1, Math.PI, Math.PI / 2, true, par.dxfBasePoint, par.layer);
+	addLine(shape, par.dxfArr, box1.p4, pt2, par.dxfBasePoint, par.layer);
+	addArc2(shape, par.dxfArr, pc2, rad2, calcAngleX1(pc2, pt1), calcAngleX1(pc2, pt2),false, par.dxfBasePoint, par.layer);
+
+
+	//большие отверстия
+	var topArc = {
+		center: pc1,
+		endAngle: Math.PI / 2 + 0.2,
+		height: len,
+		len: 0,
+		rad: rad1,
+		startAngle: Math.PI - 0.1,
+	}
+	topArc.len = topArc.rad * (topArc.startAngle - topArc.endAngle);
+
+	var botArc = {
+		center: pc2,
+		endAngle: calcAngleX1(pc2, pt2),
+		height: len,
+		len: 0,
+		rad: rad2,
+		startAngle: calcAngleX1(pc2, pt1),
+	}
+	botArc.len = botArc.rad * (botArc.startAngle - botArc.endAngle);
+
+	var progonAmt = Math.ceil(topArc.len / params.progonMaxStep);
+
+	var holePar = {
+		sideWidth: 25, //ширина верхнего и нижнего поясов
+		bridgeWidth: 70, //ширина перемычки по верхней дуге
+		topArc: topArc, //объект с параметрами верхней дуги фермы
+		botArc: botArc, //объект с параметрами нижней дуги фермы		
+		shape: shape,
+		dxfArr: par.dxfArr,
+		dxfBasePoint: par.dxfBasePoint,
+		isHalf: true,
+		progonAmt: progonAmt,
+		trussHeight: 120,
+	}
+	holePar.maxHoleDiam = holePar.trussHeight - holePar.sideWidth * 2; //макс. диаметр для круглых отверстий
+
+
+	addTrussHoles(holePar);
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var mesh1 = new THREE.Mesh(geom, params.materials.metal);
+	par.mesh.add(mesh1);
+
+	//нижняя пластина
+	var p1 = newPoint_xy(pt1, thk, 0);
+	var p2 = newPoint_xy(p1, 0, -30);
+	var p3 = newPoint_xy(pt1, 0, -30);
+	var p4 = newPoint_xy(pt2, 0, -thk / Math.cos(calcAngleX1(pc2, pt2) - Math.PI / 2));
+
+	var shape = new THREE.Shape();
+
+	addLine(shape, par.dxfArr, p1, p2, par.dxfBasePoint, par.layer);
+	addLine(shape, par.dxfArr, p2, p3, par.dxfBasePoint, par.layer);
+	addLine(shape, par.dxfArr, p3, pt1, par.dxfBasePoint, par.layer);
+	addArc2(shape, par.dxfArr, pc2, rad2, calcAngleX1(pc2, pt1), calcAngleX1(pc2, pt2), true, par.dxfBasePoint, par.layer);
+	addLine(shape, par.dxfArr, pt2, p4, par.dxfBasePoint, par.layer);
+	addArc2(shape, par.dxfArr, pc2, rad2 - thk, calcAngleX1(pc2, pt1), calcAngleX1(pc2, p4), false, par.dxfBasePoint, par.layer);
+
+	extrudeOptions.amount = 25;
+	extrudeOptions.curveSegments = 60;
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var mesh1 = new THREE.Mesh(geom, params.materials.metal);
+	mesh1.position.z = -extrudeOptions.amount / 2;
+	par.mesh.add(mesh1);
+
+	
+
+
+	//var box3 = new THREE.Box3().setFromObject(truss);
+	//var s = ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
+	//var s = 0
+	//var lenTruss = distance(pt3Out, pt3In)
+	//var partName = "truss";
+	//if (typeof specObj != 'undefined') {
+	//	name = lenTruss;
+	//	if (!specObj[partName]) {
+	//		specObj[partName] = {
+	//			types: {},
+	//			amt: 0,
+	//			area: 0,
+	//			stripeLength: 0,
+	//			name: "Ферма поперечная",
+	//			metalPaint: true,
+	//			timberPaint: false,
+	//			division: "metal",
+	//			workUnitName: "amt",
+	//			group: "carcas",
+	//		}
+	//	}
+	//	if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+	//	if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+	//	specObj[partName]["amt"] += 1;
+	//	specObj[partName]["area"] += s;
+	//	par.mesh.specParams = { specObj: specObj, amt: 1, area: s, partName: partName, name: name }
+	//}
+	//par.mesh.specId = partName + name;
+
+	return par;
+
+}

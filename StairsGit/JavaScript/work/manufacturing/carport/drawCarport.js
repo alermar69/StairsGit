@@ -1261,6 +1261,83 @@ function drawRectCarport(par){
 		carport.add(roof);
 		window.carportRoof = roof;
 	}
+
+	//подкосы для конструкции - балки
+	if (params.trussType == "балки" && params.consoleHolder != "нет") {
+
+		var bracePar = {
+			length: params.frontOffset,
+			poleAngle: 0,
+			material: params.materials.metal,
+			type: 'rect',
+			partName: 'carportBeamLen',
+			thk: 2,
+		};
+
+		var braceArrPar = {
+			amt: {
+				x: 2,
+				z: 1,
+			},
+			arrSize: {
+				x: columnArrPar.arrSize.x,
+				z: params.sectLen,
+			},
+			itemSize: {
+				x: partPar.beam.profSize.x,
+				z: bracePar.length,
+			},
+			itemRot: {
+				y: -Math.PI / 2,
+			},
+			drawFunction: drawArcBrace,
+			itemPar: bracePar,
+			noAlign: true,
+		}
+
+		var brace = new THREE.Object3D();
+
+		if (params.consoleHolder == "спереди" || params.consoleHolder == "две") {
+			var braceArr = drawRectArray(braceArrPar).mesh;
+			braceArr.position.z = params.sectLen / 2;
+			brace.add(braceArr);
+		}
+		if (params.consoleHolder == "сзади" || params.consoleHolder == "две") {
+			bracePar.length = params.backOffset;
+			braceArrPar.itemRot.y *= -1;
+			var braceArr = drawRectArray(braceArrPar).mesh;
+			braceArr.position.z = -params.sectLen / 2;
+			brace.add(braceArr);
+		}
+
+		brace.position.x = -params.width / 2 + params.sideOffset + partPar.column.profSize.x / 2 + bracePar.thk / 2;
+		
+
+		brace.position.y = params.height
+		if (params.carportType == "консольный") {
+			brace.position.x = -params.width / 2// + partPar.column.profSize.x;
+			brace.position.y -= trussPar.height;
+		}
+		if (params.braceModel == "ферма постоянной ширины") {
+			brace.position.y -= trussPar.height;
+		}
+
+		if (params.carportType == "односкатный") {
+			brace.position.x = -params.width / 2 + params.sideOffset
+			if (params.trussType != "балки") brace.position.x += flanHolesPos
+		}
+		//if (params.trussType != "балки") {
+		//	brace.position.z += 2;
+		//}
+		
+		//if (params.trussType == "балки") {
+		//	brace.position.z -= (params.backOffset - params.frontOffset) / 2
+		//}
+
+
+		brace.setLayer('racks');
+		carport.add(brace);
+	}
 	
 	//водосток
 	
