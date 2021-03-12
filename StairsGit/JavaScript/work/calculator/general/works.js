@@ -526,7 +526,7 @@ function crateWorksList() {
 	//чпу фрезер
 	{
 		workList.cnc.tread = {
-			name: "Изготовление ступеней",
+			name: "Изготовление больших деталей",
 			amtId: "amt",
 			amtName: "шт",
 			startTime: 30,
@@ -540,6 +540,15 @@ function crateWorksList() {
 			amtName: "шт",
 			startTime: 30,
 			unitTime: 5,
+			amt: 0,
+		}
+		
+		workList.cnc.slab = {
+			name: "Выравнивание слэбов",
+			amtId: "amt",
+			amtName: "шт",
+			startTime: 10,
+			unitTime: 60,
 			amt: 0,
 		}
 	}
@@ -969,11 +978,35 @@ function getWorkId(partId) {
 		partId == "mdfPlate" ||
 		partId == "drawerBotPlate" ||
 		partId == "shelf" ||
-		partId == "door" ||
-		partId == "sill") {
+		partId == "door") {
 		timber = "rect";
 		painting = "plane";
 	}
+
+	//подоконники
+	if (partId == "sill") {
+		timber = "rect";
+		painting = "plane";
+	}
+	
+	if (partId == "sill_cnc") {
+		timber = "rect";
+		painting = "plane";
+		cnc = "tread";
+	}
+
+	if (partId == "sill_arc") {
+		timber = "cncPart";
+		painting = "plane";
+		cnc = "tread";
+	}
+	
+	if (partId == "slab") {
+		timber = "rect";
+		painting = "plane";
+		cnc = "slab";
+	}
+
 
 
 	if (partId == "framedDoor") {
@@ -1087,6 +1120,7 @@ function calcWorks(specObj, unit) {
 
 					//чпу
 					if (workId.cnc) {
+						var amtId = workList.cnc[workId.cnc].amtId;
 						workList.cnc[workId.cnc].amt += specObj[partId][amtId];
 					}
 				}

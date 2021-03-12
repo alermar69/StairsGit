@@ -2596,7 +2596,7 @@ function calcTimberPanelCost(par) {
 
 	//древесина
 	var timberCost = timberVol * timberPar.m3Price;
-	if (par.tabletopType && par.tabletopType.indexOf("слэб") != -1) timberCost = par.slabPrice * 0.5; //себестоимость слэба - половина цены с сайта гармоник-мебель
+	if (par.slabPrice && par.slabPrice > 0) timberCost = par.slabPrice * 0.5; //себестоимость слэба - половина цены с сайта гармоник-мебель
 	console.log(par.tabletopType, par.slabPrice, timberCost)
 	//покраска
 	var timberPaintCost = paintedArea * paintPriceM2

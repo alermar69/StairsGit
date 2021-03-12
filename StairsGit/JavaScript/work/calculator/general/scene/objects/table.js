@@ -68,6 +68,7 @@ class Table extends AdditionalObject {
 				objectAmt: par.objectAmt,
 				tableGeom: par.tableGeom,
 				resinVol: par.resinVol,
+				slabModel: par.slabModel,
 			}
 			// debugger;
 			var top = drawTableCountertop(topPar).mesh;
@@ -186,6 +187,10 @@ class Table extends AdditionalObject {
 			if (par.cornerRad != 3 && par.cornerRad != 6 && par.cornerRad != 12 && par.cornerRad != 25) {
 				alert('Радиус скругления может быть только 3,6,12,25 или больше');
 			}
+		}
+
+		if (par.tabletopType.indexOf('слэб') == -1 && par.slabModel) {
+			alert('Указана модель слэба, материал должен содержать слэб');
 		}
 
 		getObjPar()

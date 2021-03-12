@@ -3310,6 +3310,8 @@ function drawTableCountertop(par){
 	
 	//сохраняем данные для спецификации
 	par.partName = "countertop";
+	if(par.type.indexOf("слэб") != -1) par.partName = "slab";
+	
 	par.thk = par.thk;
 	if(typeof specObj !='undefined' && par.partName){
 		if(!specObj[par.partName]){
@@ -3330,7 +3332,10 @@ function drawTableCountertop(par){
 		var paintedArea = area * 2 + (par.len + par.width) * 2 * par.thk / 1000000;
 		
 		var name = '№' + par.objId + ' ' + Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(par.thk);
-	
+		if(par.partName = "slab"){
+			var name = '№' + par.objId + ' из слэба ' + par.slabModel + ', ' + Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(par.thk);
+		}
+		
 		if(specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] += 1 * par.objectAmt;
 		if(!specObj[par.partName]["types"][name]) specObj[par.partName]["types"][name] = 1 * par.objectAmt;
 		specObj[par.partName]["amt"] += 1 * par.objectAmt;

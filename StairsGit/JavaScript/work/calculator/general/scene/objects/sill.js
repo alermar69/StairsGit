@@ -181,6 +181,10 @@ class Sill extends AdditionalObject {
 			}
 		}
 
+		if (par.tabletopType.indexOf('слэб') == -1 && par.slabModel) {
+			alert('Указана модель слэба, материал должен содержать слэб');
+		}
+
 		if (par.cornerRadRight > 0 && par.cornerRadLeft <= 25) {
 			if (par.cornerRadLeft != 3 && par.cornerRadLeft != 6 && par.cornerRadLeft != 12 && par.cornerRadLeft != 25) {
 				alert('Радиус скругления слева может быть только 3,6,12,25 или больше');

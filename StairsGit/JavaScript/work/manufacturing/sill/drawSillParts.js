@@ -418,6 +418,8 @@ function drawSill(par){
 	
 	//сохраняем данные для спецификации
 	var partName = 'sill';
+	if(par.shapeType == "по чертежу") partName = 'sill_cnc';
+	if(par.tabletopType.indexOf("слэб") != -1) partName = 'slab';
 	
 	if (typeof specObj != 'undefined') {
 		if (!specObj[partName]) {
@@ -446,6 +448,9 @@ function drawSill(par){
 		
 		var area = len * width / 1000000 * par.objectAmt
 		name = '№' + par.objId + ' ' + par.shapeType + " " + Math.round(len) + "х" + Math.round(width) + "х" + Math.round(par.thk);
+		if(partName == 'slab'){
+			name = '№' + par.objId + ' из слэба ' + par.slabModel + ', ' + par.shapeType + " " + Math.round(len) + "х" + Math.round(width) + "х" + Math.round(par.thk);
+		}
 		
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1 * par.objectAmt;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1 * par.objectAmt;
@@ -685,6 +690,7 @@ function drawRadOriel(par){
 
 	//сохраняем данные для спецификации
 	var partName = 'sill';
+	if(par.shapeType == "по чертежу") partName = 'sill_arc';
 
 	if (typeof specObj != 'undefined') {
 		if (!specObj[partName]) {
@@ -1061,6 +1067,7 @@ function drawOriel(par){
 	
 	//сохраняем данные для спецификации
 	var partName = 'sill';
+	if(par.shapeType == "по чертежу") partName = 'sill_cnc';
 	
 	if (typeof specObj != 'undefined') {
 		if (!specObj[partName]) {

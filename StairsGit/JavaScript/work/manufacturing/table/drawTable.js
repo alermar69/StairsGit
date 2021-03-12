@@ -54,6 +54,7 @@ drawTable = function (viewportId, isVisible) {
 		len: params.len,
 		thk: params.countertopThk,
 		partsGap: params.partsGap,
+		slabModel: par.slabModel,
 	}
 	
 	var top = drawTableCountertop(topPar).mesh;
