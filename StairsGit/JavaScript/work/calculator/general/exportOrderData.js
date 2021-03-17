@@ -99,11 +99,11 @@ function getExportData_com(checkSumm){
 		materials = {};
 	}
 
-	if (params.calcType != "carport" && params.calcType != "railing") {
+	if (params.calcType != "custom" && params.calcType != "carport" && params.calcType != "railing") {
 		var price_data = {
 			carcas: {
 				name: "Каркас",
-				price: priceObj['carcas'].discountPrice,
+				price: priceObj['carcas'] ? priceObj['carcas'].discountPrice : 0,
 				metalPaint: priceObj['carcasMetalPaint'] ? priceObj['carcasMetalPaint'].discountPrice : 0,
 				timberPaint: 0,
 				stage: params.carcasAssmStage,
@@ -381,6 +381,9 @@ function getExportData_com(checkSumm){
 			treadsName = params.treadsMaterial;
 			if(params.treadThickness > 40) treadsName += " " + params.treadThickness + "мм"			
 		}
+		//ширина марша
+		treadsName += " ширина " + params.M + "мм";
+		
 		description += "Ступени " + treadsName;
 		if(params.riserType == "есть") description += " подступенки " + params.risersMaterial
 		//покраска деревянных ступеней
@@ -605,6 +608,10 @@ function getExportData_com(checkSumm){
 	if(params.isAssembling == "есть") {
 		if(params.workers == 1) description += ". Монтаж 1 этап"
 		if(params.workers > 1) description += ". Монтаж " + params.workers + " этапа"
+	}
+
+	if (params.calcType == 'custom') {
+		description = ''
 	}
 
 	description =  description.split("undefined").join("не указано");;

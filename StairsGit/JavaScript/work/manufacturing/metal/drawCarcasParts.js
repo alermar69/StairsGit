@@ -3033,7 +3033,7 @@ function drawRailingHoles(par) {
 
 		if (params.railingModel == "Самонесущее стекло") {
 			layer = "parts";
-			var rad = 9;
+			var rad = 11;
 			center.holeData = {zenk: 'no'};
 			addRoundHoleRail(par.shape, dxfPrimitivesArr, center, rad, par.dxfBasePoint, layer);
 			

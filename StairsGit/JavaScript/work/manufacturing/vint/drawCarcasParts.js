@@ -927,6 +927,7 @@ function drawVintPlatform(par) {
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var topPlate = new THREE.Mesh(geom, par.material);
+	topPlate.modifyKey = 'vintPlatform'
 	topPlate.rotation.x = -0.5 * Math.PI;
 	topPlate.position.y = -par.thk;
 	if (par.turnFactor == -1) {
@@ -1181,10 +1182,10 @@ function drawVintPlatform(par) {
 		var textHeight = 30;
 		var textBasePoint = newPoint_xy(dxfBasePoint, 100, -100)
 		addText(text, textHeight, par.dxfArr, textBasePoint)
-
+		
 		var geometry = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 		geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-
+		
 		var frontPlate = new THREE.Mesh(geometry, par.material);
 		frontPlate.position.y = -par.thk - width - 0.05;
 		frontPlate.position.z = -topPlateParams.p1.y - extrudeOptions.amount

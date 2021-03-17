@@ -3332,7 +3332,7 @@ function drawTableCountertop(par){
 		var paintedArea = area * 2 + (par.len + par.width) * 2 * par.thk / 1000000;
 		
 		var name = '№' + par.objId + ' ' + Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(par.thk);
-		if(par.partName = "slab"){
+		if(par.partName == "slab"){
 			var name = '№' + par.objId + ' из слэба ' + par.slabModel + ', ' + Math.round(par.len) + "x" + Math.round(par.width) + "x" + Math.round(par.thk);
 		}
 		

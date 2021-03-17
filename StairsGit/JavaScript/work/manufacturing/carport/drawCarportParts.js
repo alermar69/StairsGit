@@ -2132,7 +2132,7 @@ function drawRoofCarcas(par){
 			//отрисовка массива прогонов
 			var purlinArr = drawArcArray(arrPar).mesh;
 			purlinArr.rotation.y = Math.PI / 2;
-			if(params.beamModel == "проф. труба") {
+			if(params.trussType == "балки") {
 				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x + (params.backOffset - params.frontOffset) / 2;
 			}
 			if(params.carportType == "сдвижной"){

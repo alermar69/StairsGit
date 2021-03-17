@@ -2762,8 +2762,8 @@ function calcBilletSize(par) {
 
 	billet.len = sheet.len * sheet.amtLen + extraPart;
 
-	if (par.type != "щит" && par.width > sheet.width) alert("Ширина детали больше размера листа!")
-	if (par.len > sheet.len) alert("Длина детали больше размера листа!")
+	if (par.type != "щит" && par.width > sheet.width) alertTrouble("Ширина детали больше размера листа!")
+	if (par.len > sheet.len) alertTrouble("Длина детали больше размера листа!")
 
 	//защита от ошибки
 	if (billet.len < par.len) billet.len = par.len;
@@ -2778,5 +2778,5 @@ function calcBilletSize(par) {
 
 function setPrice(key, price) {
 	if (!priceObj[key]) priceObj[key] = {}
-	priceObj[key].discountPrice = price;
+	priceObj[key].discountPrice = price|| 0;
 }

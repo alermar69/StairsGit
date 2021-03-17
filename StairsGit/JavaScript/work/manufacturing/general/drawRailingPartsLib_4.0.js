@@ -4379,7 +4379,14 @@ function drawHandrail_4(par) {
 		polePar.partIndex = partIndex;
 		if(shape.drawing) shape.drawing.partIndex = partIndex;
 	}
-
+	
+	//добавляем информацию в материалы
+	if(handrailPar.mat == "timber"){
+		var panelName_40 = calcTimberParams(params.handrailsMaterial).treadsPanelName;	
+		var area = par.profHeight * par.length / 1000000
+		addMaterialNeed({id: panelName_40, amt: area, itemType:  'handrail'});
+		par.mesh.isInMaterials = true;
+		}
 	return par;
 }//end of drawHandrail_4
 

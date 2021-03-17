@@ -588,7 +588,7 @@ function drawGlassSectionMono(par){
 	var glassOffsetY = par.glassOffsetY = marshPar.h * 2;
 	var rackProfile = 40;
 
-	var holeRad = 9;
+	var holeRad = 11;
 	var sectionHeight = params.glassHeight - glassOffsetY;
 
 	if (par.key == "rear" && par.marshId == 2) {

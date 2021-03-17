@@ -129,7 +129,7 @@ if(params.isAssembling == "есть"){
 	if(params.facade == "да" || params.wallType == "сэндвич-панель") assemblingCost += 1000 * stairCase.leg.amt;
 	//минималка
 	if(assemblingCost < 8000 ) assemblingCost = 8000;
-	}
+}
 
 
 

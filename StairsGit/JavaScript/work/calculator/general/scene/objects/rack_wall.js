@@ -75,8 +75,8 @@ class RackWall extends AdditionalObject {
 				},
 				{
 					key: 'step',
-					title: 'Шаг',
-					default: 20,
+					title: 'Макс. шаг',
+					default: 120,
 					type: 'number',
 					"printable": "true",
 				},
@@ -174,10 +174,12 @@ function drawRackWall(par){
 	par.dxfBasePoint = {x:0, y:0};
 	par.width = par.width * 1.0;
 	par.height = par.height * 1.0;
+	var sideOffset = 10; //отступ отверстия от края рейки
 	
 	var profParams = getProfParams(par.racksProfile);
 
-	var amt = Math.ceil(par.width / par.step);
+	var amt = Math.ceil((par.width - sideOffset * 2 - profParams.sizeB) / par.step);
+	var step = (par.width - sideOffset * 2 - profParams.sizeB) / amt;
 
 	var polePar = {
 		poleProfileY: profParams.sizeB,
@@ -190,9 +192,9 @@ function drawRackWall(par){
 		type: profParams.type
 	}
 
-	for (var i = 0; i < amt; i++) {
+	for (var i = 0; i <= amt; i++) {
 		var rack = drawPole3D_4(polePar).mesh;
-		rack.position.x = (par.step) * i;
+		rack.position.x = step * i;
 		rack.rotation.z = Math.PI / 2;
 		par.mesh.add(rack);
 	}
@@ -202,10 +204,11 @@ function drawRackWall(par){
 		thk: 40,
 		width: profParams.sizeA + 20,
 		dxfBasePoint: {x:0,y:0},//par.dxfBasePoint,
-		holeStep: par.step,
+		holeStep: step,
 		holeProfileX: profParams.sizeB,
 		holeProfileZ: profParams.sizeA,
-		length: profParams.sizeB + par.step * (amt - 1),
+		length: par.width,
+		offset: sideOffset,
 		dxfArr: dxfPrimitivesArr,
 		partName: "racksTimberPole",
 		material: params.materials.timber,

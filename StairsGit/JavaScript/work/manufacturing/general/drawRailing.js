@@ -1107,11 +1107,11 @@ function drawRailingSectionRacks(par) {
 } //end of drawRailingSectionRacks
 
 function drawRackTopPole(par){
-	var offset = 10; // Отступ в начале и конце
+	if(!par.offset) par.offset = 10; // Отступ в начале и конце
 
-	var p0 = { x: 0, y: -offset };
+	var p0 = { x: 0, y: -par.offset };
 	var p1 = newPoint_xy(p0, par.width, 0);
-	var p2 = newPoint_xy(p1, 0, par.length + offset * 2);
+	var p2 = newPoint_xy(p1, 0, par.length);
 	var p3 = newPoint_xy(p2, -par.width, 0);
 
 	var shape = new THREE.Shape();
@@ -1121,7 +1121,7 @@ function drawRackTopPole(par){
 	addLine(shape, par.dxfArr, p3, p0, par.dxfBasePoint, par.layer);
 
 	var balsCount = Math.floor(par.length / par.holeStep);
-	if (par.length % par.holeStep != 0) balsCount += 1;
+	//if (par.length % par.holeStep != 0) balsCount += 1;
 
 	for (var i = 0; i < balsCount; i++) {
 		var p0 = { x: 10, y: par.holeStep * i };
@@ -5041,6 +5041,13 @@ function drawGlass2(par){
 	if(!par.botCutHeight) par.botCutHeight = 0;
 	if(!par.topCutHeight) par.topCutHeight = 0;
 	if(!par.holeCenters) par.holeCenters = [];
+
+	// Приводим размеры отверстий в стекле к одному
+	// par.holeCenters.forEach(function(holeCenter){
+	// 	if (holeCenter.rad && holeCenter.rad != 11) {
+	// 		holeCenter.rad = 11;
+	// 	}
+	// })
 
 
     var extrudeOptions = {

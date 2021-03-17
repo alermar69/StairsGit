@@ -53,7 +53,7 @@
 	};
 
 	//Просто форма для модулей без визуализации
-	if ($calc_type == 'slabs' || $calc_type == 'fire_2') {
+	if ($calc_type == 'slabs' || $calc_type == 'fire_2' || $calc_type == 'custom') {
 		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/orderForm.php";
 	}
 
@@ -698,7 +698,7 @@
 		$tabs['geom'] = false;
 	}
 	
-	$ignor_calc_types = ['geometry', 'wardrobe', 'wardrobe_2', 'carport', 'slabs', 'fire_2'];
+	$ignor_calc_types = ['geometry', 'wardrobe', 'wardrobe_2', 'carport', 'slabs',  'custom', 'fire_2'];
 	
 	if (!in_array($calc_type, $ignor_calc_types) ) {
 		$tabs["materials"] = [

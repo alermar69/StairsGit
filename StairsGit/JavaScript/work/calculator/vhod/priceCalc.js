@@ -172,10 +172,10 @@ staircaseCost.carcasTimberPaint = 0;
 staircaseCost.carcas = totalCostCarcas;
 
 //сохраняем цену в глобальный объект
-priceObj['carcas'].discountPrice = totalCarcasPrice;
-priceObj['treads'].discountPrice = treadsTotalPrice;
-priceObj['carcasMetalPaint'].discountPrice = 0;
-priceObj['carcasTimberPaint'].discountPrice = 0;
+setPrice('carcas', totalCarcasPrice);
+setPrice('treads', treadsTotalPrice);
+setPrice('carcasMetalPaint', 0);
+setPrice('carcasTimberPaint', 0);
 
 
 }//Конец функции calculateCarcasPrice_stock()
@@ -269,7 +269,7 @@ if(rackType == "нержавейка") rackPrice = 2150;
 	totalRailingPrice = totalRailingPrice * nacenka;
 	
 	//сохраняем рассчитанные параметры в глобальный объект
-	priceObj['railing'].discountPrice = totalRailingPrice
+	setPrice('railing', totalRailingPrice);
 	staircaseCost.railing = totalRailingPrice * 0.7 / nacenka;
 	
 
