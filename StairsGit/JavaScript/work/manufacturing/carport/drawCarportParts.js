@@ -2049,7 +2049,7 @@ function drawRoofCarcas(par){
 	
 
 	if(params.trussType == "балки") {
-		rafterArrPar.arrSize.z = partPar.main.len;
+		rafterArrPar.arrSize.z = partPar.main.len - 120; //120 - ширина фланца крепления к балке
 		rafterArrPar.itemSize.z = partPar.rafter.profSize.x;
 	}
 	
@@ -2141,10 +2141,8 @@ function drawRoofCarcas(par){
 			purlinArr.setLayer('carcas');
 			if (params.carportType == "односкатный") purlinArr.position.x = 0; //выравниваем вручную
 
-			if (params.trussType !== "балки") {
-				if (params.frontOffset !== params.backOffset)
-					purlinArr.position.z += (params.frontOffset - params.backOffset) / 2; //выравниваем вручную
-			}
+			if (params.frontOffset !== params.backOffset)
+				purlinArr.position.z += (params.frontOffset - params.backOffset) / 2; //выравниваем вручную
 			
 			
 			purlinArr.setLayer('purlins');
@@ -2187,6 +2185,9 @@ function drawRoofCarcas(par){
 			}
 			
 			var purlinArr = drawRectArray(purlinArrPar).mesh;
+			if (params.trussType == "балки") {
+				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x + (params.backOffset - params.frontOffset) / 2;
+			}
 			if(params.beamModel == "проф. труба") {
 				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x;
 				purlinArr.position.y = partPar.rafter.profSize.y - partPar.purlin.profSize.y
@@ -2208,10 +2209,8 @@ function drawRoofCarcas(par){
 				}
 			}
 
-			if (params.trussType !== "балки") {
-				if (params.frontOffset !== params.backOffset)
-					purlinArr.position.z += (params.frontOffset - params.backOffset) / 2; //выравниваем вручную
-			}
+			if (params.frontOffset !== params.backOffset)
+				purlinArr.position.z += (params.frontOffset - params.backOffset) / 2; //выравниваем вручную
 
 			purlinArr.setLayer('purlins');
 			par.mesh.add(purlinArr);
@@ -4203,13 +4202,9 @@ function drawConnectBalTruss(par) {
 	//метизы
 	var boltsPar = {
 		holes: holes,
-		thkOut: thk,
-		thkIn: thk,
 		diam: 10,
-		isNutOut: { isCap: true },
-		isNutIn: { isCap: true },
-		isShimOut: true,
-		isShimIn: true,
+		len: 30,
+		isBolt: true,
 		material: params.materials.inox,
 	}
 	var bolts = drawBoltsHoles(boltsPar).mesh;

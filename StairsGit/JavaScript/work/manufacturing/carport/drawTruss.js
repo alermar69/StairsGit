@@ -3140,13 +3140,9 @@ function drawArcBrace(par) {
 	//метизы
 	var boltsPar = {
 		holes: holes,
-		thkOut: thk,
-		thkIn: thk,
 		diam: 10,
-		isNutOut: { isCap: true },
-		isNutIn: { isCap: true },
-		isShimOut: true,
-		isShimIn: true,
+		len: 30,
+		isBolt: true,
 		material: params.materials.inox,
 	}
 	var bolts = drawBoltsHoles(boltsPar).mesh;

@@ -1254,7 +1254,7 @@ function drawRectCarport(par){
 		
 		var roof = drawRoof(roofPar)
 		if(params.trussType == "балки") {
-			roof.position.y = params.height + partPar.rafter.profSize.y / Math.cos(params.roofAng / 180 * Math.PI)
+			roof.position.y = params.height + partPar.beam.profSize.y / Math.cos(params.roofAng / 180 * Math.PI)
 		}
 		if(params.trussType != "балки") {
 			roof.position.y = params.height

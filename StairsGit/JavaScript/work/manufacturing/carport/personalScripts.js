@@ -4,10 +4,11 @@ $(function () {
 //$("#model").val("ко");
 //$("#platformTop").val("площадка");
 	//$("#carportType").val("двухскатный");
-	//$("#carportType").val("односкатный");
+	$("#carportType").val("односкатный");
 	$("#trussType").val("балки");
 	$("#consoleHolder").val("две");
-	//$("#roofType").val("Плоская");
+	$("#backOffset").val(0);
+	$("#roofType").val("Плоская");
 	//$("#roofType").val("Арочная");
 	//$("#beamModel").val("ферма постоянной ширины");
 	//$("#roofAng").val(15);
