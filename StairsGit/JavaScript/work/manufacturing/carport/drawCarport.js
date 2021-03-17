@@ -1069,6 +1069,8 @@ function drawRectCarport(par){
 				itemPar.isTop = true;
 			}
 		}
+
+		partPar.main.deltaHeight = deltaHeight;
 	}
 
 	var columnArr = drawRectArray(columnArrPar).mesh;
@@ -1213,7 +1215,7 @@ function drawRectCarport(par){
 	
 	if (params.carportType == "односкатный") {
 		roofCarcas.position.x = -params.width / 2 + partPar.column.profSize.x / 2 + params.sideOffset;
-		if(params.trussType == "балки") roofCarcas.position.x = 0;
+		//if(params.trussType == "балки") roofCarcas.position.x = 0;
 	}
 	if (params.trussType != "балки") roofCarcas.position.z += 6;
 	if (params.frontOffset !== params.backOffset) roofCarcas.position.z += (params.frontOffset - params.backOffset) / 2;
@@ -1262,82 +1264,145 @@ function drawRectCarport(par){
 		window.carportRoof = roof;
 	}
 
-	//подкосы для конструкции - балки
-	if (params.trussType == "балки" && params.consoleHolder != "нет") {
+	//подкосы и фланцы  крепления балок к колоннам (для конструкции - балки)
+	if (params.trussType == "балки") {
 
-		var bracePar = {
-			length: params.frontOffset,
-			poleAngle: 0,
-			material: params.materials.metal,
-			type: 'rect',
-			partName: 'carportBeamLen',
-			thk: 2,
-		};
+		//фланцы крепления балок к колоннам
+		{
+			var flanColumn = new THREE.Object3D();
 
-		var braceArrPar = {
-			amt: {
-				x: 2,
-				z: 1,
-			},
-			arrSize: {
-				x: columnArrPar.arrSize.x,
-				z: params.sectLen,
-			},
-			itemSize: {
-				x: partPar.beam.profSize.x,
-				z: bracePar.length,
-			},
-			itemRot: {
-				y: -Math.PI / 2,
-			},
-			drawFunction: drawArcBrace,
-			itemPar: bracePar,
-			noAlign: true,
+			var flanColumnPar = {
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: par.dxfBasePoint,
+				width: 400,
+				height: 300,
+				thk: 4,
+			}
+
+			//фланецы с передней стороны
+			//слева
+			if (params.frontOffset < 200) flanColumnPar.isHalfFront = true;
+			var flan = drawColumnFlanBal(flanColumnPar).mesh;
+			flan.rotation.y = -Math.PI / 2;
+			flan.position.z = params.sectLen / 2 - partPar.column.profSize.y / 2;
+			flan.position.x = -params.width / 2 + params.sideOffset;
+			flanColumn.add(flan);
+
+			//справа
+			if (params.frontOffset < 200) flanColumnPar.isHalfBack = true;
+			var flan = drawColumnFlanBal(flanColumnPar).mesh;
+			flan.rotation.y = Math.PI / 2;
+			flan.position.z = params.sectLen / 2 - partPar.column.profSize.y / 2;
+			flan.position.x = params.width / 2 - params.sideOffset;
+			if (params.carportType == "односкатный") {
+				flan.position.y = deltaHeight;
+				flan.position.x += params.width - columnArrPar.arrSize.x;
+			}
+			flanColumn.add(flan);
+
+			//фланецы с задней стороны
+			//слева
+			if (params.backOffset < 200) flanColumnPar.isHalfBack = true;
+			var flan = drawColumnFlanBal(flanColumnPar).mesh;
+			flan.rotation.y = -Math.PI / 2;
+			flan.position.z = -params.sectLen / 2 + partPar.column.profSize.y / 2;
+			flan.position.x = -params.width / 2 + params.sideOffset;
+			flanColumn.add(flan);
+
+			//справа
+			if (params.backOffset < 200) flanColumnPar.isHalfFront = true;
+			var flan = drawColumnFlanBal(flanColumnPar).mesh;
+			flan.rotation.y = Math.PI / 2;
+			flan.position.z = -params.sectLen / 2 + partPar.column.profSize.y / 2;
+			flan.position.x = params.width / 2 - params.sideOffset;
+			if (params.carportType == "односкатный") {
+				flan.position.y = deltaHeight;
+				flan.position.x += params.width - columnArrPar.arrSize.x;
+			}
+			flanColumn.add(flan);
+
+			flanColumn.position.y = params.height + partPar.beam.profSize.y - 4;
+
+			flanColumn.setLayer('racks');
+			carport.add(flanColumn);
 		}
-
-		var brace = new THREE.Object3D();
-
-		if (params.consoleHolder == "спереди" || params.consoleHolder == "две") {
-			var braceArr = drawRectArray(braceArrPar).mesh;
-			braceArr.position.z = params.sectLen / 2;
-			brace.add(braceArr);
-		}
-		if (params.consoleHolder == "сзади" || params.consoleHolder == "две") {
-			bracePar.length = params.backOffset;
-			braceArrPar.itemRot.y *= -1;
-			var braceArr = drawRectArray(braceArrPar).mesh;
-			braceArr.position.z = -params.sectLen / 2;
-			brace.add(braceArr);
-		}
-
-		brace.position.x = -params.width / 2 + params.sideOffset + partPar.column.profSize.x / 2 + bracePar.thk / 2;
 		
+		//подкосы
+		if (params.consoleHolder != "нет") {
+			var bracePar = {
+				length: params.frontOffset,
+				poleAngle: 0,
+				material: params.materials.metal,
+				type: 'rect',
+				partName: 'carportBeamLen',
+				thk: 2,
+			};
 
-		brace.position.y = params.height
-		if (params.carportType == "консольный") {
-			brace.position.x = -params.width / 2// + partPar.column.profSize.x;
-			brace.position.y -= trussPar.height;
+			var braceArrPar = {
+				amt: {
+					x: 2,
+					z: 1,
+				},
+				arrSize: {
+					x: columnArrPar.arrSize.x,
+					z: params.sectLen,
+				},
+				itemSize: {
+					x: partPar.beam.profSize.x,
+					z: bracePar.length,
+				},
+				itemRot: {
+					y: -Math.PI / 2,
+				},
+				drawFunction: drawArcBrace,
+				itemPar: bracePar,
+				noAlign: true,
+			}
+
+			if (params.carportType == "односкатный") {
+				braceArrPar.modifier = function (counter, itemPar, itemMoove) {
+					if (counter.x == 1) {
+						if (params.carportType == "односкатный") itemMoove.y = deltaHeight;
+					}
+				}
+			}
+
+			var brace = new THREE.Object3D();
+
+			if (params.consoleHolder == "спереди" || params.consoleHolder == "две") {
+				if (params.frontOffset > 450) {
+					var braceArr = drawRectArray(braceArrPar).mesh;
+					braceArr.position.z = params.sectLen / 2;
+					brace.add(braceArr);
+				}
+			}
+			if (params.consoleHolder == "сзади" || params.consoleHolder == "две") {
+				if (params.backOffset > 450) {
+					bracePar.length = params.backOffset;
+					braceArrPar.itemRot.y *= -1;
+					var braceArr = drawRectArray(braceArrPar).mesh;
+					braceArr.position.z = -params.sectLen / 2;
+					brace.add(braceArr);
+				}
+			}
+
+			brace.position.x = -params.width / 2 + params.sideOffset + partPar.column.profSize.x / 2 + bracePar.thk / 2;
+			brace.position.y = params.height;
+
+
+			//if (params.carportType == "консольный") {
+			//	brace.position.x = -params.width / 2// + partPar.column.profSize.x;
+			//	brace.position.y -= trussPar.height;
+			//}
+			//if (params.braceModel == "ферма постоянной ширины") {
+			//	brace.position.y -= trussPar.height;
+			//}
+
+			brace.setLayer('racks');
+			carport.add(brace);
 		}
-		if (params.braceModel == "ферма постоянной ширины") {
-			brace.position.y -= trussPar.height;
-		}
-
-		if (params.carportType == "односкатный") {
-			brace.position.x = -params.width / 2 + params.sideOffset
-			if (params.trussType != "балки") brace.position.x += flanHolesPos
-		}
-		//if (params.trussType != "балки") {
-		//	brace.position.z += 2;
-		//}
-		
-		//if (params.trussType == "балки") {
-		//	brace.position.z -= (params.backOffset - params.frontOffset) / 2
-		//}
-
-
-		brace.setLayer('racks');
-		carport.add(brace);
 	}
+
 	
 	//водосток
 	

@@ -4,6 +4,7 @@ $(function () {
 //$("#model").val("ко");
 //$("#platformTop").val("площадка");
 	//$("#carportType").val("двухскатный");
+	//$("#carportType").val("односкатный");
 	$("#trussType").val("балки");
 	$("#consoleHolder").val("две");
 	//$("#roofType").val("Плоская");

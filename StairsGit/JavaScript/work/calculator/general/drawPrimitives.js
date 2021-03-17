@@ -392,7 +392,71 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 	par.filletPar = filletPar
 	
 	return par;
-	} //end of calcArcFillet
+} //end of calcArcFillet
+
+	/*функция рассчитывае параметры скругления стыка прямой и окружности*/
+
+	function calcArcFillet1(par) {
+
+		var p1 = par.p1;
+		var pc = par.p2;
+		var p2 = par.p3;
+
+		//для определения стороны центра скругления определяем в какую сторону делать параллельную прямую
+		var line1_1 = parallel(pc, p1, par.filletRad);
+		var line1_2 = parallel(pc, p1, -par.filletRad);
+		var pt1 = itercection(pc, p2, line1_1.p1, line1_1.p2);
+		var pt2 = itercection(pc, p2, line1_2.p1, line1_2.p2);
+		var line1 = line1_1;
+		if (distance(pt1, p2) > distance(pt2, p2)) line1 = line1_2;
+
+		//центр скругления
+		var pc_fillet = itercectionLineCircle1(line1, par.arcCenter, par.arcRad + par.filletRad);
+		if (distance(pc, pc_fillet[0]) < distance(pc, pc_fillet[1]))
+			pc_fillet = pc_fillet[0];
+		else
+			pc_fillet = pc_fillet[1];
+
+		//точка сопряжения с прямой
+		var pt1 = itercection(pc, p1, pc_fillet, polar(pc_fillet, calcFullAngelX(pc, p1) + Math.PI / 2, 100));
+
+		//точка сопряжения с окружностью
+		var pt2 = itercectionLineCircle(pc_fillet, par.arcCenter, par.arcCenter, par.arcRad);
+		if (distance(pc, pt2[0]) < distance(pc, pt2[1]))
+			pt2 = pt2[0];
+		else
+			pt2 = pt2[1];
+
+		//если это вторая прямая по ходу построения меняем точки между собой (для правильного порядка построения дуги)
+		if (par.isSecondPoint) {
+			var pt = copyPoint(pt1);
+			pt1 = copyPoint(pt2);
+			pt2 = copyPoint(pt);
+		}
+
+
+		par.filletPar = {
+			center: pc_fillet,
+			angstart: calcFullAngelX(pc_fillet, pt1),
+			angend: calcFullAngelX(pc_fillet, pt2),
+			start: pt1,
+			end: pt2,
+			rad: par.filletRad,
+			clockwise: par.clockwise,
+		}
+
+		//если скругление получается внутриннее тогда меняем направление построения дуги
+		par.filletPar.clockwise = par.clockwise;
+		if (!isInPointShape(pc, pc_fillet, par.pointsShape)) { par.filletPar.clockwise = !par.filletPar.clockwise; }
+
+		if (!par.filletPar.clockwise) {
+			par.filletPar.angstart = calcFullAngelX(pc_fillet, pt2);
+			par.filletPar.angend = calcFullAngelX(pc_fillet, pt1);
+		}
+
+
+		return par;
+	} //end of calcArcFillet1
 	
 	/** функция рассчитывае параметры перпендикуляра, опущенного из точки p0 на прямую, 
 	заданную точками line_p1 и line_p2
@@ -470,6 +534,14 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 		if(sin == 0 && cos > 0) angle = 0;
 		if(sin == 0 && cos < 0) angle = Math.PI;
 		return angle;
+	}
+
+	/*функциЯ возвращает полный угол (0-360) между осью X и отрезком, соединЯющим точки*/
+	function calcFullAngelX(p1, p2) {
+		var p3 = { x: p2.x - p1.x, y: p2.y - p1.y };
+		var ang = Math.acos(p3.x / Math.sqrt(p3.x * p3.x + p3.y * p3.y));
+		if (p3.y < 0) ang = Math.PI * 2 - ang;
+		return ang;
 	}
 	
 	function calcLinesAngle(p1, p2, p3){
@@ -1369,8 +1441,240 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 	
 		return par;
 	}//end of drawShapeByPoints
-	
-	
+
+	/** функция создает шейп по массиву точек
+	*@params: points,
+	*@params: radIn, radOut,
+
+	*/
+
+	function drawShapeByPoints3(par) {
+
+		var points = par.points;
+
+		//функция строит шейп по массиву точек
+		par.shape = new THREE.Shape();
+
+		//возвращаем Path (для отверстий)
+		if (par.isPath) par.shape = new THREE.Path();
+
+		if (points.length < 3) {
+			console.log("drawShapeByPoints: не удалось построить shape, т.к. в массиве меньше 3 точек");
+			return par;
+		}
+
+		var clockwise = true;
+		if (par.clockwise === false) clockwise = false;
+
+		//скругляем углы
+		var pointsRad = [];
+		for (var i = 0; i < points.length; i++) {
+			var p1 = points[i];
+			var p2 = points[i + 1];
+			var p3 = points[i + 2];
+			//последние точки
+			if (i == points.length - 2) {
+				p3 = points[0]
+			}
+			if (i == points.length - 1) {
+				p2 = points[0];
+				p3 = points[1];
+			}
+
+			//задаем радиус скругления
+			var rad = 0;
+			if (p2.filletRad || p2.filletRad == 0) {
+				rad = p2.filletRad;
+			}
+			else {
+				if (calcAngleX2(p1, p2) < calcAngleX2(p1, p3)) {
+					if (par.radIn) rad = par.radIn;
+				}
+				else {
+					if (par.radOut) rad = par.radOut;
+				}
+			}
+
+			if (!(p1.radCircle && rad)) {
+				var fill = calcFilletParams4(p1, p2, p3, rad, clockwise, points);
+				pointsRad.push(fill);
+			}
+			
+
+			//если есть сопряжение прямой с окружностью
+			if (p2.radCircle) {
+				pointsRad.pop();
+
+				var p4 = points[i + 3];
+				if (i == points.length - 3) p4 = points[0];
+				if (i == points.length - 2) p4 = points[1];
+				if (i == points.length - 1) p4 = points[2];
+
+				//рассчитываем цетр большого скругления
+				var radCircle = p2.radCircle;
+
+				if (p2.centerCircle) {
+					var center = p2.centerCircle;
+				} else {
+					var hord = distance(p2, p3);
+					var len = Math.sqrt(Math.abs(radCircle * radCircle - hord * hord / 4));
+					var ang = calcFullAngelX(p2, p3);
+					var pt = polar(p2, ang, hord / 2);
+					var center = polar(pt, ang + Math.PI / 2, len);
+				}
+				
+
+				//скругление прямой с окружностью
+				if (rad) {
+					var filletPar = {
+						p1: p1,
+						p2: p2,
+						p3: p3,
+						arcCenter: center,
+						arcRad: radCircle,
+						filletRad: rad,
+						pointsShape: points,
+						clockwise: clockwise,
+					}
+					fill = calcArcFillet1(filletPar).filletPar;
+				}
+
+				//задаем радиус скругления второй прямой с окружностью
+				var rad1 = 0;
+				if (p3.filletRad || p3.filletRad == 0) {
+					rad1 = p3.filletRad;
+				}
+				else {
+					if (calcAngleX2(p2, p3) < calcAngleX2(p3, p4)) {
+						if (par.radIn) rad1 = par.radIn;
+					} else {
+						if (par.radOut) rad1 = par.radOut;
+					}
+				}
+
+				//скругление второй прямой с окружностью
+				if (rad1) {
+					var filletPar = {
+						p1: p4,
+						p2: p3,
+						p3: p2,
+						arcCenter: center,
+						arcRad: radCircle,
+						filletRad: rad1,
+						pointsShape: points,
+						clockwise: clockwise,
+						isSecondPoint: true,
+					}
+					fill1 = calcArcFillet1(filletPar).filletPar;
+				}
+
+				//дуга окружности
+				fill.circle = {
+					center: center,
+					rad: p2.radCircle,
+					clockwise: !clockwise,
+				}
+
+				fill.circle.angstart = rad ? calcFullAngelX(center, fill.end) : calcFullAngelX(center, p2);
+				fill.circle.angend = rad1 ? calcFullAngelX(center, fill1.start) : calcFullAngelX(center, p3);;
+
+
+				if (rad) fill.circle.clockwise = !fill.clockwise;
+				else if (rad1) fill.circle.clockwise = !fill1.clockwise;
+
+				if (!fill.circle.clockwise) {
+					var angTemp = fill.circle.angstart;
+					fill.circle.angstart = fill.circle.angend;
+					fill.circle.angend = angTemp;
+				}
+
+				pointsRad.push(fill);
+
+				if (rad1) {
+					pointsRad.push(fill1);
+					//i++;
+				}
+			}
+		}
+
+		points = pointsRad;
+
+		for (var i = 0; i < points.length - 1; i++) {
+			var p1 = points[i];
+			var p2 = points[i + 1]
+			if (!p1.circle) {
+				//если угол не скруглен
+				if (!p1.center && !p2.center) {
+					//если точки не совпадают
+					if (p1.x != p2.x || p1.y != p2.y)
+						addLine(par.shape, par.dxfArr, p1, p2, par.dxfBasePoint);
+					else
+						console.log("Точки " + i + " и " + (i + 1) + " совпадают");
+				}
+				//следующая точка - начало дуги
+				if (!p1.center && p2.center) {
+					addLine(par.shape, par.dxfArr, p1, p2.start, par.dxfBasePoint);
+				}
+				//текущая точка - дуга
+				if (p1.center && !p2.center) {
+					addArc2(par.shape, par.dxfArr, p1.center, p1.rad, p1.angstart, p1.angend, p1.clockwise, par.dxfBasePoint)
+					addLine(par.shape, par.dxfArr, p1.end, p2, par.dxfBasePoint);
+				}
+
+				//все углы скруглены
+				if (p1.center && p2.center) {
+					addArc2(par.shape, par.dxfArr, p1.center, p1.rad, p1.angstart, p1.angend, p1.clockwise, par.dxfBasePoint)
+					addLine(par.shape, par.dxfArr, p1.end, p2.start, par.dxfBasePoint);
+				}
+			}
+
+			//скругление первой прямой с окружностью и дуга  окружности
+			if (p1.circle) {
+				if (p1.center)
+					addArc2(par.shape, par.dxfArr, p1.center, p1.rad, p1.angstart, p1.angend, p1.clockwise, par.dxfBasePoint);
+				//дуга  окружности
+				addArc2(par.shape, par.dxfArr, p1.circle.center, p1.circle.rad, p1.circle.angstart, p1.circle.angend, p1.circle.clockwise, par.dxfBasePoint);
+			}
+		}
+
+		//замыкающая линия
+		var p1 = points[points.length - 1];
+		if (p1.center) addArc2(par.shape, par.dxfArr, p1.center, p1.rad, p1.angstart, p1.angend, p1.clockwise, par.dxfBasePoint)
+
+		var p2 = points[0];
+		if (p1.center) p1 = copyPoint(p1.end);
+		if (p2.center) p2 = copyPoint(p2.start);
+		addLine(par.shape, par.dxfArr, p1, p2, par.dxfBasePoint);
+
+		//пометка точек в dxf для отладки
+
+		if (par.markPoints) {
+			var layer = "comments2";
+			for (var i = 0; i < par.points.length; i++) {
+				var p1 = par.points[i];
+				var text = i + " точка";
+				if (p1.name) text += " (" + p1.name + ")";
+				var textHeight = 20;
+				var offsetLeft = 200;
+				var offsetTop = 100;
+				if (!p1.center)
+					addLeader(text, textHeight, offsetLeft, offsetTop, par.dxfArr, p1, par.dxfBasePoint, layer);
+				if (p1.center)
+					addLeader(text, textHeight, offsetLeft, offsetTop, par.dxfArr, p1.center, par.dxfBasePoint, layer)
+			}
+		}
+
+		par.points = points;
+
+		//добавляем шейп в глобальный массив для последующего образмеривания
+		if (typeof shapesList != "undefined" && par.drawing && !par.isPath) {
+			par.shape.drawing = par.drawing;
+			if (par.drawing) par.shape.drawing = par.drawing;
+			shapesList.push(par.shape);
+		}
+
+		return par;
+	}//end of drawShapeByPoints
 	
 	
 	function calcFilletParams3(p1, p2, p3, radius, clockwise) {
@@ -1428,6 +1732,63 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 	
 		return filletParams;
 	
+}
+
+	function calcFilletParams4(p1, pc, p2, radius, clockwise, pointsShape) {
+		/*функция рассчитывает параметры скругления двух линий.
+		Точки линий задаются по направлению построения шейпа.
+		pc - точка скругления
+		clockwise - направление построения дуги
+		pointsShape - точки шейпа*/
+
+		if (radius !== 0) {
+			//для определения стороны центра скругления определяем в какую сторону делать параллельные прямые
+			//первой прямой
+			var line1_1 = parallel(pc, p1, radius);
+			var line1_2 = parallel(pc, p1, -radius);
+			var pt1 = itercection(pc, p2, line1_1.p1, line1_1.p2);
+			var pt2 = itercection(pc, p2, line1_2.p1, line1_2.p2);
+			var line1 = line1_1;
+			if (distance(pt1, p2) > distance(pt2, p2)) line1 = line1_2;
+
+			//второй прямой
+			var line2_1 = parallel(pc, p2, radius);
+			var line2_2 = parallel(pc, p2, -radius);
+			var pt1 = itercection(pc, p1, line2_1.p1, line2_1.p2);
+			var pt2 = itercection(pc, p1, line2_2.p1, line2_2.p2);
+			var line2 = line2_1;
+			if (distance(pt1, p1) > distance(pt2, p1)) line2 = line2_2;
+
+			//центр скругления
+			var center = itercectionLines(line1, line2);
+
+			//точки сопряжения
+			var pt1 = itercection(pc, p1, center, polar(center, calcFullAngelX(pc, p1) + Math.PI / 2, 100));
+			var pt2 = itercection(pc, p2, center, polar(center, calcFullAngelX(pc, p2) + Math.PI / 2, 100));
+
+			var filletParams = {
+				start: pt1,
+				end: pt2,
+				center: center,
+				angstart: calcFullAngelX(center, pt1),
+				angend: calcFullAngelX(center, pt2),
+				rad: radius,
+			}
+
+			filletParams.clockwise = clockwise;
+			//если скругление получается внутриннее тогда меняем направление построения дуги
+			if (!isInPointShape(pc, center, pointsShape)) {
+				filletParams.clockwise = !filletParams.clockwise;
+			}
+
+			if (!filletParams.clockwise) {
+				filletParams.angstart = calcFullAngelX(center, pt2);
+				filletParams.angend = calcFullAngelX(center, pt1);
+			}
+
+			return filletParams;
+		} else return pc;
+
 	}
 	
 	function calcAngleX2(p1, p2) {
@@ -2011,4 +2372,27 @@ function calcPointsShapeToIn(pointsShape, dist) {
 	}
 
 	return pointsIn;
+}
+
+
+function isInPointShape(pShape, pIn, points) {
+	/*функциЯ определяет находится ли сдвинутая точка внутри контура
+	 pShape - старая точка контура
+	 pIn - сдвинутая точка контура
+	 points- точки контура
+	 */
+	var areaAll = Math.abs(THREE.ShapeUtils.area(points));
+
+	var arr = points.slice();
+	for (var i = 0; i < arr.length; i++) {
+		if (pShape.x == arr[i].x && pShape.y == arr[i].y) {
+			arr[i] = pIn;
+			break;
+		}
+	}
+
+	var area = Math.abs(THREE.ShapeUtils.area(arr));
+
+	if (area < areaAll) return true;
+	return false;
 }

@@ -996,6 +996,18 @@ function drawShim(par) {
 	return par;
 }
 
+function calcNutPar(par) {
+	par.nutHeight = par.diam * 0.8;
+	if (par.isLong) {
+		par.nutHeight = par.diam * 2.5;
+		if (par.diam == 20) par.nutHeight = 60;
+	}
+}
+function calcShimPar(par) {
+	par.shimThk = par.diam * 0.2;
+	par.radIn = par.diam / 2 + 1;
+	par.radOut = par.diam * 1.1;
+}
 
 /*Функция отрисовки гнутого уголка с отверстиями*/
 
@@ -3077,4 +3089,110 @@ function calcItercectionNormal(pc, p1, p2, pIn) {
 	}
 
 	return false;
+}
+
+
+/** функция отрисовывает для каждого отверстия болт, шайбу(внутр., внешняя), гайку(внутр., внешняя)
+	var boltsPar = {
+		holes: holes,
+		thkOut: par.thk,
+		thkIn: partPar.column.profSize.y,
+		diam: 10,
+		isNutOut: { isCap: true },
+		isNutIn: { isCap: true },
+		isShimOut: true,
+		isShimIn: true,
+		material: params.materials.inox,
+	}
+*/
+function drawBoltsHoles(par) {
+	par.mesh = new THREE.Object3D();
+
+	var offsetOut = 5;
+	if (par.offsetOut) offsetOut = par.offsetOut;
+
+	var offsetIn = 5;
+	if (par.offsetIn) offsetIn = par.offsetIn;
+
+	var lenOut = par.thkOut + offsetOut;
+	var lenIn = par.thkIn + offsetIn;
+
+	if (par.isNutOut || par.isNutIn) calcNutPar(par);
+	if (par.isShimOut || par.isShimIn) calcShimPar(par);
+
+	if (par.isNutOut) lenOut += par.nutHeight;
+	if (par.isNutIn) lenIn += par.nutHeight;
+
+	if (par.isShimOut) lenOut += par.shimThk;
+	if (par.isShimIn) lenIn += par.shimThk;
+
+	//метизы
+	var studPar = {
+		diam: par.diam,
+		len: lenOut + lenIn,
+		dopParams: {},
+		material: par.material,
+	}
+
+
+	for (var i = 0; i < par.holes.length; i++) {
+
+		var bolt = new THREE.Object3D();
+
+
+		var stud = drawStudF(studPar)
+		stud.rotation.x = Math.PI / 2;
+		stud.position.y = par.holes[i].y;
+		stud.position.x = par.holes[i].x;
+		stud.position.z = -studPar.len / 2 + lenOut;
+		stud.setLayer('metis');
+		if (!testingMode) bolt.add(stud)
+
+		if (par.isShimOut) {
+			var shim = new THREE.Object3D();
+			shim.add(drawShim({ diam: par.diam }).mesh);
+			shim.rotation.x = Math.PI / 2;
+			shim.position.y = par.holes[i].y;
+			shim.position.x = par.holes[i].x;
+			shim.position.z = par.thkOut;
+			shim.setLayer('metis');
+			if (!testingMode) bolt.add(shim);
+		}
+		if (par.isShimIn) {
+			var shim = new THREE.Object3D();
+			shim.add(drawShim({ diam: par.diam }).mesh);
+			shim.rotation.x = -Math.PI / 2;
+			shim.position.y = par.holes[i].y;
+			shim.position.x = par.holes[i].x;
+			shim.position.z = -par.thkIn;
+			shim.setLayer('metis');
+			if (!testingMode) bolt.add(shim);
+		}
+		if (par.isNutOut) {
+			var nutPar = { diam: par.diam }
+			if (par.isNutOut.isCap) nutPar.isCap = par.isNutOut.isCap;
+			var nut = drawNut(nutPar).mesh;
+			nut.rotation.x = - Math.PI / 2;
+			nut.position.y = par.holes[i].y;
+			nut.position.x = par.holes[i].x;
+			nut.position.z = lenOut - offsetOut;
+			nut.setLayer('metis');
+			if (!testingMode) bolt.add(nut);
+		}
+		if (par.isNutIn) {
+			var nutPar = { diam: par.diam }
+			if (par.isNutIn.isCap) nutPar.isCap = par.isNutIn.isCap;
+			var nut = drawNut(nutPar).mesh;
+			nut.rotation.x = Math.PI / 2;
+			nut.position.y = par.holes[i].y;
+			nut.position.x = par.holes[i].x;
+			nut.position.z = -lenIn + offsetIn;
+			nut.setLayer('metis');
+			if (!testingMode) bolt.add(nut);
+		}
+
+		par.mesh.add(bolt);
+	}
+
+	return par;
 }
