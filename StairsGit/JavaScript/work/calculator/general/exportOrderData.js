@@ -1012,6 +1012,7 @@ function getExportData_com(checkSumm){
 	//данные по себестоимости
 	var cost_data = {};
 	if(params.isAssembling == "есть") cost_data.assembling = calcAssemblingWage().totalWage;
+	if(workList && workList.painting) cost_data.painting = workList.painting.totalWage;
 	cost_data.vp = $("#vpSum").text() * 1.0;
 		
 	//данные по этапам монтажа

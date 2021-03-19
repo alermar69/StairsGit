@@ -177,7 +177,7 @@
 			<table class="form_table" ><tbody>
 				<tr>
 					<td>Диаметр отверстий под рутели в стекле:</td>
-					<td><input type="number" id="rutelHoleDiam" value="18"/></td>
+					<td><input type="number" id="rutelHoleDiam" value="22"/></td>
 				</tr>
 				
 				<tr>

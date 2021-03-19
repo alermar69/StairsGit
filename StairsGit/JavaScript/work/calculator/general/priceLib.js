@@ -1,4 +1,5 @@
 function calcRailingPrice(par) {
+
 	var railingModel = par.railingModel;
 	var metalPaint = par.metalPaint;
 	var timberPaint = params.timberPaint;
@@ -472,7 +473,7 @@ function calcRailingPrice(par) {
 		staircaseCost.railingBal1 = balPrice1;
 		staircaseCost.railingBal2 = balPrice2;
 		staircaseCost.railingFrames = framePrice;
-		staircaseCost.railingCross = crossProfilePrice;
+		staircaseCost.railingCross = crossProfilePrice || 0;
 		staircaseCost.railingWeld = kovkaWeldTotalPrice;
 		staircaseCost.railing = totalCostPerila;
 	}
@@ -980,7 +981,7 @@ function calculateTotalPrice2() {
 			alertTrouble("Для модуля " + name + " не задан к-т на себестоимость.", 'forms', true);
 		}
 		//дополнительные услуги
-		if (unit == "assembling" || unit == "delivery") priceObj[unit].isOption = true;
+		// if (unit == "assembling" || unit == "delivery") priceObj[unit].isOption = true;
 	};
 
 	//распределение позиций объекта staircaseCost по частям лестницы
@@ -1051,6 +1052,14 @@ function calculateTotalPrice2() {
 		}
 		if (!isItemAdded) errorText += item + " ";
 	};
+	
+	//монтаж и доставка
+	if (params.calcType != 'coupe') {
+		priceObj["assembling"].price = Math.round(calculateAssemblingPrice2(productionPrice).assembling.price * (params.assemblingPriceFactor || 1));
+		priceObj["assembling"].cost = Math.round(calculateAssemblingPrice2(productionPrice).assembling.cost * params.assemblingCostFactor);
+	}
+	priceObj["delivery"].price = calculateAssemblingPrice2(productionPrice).delivery.price;
+	priceObj["delivery"].cost = calculateAssemblingPrice2(productionPrice).delivery.cost;
 
 	var productionPrice = 0; //общая цена изделия без учета скидки
 	for (var unit in priceObj) {
@@ -1070,16 +1079,8 @@ function calculateTotalPrice2() {
 		}
 	}
 
-	//монтаж и доставка
-	if (params.calcType != 'coupe') {
-		priceObj["assembling"].price = Math.round(calculateAssemblingPrice2(productionPrice).assembling.price * (params.assemblingPriceFactor || 1));
-		priceObj["assembling"].cost = Math.round(calculateAssemblingPrice2(productionPrice).assembling.cost * params.assemblingCostFactor);
-	}
-	priceObj["delivery"].price = calculateAssemblingPrice2(productionPrice).delivery.price;
-	priceObj["delivery"].cost = calculateAssemblingPrice2(productionPrice).delivery.cost;
-
 	//общая цена заказа
-	var totalPrice = productionPrice + priceObj["assembling"].price + priceObj["delivery"].price;
+	var totalPrice = productionPrice;
 
 	for (var unit in priceObj) {
 		priceObj[unit].discount = Math.round(priceObj[unit].price * params.discountFactor / 100);
@@ -1166,7 +1167,8 @@ function calculateTotalPrice2() {
 
 function getPriceCoefficients(priceObj) {
 	//подсчет цены
-	var priceMarkup = 1.1; //к-т на цену 07.05.19 был 1.05
+	var priceMarkup = 1.3; //к-т на цену 17.03.21 был 1.1 / к-т на цену 07.05.19 был 1.05
+	if (params.calcType == "objects") priceMarkup = 1;
 	var margin = 3 * priceMarkup / costMarkup;
 	if (params.calcType == "vhod" && params.staircaseType == "Готовая") margin = 1 / (0.7 / 1.45);
 	if (params.calcType == 'railing') margin = Math.round(3 * params.railingPriceFactor);

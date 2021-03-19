@@ -18,11 +18,6 @@ function changeFormCarport(){
 		$(".gazeboPar").show()
 	}
 	
-	$("#roofType").closest("tr").show()	
-	if(params.carportType == 'купол' || params.carportType == 'сдвижной') {
-		$("#roofType").closest("tr").hide()
-	}
-	
 	//угол наклона кровли
 	if(params.roofType == "Арочная" && 
 		params.beamModel == "сужающаяся" && 
@@ -143,10 +138,11 @@ function changeFormCarport(){
 	//текстура пола первого этажа
 	if(!params.floorMat) $("#floorMat").val("road_brick3")
 	
-	$('#toggleDomeDoor').hide();	
-	$("#roofType").closest("tr").hide()	
+	$('#toggleDomeDoor').hide();
+	$("#roofType").closest("tr").show()	
 	if(params.carportType == 'купол' || params.carportType == 'сдвижной') {
 		$('#toggleDomeDoor').show();
+		$("#roofType").closest("tr").hide()	
 	}
 
 	if (params.floorType == "нет") $("#heightFloor").val(0)

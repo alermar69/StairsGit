@@ -180,7 +180,7 @@ function calcRailingModulePrice() {
 		staircaseCost.skirting = Math.floor(skirtingTotalCost + skirtingPaintPrice);
 		staircaseCost.risers = Math.floor(risersTotalCost + riserPaintPrice);
 	}
-
+	
 	// var finalCost = cost.glass + staircaseCost.railing;
 	staircaseCost.railing = railingCost;
 	

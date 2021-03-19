@@ -117,7 +117,7 @@
 			<tr>
 				<td>Сборка:</td>
 				<td><input id="assemblingCostFactor" type="number" value="1"></td>
-				<td><input id="assemblingPriceFactor" type="number" value="1"></td>
+				<td><input id="assemblingPriceFactor" type="number" value="1"></td>  
 			</tr>
 			
 		</tbody> </table>
@@ -132,8 +132,8 @@
 		</select>
 	</br>
 		
-	<b>Величина:</b> <input id="discountFactor" type="number" value="30">
-	<br/><br/>
+	<b>Величина:</b> <input id="discountFactor" type="number" value="20">	
+	<br><br>
 
 	Комментарии:<br/>  <textarea id="discountComments" rows="1" cols="80" class="comments"></textarea>
 

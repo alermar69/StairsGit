@@ -1070,7 +1070,7 @@ if(par.railingType == "поручень" || ((par.railingType == "стекло �
 			par.railingParams.sideHolderAmt += handrailParams.holderAmt;
 		}
 		else{
-			par.railingParams.glassHolderAmt += handrailParams.holderAmt;
+			par.railingParams.glassHolderAmt += handrailParams.holderAmt || 0;
 		}
 	}
 
