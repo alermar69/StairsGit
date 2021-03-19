@@ -2186,7 +2186,7 @@ function drawRoofCarcas(par){
 			
 			var purlinArr = drawRectArray(purlinArrPar).mesh;
 			if (params.trussType == "балки") {
-				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x + (params.backOffset - params.frontOffset) / 2;
+				purlinArr.position.z = purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x + (params.backOffset - params.frontOffset) / 2;
 			}
 			if(params.beamModel == "проф. труба") {
 				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x;
@@ -3787,6 +3787,99 @@ function drawPurlinConnector(par){
 	return par;
 }
 
+/** функция отрисовывает фланецы крепления балки к колонне
+
+*/
+function drawColumnFlansBal(par) {
+
+	var flanColumn = new THREE.Object3D();
+
+	var flanColumnPar = {
+		dxfArr: dxfPrimitivesArr,
+		dxfBasePoint: par.dxfBasePoint,
+		width: 400,
+		height: 300,
+		thk: 4,
+	}
+
+	var lenSects = params.sectLen * params.sectAmt;
+
+	//фланецы с передней стороны
+	//слева
+	if (params.frontOffset < 200) flanColumnPar.isHalfFront = true;
+
+	var flan = drawColumnFlanBal(flanColumnPar).mesh;
+	flan.rotation.y = -Math.PI / 2;
+	flan.position.z = lenSects / 2 - partPar.column.profSize.y / 2;
+	flan.position.x = -params.width / 2 + params.sideOffset;
+	flanColumn.add(flan);
+
+	//справа
+	if (params.frontOffset < 200) flanColumnPar.isHalfBack = true;
+
+	var flan = drawColumnFlanBal(flanColumnPar).mesh;
+	flan.rotation.y = Math.PI / 2;
+	flan.position.z = lenSects / 2 - partPar.column.profSize.y / 2;
+	flan.position.x = params.width / 2 - params.sideOffset;
+	if (params.carportType == "односкатный") {
+		flan.position.y = par.deltaHeight;
+		flan.position.x += params.width - par.columnDelta.x;
+	}
+	flanColumn.add(flan);
+
+	//фланецы с задней стороны
+	//слева
+	if (params.backOffset < 200) flanColumnPar.isHalfBack = true;
+	var flan = drawColumnFlanBal(flanColumnPar).mesh;
+	flan.rotation.y = -Math.PI / 2;
+	flan.position.z = -lenSects / 2 + partPar.column.profSize.y / 2;
+	flan.position.x = -params.width / 2 + params.sideOffset;
+	flanColumn.add(flan);
+
+	//справа
+	if (params.backOffset < 200) flanColumnPar.isHalfFront = true;
+	var flan = drawColumnFlanBal(flanColumnPar).mesh;
+	flan.rotation.y = Math.PI / 2;
+	flan.position.z = -lenSects / 2 + partPar.column.profSize.y / 2;
+	flan.position.x = params.width / 2 - params.sideOffset;
+	if (params.carportType == "односкатный") {
+		flan.position.y = par.deltaHeight;
+		flan.position.x += params.width - par.columnDelta.x;
+	}
+	flanColumn.add(flan);
+
+	for (var i = 1; i < params.sectAmt; i++) {
+		//фланецы с передней стороны
+		//слева
+		var flan = drawColumnFlanBal(flanColumnPar).mesh;
+		flan.rotation.y = -Math.PI / 2;
+		flan.position.z = lenSects / 2 - partPar.column.profSize.y / 2 - par.columnDelta.z * i;
+		flan.position.x = -params.width / 2 + params.sideOffset;
+		flanColumn.add(flan);
+
+		//справа
+		var flan = drawColumnFlanBal(flanColumnPar).mesh;
+		flan.rotation.y = Math.PI / 2;
+		flan.position.z = lenSects / 2 - partPar.column.profSize.y / 2 - par.columnDelta.z * i;
+		flan.position.x = params.width / 2 - params.sideOffset;
+		if (params.carportType == "односкатный") {
+			flan.position.y = par.deltaHeight;
+			flan.position.x += params.width - par.columnDelta.x;
+		}
+		flanColumn.add(flan);
+	}
+
+
+
+	flanColumn.position.y = params.height + partPar.beam.profSize.y - 4;
+
+	flanColumn.setLayer('racks');
+
+	par.mesh = flanColumn;
+	return par;
+
+}
+
 /** функция отрисовывает фланец крепления балки к колонне
 
 */
@@ -4204,8 +4297,9 @@ function drawConnectBalTruss(par) {
 		holes: holes,
 		diam: 10,
 		len: 30,
-		isBolt: true,
+		isBolt: { headType: "шестигр.", },
 		material: params.materials.inox,
+		move: thk,
 	}
 	var bolts = drawBoltsHoles(boltsPar).mesh;
 	flan.add(bolts);

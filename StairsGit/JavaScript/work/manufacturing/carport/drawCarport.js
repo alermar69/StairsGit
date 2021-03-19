@@ -1268,64 +1268,14 @@ function drawRectCarport(par){
 	if (params.trussType == "балки") {
 
 		//фланцы крепления балок к колоннам
-		{
-			var flanColumn = new THREE.Object3D();
-
-			var flanColumnPar = {
-				dxfArr: dxfPrimitivesArr,
-				dxfBasePoint: par.dxfBasePoint,
-				width: 400,
-				height: 300,
-				thk: 4,
-			}
-
-			//фланецы с передней стороны
-			//слева
-			if (params.frontOffset < 200) flanColumnPar.isHalfFront = true;
-			var flan = drawColumnFlanBal(flanColumnPar).mesh;
-			flan.rotation.y = -Math.PI / 2;
-			flan.position.z = params.sectLen / 2 - partPar.column.profSize.y / 2;
-			flan.position.x = -params.width / 2 + params.sideOffset;
-			flanColumn.add(flan);
-
-			//справа
-			if (params.frontOffset < 200) flanColumnPar.isHalfBack = true;
-			var flan = drawColumnFlanBal(flanColumnPar).mesh;
-			flan.rotation.y = Math.PI / 2;
-			flan.position.z = params.sectLen / 2 - partPar.column.profSize.y / 2;
-			flan.position.x = params.width / 2 - params.sideOffset;
-			if (params.carportType == "односкатный") {
-				flan.position.y = deltaHeight;
-				flan.position.x += params.width - columnArrPar.arrSize.x;
-			}
-			flanColumn.add(flan);
-
-			//фланецы с задней стороны
-			//слева
-			if (params.backOffset < 200) flanColumnPar.isHalfBack = true;
-			var flan = drawColumnFlanBal(flanColumnPar).mesh;
-			flan.rotation.y = -Math.PI / 2;
-			flan.position.z = -params.sectLen / 2 + partPar.column.profSize.y / 2;
-			flan.position.x = -params.width / 2 + params.sideOffset;
-			flanColumn.add(flan);
-
-			//справа
-			if (params.backOffset < 200) flanColumnPar.isHalfFront = true;
-			var flan = drawColumnFlanBal(flanColumnPar).mesh;
-			flan.rotation.y = Math.PI / 2;
-			flan.position.z = -params.sectLen / 2 + partPar.column.profSize.y / 2;
-			flan.position.x = params.width / 2 - params.sideOffset;
-			if (params.carportType == "односкатный") {
-				flan.position.y = deltaHeight;
-				flan.position.x += params.width - columnArrPar.arrSize.x;
-			}
-			flanColumn.add(flan);
-
-			flanColumn.position.y = params.height + partPar.beam.profSize.y - 4;
-
-			flanColumn.setLayer('racks');
-			carport.add(flanColumn);
+		var flansColumnPar = {
+			dxfBasePoint: par.dxfBasePoint,
+			deltaHeight: deltaHeight,
+			columnDelta: { x: columnArrPar.arrSize.x, z: columnArrPar.step.z }
 		}
+
+		var flansColumn = drawColumnFlansBal(flansColumnPar).mesh;
+		carport.add(flansColumn);
 		
 		//подкосы
 		if (params.consoleHolder != "нет") {
@@ -1372,7 +1322,7 @@ function drawRectCarport(par){
 			if (params.consoleHolder == "спереди" || params.consoleHolder == "две") {
 				if (params.frontOffset > 450) {
 					var braceArr = drawRectArray(braceArrPar).mesh;
-					braceArr.position.z = params.sectLen / 2;
+					braceArr.position.z = params.sectLen * params.sectAmt / 2;
 					brace.add(braceArr);
 				}
 			}
@@ -1381,7 +1331,7 @@ function drawRectCarport(par){
 					bracePar.length = params.backOffset;
 					braceArrPar.itemRot.y *= -1;
 					var braceArr = drawRectArray(braceArrPar).mesh;
-					braceArr.position.z = -params.sectLen / 2;
+					braceArr.position.z = -params.sectLen * params.sectAmt / 2;
 					brace.add(braceArr);
 				}
 			}

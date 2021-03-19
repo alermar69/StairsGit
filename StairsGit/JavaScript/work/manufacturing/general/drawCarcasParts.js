@@ -523,7 +523,9 @@ function drawBolt(par) {
         //head.position.y = par.len / 2// + par.diam / 2;
         head.position.y = -par.len / 2 - headHeight;
 
-        par.mesh.add(head);
+		par.mesh.add(head);
+
+		//par.headHeight = headHeight;
     }
 
     //головка для болтов в потай
@@ -3149,11 +3151,15 @@ function drawBoltsHoles(par) {
 		var metis = new THREE.Object3D();
 
 		if (par.isBolt) {
+			for (key in par.isBolt) {
+				metisPar[key] = par.isBolt[key]
+			}
 			var bolt = drawBolt(metisPar).mesh;
 			bolt.rotation.x = -Math.PI / 2 * rotate;
 			bolt.position.y = par.holes[i].y;
 			bolt.position.x = par.holes[i].x;
-			bolt.position.z = (-metisPar.len / 2 + metisPar.headHeight) * rotate;
+			bolt.position.z = -metisPar.len / 2 * rotate;
+			if (metisPar.headHeight) bolt.position.z += metisPar.headHeight * rotate;
 			bolt.setLayer('metis');
 			if (!testingMode) metis.add(bolt)
 		}
@@ -3211,6 +3217,7 @@ function drawBoltsHoles(par) {
 			if (!testingMode) metis.add(nut);
 		}
 
+		if (par.move) metis.position.z = par.move;
 		par.mesh.add(metis);
 	}
 

@@ -3142,8 +3142,9 @@ function drawArcBrace(par) {
 		holes: holes,
 		diam: 10,
 		len: 30,
-		isBolt: true,
+		isBolt: { headType: "шестигр.", },
 		material: params.materials.inox,
+		move: thk,
 	}
 	var bolts = drawBoltsHoles(boltsPar).mesh;
 	flan.add(bolts);

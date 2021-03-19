@@ -8,8 +8,8 @@ $(function () {
 	$("#trussType").val("балки");
 	$("#consoleHolder").val("две");
 	$("#backOffset").val(0);
-	$("#roofType").val("Плоская");
-	//$("#roofType").val("Арочная");
+	//$("#roofType").val("Плоская");
+	$("#roofType").val("Арочная");
 	//$("#beamModel").val("ферма постоянной ширины");
 	//$("#roofAng").val(15);
 
