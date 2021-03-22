@@ -951,6 +951,105 @@ if(par.railingType == "Дерево с ковкой"){
 } //конец построения секции с самонесущим стеклом
 
 
+//Ограждение частые стойки 
+if(par.railingType == "Частые стойки"){
+	var meterHandrailPar = {
+		prof: "40х60 верт.",
+		sideSlots: "нет",
+		handrailType: "массив"
+	}
+	meterHandrailPar = calcHandrailMeterParams(meterHandrailPar);
+
+	var posZ = 39;
+
+	var p1 = {x: -50, y: par.h_r * -1}
+	var p2 = {x: -50 + par.b_r * par.stairAmt_r, y: par.h_r * par.stairAmt_r}
+
+	var handrailPosY = par.sectHeight || 900;
+	var dxfBasePoint = {x:0,y:0};
+
+	var splitStairs = [];
+
+	//поручень марша
+	var startPoint = newPoint_xy(p1, 0, par.h_r)
+	
+	var handrailLength_X = p2.x - p1.x - 0.05;
+	var handrailAngle = Math.atan((par.h_r * 1.0) / (par.b_r * 1.0));
+	if (angle == 0) handrailAngle = 0;
+
+	var handrailLength = handrailLength_X / Math.cos(handrailAngle);
+	var basePoint = newPoint_xy(p1, 0, handrailPosY + 100);
+
+	//console.log(splitStairs)
+	var handrailBasePoint = basePoint;
+	var handrailStartPoint = p1;
+	var handrailEndPoint = p2;
+	var lenX = handrailEndPoint.x - handrailStartPoint.x - 0.05;
+	var len = lenX / Math.cos(handrailAngle);
+
+	var handrailParams = {
+		model: "массив",
+		length: len,
+		dxfArr: dxfPrimitivesArr,
+		dxfBasePoint: dxfBasePoint,
+		startAngle: Math.PI / 2 - handrailAngle,
+		endAngle: Math.PI / 2 - handrailAngle,
+		fixType: "нет",
+		side: "out",
+		poleAngle: handrailAngle,
+		startChamfer: "R3",
+		endChamfer: "R3",
+		marshId: par.marshId
+	}
+
+	handrailParams.dxfBasePoint = newPoint_xy(dxfBasePoint, handrailBasePoint.x, handrailBasePoint.y)
+
+	var handrail = drawHandrail_4(handrailParams).mesh;
+	handrail.position.x = handrailBasePoint.x;
+	handrail.position.y = handrailBasePoint.y;
+	handrail.position.z = posZ - handrailParams.wallOffset;
+	par.mesh.add(handrail);
+	
+	var balParams = {
+		balMaterial: params.materials.metal,
+		angMaterial: params.materials.metal2,
+		dxfArr: dxfPrimitivesArr,
+		dxfBasePoint: dxfBasePoint,
+		size: 20,
+		length: handrailPosY,
+		topHole: "yes",
+		type: "middle",
+		angleShift: 0,
+		// text: "Первая балясина"
+	}
+
+	var balBasePoint = newPoint_xy(p1, 0, 30);
+	var banisterPerStep = params.banisterPerStep;
+	var banisterStep = len / (banisterPerStep * par.stairAmt_r);
+
+	banisterPos = balBasePoint
+	for (var i = 0; i < par.stairAmt_r; i++) {
+		var stepBanisterCount = banisterPerStep;
+		if (i == (par.stairAmt_r - 1)) stepBanisterCount -= 1;
+
+		for (var j = 0; j < stepBanisterCount; j++) {
+			var heightDelta = (banisterStep * j) * Math.sin(handrailAngle);
+			banisterPos = polar(banisterPos, handrailAngle, banisterStep);
+			balParams.length = handrailPosY + heightDelta;
+			var banister = drawBal(balParams);
+			banister.mesh.position.x = banisterPos.x;
+			banister.mesh.position.y = banisterPos.y - heightDelta - 1;
+			banister.mesh.position.z = posZ;
+			par.mesh.add(banister.mesh);
+		}
+	}
+	// balParams.type = "middle";
+	// if (par.base == "stringer") balParams.type = "longBal";
+
+
+} //конец построения секции с самонесущим стеклом
+
+
 	
 //поручни на ограждении со стеклом и пристенные
 

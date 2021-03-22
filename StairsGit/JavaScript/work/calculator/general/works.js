@@ -1824,10 +1824,25 @@ function calcAssemblingWage() {
 
 
 	//подоконники
+	var sillArea = 0
+	var sillAmt = 0
+	var lineTemplatesAmt = 0
+	var curveTemplates = 0
+	var breakingAmt = 0;
+	
+	var partNames = ["sill", "sill_arc", "sill_cnc", "slab"];
+	$.each(partNames, function(){
+		sillArea += getDopPartPropVal(this, "area")
+		sillAmt += getDopPartPropVal(this, "amt")
+		lineTemplatesAmt += getDopPartPropVal(this, "lineTemplatesAmt")
+		curveTemplates += getDopPartPropVal(this, "curveTemplates")
+		breakingAmt += getDopPartPropVal(this, "breaking")
+		
+	})
 
 	var wage = {
 		name: "Монтаж подоконников/столешниц",
-		amt: Math.round(getDopPartPropVal("sill", "area") * 10) / 10,
+		amt: Math.round(sillArea * 10) / 10,
 		unitName: "м2",
 		unitWage: 2000,
 	}
@@ -1835,7 +1850,7 @@ function calcAssemblingWage() {
 
 	var wage = {
 		name: "Подготовка основания",
-		amt: getDopPartPropVal("sill", "amt"),
+		amt: sillAmt,
 		unitName: "шт",
 		unitWage: 500,
 	}
@@ -1843,7 +1858,7 @@ function calcAssemblingWage() {
 
 	var wage = {
 		name: "Подгонка изделий по месту",
-		amt: getDopPartPropVal("sill", "amt") - getDopPartPropVal("sill", "lineTemplatesAmt") - getDopPartPropVal("sill", "curveTemplates"),
+		amt: sillAmt - lineTemplatesAmt - curveTemplates,
 		unitName: "шт",
 		unitWage: 500,
 	}
@@ -1851,7 +1866,7 @@ function calcAssemblingWage() {
 
 	var wage = {
 		name: "Шаблоны прямолинейные",
-		amt: getDopPartPropVal("sill", "lineTemplatesAmt"),
+		amt: lineTemplatesAmt,
 		unitName: "шт",
 		unitWage: 1000,
 		minWage: 2000,
@@ -1860,7 +1875,7 @@ function calcAssemblingWage() {
 
 	var wage = {
 		name: "Шаблоны криволинейные",
-		amt: getDopPartPropVal("sill", "curveTemplates"),
+		amt: curveTemplates,
 		unitName: "шт",
 		unitWage: 2000,
 	}
@@ -1876,7 +1891,7 @@ function calcAssemblingWage() {
 
 	var wage = {
 		name: "Демонтаж",
-		amt: getDopPartPropVal("sill", "breaking"),
+		amt: breakingAmt, //getDopPartPropVal("sill", "breaking") + getDopPartPropVal("sill_cnc", "breaking"),
 		unitName: "шт",
 		unitWage: 1000,
 	}

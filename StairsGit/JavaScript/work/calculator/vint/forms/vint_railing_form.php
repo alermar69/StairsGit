@@ -160,6 +160,7 @@
 								<option value="Ригели">ригели</option>
 								<option value="Стекло на стойках">Стекло на стойках</option>
 								<option value="Дерево с ковкой">Дерево с ковкой</option>
+								<option value="Частые стойки">Частые стойки</option>
 							</select>
 						</td>
 					</tr>

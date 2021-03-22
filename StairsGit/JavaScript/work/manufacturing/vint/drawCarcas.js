@@ -50,13 +50,13 @@ function drawStrightMarsh(par, marshId){
 	if (marshId == 1) {
 		var holdePar = {
 			length: params.M - params.sideOverHang,
-			height: params.stairAmt1 * params.h1 + par.stepHeight - params.treadThickness
+			height: params.stairAmt1 * params.h1 + par.stepHeight - params.treadThickness + (params.h1 - par.stepHeight)
 		}
 		if (params.strightCarcasModel == 'лт') holdePar.length = params.M
 		var mesh = drawVintConnectionPart(holdePar).mesh;
 		mesh.position.z = params.M / 2;
 		mesh.position.y = holdePar.height;
-		mesh.position.x = getMarshParams(1).len + 25;//Профиль опоры 100x50
+		mesh.position.x = getMarshParams(1).len + params.nose;
 		if (turnFactor == 1){
 			mesh.rotation.y = Math.PI;
 			mesh.position.z -= holdePar.length + 8;
@@ -66,9 +66,8 @@ function drawStrightMarsh(par, marshId){
 	}
 	if (marshId == 3) {
 		var height = par.staircaseHeight + par.strightPartHeight;// - strightPartHeight2;
-		if (params.platformPosition == 'ниже') {
-			height -= params.h3;
-		}
+		if (params.platformPosition == 'ниже') height -= params.h3;
+
 		var holdePar = {
 			length: params.M - params.sideOverHang * 2,
 			height: height

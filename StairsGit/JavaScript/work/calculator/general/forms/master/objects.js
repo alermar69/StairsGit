@@ -119,7 +119,7 @@ function obj_master_calcPrice(){
 		area: 0,
 		paintedArea: 0,
 		objects: [],
-		margin: 2.008743, //к-т подогнан под скидку 30%
+		margin: 2.086885, //к-т подогнан под скидку 20%
 		price: {},
 		cost: {},
 		text: '<table class="form_table"><tbody>',

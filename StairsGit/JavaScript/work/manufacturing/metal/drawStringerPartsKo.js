@@ -1575,7 +1575,7 @@ function drawTopStepKo_vint(par){
 
 	//вертикальный участок
 	var p4 = newPoint_xy(p3, 0.0, par.h - 100); // Высота опоры винтовой лестницы
-	var p5 = newPoint_xy(p4, 60, 0); //Толщина опоры винтовой лестницы
+	var p5 = newPoint_xy(p4, 50, 0); //Толщина опоры винтовой лестницы
 	var p6 = newPoint_xy(p5, 0, 100);
 	
 	//горизонтальный участок
