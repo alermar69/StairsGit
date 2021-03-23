@@ -1950,6 +1950,7 @@ function calcTreadParams() {
 
 
 function calcHandrailMeterParams(par) {
+
 	var prof = par.prof;
 	var sideSlots = par.sideSlots
 	var handrailType = par.handrailType
@@ -1982,30 +1983,16 @@ function calcHandrailMeterParams(par) {
 	if (handrailType == "40х60 дуб с пазом") meterPrice = 900;
 
 	//деревянный поручень
-
-	var timberType = "сосна экстра";
-	if (handrailType == "береза") timberType = "береза паркет.";
-	if (handrailType == "лиственница") timberType = "лиственница паркет.";
-	if (handrailType == "дуб паркет.") timberType = "дуб паркет.";
-	if (handrailType == "дуб ц/л") timberType = "дуб ц/л";
-
-	if (handrailType == "сосна" ||
-		handrailType == "сосна экстра" ||
-		handrailType == "береза" ||
-		handrailType == "береза паркет." ||
-		handrailType == "лиственница" ||
-		handrailType == "лиственница паркет." ||
-		handrailType == "лиственница ц/л" ||
-		handrailType == "дуб паркет." ||
-		handrailType == "дуб ц/л") {
+	
+	if (par.handrailType == "массив") {
 		//материал
 		var fullWidth = 0.06 + 0.01; //полная ширина с учетом припуска на обработку
 		if (prof == "40х80 верт.") fullWidth = 0.08 + 0.01;
 		if (prof == "40х100 верт.") fullWidth = 0.1 + 0.01;
 		if (prof == "40х70 гор.") fullWidth = 0.07 + 0.01;
 
-		meterPrice = calcTimberParams(timberType).m2Price_40 * fullWidth;
-		var panelName = calcTimberParams(timberType).treadsPanelName;
+		meterPrice = calcTimberParams(params.handrailsMaterial).m2Price_40 * fullWidth;
+		var panelName = calcTimberParams(params.handrailsMaterial).treadsPanelName;
 
 		//работа
 		meterPrice += 50;
@@ -2142,19 +2129,7 @@ function calcHandrailMeterParams(par) {
 		handrailProfileY = 40;
 		handrailProfileZ = 60;
 	}
-	if (handrailType == "массив" ||
-		handrailType == "сосна" ||
-		handrailType == "сосна кл.Б" ||
-		handrailType == "сосна экстра" ||
-		handrailType == "береза" ||
-		handrailType == "береза паркет." ||
-		handrailType == "лиственница" ||
-		handrailType == "лиственница паркет." ||
-		handrailType == "лиственница ц/л" ||
-		handrailType == "дуб паркет." ||
-		handrailType == "дуб ц/л" ||
-		handrailType == "ясень ц/л" ||
-		handrailType == "не указано") {
+	if (par.handrailType == "массив" ||	handrailType == "не указано") {
 		handrailModel = "rect";
 		handrailProfileY = 60;
 		handrailProfileZ = 40;
@@ -2599,7 +2574,6 @@ function calcTimberPanelCost(par) {
 	//древесина
 	var timberCost = timberVol * timberPar.m3Price;
 	if (par.slabPrice && par.slabPrice > 0) timberCost = par.slabPrice * 0.5; //себестоимость слэба - половина цены с сайта гармоник-мебель
-	console.log(par.tabletopType, par.slabPrice, timberCost)
 	//покраска
 	var timberPaintCost = paintedArea * paintPriceM2
 	cost = timberCost + timberPaintCost;

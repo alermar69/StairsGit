@@ -1,3 +1,14 @@
+$(function () {
+	//параметры ограждений по умолчанию
+	$("#railingModel").change(function(){
+
+		if($(this).val() == "Самонесущее стекло") {
+			$("#handrailFixType").val("паз")
+			
+		}
+	})
+});
+
 
 function changeFormRailing(){
 
@@ -92,14 +103,15 @@ if(isRailing) {
 		params.railingModel == "Дерево с ковкой") $("#rackBottom").val("сверху с крышкой");
 
 	//тип крепления поручня
+	var railingTypes = ["Самонесущее стекло", "Кованые балясины", "Кресты"]
 	$("#handrailFixType").closest("tr").hide();
-	if (isHandrail && (railingModel == "Самонесущее стекло" || railingModel == "Кованые балясины")) {
+	if (isHandrail && railingTypes.indexOf(railingModel) != -1) {
 		$("#handrailFixType").closest("tr").show();
-		}
+	}
 		
-	if (railingModel != "Самонесущее стекло" && railingModel != "Кованые балясины") {
+	if(railingTypes.indexOf(railingModel) == -1) {
 		$("#handrailFixType").val("кронштейны");
-		}
+	}
 
 
 	//параметры ограждений с ригелями

@@ -35,6 +35,7 @@ class Sill extends AdditionalObject {
 		if(par.geom == "эркер" && par.orielType == '04') drawFunc = drawRadOriel;
 		
 		if(par.geom != "нет"){
+			console.log(envPar.windowSlope)
 			var env = drawFunc(envPar).mesh;		
 			par.mesh.add(env);
 		}
@@ -60,8 +61,11 @@ class Sill extends AdditionalObject {
 		var dopSpec = partsAmt_dop[par.id];
 		if (dopSpec.sill && dopSpec.sill.size) {
 			var size = dopSpec.sill.size[Object.keys(dopSpec.sill.size)[0]];
-			meshPar.len = Math.round(size.len);
-			meshPar.width = Math.round(size.width);
+			meshPar.len_printable = Math.round(size.len);
+			meshPar.width_printable = Math.round(size.width);
+		}else{
+			meshPar.len_printable = Math.round(meshPar.len);
+			meshPar.width_printable = Math.round(meshPar.width);
 		}
 		
 		var cost = calcTimberPanelCost(meshPar);
@@ -451,8 +455,14 @@ class Sill extends AdditionalObject {
 					"key": "len",
 					"title": "Длина:",
 					"default": 800,
+					"type": "number"
+				},
+				{
+					"key": "len_printable",
+					"title": "Длина:",
 					"type": "number",
 					"printable": "true",
+					"input_hidden": "true"
 				},
 				{
 					"key": "splitOffset",
@@ -464,8 +474,14 @@ class Sill extends AdditionalObject {
 					"key": "width",
 					"title": "Ширина:",
 					"default": 300,
+					"type": "number"
+				},
+				{
+					"key": "width_printable",
+					"title": "Ширина:",
 					"type": "number",
 					"printable": "true",
+					"input_hidden": "true"
 				},
 				{
 				  "key": "thk",
@@ -507,6 +523,22 @@ class Sill extends AdditionalObject {
 					"type": "select"
 				},
 				{
+					"key": "windowSlope",
+					"title": "Откосы:",
+					"values": [
+						{
+							"value": "нет",
+							"title": "нет"
+						},
+						{
+							"value": "есть",
+							"title": "есть"
+						},
+					],
+					"default": "нет",
+					"type": "select"
+				},
+				{
 				  "key": "frontNose",
 				  "title": "Свес спереди:",
 				  "default": 100,
@@ -537,7 +569,6 @@ class Sill extends AdditionalObject {
 				  "default": 3,
 				  "type": "number"
 				},
-			
 				{
 					"type": "delimeter",
 					"title": "Отверстия"

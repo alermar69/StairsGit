@@ -434,7 +434,7 @@ function getObjetParamsHtml(id, isKp){
 	var itemMeta = eval(item.className + '.getMeta()');
 	text += '<div><table class="form_table"><tbody>';
 	$.each(itemMeta.inputs, function(){
-		if (isKp && this.printable != "true") return;
+		if (isKp && this.printable != "true" || this.input_hidden == 'true' && !isKp) return;
 		if (this.type == 'delimeter') {
 			// text += "<tr style='margin: 15px;width: 100%;border: 1px solid gray;'></tr>";
 			// text += "</tbody></table><h1>"+this.title+"</h1><table class='form_table'><tbody>";

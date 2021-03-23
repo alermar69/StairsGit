@@ -90,7 +90,8 @@ function drawSillEnv(par){
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var mesh = new THREE.Mesh(geom, params.materials.wall);
 	par.mesh.add(mesh);
-	
+	mesh.setLayer("wall1");
+
 	//откосы
 	if(par.wallSideBevel > 0 && par.geom != "подоконный блок"){
 		var pt1 = {x: 0, y:0};
@@ -126,6 +127,7 @@ function drawSillEnv(par){
 		bevel.position.x = - par.windowWidth / 2
 		bevel.position.y = par.height
 		bevel.position.z = par.wallThk
+		bevel.setLayer("wall1");
 		
 		if(par.geom != "балконное окно" || par.geomSide == "левая") par.mesh.add(bevel);
 		
@@ -136,7 +138,8 @@ function drawSillEnv(par){
 		
 		bevel.position.x = par.windowWidth / 2
 		bevel.position.y = par.height + par.windowHeight
-		bevel.position.z = par.wallThk
+		bevel.position.z = par.wallThk;
+		bevel.setLayer("wall1");
 		
 		if(par.geom != "балконное окно" || par.geomSide == "правая") par.mesh.add(bevel);
 	}
@@ -151,7 +154,8 @@ function drawSillEnv(par){
 		wall.position.y = par.ceilHeight / 2;
 		wall.position.z = wallLen / 2;
 	
-		par.mesh.add(wall);		
+		par.mesh.add(wall);
+		wall.setLayer("wall1");
 	}
 	
 	//стена слева
@@ -164,7 +168,8 @@ function drawSillEnv(par){
 		wall.position.y = par.ceilHeight / 2;
 		wall.position.z = wallLen / 2;
 	
-		par.mesh.add(wall);		
+		par.mesh.add(wall);
+		wall.setLayer("wall1");
 	}
 	
 	//окно
@@ -201,7 +206,88 @@ function drawSillEnv(par){
 		par.mesh.add(wnd);
 	}
 
-	par.mesh.setLayer("wall1");
+	// Откосы деревянные
+	console.log(par.windowSlope);
+	if(par.windowSlope == 'есть'){
+		var slopeThickness = 20;
+		var slopeWidth = par.windowWidth;// + slopeThickness * 2;
+		var slopeHeight = par.windowHeight - slopeThickness - 10 - par.thk;
+		var bevelAngle = 0;
+
+		if(par.wallSideBevel > 0 && par.geom != "подоконный блок"){
+			var pt1 = {x: 0, y:0};
+			var pt2 = newPoint_xy(pt1,  par.wallSideBevel, par.windowPosZ);
+			bevelAngle = angle(pt1, pt2)
+		}
+
+		var platePar = {
+			len: par.windowPosZ,
+			width: slopeHeight,
+			thk: slopeThickness,
+			partName: "windowSlope",
+			material: params.materials.timber
+		}
+		var vertPart1 = drawPlate(platePar).mesh;
+		vertPart1.rotation.y = Math.PI / 2 + (Math.PI / 2 - bevelAngle);
+		vertPart1.position.z = (par.wallThk - par.windowPosZ) + platePar.len;
+		vertPart1.position.x = par.windowWidth / 2 - platePar.thk;
+		vertPart1.position.y = par.height + 10 + par.thk;
+		par.mesh.add(vertPart1);
+
+		var vertPart2 = drawPlate(platePar).mesh;
+		vertPart2.rotation.y = Math.PI / 2 - (Math.PI / 2 - bevelAngle);
+		vertPart2.position.z = (par.wallThk - par.windowPosZ) + platePar.len;
+		vertPart2.position.x = -par.windowWidth / 2;
+		vertPart2.position.y = par.height + 10 + par.thk;
+		par.mesh.add(vertPart2);
+
+		var platePar = {
+			len: slopeWidth,
+			width: par.windowPosZ,
+			thk: slopeThickness,
+			partName: "windowSlope",
+			material: params.materials.timber
+		}
+		var horPart = drawPlate(platePar).mesh;
+		horPart.rotation.x = Math.PI / 2;
+		horPart.position.z = (par.wallThk - par.windowPosZ);// + platePar.width;
+		horPart.position.x = -platePar.len / 2;
+		horPart.position.y = par.height + par.windowHeight;
+		par.mesh.add(horPart);
+
+		// Наличники
+		var platePar = {
+			len: 40,
+			width: slopeHeight,
+			thk: 4,
+			partName: "windowSlope",
+			material: params.materials.timber
+		}
+		var plate = drawPlate(platePar).mesh;
+		plate.position.z = par.wallThk;
+		plate.position.x = par.windowWidth / 2 - slopeThickness;
+		plate.position.y = par.height + 10 + par.thk;
+		par.mesh.add(plate);
+
+		var plate = drawPlate(platePar).mesh;
+		plate.position.z = par.wallThk;
+		plate.position.x = -par.windowWidth / 2 - platePar.len + slopeThickness;
+		plate.position.y = par.height + 10 + par.thk;
+		par.mesh.add(plate);
+
+		var platePar = {
+			len: slopeWidth + 40 * 2 - slopeThickness * 2, // 40 * 2 - Два наличника
+			width: 40,
+			thk: 4,
+			partName: "windowSlope",
+			material: params.materials.timber
+		}
+		var horPlate = drawPlate(platePar).mesh;
+		horPlate.position.z = par.wallThk;
+		horPlate.position.x = -par.windowWidth / 2 - slopeThickness;
+		horPlate.position.y = par.height + par.windowHeight - slopeThickness;
+		par.mesh.add(horPlate);
+	}
 	
 	
 	return par;
@@ -475,9 +561,7 @@ function drawSill(par){
 	
 	par.mesh.specId = partName + name;
 	
-//добавляем информацию в материалы
-	
-	//учитывем обрезки
+	//добавляем информацию в материалы с учетом обрезков
 	var billetPar = calcBilletSize({
 		len: len,
 		width: width,
@@ -499,6 +583,9 @@ function drawSill(par){
 	
 	return par
 }
+
+/** функция отрисовывает радиусный эркер
+**/
 
 function drawRadOriel(par){
 	if(!par) par = {};
@@ -690,7 +777,8 @@ function drawRadOriel(par){
 
 	//сохраняем данные для спецификации
 	var partName = 'sill';
-	if(par.shapeType == "по чертежу") partName = 'sill_arc';
+	if(par.shapeType == "по чертежу") partName = 'sill_cnc';
+	if(par.shapeType == "по шаблону (криволин.)") partName = 'sill_arc';
 
 	if (typeof specObj != 'undefined') {
 		if (!specObj[partName]) {
@@ -720,6 +808,7 @@ function drawRadOriel(par){
 		var box3 = new THREE.Box3().setFromObject(sillMesh);
 		var len = box3.max.x - box3.min.x;
 		var width = box3.max.z - box3.min.z;
+		var area = len * width / 1000000 * par.objectAmt
 		
 		name = '№' + par.objId + ' ' + par.shapeType + " " + Math.round(len) + "x" + Math.round(width) + "х" + Math.round(par.thk);
 		
@@ -727,7 +816,7 @@ function drawRadOriel(par){
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1 * par.objectAmt;
 		specObj[partName]["amt"] += 1 * par.objectAmt;
 		specObj[partName]["sumLength"] += par.len / 1000 * par.objectAmt;
-		specObj[partName]["area"] += par.len * par.width / 1000000 * par.objectAmt;
+		specObj[partName]["area"] += area;
 		specObj[partName]["paintedArea"] += par.len * par.width / 1000000 * par.objectAmt;
 		
 		specObj[partName].typeComments[name] = getSillSpecComment(par);
@@ -746,8 +835,30 @@ function drawRadOriel(par){
 	
 	par.mesh.specId = partName + name;
 
+	//добавляем информацию в материалы с учетом обрезков
+	var billetPar = calcBilletSize({
+		len: len,
+		width: width,
+		thk: par.thk,
+		type: "щит"
+	});
+	
+	var panelName_40 = calcTimberParams(params.additionalObjectsTimberMaterial).treadsPanelName;	
+	var panelName_20 = calcTimberParams(params.additionalObjectsTimberMaterial).riserPanelName;
+
+	if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+	if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+	if(par.thk == 60) {
+		addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+		addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+	}
+
+	par.mesh.isInMaterials = true;
+	
 	return par
 }
+
+/** функция отрисовывает эркер **/
 
 function drawOriel(par){
 	if(!par) par = {};
@@ -1120,29 +1231,7 @@ function drawOriel(par){
 	
 	par.mesh.specId = partName + name;
 	
-//добавляем информацию в материалы
-	//учитывем обрезки
-	var billetPar = calcBilletSize({
-		len: len,
-		width: width,
-		thk: par.thk,
-		type: "щит"
-	});
-	
-	var panelName_40 = calcTimberParams(params.additionalObjectsTimberMaterial).treadsPanelName;	
-	var panelName_20 = calcTimberParams(params.additionalObjectsTimberMaterial).riserPanelName;
-
-	if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
-	if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
-	if(par.thk == 60) {
-		addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
-		addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
-	}
-
-	par.mesh.isInMaterials = true;
-	
-	//добавляем информацию в материалы
-	//учитывем обрезки
+	//добавляем информацию в материалы с учетом обрезков
 	var billetPar = calcBilletSize({
 		len: len,
 		width: width,
@@ -1176,7 +1265,7 @@ function getSillSpecComment(par){
 	if (par.cornerRadLeft) comment += 'Скругление слева ' + par.cornerRadLeft + ';\n';
 	if (par.botPoleType && par.botPoleType != 'нет') comment += 'Доклейка ' + par.botPoleType + ' ' + Math.round(par.botPoleWidth)  + "х" + Math.round(par.botPoleThk) + '; ';
 	if (par.slabModel) comment += 'Модель слэба: ' + par.slabModel + ';\n';
-	if (par.resinVol > 0) {
+	if (par.resinVol > 0 && par.tabletopType.indexOf("слэб") != -1) {
 		comment += 'Объем смолы: ' + par.resinVol + ';\n';
 	}
 	return comment;
