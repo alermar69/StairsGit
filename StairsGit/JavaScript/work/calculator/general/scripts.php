@@ -285,6 +285,10 @@
 
 		// carport
 		[
+			'url' => '/manufacturing/carport/personalScripts.js',
+			'only_for' => ['carport'],
+		],
+		[
 			'url' => '/manufacturing/carport/drawCarport.js',
 			'only_for' => ['carport', 'veranda'],
 		],

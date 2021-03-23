@@ -1057,7 +1057,8 @@ function drawRectCarport(par){
 		}
 
 		if(params.roofType == "Арочная") {
-			deltaHeight = partPar.main.arcPar.topArc.height - partPar.truss.width - 50
+			//deltaHeight = partPar.main.arcPar.topArc.height - partPar.truss.width - 50
+			deltaHeight = partPar.main.arcPar.topArc.height - partPar.truss.midHeight;
 			if(params.trussType == "балки") deltaHeight = partPar.main.arcPar.topArc.height - partPar.rafter.profSize.y - partPar.beam.profSize.y
 		}
 		columnArrPar.modifier = function(counter, itemPar, itemMoove){

@@ -2782,6 +2782,7 @@ function drawBackPlate(par) {
 	plate.rotation.y = -ang;
 
 	par.mesh.add(plate);
+	plate.setLayer('treads');
 
 	return par;
 
@@ -9376,20 +9377,26 @@ function drawDivideFlans(par) {
 		}
 	}
 
-	//нижний фланец
-	var flan = drawDivideFlan(flanPar).mesh;
-	flan.rotation.y = Math.PI / 2;
-	flan.position.x = 10; // 10 - зазор между фланцами
-	par.mesh.add(flan);
+	flanPar.width = par.width - flanPar.thk / Math.tan(par.ang);
+	flanPar.widthForHoles = flanPar.width;
 
 	//верхний фланец
+	flanPar.width = par.width +  10 / Math.tan(par.ang); 
+
 	if (par.pointCurrentSvg) flanPar.drawing.basePoint.x += flanPar.len + 100
 	flanPar.dxfBasePoint.x += flanPar.len + 100;
+
+	var flan = drawDivideFlan(flanPar).mesh;
+	flan.position.y = 10; // 10 - зазор между фланцами
+	par.mesh.add(flan);
+
+	//нижний фланец
+	flanPar.width = flanPar.widthForHoles;
 	flanPar.isBolt = true;
 	flanPar.isConnectPlate = true;
+
 	var flan = drawDivideFlan(flanPar).mesh;
-	flan.rotation.y = -Math.PI / 2;
-	//flan.position.x = -5; // 10 - зазор между фланцами
+	flan.position.y = -flanPar.thk;
 	par.mesh.add(flan);
 
 	return par;
@@ -9425,10 +9432,17 @@ function drawDivideFlan(par) {
 	var offsetHoleY = 25;
 	holes.push(newPoint_xy(p1, offsetHoleX, offsetHoleY));
 	holes.push(newPoint_xy(p4, -offsetHoleX, offsetHoleY));
-	holes.push(newPoint_xy(p1, offsetHoleX, par.width / 2));
-	holes.push(newPoint_xy(p4, -offsetHoleX, par.width / 2));
-	holes.push(newPoint_xy(p2, offsetHoleX, -offsetHoleY));
-	holes.push(newPoint_xy(p3, -offsetHoleX, -offsetHoleY));
+	//holes.push(newPoint_xy(p1, offsetHoleX, par.widthForHoles / 2));
+	//holes.push(newPoint_xy(p4, -offsetHoleX, par.widthForHoles / 2));
+	holes.push(newPoint_xy(p1, offsetHoleX, par.widthForHoles - offsetHoleY));
+	holes.push(newPoint_xy(p4, -offsetHoleX, par.widthForHoles - offsetHoleY));
+
+	var dist = Math.floor((par.widthForHoles - offsetHoleY * 2) / 3);
+	holes.push(newPoint_xy(p1, offsetHoleX, offsetHoleY + dist));
+	holes.push(newPoint_xy(p1, offsetHoleX, offsetHoleY + dist * 2));
+	holes.push(newPoint_xy(p4, -offsetHoleX, offsetHoleY + dist));
+	holes.push(newPoint_xy(p4, -offsetHoleX, offsetHoleY + dist * 2));
+
 	for (var i = 0; i < holes.length; i++) {
 		holes[i].rad = par.holeRad;
 	}
@@ -9436,10 +9450,10 @@ function drawDivideFlan(par) {
 	//отверстие под соединительную пластину фланцев
 	var thkConnectPlate = par.thkConnectPlate + 2;
 	var lenConnectPlate = par.lenConnectPlate + 2;
-	var pt1 = newPoint_xy(p1, par.len / 2 - lenConnectPlate / 2, par.width / 2 - thkConnectPlate / 2);
-	var pt2 = newPoint_xy(pt1, 0, thkConnectPlate);
-	var pt3 = newPoint_xy(pt2, lenConnectPlate, 0);
-	var pt4 = newPoint_xy(pt1, lenConnectPlate, 0);
+	var pt1 = newPoint_xy(p1, par.len / 2 - thkConnectPlate / 2, par.widthForHoles / 2 - lenConnectPlate / 2);
+	var pt2 = newPoint_xy(pt1, 0, lenConnectPlate);
+	var pt3 = newPoint_xy(pt2, thkConnectPlate, 0);
+	var pt4 = newPoint_xy(pt1, thkConnectPlate, 0);
 	var pointsHole = [pt1, pt4, pt3, pt2, pt1];
 
 
@@ -9457,6 +9471,8 @@ function drawDivideFlan(par) {
 
 
 	var flan = drawMesh(meshPar).mesh;
+	flan.rotation.x = -Math.PI / 2;
+	flan.rotation.z = -Math.PI / 2;
 	par.mesh.add(flan);
 
 	if (par.isConnectPlate) {
@@ -9475,31 +9491,26 @@ function drawDivideFlan(par) {
 		}
 
 		var plate = drawMesh(meshPar).mesh;
-		plate.rotation.x = Math.PI / 2;
-		plate.position.y = par.width / 2 + par.thkConnectPlate / 2;
+		plate.position.x = par.widthForHoles / 2;
 		plate.position.z = -par.thkConnectPlate / 2;
 		par.mesh.add(plate)
 	}
 	
 
 	//болты
-	if (typeof anglesHasBolts != "undefined" && anglesHasBolts &&par.isBolt) {
-		var boltPar = {
+	if (typeof anglesHasBolts != "undefined" && anglesHasBolts && par.isBolt) {
+		
+		var boltsPar = {
+			holes: holes,
 			diam: 16,
 			len: 50,
-			headType: "шестигр.",
+			isBolt: { headType: "шестигр.", },
+			material: params.materials.inox,
+			isRotation: true,
 		}
 
-		for (var i = 0; i < holes.length; i++) {
-			var bolt = drawBolt(boltPar).mesh;
-
-			bolt.rotation.x = -Math.PI / 2;
-			bolt.position.x = holes[i].x;
-			bolt.position.z = -boltLen / 2;
-			bolt.position.y = holes[i].y;
-
-			par.mesh.add(bolt);
-		}
+		var bolts = drawBoltsHoles(boltsPar).mesh;
+		flan.add(bolts);
 	}
 
 	

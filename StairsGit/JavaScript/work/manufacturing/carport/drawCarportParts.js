@@ -39,12 +39,17 @@ function drawPurlin(par){
 		par.mesh.add(purlin);
 
 		if (i > 0) {
-			var connector = drawPurlinConnector(connectorPar).mesh;
-			connector.position.x = purlin.position.x;
-			connector.setLayer('purlins');
-			par.mesh.add(connector);
+			var posRafter = par.stepRafterZ * i + params.backOffset + 10 + 60 / 2;
 
-			connectorPar.dxfArr = [];
+			//если стык прогонов попадает на середину фермы, соединитель не нужен
+			if (!((posRafter + 10 > polePar.length * i) && (posRafter - 10 < polePar.length * i))) {
+				var connector = drawPurlinConnector(connectorPar).mesh;
+				connector.position.x = purlin.position.x;
+				connector.setLayer('purlins');
+				par.mesh.add(connector);
+
+				connectorPar.dxfArr = [];
+			}
 		}
 	}
 
@@ -1180,7 +1185,7 @@ function drawPyramidalRoof(par) {
 						types: {},
 						amt: 0,
 						area: 0,
-						name: "Поликарбонат " + par.thk + " " + params.roofColor,
+						name: "Поликарбонат",
 						metalPaint: false,
 						timberPaint: false,
 						division: "metal",
@@ -1194,7 +1199,7 @@ function drawPyramidalRoof(par) {
 				specObj[partName]["area"] += area;
 				par.mesh.specParams = { specObj: specObj, amt: 1, area: area, partName: partName, name: name }
 			}
-			par.mesh.specId = partName + name;
+			sheet.specId = partName + name;
 		}
 	}
 
@@ -1249,7 +1254,7 @@ function drawPyramidalRoof(par) {
 						types: {},
 						amt: 0,
 						area: 0,
-						name: "Поликарбонат " + par.thk + " " + params.roofColor,
+						name: "Поликарбонат",
 						metalPaint: false,
 						timberPaint: false,
 						division: "metal",
@@ -1263,7 +1268,7 @@ function drawPyramidalRoof(par) {
 				specObj[partName]["area"] += area;
 				par.mesh.specParams = { specObj: specObj, amt: 1, area: area, partName: partName, name: name }
 			}
-			par.mesh.specId = partName + name;
+			sheet.specId = partName + name;
 		}
 	}
 
@@ -2080,6 +2085,7 @@ function drawRoofCarcas(par){
 		len: partPar.main.len,
 		dxfBasePoint: par.dxfBasePoint,
 		dxfArr: dxfPrimitivesArr,
+		stepRafterZ: rafterArrPar.step.z,
 	};
 	
 	if(params.beamModel == "проф. труба") {

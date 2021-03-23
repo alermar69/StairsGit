@@ -1539,25 +1539,21 @@ function drawComplexStringer(par) {
 				var flanPar = {
 					marshId: par.marshId,
 					length: par.stringerWidth - params.metalThickness * 2,
-					width: distance(par.pDivideBot, par.pDivideTop),
+					width: distance(par.pDivideBot, par.pDivideTop) - params.metalThickness - params.metalThickness / Math.sin(marshParams.ang),
 					dxfBasePoint: dxfBasePoint,
 					dxfArr: dxfPrimitivesArr,
 					ang: marshParams.ang, 
 					thk: 8,
 					name: "Фланец соединения косоуров",
 				};
-				var dx = flanPar.thk / Math.tan(marshParams.ang) + params.metalThickness / Math.sin(marshParams.ang)
-				flanPar.width -= params.metalThickness + dx;
+
 				flanPar.pointCurrentSvg = newPoint_xy(par.pDivideBot, 50, 0);
 				flanPar.pointStartSvg = copyPoint(par.stepPoints[0]);
 				if (par.isBigFloor) flanPar.pointStartSvg = copyPoint(par.pointsShape[2]);// при большой разнице чистового и чернового пола
 
 				var flan = drawDivideFlans(flanPar).mesh;
-				var pt = newPoint_xy(par.pDivideBot, -dx, 0);
-				flan.position.x = sidePlate2.position.x + pt.x;
-				flan.position.y += sidePlate2.position.y + pt.y;
-				flan.rotation.z = Math.PI / 2;
-
+				flan.position.x = sidePlate2.position.x + par.pDivideTop.x + params.metalThickness;
+				flan.position.y += sidePlate2.position.y + par.pDivideTop.y;
 				par.flans.add(flan);
 			}
 
