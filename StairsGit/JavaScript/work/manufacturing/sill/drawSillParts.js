@@ -1092,6 +1092,49 @@ function drawOriel(par){
 	
 	var shape = drawShapeByPoints2(shapePar).shape;
 	
+	if (par.orielType == 3) {
+			var holeWidth = 0.5;
+			if (par.connType == 'прямой') {
+				var holeP1 = newPoint_xy(ps3, 0, 0);
+				var holeP2 = polar(ps3, Math.PI / 4, -holeWidth);
+				var holeP3 = itercection(leftSideLine.p1, pw2, holeP2, polar(holeP2, Math.PI - Math.PI / 4, 10));
+				holeP3 = polar(holeP3, Math.PI - Math.PI / 4, -0.1);
+				var holeP4 = itercection(leftSideLine.p1, pw2, holeP1, polar(holeP1, Math.PI - Math.PI / 4, 10));
+				holeP4 = polar(holeP4, Math.PI - Math.PI / 4, -0.1);
+		
+				//создаем шейп
+				var shapePar = {
+					points: [holeP1, holeP2, holeP3, holeP4],
+					dxfArr: dxfPrimitivesArr,
+					dxfBasePoint: par.dxfBasePoint,
+				}
+				
+				var hole = drawShapeByPoints2(shapePar).shape;
+				shape.holes.push(hole);
+			}
+		
+			if (par.connType == 'под углом') {
+				var holeP1 = newPoint_xy(pw2, holeWidth / 2, 0);
+				holeP1 = itercection(rightSideLine.p2, pw2, holeP1, newPoint_xy(holeP1, 0, -10))
+				var holeP2 = newPoint_xy(pw2, -holeWidth / 2, 0);
+				holeP2 = itercection(leftSideLine.p2, pw2, holeP2, newPoint_xy(holeP2, 0, -10))
+				var holeP3 = newPoint_xy(ps3, -holeWidth / 2, 0);
+				holeP3 = itercection(leftSideLine.p2, ps3, holeP3, newPoint_xy(holeP3, 0, 10))
+				var holeP4 = newPoint_xy(ps3, holeWidth / 2, 0);
+				holeP4 = itercection(rightSideLine.p2, ps3, holeP4, newPoint_xy(holeP4, 0, 10))
+				
+				//создаем шейп
+				var shapePar = {
+					points: [holeP1, holeP2, holeP3, ps3, holeP4],
+					dxfArr: dxfPrimitivesArr,
+					dxfBasePoint: par.dxfBasePoint,
+				}
+				
+				var hole = drawShapeByPoints2(shapePar).shape;
+				shape.holes.push(hole);
+			}
+	}
+	
 	//Отверстия
 	if(par.ventHoles != "нет"){
 		

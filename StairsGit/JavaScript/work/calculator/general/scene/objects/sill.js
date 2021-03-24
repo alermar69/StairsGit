@@ -450,6 +450,22 @@ class Sill extends AdditionalObject {
 					"default": "подоконник",
 					"type": "select"
 				},
+				{
+					"key": "connType",
+					"title": "Стык:",
+					"values": [
+						{
+							"value": "прямой",
+							"title": "прямой"
+						},
+						{
+							"value": "под углом",
+							"title": "под углом"
+						},
+					],
+					"default": "под углом",
+					"type": "select"
+				},
 
 				{
 					"key": "len",

@@ -28,6 +28,13 @@
 							<option value="по шаблону (криволин.)">по шаблону (криволин.)</option>
 						</select>
 					</td></tr>
+					
+					<tr><td>Покраска:</td> <td> 
+						<select id="ms_timberPaint" size="1">							
+							<option value="лак">лак</option>
+							<option value="нет">нет</option>
+						</select>
+					</td></tr>
 
 				</tbody> </table>
 				

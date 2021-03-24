@@ -165,23 +165,23 @@ function obj_master_calcPrice(){
 			thk: obj.thk,
 			type: "щит"
 		});
-		obj.vol = billetPar.vol;
-		obj.area = billetPar.area;
+		obj.vol = billetPar.vol * obj.amt;
+		obj.area = billetPar.area * obj.amt;
 
 	//	obj.paintedArea = Math.round((obj.len * obj.width) * obj.amt * 2 / 100000 +  (obj.len + obj.width) * 2 * obj.thk / 100000) / 10;
 		//формула расчета как в функции calcTimberPanelCost
-		obj.paintedArea = Math.round(obj.width * obj.len / 1000000 * 1.5 * 100) / 100; //1.5 учитывает торцы и низ
+		obj.paintedArea = Math.round(obj.width * obj.len * obj.amt / 1000000 * 1.5 * 100) / 100; //1.5 учитывает торцы и низ
 		
 		par.text += "<tr>\
 			<td>" + (i + 1) + "</td>\
-			<td>" + obj.vol + "</td>\
-			<td>" + obj.area + "</td>\
-			<td>" +  obj.paintedArea + "</td>";
-			
+			<td>" + Math.round(obj.vol * 1000) / 1000 + "</td>\
+			<td>" + Math.round(obj.area * 10) / 10 + "</td>\
+			<td>" + Math.round(obj.paintedArea * 10) / 10 + "</td>";
+	
 		
 		timberTypes.forEach(function(val){
 			var matCost = Math.round(calcTimberParams(val).m3Price * obj.vol);
-			var paintCost =  Math.round(calcTimberPaintPrice("лак") * obj.paintedArea);
+			var paintCost =  Math.round(calcTimberPaintPrice(params.ms_timberPaint) * obj.paintedArea);
 			
 			//учитываем распиловку
 			var perim = (obj.width + obj.len) * 2 / 1000
