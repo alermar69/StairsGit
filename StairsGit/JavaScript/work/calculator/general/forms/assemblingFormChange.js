@@ -9,15 +9,14 @@ if($("#calcType").val() == "railing"){
 	}
 	
 //опции доставки
+
+$(".delivery").hide();
+if($("#delivery").val() == "Московская обл." || $("#delivery").val() == "Москва") {
+	$(".delivery").show();
+}
+
 $("#deliveryDist").closest("tr").hide();
 if($("#delivery").val() == "Московская обл.") $("#deliveryDist").closest("tr").show();
-
-$("#customersLoad").closest("tr").hide();
-$("#deliveryAmt").closest("tr").hide();
-if($("#delivery").val() == "Московская обл." || $("#delivery").val() == "Москва") {
-	$("#deliveryAmt").closest("tr").show();
-	$("#customersLoad").closest("tr").show();
-}
 
 //опции сборки
 
@@ -42,5 +41,7 @@ if($("#noLiftCare").val() == "да") $("#floorAmt").closest("tr").show();
 //количество выездов не меньше количества этапов
 if($("#workers").val() > $("#transfersAmt").val()) $("#transfersAmt").val($("#workers").val());
 
+//доставка не может быть включена в монтаж, если монтажа нет
+if(params.isAssembling == "нет") $("#deliveryInAssembling").val("нет")
 
 } //end of changeFormAssembling

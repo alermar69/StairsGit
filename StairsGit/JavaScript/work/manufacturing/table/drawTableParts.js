@@ -3022,7 +3022,7 @@ function drawTableLeg(par){
 	par.mesh = new THREE.Object3D();
 
 	var p0 = {x:0,y:0};
-	if (par.type != 'квадратные') {
+	if (par.type == 'шпильки') {
 		//верхняя пластина-------------
 		var p1 = copyPoint(p0)
 		var p2 = newPoint_xy(p1, 0, par.widthFlanTop)
@@ -3066,7 +3066,7 @@ function drawTableLeg(par){
 		par.mesh.add(legFlan);
 	}
 	
-	if (par.type == 'квадратные') {
+	if (par.type != 'шпильки') {
 		//верхний фланец
 		var flanPar = {
 			width: par.profPar.sizeA + 50,

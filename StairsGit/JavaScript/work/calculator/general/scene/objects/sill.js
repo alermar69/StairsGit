@@ -33,6 +33,7 @@ class Sill extends AdditionalObject {
 		var drawFunc = drawSillEnv;
 		if(par.geom == "эркер") drawFunc = drawOriel;
 		if(par.geom == "эркер" && par.orielType == '04') drawFunc = drawRadOriel;
+		if(par.geom == "эркер" && par.orielType == '05') drawFunc = drawStepOriel;
 		
 		if(par.geom != "нет"){
 			console.log(envPar.windowSlope)
@@ -68,7 +69,15 @@ class Sill extends AdditionalObject {
 			meshPar.width_printable = Math.round(meshPar.width);
 		}
 		
-		var cost = calcTimberPanelCost(meshPar);
+		var cost = calcTimberPanelCost({
+			width: meshPar.width_printable,
+			len: meshPar.len_printable,
+			thk: meshPar.thk,
+			tabletopType: meshPar.tabletopType,
+			riverWidth: meshPar.riverWidth,
+			resinVol: meshPar.resinVol,
+			shapeType: meshPar.shapeType,
+		});
 		
 		//вентиляционные отверстия
 		if(par.meshParams.ventHoles != "нет") cost += 1000;
@@ -92,6 +101,8 @@ class Sill extends AdditionalObject {
 		form.find('.holePar').hide();
 		form.find('[data-propid="len"]').closest('tr').show();
 		form.find('[data-propid="width"]').closest('tr').show();
+	
+//параметры эркера
 		if(form.find('[data-propid="geom"]').val() == "эркер") {
 			form.find(".orielRow").show()
 			form.find(".wallPar").hide()
@@ -99,14 +110,22 @@ class Sill extends AdditionalObject {
 			if(form.find('[data-propid="sillGeom"]').val() == "столешница") form.find('[data-propid="width"]').closest('tr').hide();
 			var imgName =  "/drawings/sill/oriel/" + form.find('[data-propid="orielType"]').val() + ".png"
 			$(form.find(".orielRow td")[0]).html("<td><img style='max-width: 100%;' src='"+imgName+"'></td>");
-
-			if (form.find('[data-propid="orielType"]').val() == '04') {
-				form.find('[data-propid="orielSizeB"]').closest('div').hide();
-				form.find('[data-propid="radSillType"]').closest('tr').show();
-			}else{
-				form.find('[data-propid="orielSizeB"]').closest('div').hide();
-				form.find('[data-propid="radSillType"]').closest('tr').hide();
+			
+			
+			var orielType = form.find('[data-propid="orielType"]').val();
+			
+			form.find('[data-propid="orielSizeB"]').closest('div').hide();
+			if (orielType == '01' || orielType == '02') {
+				form.find('[data-propid="orielSizeB"]').closest('div').show();
 			}
+			
+			form.find('[data-propid="radSillType"]').closest('tr').hide();
+			form.find('[data-propid="orielWindowCount"]').closest('div').hide();
+			if (orielType == '04') {
+				form.find('[data-propid="radSillType"]').closest('tr').show();
+				form.find('[data-propid="orielWindowCount"]').closest('div').show();				
+			}
+			
 			
 			//геометрия не может быть прямоугольной
 			if(form.find('[data-propid="shapeType"]').val() == "прямоугольник") {
@@ -275,6 +294,10 @@ class Sill extends AdditionalObject {
 					{
 						"value": "04",
 						"title": "Тип 4"
+					},
+					{
+						"value": "05",
+						"title": "Тип 5"
 					}
 					],
 					"default": "01",
@@ -282,21 +305,21 @@ class Sill extends AdditionalObject {
 				},
 				{
 					"key": "orielSizeA",
-					"title": "Размер эркера А",
+					"title": "Размер А",
 					"default": 2000,
 					"not_row": true,
 					"type": "number"
 				},
 				{
 					"key": "orielSizeB",
-					"title": "Размер эркера Б",
+					"title": "Размер B",
 					"default": 1000,
 					"not_row": true,
 					"type": "number"
 				},
 				{
 					"key": "orielSizeC",
-					"title": "Размер эркера С",
+					"title": "Размер С",
 					"default": 1000,
 					"not_row": true,
 					"type": "number"

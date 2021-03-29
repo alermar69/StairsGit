@@ -738,6 +738,7 @@
 				<a class="dropdown-item" href="#" id="montLink" target="_blank">Монтаж</a>
 				<a class="dropdown-item" href="#" id="docLink" target="_blank">Договор</a>
 				<a class="dropdown-item" href="#" id="filesLink" target="_blank">Файлы</a>
+				<a class="dropdown-item searchOffers" href="#" target="_blank">Поиск КП</a>
 			</div>
 		</span>
 		<span class="nav-item dropdown">

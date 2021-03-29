@@ -654,117 +654,6 @@ function printRailingCost(railingName, outputDivId) {
 
 } //end of printRailingCost
 
-function calculateAssemblingPrice() {
-
-	//рассчитываем общую стоимость лестницы
-	var totalStaircasePrice = 0;
-	if (priceObj['carcas'].discountPrice) totalStaircasePrice += priceObj['carcas'].discountPrice;
-	if (priceObj['treads'].discountPrice) totalStaircasePrice += priceObj['treads'].discountPrice;
-	if (priceObj['staircase'].discountPrice) totalStaircasePrice += priceObj['staircase'].discountPrice; //для винтовой лестницы
-	if (priceObj['carcasMetalPaint'].discountPrice) totalStaircasePrice += priceObj['carcasMetalPaint'].discountPrice;
-	if (priceObj['carcasTimberPaint'].discountPrice) totalStaircasePrice += priceObj['carcasTimberPaint'].discountPrice;
-	if (priceObj['railing'].discountPrice) totalStaircasePrice += priceObj['railing'].discountPrice;
-	if (priceObj['railingMetalPaint'].discountPrice) totalStaircasePrice += priceObj['railingMetalPaint'].discountPrice;
-	if (priceObj['railingTimberPaint'].discountPrice) totalStaircasePrice += priceObj['railingTimberPaint'].discountPrice;
-	if (priceObj['banister'].discountPrice) totalStaircasePrice += priceObj['banister'].discountPrice;
-	if (priceObj['banisterMetalPaint'].discountPrice) totalStaircasePrice += priceObj['banisterMetalPaint'].discountPrice;
-	if (priceObj['banisterTimberPaint'].discountPrice) totalStaircasePrice += priceObj['banisterTimberPaint'].discountPrice;
-
-	var totalInstallPrice = totalStaircasePrice * 0.2;
-
-	//рассчитываем минимальную стоимость сборки
-	var minInstalPrice = calcAssemblingWage().totalWage / 0.7;
-
-	if (totalInstallPrice != 0 && totalInstallPrice < minInstalPrice) totalInstallPrice = minInstalPrice;
-
-	if (params.isAssembling == "нет") {
-		totalInstallPrice = 0;
-		minInstalPrice = 0;
-	}
-
-	//сохраняем в глобальный массив
-	priceObj['assembling'].discountPrice = totalInstallPrice;
-	priceObj['assembling'].cost = calcAssemblingWage().totalWage;
-	staircaseCost.assembling = calcAssemblingWage().totalWage;
-
-
-	//рассчитываем стоимость доставки
-
-	var deliveryPrice = 0;
-	var deliveryCost = 0;
-	if (params.delivery != "нет") {
-		deliveryPrice = 2500;
-		deliveryCost = 2000;
-	}
-	if (params.delivery == "Московская обл.") {
-		deliveryPrice = 2500 + 50 * params.deliveryDist;
-		deliveryCost = 2000 + 30 * params.deliveryDist;
-	}
-	/*
-	//обнуляем доставку при стоимости более 100 тыс.
-	var totalSum = totalStaircasePrice + totalInstallPrice;
-	if(totalSum > 120000) deliveryPrice = 0;
-	*/
-
-	//сохраняем в глобальный массив
-	priceObj['delivery'].discountPrice = deliveryPrice;
-	staircaseCost.delivery = deliveryCost;
-
-} //end of calculateAssemblingPrice()
-
-function calculateAssemblingPrice2(totalPrice) {
-
-	if (!totalPrice) totalPrice = 0; //вызыв функции без параметра используется для расчета цены доставки
-	var totalInstallPrice = totalPrice * 0.2;
-
-	//рассчитываем минимальную стоимость сборки
-	var minInstalPrice = Math.round(calcAssemblingWage().totalWage / 0.7);
-
-	if (totalInstallPrice != 0 && totalInstallPrice < minInstalPrice) totalInstallPrice = minInstalPrice;
-	if (params.isAssembling == "нет") {
-		totalInstallPrice = 0;
-		minInstalPrice = 0;
-	}
-
-	//рассчитываем стоимость доставки
-	var deliveryPrice = 0;
-	var deliveryCost = 0;
-	if (params.delivery != "нет") {
-		deliveryPrice = 2500;
-		deliveryCost = 2000;
-	}
-	if (params.delivery == "Московская обл.") {
-		deliveryPrice = 2500 + 50 * params.deliveryDist;
-		deliveryCost = 2000 + 30 * params.deliveryDist;
-	}
-
-	//разгрузка
-	if (deliveryPrice && params.customersLoad == "нет") {
-		deliveryPrice += 3000;
-		deliveryCost += 1500;
-	}
-
-	deliveryPrice *= params.deliveryAmt;
-	deliveryCost *= params.deliveryAmt;
-
-	//сохраняем в глобальный массив
-	// priceObj['delivery'].discountPrice = deliveryPrice;
-	staircaseCost.delivery = deliveryCost;
-
-	var result = {
-		assembling: {
-			price: Math.round(totalInstallPrice),
-			cost: Math.round(calcAssemblingWage().totalWage),
-		},
-		delivery: {
-			price: Math.round(deliveryPrice),
-			cost: Math.round(deliveryCost),
-		}
-	}
-
-	return result;
-
-} //end of calculateAssemblingPrice2()
 
 /**функция подготоавливает данные для calcRailingPrice и вызывает ее
  */
@@ -1054,13 +943,10 @@ function calculateTotalPrice2() {
 	};
 	
 	//монтаж и доставка
-	if (params.calcType != 'coupe') {
-		priceObj["assembling"].price = Math.round(calculateAssemblingPrice2(productionPrice).assembling.price * (params.assemblingPriceFactor || 1));
-		priceObj["assembling"].cost = Math.round(calculateAssemblingPrice2(productionPrice).assembling.cost * params.assemblingCostFactor);
-	}
-	priceObj["delivery"].price = calculateAssemblingPrice2(productionPrice).delivery.price;
-	priceObj["delivery"].cost = calculateAssemblingPrice2(productionPrice).delivery.cost;
-
+	priceObj["assembling"].cost = Math.round(calcAssemblingWage().totalWage * params.assemblingCostFactor);
+	priceObj["delivery"].cost = Math.round(calcDeliveryCost());
+	
+	//для всех позиций считаем цену исходя из себестоимости и наценки	
 	var productionPrice = 0; //общая цена изделия без учета скидки
 	for (var unit in priceObj) {
 		if (priceObj[unit].cost) {
@@ -1075,12 +961,23 @@ function calculateTotalPrice2() {
 				priceObj[unit].cost *= priceObj[unit].objectAmt;
 			}
 
-			if (!priceObj[unit].isOption) productionPrice += priceObj[unit].price;
+			if (unit != "assembling" && unit != "delivery") productionPrice += priceObj[unit].price;
 		}
 	}
-
+	
+	//стоимость сборки должна быть не менее 20% стоимости изделия
+	if(params.isAssembling != "нет"){
+		if (priceObj["assembling"].price < productionPrice * 0.2) priceObj["assembling"].price = Math.round(productionPrice * 0.2);
+		
+		//если доставка включена в монтаж
+		if(params.deliveryInAssembling == "да") {
+			priceObj["assembling"].price += priceObj["delivery"].price;
+			priceObj["delivery"].price = 0;
+		}
+	}
+	
 	//общая цена заказа
-	var totalPrice = productionPrice;
+	var totalPrice = productionPrice + priceObj["assembling"].price + priceObj["delivery"].price;
 
 	for (var unit in priceObj) {
 		priceObj[unit].discount = Math.round(priceObj[unit].price * params.discountFactor / 100);
@@ -2756,3 +2653,18 @@ function setPrice(key, price) {
 	if (!priceObj[key]) priceObj[key] = {}
 	priceObj[key].discountPrice = price|| 0;
 }
+
+/** функция рассчитывает себестоимость доставки **/
+function calcDeliveryCost(){
+	var deliveryCost = 0;
+	if (params.delivery != "нет") deliveryCost = 2000;	
+	if (params.delivery == "Московская обл.") deliveryCost = 2000 + 30 * params.deliveryDist;	
+
+	//разгрузка
+	if (deliveryCost && params.customersLoad == "нет")  deliveryCost += 1500;
+
+	deliveryCost *= params.deliveryAmt;
+
+	return deliveryCost;
+	
+} //end of calcDeliveryCost

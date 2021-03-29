@@ -1000,7 +1000,7 @@ function drawSpiralRailing(par) {
 					specObj[partName].timberPaint = true;
 				}
 				if (params.handrailMaterial == "ПВХ") {
-					specObj[partName].name += " цвет " + params.handrailColor;
+					specObj[partName].name += " цвет " + (params.handrailColor || params.handrails_pvcColor);
 					specObj[partName].division = "metal";
 					specObj[partName].timberPaint = false;
 				}

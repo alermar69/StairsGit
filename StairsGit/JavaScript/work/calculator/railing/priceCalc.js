@@ -103,8 +103,6 @@ function calcRailingModulePrice() {
 		glassHolders: 350, //шт
 		rutels: 200, //шт
 		profile: 3000,
-		// delivery: calculateAssemblingPrice2().delivery.price,
-		// assembling: calcAssemblingWage().totalWage,
 	}
 
 	//параметры стекол

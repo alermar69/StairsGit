@@ -1537,7 +1537,7 @@ function getMaterialName(item){
 	
 	//поручни пвх
 	if(item.group == "handrails" && params.handrail == "ПВХ"){
-		matName = "ПВХ " + params.handrailColor;
+		matName = "ПВХ " + (params.handrailColor || params.handrails_pvcColor);
 	}
 	
 	//доп. объекты

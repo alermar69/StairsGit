@@ -4020,6 +4020,16 @@ function drawHandrail_4(par) {
 			timberPaint: params.timberPaint_perila,
 		}
 	}
+	if(params.calcType == "vint"){
+		var handrailPar = {
+			prof: params.handrailProf,
+			sideSlots: params.handrailSlots,
+			handrailType: params.handrail,
+			metalPaint: params.metalPaint_railing,
+			timberPaint: params.timberPaint,
+		}
+	}
+	// debugger
 
 	
 	handrailPar = calcHandrailMeterParams(handrailPar); //функция в файле priceLib.js

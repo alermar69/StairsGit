@@ -56,12 +56,31 @@ class Columns extends AdditionalObject {
 			title: 'Колонны',
 			inputs: [
 				{
+					key: 'columnType',
+					title: 'Тип',
+					default: 'колонны',
+					values: [
+						{
+							value: 'колонны',
+							title: 'колонны'
+						},
+						{
+							value: 'ножки',
+							title: 'ножки'
+						},
+					],
+					type: 'select',
+					"printable": "true",
+				},
+				
+				{
 					key: 'length',
 					title: 'Длинна',
 					default: 500,
 					type: 'number',
 					"printable": "true",
 				},
+				
 				{
 					key: 'columnProf',
 					title: 'Профиль',
@@ -86,6 +105,14 @@ class Columns extends AdditionalObject {
 						{
 							value: '80х80',
 							title: '80х80'
+						},
+						{
+							value: '40х40',
+							title: '40х40'
+						},
+						{
+							value: 'Ф60',
+							title: 'Ф60'
 						},
 					],
 					type: 'select',
@@ -138,10 +165,27 @@ function drawColArray(par){
 		dxfArr: [],
 		dxfBasePoint: {x:0, y:0},
 	}
-
+	
+	var drawFunc = drawColumn2;
+	if(par.columnType == "ножки") {
+		drawFunc = drawTableLeg;
+		colParams = {
+			type: 'квадратные',
+			dxfBasePoint: {x:0, y:0},
+			dxfArr: [],
+			height: par.length,
+			thk: 2,
+			profPar: profPar,
+			widthFlanTop: 100,
+		}
+		if(par.columnProf == "Ф60") colParams.type = "круглые"
+	}
+		
 	var offset = 0;
 	if (par.offset) offset = par.offset
 
+	
+	
 	par.posCoumns = []
 	
 	var stepLen = (par.len - offset * 2) / (par.amtLen - 1);
@@ -151,11 +195,18 @@ function drawColArray(par){
 
 	for(var i=0; i<par.amtLen; i++){
 		for(var j=0; j<par.amtWidth; j++){
-			var column = drawColumn2(colParams).mesh;
+			var column = drawFunc(colParams).mesh;
 			
-			column.position.x = stepLen * i + offset;
+			column.position.x = stepLen * i + offset;			
 			column.position.y = par.length; //в функции отрисовки ноль колонны - центр верхнего отверстия
 			column.position.z = stepWidth * j;
+			
+			if(par.columnType == "ножки") {
+				//ноль в центре массива
+				column.position.x += profPar.sizeA / 2 - par.len / 2
+				column.position.y = 0
+				column.position.z += -profPar.sizeB / 2 - par.width / 2
+			}
 			par.mesh.add(column);
 		}
 		par.posCoumns.push(column.position.x + profPar.sizeA / 2)

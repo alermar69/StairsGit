@@ -254,7 +254,7 @@ function setWorksPrice(){
 		})
 
 	if(params.delivery != "нет"){		
-		var delivery = calculateAssemblingPrice2().delivery;
+		var delivery = calcDeliveryCost();
 		
 		//добавляем строку если ее нет
 		if(!deliveryRow) {
@@ -275,7 +275,7 @@ function setWorksPrice(){
 			totalPrice += $(this).find(".summ").text() * 1.0;
 		})
 		
-		var assm = calculateAssemblingPrice2(Math.round(totalPrice)).assembling;
+		var assm = totalPrice * 0.2;
 		
 		//добавляем строку если ее нет
 		if(!assmblingRow) {

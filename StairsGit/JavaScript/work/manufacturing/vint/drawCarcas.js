@@ -54,12 +54,12 @@ function drawStrightMarsh(par, marshId){
 		}
 		if (params.strightCarcasModel == 'лт') holdePar.length = params.M
 		var mesh = drawVintConnectionPart(holdePar).mesh;
-		mesh.position.z = params.M / 2;
+		mesh.position.z = params.M / 2 + params.stringerThickness;
 		mesh.position.y = holdePar.height;
 		mesh.position.x = getMarshParams(1).len + params.nose;
 		if (turnFactor == 1){
 			mesh.rotation.y = Math.PI;
-			mesh.position.z -= holdePar.length + 8;
+			mesh.position.z -= holdePar.length;
 			mesh.position.x += 50;
 		}
 		marsh.add(mesh);

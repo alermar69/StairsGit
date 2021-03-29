@@ -15,7 +15,7 @@
 
 			<tr><td>Расстояние от МКАД, км:</td> <td><input id="deliveryDist" type="number" value="0"></td></tr>
 
-			<tr><td>Кол-во доставок:</td> <td> 
+			<tr class="delivery"><td>Кол-во доставок:</td> <td> 
 				<select id="deliveryAmt" size="1">
 					<option value="1">1</option>
 					<option value="2">2</option>
@@ -25,11 +25,18 @@
 				</select>
 			</td></tr>
 			
-			<tr><td>Разгрузка силами заказчика:</td> <td> 
+			<tr class="delivery"><td>Разгрузка силами заказчика:</td> <td> 
 				<select id="customersLoad" size="1">
 					<option value="не указано">не указано</option>
 					<option value="да">да</option>
 					<option value="нет">нет</option>
+				</select>
+			</td></tr>
+			
+			<tr class="delivery"><td>Доставку в монтаж:</td> <td> 
+				<select id="deliveryInAssembling" size="1">
+					<option value="нет">нет</option>
+					<option value="да">да</option>
 				</select>
 			</td></tr>
 			

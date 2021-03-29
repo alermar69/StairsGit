@@ -1575,16 +1575,24 @@ function drawTopStepKo_vint(par){
 
 	//вертикальный участок
 	var p4 = newPoint_xy(p3, 0.0, par.h - 100); // Высота опоры винтовой лестницы
+	
 	var p5 = newPoint_xy(p4, 50, 0); //Толщина опоры винтовой лестницы
 	var p6 = newPoint_xy(p5, 0, 100);
 	
 	//горизонтальный участок
 	var topLineP1 = newPoint_xy(p3, topOffset, par.h);
 	
-	p4.filletRad = p5.filletRad = p6.filletRad = topLineP1.filletRad = 0;
+	p4.filletRad = p5.filletRad = p6.filletRad = 0;
 
-	topLinePoints.push(p4, p5, p6, topLineP1);
 	
+	if (par.key == 'out') {
+		var p4 = newPoint_xy(p3, 0.0, par.h); // Высота опоры винтовой лестницы
+
+		topLinePoints.push(p4, topLineP1);
+	}else{
+		topLinePoints.push(p4, p5, p6, topLineP1);
+	}
+
 	// нижняя линия
 	var botLinePoints = [];
 	

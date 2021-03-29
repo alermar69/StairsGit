@@ -4,7 +4,7 @@
 	if(!strpos($url, "view") && !strpos($url, "installation") && !strpos($url, "customers")){ ?>
 
 <div class="noPrint">
-<a href="/orders/calcs" target="_blank" id='searchOffers'><img src="/images/icons/BD_find.png" width="50px" data-toggle="tooltip" title="Поиск в базе"></a>
+<a href="/orders/calcs" target="_blank" class='searchOffers'><img src="/images/icons/BD_find.png" width="50px" data-toggle="tooltip" title="Поиск в базе"></a>
 <img src="/images/icons/BD_add.png" width="50px" id='saveOfferModalShow' data-toggle="tooltip" title="Сохранить в базу">
 <img src="/images/icons/BD_load.png" width="50px" id='loadFromBd' data-toggle="tooltip" title="Загрузить из базы">
 

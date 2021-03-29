@@ -96,7 +96,6 @@ function recalculate() {
 	calculateCarcasPrice();
 	calculateRailingPrice();
 	calculateBanisterPrice(); //функция в файле priceCalcBanister.js
-	calculateAssemblingPrice();
 	calculateTotalPrice();
 	printPrice();
 	printCost();
