@@ -154,6 +154,7 @@ function drawLadderHandrail(par) {
 			pole.position.z = railingPositionZ;
 			par.mesh.add(pole);
 
+
 			//болты
 			if (typeof anglesHasBolts != "undefined" && anglesHasBolts) { //anglesHasBolts - глобальная переменная
 				var bolts = new THREE.Object3D();
@@ -199,6 +200,34 @@ function drawLadderHandrail(par) {
 				bolts.add(bolt2)
 
 				par.mesh.add(bolts)
+			}
+
+			//закладная стойки
+			{
+				var rackFlan = drawRackFlan(poleParams.poleProfileY);
+				var dy = holeDist / 2 + 30;
+				var dx = - poleParams.poleProfileY / 2;
+				rackFlan.position.y = dy * Math.cos(marshAng) + dx * Math.sin(marshAng);
+				rackFlan.position.x = -dy * Math.sin(marshAng) + dx * Math.cos(marshAng);
+				rackFlan.position.z += 2;
+				if (par.key == "out") rackFlan.position.z += poleParams.poleProfileZ - 2 - 2;
+				rackFlan.rotation.z = marshAng;
+				if (!testingMode) pole.add(rackFlan);
+
+				var plugParams = {
+					id: "plasticPlug_20_40",
+					width: poleParams.poleProfileY,
+					height: poleParams.poleProfileZ,
+					description: "Заглушка низа стойки",
+					group: "Ограждения",
+					thk: 2,
+				}
+				var rackBotPlug = drawPlug(plugParams);
+				rackBotPlug.position.z += poleParams.poleProfileZ / 2;
+				rackBotPlug.rotation.z = marshAng;
+				rackBotPlug.position.y = -plugParams.thk / 2 * Math.cos(marshAng) +  dx * Math.sin(marshAng);
+				rackBotPlug.position.x = plugParams.thk / 2 * Math.sin(marshAng) + dx * Math.cos(marshAng);
+				if (!testingMode) pole.add(rackBotPlug);
 			}
 
 			//фланец крепления к поручню

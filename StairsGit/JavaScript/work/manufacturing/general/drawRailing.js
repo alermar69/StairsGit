@@ -503,7 +503,8 @@ function drawMarshRailing(par, marshId) {
 		if (params.platformTop == 'увеличенная' && params.stairModel !== 'Прямая' && params.turnSide == "правое") {
 			section.position.x -= params.platformWidth_3 - params.M;
 		}
-		if (params.calcType == "mono") section.position.x -= params.M / 2;
+		if (params.calcType == "mono" && params.railingModel != "Самонесущее стекло")
+			section.position.x -= params.M / 2;
 
 		//костыли
 		if (params.model == "лт") section.position.x += 5;
@@ -2973,7 +2974,6 @@ function drawRailingSectionForge2(par) {
 
 	//верхний участок
 	if (parRacks.topLast) {
-
 		rackPar.angTop = parRacks.angTop;
 		//первая стойка
 		pos.x = parRacks.topFirst.x;
@@ -2982,6 +2982,9 @@ function drawRailingSectionForge2(par) {
 		if (params.calcType == 'mono') {
 			rackPar.monoType = parRacks.topFirst.type;
 		}
+
+		
+
 		rackPar.drawing = {
 			marshId: par.marshId,
 			poleId: 2,
@@ -3208,11 +3211,10 @@ function drawRailingSectionForge2(par) {
 		}
 		if (marshPar.botTurn == "пол") {
 			parRacks.angMarsh = marshPar.ang;
-			var pt = itercection(topPoint2, polar(topPoint2, parRacks.angMarsh, 100), topPoint3, polar(topPoint3, Math.PI / 2, 100));
-			parRacks.marshLen = distance(topPoint2, pt);
-			parRacks.lastRackDeltaLength = pt.y - topPoint3.y;
-			topPoint3 = copyPoint(pt);
-			if (topPoint4 && parRacks.angTop == 0) topPoint4.y = topPoint3.y;
+			var pt = itercection(topPoint3, polar(topPoint3, parRacks.angMarsh, 100), topPoint2, polar(topPoint2, Math.PI / 2, 100));
+			parRacks.marshLen = distance(topPoint3, pt);
+			parRacks.firstRackDeltaLength = pt.y - topPoint2.y;
+			topPoint2 = copyPoint(pt);
 		}
 
 		rackPar.angTop = parRacks.angMarsh;
@@ -3562,6 +3564,7 @@ function drawRailingSectionForge2(par) {
 		}
 
 	}
+
 
 	//нижний марш прямой двухмаршевой
 	if (parRacks.marsh1First) {
@@ -4498,7 +4501,8 @@ function drawForgedFramePart2(par) {
 				rackFlan.position.y = p3.y + par.poleProfileY;
 				if(!testingMode) par.mesh.add(rackFlan);
 			}
-			if (!par.isFirstFlan && par.monoType !== 'last') {
+			//if (!par.isFirstFlan && par.monoType !== 'last') {
+			if (!par.isFirstFlan) {
 				var plugParams = {
 					id: "plasticPlug_40_40",
 					width: par.poleProfileY,
@@ -4509,6 +4513,11 @@ function drawForgedFramePart2(par) {
 				var rackBotPlug = drawPlug(plugParams);
 				rackBotPlug.position.z += par.poleProfileY / 2;
 				rackBotPlug.position.y = p3.y;
+				if (par.monoType == 'last') {
+					rackBotPlug.position.z -= (pt2.x + 2 / 2) * turnFactor;
+					rackBotPlug.position.y = pt2.y + par.poleProfileY / 2;
+					rackBotPlug.rotation.x = Math.PI / 2;
+				}
 				if (!testingMode) par.mesh.add(rackBotPlug);
 			}
 		}

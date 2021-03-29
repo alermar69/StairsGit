@@ -1414,7 +1414,7 @@ function drawWndTreadFlan(par){
 	par.flanWidth = flanPar.width;
 	par.flanThickness = flanPar.thk;
 	par.flanHeight = flanHeight;
-	if (params.stairType == 'нет') flanPar.noBolts = true;
+	if (params.isCarcas == 'нет') flanPar.noBolts = true;
 	
 	//Отверстия под шурупы крепления подступенка
 	if (par.type == "riser_holes" && params.riserType == "есть"){

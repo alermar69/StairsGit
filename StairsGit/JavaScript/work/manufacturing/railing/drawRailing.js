@@ -89,7 +89,7 @@ if(par.railingType == "Ригели" || par.railingType == "Стекло на с
 			}
 			if(params.rackBottom == "боковое") {
 				rackPar.showHoles = true;
-				rackPar.len += 130;
+				//rackPar.len += 130;
 			}
 			if(params.rackBottom == "сверху с крышкой") rackPar.isBotFlan = true;
 
@@ -807,14 +807,18 @@ if(par.railingType == "Дерево с ковкой"){
 	// var rackPar = copyPoint(p1);
 	rackPar.len = handrailPos.y + 20;
 	rackPar.marshId = 1;
-	rackPar.y = 0;
+	rackPar.y = 0 + params.treadThickness;
 	rackPar.rackSize = rackSize;
 	rackPar.dxfBasePoint = newPoint_xy(dxfBasePoint, rackPar.x - rackSize / 2, rackPar.y);
+
+	rackPar.type = params.timberNewellType;
+	rackPar.topType = params.newellTopType;
 		
-	var turnNewell = drawTurnNewell(rackPar).mesh;
-	turnNewell.position.x = rackPar.x;
+	//var turnNewell = drawTurnNewell(rackPar).mesh;
+	var turnNewell = drawTimberNewell_4(rackPar).mesh;
+	turnNewell.position.x = rackPar.x - rackSize/ 2;
 	turnNewell.position.y = rackPar.y + 0.05;
-	turnNewell.position.z = posZ - 0.05 * turnFactor;
+	turnNewell.position.z = posZ - (rackSize / 2 + 0.05) * turnFactor;
 
 	par.mesh.add(turnNewell);
 	
@@ -827,16 +831,17 @@ if(par.railingType == "Дерево с ковкой"){
 		var rackPar = copyPoint(point);
 		rackPar.len = handrailPos.y + 20;
 		rackPar.marshId = 1;
-		rackPar.y = point.y;
+		rackPar.y = point.y + params.treadThickness;
 		rackPar.rackSize = rackSize;
 		rackPar.dxfBasePoint = newPoint_xy(dxfBasePoint, rackPar.x - rackSize / 2, rackPar.y);
 		
 		rackPar.type = 'top';//Определяет положение столба, верхний для марша или нижний
-		
-		var turnNewell = drawTurnNewell(rackPar).mesh;
-		turnNewell.position.x = rackPar.x;
+
+		var turnNewell = drawTimberNewell_4(rackPar).mesh;
+		//var turnNewell = drawTurnNewell(rackPar).mesh;
+		turnNewell.position.x = rackPar.x - rackSize / 2;
 		turnNewell.position.y = rackPar.y + 0.05;
-		turnNewell.position.z = posZ - 0.05 * turnFactor;
+		turnNewell.position.z = posZ - (rackSize / 2 + 0.05) * turnFactor;
 
 		par.mesh.add(turnNewell);
 	}
@@ -845,17 +850,18 @@ if(par.railingType == "Дерево с ковкой"){
 	// var rackPar = copyPoint(p2);
 	rackPar.len = handrailPos.y + 20;
 	rackPar.marshId = 1;
-	rackPar.y = par.h_r * (par.stairAmt_r * 1.0 - 1);
+	rackPar.y = par.h_r * (par.stairAmt_r * 1.0 - 1) + params.treadThickness;
 	if (angle == 0) rackPar.y = 0;
 	rackPar.rackSize = rackSize;
 	rackPar.dxfBasePoint = newPoint_xy(dxfBasePoint, rackPar.x - rackSize / 2, rackPar.y);
 	
 	rackPar.type = 'top';//Определяет положение столба, верхний для марша или нижний
-	
-	var turnNewell = drawTurnNewell(rackPar).mesh;
-	turnNewell.position.x = rackPar.x;
+
+	var turnNewell = drawTimberNewell_4(rackPar).mesh;
+	//var turnNewell = drawTurnNewell(rackPar).mesh;
+	turnNewell.position.x = rackPar.x - rackSize / 2;
 	turnNewell.position.y = rackPar.y + 0.05;
-	turnNewell.position.z = posZ - 0.05 * turnFactor;
+	turnNewell.position.z = posZ - (rackSize / 2 + 0.05) * turnFactor;
 
 	par.mesh.add(turnNewell);
 

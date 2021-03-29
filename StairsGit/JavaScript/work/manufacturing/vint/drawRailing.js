@@ -499,6 +499,23 @@ function drawSpiralRailing(par) {
 			rack.rotation.y = Math.PI / 2 - banistrPositionAngle;
 			rack.castShadow = true;
 			railingSection.add(rack);
+
+			//ригеледержатель
+			if (par.model == "Ригели") {
+				for (var j = 0; j < params.rigelAmt * 1.0; j++) {
+					var posY = (longBanisterLength - 200) * (j + 1) / (params.rigelAmt * 1.0 + 1) - 150;
+					var holderPar = {
+						size: 12,
+						id: "rigelHolder12",
+						description: "Кронштейн крепления ригелей",
+						group: "Ограждения"
+					}
+					var holder = drawRigelHolder(holderPar);
+					holder.rotation.x = Math.PI / 2;
+					holder.position.y = posY;
+					if (!testingMode) rack.add(holder);
+				}
+			}
 		}
 		params.model = modelTemp;
 
@@ -549,8 +566,10 @@ function drawSpiralRailing(par) {
 
 				bolzPar.isFirst = false;
 				bolzPar.isRack = false;
+				bolzPar.isCover = false;
 				if (i == 0 && params.strightMarsh == "нет") {
 					bolzPar.isFirst = true;
+					bolzPar.isCover = true;
 				}
 
 				if (i == stairAmt) {
@@ -717,6 +736,16 @@ function drawSpiralRailing(par) {
 				banister.position.z = banisterPositionRad * Math.sin(banistrPositionAngle);
 				banister.rotation.y = Math.PI / 2 - banistrPositionAngle;
 				banister.castShadow = true;
+
+				//для первой (длинной, через две ступени) балясине добавлем основание на второй ступени
+				if (j == 0) {
+					//основание
+					var baseBal = drawBaseBal();
+					baseBal.position.y = stepHeight + 4;
+					if (!testingMode) banister.add(baseBal);
+				}
+				
+
 				railingSection.add(banister);
 				balId += 1;
 			}

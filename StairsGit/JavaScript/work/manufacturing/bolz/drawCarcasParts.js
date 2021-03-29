@@ -199,6 +199,8 @@ function drawBolz(par) {
 			thk: 5,
 			dxfBasePoint: par.dxfBasePoint,
 		}
+		if (par.isCover) flanPar.isCover = par.isCover;
+
 		var flan = drawFlanBolz(flanPar).mesh;
 		flan.position.x = -flanPar.profSize / 2 + 2;
 		flan.position.z = -flanPar.profSize / 2 + 2;
@@ -855,6 +857,31 @@ function drawFlanBolz(par) {
 	flan.position.y = flanPar.thk;
 
 	par.mesh = flan;
+
+
+	if (par.isCover) {
+		var partName = "steelCover_model";
+		var name = "Декоративная крышка основания стойки (черн.)";
+		if (params.banisterMaterial == "40х40 нерж." || params.banisterMaterial == "40х40 нерж+дуб") {
+			if (params.railingModel_bal !== "Кованые балясины") {
+				partName = "stainlessCover_model";
+				name = "Декоративная крышка основания стойки (нерж.)";
+			}
+		}
+
+		var coverParams = {
+			id: partName,
+			name: name,
+			description: "Крышка фланца стойки"
+		}
+
+		if (par.unit == "balustrade") coverParams.description += " баллюстрада";
+		var cover = drawRackCover(coverParams);
+		cover.rotation.x = Math.PI / 2
+		cover.position.x = 40
+		cover.position.y = 40
+		if (!testingMode) flan.add(cover);
+	}
 
 
 	//сохраняем данные для спецификации

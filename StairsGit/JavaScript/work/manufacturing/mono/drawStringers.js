@@ -598,8 +598,10 @@ function drawComplexStringer(par) {
 									platePar.isPltBot = true;
 									//var plate = drawHorPlates(platePar).mesh;
 								}
+								turnFactor *= -1;
 								var plate = drawHorPlatesPlatformBot(platePar).mesh;
 								isPlate = false;
+								turnFactor *= -1;
 							}
 							else {
 								basePointShiftX = params.stringerThickness / 2 - (params.M / 2) / 2 - 5 - 30;
@@ -913,8 +915,10 @@ function drawComplexStringer(par) {
 									platePar.isPltBot = true;
 									//var plate = drawHorPlates(platePar).mesh;
 								}
+								turnFactor *= -1;
 								var plate = drawHorPlatesPlatformBot(platePar).mesh;
 								isPlate = false;
+								turnFactor *= -1;
 							}
 							else {
 								platePar.basePointShiftX = params.stringerThickness / 2 - (params.M / 2) / 2 - 5 - 30;

@@ -1653,7 +1653,9 @@ function drawBotStepLt_wndOut(par) {
 				else {
 					center1 = newPoint_xy(p5, par.b * 0.5, par.rackTopHoleY);
 					//смещаем точку ближе к низу марша
-					center1 = newPoint_x(center1, -par.b * 0.5 + 50, -par.marshAng)
+					//center1 = newPoint_x(center1, -par.b * 0.5 + 50, -par.marshAng)
+					var mooveX = center1.x - p5.x - 40; //40 - отступ отверстия от края ступени	
+					center1 = newPoint_x1(center1, - mooveX, par.marshAng);
 					if (par.stairAmt > 1) par.railingHoles.push(center1);
 					if (par.stairAmt == 1 && params.stairModel == "П-образная трехмаршевая" && par.marshId == 2)
 						par.railingHoles.push(center1);

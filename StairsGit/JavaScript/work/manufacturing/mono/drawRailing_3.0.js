@@ -576,6 +576,7 @@ function drawGlassSectionMono(par){
 
 
 	par.glassThickness = 12;
+	var holeRad = 11;
 
 	//рассчитываем необходимые параметры и добавляем в объект par
 	setRailingParams(par) //функция в файле calcRailingParams.js
@@ -588,17 +589,25 @@ function drawGlassSectionMono(par){
 	var glassOffsetY = par.glassOffsetY = marshPar.h * 2;
 	var rackProfile = 40;
 
-	var holeRad = 11;
-	var sectionHeight = params.glassHeight - glassOffsetY;
 
-	if (par.key == "rear" && par.marshId == 2) {
-		if (nextMarshPar.hasRailing.out) {
-			glassOffsetY = par.glassOffsetY = nextMarshPar.h * 2;
-		}
-		if (prevMarshPar.hasRailing.out) {
-			glassOffsetY = par.glassOffsetY = prevMarshPar.h * 2;
-		}
+	var sectionHeight = params.glassHeight;
+
+	if (par.marshId == "topPlt") {
+		glassOffsetY = par.glassOffsetY = 270;
+		sectionHeight += 90;
+		par.glassOffsetZ = par.glassOffsetZ;
 	}
+	if (par.key == "rear" && par.marshId == 2) {
+		if (!(prevMarshPar.hasRailing.out || nextMarshPar.hasRailing.out)) {
+			glassOffsetY = par.glassOffsetY = 140 + params.treadThickness;
+			sectionHeight += 90;
+		}
+
+		par.glassOffsetZ = par.glassOffsetZ;
+	}
+
+	
+	sectionHeight -= glassOffsetY;
 
 	par.sectionHeight = sectionHeight;
 	par.glassHeight = sectionHeight + glassOffsetY;	
@@ -617,19 +626,6 @@ function drawGlassSectionMono(par){
 		} else {
 			par.glassOffsetZ = - glassThickness - par.glassOffsetZ;
 		}
-	}
-	if(par.marshId == "topPlt"){
-		glassOffsetY = par.glassOffsetY = 270;
-		sectionHeight += 90;
-		par.glassOffsetZ = par.glassOffsetZ;
-	}
-	if (par.key == "rear" && par.marshId == 2) {
-		if (!(prevMarshPar.hasRailing.out || nextMarshPar.hasRailing.out)) {
-			glassOffsetY = par.glassOffsetY = 140 + params.treadThickness;
-			sectionHeight += 90;
-		}
-		
-		par.glassOffsetZ = par.glassOffsetZ;
 	}
 
 	var holes = calcGlassHoles(par.marshId, par.key).holes;

@@ -325,7 +325,7 @@ if (par.prevMarshPar.stairAmt == 0 && par.prevMarshPar.botTurn == "пол") par.
 					center1 = newPoint_xy(p3, par.rutelPosX, par.stepHoleY);
 					//смещаем точку ближе к низу марша
 					if (params.rackBottom != "сверху с крышкой") {
-						center1 = newPoint_x(center1, -par.b * 0.5 + 50, -par.marshAng)
+						//center1 = newPoint_x(center1, -par.b * 0.5 + 50, -par.marshAng)
 
 						//если повортная стойка, сдвигаем стойку до края предыдущего марша
 						if (par.prevMarshPar.hasRailing.in) {
@@ -2378,6 +2378,7 @@ function drawTopStepKo_wndIn(par) {
 		if (par.pointsShape[0].x >= botLineP1.x) {
 			par.pointsShape.shift();
 			botLineP1 = itercection(par.pointsShape[0], polar(par.pointsShape[0], 0, 100), topLineP1, polar(topLineP1, Math.PI / 2, 100));
+			par.pointsShape.shift();
 		}
 		botLinePoints.push(botLineP1);
 		}

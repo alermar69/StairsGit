@@ -1006,13 +1006,13 @@ function drawMarshTreads2(par) {
 			}
 			
 			lastTread.position.y = par.endPos.y;
-			if (params.calcType == "mono" && params.topAnglePosition == "над ступенью") {
-				var h = par.h - params.treadThickness - 20;
-				if (h < params.topHolePos) {
-					var offsetYLastTread = params.topHolePos - h
-					lastTread.position.y += offsetYLastTread
-				}  
-			} 
+			//if (params.calcType == "mono" && params.topAnglePosition == "над ступенью") {
+			//	var h = par.h - params.treadThickness - 20;
+			//	if (h < params.topHolePos) {
+			//		var offsetYLastTread = params.topHolePos - h
+			//		lastTread.position.y += offsetYLastTread
+			//	}  
+			//} 
 			lastTread.position.z += - plateParams.len / 2;
 			par.treads.add(lastTread);
 			posX = lastTread.position.x - 40;
@@ -1035,10 +1035,11 @@ function drawMarshTreads2(par) {
 			plateParams.len += turnParams.topMarshOffsetX;
 		if(params.calcType != "metal"){
 			plateParams.width = par.h - params.treadThickness / 2;
-			if(params.calcType == "mono") {
+			if (params.calcType == "mono") {
+				plateParams.material = params.materials.tread;
 				if(typeof riserSideOffset == 'undefined') var riserSideOffset = 40;
 				plateParams.len -= riserSideOffset * 2 + 2;
-				if (offsetYLastTread) plateParams.width += offsetYLastTread
+				//if (offsetYLastTread) plateParams.width += offsetYLastTread
 			}
 			
 			if (params.calcType == "timber_stock") {

@@ -565,7 +565,7 @@ function drawPlug(par){
 		}
 	}
 	else{
-		var geometry = new THREE.BoxGeometry( par.width, par.thk || 2, par.height );
+		var geometry = new THREE.BoxGeometry(par.width, par.thk || 2, par.height);
 	}
 	var plug = new THREE.Mesh(geometry, par.material);
 
@@ -3213,14 +3213,46 @@ function drawBanisterAngle(par) {
                 boltPar.headType = "внутр. шестигр. плоск. гол.";
                 boltPar.len = 35;
             }
-        }
-        var bolt = drawBolt(boltPar).mesh;
-        bolt.rotation.x = Math.PI / 2;
-        bolt.position.x = center.x;
-        bolt.position.y = center.y;
-        if (params.calcType == 'vint' && params.railingModel == "Частые стойки") bolt.position.z = -6;
-		if (params.calcType == 'mono') bolt.rotation.x = -Math.PI / 2
-        frontPlate.add(bolt)
+		}
+		if (params.calcType == 'vint' && params.railingModel == "Частые стойки") {
+			var boltPar = {
+				diam: 6,
+				len: 20,
+				headType: " внутр. шестигр. плоск. гол.",
+				noNut: true,
+			}
+
+			var bolt = new THREE.Object3D();
+
+			var vint = drawVint(boltPar).mesh;
+			bolt.add(vint)
+
+			var nutParams = {
+				diam: 6,
+				len: 15,
+				shimThk: 1,
+			}
+			var nut = drawNutEricson(nutParams).mesh;
+			nut.position.y = -boltPar.len / 2;
+			if (!testingMode) bolt.add(nut)
+
+			bolt.position.x = center.x;
+			bolt.position.y = center.y;
+			bolt.position.z = -10;
+			bolt.rotation.x = -Math.PI / 2;
+
+			frontPlate.add(bolt)
+		}
+		else {
+			var bolt = drawBolt(boltPar).mesh;
+			bolt.rotation.x = Math.PI / 2;
+			bolt.position.x = center.x;
+			bolt.position.y = center.y;
+			if (params.calcType == 'vint' && params.railingModel == "Частые стойки") bolt.position.z = -6;
+			if (params.calcType == 'mono') bolt.rotation.x = -Math.PI / 2
+			frontPlate.add(bolt)
+		}
+        
     }
 
 	//сохраняем данные для спецификации
