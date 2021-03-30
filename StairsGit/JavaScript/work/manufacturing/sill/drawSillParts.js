@@ -210,7 +210,7 @@ function drawSillEnv(par){
 	console.log(par.windowSlope);
 	if(par.windowSlope == 'есть'){
 		var slopeThickness = 20;
-		var slopeWidth = par.windowWidth;// + slopeThickness * 2;
+		var slopeWidth = par.windowWidth;
 		var slopeHeight = par.windowHeight - slopeThickness - 10 - par.thk;
 		var bevelAngle = 0;
 
@@ -225,7 +225,7 @@ function drawSillEnv(par){
 			width: slopeHeight,
 			thk: slopeThickness,
 			partName: "windowSlope",
-			material: params.materials.timber
+			material: params.additionalObjectsTimberMaterial
 		}
 		var vertPart1 = drawPlate(platePar).mesh;
 		vertPart1.rotation.y = Math.PI / 2 + (Math.PI / 2 - bevelAngle);
@@ -246,7 +246,7 @@ function drawSillEnv(par){
 			width: par.windowPosZ,
 			thk: slopeThickness,
 			partName: "windowSlope",
-			material: params.materials.timber
+			material: params.additionalObjectsTimberMaterial
 		}
 		var horPart = drawPlate(platePar).mesh;
 		horPart.rotation.x = Math.PI / 2;
@@ -256,12 +256,13 @@ function drawSillEnv(par){
 		par.mesh.add(horPart);
 
 		// Наличники
+		var slopeSize = 40;
 		var platePar = {
-			len: 40,
+			len: slopeSize,
 			width: slopeHeight,
 			thk: 4,
 			partName: "windowSlope",
-			material: params.materials.timber
+			material: params.additionalObjectsTimberMaterial
 		}
 		var plate = drawPlate(platePar).mesh;
 		plate.position.z = par.wallThk;
@@ -271,16 +272,16 @@ function drawSillEnv(par){
 
 		var plate = drawPlate(platePar).mesh;
 		plate.position.z = par.wallThk;
-		plate.position.x = -par.windowWidth / 2 - platePar.len + slopeThickness;
+		plate.position.x = -par.windowWidth / 2 - slopeSize + slopeThickness;
 		plate.position.y = par.height + 10 + par.thk;
 		par.mesh.add(plate);
 
 		var platePar = {
-			len: slopeWidth + 40 * 2 - slopeThickness * 2, // 40 * 2 - Два наличника
-			width: 40,
+			len: slopeWidth + slopeSize * 2 - slopeThickness * 2, // 40 * 2 - Два наличника
+			width: slopeSize,
 			thk: 4,
 			partName: "windowSlope",
-			material: params.materials.timber
+			material: params.additionalObjectsTimberMaterial
 		}
 		var horPlate = drawPlate(platePar).mesh;
 		horPlate.position.z = par.wallThk;
@@ -634,6 +635,7 @@ function drawRadOriel(par){
 		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 		var mesh = new THREE.Mesh(geom, params.materials.wall);
+		mesh.setLayer("wall1");
 
 		var basePointPart = polar(sPar.center, startAngle + angleStep * i, sPar.rad);
 		mesh.rotation.y = Math.PI / 2 + angleStep * (i + 0.5) + startAngle;
@@ -858,6 +860,137 @@ function drawRadOriel(par){
 	return par
 }
 
+/** функция отрисовывает радиусный эркер
+**/
+
+function drawStepOriel(par){
+	if(!par) par = {};
+	initPar(par)
+	
+	var parts = Object.assign([], par.oriel_parts);
+
+	parts.forEach(function(p){
+		p.oriel_angle = 180 - p.oriel_angle;
+	});
+
+	var sillWidth = par.width;
+
+	var frontSillPoints = [];
+	var rearSillPoints = [];
+	var basePoint = {x:0,y:0};
+	var previousAngle = 0;
+
+	frontSillPoints.push(basePoint);
+	rearSillPoints.push(polar(basePoint, Math.PI / 2, -sillWidth));
+	
+	for (var i = 0; i < parts.length; i++) {
+		var partAngle = THREE.Math.degToRad(parts[i].oriel_angle);
+		var ang = previousAngle + partAngle;
+
+		if (i < (parts.length - 1)) {
+			var nextAngle = THREE.Math.degToRad(parts[i + 1].oriel_angle);
+		}else{
+			var nextAngle = 0;
+		}
+
+		var point = polar(basePoint, ang, parts[i].oriel_len);
+		frontSillPoints.push(point);
+		
+		console.log(nextAngle)
+		var rearPointAngle = ang - Math.PI / 2 + nextAngle / 2;
+		
+		var rearPoint = polar(point, rearPointAngle, -(sillWidth / Math.cos(nextAngle / 2)));
+		rearSillPoints.push(rearPoint);
+		previousAngle = ang;
+		basePoint = point;
+	};
+
+	var orielWrapper = new THREE.Object3D();
+	var curAng = 0;
+	for(var i=0; i < (frontSillPoints.length - 1); i++){
+		var point = frontSillPoints[i];
+		var nextPoint = frontSillPoints[i + 1];
+		var dist = distance(point, nextPoint);
+		curAng += THREE.Math.degToRad(parts[i].oriel_angle);
+
+		var p0 = {x: 0, y:0}; //точка в середине передней кромки
+		var p1 = newPoint_xy(p0, dist, 0);
+		var p2 = newPoint_xy(p1, 0, par.height);
+		var p3 = newPoint_xy(p2, -dist, 0);
+		var points = [p0, p1, p2, p3];
+
+		//создаем шейп
+		var shapePar = {
+			points: points,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		var shape = drawShapeByPoints2(shapePar).shape;
+		
+		var extrudeOptions = {
+			amount: par.wallThk,
+			bevelEnabled: false,
+			curveSegments: 12,
+			steps: 1
+		};
+
+		var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+		var mesh = new THREE.Mesh(geom, params.materials.wall);
+		mesh.setLayer("wall1");
+
+		mesh.rotation.y = curAng;
+		mesh.position.x = point.x;
+		mesh.position.z = -point.y;
+
+		orielWrapper.add(mesh);
+
+		var windowPar = {
+			width: dist,
+			windowsCount: 1,
+			height: par.windowHeight,
+			mat: params.materials.whitePlastic,
+		}
+		var wnd = drawWindow(windowPar).mesh;
+
+		wnd.rotation.y = curAng;
+		wnd.position.y = par.height;
+		wnd.position.x = point.x;
+		wnd.position.z = -point.y;
+
+		console.log(i, curAng);
+		orielWrapper.add(wnd);
+	}
+	par.mesh.add(orielWrapper);
+
+	//создаем шейп
+	var shapePar = {
+		points: [...frontSillPoints, ...rearSillPoints.reverse()],
+		dxfArr: dxfPrimitivesArr,
+		dxfBasePoint: par.dxfBasePoint,
+	}
+	
+	var shape = drawShapeByPoints2(shapePar).shape;
+	
+	var extrudeOptions = {
+		amount: par.thk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var sillMesh = new THREE.Mesh(geom, params.materials.additionalObjectTimber || params.materials.timber);
+	sillMesh.rotation.x = -Math.PI / 2;
+	sillMesh.position.y = par.height;
+	par.mesh.add(sillMesh);
+	
+	return par
+}
+
+
 /** функция отрисовывает эркер **/
 
 function drawOriel(par){
@@ -931,6 +1064,8 @@ function drawOriel(par){
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var mesh = new THREE.Mesh(geom, params.materials.wall);
+	mesh.setLayer("wall1");
+
 	mesh.rotation.x = -Math.PI / 2;
 	par.mesh.add(mesh);
 	
@@ -958,6 +1093,8 @@ function drawOriel(par){
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var mesh = new THREE.Mesh(geom, params.materials.wall);
+	mesh.setLayer("wall1");
+
 	mesh.rotation.x = -Math.PI / 2;
 	mesh.position.y = par.height;
 	par.mesh.add(mesh);
@@ -986,6 +1123,8 @@ function drawOriel(par){
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	var mesh = new THREE.Mesh(geom, params.materials.wall);
+	mesh.setLayer("wall1");
+
 	mesh.rotation.x = -Math.PI / 2;
 	mesh.position.y = par.height;
 	par.mesh.add(mesh);
@@ -1092,48 +1231,61 @@ function drawOriel(par){
 	
 	var shape = drawShapeByPoints2(shapePar).shape;
 	
+	var holeWidth = 0.5;
+	
 	if (par.orielType == 3) {
-			var holeWidth = 0.5;
-			if (par.connType == 'прямой') {
-				var holeP1 = newPoint_xy(ps3, 0, 0);
-				var holeP2 = polar(ps3, Math.PI / 4, -holeWidth);
-				var holeP3 = itercection(leftSideLine.p1, pw2, holeP2, polar(holeP2, Math.PI - Math.PI / 4, 10));
-				holeP3 = polar(holeP3, Math.PI - Math.PI / 4, -0.1);
-				var holeP4 = itercection(leftSideLine.p1, pw2, holeP1, polar(holeP1, Math.PI - Math.PI / 4, 10));
-				holeP4 = polar(holeP4, Math.PI - Math.PI / 4, -0.1);
-		
-				//создаем шейп
-				var shapePar = {
-					points: [holeP1, holeP2, holeP3, holeP4],
-					dxfArr: dxfPrimitivesArr,
-					dxfBasePoint: par.dxfBasePoint,
-				}
-				
-				var hole = drawShapeByPoints2(shapePar).shape;
-				shape.holes.push(hole);
+			var holeP1 = newPoint_xy(pw2, holeWidth / 2, 0);
+			holeP1 = itercection(rightSideLine.p2, pw2, holeP1, newPoint_xy(holeP1, 0, -10))
+			var holeP2 = newPoint_xy(pw2, -holeWidth / 2, 0);
+			holeP2 = itercection(leftSideLine.p2, pw2, holeP2, newPoint_xy(holeP2, 0, -10))
+			var holeP3 = newPoint_xy(ps2, -holeWidth / 2, 0);
+			holeP3 = itercection(leftSideLine.p2, ps2, holeP3, newPoint_xy(holeP3, 0, 10))
+			var holeP4 = newPoint_xy(ps2, holeWidth / 2, 0);
+			holeP4 = itercection(rightSideLine.p2, ps2, holeP4, newPoint_xy(holeP4, 0, 10))
+			
+			//создаем шейп
+			var shapePar = {
+				points: [holeP1, holeP2, holeP3, ps2, holeP4],
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: par.dxfBasePoint,
 			}
-		
-			if (par.connType == 'под углом') {
-				var holeP1 = newPoint_xy(pw2, holeWidth / 2, 0);
-				holeP1 = itercection(rightSideLine.p2, pw2, holeP1, newPoint_xy(holeP1, 0, -10))
-				var holeP2 = newPoint_xy(pw2, -holeWidth / 2, 0);
-				holeP2 = itercection(leftSideLine.p2, pw2, holeP2, newPoint_xy(holeP2, 0, -10))
-				var holeP3 = newPoint_xy(ps3, -holeWidth / 2, 0);
-				holeP3 = itercection(leftSideLine.p2, ps3, holeP3, newPoint_xy(holeP3, 0, 10))
-				var holeP4 = newPoint_xy(ps3, holeWidth / 2, 0);
-				holeP4 = itercection(rightSideLine.p2, ps3, holeP4, newPoint_xy(holeP4, 0, 10))
-				
-				//создаем шейп
-				var shapePar = {
-					points: [holeP1, holeP2, holeP3, ps3, holeP4],
-					dxfArr: dxfPrimitivesArr,
-					dxfBasePoint: par.dxfBasePoint,
-				}
-				
-				var hole = drawShapeByPoints2(shapePar).shape;
-				shape.holes.push(hole);
-			}
+			
+			var hole = drawShapeByPoints2(shapePar).shape;
+			shape.holes.push(hole);
 	}
+
+	if (par.orielType == 1 || par.orielType == 2) {
+
+		var holeP1 = newPoint_xy(pw2, holeWidth / 2, -1);
+		var holeP2 = newPoint_xy(pw2, -holeWidth / 2, -1);
+		var holeP3 = newPoint_xy(ps2, -holeWidth / 2, 1);
+		var holeP4 = newPoint_xy(ps2, holeWidth / 2, 1);
+		
+		//создаем шейп
+		var shapePar = {
+			points: [holeP1, holeP2, holeP3, holeP4],
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		var hole = drawShapeByPoints2(shapePar).shape;
+		shape.holes.push(hole);
+
+		var holeP1 = newPoint_xy(pw3, holeWidth / 2, -1);
+		var holeP2 = newPoint_xy(pw3, -holeWidth / 2, -1);
+		var holeP3 = newPoint_xy(ps3, -holeWidth / 2, 1);
+		var holeP4 = newPoint_xy(ps3, holeWidth / 2, 1);
+		
+		//создаем шейп
+		var shapePar = {
+			points: [holeP1, holeP2, holeP3, holeP4],
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+		
+		var hole = drawShapeByPoints2(shapePar).shape;
+		shape.holes.push(hole);
+}
 	
 	//Отверстия
 	if(par.ventHoles != "нет"){

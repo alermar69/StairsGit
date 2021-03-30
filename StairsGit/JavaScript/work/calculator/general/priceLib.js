@@ -1050,7 +1050,7 @@ function calculateTotalPrice2() {
 	}
 
 	priceObj.total.name = "Итого";
-	priceObj.total.productionPrice = productionPrice;
+	priceObj.total.productionPrice = productionPrice + priceObj["assembling"].price + priceObj["delivery"].price;
 
 	// Сохраняем priceObj этажа для вывода после расчета
 	if (window.isMulti && currentPriceItem != null) {

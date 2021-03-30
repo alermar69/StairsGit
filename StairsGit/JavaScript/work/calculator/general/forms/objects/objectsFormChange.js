@@ -95,6 +95,39 @@ $(function(){
 		}
 	})
 
+	$('body').on('click', '.addDynamicInputs', function(){
+		var $form = $("#additionalObjectProperties")
+		var id = $form.find('#additionalObjectId').val();
+		var item = getAdditionalObject(id);
+		if (item) {
+			var key = $(this).attr('data-key');
+			var itemMeta = eval(item.className + '.getMeta()');
+			var inputParams = itemMeta.inputs.find(function(inp){return inp.key == key});
+			console.log(inputParams);
+			if(!item.meshParams[key]) item.meshParams[key] = [];
+			var row = {};
+			inputParams.template.forEach(function(inp){
+				row[inp.key] = inp.default;
+			});
+			item.meshParams[key].push(row);
+			
+			additionalObjectParamsShow(id);
+		}
+	})
+
+	$('body').on('click', '.removeDynamicInputs', function(){
+		var $form = $("#additionalObjectProperties")
+		var id = $form.find('#additionalObjectId').val();
+		var item = getAdditionalObject(id);
+		if (item) {
+			var key = $(this).attr('data-key');
+			var index = $(this).attr('data-index');
+			item.meshParams[key].splice(index, 1);
+			
+			additionalObjectParamsShow(id);
+		}
+	})
+
 	$('body').on('change', '.additionalObjectRot', function(){
 		var id = $(this).parents('.additionalObjectRow').data('object_id');
 		var item = getAdditionalObject(id);
@@ -145,15 +178,6 @@ $(function(){
 		var id = $(this).parents('.additionalObjectRow').data('object_id');
 		copyAdditionalObject(id);
 	});
-
-	// addContextMenu();
-
-	// $('body').on('click', '.editObject', function(){
-	// 	if (window.selectedObject) {
-	// 		AdditionalObject.selectIfItemIsChild(window.selectedObject);
-	// 		additionalObjectParamsShow(window.selectedObject.objId);
-	// 	}
-	// })
 
 	$('body').on('click', '.moveObject', function(){
 		if (window.selectedObject) {
@@ -435,53 +459,79 @@ function getObjetParamsHtml(id, isKp){
 	text += '<div><table class="form_table"><tbody>';
 	$.each(itemMeta.inputs, function(){
 		if (isKp && this.printable != "true" || this.input_hidden == 'true' && !isKp) return;
-		if (this.type == 'delimeter') {
-			// text += "<tr style='margin: 15px;width: 100%;border: 1px solid gray;'></tr>";
-			// text += "</tbody></table><h1>"+this.title+"</h1><table class='form_table'><tbody>";
-			text += '<tr><td colspan="2"><h1>'+this.title+'</h1></td></tr>'
-		}
-		if (this.type == 'row_start') {
-			text += '<tr class="'+(this.class || "")+'" ><td style="width: 30%"></td><td>';
-		}
-		if (this.type == 'row_end') {
-			text += '</td></tr>';
-		}
-
-		if (['text', 'number', 'boolean', 'select'].indexOf(this.type) != -1) {
-			var propParams = {
-				prop: {
-					id: this.key,
-					values: this.type,
-					isConstant: isKp
-				},
-				val: item.meshParams[this.key] == undefined ? this.default : item.meshParams[this.key]
-			}
-			if (this.type == 'select') propParams.prop.values = this.values
-			if (!this.not_row) {
-				text += '<tr class="'+(this.class || "")+'" ><td style="width: 30%">' + this.title + '</td><td>' + printEditableProp(propParams) + '</td></tr>';
-			}else{
-				text += '<div class="'+(this.class || "")+'">' + this.title + ': ' + printEditableProp(propParams) + '</div>';
-			}
-		}
-		
-		if (this.type == 'image') {
-			text += this.title + '<tr class="'+(this.class || "")+'" ><td> <div class="meshParam meshParam_custom_parent imageSelector custom_input" data-propid="' + this.key + '" type="custom_input">';
-			var key = this.key;
-			this.values.forEach(function(value){
-				text += '<image width="64px" height="64px" style="margin: 5px;" class="meshParam_custom ' + ((item.meshParams[key] == value.value) ? 'selected' : '') + '" data-value="' + value.value + '" src="' + value.preview + '">';
-			});
-			text += '</div></td></tr>';
-		}
-		if (this.type == 'action') {
-			text += this.title + '<tr class="'+(this.class || "")+'" ><td colspan="2"> <div class="custom_input" data-propid="' + this.key + '" type="custom_input">';
-			text += '<button class="btn btn-primary actionInput" data-action_key="'+this.key+'">'+this.title+'</button>';
-			text += '</div></td></tr>';
-		}
-		if (this.type == 'wrapper') {
-			text += '<tr class="'+(this.class || "")+'" ><td></td></tr>';
-		}
+		text += getObjectsInput(item, this, isKp)
 	});
 	text += '</tbody></table></div>';
+	return text;
+}
+
+function getObjectsInput(item, input, isKp){
+	var text = "";
+	if (input.type == 'dynamic_input') {
+		text += '<tr class="'+input.class+'"><td colspan="2"><h1>'+input.title+'</h1></td></tr>';
+		if (item.meshParams[input.key]) {
+			item.meshParams[input.key].forEach(function(par, i){
+				text += '<tr class="dynamic-row '+input.class+'" data-index="'+i+'" data-key="'+input.key+'"><td style="max-width: 50px;">' + (i + 1) + '</td>';
+				text += '<td><table class="table" ><tbody>';
+				input.template.forEach(function(row){
+					var inp = Object.assign({}, row);
+					inp.value = par[inp.key];
+					text += getObjectsInput(item, inp);
+				})
+				text += '</tbody></table>';
+				text += '\
+					<button data-key="'+input.key+'" data-index="'+i+'" class="btn btn-outline-danger removeDynamicInputs" style="margin: 2px" data-toggle="tooltip" title="Удалить" data-original-title="Удалить">\
+						<i class="fa fa-trash-o actionIcon"></i>\
+					</button></td></tr>';
+			})
+		}
+		text += '<tr class="'+input.class+'"><td colspan="2"><button class="btn btn-primary addDynamicInputs" data-key="'+input.key+'">Добавить</button></td></tr>';
+	}
+	if (input.type == 'delimeter') {
+		text += '<tr><td colspan="2"><h1>'+input.title+'</h1></td></tr>'
+	}
+	if (input.type == 'row_start') {
+		text += '<tr class="'+(input.class || "")+'" ><td style="width: 30%"></td><td>';
+	}
+	if (input.type == 'row_end') {
+		text += '</td></tr>';
+	}
+
+	if (['text', 'number', 'boolean', 'select'].indexOf(input.type) != -1) {
+		var propParams = {
+			prop: {
+				id: input.key,
+				values: input.type,
+				isConstant: isKp
+			},
+			val: item.meshParams[input.key] == undefined ? input.default : item.meshParams[input.key]
+		}
+		if (input.value) propParams.val = input.value;
+
+		if (input.type == 'select') propParams.prop.values = input.values
+		if (!input.not_row) {
+			text += '<tr class="'+(input.class || "")+'" ><td style="width: 30%">' + input.title + '</td><td>' + printEditableProp(propParams) + '</td></tr>';
+		}else{
+			text += '<div class="'+(input.class || "")+'">' + input.title + ': ' + printEditableProp(propParams) + '</div>';
+		}
+	}
+	
+	if (input.type == 'image') {
+		text += input.title + '<tr class="'+(input.class || "")+'" ><td> <div class="meshParam meshParam_custom_parent imageSelector custom_input" data-propid="' + input.key + '" type="custom_input">';
+		var key = input.key;
+		input.values.forEach(function(value){
+			text += '<image width="64px" height="64px" style="margin: 5px;" class="meshParam_custom ' + ((item.meshParams[key] == value.value) ? 'selected' : '') + '" data-value="' + value.value + '" src="' + value.preview + '">';
+		});
+		text += '</div></td></tr>';
+	}
+	if (input.type == 'action') {
+		text += input.title + '<tr class="'+(input.class || "")+'" ><td colspan="2"> <div class="custom_input" data-propid="' + input.key + '" type="custom_input">';
+		text += '<button class="btn btn-primary actionInput" data-action_key="'+input.key+'">'+input.title+'</button>';
+		text += '</div></td></tr>';
+	}
+	if (input.type == 'wrapper') {
+		text += '<tr class="'+(input.class || "")+'" ><td></td></tr>';
+	}
 	return text;
 }
 
@@ -495,15 +545,24 @@ function getObjPar(){
 	if (item) {
 		$.each($form.find('input,select,textarea,.custom_input'), function(){
 			var key = $(this).attr('data-propid');
+			var objPar = item.meshParams;
+
+			if ($(this).parents('.dynamic-row').length > 0) {
+				var dynamicRow = $(this).parents('.dynamic-row');
+				var index = $(dynamicRow).attr('data-index');
+				var row_key = $(dynamicRow).attr('data-key');
+				objPar = item.meshParams[row_key][index * 1];
+			}
+
 			if (key) {
 				if ($(this).attr('type') == 'checkbox') {
-					item.meshParams[key] = $(this).is(':checked');
+					objPar[key] = $(this).is(':checked');
 				}else if($(this).attr('type') == 'number'){
-					item.meshParams[key] = $(this).val() * 1.0;
+					objPar[key] = $(this).val() * 1.0;
 				}else if($(this).attr('type') == 'custom_input'){
-					item.meshParams[key] = $(this).find('.selected').attr('data-value');
+					objPar[key] = $(this).find('.selected').attr('data-value');
 				}else{
-					item.meshParams[key] = $(this).val();
+					objPar[key] = $(this).val();
 				}
 			}
 		});

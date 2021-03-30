@@ -82,6 +82,20 @@ class Sill extends AdditionalObject {
 		//вентиляционные отверстия
 		if(par.meshParams.ventHoles != "нет") cost += 1000;
 
+		// Наличники
+		if (meshPar.windowSlope == 'есть') {
+			var slopeArea = getPartPropVal("windowSlope", "area", specObj);
+			var slopeVolume = getPartPropVal("windowSlope", "volume", specObj);
+			var slopePaintArea = getPartPropVal("windowSlope", "paintedArea", specObj);
+	
+			var timberPar = calcTimberParams(params.additionalObjectsTimberMaterial);
+			var paintPriceM2 = calcTimberPaintPrice(params.timberPaint, params.additionalObjectsTimberMaterial)
+			cost +=  slopeVolume * timberPar.m3Price + slopePaintArea * paintPriceM2;
+			
+			// Монтаж
+			cost +=  slopeArea * 1000;
+		}
+
 		return {
 			name: this.getDescr(par).title,
 			cost: cost,
@@ -101,6 +115,7 @@ class Sill extends AdditionalObject {
 		form.find('.holePar').hide();
 		form.find('[data-propid="len"]').closest('tr').show();
 		form.find('[data-propid="width"]').closest('tr').show();
+		form.find('.oriel_5_parts').closest('tr').hide();
 	
 //параметры эркера
 		if(form.find('[data-propid="geom"]').val() == "эркер") {
@@ -113,7 +128,15 @@ class Sill extends AdditionalObject {
 			
 			
 			var orielType = form.find('[data-propid="orielType"]').val();
-			
+
+			if (orielType == '05') {
+				form.find('.oriel_5_parts').closest('tr').show();
+				if (par.oriel_parts && par.oriel_parts[0]) {
+					$(form.find('.oriel_5_parts').find('[data-propid="oriel_angle"]')[0]).val(0);
+					par.oriel_parts[0].oriel_angle = 0;
+				}
+			}
+
 			form.find('[data-propid="orielSizeB"]').closest('div').hide();
 			if (orielType == '01' || orielType == '02') {
 				form.find('[data-propid="orielSizeB"]').closest('div').show();
@@ -333,6 +356,27 @@ class Sill extends AdditionalObject {
 				},
 				{
 					"type": "row_end"
+				},
+
+				{
+					"type": "dynamic_input",
+					"key": "oriel_parts",
+					"class": "oriel_5_parts",
+					"title": "Параметры эркера",
+					"template": [
+						{
+							"key": "oriel_len",
+							"title": "Длина:",
+							"default": 1000,
+							"type": "number",
+						},
+						{
+							"key": "oriel_angle",
+							"title": "Угол:",
+							"default": 0,
+							"type": "number",
+						},
+					]
 				},
 				{
 					"key": "geomSide",
