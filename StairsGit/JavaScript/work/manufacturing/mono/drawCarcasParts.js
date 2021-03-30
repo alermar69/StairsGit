@@ -2782,7 +2782,6 @@ function drawBackPlate(par) {
 	plate.rotation.y = -ang;
 
 	par.mesh.add(plate);
-	plate.setLayer('treads');
 
 	return par;
 
@@ -9428,7 +9427,7 @@ function drawDivideFlan(par) {
 
 	//отверстия для болтов
 	var holes = [];
-	var offsetHoleX = 20;
+	var offsetHoleX = 30;
 	var offsetHoleY = 25;
 	holes.push(newPoint_xy(p1, offsetHoleX, offsetHoleY));
 	holes.push(newPoint_xy(p4, -offsetHoleX, offsetHoleY));
