@@ -207,7 +207,6 @@ function drawSillEnv(par){
 	}
 
 	// Откосы деревянные
-	console.log(par.windowSlope);
 	if(par.windowSlope == 'есть'){
 		var slopeThickness = 20;
 		var slopeWidth = par.windowWidth;
@@ -225,7 +224,7 @@ function drawSillEnv(par){
 			width: slopeHeight,
 			thk: slopeThickness,
 			partName: "windowSlope",
-			material: params.additionalObjectsTimberMaterial
+			material: params.materials.additionalObjectTimber || params.materials.timber
 		}
 		var vertPart1 = drawPlate(platePar).mesh;
 		vertPart1.rotation.y = Math.PI / 2 + (Math.PI / 2 - bevelAngle);
@@ -246,7 +245,7 @@ function drawSillEnv(par){
 			width: par.windowPosZ,
 			thk: slopeThickness,
 			partName: "windowSlope",
-			material: params.additionalObjectsTimberMaterial
+			material: params.materials.additionalObjectTimber || params.materials.timber
 		}
 		var horPart = drawPlate(platePar).mesh;
 		horPart.rotation.x = Math.PI / 2;
@@ -259,10 +258,10 @@ function drawSillEnv(par){
 		var slopeSize = 40;
 		var platePar = {
 			len: slopeSize,
-			width: slopeHeight,
+			width: slopeHeight + par.thk,
 			thk: 4,
 			partName: "windowSlope",
-			material: params.additionalObjectsTimberMaterial
+			material: params.materials.additionalObjectTimber || params.materials.timber
 		}
 		var plate = drawPlate(platePar).mesh;
 		plate.position.z = par.wallThk;
@@ -277,15 +276,15 @@ function drawSillEnv(par){
 		par.mesh.add(plate);
 
 		var platePar = {
-			len: slopeWidth + slopeSize * 2 - slopeThickness * 2, // 40 * 2 - Два наличника
+			len: slopeWidth - slopeThickness * 2, // 40 * 2 - Два наличника
 			width: slopeSize,
 			thk: 4,
 			partName: "windowSlope",
-			material: params.additionalObjectsTimberMaterial
+			material: params.materials.additionalObjectTimber || params.materials.timber
 		}
 		var horPlate = drawPlate(platePar).mesh;
 		horPlate.position.z = par.wallThk;
-		horPlate.position.x = -par.windowWidth / 2 - slopeThickness;
+		horPlate.position.x = -par.windowWidth / 2 + slopeThickness;
 		horPlate.position.y = par.height + par.windowHeight - slopeThickness;
 		par.mesh.add(horPlate);
 	}

@@ -213,20 +213,6 @@
 				</tr>
 				
 				<tr>
-					<td>Шаблоны</td>
-					<td>
-						<select id="templatesAssmStage" size="1" onchange="">
-							<option value="1" selected >1</option>
-							<option value="2">2</option>
-							<option value="3">3</option>
-							<option value="4">4</option>
-							<option value="5">5</option>
-							<option value="нет">нет</option>
-						</select>
-					</td>
-				</tr>
-				
-				<tr>
 					<td>Ограждения</td>
 					<td>
 						<select id="railingAssmStage" size="1" onchange="">

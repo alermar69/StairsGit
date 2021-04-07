@@ -1,5 +1,5 @@
 var concrete = [];
-
+var concreteSectParams = {};
 function redrawConcrete(){
 
 //удаляем предыдущую лестницу
@@ -18,7 +18,7 @@ function redrawConcrete(){
 		var sectParams = {
 			dxfArr: [],
 			dxfBasePoint: {x:0, y:0},
-			};
+		};
 		$("#concreteParamsTable tr").eq(i).find('td input,select,textarea').each(function(){
 			var inputId = $(this).attr("id");
 			var propName = inputId.match(/^([^0-9]+)[0-9]+$/)[1]; //отсекаем индекс
@@ -30,33 +30,50 @@ function redrawConcrete(){
 		sectParams.material = concreteMaterial;
 		
 		if(sectParams.sectType == "марш"){
-			sectParams = drawMarsh(sectParams);			
-			}
+			sectParams = drawMarsh(sectParams);
+		}
 		if(sectParams.sectType == "поворот"){
-			sectParams = drawTurn(sectParams);			
-			}		
+			sectParams = drawTurn(sectParams);
+		}
 		if(sectParams.sectType == "площадка"){
-			sectParams = drawPlatform(sectParams);			
-			}
+			sectParams = drawPlatform(sectParams);
+		}
+		concreteSectParams[i] = sectParams;
 			
 		var mesh = sectParams.mesh;
-			mesh.position.x = sectParams.posX;
-			mesh.position.y = sectParams.posY;
-			mesh.position.z = sectParams.posZ;
-			mesh.rotation.y = sectParams.posAng * Math.PI / 180;
-			concrete.push(mesh);
-			mesh.objectRowClass = 'concreteParRow'
-			mesh.objectRowId = i;
-			
-			dxfBasePoint.x += 2000;
+		mesh.position.x = sectParams.posX * 1.0;
+		mesh.position.y = sectParams.posY * 1.0;
+		mesh.position.z = sectParams.posZ * 1.0;
+		mesh.rotation.y = sectParams.posAng * Math.PI / 180;
+		mesh.sectParams = {
+			id: i
+		};
+		concrete.push(mesh);
+		mesh.objectRowClass = 'concreteParRow'
+		mesh.objectRowId = i;
+
+		dxfBasePoint.x += 2000;
+	}
+
+	// Перемещаем соединенные секции
+	concrete.forEach(function(section){
+		var connectedSectionId = $('.concreteParRow[data-id="'+section.sectParams.id+'"]').find('input.connectedSectionId').val();
+		if (concreteSectParams[connectedSectionId * 1.0] && connectedSectionId && connectedSectionId != 0) {
+			var connectSect = concrete.find(s => s.sectParams.id == connectedSectionId);
+
+			var sectPar = concreteSectParams[connectedSectionId * 1.0];
+
+			section.position.x += connectSect.position.x + sectPar.connectPoint.x + concreteSectParams[section.sectParams.id].basePoint.x;
+			section.position.y += connectSect.position.y + sectPar.connectPoint.y + concreteSectParams[section.sectParams.id].basePoint.y;
+			section.position.z += connectSect.position.z + sectPar.connectPoint.z + concreteSectParams[section.sectParams.id].basePoint.z;
 		}
-		
+	});
+
 	//добавляем белые ребра для всех объектов
 	for (var i = 0; i < concrete.length; i++) addWareframe(concrete[i], concrete);
 	
 	//добавляем объекты в сцену
 	addObjects(false, concrete, 'concrete');
-
 }; //end of drawConcrete
 
 
@@ -77,7 +94,8 @@ function drawMarsh(par){
 		point = newPoint_xy(point, par.b*1.0, 0);
 		points.push(point) 
 	};
-	var botLineP1 = points[points.length - 1]
+
+	var botLineP1 = points[points.length - 1];
 	
 	if(par.marshType == "пилообразный"){
 		//Точки на нижней линии
@@ -85,7 +103,7 @@ function drawMarsh(par){
 
 		//верхняя точка
 		var point = itercection(botLineP1, newPoint_xy(botLineP1, 0, -100), botLine.p1, botLine.p2);
-		points.push(point)
+		points.push(point);
 		
 		//нижняя точка
 		var point = itercection(points[0], newPoint_xy(points[0], 100, 0), botLine.p1, botLine.p2);
@@ -103,7 +121,7 @@ function drawMarsh(par){
 			points.push(point) 
 			point = newPoint_xy(point, -par.b*1.0, 0);
 			points.push(point)			
-			};
+		};
 		point = newPoint_xy(points[0], par.b * 1.0 + par.sectThk * 1.0, 0);
 		points.push(point);	
 	}
@@ -112,17 +130,29 @@ function drawMarsh(par){
 		if(i < points.length-1) addLine(shape, dxfPrimitivesArr, points[i], points[i+1], par.dxfBasePoint);
 		if(i == points.length-1) addLine(shape, dxfPrimitivesArr, points[i], points[0], par.dxfBasePoint);
 	};
-		
+
+	par.basePoint = {
+		x:0,y:0,z:0
+	}
+
+	par.connectPoint = {
+		x: botLineP1.x,
+		y: botLineP1.y,
+		z: par.M / 2,
+	}
+
+	par.sectLen = botLineP1.x;
+
 	var extrudeOptions = {
 		amount: par.M,
 		bevelEnabled: false,
 		curveSegments: 12,
 		steps: 1
 	};
-		
+
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
-    geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-    var marsh = new THREE.Mesh(geom, par.material);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var marsh = new THREE.Mesh(geom, par.material);
 	par.mesh.add(marsh);
 	
 	//деревянные ступени
@@ -244,6 +274,14 @@ function drawTurn(par){
 		material: par.material,
 		thk: 300,
 		nose: 0,
+	}
+
+	par.basePoint = {
+		x:0, y:0, z: 0
+	}
+
+	par.connectPoint = {
+		x: 0, y: par.h * par.stairAmt, z: 0
 	}
 
 	for(var i=0; i<par.stairAmt; i++){
@@ -612,7 +650,7 @@ function drawPlatform(par){
 	par.sectWidthS = par.sectWidthS * 1.0;
 	par.sectLen = par.sectLen * 1.0;
 	
-	var treadThickness = par.sectThk;
+	var treadThickness = par.sectThk * 1.0;
 	var extrudeOptions = {
 		amount: treadThickness,
 		bevelEnabled: false,
@@ -634,6 +672,17 @@ function drawPlatform(par){
 	addLine(shape, par.dxfArr, p1, p2, par.dxfBasePoint);
 	addLine(shape, par.dxfArr, p2, p3, par.dxfBasePoint);
 	addLine(shape, par.dxfArr, p3, p0, par.dxfBasePoint);
+
+	par.basePoint = {
+		x:0,y:treadThickness,z:0
+	}
+
+	par.connectPoint = {
+		x: 0,
+		y: 0,
+		z: 0,
+	}
+
 	
 	//console.log(par)
 	//console.log(p0, p1, p2, p3);

@@ -107,21 +107,21 @@ function getExportData_com(checkSumm){
 				metalPaint: priceObj['carcasMetalPaint'] ? priceObj['carcasMetalPaint'].discountPrice : 0,
 				timberPaint: 0,
 				stage: params.carcasAssmStage,
-				},
+			},
 			treads: {
 				name: "Ступени",
 				price: priceObj['treads'] ? priceObj['treads'].discountPrice : 0,
 				metalPaint: 0,
 				timberPaint: priceObj['carcasTimberPaint'] ? priceObj['carcasTimberPaint'].discountPrice : 0,
 				stage: params.treadsAssmStage,
-				},
+			},
 			railing: {
 				name: "Ограждения",
 				price: priceObj['railing'] ? priceObj['railing'].discountPrice : 0,
 				metalPaint: priceObj['railingMetalPaint'] ? priceObj['railingMetalPaint'].discountPrice : 0,
 				timberPaint: priceObj['railingTimberPaint'] ? priceObj['railingTimberPaint'].discountPrice : 0,
 				stage: params.railingAssmStage,
-				},
+			},
 			banister: {
 				name: "Балюстрада",
 				price: priceObj['banister'] ? priceObj['banister'].discountPrice : 0,
@@ -129,6 +129,18 @@ function getExportData_com(checkSumm){
 				timberPaint: priceObj['banisterTimberPaint'] ? priceObj['banisterTimberPaint'].discountPrice : 0,
 				stage: params.banisterAssmStage,
 			},
+			assembling: {
+				name: "Установка",
+				price: priceObj['assembling'].discountPrice,
+				metalPaint: 0,
+				timberPaint: 0,
+			},
+			delivery: {
+				name: "Доставка",
+				price: priceObj['delivery'].discountPrice,
+				metalPaint: 0,
+				timberPaint: 0,
+			}
 		};
 		
 	}
@@ -147,6 +159,18 @@ function getExportData_com(checkSumm){
 				metalPaint: 0,
 				timberPaint: 0,
 			},
+			assembling: {
+				name: "Установка",
+				price: priceObj['assembling'].discountPrice,
+				metalPaint: 0,
+				timberPaint: 0,
+			},
+			delivery: {
+				name: "Доставка",
+				price: priceObj['delivery'].discountPrice,
+				metalPaint: 0,
+				timberPaint: 0,
+			}
 		};
 	}
 		
@@ -179,6 +203,18 @@ function getExportData_com(checkSumm){
 				metalPaint: 0,
 				timberPaint: 0,
 			},
+			assembling: {
+				name: "Установка",
+				price: priceObj['assembling'].discountPrice,
+				metalPaint: 0,
+				timberPaint: 0,
+			},
+			delivery: {
+				name: "Доставка",
+				price: priceObj['delivery'].discountPrice,
+				metalPaint: 0,
+				timberPaint: 0,
+			}
 		};		
 	};
 	
@@ -223,7 +259,7 @@ function getExportData_com(checkSumm){
 		
 		if(!price_data.main.assembling) price_data.main.assembling = 0;
 		for(var unit in price_data){
-			if(unit != "main"){
+			if(unit != "main" && unit != 'assembling' && unit != 'delivery'){
 				var totalPrice = 0;
 				for(var pricePart in price_data[unit]){
 					if(pricePart != "name" && pricePart != "stage"){
@@ -234,8 +270,8 @@ function getExportData_com(checkSumm){
 						//подсчитываем общие данные по заказу
 						price_data.main[pricePart] += price_data[unit][pricePart];
 						price_data.main.production += price_data[unit][pricePart];
-						}
-					};
+					}
+				};
 				price_data[unit].production = totalPrice;			
 			};
 		};
@@ -284,7 +320,6 @@ function getExportData_com(checkSumm){
 	//общая цена заказа
 
 	var totalPrice = price_data.main.production + price_data.main.assembling + price_data.main.delivery
-
 	if(Math.abs(priceObj['total'].discountPrice - totalPrice) > 0.01 && checkPrice && totalPrice){
 		console.log("Ошибка расчета цены для выгрузки: " + totalPrice + " != " + priceObj['total'].discountPrice )
 		// отправка сообщения об ошибке в багтрекер
@@ -734,7 +769,7 @@ function getExportData_com(checkSumm){
 	//проверка
 	var deptsSum = dept_data.metal + dept_data.timber + dept_data.partners;
 
-	if(Math.abs(deptsSum - price_data.main.production) > 1 && checkPrice){
+	if(Math.abs(deptsSum - price_data.main.production) > 0.5 && checkPrice){
 		var errorText = "Ошибка расчета сумм по цехам - сумма стоимости по цехам не равна стоимости изделия: " + deptsSum + " != " + price_data.main.production;
 		console.log(errorText);
 		// отправка сообщения об ошибке в багтрекер
@@ -1014,6 +1049,31 @@ function getExportData_com(checkSumm){
 	if(params.isAssembling == "есть") cost_data.assembling = calcAssemblingWage().totalWage;
 	if(workList && workList.painting) cost_data.painting = workList.painting.totalWage;
 	cost_data.vp = $("#vpSum").text() * 1.0;
+	cost_data.assembling_parts = {};
+	var assemblingParts = getAssemblingPartsPrice();
+	// var totalAssemblingParts = 0;
+
+	for(var part in assemblingParts){
+		cost_data.assembling_parts[assemblingParts[part].key] = assemblingParts[part].cost;
+	}
+
+	for (const unit in price_data) {
+		if(unit != 'main' && priceObj[unit]) cost_data[unit] = priceObj[unit].cost;
+	}
+
+	// if(Math.abs(cost_data.assembling - totalAssemblingParts) > 1.5){
+	// 	console.log("Ошибка расчета цены для себестоимости установки: " + cost_data.assembling + " != " + totalAssemblingParts )
+	// 	// отправка сообщения об ошибке в багтрекер
+		
+	// 	var reportPar = {
+	// 		description: "Ошибка расчета цены для себестоимости установки",
+	// 		screenshoot: "system",
+	// 		link: window.location.href,
+	// 		user: $("#userName").text(),
+	// 		noAlerts: true,
+	// 	}
+	// 	sendBugReport(reportPar); //функция в файле sendReport.js
+	// }
 		
 	//данные по этапам монтажа
 	var assembling_data = {};
@@ -1043,7 +1103,7 @@ function getExportData_com(checkSumm){
 	}
 	assembling_data.comment_assm = $("#comments_assm").val();
 	assembling_data.comment_prod = $("#comments_prod").val();
-	
+	price_data.stages_data = makeStagesData();
 	//возвращаемый объект
 	var exportObj = {
 		price_data: price_data,
@@ -1052,7 +1112,7 @@ function getExportData_com(checkSumm){
 		production_data: workList_sm,
 		materials_data: materials_sm,
 		cost_data: cost_data,
-		assembling_data: assembling_data,
+		assembling_data: assembling_data
 	}
 
 	return exportObj;
@@ -1063,37 +1123,46 @@ function makeStagesData(){
 		carcas: {
 			name: "Каркас",
 			dept_data: {
-				metal: priceObj['carcas'].discountPrice
+				metal: priceObj['carcas'] ? priceObj['carcas'].discountPrice : 0
 			},
 			stage: params.carcasAssmStage
 		},
 		treads: {
 			name: "Ступени",
 			dept_data:{
-				timber: priceObj['treads'].discountPrice
+				timber: priceObj['treads'] ? priceObj['treads'].discountPrice : 0
 			},
 			stage: params.treadsAssmStage
 		},
 		railing: {
 			name: "Ограждения",
-			price: priceObj['railing'].discountPrice,
 			dept_data: {
-				metal: priceObj['railing_metal'].discountPrice,
-				timber: priceObj['railing_timber'].discountPrice,
-				partners: priceObj['railing_glass'].discountPrice
+				metal: priceObj['railing_metal'] ? priceObj['railing_metal'].discountPrice : 0,
+				timber: priceObj['railing_timber'] ? priceObj['railing_timber'].discountPrice : 0,
+				partners: priceObj['railing_glass'] ? priceObj['railing_glass'].discountPrice : 0
 			},
 			stage: params.railingAssmStage
 		},
 		banister: {
 			name: "Балюстрада",
 			dept_data: {
-				metal: priceObj['banister_metal'].discountPrice,
-				timber: priceObj['banister_timber'].discountPrice,
-				partners: priceObj['railing_glass'].discountPrice
+				metal: priceObj['banister_metal'] ? priceObj['banister_metal'].discountPrice : 0,
+				timber: priceObj['banister_timber'] ? priceObj['banister_timber'].discountPrice : 0,
+				partners: priceObj['banister_glass'] ? priceObj['banister_glass'].discountPrice : 0
 			},
 			stage: params.banisterAssmStage
 		},
 	};
+
+	if(params.calcType == 'timber_stock'){
+		stagesData.carcas.dept_data.timber = stagesData.carcas.dept_data.metal;
+		delete stagesData.carcas.dept_data.metal;
+	}
+
+	if (params.stairType == "стекло") {
+		stagesData.treads.dept_data.partners = stagesData.treads.dept_data.tmiber;
+		delete stagesData.treads.dept_data.tmiber;
+	}
 
 	var stages = {};
 	$.each(stagesData, function(key){
@@ -1101,7 +1170,7 @@ function makeStagesData(){
 		this.element = key;
 		stages[this.stage].push(this)
 	})
-	return Object.values(stages);
+	return stages;
 }
 
 function addOfferToOrder(data, callback){
@@ -1114,26 +1183,26 @@ function addOfferToOrder(data, callback){
 	var queryUrl = "/orders/offer-controller/action-create";
 	if(testDb) queryUrl = "/dev/rodionov/orders/offer-controller/action-create";
 
-    $.ajax({
-        url: queryUrl,
-        type: "POST",
-        dataType: 'json',
-        data: {
-			price_data: JSON.stringify(data.price_data),
-			dept_data: JSON.stringify(data.dept_data),
-			product_descr: data.product_descr,
-			total_sum: data.price_data.main.total,
-			production_price: data.price_data.main.production,
-			assembling_price: data.price_data.main.assembling,
-			name: $("#orderName").val(),
-			calc_type: $("#calcType").val(),
-			manager: $("#managerName").val(),
-			user: $("#userName").text(),
-			order_id: getOrderId(), //функция в файле dataExchangeXml_3.1.js
-			production_data: JSON.stringify(data.production_data),
-			materials_data: JSON.stringify(data.materials_data),
-			cost_data: JSON.stringify(data.cost_data),
-			assembling_data: JSON.stringify(data.assembling_data),
+		$.ajax({
+			url: queryUrl,
+			type: "POST",
+			dataType: 'json',
+			data: {
+				price_data: JSON.stringify(data.price_data),
+				dept_data: JSON.stringify(data.dept_data),
+				product_descr: data.product_descr,
+				total_sum: data.price_data.main.total,
+				production_price: data.price_data.main.production,
+				assembling_price: data.price_data.main.assembling,
+				name: $("#orderName").val(),
+				calc_type: $("#calcType").val(),
+				manager: $("#managerName").val(),
+				user: $("#userName").text(),
+				order_id: getOrderId(), //функция в файле dataExchangeXml_3.1.js
+				production_data: JSON.stringify(data.production_data),
+				materials_data: JSON.stringify(data.materials_data),
+				cost_data: JSON.stringify(data.cost_data),
+				assembling_data: JSON.stringify(data.assembling_data),
 			},
 
         success: function (data) {

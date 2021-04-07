@@ -1,5 +1,6 @@
 //var costMarkup = 1.3; //07.05.20;
-var costMarkup = 1.56; //11.01.21
+//var costMarkup = 1.56; //11.01.21
+var costMarkup = 1.6; //31.03.21
 
 /** функия обертка для совместимости с общей структурой **/
 function calculateCarcasPrice(){
@@ -36,7 +37,7 @@ function calcCarportCost(){
 	
 	if(params.beamModel == "сужающаяся" || params.beamModel == "постоянной ширины"){
 		// Продольные балки (18 швеллер)
-		var beamMeterCost = 700; //500р/м цена материала, 200р/м - плазма + приварка фланцев
+		var beamMeterCost = 1000; //800р/м цена материала, 200р/м - плазма + приварка фланцев
 		beamCost = getPartPropVal('trussSide', 'sumLength') * beamMeterCost;
 	}
 
@@ -70,6 +71,8 @@ function calcCarportCost(){
 		if(params.roofThk == 0.7) var roofMeterCost = 600;
 	}
 	
+	roofMeterCost *= 1.3; //1.3 - подъем цен 31.03.21
+	
 	var roofCoverCost = getPartPropVal('polySheet', 'area') * roofMeterCost;
 	
 	//соединительные профиля для поликарбоната
@@ -83,8 +86,8 @@ function calcCarportCost(){
 	var roofShimPrice = 10 * getPartAmt('termoShim');//progonLength / 500;
 
 	// Расчет стоимости ферм
-	var list8mmPrice = 4000;
-	var list4mmPrice = 2500;
+	var list8mmPrice = 5000;
+	var list4mmPrice = 3000;
 	var trussListPrice = params.trussThk == 8 ? list8mmPrice : list4mmPrice;
 	
 	// Поперечные фермы

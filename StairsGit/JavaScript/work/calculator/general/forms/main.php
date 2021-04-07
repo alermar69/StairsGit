@@ -67,6 +67,11 @@
 	if ($template == 'calculator' && $calc_type == "objects" && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
 		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/objects.php";
 	}
+
+	//экспресс построение бетонных лестниц
+	if ($template == 'calculator' && $calc_type == "railing" && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
+		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/railing.php";
+	}
 	
 	if($template != 'customers' && $calc_type != 'slabs' && $calc_type != 'custom' && $calc_type != 'fire_2') {
 		if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {

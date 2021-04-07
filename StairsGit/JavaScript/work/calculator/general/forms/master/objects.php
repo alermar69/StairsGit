@@ -46,6 +46,9 @@
 						<th>Ширина</th>
 						<th>Толщина</th>
 						<th>Количество</th>
+						<th>Объем, м3</th>
+						<th>Площадь, м2</th>
+						<th>Покр, м2</th>
 						<th></th>
 					</tr>
 					
@@ -54,6 +57,9 @@
 						<td><input class="itemWidth" type="number" value="300"></td>
 						<td><input class="itemThk" type="number" value="40"></td>
 						<td><input class="itemAmt" type="number" value="1"></td>
+						<td class="itemVol"></td>
+						<td class="itemArea"></td>
+						<td class="itemPaintingArea"></td>
 						<td class="removeRow" style="text-align: center">
 							<button class="btn btn-outline-danger" style="margin: 2px" data-toggle="tooltip" title="Удалить" data-original-title="Удалить">
 								<i class="fa fa-trash-o"></i>

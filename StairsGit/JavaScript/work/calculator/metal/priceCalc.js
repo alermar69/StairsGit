@@ -1,5 +1,6 @@
 //var costMarkup = 1.3; //07.05.20;
-var costMarkup = 1.56; //11.01.21
+//var costMarkup = 1.56; //11.01.21
+var costMarkup = 1.6; //31.03.21
 var priceObj = {};
 
 function calculateCarcasPrice(){
@@ -10,8 +11,8 @@ function calculateCarcasPrice(){
 function calMetalStairCost(){
 
 //тетивы
-var stringerMeterPrice = 4000; //цена тетивы из листа за м2
-if(params.stringerModel == "короб") stringerMeterPrice = 10000;
+var stringerMeterPrice = 5000; //цена тетивы из листа за м2
+if(params.stringerModel == "короб") stringerMeterPrice = 12000;
 
 var stringerArea = getPartPropVal('stringer', 'area') + getPartPropVal('bridge', 'area') + getPartPropVal('pltStringer', 'area')
 

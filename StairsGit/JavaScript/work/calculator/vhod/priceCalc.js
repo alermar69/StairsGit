@@ -1,5 +1,6 @@
 //var costMarkup = 1.3; //07.05.20;
-var costMarkup = 1.56; //11.01.21
+//var costMarkup = 1.56; //11.01.21
+var costMarkup = 1.6; //31.03.21
 
 function calculateCarcasPrice_stock(){
 
@@ -50,7 +51,7 @@ var stringerThickness = 8;
 var platformWidth_3 = params.platformWidth_3;
 if(platformTop == "площадка") platformWidth_3 = M;
 
-var nacenka = 1.45;
+var nacenka = 2;
 
 //адаптация расчета с сайта lp к нормальным именам переменных
 var stairWidth = params.M;
@@ -159,7 +160,7 @@ var totalCarcasPrice = stringerPrice + framePrice + columnPrice + pltExtenderPri
 var treadsTotalPrice = dpcPrice;
 
 //сохраняем себестоимость в глобальный объект
-var costFactor = 0.7 / nacenka;
+var costFactor = 0.7;
 var totalCostCarcas = (stringerPrice + framePrice + columnPrice + pltExtenderPrice) * costFactor;
 staircaseCost.stringer = stringerPrice * costFactor;
 staircaseCost.angles = 0;
@@ -195,7 +196,7 @@ railingParams.handrailLength = []; // массив длин поручней
 railingParams.rigelLength = []; //массив длин ригелей
 
 
-var nacenka = 1.45;
+var nacenka = 2;
 
 //Задаем локальные переменные
 var stairAmt = params.stairAmt1;

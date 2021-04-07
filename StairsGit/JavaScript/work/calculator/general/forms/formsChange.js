@@ -197,10 +197,10 @@ if (params.stairModel == "П-образная трехмаршевая") {
 $(".topPlt").hide();
 $(".topFixParams").show();
 	
-if (params.platformTop == "площадка") {
+if (params.platformTop != "нет") {
 	$(".topPlt").show();
 	$(".topFixParams").hide();
-	}
+}
 	
 if(params.calcType == "vint"){
 	$('.marsh1').hide();

@@ -19,78 +19,82 @@ function moveToPoint(id, type){
  */
 function firstPointSelect(){
 	window.firstPointSelected = true;
-	addNotify('Выберите вторую точку или выберите ось');
-	var point = lastSelectedPoint;
+	if (objectMovingType != 'railing') {
+		addNotify('Выберите вторую точку или выберите ось');
+		var point = lastSelectedPoint;
+		
+		var geometry = new THREE.BoxGeometry(20, 20, 50);
+		
+		axisObject = new THREE.Object3D();
 	
-	var geometry = new THREE.BoxGeometry(20, 20, 50);
+		var xAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#FF0000"}));
+		xAxis.position.x = point.x + 25;
+		xAxis.position.y = point.y;
+		xAxis.position.z = point.z;
+		xAxis.isAxis = true;
+		xAxis.rotation.y = Math.PI / 2;
+		xAxis.axis = 'x';
+		xAxis.factor = 1;
+		xAxis.hoverable = true;
+		axisObject.add(xAxis);
 	
-	axisObject = new THREE.Object3D();
-
-	var xAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#FF0000"}));
-	xAxis.position.x = point.x + 25;
-	xAxis.position.y = point.y;
-	xAxis.position.z = point.z;
-	xAxis.isAxis = true;
-	xAxis.rotation.y = Math.PI / 2;
-	xAxis.axis = 'x';
-	xAxis.factor = 1;
-	xAxis.hoverable = true;
-	axisObject.add(xAxis);
-
-	var xAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#FF0000"}));
-	xAxis.position.x = point.x - 25;
-	xAxis.position.y = point.y;
-	xAxis.position.z = point.z;
-	xAxis.isAxis = true;
-	xAxis.rotation.y = Math.PI / 2;
-	xAxis.axis = 'x';
-	xAxis.factor = -1;
-	xAxis.hoverable = true;
-	axisObject.add(xAxis);
-
-	var yAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#00FF00"}));
-	yAxis.position.x = point.x;
-	yAxis.position.y = point.y + 25;
-	yAxis.position.z = point.z;
-	yAxis.rotation.x = Math.PI / 2;
-	yAxis.isAxis = true;
-	yAxis.axis = 'y';
-	yAxis.factor = 1;
-	yAxis.hoverable = true;
-	axisObject.add(yAxis);
-
-	var yAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#00FF00"}));
-	yAxis.position.x = point.x;
-	yAxis.position.y = point.y - 25;
-	yAxis.position.z = point.z;
-	yAxis.rotation.x = Math.PI / 2;
-	yAxis.isAxis = true;
-	yAxis.axis = 'y';
-	yAxis.factor = -1;
-	yAxis.hoverable = true;
-	axisObject.add(yAxis);
-
-	var zAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#0000FF"}));
-	zAxis.position.x = point.x;
-	zAxis.position.y = point.y;
-	zAxis.position.z = point.z + 25;
-	zAxis.isAxis = true;
-	zAxis.axis = 'z';
-	zAxis.factor = 1;
-	zAxis.hoverable = true;
-	axisObject.add(zAxis);
-
-	var zAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#0000FF"}));
-	zAxis.position.x = point.x;
-	zAxis.position.y = point.y;
-	zAxis.position.z = point.z - 25;
-	zAxis.isAxis = true;
-	zAxis.axis = 'z';
-	zAxis.factor = -1;
-	zAxis.hoverable = true;
-	axisObject.add(zAxis);
-
-	view.scene.add(axisObject);
+		var xAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#FF0000"}));
+		xAxis.position.x = point.x - 25;
+		xAxis.position.y = point.y;
+		xAxis.position.z = point.z;
+		xAxis.isAxis = true;
+		xAxis.rotation.y = Math.PI / 2;
+		xAxis.axis = 'x';
+		xAxis.factor = -1;
+		xAxis.hoverable = true;
+		axisObject.add(xAxis);
+	
+		var yAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#00FF00"}));
+		yAxis.position.x = point.x;
+		yAxis.position.y = point.y + 25;
+		yAxis.position.z = point.z;
+		yAxis.rotation.x = Math.PI / 2;
+		yAxis.isAxis = true;
+		yAxis.axis = 'y';
+		yAxis.factor = 1;
+		yAxis.hoverable = true;
+		axisObject.add(yAxis);
+	
+		var yAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#00FF00"}));
+		yAxis.position.x = point.x;
+		yAxis.position.y = point.y - 25;
+		yAxis.position.z = point.z;
+		yAxis.rotation.x = Math.PI / 2;
+		yAxis.isAxis = true;
+		yAxis.axis = 'y';
+		yAxis.factor = -1;
+		yAxis.hoverable = true;
+		axisObject.add(yAxis);
+	
+		var zAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#0000FF"}));
+		zAxis.position.x = point.x;
+		zAxis.position.y = point.y;
+		zAxis.position.z = point.z + 25;
+		zAxis.isAxis = true;
+		zAxis.axis = 'z';
+		zAxis.factor = 1;
+		zAxis.hoverable = true;
+		axisObject.add(zAxis);
+	
+		var zAxis = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: "#0000FF"}));
+		zAxis.position.x = point.x;
+		zAxis.position.y = point.y;
+		zAxis.position.z = point.z - 25;
+		zAxis.isAxis = true;
+		zAxis.axis = 'z';
+		zAxis.factor = -1;
+		zAxis.hoverable = true;
+		axisObject.add(zAxis);
+	
+		view.scene.add(axisObject);
+	}else{
+		addNotify('Выберите вторую точку');
+	}
 }
 
 /** перемещение объекта по выбранной оси
@@ -289,6 +293,38 @@ function moveObjectTwoPoints(){
 		redrawWalls();
 
 		objectMovingId = false;
+	}
+
+	if(window.objectMovingId && window.objectMovingType == 'railing'){
+		// $("#drawRailingSect").click(function(){
+		var el = $('.railingParRow[data-id="'+window.objectMovingId+'"]');
+		var p1 = lastSelectedPoint1; //глобавльная переменная из файла viewports
+		var p2 = lastSelectedPoint; //глобавльная переменная из файла viewports
+		
+		var height = p2.y - p1.y;
+		var posAng = -Math.atan((p2.z - p1.z)/(p2.x - p1.x))
+		if(p1.y > p2.y && p1.x > p2.x) posAng += Math.PI;
+		if(Math.abs(posAng) < 0.0001) posAng = 0;
+		
+		var len = Math.sqrt((p2.z - p1.z) * (p2.z - p1.z) + (p2.x - p1.x) * (p2.x - p1.x));
+		if(len == 0) {
+			alertTrouble("Неверные точки. Не удалось построить секцию ограждения.");
+			console.log(p1, p2)
+			return;
+		}
+		var angle = 0;
+		if(height != 0) angle = Math.atan(height / len);
+		
+		
+		$(el).find("input.railingPosX").eq(0).val(p1.x)
+		$(el).find("input.railingPosY").eq(0).val(p1.y)
+		$(el).find("input.railingPosZ").eq(0).val(p1.z)
+		$(el).find("input.railingPosAng").eq(0).val(posAng * 180 / Math.PI)
+		
+		$(el).find("input.len").eq(0).val(len)
+		$(el).find("input.angle").eq(0).val(angle * 180 / Math.PI)
+
+		recalculate();
 	}
 	firstPointSelected = false;
 	addNotify('Объект перемещен');

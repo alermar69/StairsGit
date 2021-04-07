@@ -2,7 +2,7 @@
 
 <table class="form_table" style="width:100%" id="concreteParamsTable" >
 <tbody>
-<tr><th>N</th><th>Тип</th><th width="140px">Параметры</th><th>Позиция</th><th>X</th></tr> 
+<tr><th>N</th><th>Тип</th><th width="140px">Параметры</th><th>Позиция</th><th>Действия</th></tr> 
 
 </tbody>
 </table>

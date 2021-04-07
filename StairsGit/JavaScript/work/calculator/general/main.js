@@ -280,7 +280,7 @@ function recalculate() {
 				updateModifyChanges();
 
 				setTimeout(function(){
-					if(params.calcType == "objects")drawSceneDimensions();
+					if(params.calcType == "objects") drawSceneDimensions();
 				}, 0);
 
 				if ($("#calcType").val() == "objects" || window.isMulti && currentPriceItem == null) staircaseLoaded();

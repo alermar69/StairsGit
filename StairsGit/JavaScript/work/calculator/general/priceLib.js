@@ -603,15 +603,6 @@ function printRailingCost(railingName, outputDivId) {
 
 	//Округляем все цифры
 
-	for (var prop in staircaseCost) {
-		if (!isNaN(staircaseCost[prop]) && prop != "timberPart") {
-			staircaseCost[prop] = Math.round(staircaseCost[prop]);
-			if (priceObj[prop]) {
-				priceObj[prop].cost = staircaseCost[prop]
-			}
-		};
-	}
-
 	var text = "";
 	if (railingName == "лестница") {
 		text +=
@@ -870,7 +861,7 @@ function calculateTotalPrice2() {
 			alertTrouble("Для модуля " + name + " не задан к-т на себестоимость.", 'forms', true);
 		}
 		//дополнительные услуги
-		// if (unit == "assembling" || unit == "delivery") priceObj[unit].isOption = true;
+		if (unit == "assembling" || unit == "delivery") priceObj[unit].isOption = true;
 	};
 
 	//распределение позиций объекта staircaseCost по частям лестницы
@@ -965,15 +956,17 @@ function calculateTotalPrice2() {
 		}
 	}
 	
-	//стоимость сборки должна быть не менее 20% стоимости изделия
+	//стоимость сборки должна быть не менее 10% стоимости изделия
 	if(params.isAssembling != "нет"){
-		if (priceObj["assembling"].price < productionPrice * 0.2) priceObj["assembling"].price = Math.round(productionPrice * 0.2);
+		if (priceObj["assembling"].price < productionPrice * 0.2) priceObj["assembling"].price = Math.round(productionPrice * 0.1);
 		
 		//если доставка включена в монтаж
 		if(params.deliveryInAssembling == "да") {
 			priceObj["assembling"].price += priceObj["delivery"].price;
 			priceObj["delivery"].price = 0;
 		}
+		
+		priceObj["assembling"].price *= params.assemblingPriceFactor;
 	}
 	
 	//общая цена заказа
@@ -988,7 +981,6 @@ function calculateTotalPrice2() {
 	if (params.discountMode == "процент") {
 		for (var unit in priceObj) {
 			priceObj[unit].discount = Math.round(priceObj[unit].price * params.discountFactor / 100);
-			if (priceObj[unit].isOption) priceObj[unit].discount = 0;
 			priceObj[unit].discountPrice = Math.round(priceObj[unit].price - priceObj[unit].discount);
 		}
 	}
@@ -1003,12 +995,7 @@ function calculateTotalPrice2() {
 		//распределяем скидку пропорционально между всеми позициями
 		var discountSum2 = 0;
 		for (var unit in priceObj) {
-			if (!priceObj[unit].isOption) {
-				priceObj[unit].discount = Math.round(discountSum * priceObj[unit].price / productionPrice);
-			}
-			if (priceObj[unit].isOption) {
-				priceObj[unit].discount = 0;
-			}
+			priceObj[unit].discount = Math.round(discountSum * priceObj[unit].price / totalPrice);
 			priceObj[unit].discountPrice = Math.round(priceObj[unit].price - priceObj[unit].discount);
 			discountSum2 += priceObj[unit].discount;
 		};
@@ -1050,7 +1037,7 @@ function calculateTotalPrice2() {
 	}
 
 	priceObj.total.name = "Итого";
-	priceObj.total.productionPrice = productionPrice + priceObj["assembling"].price + priceObj["delivery"].price;
+	priceObj.total.productionPrice = productionPrice;
 
 	// Сохраняем priceObj этажа для вывода после расчета
 	if (window.isMulti && currentPriceItem != null) {
@@ -1059,6 +1046,15 @@ function calculateTotalPrice2() {
 			priceItem.priceObj = priceObj;
 			priceItem.priceObj = priceObj;
 		}
+	}
+
+	for (var prop in staircaseCost) {
+		if (!isNaN(staircaseCost[prop]) && prop != "timberPart") {
+			staircaseCost[prop] = Math.round(staircaseCost[prop]);
+			if (priceObj[prop]) {
+				priceObj[prop].cost = Math.round(priceObj[prop].cost)
+			}
+		};
 	}
 }
 
@@ -1363,13 +1359,15 @@ function printCost2() {
 				"<td>" + _priceObj[unit].discount + "</td>" +
 				"<td>" + _priceObj[unit].discountPrice + "</td>" +
 				"<td>" + _priceObj[unit].vp + "</td>" +
+				"<td>" + Math.round(_priceObj[unit].vp / _priceObj[unit].discountPrice * 100) + "</td>" +
+				"<td>" + Math.round(_priceObj[unit].vp - _priceObj[unit].cost * 0.5) + "</td>" +
 				"</tr>";
 		}
 
 	};
 
 	var text =
-		"<table class='form_table'><tbody><tr><th>Наименование</th><th>Себестоимость</th><th>Цена</th><th>Скидка</th><th>Цена со скидкой</th><th>ВП</th></tr>" +
+		"<table class='form_table'><tbody><tr><th>Наименование</th><th>Себестоимость</th><th>Цена</th><th>Скидка</th><th>Цена со скидкой</th><th>ВП</th><th>% ВП</th><th>доп. скидка</th></tr>" +
 		tableBody +
 		"</tbody></table>";
 	var pricePolicy = getPricePolicy(_priceObj.total.discountPrice);
@@ -1390,6 +1388,33 @@ function printCost2() {
 
 
 	text += getPricePolicy(_priceObj.total.discountPrice).text;
+
+	// Таблица себестоимости установки
+
+	var assemblingPrice = getAssemblingPartsPrice();
+
+	var tableBody = "";
+	for (var unit in assemblingPrice) {
+
+		if (assemblingPrice[unit].name) {
+			tableBody += "<tr";
+			if (unit == "total") tableBody += " class='bold'"
+
+			tableBody += ">" +
+				"<td>" + assemblingPrice[unit].name + "</td>" +
+				"<td>" + assemblingPrice[unit].cost + "</td>" +
+				"<td>" + assemblingPrice[unit].price + "</td>" +
+				"<td>" + assemblingPrice[unit].discount + "</td>" +
+				"<td>" + assemblingPrice[unit].discountPrice + "</td>" +
+				"</tr>";
+		}
+
+	};
+
+	text += "<h4>Себестоимость установки</h4>"+
+		"<table class='form_table'><tbody><tr><th>Наименование</th><th>Себестоимость</th><th>Цена</th><th>Скидка</th><th>Цена со скидкой</th></tr>" +
+		tableBody +
+		"</tbody></table>";
 
 	// if (params.calcType == 'coupe')  text = "";
 
@@ -2084,7 +2109,7 @@ function calcHandrailMeterParams(par) {
  */
 
 function calcTimberParams(timberType) {
-	var m3Price = 42000;
+	var m3Price = 52000;
 	var treadsPanelName = "panelPine_40";
 	var riserPanelName = "panelPine_20";
 
@@ -2099,22 +2124,22 @@ function calcTimberParams(timberType) {
 		riserPanelName = "panelBirch_20";
 	}
 	if (timberType == "лиственница паркет." || timberType == "лиственница") {
-		m3Price = 74000;
+		m3Price = 80000;
 		treadsPanelName = "panelLarch_40";
 		riserPanelName = "panelLarch_20";
 	}
 	if (timberType == "лиственница ц/л") {
-		m3Price = 90000;
+		m3Price = 100000;
 		treadsPanelName = "panelLarchPremium_40";
 		riserPanelName = "panelLarchPremium_20";
 	}
 	if (timberType == "дуб паркет.") {
-		m3Price = 115000;
+		m3Price = 121000;
 		treadsPanelName = "panelOak_40";
 		riserPanelName = "panelOak_20";
 	}
 	if (timberType == "дуб ц/л") {
-		m3Price = 185000;
+		m3Price = 205000;
 		treadsPanelName = "panelOakPremium_40";
 		riserPanelName = "panelOakPremium_20";
 	}
@@ -2500,7 +2525,7 @@ function calcTimberPanelCost(par) {
 
 		var botPoleVol = botPoleLen * par.botPoleThk * par.botPoleWidth / 1000000000;
 
-		cost += botPoleVol * timberPar.m3Price + 300; //300р - стоимость работы по доклейке		
+		cost += botPoleVol * timberPar.m3Price + 1000; //1000р - стоимость работы по доклейке		
 
 	}
 
@@ -2668,3 +2693,75 @@ function calcDeliveryCost(){
 	return deliveryCost;
 	
 } //end of calcDeliveryCost
+
+/** функция возвращает стоимость металла за тонну и за m2
+*/
+function getMetalCost(){
+	var tonnCost = 80000; //стоимость за тонну
+	var density = 7.8; //плостность стали т/м3
+	
+	tonnCost += 20000; //изготовление
+	if (params.metalPaint != "нет") tonnCost += 20000; //покраска
+	
+	var cost = {		
+		tonn: tonnCost,
+		sheet2: tonnCost * 0.002 * density,
+		sheet4: tonnCost * 0.004 * density,
+		sheet8: tonnCost * 0.008 * density,
+	}
+	
+	return cost;	
+}
+
+function getAssemblingPartsPrice(){
+	var assemblingPrice = {};
+
+	if (priceObj['assembling'].discountPrice != 0) {
+		for (var unit in priceObj) {
+			if (unit != 'total' && unit != 'assembling' && unit != 'delivery' && priceObj[unit].cost) {
+				var kf = priceObj[unit].cost / (priceObj['total'].cost - priceObj['assembling'].cost - priceObj['delivery'].cost);
+				assemblingPrice['assembling_' + unit] = {
+					name: 'Установка ' + priceObj[unit].name,
+					key: unit,
+					cost: Math.round(priceObj['assembling'].cost * kf),
+					price: Math.round(priceObj['assembling'].price * kf),
+					discount: Math.round(priceObj['assembling'].discount * kf),
+					discountPrice: Math.round(priceObj['assembling'].discountPrice * kf),
+				}
+			}
+		}
+	}
+
+	assemblingPrice['total'] = {
+		name: 'Итого',
+		cost: 0,
+		price: 0,
+		discount: 0,
+		discountPrice: 0,
+	}
+
+	for (const unit in assemblingPrice) {
+		if (unit != 'total') {
+			assemblingPrice['total'].cost += assemblingPrice[unit].cost;
+			assemblingPrice['total'].price += assemblingPrice[unit].price;
+			assemblingPrice['total'].discount += assemblingPrice[unit].discount;
+			assemblingPrice['total'].discountPrice += assemblingPrice[unit].discountPrice;
+		}
+	}
+
+	if(Math.abs(priceObj['assembling'].cost - assemblingPrice['total'].cost) > 1.5){
+		console.log("Ошибка расчета цены для себестоимости установки: " + priceObj['assembling'].cost + " != " + assemblingPrice['total'].cost )
+		// отправка сообщения об ошибке в багтрекер
+		
+		var reportPar = {
+			description: "Ошибка расчета цены для себестоимости установки",
+			screenshoot: "system",
+			link: window.location.href,
+			user: $("#userName").text(),
+			noAlerts: true,
+		}
+		sendBugReport(reportPar); //функция в файле sendReport.js
+	}
+
+	return assemblingPrice;
+}

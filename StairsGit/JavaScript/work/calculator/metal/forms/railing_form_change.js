@@ -31,8 +31,8 @@ if(params.model == "ко" || params.calcType == "mono"){
 	$("#railingModel option[value='Стекло']").show();
 	}
 
-	
-if(params.calcType == "vhod"){
+
+if(params.calcType == "vhod" || params.calcType == "veranda"){
 
 	//вывод кол-ва маршей в зависимости от модели
 	$("#marsh_2_perila_tr").hide();

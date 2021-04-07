@@ -973,7 +973,7 @@ function formatDate(date, format){
 			if(date.getMonth() >= 9) dateString += "." + (date.getMonth() + 1);	
 			var year = date.getFullYear();
 			dateString += "." + (year - 2000);
-			dateString += " - " + date.getHours() + ":" + date.getMinutes()
+			dateString += " - " + date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())
 		}
 		if(format == "dd.MM_wd"){			
 			dateString += " ";
@@ -1020,3 +1020,13 @@ function matchInArray(expression, items) {
 	}
 	return results;
 };
+
+/** функция возвращает к-т для расчета нормо-лестницы в зависимости от даты **/
+
+function getNlFactor(date){
+	var nlFactor = 1 / 150;
+	
+	if(!date || formatDate(date, "yyyy-MM-dd") >= "2021-04-01") nlFactor *= 1 / 1.15
+	
+	return nlFactor;
+}

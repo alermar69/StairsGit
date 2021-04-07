@@ -1840,6 +1840,8 @@ function calcAssemblingWage() {
 		
 	})
 
+	var windowSlopeArea = getDopPartPropVal('windowSlope', "area")
+
 	var wage = {
 		name: "Монтаж подоконников/столешниц",
 		amt: Math.round(sillArea * 10) / 10,
@@ -1853,6 +1855,14 @@ function calcAssemblingWage() {
 		amt: sillAmt,
 		unitName: "шт",
 		unitWage: 500,
+	}
+	wages.objects.items.push(wage);
+
+	var wage = {
+		name: "Монтаж откосов",
+		amt: windowSlopeArea.toFixed(1),
+		unitName: "м2",
+		unitWage: 1000,
 	}
 	wages.objects.items.push(wage);
 

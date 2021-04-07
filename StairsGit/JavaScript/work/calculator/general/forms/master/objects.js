@@ -100,6 +100,9 @@ function addItemParRow(index){
 			<td><input class="itemWidth" type="number" value="300"></td>\
 			<td><input class="itemThk" type="number" value="40"></td>\
 			<td><input class="itemAmt" type="number" value="1"></td>\
+			<td class="itemVol"></td>\
+			<td class="itemArea"></td>\
+			<td class="itemPaintingArea"></td>\
 			<td class="removeRow" style="text-align: center">\
 				<button class="btn btn-outline-danger" style="margin: 2px" data-toggle="tooltip" title="Удалить" data-original-title="Удалить">\
 					<i class="fa fa-trash-o"></i>\
@@ -122,26 +125,33 @@ function obj_master_calcPrice(){
 		margin: 2.086885, //к-т подогнан под скидку 20%
 		price: {},
 		cost: {},
-		text: '<table class="form_table"><tbody>',
+		text: '<table class="form_table" style="width: 100%"><tbody>',
 	}
 	
 	var timberTypes = [
-		"дуб паркет.",
 		"дуб ц/л",
-		"ясень паркет.",
+		"дуб паркет.",
 		"ясень ц/л",
-		"шпон",
-		"лиственница паркет.",
+		"ясень паркет.",		
+		"шпон",		
 		"лиственница ц/л",
+		"лиственница паркет.",
 	]
 	
 	//заголовки таблицы
-	par.text += "<tr><th>№</th><th>Объем, м3</th><th>Площадь, м2</th><th>Площадь покраски, м2</th>"
+	par.text += "<tr><th>№</th>"
 	timberTypes.forEach(function(val){
-		par.text += "<th>" + val + "</th>";
+		var timberName = val
+		if(val == "лиственница ц/л") timberName = "листв. ц/л"
+		if(val == "лиственница паркет.") timberName = "листв. парк."
+		par.text += "<th>" + timberName + "</th>";
 		par.price[val] = 0;
 		par.cost[val] = 0;
 	})
+	par.price.assm = 0;
+	par.cost.assm = 0;
+		
+	par.text += "<th>монтаж</th>"
 	par.text += "</tr>"
 	
 	
@@ -173,10 +183,7 @@ function obj_master_calcPrice(){
 		obj.paintedArea = Math.round(obj.width * obj.len * obj.amt / 1000000 * 1.5 * 100) / 100; //1.5 учитывает торцы и низ
 		
 		par.text += "<tr>\
-			<td>" + (i + 1) + "</td>\
-			<td>" + Math.round(obj.vol * 1000) / 1000 + "</td>\
-			<td>" + Math.round(obj.area * 10) / 10 + "</td>\
-			<td>" + Math.round(obj.paintedArea * 10) / 10 + "</td>";
+			<td>" + (i + 1) + "</td>"
 	
 		
 		timberTypes.forEach(function(val){
@@ -197,6 +204,15 @@ function obj_master_calcPrice(){
 			
 			par.text += "<td>" + obj.price[val] + "</td>"
 		})
+		
+		//монтаж
+		obj.cost.assm = obj.amt * 1000 + obj.paintedArea * 2000
+		par.cost.assm += obj.cost.assm;
+		obj.price.assm = Math.round(obj.cost.assm * par.margin);
+		par.price.assm += obj.price.assm;
+		
+		par.text += "<td>" + obj.price.assm + "</td>"
+		
 		par.text += "</tr>"
 		
 		par.vol += obj.vol
@@ -204,22 +220,55 @@ function obj_master_calcPrice(){
 		par.paintedArea += obj.paintedArea
 		par.objects.push(obj)
 		
+		//объем, площадь в основной таблице
+		$(this).find(".itemVol").text(Math.round(obj.vol * 1000) / 1000)
+		$(this).find(".itemArea").text(Math.round(obj.area * 10) / 10)
+		$(this).find(".itemPaintingArea").text(Math.round(obj.paintedArea * 10) / 10)
+		
 	})
 	
 	//Итог
 	par.text += "<tr class='bold'>\
-			<td>Итого:</td>\
-			<td>" + Math.round(par.vol * 1000) / 1000 + "</td>\
-			<td>" + Math.round(par.area * 10) / 10 + "</td>\
-			<td>" + Math.round(par.paintedArea * 10) / 10 + "</td>";
+			<td>Итого:</td>";
 			
 	timberTypes.forEach(function(val){
-		par.text += "<td>" + par.price[val] + "</td>"
+		//минималка
+		var price = par.price[val];
+		if(price < 3000) price = 3000;
+		par.text += "<td>" + price + "</td>"
 	})
+	
+	//миинималка на монтаж
+	if(par.cost.assm < 3500){
+		par.cost.assm = 3500
+		par.price.assm = Math.round(par.cost.assm * par.margin);
+	}
+	
+	par.text += "<td>" + par.price.assm + "</td>"
 	par.text += "</tr>"
 	
+	//с монтажом
+	par.text += "<tr class='bold'>\
+			<td>С монтажом:</td>";
+			
+	timberTypes.forEach(function(val){
+		//минималка на заказ с монтажом
+		var price = Math.round(par.price[val] + par.price.assm)
+		if(price < 20000) price = 20000;
+		/*		
+		var cost = Math.round(par.cost[val] + par.cost.assm);
+		var vp = price - cost
+		if(vp < 8000) price = cost + 8000;
+		*/
+		
+		par.text += "<td>" + price + "</td>"
+	})
+	par.text += "<td></td>"
+	par.text += "</tr>"
+	
+	
 	par.text += "</tbody></table>"
-
+	
 	$("#ms_calc_result").html(par.text);
 	
 	console.log(par)

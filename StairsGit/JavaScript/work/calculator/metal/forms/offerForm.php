@@ -94,7 +94,7 @@
 					<div class="shadow"></div>
 					<div class="info-block third">
 						<div class="name">Ограждение:</div>
-						<p>на выбор: Стекло на стойках
+						<p>на выбор: стекло на стойках
 						   или кованое</p>
 					</div>
 					<div class="shadow"></div>
@@ -134,7 +134,7 @@
 					<div class="shadow"></div>
 					<div class="info-block third">
 						<div class="name">Ограждение:</div>
-						<p>на выбор: Стекло на стойках
+						<p>на выбор: стекло на стойках
 						   или кованое</p>
 					</div>
 					<div class="shadow"></div>

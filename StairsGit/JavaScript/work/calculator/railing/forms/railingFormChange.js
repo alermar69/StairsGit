@@ -18,35 +18,8 @@ $(function () {
 	 
 	 //указание базовой точки на модели
 	 $("#railingParamsTable").delegate('.setBasePoint', 'click' , function(event) {
-	// $("#drawRailingSect").click(function(){
-		var p1 = lastSelectedPoint1; //глобавльная переменная из файла viewports
-		var p2 = lastSelectedPoint; //глобавльная переменная из файла viewports
-		
-		var height = p2.y - p1.y;
-		var posAng = -Math.atan((p2.z - p1.z)/(p2.x - p1.x))
-		if(p1.y > p2.y && p1.x > p2.x) posAng += Math.PI;
-		if(Math.abs(posAng) < 0.0001) posAng = 0;
-		
-		var len = Math.sqrt((p2.z - p1.z) * (p2.z - p1.z) + (p2.x - p1.x) * (p2.x - p1.x));
-		if(len == 0) {
-			alertTrouble("Неверные точки. Не удалось построить секцию ограждения.");
-			console.log(p1, p2)
-			return;
-			}
-		var angle = 0;
-		if(height != 0) angle = Math.atan(height / len);
-		
-		
-		$(this).closest("tr").find("input.railingPosX").eq(0).val(p1.x)
-		$(this).closest("tr").find("input.railingPosY").eq(0).val(p1.y)
-		$(this).closest("tr").find("input.railingPosZ").eq(0).val(p1.z)
-		$(this).closest("tr").find("input.railingPosAng").eq(0).val(posAng * 180 / Math.PI)
-		
-		$(this).closest("tr").find("input.len").eq(0).val(len)
-		$(this).closest("tr").find("input.angle").eq(0).val(angle * 180 / Math.PI)
-
-		recalculate();
-
+		var id = $(this).parents('tr').data('id');
+		moveToPoint(id, 'railing');
 	 })
 	 
 });
@@ -118,10 +91,16 @@ function addRailingInputs(){
 					'<span>Y: <input class="railingPosY" id="railingPosY' + (rowAmt-1) + '" type="number" value="0"><br/></span>' +
 					'<span>Z: <input class="railingPosZ" id="railingPosZ' + (rowAmt-1) + '" type="number" value="0"><br/></span>' +
 					'<span>Ang: <input class="railingPosAng" id="railingPosAng' + (rowAmt-1) + '" type="number" value="0"><br/></span>' +
-					'<button class="setBasePoint">Вставить</button>' +
 				'</td>' +
 				
-				'<td><span class="removeRow">Х</span></td>' +
+				`<td>
+					<button class="btn btn-outline-dark setBasePoint" style="margin: 2px" data-toggle="tooltip" title="Вставить" data-original-title="Вставить">\
+						<i class="fa fa-sign-in actionIcon"></i>\
+					</button>
+					<button class="btn btn-outline-danger removeRow" style="margin: 2px" data-toggle="tooltip" title="Удалить" data-original-title="Удалить">
+						<i class="fa fa-trash-o actionIcon"></i>
+					</button>
+				</td>` +
 			'</tr>';
 		$("#railingParamsTable").append(row); 
 }

@@ -434,7 +434,6 @@ function printDescr() {
 		//Объем по цехам
 		if(exportObj.dept_data){
 			prodDescr += "<h4>Объем по цехам:</h4>"
-			var normFactor = 1 / 150;
 
 			prodDescr += "<table class='tab_4'><thead><tr>" + 
 				"<th>Цех</th>" +
@@ -444,7 +443,7 @@ function printDescr() {
 				prodDescr += "<tr>"
 				if(typeof getDeptProps == "function") prodDescr += "<td>" + getDeptProps(dept).name + "</td>";
 				else prodDescr += "<td>" + dept + "</td>";
-				prodDescr += "<td>" + Math.round(this * normFactor / 10) / 100 + "</td>" +
+				prodDescr += "<td>" + Math.round(this * getNlFactor() / 10) / 100 + "</td>" +
 					"</tr>"
 			})
 			prodDescr += "</tbody></table>"

@@ -1,5 +1,6 @@
 //var costMarkup = 1.3; //07.05.20;
-var costMarkup = 1.56; //11.01.21
+//var costMarkup = 1.56; //11.01.21
+var costMarkup = 1.6; //31.03.21
 
 /*расчет цены винтовой лестницы*/
 
@@ -35,8 +36,8 @@ function calculateCarcasPrice(){
 /*стоимость ступеней*/
 
 var metalTonnPrice = 45000;
-var treadParams = calcTreadParams();
-var treadMeterPrice = treadParams.treadMeterPrice;
+
+var treadMeterPrice = calcTimberParams(params.treadsMaterial).m3Price * params.treadThickness / 1000
 
  
 /*лестница с деревянными ступенями*/
@@ -100,16 +101,19 @@ if (params.stairType == "рифленая сталь" || params.stairType == "л
 	var platformPaintPrice = 0;
 	
 	/*приблизительные формулы*/
-		treadsMaterialPrice = staircaseDiam*0.6;
-		treadPaintPrice = staircaseDiam*0.3;
-		platformMaterialPrice = staircaseDiam*1.5;
-		if(params.platformType == "square") platformMaterialPrice = platformMaterialPrice * 1.5;
-		
-		if(params.platformType != "нет") platformPaintPrice = staircaseDiam*0.5;
+	treadsMaterialPrice = staircaseDiam * 0.6;
+	treadPaintPrice = staircaseDiam * 0.3;
+	platformMaterialPrice = staircaseDiam * 1.5;
+	if(params.platformType == "square") platformMaterialPrice = platformMaterialPrice * 1.5;
+	
+	//к-ты от 31.03.21
+	treadsMaterialPrice *= 1.2
+	platformMaterialPrice *= 1.2
+	
+	if(params.platformType != "нет") platformPaintPrice = staircaseDiam*0.5;
 
 	var treadWorkPrice = 100;
 	var platformWorkPrice = 200;
-	
 	
 	totalTreadsPrice += (treadsMaterialPrice + treadWorkPrice) * stairAmt;
 	totalPlatformPrice += platformMaterialPrice + platformWorkPrice;
@@ -334,7 +338,7 @@ staircaseCost.handrail = totalHandrailPrice;
 staircaseCost.staircase = totalStairPrice;
 staircaseCost.staircaseMetalPaint = metalPaintPrice;
 staircaseCost.staircaseTimberPaint = timberPaintPrice;
-staircaseCost.treadLigts = treadParams.treadLigtsCost
+staircaseCost.treadLigts = calcTreadParams().treadLigtsCost
 
 //доля деревянного цеха в себестоимости
 staircaseCost.timberPart = (timberPrice + timberPaintPrice) / (totalStairPrice + metalPaintPrice + timberPaintPrice);

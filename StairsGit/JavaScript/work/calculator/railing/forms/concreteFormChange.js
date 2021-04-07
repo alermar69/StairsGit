@@ -121,15 +121,24 @@ function addConcreteInputs(){
 					'</select></span>' +
 				'</td>' +
 				'<td>' +
+					'<span>Присоед. Секция: <input class="connectedSectionId" id="connectedSectionId' + (rowAmt-1) + '" type="number" value=""><br/></span>' +
 					'<span>X: <input class="posX" id="posX' + (rowAmt-1) + '" type="number" value="0"><br/></span>' +
 					'<span>Y: <input class="posY" id="posY' + (rowAmt-1) + '" type="number" value="0"><br/></span>' +
 					'<span>Z: <input class="posZ" id="posZ' + (rowAmt-1) + '" type="number" value="0"><br/></span>' +
 					'<span>Ang: <input class="posAng" id="posAng' + (rowAmt-1) + '" type="number" value="0"><br/></span>' +
-					'<button class="mooveConcreteSection">Переместить</button>' +
-					'<button class="copyConcreteSection">Копировать</button>' +
 				'</td>' +
-				
-				'<td><span class="removeRow">Х</span></td>' +
+
+				`<td>
+					<button class="btn btn-outline-dark copyConcreteSection" style="margin: 2px" data-toggle="tooltip" title="Копировать" data-original-title="Копировать">
+						<i class="fa fa-copy actionIcon"></i>
+					</button>
+					<button class="btn btn-outline-dark mooveConcreteSection" style="margin: 2px" data-toggle="tooltip" title="Вставить" data-original-title="Вставить">
+						<i class="fa fa-arrows-alt actionIcon"></i>
+					</button>
+					<button class="btn btn-outline-danger removeRow" style="margin: 2px" data-toggle="tooltip" title="Удалить" data-original-title="Удалить">
+						<i class="fa fa-trash-o actionIcon"></i>
+					</button>
+				</td>` +
 			'</tr>';
 		$("#concreteParamsTable").append(row);
 		return rowAmt

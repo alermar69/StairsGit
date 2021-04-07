@@ -1,3 +1,6 @@
+var boltDiam = 10;
+var boltBulge = 8;
+var boltLen = 30;
 
 /**функция отрисовывает прямоугольный флаенц с отверстиями
 *@params height, width 

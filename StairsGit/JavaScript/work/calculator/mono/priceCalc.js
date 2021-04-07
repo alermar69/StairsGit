@@ -1,5 +1,6 @@
 //var costMarkup = 1.3; //07.05.20;
-var costMarkup = 1.56; //11.01.21
+//var costMarkup = 1.56; //11.01.21
+var costMarkup = 1.6; //31.03.21
 
 function calculateCarcasPrice(){
 
@@ -133,7 +134,7 @@ if (platformTop == "площадка") {
 	stringerLength += M/1000;
 	}
 	
-var stringerMeterPrice = 4500; //цена тетивы из листа за м2	
+var stringerMeterPrice = 5500; //цена тетивы из листа за м2	
 if(params.model == "сварной" || params.model == "гнутый") stringerMeterPrice *= 1.1
 strigerPrice = stringerMeterPrice * stringerArea;
 stringerWeight = stringerArea * 62.4;
@@ -180,13 +181,7 @@ function calcCarcasParts(){
 
 var boltPrice = 10;
 var framePrice = 500;
-var treadPlatePrice = 500;
-if(params.model == "сварной")treadPlatePrice = 500;
-if(params.model == "труба")treadPlatePrice = 500;
-
-
-
-
+var treadPlatePrice = 700;
 	
 
 if (stairModel == "Прямая"){

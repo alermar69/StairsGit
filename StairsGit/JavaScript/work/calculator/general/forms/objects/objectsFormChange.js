@@ -471,18 +471,19 @@ function getObjectsInput(item, input, isKp){
 		text += '<tr class="'+input.class+'"><td colspan="2"><h1>'+input.title+'</h1></td></tr>';
 		if (item.meshParams[input.key]) {
 			item.meshParams[input.key].forEach(function(par, i){
-				text += '<tr class="dynamic-row '+input.class+'" data-index="'+i+'" data-key="'+input.key+'"><td style="max-width: 50px;">' + (i + 1) + '</td>';
+				text += '<tr class="dynamic-row '+input.class+'" data-index="'+i+'" data-key="'+input.key+'">\
+					<td style="max-width: 50px;">' + (i + 1) + '\
+					<button data-key="'+input.key+'" data-index="'+i+'" class="btn btn-outline-danger removeDynamicInputs" style="margin: 2px" data-toggle="tooltip" title="Удалить" data-original-title="Удалить">\
+						<i class="fa fa-trash-o actionIcon"></i>\
+					</button> \
+					</td>';
 				text += '<td><table class="table" ><tbody>';
 				input.template.forEach(function(row){
 					var inp = Object.assign({}, row);
 					inp.value = par[inp.key];
 					text += getObjectsInput(item, inp);
 				})
-				text += '</tbody></table>';
-				text += '\
-					<button data-key="'+input.key+'" data-index="'+i+'" class="btn btn-outline-danger removeDynamicInputs" style="margin: 2px" data-toggle="tooltip" title="Удалить" data-original-title="Удалить">\
-						<i class="fa fa-trash-o actionIcon"></i>\
-					</button></td></tr>';
+				text += '</tbody></table></td></tr>';
 			})
 		}
 		text += '<tr class="'+input.class+'"><td colspan="2"><button class="btn btn-primary addDynamicInputs" data-key="'+input.key+'">Добавить</button></td></tr>';

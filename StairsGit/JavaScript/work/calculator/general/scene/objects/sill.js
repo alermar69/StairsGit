@@ -58,44 +58,41 @@ class Sill extends AdditionalObject {
 	
 	/** STATIC **/
 	static calcPrice(par){
-		var meshPar = par.meshParams;//Object.assign({}, par.meshParams);
+		var meshPar = Object.assign({}, par.meshParams);
+		
+		//корректируем размеры для эркеров
 		var dopSpec = partsAmt_dop[par.id];
-		if (dopSpec.sill && dopSpec.sill.size) {
-			var size = dopSpec.sill.size[Object.keys(dopSpec.sill.size)[0]];
-			meshPar.len_printable = Math.round(size.len);
-			meshPar.width_printable = Math.round(size.width);
-		}else{
-			meshPar.len_printable = Math.round(meshPar.len);
-			meshPar.width_printable = Math.round(meshPar.width);
-		}
-		
-		var cost = calcTimberPanelCost({
-			width: meshPar.width_printable,
-			len: meshPar.len_printable,
-			thk: meshPar.thk,
-			tabletopType: meshPar.tabletopType,
-			riverWidth: meshPar.riverWidth,
-			resinVol: meshPar.resinVol,
-			shapeType: meshPar.shapeType,
-		});
-		
+		//перебираем возможные названия объекта
+		var partNames = ["sill", "sill_arc", "sill_cnc", "slab"];
+		$.each(partNames, function(){
+			if (dopSpec[this] && dopSpec[this].size) {
+				var size = dopSpec[this].size[Object.keys(dopSpec[this].size)[0]];
+				meshPar.len = Math.round(size.len);
+				meshPar.width = Math.round(size.width);
+			}
+		})
+
+		var cost = calcTimberPanelCost(meshPar);
+
 		//вентиляционные отверстия
 		if(par.meshParams.ventHoles != "нет") cost += 1000;
 
-		// Наличники
+		// Откосы, наличники
 		if (meshPar.windowSlope == 'есть') {
-			var slopeArea = getPartPropVal("windowSlope", "area", specObj);
-			var slopeVolume = getPartPropVal("windowSlope", "volume", specObj);
-			var slopePaintArea = getPartPropVal("windowSlope", "paintedArea", specObj);
-	
+			var slopeArea = getDopPartPropVal('windowSlope', "area")
+			var slopeVolume = getDopPartPropVal('windowSlope', "volume")
+			var slopePaintArea = getDopPartPropVal('windowSlope', "paintedArea")
+			
+			
 			var timberPar = calcTimberParams(params.additionalObjectsTimberMaterial);
 			var paintPriceM2 = calcTimberPaintPrice(params.timberPaint, params.additionalObjectsTimberMaterial)
 			cost +=  slopeVolume * timberPar.m3Price + slopePaintArea * paintPriceM2;
-			
-			// Монтаж
-			cost +=  slopeArea * 1000;
 		}
-
+		
+		//записываем длину и ширину, которые будут выводиться на страницу
+		par.meshParams.len_printable = meshPar.len;
+		par.meshParams.width_printable = meshPar.width
+		
 		return {
 			name: this.getDescr(par).title,
 			cost: cost,
@@ -147,6 +144,14 @@ class Sill extends AdditionalObject {
 			if (orielType == '04') {
 				form.find('[data-propid="radSillType"]').closest('tr').show();
 				form.find('[data-propid="orielWindowCount"]').closest('div').show();				
+			}
+
+			if (orielType == '05') {
+				form.find('[data-propid="orielSizeA"]').closest('div').hide();
+				form.find('[data-propid="orielSizeC"]').closest('div').hide();
+			}else{
+				form.find('[data-propid="orielSizeA"]').closest('div').show();
+				form.find('[data-propid="orielSizeC"]').closest('div').show();
 			}
 			
 			
