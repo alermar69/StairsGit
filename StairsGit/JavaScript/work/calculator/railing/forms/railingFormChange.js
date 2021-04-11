@@ -308,7 +308,7 @@ var isKovka = false;
 			
 		
 	})
-		
+
 //кронштейны пристенных поручней
 $("#sideHandrailHolders").closest('tr').hide();
 if(isSideHandrail) $("#sideHandrailHolders").closest('tr').show();
@@ -427,6 +427,12 @@ if(isHandrail) {
 	//материал стоек
 	$("#banisterMaterial_tr").hide();
 	$("#rackBottom").closest('tr').hide();
+
+	//крепление стоек к лестнице
+	$("#rackBottom_tr").show();
+	if (railingModel == "Самонесущее стекло") {
+		$("#rackBottom_tr").hide();
+	}
 	
 	if (isRacks){
 		$("#banisterMaterial_tr").show();		

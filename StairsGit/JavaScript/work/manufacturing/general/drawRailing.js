@@ -6135,12 +6135,13 @@ function drawForgedFramePart2(par) {
 	                     */
 						var boltPar = {
 							diam: boltDiam,
-							len: 20,
+							len: 30,
 							headType: "потай",
 						}
 						if (params.model == "ко") boltPar.headType = "шестигр.";
 
-						if (par.isTurnRack && !testingMode) {
+						//if (par.isTurnRack && !testingMode) {
+						if (!testingMode) {
 
 							var bolt = drawBolt(boltPar).mesh;
 							/*
@@ -6719,7 +6720,7 @@ function drawGlass2(par){
 		
 		if(!par.holeCenters[i].hasHolder){
 			var rutelPar = {
-				size: 10
+				size: 14
 			};
 
 			var rutel = drawGlassRutel(rutelPar);

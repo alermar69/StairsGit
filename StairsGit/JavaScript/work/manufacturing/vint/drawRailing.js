@@ -620,6 +620,7 @@ function drawSpiralRailing(par) {
 			endOffset: -0.3,
 			partName: "spiralRigel",
 			material: params.materials.inox,
+			staircaseHeight: par.staircaseHeight,
 		}
 		if (par.side == "in") {
 			rigelParams.poleRad = rad + rigelRad;
@@ -957,6 +958,38 @@ function drawSpiralRailing(par) {
 				group: "Поручни",
 				isCirclePlug: true,
 				type: "ПВХ",
+			}
+			var plug = drawPlug(plugParams);
+			plug.position.x = handrailPoints[0].x;
+			plug.position.y = handrailPoints[0].y;
+			plug.position.z = handrailPoints[0].z;
+			// plug.rotation.x = Math.PI / 2;
+			// plug.rotation.y = startAngle;
+			// plug.rotation.z = 0;
+			if (!testingMode) mesh.add(plug);
+
+			var plug = drawPlug(plugParams);
+			plug.position.x = handrailPoints[handrailPoints.length - 1].x;
+			plug.position.y = handrailPoints[handrailPoints.length - 1].y;
+			plug.position.z = handrailPoints[handrailPoints.length - 1].z;
+			// plug.rotation.x = Math.PI / 2;
+			// plug.rotation.y = endAngle;
+			// plug.rotation.z = 0;
+			if (!testingMode) mesh.add(plug);
+		}
+
+		if (par.partName == "spiralRigel") {
+			var plugParams = {
+				id: "stainlessPlug_" + par.poleSize,
+				width: par.poleSize,
+				height: par.poleSize,
+				description: "Заглушка ригеля",
+				group: "Ограждения",
+				type: "inox",
+			}
+			if (plugParams.id !== "plasticPlug_20_20") {
+				plugParams.isCirclePlug = true;
+				plugParams.type = "inox";
 			}
 			var plug = drawPlug(plugParams);
 			plug.position.x = handrailPoints[0].x;

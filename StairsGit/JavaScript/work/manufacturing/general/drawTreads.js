@@ -3855,6 +3855,8 @@ function drawNotchedPlate(par){
 	var treadPar = getTreadParams(); //функция в файле calcSpecGeneral.js
 	
 	var partName = "tread";
+	if (par.partName) partName = par.partName;
+
 	if (params.stairType !== "лотки") {
 		$.each(par.notches,
 			function() {
@@ -3862,7 +3864,7 @@ function drawNotchedPlate(par){
 			})
 	}
 	
-	if(par.partName) partName = par.partName;
+	
 	if(params.stairType == "нет" && par.partName == "tread") partName = false;
 	
 	if(typeof specObj !='undefined' && partName){

@@ -507,7 +507,8 @@ function drawWallHandrailHolder(par){
 				timberPaint: false,
 				division: "stock_1",
 				workUnitName: "amt",
-				group: "Ограждения",
+				group: "Метизы",
+				//group: "Ограждения",
 				}
 			}
 		if(params.sideHandrailHolders == "крашеные") {

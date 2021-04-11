@@ -1936,6 +1936,7 @@ function calcHandrailMeterParams(par) {
 		handrailType == "лиственница" ||
 		handrailType == "дуб паркет." ||
 		handrailType == "дуб ц/л" ||
+		handrailType == "Дуб" ||
 		par.handrailType == "массив") {
 		handrailMat = "timber";
 	}

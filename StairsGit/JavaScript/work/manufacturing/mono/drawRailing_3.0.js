@@ -711,7 +711,7 @@ function drawGlassSectionMono(par){
 				holderMesh.position.z = 0;//glassThickness;
 
 				var rutelPar = {
-					size: 10
+					size: 14
 				};
 				var rutel = drawGlassRutel(rutelPar);
 				rutel.position.x = holderPosition.x;
@@ -1309,6 +1309,9 @@ function drawRacksMono(par){
 	var nextMarshPar = getMarshParams(marshPar.nextMarshId);
 
 	setRailingParams(par);
+	if (marshPar.botTurn == "забег" && par.key == "out" && par.botEnd == "нет") {
+		par.isRearPRailing = true
+	}
 	//рассчитываем длины и расположение стоек
 	calculateRacks(par);
 	if(par.racks.length == 0) return section;
@@ -2048,8 +2051,7 @@ function calculateRacks(par){
 
 	parRacks.marshLast.x += mooveX;
 	parRacks.marshLast.len += mooveX * Math.tan(marshPar.ang);
-	
-	
+
 	//первая стойка нижнего поворота
 	if(par.botEnd != "нет") {
 		parRacks.botFirst = {
@@ -2061,7 +2063,9 @@ function calculateRacks(par){
 		};
 		if (par.botEnd == "забег") {
 			parRacks.botFirst.len -= 20; //удлинняем стойку чтобы стык поручня не попадал на кронштейн
-			parRacks.botFirst.x = -params.M + 180;
+			parRacks.botFirst.x = -params.M + 70;
+			if (prevMarshPar.hasRailing.out)
+				parRacks.botFirst.x = -params.M + 180;
 			parRacks.botFirst.y -= par.h;
 			//смещенная точка перелома поручня
 			var handrailTurnPoint = polar(parRacks.marshFirst, marshPar.ang, -par.handrailTurnOffset)
@@ -2118,7 +2122,7 @@ function calculateRacks(par){
 	}
 	
 	
-	if (params.stairModel == 'П-образная с забегом' && par.marshId == 2) {
+	if ((params.stairModel == 'П-образная с забегом' && par.marshId == 2) || par.isRearPRailing) {
 		isWndP = true;
 		parRacks.marshFirst = {
 			x: -params.M + 100,

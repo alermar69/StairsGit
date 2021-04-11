@@ -181,6 +181,17 @@ function getMaterialsConfigs(){
 									color: new THREE.Color(getMetalColorId("белый"))
 								}
 							}
+						},
+						"коричневая ящерица": {
+							main: {
+								mapUrl: false,
+								matPar: {
+									metalness: 0.4,
+									roughness: 0.5,
+									envMapIntensity: 1,
+									color: new THREE.Color(getMetalColorId("коричневая ящерица"))
+								}
+							}
 						}
 					}
 				},

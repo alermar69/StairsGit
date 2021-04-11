@@ -51,7 +51,7 @@ function drawSVGForgedRailing(par) {
 				if (par.elemType !== 'banister') {
 					var obj = makeSvgFromShape(shape, draw);
 
-					if (par.elemType == 'rack' && shape.holes.length == 0) {
+					if (par.elemType == 'rack' && shape.holes.length == 0 && params.rackBottom == 'боковое') {
 						var objBbox = obj.getBBox()
 						var text = getIdByPoleIndex(par.partIndex);
 

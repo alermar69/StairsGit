@@ -139,11 +139,13 @@ if(par.railingType == "Ригели" || par.railingType == "Стекло на с
 			material: metalMaterial,
 			dxfBasePoint: par.dxfBasePoint,
 			dxfArr: dxfPrimitivesArr,
+			rigelStartPlug: true,
+			rigelEndPlug: true,
 			}
 		var basePoint = newPoint_xy(rackPosArr[0], 0, 90);
 			basePoint = polar(basePoint, angle, -50);
 			
-		for (var i=1; i < rigelAmt+1; i++) {
+		for (var i = 1; i < rigelAmt + 1; i++) {
 			var rigel = drawPole3D_4(poleParams).mesh;
 			rigel.position.x = basePoint.x;
 			rigel.position.y = basePoint.y + rigelDist * i;
@@ -214,6 +216,8 @@ if(par.railingType == "Стекло на стойках" || par.railingType == "
 			material: handrailMaterial,
 			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, rackPar.len - 20),
 			dxfArr: dxfPrimitivesArr,
+			rigelStartPlug: true,
+			rigelEndPlug: true,
 		}
 		var profile = drawPole3D_4(poleParams).mesh;
 		var basePoint = newPoint_xy(rackPosArr[0], 0, rackPar.len - 20);
@@ -807,7 +811,7 @@ if(par.railingType == "Дерево с ковкой"){
 	// var rackPar = copyPoint(p1);
 	rackPar.len = handrailPos.y + 20;
 	rackPar.marshId = 1;
-	rackPar.y = 0 + params.treadThickness;
+	rackPar.y = 0// + params.treadThickness;
 	rackPar.rackSize = rackSize;
 	rackPar.dxfBasePoint = newPoint_xy(dxfBasePoint, rackPar.x - rackSize / 2, rackPar.y);
 
@@ -831,7 +835,7 @@ if(par.railingType == "Дерево с ковкой"){
 		var rackPar = copyPoint(point);
 		rackPar.len = handrailPos.y + 20;
 		rackPar.marshId = 1;
-		rackPar.y = point.y + params.treadThickness;
+		rackPar.y = point.y// + params.treadThickness;
 		rackPar.rackSize = rackSize;
 		rackPar.dxfBasePoint = newPoint_xy(dxfBasePoint, rackPar.x - rackSize / 2, rackPar.y);
 		
@@ -839,7 +843,7 @@ if(par.railingType == "Дерево с ковкой"){
 
 		var turnNewell = drawTimberNewell_4(rackPar).mesh;
 		//var turnNewell = drawTurnNewell(rackPar).mesh;
-		turnNewell.position.x = rackPar.x - rackSize / 2;
+		turnNewell.position.x = rackPar.x - rackSize + 30;
 		turnNewell.position.y = rackPar.y + 0.05;
 		turnNewell.position.z = posZ - (rackSize / 2 + 0.05) * turnFactor;
 
@@ -885,7 +889,7 @@ if(par.railingType == "Дерево с ковкой"){
 		h: par.h_r * 1.0,
 		stairAmt: par.stairAmt_r * 1.0 - 2,
 		ang: handrailAngle,
-		balLen: handrailPos.y - par.handrailParams.handrailCutLen - 0.01,
+		balLen: handrailPos.y - par.handrailParams.handrailCutLen - 0.01 + 40,
 		dxfBasePoint: dxfBasePoint,
 		marshId: 1,
 		side: "in",
@@ -902,6 +906,8 @@ if(par.railingType == "Дерево с ковкой"){
 			stairAmt: par.stairAmt_r * 1.0
 		}
 	}
+
+	//if (params.stairType != 'нет') balParams.balLen += params.treadThickness;
 	
 	var balDist = (par.b_r * 1.0) / params.timberBalStep;
 	//25 половина толщины основания балясины, treadOffset - отступ от начала ступени

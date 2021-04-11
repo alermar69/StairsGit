@@ -3152,6 +3152,7 @@ function drawForgedBanister_5(par) {
 	
 	
 	var railingModel = params.railingModel;
+	if (par.railingModel) railingModel = par.railingModel;
 	
 	//балясина со вставкой мэша
 	if (par.type == "bal_1" || par.type == "bal_2" || par.type == "bal_3" || 

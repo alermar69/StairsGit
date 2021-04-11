@@ -93,6 +93,7 @@ dxfBasePoint = {x:0, y:-4000}
 			glassSection.position.x -= sectParams.len * 1.0;
 			glassSection.position.y -= sectParams.len * 1.0 * Math.tan(angle);
 		}
+		if (params.stairType !== 'нет') glassSection.position.y = String(+glassSection.position.y + params.treadThickness);
 		railing.push(glassSection);
 		dxfBasePoint = newPoint_xy(dxfBasePoint, sectParams.len*1.0 + 500, 0);
 	}

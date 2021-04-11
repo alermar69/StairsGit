@@ -846,24 +846,28 @@ function drawVintTread(par) {
 
 	
 	//---------------------------
-    ////рассчитываем координаты базовых точек
-    //var basePoints = calcVintTreadPoints(par.treadAngle)
-    //var angleParams = {
-    //    material: par.angMaterial,
-    //    dxfArr: [],
-    //}
-    //for (var i = 0; i < basePoints.balHoles.length / 2; i++) {
-    //    var c1 = basePoints.balHoles[i];
-    //    var c2 = basePoints.balHoles[i + 1];
-    //    var ang = calcAngleX1(c1, c2);
-    //    angleParams = drawBanisterAngle(angleParams)
-    //    var angle = angleParams.mesh;
-    //    angle.rotation.y = ang;
-    //    angle.position.x = c1.x;
-    //    angle.position.z = c1.y;
-    //    par.mesh.add(angle);
-    //    i++;
-    //}
+	if (params.railingModel !== 'Частые стойки') {
+			//рассчитываем координаты базовых точек
+	    var basePoints = calcVintTreadPoints(par.treadAngle)
+	    var angleParams = {
+	        material: par.angMaterial,
+	        dxfArr: [],
+		}
+
+		for (var i = 0; i < basePoints.basePointAngels.length; i++) {
+			var center = basePoints.basePointAngels[i];
+		    angleParams = drawBanisterAngle(angleParams)
+
+		    var angle = angleParams.mesh;
+			angle.rotation.y = center.ang;
+		    angle.rotation.x = Math.PI / 2;
+			angle.position.x = center.x;
+			angle.position.y = center.y;
+			angle.position.z = -25;
+			topPlate.add(angle);
+		}
+	}
+    
     //-------------------------------------
 
 	//передние пластины
@@ -1450,7 +1454,8 @@ function drawVintPlatform(par) {
 
 	//рама под деревянной прямоугольной площадкой
 	
-	if (par.type == "timber" && par.platformType == "square" || params.stairType == 'рамки' && par.platformType == "triangle") {
+	//if (par.type == "timber" && par.platformType == "square" || params.stairType == 'рамки' && par.platformType == "triangle") {
+	if (par.type == "timber" && par.platformType == "square") {
 		par = drawPlatformFrame(par);
 	}
 	
@@ -2488,10 +2493,10 @@ function drawTrianglePlatformFrame(par) {
 
 		}
 
-		// var name = Math.round(sizeA) + "x" + Math.round(sizeB);
-		// if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
-		// if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
-		// specObj[partName]["amt"] += 1;
+		var name = Math.round(basePoints[4].x) + "x" + Math.round(basePoints[3].y - basePoints[4].y);
+		 if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		 if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		 specObj[partName]["amt"] += 1;
 	}
 	par.metalFrame.specId = partName + name;
 
@@ -3826,7 +3831,7 @@ function drawBotFlanCover(){
 				timberPaint: true,
 				division: "timber",
 				workUnitName: "amt", //единица измерения
-				group: "carcas",
+				group: "treads",
 			}
 		}
 		var name = "Ф" + rad * 2;
@@ -3913,6 +3918,7 @@ function calcVintTreadPoints(treadAngle){
 	}
 	
 	points.balHoles = [];
+	points.basePointAngels = [];
 	
 	//отверстия под уголки балясины
 
@@ -3930,6 +3936,10 @@ function calcVintTreadPoints(treadAngle){
 	center1.rad = center2.rad = holeRad;
 	points.balHoles.push(center1, center2)
 
+	var pt = polar(points[0], dirAng, stairRad);
+	pt.ang = calcAngleX1(center1, center2);
+	points.basePointAngels.push(pt);
+
 	//отверстия под остальные стойки
 	var stepAngle = params.stepAngle / 180 * Math.PI;
 	var balAngle = stepAngle / params.banisterPerStep; //угол между балясинами
@@ -3939,6 +3949,10 @@ function calcVintTreadPoints(treadAngle){
 		var center2 = polar(points[0], dirAng - deltAng, holePosRad)
 		center1.rad = center2.rad = holeRad;
 		points.balHoles.push(center1, center2)
+
+		var pt = polar(points[0], dirAng, stairRad);
+		pt.ang = calcAngleX1(center1, center2);
+		points.basePointAngels.push(pt);
 	}
 	
 

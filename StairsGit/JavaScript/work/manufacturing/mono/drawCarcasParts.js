@@ -872,6 +872,7 @@ function calcColumnParams(par, stringerParams){
 		top1.type = 'колонна';
 		if (!columnLogicParams.topConnection && marshParams.topTurn == 'забег' && par.marshId == 1) top1.type = params.isColumn1 ? 'колонна' : 'двойной подкос';
 		if (!columnLogicParams.topConnection && marshParams.topTurn == 'забег' && par.marshId == 2) top1.type = params.isColumn3 ? 'колонна' : 'двойной подкос';
+		if (marshParams.lastMarsh && marshParams.topTurn == 'площадка' && params.platformTopColumn == 'подкосы') top1.type = 'двойной подкос';
 		top1.isVisible = columnLogicParams.top1Visible;//Устанавливаем видимость Столбов
 		
 		if (top1.isVisible) {
@@ -925,6 +926,7 @@ function calcColumnParams(par, stringerParams){
 	{
 		top2.type = 'колонна';
 		top2.isVisible = columnLogicParams.top2Visible;//Устанавливаем видимость Столбов
+		if (top1.type == 'двойной подкос') top2.isVisible = false;
 		if (top2.isVisible) {
 			pStart = par.pointsShape[par.pointsShape.length - 1];
 			pEnd = par.pointsShape[par.pointsShape.length - 2];
@@ -1228,6 +1230,7 @@ function drawHorPlate(par) {
 		//tread.position.x = -params.nose;// par.frontOffset;
 		tread.position.y = params.treadPlateThickness - treadPar.thk;
 		if (params.treadPlatePockets == "нет") tread.position.y += 10;
+		if (params.stairType === "короб") tread.position.y -= 20;
 		tread.setLayer('treads');
 		par.mesh.add(tread);
 	}
@@ -1748,6 +1751,7 @@ function drawHorPlates(par) {
 
 				tread.position.y = params.treadPlateThickness - extrudeOptions.amount;
 				if (params.treadPlatePockets == "нет") tread.position.y += 10;
+				if (params.stairType === "короб") tread.position.y -= 20;
 				tread.setLayer('treads');
 				par.mesh.add(tread);
 			}
@@ -2529,6 +2533,7 @@ function drawHorPlatesPlatformBot(par) {
 		if (params.stairType !== 'лотки') {
 			tread.position.y = params.treadPlateThickness - extrudeOptions.amount;
 			if (params.treadPlatePockets == "нет") tread.position.y += 10;
+			if (params.stairType === "короб") tread.position.y -= 20;
 		}
 		tread.setLayer('treads');
 		mesh1.add(tread);
@@ -3245,6 +3250,7 @@ function drawTurnPlate1(par) {
 
 		tread.position.y = params.treadPlateThickness - thk;
 		if (params.treadPlatePockets == "нет") tread.position.y += 10;
+		if (params.stairType === "короб") tread.position.y -= 20;
 		tread.setLayer('treads');
 		par.mesh.add(tread);
 
@@ -3537,6 +3543,7 @@ function drawTurnPlate3(par){
 
 		tread.position.y = params.treadPlateThickness - thk;
 		if (params.treadPlatePockets == "нет") tread.position.y += 10;
+		if (params.stairType === "короб") tread.position.y -= 20;
 		tread.setLayer('treads');
 		par.mesh.add(tread);
 	}
@@ -3909,6 +3916,7 @@ function drawTurnPlate2(par) {
 
 		tread.position.y = params.treadPlateThickness - thk;
 		if (params.treadPlatePockets == "нет") tread.position.y += 10;
+		if (params.stairType === "короб") tread.position.y -= 20;
 		tread.setLayer('treads');
 		par.mesh.add(tread);
 	}
@@ -4680,7 +4688,7 @@ function drawMonoFlan(par) {
 			pEnd = par.pointsShape[1];
 		}
 		var flanPar = {
-			width: params.stringerThickness - 2 * params.metalThickness - 2, //ширина фланца
+			width: params.stringerThickness - 2 * params.metalThickness, //ширина фланца
 			height: pEnd.x - pStart.x - 2 * params.metalThickness - 2, //длина фланца (высота при вертикальном расположении)
 			holeRad: 6.5,
 			cornerRad: 0,
@@ -9376,17 +9384,19 @@ function drawDivideFlans(par) {
 		}
 	}
 
-	flanPar.width = par.width - flanPar.thk / Math.tan(par.ang);
+	var gap = 10; //зазор между фланцами
+
+	flanPar.width = par.width - (flanPar.thk + 5) / Math.tan(par.ang);
 	flanPar.widthForHoles = flanPar.width;
 
 	//верхний фланец
-	flanPar.width = par.width +  10 / Math.tan(par.ang); 
+	flanPar.width = par.width + gap / 2 / Math.tan(par.ang); 
 
 	if (par.pointCurrentSvg) flanPar.drawing.basePoint.x += flanPar.len + 100
 	flanPar.dxfBasePoint.x += flanPar.len + 100;
 
 	var flan = drawDivideFlan(flanPar).mesh;
-	flan.position.y = 10; // 10 - зазор между фланцами
+	flan.position.y = gap / 2; 
 	par.mesh.add(flan);
 
 	//нижний фланец
@@ -9395,7 +9405,7 @@ function drawDivideFlans(par) {
 	flanPar.isConnectPlate = true;
 
 	var flan = drawDivideFlan(flanPar).mesh;
-	flan.position.y = -flanPar.thk;
+	flan.position.y = -flanPar.thk - gap / 2;
 	par.mesh.add(flan);
 
 	return par;
@@ -9428,19 +9438,14 @@ function drawDivideFlan(par) {
 	//отверстия для болтов
 	var holes = [];
 	var offsetHoleX = 30;
-	var offsetHoleY = 25;
+	var offsetHoleY = 40;
+
 	holes.push(newPoint_xy(p1, offsetHoleX, offsetHoleY));
 	holes.push(newPoint_xy(p4, -offsetHoleX, offsetHoleY));
-	//holes.push(newPoint_xy(p1, offsetHoleX, par.widthForHoles / 2));
-	//holes.push(newPoint_xy(p4, -offsetHoleX, par.widthForHoles / 2));
 	holes.push(newPoint_xy(p1, offsetHoleX, par.widthForHoles - offsetHoleY));
 	holes.push(newPoint_xy(p4, -offsetHoleX, par.widthForHoles - offsetHoleY));
-
-	var dist = Math.floor((par.widthForHoles - offsetHoleY * 2) / 3);
-	holes.push(newPoint_xy(p1, offsetHoleX, offsetHoleY + dist));
-	holes.push(newPoint_xy(p1, offsetHoleX, offsetHoleY + dist * 2));
-	holes.push(newPoint_xy(p4, -offsetHoleX, offsetHoleY + dist));
-	holes.push(newPoint_xy(p4, -offsetHoleX, offsetHoleY + dist * 2));
+	holes.push(newPoint_xy(p1, offsetHoleX, par.widthForHoles - offsetHoleY*2));
+	holes.push(newPoint_xy(p4, -offsetHoleX, par.widthForHoles - offsetHoleY*2));
 
 	for (var i = 0; i < holes.length; i++) {
 		holes[i].rad = par.holeRad;

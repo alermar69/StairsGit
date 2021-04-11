@@ -1269,8 +1269,8 @@ function drawPole3D_4(par) {
 	}
 	handrailPar = calcHandrailMeterParams(handrailPar); //функция в файле priceLib.js
 
-	//Заглушки ригелей
-	if (par.partName == "rigels") {
+	//Заглушки ригелей и поручней
+	if (par.partName == "rigels" || (par.partName == "handrails" && par.type == "round" )) {
 		var rigelPlugId = "plasticPlug_20_20";
 		var plugSize = 20;
 		if(par.type == "round" && par.poleProfileY == 12) {
@@ -1281,6 +1281,11 @@ function drawPole3D_4(par) {
 			rigelPlugId = "stainlessPlug_16";
 			plugSize = 16;
 		}
+		if (par.partName == "handrails") {
+			plugSize = handrailPar.profY;
+			rigelPlugId = "stainlessPlug_" + plugSize;
+		}
+
 		var plugParams = {
 			id: rigelPlugId,
 			width: plugSize,
@@ -1292,6 +1297,7 @@ function drawPole3D_4(par) {
 			plugParams.isCirclePlug = true;
 			plugParams.type = "inox";
 		}
+		
 		var zOffset = plugParams.width / 2;
 
 		if (par.rigelStartPlug) {

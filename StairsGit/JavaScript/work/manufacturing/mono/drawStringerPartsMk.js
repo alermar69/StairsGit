@@ -38,6 +38,7 @@ function drawStringerMk(par) {
 
 	
 	par.stringerBasePoint = { x: 0, y: 0, }
+	//if (par.marshId != 1 && params.stairType === "короб") par.stringerBasePoint = { x: 0, y: 20, }
 
 	//if (par.isCurve) {
 	//	drawStepMk_Wnd(par);
@@ -331,6 +332,7 @@ function drawBotStepMk_floor(par) {
 	// подъем
 	var h_1 = par.h - (params.treadThickness + params.treadPlateThickness) - params.flanThickness; // высота первого подъема
 	if (params.botFloorType === "черновой") h_1 += params.botFloorsDist;
+	if (params.stairType === "короб") h_1 += 20;
 
 	var p1 = newPoint_xy(p0, 0, h_1);
 

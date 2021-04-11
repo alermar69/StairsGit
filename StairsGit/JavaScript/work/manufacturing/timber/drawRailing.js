@@ -2585,6 +2585,7 @@ function drawBanistersArr(par) {
 					dxfBasePoint: par.dxfBasePoint,
 					material: params.materials.metal2,
 					unit: par.unit,
+					railingModel: railingModel,
 					drawing: {
 						group: "timber_railing",
 						type: "banister",
@@ -2633,6 +2634,7 @@ function drawBanistersArr(par) {
 					type: getBalType(balId, par.unit), //функция в файле manufacturing/general/drawRailing.js,
 					dxfBasePoint: par.dxfBasePoint,
 					material: params.materials.metal2,
+					railingModel: railingModel,
 				}
 
 				//первая балясина на ступени
@@ -2660,7 +2662,7 @@ function drawBanistersArr(par) {
 				banister.position.x = basePoint.x;
 				banister.position.y = basePoint.y;
 				banister.position.z = 0;
-				if (!(testingMode && params.railingModel == "Дерево с ковкой")) {
+				if (!(testingMode && railingModel == "Дерево с ковкой")) {
 					obj3D.add(banister);
 				}
 				balId += 1;
@@ -2689,7 +2691,7 @@ function drawBanistersArr(par) {
 					banister.position.x = basePoint.x;
 					banister.position.y = basePoint.y;
 					banister.position.z = 0;
-					if (!(testingMode && params.railingModel == "Дерево с ковкой")) {
+					if (!(testingMode && railingModel == "Дерево с ковкой")) {
 						obj3D.add(banister);
 					}
 					balId += 1;
@@ -2733,7 +2735,7 @@ function drawBanistersArr(par) {
 				banister.position.x = basePoint.x;
 				banister.position.y = basePoint.y;
 				banister.position.z = 0;
-				if (!(testingMode && params.railingModel == "Дерево с ковкой")) {
+				if (!(testingMode && railingModel == "Дерево с ковкой")) {
 					obj3D.add(banister);
 				}
 				balId += 1;
@@ -2764,7 +2766,7 @@ function drawBanistersArr(par) {
 				banister.position.x = basePoint.x;
 				banister.position.y = basePoint.y;
 				banister.position.z = 0;
-				if (!(testingMode && params.railingModel == "Дерево с ковкой")) {
+				if (!(testingMode && railingModel == "Дерево с ковкой")) {
 					obj3D.add(banister);
 				}
 			}

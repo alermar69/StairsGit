@@ -68,6 +68,8 @@ function drawFrames(par){
 			frame.position.y = par.holes[i].y;
 			frames.add(frame);
 
+			offsetHoleTopFlanDpk = framePar.offsetHoleTopFlanDpk;
+
 			//для лотков и рифленки вместо отрисовки ступени отрисовываем площадки для рамок
 			if ((framePar.isPltPFrame || framePar.isPltFrame) && (params.stairType == "лотки" || params.stairType == "рифленая сталь")) {
 				var pltPar = {
