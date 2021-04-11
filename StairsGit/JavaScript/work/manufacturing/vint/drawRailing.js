@@ -863,9 +863,14 @@ function drawSpiralRailing(par) {
 
 	if (handrailMaterial == "Нержавейка" || handrailMaterial == "Алюминий")
 		handrailParams.material = params.materials.metal;
+	
+	var handrail = drawVinPole(handrailParams)
+	handrail.add(handrail);
+	handrail.setLayer('handrails')
+	
 
-	handrail.add(drawVinPole(handrailParams));
-
+/** функция отрисовывает спиральный поручень или ригель
+**/
 	function drawVinPole(par) {
 
 		var stairAmt = params.stepAmt - 1;

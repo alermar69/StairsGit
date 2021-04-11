@@ -42,7 +42,7 @@ if(params.stairModel == "Прямая горка"){
 	}
 	
 //увеличенная верхняя площадка
-if(params.platformTop == "увеличенная" && params.platformWidth_3 - params.M < 150){
+if(params.calcType != "veranda" && params.platformTop == "увеличенная" && params.platformWidth_3 - params.M < 150){
 	var message = "ВНИМАНИЕ!\n" + 
 		"Невозможно сделать увеличенную площадку, по ширине превосходящую марш менее чем на 150мм.\n" + 
 		"Увеличте ширину площадки, уменьшите ширину марша или используйте боковой добор.\n" + 
@@ -304,6 +304,30 @@ if(needRearStringer) {
 	params.platformRearStringer = "есть";
 	$("#platformRearStringer").val("есть");
 	}
+
+
+//дополнительные функции для веранд
+if(params.calcType == "veranda"){
+	changeFormCarport()
+	partPar = calcCarportPartPar();
+	
+	$(".verandaPltPar").show()
+	if (params.pltType == 'единая с лестницей') {
+		$("#pltHeight").val((params.stairAmt1 + 1) * params.h1);
+		//$("#calcType").val('vhod');
+		$("#platformTop").val('площадка');
+		if (params.pltLen !== params.M) $("#platformTop").val('увеличенная');
+		$("#platformLength_3").val(params.pltWidth);
+		$("#platformWidth_3").val(params.pltLen);
+
+		$(".verandaPltPar").hide()
+		//params.calcType = 'vhod';
+		//params.platformTop = 'площадка';
+		//if (params.pltLen !== params.M) params.platformTop = 'увеличенная';
+		//params.platformLength_3 = params.pltWidth;
+		//params.platformWidth_3 = params.pltLen
+	}
+}
 
 
 } //конец функции changeFormCarcas()

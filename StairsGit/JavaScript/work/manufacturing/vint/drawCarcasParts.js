@@ -3564,6 +3564,7 @@ function drawDrum(par) {
 
 	var botShim = drawCylinder_2(cylParams).mesh;
 	if(!testingMode) par.shimMesh.add(botShim);
+//	botShim.setLayer('shims')
 
 	//крышка бобышки
 	if(!par.noShim){
@@ -3578,7 +3579,8 @@ function drawDrum(par) {
 		var topShim = drawCylinder_2(cylParams).mesh;
 		topShim.position.y = par.height - shimThk;
 		par.shimMesh.add(topShim);
-
+		topShim.setLayer('shims')
+		
 		//поясок верхней шайбы шайба
 		var cylParams = {
 			diam: params.columnDiam - (tubeThk + 1) * 2,
@@ -3591,6 +3593,7 @@ function drawDrum(par) {
 		var topShim = drawCylinder_2(cylParams).mesh;
 		topShim.position.y = par.height - shimThk * 2;
 		par.shimMesh.add(topShim);
+		topShim.setLayer('shims')
 	}
 	par.partName = "drum";
 	if (typeof specObj != 'undefined') {

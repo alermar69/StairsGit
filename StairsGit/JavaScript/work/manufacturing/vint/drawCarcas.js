@@ -377,6 +377,7 @@ function drawDrums(par){
 
 		//carcas.push(botFlan);
 		drums.add(botFlan);//, "shims");
+		botFlan.setLayer('shims')
 
 		//крышка нижнего фланца
 		if (params.botFlanCover == "есть") {
@@ -408,7 +409,7 @@ function drawDrums(par){
 		topFlan.rotation.z = sectionTyrnAngle + Math.PI / 4;
 		//carcas.push(topFlan);
 		drums.add(topFlan);//, "shims");
-
+		topFlan.setLayer('shims')
 
 		//регулировочные шайбы
 		var cylParams = {
@@ -432,6 +433,7 @@ function drawDrums(par){
 				regShim.position.y -= 8;
 			}
 			drums.add(regShim);//, "shims");
+			regShim.setLayer('shims')
 		}
 
 
@@ -487,6 +489,8 @@ function drawDrums(par){
 			var rod = drawRod(rodPar).mesh;
 			rod.position.y = posY0 + posY + endDist;
 			drums.add(rod);//, "rod");
+			rod.setLayer('rod')
+
 
 			//удлинненная гайка на стыке
 			nutParams.isLong = true;
@@ -494,6 +498,7 @@ function drawDrums(par){
 			nut.position.y = posY0 + posY - nutParams.nutHeight / 2;
 			if (i == 0) nut.position.y = posY0;
 			drums.add(nut);//, "shims");
+			nut.setLayer('metis')
 			var nutPos = nut.position.y + nutParams.nutHeight;
 
 			//средние стяжные гайки
@@ -503,6 +508,7 @@ function drawDrums(par){
 				//nut.position.y = posY0 + Math.floor(posY / maxRise) * maxRise + 8 + 0.01; //8 - костыль
 				nut.position.y = nutPos + 0.5; //8 - костыль
 				drums.add(nut);//, "shims")
+				nut.setLayer('metis')
 			}
 
 
@@ -519,6 +525,7 @@ function drawDrums(par){
 		if (params.platformPosition == "ниже") nut.position.y -= par.stepHeight;
 		//console.log(nut.position.y, posY0)
 		drums.add(nut);//, "shims");
+		nut.setLayer('metis')
 		var nutTopPos = nut.position.y + nutParams.nutHeight;
 
 		//верхняя контргайка
@@ -526,6 +533,7 @@ function drawDrums(par){
 		var nut = drawNut(nutParams).mesh;
 		nut.position.y = nutTopPos + 0.5;
 		drums.add(nut);//, "shims");
+		nut.setLayer('metis')
 	}
 
 	return drums;
@@ -606,6 +614,7 @@ function drawStringers(par){
 		stringer.position.x = 0;
 		//stringers.push(stringer);
 		stringers.add(stringer);//, "stringers");
+		stringer.setLayer('stringers')
 
 
 		if (params.strightMarsh != 'снизу' && params.strightMarsh != 'сверху и снизу') {
@@ -618,6 +627,7 @@ function drawStringers(par){
 			}
 			translateObject(floorAngle, 0, 0, -params.staircaseDiam / 2);
 			stringers.add(floorAngle);//, "stringers");
+			floorAngle.setLayer('stringers')
 		}
 	}
 	
@@ -659,6 +669,7 @@ function drawStringers(par){
 		stringer.position.x = 0;
 		//stringers.push(stringer);
 		stringers.add(stringer);//, "stringers");
+		stringer.setLayer('stringers')
 	}
 	
 	if (params.model == "Спиральная (косоур)") {
@@ -689,6 +700,7 @@ function drawStringers(par){
 			plate.rotation.y = par.stepAngle * i * turnFactor + par.startAngle;
 			plate.position.y = posY - params.treadThickness;
 			stringers.add(plate);//, "stringers2");
+			plate.setLayer('stringers2')
 
 			//Передняя пластина
 			var frontPlateParams = {
@@ -708,6 +720,7 @@ function drawStringers(par){
 				plate.position.y = posY - params.treadThickness - frontPlateParams.height;
 				plate.castShadow = true;
 				stringers.add(plate);//, "stringers2");
+				plate.setLayer('stringers2')
 				
 				frontPlateParams.height += params.treadThickness;
 			}
@@ -718,6 +731,7 @@ function drawStringers(par){
 			plate.position.y = posY - params.treadThickness;
 			plate.castShadow = true;
 			stringers.add(plate);//, "stringers2");
+			plate.setLayer('stringers2')
 			posY += par.stepHeight;
 			
 			//контура остальных подложек и пластин кроме первой добавляем в мусорный масси

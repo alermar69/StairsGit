@@ -332,6 +332,10 @@ class AdditionalObject extends THREE.Object3D {
 				className: 'Stair',
 				title: 'Лестница'
 			},
+      {
+        className: 'Screen',
+        title: 'Экран радиатора'
+      },
 			{
 				className: 'ConcretePlatform',
 				title: 'Площадка бетон'

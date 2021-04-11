@@ -1800,6 +1800,15 @@ function drawWndTread1(par) {
 
 	if (par.isTreadLigts) extrudeOptions.amount -= par.treadLigtsThk;
 
+  var modifyKey = 'wndTread:' + par.turnId + ':' + par.treadId;
+  if (modifyKey && window.service_data && window.service_data.shapeChanges) {
+		var modify = window.service_data.shapeChanges.find(function(change){
+			return change.modifyKey == modifyKey
+		})
+		if (modify) {
+			shape = getShapeFromModify(modify);
+		}
+	}
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 	if (par.treadId == 3) {
@@ -1811,8 +1820,8 @@ function drawWndTread1(par) {
 		treadId: par.treadId,
 	}
 	if (par.isTreadLigts) mesh.position.z = par.treadLigtsThk;
+	mesh.modifyKey = modifyKey;
 	par.mesh.add(mesh);
-	par.mesh.modifyKey = 'wndTread:' + par.marshId + ':' + par.treadId;
 	//сохраняем параметр
 	par.stepWidthHi = distance(path.keyPoints[0], path.keyPoints[1]);
 
@@ -2043,6 +2052,17 @@ function drawWndTread2(par) {
 	if (par.isTreadLigts) extrudeOptions.amount -= par.treadLigtsThk;
 
 	//signKeyPoints(wndTreadParams.signKeyPoints, par.dxfBasePoint);
+
+  var modifyKey = 'wndTread:' + par.turnId + ':2';
+  if (modifyKey && window.service_data && window.service_data.shapeChanges) {
+		var modify = window.service_data.shapeChanges.find(function(change){
+			return change.modifyKey == modifyKey
+		})
+		if (modify) {
+			shape = getShapeFromModify(modify);
+		}
+	}
+
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
@@ -2053,8 +2073,8 @@ function drawWndTread2(par) {
 		treadId: 2,
 	}
 	if (par.isTreadLigts) mesh.position.z = par.treadLigtsThk;
+	mesh.modifyKey = modifyKey;
 	par.mesh.add(mesh);
-	par.mesh.modifyKey = 'wndTread:' + par.marshId + ':2';
 
 	// добавляем часть ступени с вырезом под подсветку ступеней
 	if (par.isTreadLigts) {
@@ -2748,6 +2768,7 @@ function drawWndTreadsMono(par) {
 			//outerOffsetY: 200,
 			dxfBasePoint: par.dxfBasePoint,
 			marshId: par.botMarshId,
+      turnId: par.turnId,
 			hasTurnRack: hasTurnRack,
 			isTread: true,
 		};
@@ -2799,6 +2820,7 @@ function drawWndTreadsMono(par) {
 	}
 
 	treadParams[3].stepWidthLow += deltaLen
+  treadParams[3].turnId = par.turnId;
 
 	var tread3 = drawWndTread1(treadParams[3]).mesh;
 

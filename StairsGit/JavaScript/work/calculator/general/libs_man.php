@@ -68,6 +68,7 @@ $scripts[] = ["url" => "/calculator/general/scene/objects/transport.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/shelf.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/pool.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/sill.js"];
+$scripts[] = ["url" => "/calculator/general/scene/objects/screen.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/roof.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/fence.js"];
 $scripts[] = ["url" => "/calculator/general/scene/objects/bed.js"];

@@ -53,6 +53,21 @@ class Sill extends AdditionalObject {
 			sill.userData.setObjectDimensions = true;
 			par.mesh.add(sill);
 		}
+
+    if (par.screenType != 'нет') {
+      console.log(sillPar);
+      var screenPar = {
+        mesh: par.mesh,
+        height: sillPar.height + 10,
+        width: sillPar.windowWidth + sillPar.rightNose + sillPar.leftNose,
+        depth: sillPar.frontNose,
+        fillingType: sillPar.screenType
+      };
+      var mesh = drawScreen(screenPar)
+      mesh.position.x = -screenPar.width / 2;
+      mesh.position.z = sillPar.wallThk + sillPar.frontNose;
+      par.mesh.add(mesh);
+    }
 		return par;
 	}
 	
@@ -578,6 +593,22 @@ class Sill extends AdditionalObject {
 				  "type": "number",
 					"printable": "true",
 				},
+        {
+					"key": "screenType",
+					"title": "Экран радиатора:",
+					"values": [
+						{
+							"value": "нет",
+							"title": "нет"
+						},
+						{
+							"value": "01",
+							"title": "Тип 1"
+						}
+					],
+					"default": "нет",
+					"type": "select",
+				},
 				{
 					"key": "radSillType",
 					"title": "Передняя кромка:",
@@ -965,8 +996,6 @@ class Sill extends AdditionalObject {
 					"class": "slab",
 					"printable": "true",
 				},
-				
-				
 				
 				{
 					"type": "delimeter",
