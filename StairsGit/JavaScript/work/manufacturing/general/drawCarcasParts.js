@@ -2957,9 +2957,13 @@ layer
 				if (partName == 'carportBeamConnector'){
 					specObj[partName].name = 'Соединитель';
 				}
+				if (partName == 'lineBrush'){
+					specObj[partName].name = 'Полосовая щетка';
+				}
 			}
 			var name = arcLength;
 			if (partName == 'polySheet') name = arcLength.toFixed(2)+'x'+par.height.toFixed(2);
+			if (partName == 'lineBrush') name = "L=" + arcLength;
 			if (partName == 'carportBeam' || partName == 'carportBeamConnector') name = "R=" + Math.round(par.rad - par.thk / 2)  + " L=" + arcLength_out +" A=" + endsDist
 			
 			if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;

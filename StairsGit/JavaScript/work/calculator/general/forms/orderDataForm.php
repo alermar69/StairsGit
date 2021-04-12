@@ -80,5 +80,10 @@
 			
 		</tbody>
 	</table>
-	</ul>
+	<br>
+	<a src="orders/troubles/sendReport.php" target="_blank" id="sendReport" class="btn btn-warning" data-toggle="tooltip" title="" data-original-title="Добавить фотоотчет или проблему">
+		<i class="fa fa-camera"></i>
+		<span>Фотоотчет</span>
+	</a>
+
 </div>

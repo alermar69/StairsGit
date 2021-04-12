@@ -97,6 +97,30 @@ function drawArcPoolSect(par){
 
 	par.topArc = sectPar.topArc
 	
+	//щетки
+	if(params.lineBrush == "есть"){
+		//Щетки ставятся на все секции, кроме первой
+		if(par.sectId > 0){
+			var arcPanelPar = {
+				rad: par.topArc.rad - partPar.rafter.profSize.y,
+				height: 10,
+				thk: 45,
+				angle: par.topArc.startAngle - par.topArc.endAngle,
+				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+				material: params.materials.timber,
+				partName: 'lineBrush',
+				dxfPrimitivesArr: dxfPrimitivesArr
+			}
+			
+
+			var brush = drawArcPanel(arcPanelPar).mesh;
+			brush.rotation.z = par.topArc.endAngle;
+			brush.position.y = par.topArc.center.y
+			brush.position.z = -params.sectLen / 2
+			par.mesh.add(brush)
+			
+		}
+	}
 	
 	return par;
 }
@@ -278,6 +302,18 @@ function drawSphereSegment(par){
 		dxfPrimitivesArr: []
 	}
 
+	//параметры щеток (если есть)
+	var lineBrushPar = {
+		rad: rad - partPar.rafter.profSize.y,
+		height: 10,
+		thk: 45,
+		angle: Math.PI / 2 + extraAngle,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+		material: params.materials.timber,
+		partName: 'lineBrush',
+	}
+	
+
 //цикл построения полярного массива элементов
 	for(var i=0; i<= arcAmt; i++){
 		var pos = polar({x:0, y:0}, arcStepAng * i, -arcPanelPar.height / 2); //смещение на половину профиля
@@ -380,6 +416,20 @@ function drawSphereSegment(par){
 			dome.add(weel)
 		}
 		
+			//щетки
+		if(params.lineBrush == "есть" && par.isMovable && (i == 0 || i == arcAmt)){
+			var brush = drawArcPanel(lineBrushPar).mesh;
+			brush.rotation.z = arcProf.rotation.z;
+			brush.rotation.y = arcProf.rotation.y;
+
+			brush.position.x = arcProf.position.x;
+			brush.position.y = arcProf.position.y;
+			brush.position.z = arcProf.position.z
+			
+			brush.setLayer('roof');
+			if(!testingMode) dome.add(brush);		
+		}
+	
 		
 	}
 	

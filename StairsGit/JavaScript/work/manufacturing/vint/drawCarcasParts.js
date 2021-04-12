@@ -715,7 +715,8 @@ function drawVintTreadShape(par) {
 	}
 	*/
 
-	if (!(params.model == "Винтовая" && params.railingModel == "Ригели")) {
+	//if (!(params.model == "Винтовая" && params.railingModel == "Ригели")) {
+	if (params.model == "Винтовая с тетивой" || params.railingModel == 'Частые стойки') {
 		$.each(basePoints.balHoles,
 			function() {
 				addRoundHole(treadShape, par.dxfArr, this, this.rad, dxfBasePoint);
@@ -846,29 +847,29 @@ function drawVintTread(par) {
 
 	
 	//---------------------------
-	if (params.railingModel !== 'Частые стойки') {
-			//рассчитываем координаты базовых точек
-	    var basePoints = calcVintTreadPoints(par.treadAngle)
-	    var angleParams = {
-	        material: par.angMaterial,
-	        dxfArr: [],
+	if (params.model == "Винтовая с тетивой" || params.railingModel == 'Частые стойки') {
+		//рассчитываем координаты базовых точек
+		var basePoints = calcVintTreadPoints(par.treadAngle)
+		var angleParams = {
+			material: par.angMaterial,
+			dxfArr: [],
 		}
 
 		for (var i = 0; i < basePoints.basePointAngels.length; i++) {
 			var center = basePoints.basePointAngels[i];
-		    angleParams = drawBanisterAngle(angleParams)
+			angleParams = drawBanisterAngle(angleParams)
 
-		    var angle = angleParams.mesh;
+			var angle = angleParams.mesh;
 			angle.rotation.y = center.ang;
-		    angle.rotation.x = Math.PI / 2;
+			angle.rotation.x = Math.PI / 2;
 			angle.position.x = center.x;
 			angle.position.y = center.y;
 			angle.position.z = -25;
 			topPlate.add(angle);
 		}
 	}
-    
-    //-------------------------------------
+
+	//-------------------------------------
 
 	//передние пластины
 

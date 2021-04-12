@@ -42,21 +42,21 @@ function calcCarportCost(){
 	}
 
 	//кровля
-	var roofMeterCost = 200; //цена кровельного материала за м2
+	var roofMeterCost = 500; //цена кровельного материала за м2
 	
 	if(params.roofMat.indexOf("поликарбонат") != -1){
 		//цена поликарбоната взята отсюда https://polidin.ru/sotoviy-polikarbonat-petalex-primavera/ 
 		if(params.roofPlastColor == "прозрачный"){
-			if(params.roofThk == '4') var roofMeterCost = 193;
-			if(params.roofThk == '6') var roofMeterCost = 315;
-			if(params.roofThk == '8') var roofMeterCost = 350;
-			if(params.roofThk == '10') var roofMeterCost = 385;
+			if(params.roofThk == '4') var roofMeterCost = 261;
+			if(params.roofThk == '6') var roofMeterCost = 428;
+			if(params.roofThk == '8') var roofMeterCost = 475;
+			if(params.roofThk == '10') var roofMeterCost = 523;
 		}
 		if(params.roofPlastColor != "прозрачный"){
-			if(params.roofThk == '4') var roofMeterCost = 202;
-			if(params.roofThk == '6') var roofMeterCost = 331;
-			if(params.roofThk == '8') var roofMeterCost = 368;
-			if(params.roofThk == '10') var roofMeterCost = 404;
+			if(params.roofThk == '4') var roofMeterCost = 274;
+			if(params.roofThk == '6') var roofMeterCost = 449;
+			if(params.roofThk == '8') var roofMeterCost = 499;
+			if(params.roofThk == '10') var roofMeterCost = 549;
 		}
 		
 		if(params.roofMat == "монолитный поликарбонат") roofMeterCost *= 8;
@@ -137,12 +137,17 @@ function calcCarportCost(){
 		
 		if(params.roofMat != "нет"){
 			var profMeterPrice = 60; 
-			if(params.roofProfType == "алюминий") profMeterPrice = 350;
 			roofProfPrice = getPartPropVal('progonProf', 'sumLength') * profMeterPrice;
 			
 		}
 		
 		boltPrice = 5000; //болты, подшипники, колеса и т.п.
+		
+		//полосовые уполтнительные щетки
+		if(params.lineBrush == "есть"){
+			var profMeterPrice = 1000; 
+			roofProfPrice = getPartPropVal('lineBrush', 'sumLength') * profMeterPrice
+		}
 		
 		//к-т на цену
 		beamCost *= 2;

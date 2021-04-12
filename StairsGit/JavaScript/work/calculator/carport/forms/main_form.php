@@ -324,18 +324,8 @@
 				<td>Цвет поликарбоната:</td>
 				<td>
 					<select id="roofPlastColor">
-						<option value="прозрачный">прозрачный</option>
-						<option value="бронза">бронза</option>
-						<option value="коричневый">коричневый</option>
-						<option value="опал">опал</option>
-						<option value="зеленый">зеленый</option>
-						<option value="синий">синий</option>
-						<option value="голубой">голубой</option>
-						<option value="бирюзовый">бирюзовый</option>
-						<option value="желтый">желтый</option>
-						<option value="оранжевый">оранжевый</option>
-						<option value="красный">красный</option>
-						<option value="гранат">гранат</option>
+						<!-- варианты цвета поликарбоната -->
+						<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/polyColors.php" ?>					
 					</select>
 				</td>
 			</tr>
@@ -349,13 +339,13 @@
 					</select>
 				</td>
 			</tr>
-			
-			<tr class="roofPar">
-				<td>Соединительные профили:</td>
+
+			<tr>
+				<td>Щетки:</td>
 				<td>
-					<select id="roofProfType">
-						<option value="пластик">пластик</option>
-						<option value="алюминий">алюминий</option>
+					<select id="lineBrush" size="1">						
+						<option value="нет">нет</option>
+						<option value="есть">есть</option>
 					</select>
 				</td>
 			</tr>
@@ -498,17 +488,8 @@
 				<td>Цвет:</td>
 				<td>
 					<select id="wallColor">
-						<option value="прозрачный">прозрачный</option>
-						<option value="бронза">бронза</option>
-						<option value="опал">опал</option>
-						<option value="зеленый">зеленый</option>
-						<option value="синий">синий</option>
-						<option value="голубой">голубой</option>
-						<option value="бирюзовый">бирюзовый</option>
-						<option value="желтый">желтый</option>
-						<option value="оранжевый">оранжевый</option>
-						<option value="красный">красный</option>
-						<option value="гранат">гранат</option>
+						<!-- варианты цвета поликарбоната -->
+						<?php include $GLOBALS['ROOT_PATH']."/calculator/general/forms/polyColors.php" ?>
 					</select>
 				</td>
 			</tr>

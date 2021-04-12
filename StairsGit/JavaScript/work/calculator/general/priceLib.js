@@ -958,7 +958,7 @@ function calculateTotalPrice2() {
 	
 	//стоимость сборки должна быть не менее 10% стоимости изделия
 	if(params.isAssembling != "нет"){
-		if (priceObj["assembling"].price < productionPrice * 0.2) priceObj["assembling"].price = Math.round(productionPrice * 0.1);
+		if (priceObj["assembling"].price < productionPrice * 0.1) priceObj["assembling"].price = Math.round(productionPrice * 0.1);
 		
 		//если доставка включена в монтаж
 		if(params.deliveryInAssembling == "да") {

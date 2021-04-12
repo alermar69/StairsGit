@@ -46,15 +46,25 @@ function changeFormCarport(){
 		alertTrouble("Сотовый поликарбонат должен быть 8мм. Измените тип поликарбоната или толщину.")
 	}
 	
+	//поликарбоната на стенах такой же, как на кровле
+	if(params.roofMat.indexOf("поликарбонат") != -1){
+		$("#wallMat").val(params.roofMat)
+		$("#wallThk").val(params.roofThk)
+		$("#wallColor").val(params.roofPlastColor)
+	}
+	
 	if(params.carportType.indexOf("консольный") != -1){
 		$("#columnProf").val("100х200")
 		$("#roofType").val("Арочная")
 		$("#fixType").val("фланцы")
 	}
 	
+	
+	$("#lineBrush").closest("tr").hide()
 	if(params.carportType == "сдвижной" || params.carportType == "купол") {
 		$("#beamModel").val("проф. труба");
 		$("#roofType").val("Арочная")
+		$("#lineBrush").closest("tr").show()
 	}
 	
 	if(params.carportType == "четырехскатный") {
@@ -134,6 +144,13 @@ function changeFormCarport(){
 		$("#columnProf").closest("tr").show();
 	}
 	
+	//максимальные размеры купола
+	if(params.carportType == 'купол' && (params.domeDiam > 5800 || params.height > 2900)){
+		alert("Введены размеры купола больше максимально возможных (D = 5800, H = 2900). Установлены максимальные размеры. ")
+		$("#domeDiam").val(5800)
+		$("#height").val(2900)
+	}
+	
 	
 	//текстура пола первого этажа
 	if(!params.floorMat) $("#floorMat").val("road_brick3")
@@ -146,6 +163,7 @@ function changeFormCarport(){
 	}
 
 	if (params.floorType == "нет") $("#heightFloor").val(0)
+	
 	
 	getAllInputsValues(params)
 	 
