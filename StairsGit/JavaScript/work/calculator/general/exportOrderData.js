@@ -1056,6 +1056,14 @@ function getExportData_com(checkSumm){
 	for(var part in assemblingParts){
 		cost_data.assembling_parts[assemblingParts[part].key] = assemblingParts[part].cost;
 	}
+  var assembling_wage = calcAssemblingWage();
+  cost_data.assembling_wage = {};
+  for(var part in assembling_wage.wages){
+    cost_data.assembling_wage[part] = 0;
+    assembling_wage.wages[part].items.forEach(function(item){
+      cost_data.assembling_wage[part] += item.total;
+    })
+	}
 
 	for (const unit in price_data) {
 		if(unit != 'main' && priceObj[unit]) cost_data[unit] = priceObj[unit].cost;
@@ -1266,12 +1274,13 @@ function printExportData(data, outputDivId){
 	var price_data = data.price_data;
 	
 	for(var unit in price_data){
-		if(unit != "main"){
+    console.log(unit)
+		if(unit != "main" && unit != 'stages_data' && unit != 'delivery' && unit != 'assembling'){
 			text += "<tr>\
 					<td>" + price_data[unit].name + "</td>\
-					<td>" + Math.round(price_data[unit].production) + "</td>\
-					<td>" + Math.round(price_data[unit].assembling) + "</td>\
-					<td>" + Math.round(price_data[unit].production + price_data[unit].assembling) + "</td>\
+					<td>" + (Math.round(price_data[unit].production) || 0) + "</td>\
+					<td>" + (Math.round(price_data[unit].assembling) || 0) + "</td>\
+					<td>" + (Math.round(price_data[unit].production + price_data[unit].assembling) || 0) + "</td>\
 				</tr>";
 			}
 		};

@@ -17,6 +17,7 @@
 						<option value="многогранник">многогранник</option>
 						<option value="сдвижной">сдвижной</option>
 						<option value="четырехскатный">четырехскатный</option>
+						<option value="фронтальный">фронтальный</option>
 					</select>
 				</td>
 			</tr>
@@ -42,13 +43,14 @@
 			</tr>
 			
 			<tr class="truss">
-				<td>Поперечные балки:</td>
+				<td>Балки:</td>
 				<td>
 					<select id="beamModel">
 						<option value="сужающаяся">из листа сужающаяся</option>						
 						<option value="постоянной ширины">из листа постоянной ширины</option>	
 						<option value="проф. труба">проф. труба</option>
 						<option value="ферма постоянной ширины">ферма постоянной ширины</option>							
+						<option value="двутавр">двутавр</option>							
 					</select>
 				</td>
 			</tr>
@@ -276,6 +278,7 @@
 						<option value="100х100">100х100</option>
 						<option value="120х120">120х120</option>
 						<option value="100х200">100х200</option>
+						<option value="20К1">20К1</option>
 					</select>
 				</td>
 			</tr>

@@ -848,28 +848,28 @@ function drawVintTread(par) {
 	
 	//---------------------------
 	if (params.model == "Винтовая с тетивой" || params.railingModel == 'Частые стойки') {
-		//рассчитываем координаты базовых точек
-		var basePoints = calcVintTreadPoints(par.treadAngle)
-		var angleParams = {
-			material: par.angMaterial,
-			dxfArr: [],
+			//рассчитываем координаты базовых точек
+	    var basePoints = calcVintTreadPoints(par.treadAngle)
+	    var angleParams = {
+	        material: par.angMaterial,
+	        dxfArr: [],
 		}
 
 		for (var i = 0; i < basePoints.basePointAngels.length; i++) {
 			var center = basePoints.basePointAngels[i];
-			angleParams = drawBanisterAngle(angleParams)
+		    angleParams = drawBanisterAngle(angleParams)
 
-			var angle = angleParams.mesh;
+		    var angle = angleParams.mesh;
 			angle.rotation.y = center.ang;
-			angle.rotation.x = Math.PI / 2;
+		    angle.rotation.x = Math.PI / 2;
 			angle.position.x = center.x;
 			angle.position.y = center.y;
 			angle.position.z = -25;
 			topPlate.add(angle);
 		}
 	}
-
-	//-------------------------------------
+    
+    //-------------------------------------
 
 	//передние пластины
 
@@ -2015,8 +2015,8 @@ function drawVintPlatformShape(par) {
 
 
 	//подпись
-	var text = "Верхняя площадка"
-	if (params.turnFactor == -1) text = "Верхняя площадка (зеркально)"
+	var text = "Верхняя площадка (вид сверху)"
+	if (params.turnFactor == -1) text = "Верхняя площадка (вид снизу)"
 	var textHeight = 30;
 	var textBasePoint = newPoint_xy(dxfBasePoint, 20, -150);
 	addText(text, textHeight, dxfPrimitivesArr, textBasePoint);
@@ -2157,8 +2157,8 @@ function drawPlatformFrame(par) {
 	var sizeB = distance(ph2, ph3) + profWidth * 2;
 
 	//подпись под фигурой
-	var text = "Рама площадки"
-	if (params.turnFactor == -1) text = "Рама площадки (зеркально) "
+	var text = "Рама площадки (вид сверху)"
+	if (params.turnFactor == -1) text = "Рама площадки (вид снизу)"
 	var textHeight = 30;
 	var textBasePoint = newPoint_xy(dxfBasePoint, 100, -100)
 	addText(text, textHeight, par.dxfArr, textBasePoint)
@@ -2471,8 +2471,8 @@ function drawTrianglePlatformFrame(par) {
 	test.add(par.metalFrame);
 	par.metalFrame = test;
 
-	var text = "Рама треугольной площадки"
-	if (params.turnFactor == -1) text = "Рама треугольной площадки (зеркально) "
+	var text = "Рама площадки (вид сверху)"
+	if (params.turnFactor == -1) text = "Рама площадки (вид снизу)"
 	var textHeight = 30;
 	var textBasePoint = newPoint_xy(dxfBasePoint, 100, -100)
 	addText(text, textHeight, par.dxfArr, textBasePoint)
@@ -2688,8 +2688,8 @@ function drawTrianglePlatformFrame1(par) {
 	test.add(par.metalFrame);
 	par.metalFrame = test;
 	
-	var text = "Рама треугольной площадки"
-	if (params.turnFactor == -1) text = "Рама треугольной площадки (зеркально) "
+	var text = "Рама площадки (вид сверху)"
+	if (params.turnFactor == -1) text = "Рама площадки (вид снизу)"
 	var textHeight = 30;
 	var textBasePoint = newPoint_xy(dxfBasePoint, 100, -100)
 	addText(text, textHeight, par.dxfArr, textBasePoint)

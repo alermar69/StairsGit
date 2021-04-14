@@ -869,11 +869,11 @@ function drawStepOriel(par){
 	var parts = Object.assign([], par.oriel_parts);
 
 	parts.forEach(function(p){
-		p.oriel_angle = 180 - p.oriel_angle;
+		p.oriel_angle = (180 - p.oriel_angle) * -1;
 	});
 
 	var sillWidth = par.width;
-
+  var holeWidth = 0.5;
 	var frontSillPoints = [];
 	var rearSillPoints = [];
 	var basePoint = {x:0,y:0};
@@ -881,6 +881,8 @@ function drawStepOriel(par){
 
 	frontSillPoints.push(basePoint);
 	rearSillPoints.push(polar(basePoint, Math.PI / 2, -sillWidth));
+  
+  var holes = [];
 	
 	for (var i = 0; i < parts.length; i++) {
 		var partAngle = THREE.Math.degToRad(parts[i].oriel_angle);
@@ -892,16 +894,33 @@ function drawStepOriel(par){
 			var nextAngle = 0;
 		}
 
-		var point = polar(basePoint, ang, parts[i].oriel_len);
+		var point = polar(basePoint, ang, -parts[i].oriel_len);
 		frontSillPoints.push(point);
 		
-		console.log(nextAngle)
 		var rearPointAngle = ang - Math.PI / 2 + nextAngle / 2;
 		
 		var rearPoint = polar(point, rearPointAngle, -(sillWidth / Math.cos(nextAngle / 2)));
 		rearSillPoints.push(rearPoint);
 		previousAngle = ang;
 		basePoint = point;
+
+    if (i < parts.length - 1) {
+      var pointsAng = angle(point, rearPoint);
+      var holeP1 = polar(polar(point, pointsAng + Math.PI / 2, holeWidth), pointsAng, -2);
+      var holeP2 = polar(polar(point, pointsAng - Math.PI / 2, holeWidth), pointsAng, -2);
+      var holeP3 = polar(polar(rearPoint, pointsAng - Math.PI / 2, holeWidth), pointsAng, 2);
+      var holeP4 = polar(polar(rearPoint, pointsAng + Math.PI / 2, holeWidth), pointsAng, 2);
+      
+      //создаем шейп
+      var shapePar = {
+        points: [holeP1, holeP2, holeP3, holeP4],
+        dxfArr: dxfPrimitivesArr,
+        dxfBasePoint: par.dxfBasePoint,
+      }
+      
+      var hole = drawShapeByPoints2(shapePar).shape;
+      holes.push(hole);
+    }
 	};
 
 	var orielWrapper = new THREE.Object3D();
@@ -913,9 +932,9 @@ function drawStepOriel(par){
 		curAng += THREE.Math.degToRad(parts[i].oriel_angle);
 
 		var p0 = {x: 0, y:0}; //точка в середине передней кромки
-		var p1 = newPoint_xy(p0, dist, 0);
+		var p1 = newPoint_xy(p0, -dist, 0);
 		var p2 = newPoint_xy(p1, 0, par.height);
-		var p3 = newPoint_xy(p2, -dist, 0);
+		var p3 = newPoint_xy(p2, dist, 0);
 		var points = [p0, p1, p2, p3];
 
 		//создаем шейп
@@ -951,15 +970,19 @@ function drawStepOriel(par){
 			height: par.windowHeight,
 			mat: params.materials.whitePlastic,
 		}
+    var wndObj = new THREE.Object3D();
 		var wnd = drawWindow(windowPar).mesh;
 
-		wnd.rotation.y = curAng;
-		wnd.position.y = par.height;
-		wnd.position.x = point.x;
-		wnd.position.z = -point.y;
+    wnd.position.x -= dist;
 
-		console.log(i, curAng);
-		orielWrapper.add(wnd);
+    wndObj.add(wnd);
+
+		wndObj.rotation.y = curAng;
+		wndObj.position.y = par.height;
+		wndObj.position.x = point.x;
+		wndObj.position.z = -point.y;
+
+		orielWrapper.add(wndObj);
 	}
 	par.mesh.add(orielWrapper);
 
@@ -971,6 +994,7 @@ function drawStepOriel(par){
 	}
 	
 	var shape = drawShapeByPoints2(shapePar).shape;
+  shape.holes = holes;
 	
 	var extrudeOptions = {
 		amount: par.thk,
@@ -985,6 +1009,90 @@ function drawStepOriel(par){
 	sillMesh.rotation.x = -Math.PI / 2;
 	sillMesh.position.y = par.height;
 	par.mesh.add(sillMesh);
+
+  //сохраняем данные для спецификации
+	var partName = 'sill';
+	if(par.shapeType == "по чертежу") partName = 'sill_cnc';
+	if(par.shapeType == "по шаблону (криволин.)") partName = 'sill_arc';
+
+	if (typeof specObj != 'undefined') {
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				sumLength: 0,
+				area: 0,
+				paintedArea: 0,
+				name: 'Подоконник криволинейный',
+				metalPaint: false,
+				timberPaint: true,
+				isModelData: true,
+				division: "timber",
+				purposes: [],
+				workUnitName: "amt",
+				group: "Объекты",
+				//дополнительные данные
+				lineTemplatesAmt: 0,
+				curveTemplates: 0,
+				breaking: 0,
+				typeComments: {},
+				size: {}
+			}
+		}
+		
+		// var box3 = new THREE.Box3().setFromObject(sillMesh);
+		// var len = box3.max.x - box3.min.x;
+		// var width = box3.max.z - box3.min.z;
+    var width = sillWidth
+    var len = 0;
+    parts.forEach(function(p){
+      len += p.oriel_len;
+    });
+		var area = len * width / 1000000 * par.objectAmt
+		
+		name = '№' + par.objId + ' ' + par.shapeType + " " + Math.round(len) + "x" + Math.round(width) + "х" + Math.round(par.thk);
+		
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1 * par.objectAmt;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1 * par.objectAmt;
+		specObj[partName]["amt"] += 1 * par.objectAmt;
+		specObj[partName]["sumLength"] += par.len / 1000 * par.objectAmt;
+		specObj[partName]["area"] += area;
+		specObj[partName]["paintedArea"] += par.len * par.width / 1000000 * par.objectAmt;
+		
+		specObj[partName].typeComments[name] = getSillSpecComment(par);
+		specObj[partName].size[name] = {
+			width: width,
+			len: len
+		};
+		
+		par.mesh.specParams = {specObj: specObj, amt: 1 * par.objectAmt, partName: partName, name: name}
+		
+		//дополнительные данные
+		if(par.shapeType == "по шаблону") specObj[partName]["lineTemplatesAmt"] += 1 * par.objectAmt;
+		if(par.shapeType == "по шаблону (криволин.)") specObj[partName]["curveTemplates"] += 1 * par.objectAmt;
+		if(par.breaking == "есть") specObj[partName]["breaking"] += 1 * par.objectAmt;
+	}
+	
+	par.mesh.specId = partName + name;
+
+	//добавляем информацию в материалы с учетом обрезков
+	var billetPar = calcBilletSize({
+		len: len,
+		width: width,
+		thk: par.thk,
+		type: "щит"
+	});
+	
+	var panelName_40 = calcTimberParams(params.additionalObjectsTimberMaterial).treadsPanelName;	
+	var panelName_20 = calcTimberParams(params.additionalObjectsTimberMaterial).riserPanelName;
+
+	if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+	if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+	if(par.thk == 60) {
+		addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+		addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+	}
+  
 	
 	return par
 }

@@ -16,6 +16,11 @@ function calcCarportCost(){
 	var columnsCost = profParmas.unitCost * amt;
 	addMaterialNeed({id: profParmas.materialNeedId, amt: amt})
 	
+	//винтовые сваи
+	var pileCost = 1800;
+	var amt = getPartPropVal('vintPile', "amt")
+	columnsCost += pileCost * amt;
+	
 	//прогоны
 	profParmas = getProfParams(params.progonProf);
 	amt = getPartPropVal('purlinProf', 'sumLength')
@@ -43,6 +48,7 @@ function calcCarportCost(){
 
 	//кровля
 	var roofMeterCost = 500; //цена кровельного материала за м2
+	var roofArea = getPartPropVal('polySheet', 'area') * 1.2; //1.2 - обрезки
 	
 	if(params.roofMat.indexOf("поликарбонат") != -1){
 		//цена поликарбоната взята отсюда https://polidin.ru/sotoviy-polikarbonat-petalex-primavera/ 
@@ -61,7 +67,8 @@ function calcCarportCost(){
 		
 		if(params.roofMat == "монолитный поликарбонат") roofMeterCost *= 8;
 		
-		roofMeterCost *= 1.2; //к-т учитывающий обрезки
+		//рассчитываем площадь с учетом реального количетва листов
+		roofArea = calcPolySheetNeed().area
 	}
 	
 	if(params.roofMat == "профнастил" || params.roofMat == "металлочерепица"){
@@ -69,11 +76,13 @@ function calcCarportCost(){
 		if(params.roofThk == 0.4) var roofMeterCost = 400;
 		if(params.roofThk == 0.5) var roofMeterCost = 500;
 		if(params.roofThk == 0.7) var roofMeterCost = 600;
+		
+		roofMeterCost *= 1.3; //1.3 - подъем цен 31.03.21
 	}
 	
-	roofMeterCost *= 1.3; //1.3 - подъем цен 31.03.21
 	
-	var roofCoverCost = getPartPropVal('polySheet', 'area') * roofMeterCost;
+	
+	var roofCoverCost = roofArea * roofMeterCost;
 	
 	//соединительные профиля для поликарбоната
 	var roofProfPrice = (getPartPropVal('polyConnectionProfile', "sumLength") || 0) * 100;
@@ -221,4 +230,47 @@ function calcCarportCost(){
 		+ staircaseCost.roofShim + 
 		+ staircaseCost.carcasMetalPaint;
 	
+}
+
+/** функция рассчитывает потребность в поликарбонате
+**/
+function calcPolySheetNeed(){
+		var area = 0;
+		var text = ""
+		var sheetLen = {};
+		//группируем по длине
+		$.each(partsAmt.polySheet.types, function(name, amt){
+			var size = {
+				len: name.split("x")[0],
+				width: name.split("x")[1],
+			}
+			if(!sheetLen[size.len]) sheetLen[size.len] = 0;
+			sheetLen[size.len] += amt;
+		});
+		
+		$.each(sheetLen, function(len, amt){
+			var billetPar = {
+				len: len,
+				width: 2100,
+				thk: params.roofThk,
+				type: params.roofMat,
+				color: params.roofPlastColor,
+				amt: amt,
+			}
+			
+			var result = calcSheetAmt(billetPar);
+			area += result.area;
+			text += printSheetAmt(billetPar);		
+		})
+		
+	//исправляем возможные ошибки
+	if(getPartPropVal('polySheet', 'area') - area > 0.1) {
+		alertTrouble("Ошибка расчета площади поликарбоната. " + area + " < " + getPartPropVal('polySheet', 'area'));
+		area = getPartPropVal('polySheet', 'area');
+	}
+	
+	return {
+		area: area,
+		text: text,
+	}
 }

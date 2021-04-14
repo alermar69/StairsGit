@@ -7,11 +7,8 @@
 <div id="totalResultWrap" class="printBlock">
 	<h2 class="raschet">Стоимость заказа</h2>
 	<div id="totalResult" class="toggleDiv number"></div>
-	<div class="noPrint print-btn">
-		<i class="glyphicon glyphicon-print" aria-hidden="true"></i>
-	</div>
-	<div class="noPrint estimate-btn">
-		<i class="glyphicon glyphicon-briefcase" aria-hidden="true"></i>
+	<div class="noPrint estimate-btn grey">
+		<i class="fa fa-table" aria-hidden="true"></i>
 	</div>
 </div>
 

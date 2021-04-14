@@ -466,3 +466,30 @@ function buildFactText(text){
 	}
 	return text
 }
+
+/** функция выводит все варианты фактов **/
+
+function printAllFacts(){
+	var text = "<table class='tab_2'><tbody>\
+		<tr>\
+			<th>Название</th>\
+			<th>Группа</th>\
+			<th>Блок</th>\
+			<th>Факт</th>\
+			<th>Условие</th>\
+		</tr>";
+	$.each(factBlocks, function(){
+		text += 
+			"<tr>\
+				<td>" + this.name + "</td>\
+				<td>" + this.group + "</td>\
+				<td>" + this.block + "</td>\
+				<td>" + this.description + "</td>\
+				<td>" + this.value + "</td>\
+			</tr>";
+	})
+
+	text += "</tbody></table>";
+	
+	return text;
+}

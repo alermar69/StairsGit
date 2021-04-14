@@ -1244,7 +1244,7 @@ function printPrice2() {
 	}
 
 	var mode = 'offer';
-	if ($(".estimate-btn").hasClass('grey')) mode = 'estimate';
+	if (!$(".estimate-btn").hasClass('grey')) mode = 'estimate';
 	var text = "";
 	var additional = ""; //текст с ценой доп. услуг
 	for (var unit in priceObj) {
@@ -1271,59 +1271,37 @@ function printPrice2() {
 
 	//представление - смета (заменяем ранее сформированный text)
 	if (mode == "estimate") {
-		text = "";
-		var tableHead = "<table class='tab_2 number'><tbody><tr><th>Наименование</th><th>Этап</th><th>Ед.изм.</th><th>Кол-во</th><th>Цена ед.</th><th>Сумма</th></tr>";
+		text = "<table class='tab_2 number'><tbody><tr>\
+			<th>Наименование</th>\
+			<th>Кол-во</th>\
+			<th>Цена</th>\
+			<th>Скидка</th>\
+			<th>Сумма</th>\
+			</tr>";
 		var tableFooter = "</tbody></table>";
-
-		if (typeof getExportData_com == 'function') {
-			var data = getExportData_com().price_data;
-			//printExportData(exportObj, "exportData");
-
-			text += tableHead;
-
-			for (var unit in data) {
-				if (unit != "main") {
-					//изделие
-					if (data[unit].production) {
-						text += "<tr class='priceRow'>" +
-							"<td class='left'>" + data[unit].name + "</td>" +
-							"<td>" + params[unit + "AssmStage"] + "</td>" +
-							"<td>шт</td>" +
-							"<td>1</td>" +
-							"<td>" + Math.round(data[unit].production) + "</td>" +
-							"<td>" + Math.round(data[unit].production) + "</td>" +
-							"</tr>";
-					}
-					//Установка
-					if (data[unit].assembling) {
-						text += "<tr class='priceRow'>" +
-							"<td class='left'>" + data[unit].name + " - установка</td>" +
-							"<td>" + params[unit + "AssmStage"] + "</td>" +
-							"<td>шт</td>" +
-							"<td>1</td>" +
-							"<td>" + Math.round(data[unit].assembling) + "</td>" +
-							"<td>" + Math.round(data[unit].assembling) + "</td>" +
-							"</tr>";
-					}
-				}
-			};
-			//доставка
-			if (data.main.delivery) {
+		
+		for (var unit in priceObj) {
+			if (priceObj[unit].price && priceObj[unit].price != "0" && unit != "total") {
 				text += "<tr class='priceRow'>" +
-					"<td class='left'>Доставка</td>" +
-					"<td>-</td>" +
-					"<td>шт</td>" +
-					"<td>" + params.deliveryAmt + "</td>" +
-					"<td>" + Math.round(data.main.delivery / params.deliveryAmt) + "</td>" +
-					"<td>" + Math.round(data.main.delivery) + "</td>" +
+						"<td class='left'>" + priceObj[unit].name + "</td>" +
+						"<td>" + (priceObj[unit].objectAmt || 1) + "</td>" +
+						"<td>" + Math.round(priceObj[unit].price) + "</td>" +
+						"<td>" + Math.round(priceObj[unit].discount) + "</td>" +
+						"<td>" + Math.round(priceObj[unit].discountPrice) + "</td>" +
 					"</tr>";
 			}
-
-			text += tableFooter +
-				"<b class='yellow'>Итого: " + priceObj.total.discountPrice + " руб; </b><br/>";
-
-
 		}
+		
+		text += "<tr class='priceRow bold'>" +
+			"<td class='left'>Итого</td>" +
+			"<td>-</td>" +
+			"<td>" + priceObj.total.price + "</td>" +
+			"<td>" + priceObj.total.discount + "</td>" +
+			"<td>" + priceObj.total.discountPrice + "</td>" +
+		"</tr>";
+			
+			
+		text += tableFooter// + "<b class='yellow'>Итого: " + priceObj.total.discountPrice + " руб; </b><br/>";
 	}
 
 	$("#totalResult").html(text);
@@ -1392,31 +1370,107 @@ function printCost2() {
 	// Таблица себестоимости установки
 
 	var assemblingPrice = getAssemblingPartsPrice();
+  var exportObj = getExportData_com();
+  printExportData(exportObj, "exportData");
 
 	var tableBody = "";
+  var total = {
+    cost: 0,
+    assembling_cost: 0,
+    sum: 0,
+  }
 	for (var unit in assemblingPrice) {
+    if (unit != 'total') {
+      if (assemblingPrice[unit].name) {
+        tableBody += "<tr";
+  
+        tableBody += ">" +
+          "<td>" + assemblingPrice[unit].name + "</td>" +
+          "<td>" + exportObj.cost_data[assemblingPrice[unit].key] + "</td>" +
+          "<td>" + assemblingPrice[unit].cost + "</td>" +
+          "<td class='bold'>" + (exportObj.cost_data[assemblingPrice[unit].key] + assemblingPrice[unit].cost) + "</td>" +
+          "</tr>";
+        
+        total.cost += exportObj.cost_data[assemblingPrice[unit].key];
+        total.assembling_cost += assemblingPrice[unit].cost;
+        total.sum += exportObj.cost_data[assemblingPrice[unit].key] + assemblingPrice[unit].cost;
+      }
+    }
+  };
 
-		if (assemblingPrice[unit].name) {
-			tableBody += "<tr";
-			if (unit == "total") tableBody += " class='bold'"
+  tableBody += "<tr class='bold'>" +
+    "<td>Всего</td>" +
+    "<td>" + total.cost + "</td>" +
+    "<td>" + total.assembling_cost + "</td>" +
+    "<td>" + total.sum + "</td>" +
+  "</tr>";
 
-			tableBody += ">" +
-				"<td>" + assemblingPrice[unit].name + "</td>" +
-				"<td>" + assemblingPrice[unit].cost + "</td>" +
-				"<td>" + assemblingPrice[unit].price + "</td>" +
-				"<td>" + assemblingPrice[unit].discount + "</td>" +
-				"<td>" + assemblingPrice[unit].discountPrice + "</td>" +
-				"</tr>";
-		}
+  text += 
+  "<h4>Себестоимость установки</h4>\
+  <table class='tab_2'><thead><tr>\
+    <th>Наименование</th>\
+    <th>Изделие</th>\
+    <th>Монтаж</th>\
+    <th>Всего</th>\
+    </tr></thead><tbody>";
 
-	};
+  text += tableBody +
+  "</tbody></table>";
 
-	text += "<h4>Себестоимость установки</h4>"+
-		"<table class='form_table'><tbody><tr><th>Наименование</th><th>Себестоимость</th><th>Цена</th><th>Скидка</th><th>Цена со скидкой</th></tr>" +
-		tableBody +
-		"</tbody></table>";
+  var assembling_wage = calcAssemblingWage();
+  var assembling_wage_cost = {};
+  for(var part in assembling_wage.wages){
+    assembling_wage_cost[part] = {key: part, name: assembling_wage.wages[part].name, cost: 0};
+    assembling_wage.wages[part].items.forEach(function(item){
+      assembling_wage_cost[part].cost += item.total;
+    })
+	}
 
-	// if (params.calcType == 'coupe')  text = "";
+  var tableBody = "";
+  var total = {
+    cost: 0,
+    assembling_cost: 0,
+    sum: 0,
+  }
+	for (var unit in assembling_wage_cost) {
+    if (unit != 'total') {
+      if (assembling_wage_cost[unit].name) {
+        tableBody += "<tr";
+  
+        tableBody += ">" +
+          "<td>" + assembling_wage_cost[unit].name + "</td>" +
+          "<td>" + (exportObj.cost_data[assembling_wage_cost[unit].key] || 0) + "</td>" +
+          "<td>" + (assembling_wage_cost[unit].cost || 0) + "</td>" +
+          "<td class='bold'>" + ((exportObj.cost_data[assembling_wage_cost[unit].key] + assembling_wage_cost[unit].cost) || 0) + "</td>" +
+          "</tr>";
+        
+        total.cost += exportObj.cost_data[assembling_wage_cost[unit].key] || 0;
+        total.assembling_cost += assembling_wage_cost[unit].cost || 0;
+        total.sum += (exportObj.cost_data[assembling_wage_cost[unit].key] + assembling_wage_cost[unit].cost) || 0;
+      }
+    }
+  };
+
+  tableBody += "<tr class='bold'>" +
+    "<td>Всего</td>" +
+    "<td>" + total.cost + "</td>" +
+    "<td>" + total.assembling_cost + "</td>" +
+    "<td>" + total.sum + "</td>" +
+  "</tr>";
+
+  text += 
+  "<h4>Себестоимость установки</h4>\
+  <table class='tab_2'><thead><tr>\
+    <th>Наименование</th>\
+    <th>Изделие</th>\
+    <th>Монтаж</th>\
+    <th>Всего</th>\
+    </tr></thead><tbody>";
+
+  text += tableBody +
+  "</tbody></table>";
+
+    // if (params.calcType == 'coupe')  text = "";
 
 	$("#total_cost").html(text);
 
@@ -1515,7 +1569,8 @@ function printCost2() {
 			"Водосток: " + staircaseCost.drain + " руб; <br/>" +
 			"Покраска металла: " + staircaseCost.carcasMetalPaint + " руб; <br/>" +
 			"<b>Итого: " + staircaseCost.total + " руб; </b><br/>";
-
+		
+		text += calcPolySheetNeed().text;
 
 		$("#" + carcasCostDivId).html(text);
 
@@ -2606,7 +2661,7 @@ calcBilletSize({len: 1900, width: 500, thk:40, type: "щит"})
 **/
 
 function calcBilletSize(par) {
-
+	
 	var billet = {
 		len: par.len,
 		width: par.width,
@@ -2617,7 +2672,7 @@ function calcBilletSize(par) {
 		width: 600,
 		amtLen: 1,
 	}
-
+	
 	if (par.type == "щит") {
 		sheet.amtLen = Math.floor(par.len / sheet.len);
 		var extraPart = par.len % sheet.len;
@@ -2627,7 +2682,7 @@ function calcBilletSize(par) {
 		if (extraPart > 1500 && extraPart <= 2000) extraPart = 2000;
 		if (extraPart > 2000) extraPart = 3000;
 	}
-
+	
 	if (par.type == "сотовый поликарбонат") {
 		var sheet = {
 			len: 12000,
@@ -2645,8 +2700,8 @@ function calcBilletSize(par) {
 		billet.width = Math.ceil(par.width / sheet.width);
 	}
 
-	if (par.type == "монолитный поликарбонат") {
-
+	if (par.type == "монолитный поликарбонат"){
+	
 		sheet = {
 			len: 3050,
 			width: 2050,
@@ -2657,10 +2712,10 @@ function calcBilletSize(par) {
 		//округляем до целого листа
 		billet.len = Math.ceil(par.len / sheet.len);
 		billet.width = Math.ceil(par.width / sheet.width);
-	}
-
+		}
+		
 	billet.len = sheet.len * sheet.amtLen + extraPart;
-
+	
 	if (par.type != "щит" && par.width > sheet.width) alertTrouble("Ширина детали больше размера листа!")
 	if (par.len > sheet.len) alertTrouble("Длина детали больше размера листа!")
 
@@ -2714,6 +2769,9 @@ function getMetalCost(){
 	return cost;	
 }
 
+/** функция разделяет стоимость монтажа по частям лестницы
+**/
+
 function getAssemblingPartsPrice(){
 	var assemblingPrice = {};
 
@@ -2765,4 +2823,139 @@ function getAssemblingPartsPrice(){
 	}
 
 	return assemblingPrice;
+}
+
+/** функция рассчитывает необходимое количество листов чтобы вырезать нужные детали
+оптимизируемый параметр - общая площадь используемого материала
+type: "щит" || "монолитный поликарбонат" || "сотовый поликарбонат"
+len - длина одной детали
+width - ширина
+color - цвет важен для сотового поликарбоната
+amt - количество деталей
+calcBilletSize({len: 1900, width: 500, thk:40, type: "щит"})
+calcBilletSize({len: 1900, width: 500, thk:40, type: "сотовый поликарбонат", color: "бронза", amt: 1})
+calcBilletSize({len: 3000, width: 500, thk:40, type: "сотовый поликарбонат", color: "бронза", amt: 5})
+**/
+
+function calcSheetAmt(par) {
+	
+	if(!par.amt) par.amt = 1;
+	var billetTypes = [{len: 0, amt:0}, {len: 0, amt:0}];
+
+	
+	//варианты размеров заготовки
+	var lenValues = [1000, 1500, 2000, 3000];
+	
+	if (par.type == "сотовый поликарбонат") {
+		lenValues = [6000, 12000];	
+		if(par.color == "бронза") lenValues = [5000, 7000, 12000];
+	//	billet.width = 2100;
+	}
+	if (par.type == "монолитный поликарбонат"){
+		lenValues = [3050];
+	//	billet.width = 2050;
+	}
+	
+	var partsAmt = par.amt
+	var sheetAmt = par.amt
+	for(var i=0; i<2; i++){
+		
+		//выбираем основную заготовку, где будет меньше всего обрезков
+		var deltaLen = 100000000;
+		$.each(lenValues, function(j, val){
+			var sheetLen = val * 1.0;
+			var amtLen_max = Math.floor(sheetLen / par.len); //максимальное количество деталей по длине листа
+			if(amtLen_max < 1) return true; //если деталь меньше длины листа
+			//if(amtLen_max > partsAmt) amtLen_max = partsAmt; //раскладываем только нужное количество деталей
+			var sheetAmt = Math.floor(partsAmt / amtLen_max) //количество полных листов
+			if(i == 1) sheetAmt = Math.ceil(partsAmt / amtLen_max) //на второй итерации раскладываем все имеющиеся детали
+			
+			var deltaLen_i = (sheetLen - par.len * amtLen_max) * sheetAmt;
+			//корректируем количество обрезков, если деталей не хватает для полного заполнения всех листов
+			if(sheetAmt * amtLen_max - partsAmt > 0){
+				deltaLen_i += par.len * (sheetAmt * amtLen_max - partsAmt);				
+			}
+			
+			if(deltaLen_i <= deltaLen){
+				deltaLen = deltaLen_i;
+				billetTypes[i].len = sheetLen;
+				billetTypes[i].amtLen = amtLen_max;
+				billetTypes[i].amt = sheetAmt;
+			}
+			
+		//	debugger
+			
+		})
+		
+		//количество деталей для следующей итерации
+		if(i == 0) partsAmt = partsAmt - billetTypes[i].amtLen * billetTypes[i].amt;
+
+	}
+	
+	billetTypes[0].partsAmt = par.amt - partsAmt;
+	billetTypes[1].partsAmt = partsAmt;
+	
+	var result = {
+		billetTypes: billetTypes,
+		width: 2100,
+		area: 0,
+		vol: 0,
+		len: 0,
+		partsArea: par.len * par.width * par.amt / 1000000,
+		partsLen: par.len * par.amt / 1000,
+	}
+	
+	
+	if (par.type == "щит"){
+		result.width = par.width; //для щита не учитываем обрезки по ширине
+	}	
+	if (par.type == "сотовый поликарбонат") {
+		result.width = 2100;
+	}
+	if (par.type == "монолитный поликарбонат"){
+		result.width = 2050;
+	}
+	
+	
+	$.each(billetTypes, function(){
+		if(this.amt == 0) return true;
+		result.area += this.len * result.width * this.amt / 1000000
+		result.len += this.len * this.amt / 1000
+	})
+	
+	return result;
+} //end of calcSheetAmt
+
+/** функция создает текст с результатом расчета количества листов для вывода на страницу
+**/
+
+function printSheetAmt(par){
+	
+	var result = calcSheetAmt(par);
+	
+	var text = "<table class='tab_2'><tbody>\
+		<tr>\
+			<th>длина листа</th>\
+			<th>кол-во листов</th>\
+			<th>деталей/лист</th>\
+			<th>деталей</th>\
+		</tr>";
+	$.each(result.billetTypes, function(){
+		if(this.amt == 0) return true;
+		text += 
+			"<tr>\
+				<td>" + this.len + "</td>\
+				<td>" + this.amt + "</td>\
+				<td>" + this.amtLen + "</td>\
+				<td>" + this.partsAmt + "</td>\
+			</tr>";
+	})
+
+	text += "</tbody></table>";
+	
+	text += "Длина листов: " + result.len + "м<br>\
+		Длина деталей: " + result.partsLen + "м<br>\
+		КИМ по длине: " + Math.round(result.partsLen / result.len * 100) + "%<br>"
+		
+	return text;
 }
