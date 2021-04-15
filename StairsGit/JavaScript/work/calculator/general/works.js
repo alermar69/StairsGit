@@ -1439,6 +1439,9 @@ function calcAssemblingWage() {
 		railing: {
 			name: "Ограждения",
 		},
+		banister: {
+			name: "Балюстрада",
+		},
 		objects: {
 			name: "Объекты",
 		},
@@ -1997,7 +2000,7 @@ function calcAssemblingWage() {
 			) wage.unitWage = 1000;
 		
 			if (wage.amt == 0 && calcAll) wage.amt = 1;
-			if (wage.amt > 0 && railingModel != "нет") wages.railing.items.push(wage);
+			if (wage.amt > 0 && railingModel != "нет") wages.banister.items.push(wage);
 		});
 	}
 

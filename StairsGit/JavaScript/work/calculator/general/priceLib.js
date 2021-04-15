@@ -1337,7 +1337,7 @@ function printCost2() {
 				"<td>" + _priceObj[unit].discount + "</td>" +
 				"<td>" + _priceObj[unit].discountPrice + "</td>" +
 				"<td>" + _priceObj[unit].vp + "</td>" +
-				"<td>" + Math.round(_priceObj[unit].vp / _priceObj[unit].discountPrice * 100) + "</td>" +
+				"<td>" + (Math.round(_priceObj[unit].vp / _priceObj[unit].discountPrice * 100) || 0)+ "</td>" +
 				"<td>" + Math.round(_priceObj[unit].vp - _priceObj[unit].cost * 0.5) + "</td>" +
 				"</tr>";
 		}
@@ -1418,12 +1418,34 @@ function printCost2() {
   "</tbody></table>";
 
   var assembling_wage = calcAssemblingWage();
-  var assembling_wage_cost = {};
+  var assembling_wage_cost_sum = {};
+  // Распаковка объекта и расчет суммы для каждой части лестницы
+  var partsSum = 0;
   for(var part in assembling_wage.wages){
-    assembling_wage_cost[part] = {key: part, name: assembling_wage.wages[part].name, cost: 0};
+    assembling_wage_cost_sum[part] = {key: part, name: assembling_wage.wages[part].name, cost: 0};
     assembling_wage.wages[part].items.forEach(function(item){
-      assembling_wage_cost[part].cost += item.total;
+      assembling_wage_cost_sum[part].cost += item.total;
     })
+	}
+
+  // Расчет суммы себестоимости монтажа всех частей лестницы
+  if (priceObj['assembling'].discountPrice != 0) {
+		for (var unit in priceObj) {
+			if (unit != 'total' && unit != 'assembling' && unit != 'delivery' && assembling_wage_cost_sum[unit]) {
+				partsSum += (assembling_wage_cost_sum[unit].cost || 0)
+			}
+		}
+	}
+
+  // Расчет цены с учетом доли каждой позиции в общей себестоимости монтажа
+  var assembling_wage_cost = {};
+  if (priceObj['assembling'].discountPrice != 0) {
+		for (var unit in priceObj) {
+			if (unit != 'total' && unit != 'assembling' && unit != 'delivery' && assembling_wage_cost_sum[unit]) {
+				var kf = assembling_wage_cost_sum[unit].cost / partsSum;
+        assembling_wage_cost[unit] = {name: assembling_wage_cost_sum[unit].name, cost: Math.round(assembling_wage.totalWage * kf)};
+			}
+		}
 	}
 
   var tableBody = "";
@@ -1439,14 +1461,14 @@ function printCost2() {
   
         tableBody += ">" +
           "<td>" + assembling_wage_cost[unit].name + "</td>" +
-          "<td>" + (exportObj.cost_data[assembling_wage_cost[unit].key] || 0) + "</td>" +
+          "<td>" + (exportObj.cost_data[unit] || 0) + "</td>" +
           "<td>" + (assembling_wage_cost[unit].cost || 0) + "</td>" +
-          "<td class='bold'>" + ((exportObj.cost_data[assembling_wage_cost[unit].key] + assembling_wage_cost[unit].cost) || 0) + "</td>" +
+          "<td class='bold'>" + ((exportObj.cost_data[unit] + assembling_wage_cost[unit].cost) || 0) + "</td>" +
           "</tr>";
         
-        total.cost += exportObj.cost_data[assembling_wage_cost[unit].key] || 0;
+        total.cost += exportObj.cost_data[unit] || 0;
         total.assembling_cost += assembling_wage_cost[unit].cost || 0;
-        total.sum += (exportObj.cost_data[assembling_wage_cost[unit].key] + assembling_wage_cost[unit].cost) || 0;
+        total.sum += (exportObj.cost_data[unit] + assembling_wage_cost[unit].cost) || 0;
       }
     }
   };

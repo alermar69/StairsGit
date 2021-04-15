@@ -126,6 +126,7 @@ function drawRoof(par){
 		var extraAngle = partPar.roofSheet.overhang / roofRad; //свес сбоку
 
 		var sheetWidth = 2100;
+		if (params.roofMat == "монолитный поликарбонат") sheetWidth = 2050;
 		var sheetStep = sheetWidth;
 		var sheetAmt = Math.ceil(par.len / sheetWidth);
 		for (var i = 0; i < sheetAmt; i++) {			
