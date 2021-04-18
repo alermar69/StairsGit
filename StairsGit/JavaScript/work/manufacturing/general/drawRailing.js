@@ -1,4 +1,4 @@
-
+ 
 function drawRailing(par) {
 	/*функция отрисовывает ограждения на все марши всех лестниц
 	парметры:
@@ -3528,8 +3528,12 @@ function drawRailingSectionForge2(par) {
 				drawing: {
 					marshId: par.marshId,
 					poleId: 1,
-					key: par.key
+					key: par.key,
+					//pos: copyPoint({x: 0, y: 0}),
+					//elemType: 'pole',
+					//group: 'forged_railing',
 				},
+				firstRackDeltaLength: parRacks.firstRackDeltaLength,
 			}
 			if (parRacks.firstRackDeltaLength) balParams.balLen += parRacks.firstRackDeltaLength - rackAddLen;
 			var balArr = drawForgedBanistersArr(balParams);

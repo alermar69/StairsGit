@@ -847,7 +847,7 @@ function drawVintTread(par) {
 
 	
 	//---------------------------
-	if (params.model == "Винтовая с тетивой" || params.railingModel == 'Частые стойки') {
+	if (params.model == "Винтовая с тетивой" && params.railingModel !== 'Частые стойки') {
 			//рассчитываем координаты базовых точек
 	    var basePoints = calcVintTreadPoints(par.treadAngle)
 	    var angleParams = {

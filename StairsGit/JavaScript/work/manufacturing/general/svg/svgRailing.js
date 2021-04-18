@@ -555,7 +555,7 @@ function drawSVGForgedRailing(par) {
 						var p2 = copyPoint(racks[i + 1].drawing.pos);
 						var polePos = copyPoint(pole.drawing.pos);
 						var poleAngle = pole.drawing.ang;
-						var cutLen = 20 / Math.cos(poleAngle);
+						var cutLen = 20 / Math.cos(poleAngle) + 5;
 
 						if (!mirror) p1.x += 40;
 						if (mirror) p2.x += 40;

@@ -3363,7 +3363,8 @@ function drawForgedBanistersArr(par) {
 		if (par.drawing) {
 			var fakeShape = new THREE.Shape();
 			//Образмеривать ли балясину
-			fakeShape.drawing = $.extend({}, par.drawing, {group: 'forged_railing', elemType: 'banister', index: i, count: balAmt, pos: pos, balLen: par.balLen, banisterType: balPar.type});
+			fakeShape.drawing = $.extend({}, par.drawing, { group: 'forged_railing', elemType: 'banister', index: i, count: balAmt, pos: copyPoint(pos), balLen: par.balLen, banisterType: balPar.type });
+			if (par.firstRackDeltaLength) fakeShape.drawing.pos.y += par.firstRackDeltaLength;
 			shapesList.push(fakeShape);
 		}
 		obj3D.add(banister)
