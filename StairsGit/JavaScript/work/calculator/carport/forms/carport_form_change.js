@@ -164,6 +164,12 @@ function changeFormCarport(){
 
 	if (params.floorType == "нет") $("#heightFloor").val(0)
 	
+	//размер винтовых свай
+	$("#pileSize").closest("tr").hide()	
+	if(params.fixType == "винтовые сваи"){
+		$("#pileSize").closest("tr").show()	
+	}
+	
 	
 	getAllInputsValues(params)
 	 

@@ -36,11 +36,12 @@ if(params.stairModel == "Прямая горка"){
 	params.b3 = params.b1;
 	params.h3 = params.h1;
 	params.stairAmt3 = params.stairAmt1;
-	$("b3").val(params.b3)
-	$("h3").val(params.h3)
-	$("stairAmt3").val(params.stairAmt3)
-	}
-	
+	$("#b3").val(params.b3)
+	$("#h3").val(params.h3)
+	$("#stairAmt3").val(params.stairAmt3)
+}
+
+
 //увеличенная верхняя площадка
 if(params.calcType != "veranda" && params.platformTop == "увеличенная" && params.platformWidth_3 - params.M < 150){
 	var message = "ВНИМАНИЕ!\n" + 

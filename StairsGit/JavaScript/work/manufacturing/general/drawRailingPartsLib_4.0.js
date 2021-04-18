@@ -1426,7 +1426,30 @@ function drawPole3D_4(par) {
 
 		poleList[poleType].push(polePar);
 	}
-
+	
+	//фурнитура для профиля для стекла
+	if (partName == "glassProfiles"){
+		var partName = "glassProfileFittings";
+		if(typeof specObj !='undefined' && partName){
+			if(!specObj[partName]){
+				specObj[partName] = {
+					types: {},
+					amt: 0,
+					sumLength: 0,
+					name: "Комплект фурнитуры профиль для стекла (на 1м)",
+					metalPaint: false,
+					timberPaint: false,
+					division: "stock_1",
+					workUnitName: "amt",
+					}
+				}
+			var name = Math.round(par.length)
+			if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+			if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+			specObj[partName]["amt"] += Math.round(par.length);
+		}
+	}
+	
 	return par;
 } //end of drawPole3D_4
 

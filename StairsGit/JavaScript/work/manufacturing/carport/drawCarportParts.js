@@ -3644,9 +3644,15 @@ function drawVintPile(par){
 	if(!par) par = {};
 	initPar(par)
 	
-	if(!par.len) par.len = 2000;
-	if(!par.diam) par.diam = 89;
-	if(!par.vintDiam) par.vintDiam = 300;
+	if(!par.len) par.len = 1500;
+	if(!par.diam) par.diam = 76;
+	if(!par.vintDiam) par.vintDiam = 250;
+	
+	if(params.pileSize == "Ф89х2000"){
+		par.len = 2000;
+		par.diam = 89;
+		par.vintDiam = 300;
+	}
 	
 	//тело сваи
 	var polePar = {

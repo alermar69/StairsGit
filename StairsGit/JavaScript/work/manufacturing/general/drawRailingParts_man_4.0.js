@@ -2452,7 +2452,9 @@ function drawBalRack(par){
 
 
 function drawGlassProfile_4(par) {
-
+	
+	par.mesh = new THREE.Object3D();
+	
     var extrudeOptions = {
         amount: par.height,
         bevelEnabled: false,
@@ -2468,25 +2470,32 @@ function drawGlassProfile_4(par) {
     var p4 = newPoint_xy(p00, -par.width * Math.tan(par.angleEnd)/2, -par.width/2);
     var p3 = newPoint_xy(p4, par.width * Math.tan(par.angleEnd), par.width);
        
-        var shape = new THREE.Shape();
-        addLine(shape, par.dxfPrimitivesArr, p1, p2, par.dxfBasePoint);
-        addLine(shape, par.dxfPrimitivesArr, p2, p3, par.dxfBasePoint);
-        addLine(shape, par.dxfPrimitivesArr, p3, p4, par.dxfBasePoint);
-        addLine(shape, par.dxfPrimitivesArr, p4, p1, par.dxfBasePoint);
+	var shape = new THREE.Shape();
+	addLine(shape, par.dxfPrimitivesArr, p1, p2, par.dxfBasePoint);
+	addLine(shape, par.dxfPrimitivesArr, p2, p3, par.dxfBasePoint);
+	addLine(shape, par.dxfPrimitivesArr, p3, p4, par.dxfBasePoint);
+	addLine(shape, par.dxfPrimitivesArr, p4, p1, par.dxfBasePoint);
 
-        var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
-        geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-        var pole = new THREE.Mesh(geom, par.material);
-        pole.rotation.x = Math.PI/2;
-		pole.position.y = -par.height/2;
-		pole.position.z = -20;
-		par.mesh = pole;
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var pole = new THREE.Mesh(geom, par.material);
+	pole.rotation.x = Math.PI/2;
+	pole.position.y = -par.height/2;
+	pole.position.z = -20;
+	par.mesh.add(pole);
 	
 	var leftX = Math.min(p1.x, p2.x)
 	var rightX = Math.max(p3.x, p4.x)
 	
 	par.len1 = distance(p2, p3);
 	par.len2 = distance(p4, p1);
+	
+	//комплект фурнитуры
+	var geometry = new THREE.BoxGeometry( 100, 40, 2 );
+	var fittings = new THREE.Mesh( geometry, par.material );
+	fittings.position.y = -par.height/2 - 20;
+	fittings.position.x = 100;
+	par.mesh.add(fittings);
 	
 	//сохраняем данные для спецификации
 	var partName = "glassProfiles";
@@ -2543,6 +2552,28 @@ function drawGlassProfile_4(par) {
 		
 		}
 	
+	//фурнитура для профиля для стекла
+
+	var partName = "glassProfileFittings";
+	if(typeof specObj !='undefined' && partName){
+		if(!specObj[partName]){
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				sumLength: 0,
+				name: "Комплект фурнитуры профиля для стекла",
+				metalPaint: false,
+				timberPaint: false,
+				division: "stock_1",
+				workUnitName: "amt",
+				}
+			}
+		var name = "1м"
+		if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += Math.round(par.length);
+	}
+	fittings.specId = partName + name;
 		
     return par;
 }

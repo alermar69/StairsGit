@@ -160,7 +160,13 @@ $(function () {
 
 function changeOrderForm(){
 	//заполняем описание, если оно пустое
-	if (params.kpDescription == "") $("#kpDescription").html("Красивая и удобная лестница по вашим размерам");
+	if (params.kpDescription == "") {
+		var descrText = "Красивая и удобная лестница по вашим размерам";
+		if(params.calcType == "carport") descrText = "Красивый и надежный навес по вашим размерам";
+		if(params.calcType == "veranda") descrText = "Красивая и удобная веранда по вашим размерам";
+		if(params.calcType == "objects") descrText = "Красивые подоконники из массива по вашим размерам";
+		$("#kpDescription").html(descrText);
+	}
 	
 	//перебираем все параметры в форме и переносим данные в шапку
 	$.each($('#kp_inputs select, #kp_inputs input, #kp_inputs textarea'), function(){

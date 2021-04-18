@@ -2247,7 +2247,8 @@ function ltko_set_divide(marshId) {
 	var divide = Math.ceil(stairAmt / 2);
 	//if (stairAmt < 11) divide = 0;
 	var len = stairAmt * marshParams.b / Math.cos(marshParams.ang);
-	if (len < 2000) divide = 0;
+	if(params.stairModel == "Прямая" && len < 3800) divide = 0;
+	if(params.stairModel != "Прямая" && len < 3800 - params.M) divide = 0;
 	
 	//стойка ограждения не должна попадать на фланец
 	var rackPos = setRackPos(marshId);

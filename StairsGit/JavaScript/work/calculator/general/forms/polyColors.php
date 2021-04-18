@@ -1,5 +1,5 @@
-<option value="прозрачный">прозрачный</option>
 <option value="бронза">бронза</option>
+<option value="прозрачный">прозрачный</option>
 <option value="коричневый">коричневый</option>
 <option value="опал">опал</option>
 <option value="зеленый">зеленый</option>

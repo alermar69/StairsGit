@@ -437,14 +437,14 @@ function getMarshParams(marshId) {
 	if(ang > 50 || ang < 30) angCheckText = "<span class='red'>неудобно</span>";
 	
 	var stepCheckText = "<span class='green'>ОК</span>";
-	if(par.b > 300 || par.b < 200) stepCheckText = "<span class='red'>неудобно</span>";
+	if(par.b > 300 || par.b < 200) stepCheckText = ""//"<span class='red'>неудобно</span>";
 	
 	var riseCheckText = "<span class='green'>ОК</span>";
-	if(par.h > 220 || par.h < 150) riseCheckText = "<span class='red'>неудобно</span>";
+	if(par.h > 220 || par.h < 150) riseCheckText = ""//"<span class='red'>неудобно</span>";
 	
 	var stepSum = Math.round(2 * par.h + par.b);
 	var stepSumCheckText = "<span class='green'>ОК</span>";
-	if(stepSum > 640 || stepSum < 600) stepSumCheckText = "<span class='red'>неудобно</span>";
+	if(stepSum > 640 || stepSum < 600) stepSumCheckText = ""//"<span class='red'>неудобно</span>";
 	
 	par.text = 
 		"<table class='form_table' style='width: 100%;'><tbody>\
@@ -457,19 +457,19 @@ function getMarshParams(marshId) {
 			</tr>\
 			<tr>\
 				<td>Ширина проступи b</td>\
-				<td>" + par.b + " мм</td>\
+				<td>" + Math.round(par.b) + " мм</td>\
 				<td>200 - 300 мм</td>\
 				<td>" + stepCheckText + "</td>\
 			</tr>\
 			<tr>\
 				<td>Подъем ступени h</td>\
-				<td>" + par.h + " мм</td>\
+				<td>" + Math.round(par.h) + " мм</td>\
 				<td>150 - 220 мм</td>\
 				<td>" + riseCheckText + "</td>\
 			</tr>\
 			<tr>\
 				<td>Шаг 2h + b</td>\
-				<td>" + stepSum + " мм</td>\
+				<td>" + Math.round(stepSum) + " мм</td>\
 				<td>600 - 640 мм</td>\
 				<td>" + stepSumCheckText + "</td>\
 			</tr>\

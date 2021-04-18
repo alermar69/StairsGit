@@ -288,6 +288,16 @@
 				<td><input type="number" id="trussBotLedge" value="0"></td>
 			</tr>
 			
+			<tr>
+				<td>Сваи:</td>
+				<td>
+					<select id="pileSize">
+						<option value="Ф76х1500">Ф76х1500</option>
+						<option value="Ф89х2000">Ф89х2000</option>						
+					</select>
+				</td>
+			</tr>
+			
 		</tbody>
 	</table>
 			

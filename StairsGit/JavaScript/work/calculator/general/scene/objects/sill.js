@@ -538,23 +538,6 @@ class Sill extends AdditionalObject {
 					"type": "select"
 				},
 				{
-					"key": "connType",
-					"title": "Стык:",
-					"values": [
-						{
-							"value": "прямой",
-							"title": "прямой"
-						},
-						{
-							"value": "под углом",
-							"title": "под углом"
-						},
-					],
-					"default": "под углом",
-					"type": "select"
-				},
-
-				{
 					"key": "len",
 					"title": "Длина:",
 					"default": 800,
@@ -623,7 +606,8 @@ class Sill extends AdditionalObject {
 						},
 					],
 					"default": "дуга",
-					"type": "select"
+					"type": "select",
+					"class": 'orielRow',
 				},
 				{
 					"key": "cutWallHole",

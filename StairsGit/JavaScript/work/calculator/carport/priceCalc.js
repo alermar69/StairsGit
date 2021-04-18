@@ -17,7 +17,8 @@ function calcCarportCost(){
 	addMaterialNeed({id: profParmas.materialNeedId, amt: amt})
 	
 	//винтовые сваи
-	var pileCost = 1800;
+	var pileCost = 1200;
+	if(params.pileSize == "Ф89х2000") pileCost = 1800;
 	var amt = getPartPropVal('vintPile', "amt")
 	columnsCost += pileCost * amt;
 	
