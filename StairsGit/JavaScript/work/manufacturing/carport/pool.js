@@ -169,16 +169,17 @@ function drawSphereSegment(par){
 	var botLine = {
 		p1: {x: 0, y: partPar.dome.baseThk + botOffset},		
 	}
-	
+
 	if(!par.isMovable){
 		//пересечение основания с внешней дугой стропила
 		botLine.p2 = itercectionLineCircle(botLine.p1, newPoint_xy(botLine.p1, 10, 0), rafterPar.center, rafterPar.midRad + partPar.rafter.profSize.y / 2)[0]
 	}
-	if(par.isMovable){
+
+	if (par.isMovable) {
 		//пересечение основания с внутренней дугой стропила
 		botLine.p2 = itercectionLineCircle(botLine.p1, newPoint_xy(botLine.p1, 10, 0), rafterPar.center, rafterPar.midRad - partPar.rafter.profSize.y / 2)[0]
 	}
-	
+
 	var basePar = {
 		rad: botLine.p2.x,
 		len: par.fullAngle * botLine.p2.x,
@@ -223,8 +224,24 @@ function drawSphereSegment(par){
 	
 	var flan = drawDomeTopFlan(flanPar).mesh;
 	flan.rotation.x = -Math.PI / 2;
-	flan.position.y = height - partPar.rafter.profSize.y / 2 - flanPar.thk;
+	flan.position.y = height - partPar.rafter.profSize.y / 2 - flanPar.thk + 2;
 	dome.add(flan)
+
+	//крышка
+	var capPar = {
+		diam: partPar.dome.topFlanDiam,
+		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 3000, 0),
+		dxfArr: dxfPrimitivesArr,
+		angle: basePar.angle,
+		arcStepAng: arcStepAng,
+		arcAmt: arcAmt,
+	}
+	if (par.isMovable) capPar.bearingHeight = par.extraRad; //высота подшипника)
+
+	var cap = drawDomeTopCap(capPar).mesh;
+	cap.rotation.x = -Math.PI / 2;
+	cap.position.y = flan.position.y + capPar.thk + flanPar.thk + partPar.rafter.profSize.y;
+	dome.add(cap)
 	
 
 	
@@ -273,7 +290,8 @@ function drawSphereSegment(par){
 
 	//для двери делаем фланец по ширине дуги
 	if(par.isMovable) {
-		flanPar.botWidth = partPar.rafter.profSize.y
+		//flanPar.botWidth = partPar.rafter.profSize.y
+		flanPar.botWidth = 60 - partPar.dome.baseStripe.x;
 		flanPar.vertStripePos = "out"
 		
 	}
@@ -318,6 +336,11 @@ function drawSphereSegment(par){
 	for(var i=0; i<= arcAmt; i++){
 		var pos = polar({x:0, y:0}, arcStepAng * i, -arcPanelPar.height / 2); //смещение на половину профиля
 		pos = polar(pos, arcStepAng * i + Math.PI / 2, rafterPar.center.x); //смещение к краю диска
+
+		if (i != 0) {
+			flanPar.notDxfArr = true;
+			bridgePar.notDxfArr = true;
+		}
 		
 		//отрисовка дуг
 		var arcProf = drawArcPanel(arcPanelPar).mesh;
@@ -329,7 +352,7 @@ function drawSphereSegment(par){
 		dome.add(arcProf)
 		
 		//перемычки между дугами
-		if(params.cylinderBase == "нет" && i != arcAmt){
+		if(i != arcAmt){
 			var extraPosAngle = partPar.rafter.profSize.y / 2 / bridgePosRad
 			var bridgePos = polar({x:0, y:0}, -arcStepAng * i - extraPosAngle, bridgePosRad)
 			//bridgePos = polar(bridgePos, -arcStepAng * i + Math.PI / 2, -partPar.rafter.profSize.y / 2)
@@ -354,7 +377,7 @@ function drawSphereSegment(par){
 		
 		//дополнительное смещение для фланцев двери
 		if(par.isMovable) {
-			flanPos = polar(flanPos, arcStepAng * i + Math.PI / 2, flanPar.botWidth);
+			//flanPos = polar(flanPos, arcStepAng * i + Math.PI / 2, flanPar.botWidth);
 			
 		}
 		
@@ -362,6 +385,12 @@ function drawSphereSegment(par){
 		fixPlate.position.x = flanPos.y;
 		fixPlate.position.y = botOffset + partPar.dome.baseThk;
 		fixPlate.position.z = flanPos.x;
+
+		//if (par.isMovable) {
+		//	fixPlate.rotation.y += Math.PI;
+		//	fixPlate.position.x -= flanPar.botWidth;
+		//	fixPlate.position.z -= partPar.rafter.profSize.x + flanPar.thk * 2;
+		//}
 		
 		dome.add(fixPlate)
 		
@@ -375,6 +404,15 @@ function drawSphereSegment(par){
 			coverSector.position.y = rafterPar.center.y
 			coverSector.position.z = sheetPos.y
 			dome.add(coverSector)
+
+			if (i == 0) {
+				var txt = 'Поликорбанат основания';
+				if (par.isMovable) txt = 'Поликорбанат двери';
+				addText(txt, 30, dxfPrimitivesArr, newPoint_xy(sectorPolyPar.dxfBasePoint, 0, -300))
+
+				var txt = 'Кол-во: ' + arcAmt + ' шт.';
+				addText(txt, 30, dxfPrimitivesArr, newPoint_xy(sectorPolyPar.dxfBasePoint, 0, -350))
+			}
 		}
 		
 		// Соединительный профиль
@@ -456,10 +494,31 @@ function drawDomeTopFlan(par){
 	
 	var bearingRad = 25 //радиус подшипника
 
-	addCircle(par.shape, par.dxfArr, centerPoint, par.diam / 2, par.dxfBasePoint)
+	
+
+	var p0 = { x: 0, y: 0 }
+
+	var angStart = 0;
+	var angEnd = par.arcStepAng * par.arcAmt;
+
+	var radIn = bearingRad * 2;
+	if (angEnd > Math.PI) {
+		addCircle(par.shape, par.dxfArr, p0, par.diam / 2, par.dxfBasePoint)
+	} else {
+		var p1 = polar(p0, angEnd + Math.PI / 2, radIn);
+		var p2 = itercectionLineCircle(p1, polar(p1, angEnd, 100), p0, par.diam / 2)[0];
+		var p4 = polar(p0, angStart - Math.PI / 2, radIn);
+		var p3 = itercectionLineCircle(p4, polar(p4, angStart, 100), p0, par.diam / 2)[0];
+
+		addLine(par.shape, par.dxfArr, p1, p2, par.dxfBasePoint);
+		addArc2(par.shape, par.dxfArr, p0, par.diam / 2, calcFullAngelX(p0, p2), calcFullAngelX(p0, p3), true, par.dxfBasePoint);
+		addLine(par.shape, par.dxfArr, p3, p4, par.dxfBasePoint);
+		addArc2(par.shape, par.dxfArr, p0, radIn, calcFullAngelX(p0, p4), calcFullAngelX(p0, p1), true, par.dxfBasePoint);
+	}
+	
 	
 	//отверстие под петлю в центре
-	addRoundHole(par.shape, par.dxfArr, centerPoint, bearingRad, par.dxfBasePoint)
+	addRoundHole(par.shape, par.dxfArr, centerPoint, bearingRad + 1.5, par.dxfBasePoint)
 	
 	//отверстия для крепления дуг
 	for(var i=0; i<=par.arcAmt; i++){
@@ -525,7 +584,8 @@ function drawDomeTopFlan(par){
 		par.mesh.add(bearing);
 		bearing.setLayer('flans');
 	}
-	
+
+
 	var partName = "trussFlan";
 	var area = par.diam * par.diam / 1000000;
 	
@@ -552,6 +612,145 @@ function drawDomeTopFlan(par){
 	}
 	par.mesh.specId = partName + name;
 	
+	return par;
+}
+
+/** функция отрисовывает крышку фланца купола
+*/
+
+function drawDomeTopCap(par) {
+
+	if (!par.dxfArr) par.dxfArr = [];
+	if (!par.dxfBasePoint) par.dxfBasePoint = { x: 0, y: 0 };
+
+	par.thk = 2;
+	var centerPoint = { x: 0, y: 0 }
+	par.shape = new THREE.Shape();
+	par.mesh = new THREE.Object3D();
+
+	var bearingRad = 25 //радиус подшипника
+
+	var p0 = { x: 0, y: 0 }
+
+	var angStart = 0;
+	var angEnd = par.arcStepAng * par.arcAmt;
+
+	//верхняя пластина
+	var radIn = bearingRad * 2;
+	if (angEnd > Math.PI) {
+		addCircle(par.shape, par.dxfArr, p0, par.diam / 2, par.dxfBasePoint)
+	} else {
+		var p1 = polar(p0, angEnd + Math.PI / 2, radIn);
+		var p2 = itercectionLineCircle(p1, polar(p1, angEnd, 100), p0, par.diam / 2)[0];
+		var p4 = polar(p0, angStart - Math.PI / 2, radIn);
+		var p3 = itercectionLineCircle(p4, polar(p4, angStart, 100), p0, par.diam / 2)[0];
+
+		addLine(par.shape, par.dxfArr, p1, p2, par.dxfBasePoint);
+		addArc2(par.shape, par.dxfArr, p0, par.diam / 2, calcFullAngelX(p0, p2), calcFullAngelX(p0, p3), true, par.dxfBasePoint);
+		addLine(par.shape, par.dxfArr, p3, p4, par.dxfBasePoint);
+		addArc2(par.shape, par.dxfArr, p0, radIn, calcFullAngelX(p0, p4), calcFullAngelX(p0, p1), true, par.dxfBasePoint);
+	}
+
+	//отверстие под петлю в центре
+	addRoundHole(par.shape, par.dxfArr, centerPoint, bearingRad + 1.5, par.dxfBasePoint)
+
+	var extrudeOptions = {
+		amount: par.thk,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+	var geom = new THREE.ExtrudeGeometry(par.shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var flan = new THREE.Mesh(geom, params.materials.metal);
+	par.mesh.add(flan);
+	flan.setLayer('flans');
+
+	//шайба
+	par.shape = new THREE.Shape();
+	extrudeOptions.amount = 2;
+
+	addCircle(par.shape, par.dxfArr, p0, bearingRad + 15, par.dxfBasePoint)
+	addRoundHole(par.shape, par.dxfArr, centerPoint, bearingRad + 1.5, par.dxfBasePoint)
+
+	var geom = new THREE.ExtrudeGeometry(par.shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var shim = new THREE.Mesh(geom, params.materials.bolt);
+	shim.position.z = -extrudeOptions.amount;
+	par.mesh.add(shim);
+	flan.setLayer('metis');
+
+	//торцевая пластина
+	par.shape = new THREE.Shape();
+	extrudeOptions.amount = 40;
+	extrudeOptions.curveSegments = 30;
+	if (angEnd > Math.PI) {
+		var radOut1 = par.diam / 2 - par.thk;
+
+		var pt1 = polar(p0, angStart - Math.PI / 2, partPar.rafter.profSize.y / 2);
+		var pt2 = polar(p0, angEnd + Math.PI / 2, partPar.rafter.profSize.y / 2);
+
+		var p1 = itercectionLineCircle(pt1, polar(pt1, angStart, 100), p0, radOut1)[0];
+		var p2 = itercectionLineCircle(pt1, polar(pt1, angStart, 100), p0, par.diam / 2)[0];
+		var p4 = itercectionLineCircle(pt2, polar(pt2, angEnd, 100), p0, radOut1)[0];
+		var p3 = itercectionLineCircle(pt2, polar(pt2, angEnd, 100), p0, par.diam / 2)[0];
+
+		addLine(par.shape, par.dxfArr, p1, p2, par.dxfBasePoint);
+		addArc2(par.shape, par.dxfArr, p0, par.diam / 2, calcFullAngelX(p0, p2), calcFullAngelX(p0, p3), false, par.dxfBasePoint);
+		addLine(par.shape, par.dxfArr, p3, p4, par.dxfBasePoint);
+		addArc2(par.shape, par.dxfArr, p0, radOut1,  calcFullAngelX(p0, p1), calcFullAngelX(p0, p4), false, par.dxfBasePoint);
+	} else {
+		var radIn1 = radIn - par.thk;
+
+		var pt1 = polar(p0, angEnd + Math.PI / 2, radIn1);
+		var pt2 = itercectionLineCircle(pt1, polar(pt1, angEnd, 100), p0, par.diam / 2)[0];
+		var pt4 = polar(p0, angStart - Math.PI / 2, radIn1);
+		var pt3 = itercectionLineCircle(pt4, polar(pt4, angStart, 100), p0, par.diam / 2)[0];
+
+		addLine(par.shape, par.dxfArr, p1, p2, par.dxfBasePoint);
+		addLine(par.shape, par.dxfArr, p2, pt2, par.dxfBasePoint);
+		addLine(par.shape, par.dxfArr, pt2, pt1, par.dxfBasePoint);
+		addArc2(par.shape, par.dxfArr, p0, radIn1,  calcFullAngelX(p0, pt4), calcFullAngelX(p0, pt1), false, par.dxfBasePoint);
+		addLine(par.shape, par.dxfArr, pt4, pt3, par.dxfBasePoint);
+		addLine(par.shape, par.dxfArr, pt3, p3, par.dxfBasePoint);
+		addLine(par.shape, par.dxfArr, p3, p4, par.dxfBasePoint);
+		addArc2(par.shape, par.dxfArr, p0, radIn, calcFullAngelX(p0, p4), calcFullAngelX(p0, p1), true, par.dxfBasePoint);
+	}
+
+	var geom = new THREE.ExtrudeGeometry(par.shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var flan = new THREE.Mesh(geom, params.materials.metal);
+	flan.position.z = - extrudeOptions.amount;
+	par.mesh.add(flan);
+	flan.setLayer('flans');
+	
+	var partName = "trussCap";
+	var area = par.diam * par.diam / 1000000;
+
+	if (typeof specObj != 'undefined') {
+		name = par.diam + "х" + par.thk;
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				area: 0,
+				name: "Крышка петли",
+				metalPaint: true,
+				timberPaint: false,
+				division: "metal",
+				workUnitName: "amt",
+				group: "carcas",
+			}
+		}
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		specObj[partName]["area"] += area;
+		par.mesh.specParams = { specObj: specObj, amt: 1, area: area, partName: partName, name: name }
+	}
+	par.mesh.specId = partName + name;
+
 	return par;
 }
 
@@ -686,7 +885,7 @@ function drawWeelBlock(par){
 		
 		//верхний фланец
 		var flanWidth = par.width - holderPar.thk * 2
-		var holeOffset = 10
+		var holeOffset = 7
 		var flanPar = {
 			height: holderPar.flanLen,
 			width: flanWidth,
@@ -696,11 +895,14 @@ function drawWeelBlock(par){
 			noBolts: true,
 			dxfPrimitivesArr: par.dxfArr,
 			dxfBasePoint: par.dxfBasePoint,
-			roundHoleCenters: [
-				{x: flanWidth / 2, y: holeOffset },
-				{x: flanWidth / 2 , y: holderPar.flanLen - holeOffset},
-			],
+			//roundHoleCenters: [
+			//	{x: flanWidth / 2, y: holeOffset },
+			//	{x: flanWidth / 2 , y: holderPar.flanLen - holeOffset},
+			//],
 		}
+
+		flanPar.pathHoles = [addOvalHoleX(false, par.dxfArr, { x: flanWidth / 2, y: holeOffset }, 4, 20, par.dxfBasePoint),
+							 addOvalHoleX(false, par.dxfArr, { x: flanWidth / 2, y: holderPar.flanLen - holeOffset }, 4, 20, par.dxfBasePoint)]
 		
 		var flan = drawRectFlan2(flanPar).mesh;
 		flan.rotation.x = -Math.PI / 2;
@@ -821,7 +1023,7 @@ function drawBaseRing(par){
 	}
 	*/
 	
-	if(par.isMovable){		
+	if(par.isMovable){
 		addLine(shape, par.dxfArr, p1, p2, par.dxfBasePoint, par.layer);
 		addArc2(shape, par.dxfArr, p0, par.railDiam / 2, par.railEndAng, par.railStartAng, false, par.dxfBasePoint, par.layer);
 		addLine(shape, par.dxfArr, p3, p4, par.dxfBasePoint, par.layer);
@@ -832,16 +1034,50 @@ function drawBaseRing(par){
 	for(var i=0; i<=par.arcAmt; i++){
 		for(var sideFactor = 0; sideFactor < 2; sideFactor++){
 		var p0 = polar({x:0, y:0}, par.arcStepAng * i + Math.PI / 2, 2); //смещение на толщину фланца
-		if(sideFactor > 0) p0 = polar(p0, par.arcStepAng * i + Math.PI / 2, partPar.rafter.profSize.x + 4); //смещение на ширину профиля
-		var holePosRad = par.rad - 20;
-		if(par.isMovable) holePosRad = par.rad + 20;
-		var center1 = polar(p0, par.arcStepAng * i, holePosRad); //смещение к краю диска
-		addRoundHole(shape, par.dxfArr, center1, 3, par.dxfBasePoint)
-		
-		var holePosRad = par.rad - 40;
-		if(par.isMovable) holePosRad = par.rad + 40;
-		var center2 = polar(p0, par.arcStepAng * i, holePosRad); //смещение к краю диска
-		addRoundHole(shape, par.dxfArr, center2, 3, par.dxfBasePoint)
+			if (sideFactor > 0) p0 = polar(p0, par.arcStepAng * i + Math.PI / 2, partPar.rafter.profSize.x + 4); //смещение на ширину профиля
+
+			var offset = 18;
+
+			var holePosRad1 = par.rad - offset;
+			if (par.isMovable) holePosRad1 = par.rad + offset;
+			//var center1 = polar(p0, par.arcStepAng * i, holePosRad); //смещение к краю диска
+			//addRoundHole(shape, par.dxfArr, center1, 3, par.dxfBasePoint)
+			
+			var holePosRad2 = par.rad - (par.railBaseWidth - offset);
+			if (par.isMovable) holePosRad2 = par.rad + (par.railBaseWidth - offset);
+			//var center2 = polar(p0, par.arcStepAng * i, holePosRad); //смещение к краю диска
+			//addRoundHole(shape, par.dxfArr, center2, 3, par.dxfBasePoint)
+
+			var offset = 18;
+			var radHole = 3;
+			var ang = par.arcStepAng * i;
+
+			var c1 = polar(p0, ang, holePosRad1);
+			var c2 = polar(p0, ang, holePosRad2);
+
+			var ph1 = polar(c1, ang + Math.PI / 2, radHole);
+			var ph2 = polar(c2, ang + Math.PI / 2, radHole);
+			var ph3 = polar(c2, ang - Math.PI / 2, radHole);
+			var ph4 = polar(c1, ang - Math.PI / 2, radHole);
+			ph2.fillet3Lines = true;
+			ph4.fillet3Lines = true;
+			var shapePar = {
+				points: [ph4, ph1, ph2, ph3],
+				dxfArr: par.dxfArr,
+				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+				clockwise: true,
+				isPath: true,
+			}
+			if (par.isMovable) {
+				ph2.fillet3Lines = false;
+				ph4.fillet3Lines = false;
+				ph1.fillet3Lines = true;
+				ph3.fillet3Lines = true;
+				shapePar.points = [ph4, ph3, ph2, ph1];
+				//shapePar.clockwise = false
+			}
+			var hole = drawShapeByPoints3(shapePar).shape;
+			shape.holes.push(hole);
 		}		
 	}
 
@@ -865,6 +1101,78 @@ function drawBaseRing(par){
 		rail.rotation.z = par.railStartAng
 		rail.position.z = par.tubeDiam / 2 + par.thk
 		par.mesh.add(rail)
+
+		var arcLength = Math.round(par.railDiam / 2 * par.railAngle);
+
+		var partName = "railTube";
+		var area = Math.round((arcLength / 1000) * (par.tubeDiam / 1000));
+
+		if (typeof specObj != 'undefined') {
+			if (!specObj[partName]) {
+				specObj[partName] = {
+					types: {},
+					amt: 0,
+					area: 0,
+					name: "Рельс",
+					metalPaint: true,
+					timberPaint: false,
+					division: "metal",
+					workUnitName: "amt",
+					group: "carcas",
+					comment: 'Приварить к основанию',
+				}
+			}
+			var name = "Труба 3/4 R=" + Math.round(par.railDiam / 2) + " L=" + Math.round(arcLength) + " A=" + Math.round(par.railDiam * Math.sin(par.railAngle / 2));
+			if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+			if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+			specObj[partName]["amt"] += 1;
+			specObj[partName]["area"] += area;
+			rail.specParams = { specObj: specObj, amt: 1, area: area, partName: partName, name: name }
+		}
+		rail.specId = partName + name;
+
+
+		//упор для рельса
+		var p0 = { x: 0, y: 0 }
+		var pt1 = copyPoint(p0)
+		var pt2 = newPoint_xy(pt1, 0, 120)
+		var pt3 = newPoint_xy(pt2, 40, 0)
+		//var pt5 = newPoint_xy(pt1, 75, 0)
+		var pt5 = newPoint_xy(pt1, distance(p1, p2), 0)
+		var pt4 = newPoint_xy(pt5, 0, 40)
+
+		pt2.filletRad = pt3.filletRad = pt4.filletRad = 10
+
+		var shapePar = {
+			points: [pt1, pt2, pt3, pt4, pt5],
+			dxfArr: par.dxfArr,
+			dxfBasePoint: par.dxfBasePoint,
+		}
+
+		var shape = drawShapeByPoints2(shapePar).shape;
+
+		treadExtrudeOptions.amount = 4;
+		var geom = new THREE.ExtrudeGeometry(shape, treadExtrudeOptions);
+		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+
+		//первая пластина
+		var flan = new THREE.Mesh(geom, params.materials.metal);
+		flan.rotation.x = Math.PI / 2;
+		flan.rotation.y = Math.PI / 2;
+		//flan.rotation.z = calcFullAngelX(p0, p2) - Math.PI / 2
+		flan.position.x = p2.x
+		flan.position.y = p2.y
+		//flan.position.z = -100
+		par.mesh.add(flan)
+
+		//вторая пластина
+		var flan = new THREE.Mesh(geom, params.materials.metal);
+		flan.rotation.x = Math.PI / 2;
+		flan.rotation.y = -Math.PI / 2;
+		flan.position.x = p3.x
+		flan.position.y = p3.y
+		//flan.position.z = partPar.rafter.profSize.x + par.thk
+		par.mesh.add(flan)
 	}
 	
 	//вертикальное ребро
@@ -909,8 +1217,12 @@ function drawBaseRing(par){
 				group: "carcas",
 			}
 		}
-		if(par.isMovable) specObj[partName].name = "Основание двери"
+		
 		name = "Ф" + Math.round(par.diam);
+		if (par.isMovable) {
+			specObj[partName].name = "Основание двери"
+			name = "Ф" + Math.round(par.diam - par.ringWidth*2) + " L=" + Math.round((par.angle * par.diam / 2))
+		}
 		
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
@@ -960,26 +1272,38 @@ function drawRafterFixUnit(par){
 		var p41 = itercection(p4, p3, {x: 0, y: partPar.dome.baseStripe.y}, {x: 10, y: partPar.dome.baseStripe.y})
 		p4.x = p41.x
 	}
+
+	var offset = 18;
+
+	var p5 = newPoint_xy(p4, -offset, 0);
+	var p6 = newPoint_xy(p5, 0, -6);
+	var p8 = newPoint_xy(p1, offset - 4, 0);
+	var p7 = newPoint_xy(p8, 0, -6);
+
+	p6.filletRad = p7.filletRad = 3
 	
-	var points = [p1, p2, p3, p41, p4]
+	var points = [p1, p2, p3, p41, p4, p5, p6, p7, p8]
 	
 	//участок, примыкающий к вертикальной полосе на внешней стороне
-	if(par.vertStripePos == "out"){
-		
-		if(p1.x < p2.x){
-			var p11 = newPoint_xy(p1, 0, partPar.dome.baseStripe.y)
-		}
-		else{
-			p1.x = p4.x - 60 + partPar.dome.baseStripe.x
-			var p11 = newPoint_xy(p1, 0, partPar.dome.baseStripe.y)
-		}
-		
-		points = [p1, p11, p2, p3, p4]
+	//if(par.vertStripePos == "out"){
+	//	if(p1.x < p2.x){
+	//		var p11 = newPoint_xy(p1, 0, partPar.dome.baseStripe.y)
+	//	}
+	//	else{
+	//		p1.x = p4.x - 60 + partPar.dome.baseStripe.x
+	//		var p11 = newPoint_xy(p1, 0, partPar.dome.baseStripe.y)
+	//	}
+
+	//	points = [p1, p11, p2, p3, p4]
+	//}
+
+	if (par.vertStripePos == "out") {
+		points = mirrowPoints(points, 'y')
 	}
-	
-	
-	p2.filletRad = 10
-	p3.filletRad = 10
+
+
+	points[1].filletRad = 10
+	points[2].filletRad = 10
 		
 		var shapePar = {
 			points: points,
@@ -992,7 +1316,8 @@ function drawRafterFixUnit(par){
 		par.holes = [];
 	
 		var center = newPoint_xy(p0, partPar.rafter.profSize.y / 2, 0)		
-		center = polar(center, Math.PI / 2 + par.ang, 30)			
+		center = polar(center, Math.PI / 2 + par.ang, 30)
+		if (par.vertStripePos == "out") center.x *= -1;
 		addRoundHole(shape, par.dxfArr, center, 6.5, par.dxfBasePoint)
 		par.holes.push(center)	
 		
@@ -1036,6 +1361,8 @@ function drawRafterFixUnit(par){
 			bolt.rotation.x = Math.PI / 2;
 			par.mesh.add(bolt);
 		});
+
+		par.mesh.setLayer('flans')
 
 	
 	return par;

@@ -1481,6 +1481,11 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 				p3 = points[1];
 			}
 
+			var p4 = points[i + 3];
+			if (i == points.length - 3) p4 = points[0];
+			if (i == points.length - 2) p4 = points[1];
+			if (i == points.length - 1) p4 = points[2];
+
 			//задаем радиус скругления
 			var rad = 0;
 			if (p2.filletRad || p2.filletRad == 0) {
@@ -1495,20 +1500,42 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 				}
 			}
 
-			if (!(p1.radCircle && rad)) {
+			if (!((p1.radCircle && rad) || p1.fillet3Lines)) {
 				var fill = calcFilletParams4(p1, p2, p3, rad, clockwise, points);
 				pointsRad.push(fill);
 			}
-			
+
+			//если есть скругление между тремя прямыми
+			if (p2.fillet3Lines) {
+				pointsRad.pop();
+				var ang1 = calcFullAngelX(p2, p3) + (calcFullAngelX(p2, p1) - calcFullAngelX(p2, p3)) / 2;
+				var ang2 = calcFullAngelX(p3, p2) + (calcFullAngelX(p3, p4) - calcFullAngelX(p3, p2)) / 2;
+				var pc = itercection(p2, polar(p2, ang1, 100), p3, polar(p3, ang2, 100));
+
+				var pt1 = itercection(pc, polar(pc, calcFullAngelX(p2, p1) + Math.PI / 2, 100), p2, p1);
+				var pt2 = itercection(pc, polar(pc, calcFullAngelX(p3, p4) + Math.PI / 2, 100), p3, p4);
+
+				var fill = {
+					start: pt1,
+					end: pt2,
+					center: pc,
+					angstart: calcFullAngelX(pc, pt1),
+					angend: calcFullAngelX(pc, pt2),
+					rad: distance(pc, pt1),
+					fillet3Lines: true,
+					clockwise: !clockwise,
+				}
+
+				pointsRad.push(pt1);
+				pointsRad.push(fill);
+				pointsRad.push(pt2);
+
+				i++;
+			}
 
 			//если есть сопряжение прямой с окружностью
 			if (p2.radCircle) {
 				pointsRad.pop();
-
-				var p4 = points[i + 3];
-				if (i == points.length - 3) p4 = points[0];
-				if (i == points.length - 2) p4 = points[1];
-				if (i == points.length - 1) p4 = points[2];
 
 				//рассчитываем цетр большого скругления
 				var radCircle = p2.radCircle;
@@ -1602,7 +1629,9 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 		for (var i = 0; i < points.length - 1; i++) {
 			var p1 = points[i];
 			var p2 = points[i + 1]
-			if (!p1.circle) {
+			if (p2.fillet3Lines) continue;
+
+			if (!p1.circle && !p1.fillet3Lines) {
 				//если угол не скруглен
 				if (!p1.center && !p2.center) {
 					//если точки не совпадают
@@ -1634,6 +1663,10 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 					addArc2(par.shape, par.dxfArr, p1.center, p1.rad, p1.angstart, p1.angend, p1.clockwise, par.dxfBasePoint);
 				//дуга  окружности
 				addArc2(par.shape, par.dxfArr, p1.circle.center, p1.circle.rad, p1.circle.angstart, p1.circle.angend, p1.circle.clockwise, par.dxfBasePoint);
+			}
+
+			if (p1.fillet3Lines) {
+				addArc2(par.shape, par.dxfArr, p1.center, p1.rad, p1.angend, p1.angstart, p1.clockwise, par.dxfBasePoint);
 			}
 		}
 
@@ -1963,8 +1996,9 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 			addLine(hole, dxfPrimitivesArr, p2, p1, dxfBasePoint);
 		}
 	
-		shape.holes.push(hole);
-	
+		if(shape) shape.holes.push(hole);
+		return hole;
+
 	}//end of addOvalHoleX
 	
 	function addOvalHoleY(shape, dxfPrimitivesArr, center, rad, distOval, dxfBasePoint, clockwise) {
@@ -2003,8 +2037,7 @@ function newPointP_xy(points, pt, deltaX, deltaY) {
 		shape.holes.push(hole);
 	
 	}//end of addOvalHoleY
-	
-	
+
 /**
 Округление числа до 6 знаков после запятой
 */
@@ -2199,7 +2232,8 @@ function calcSegmentPar(width, height){
 
 function initPar(par) {
 	if(par.dxfBasePoint) {
-		par.dxfArr = dxfPrimitivesArr;
+		if (!par.notDxfArr) par.dxfArr = dxfPrimitivesArr;
+		else par.dxfArr = [];
 	}
 	else{
 		par.dxfBasePoint = {x:0, y:0};
@@ -2245,7 +2279,7 @@ function drawMesh(par) {
 		if (par.drawing.pointCurrentSvg) shapePar.drawing.pointCurrentSvg = par.drawing.pointCurrentSvg;
 	}
 
-	par.shape = drawShapeByPoints2(shapePar).shape;
+	par.shape = drawShapeByPoints3(shapePar).shape;
 
 	if (par.holes) {
 		for (var i = 0; i < par.holes.length; i++) {

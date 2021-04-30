@@ -947,9 +947,9 @@ function drawNutEricson(par) {
 
 function drawShim(par) {
 	
-	par.shimThk = par.diam * 0.2;
-	par.radIn = par.diam / 2 + 1;
-	par.radOut = par.diam * 1.1;
+	if (!par.shimThk) par.shimThk = par.diam * 0.2;
+	if (!par.radIn) par.radIn = par.diam / 2 + 1;
+	if (!par.radOut) par.radOut = par.diam * 1.1;
 	
 	var extrudeOptions = {
 		amount: par.shimThk,
@@ -2964,7 +2964,11 @@ layer
 			var name = arcLength;
 			if (partName == 'polySheet') name = arcLength.toFixed(2)+'x'+par.height.toFixed(2);
 			if (partName == 'lineBrush') name = "L=" + arcLength;
-			if (partName == 'carportBeam' || partName == 'carportBeamConnector') name = "R=" + Math.round(par.rad - par.thk / 2)  + " L=" + arcLength_out +" A=" + endsDist
+			if (partName == 'carportBeam' || partName == 'carportBeamConnector') {
+				name = "R=" + Math.round(par.rad - par.thk / 2) + " L=" + arcLength_out + " A=" + endsDist
+				if(partName == 'carportBeam') name = par.height + "x" + par.thk + "x2 " + name
+			}
+				
 			
 			if(specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
 			if(!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;

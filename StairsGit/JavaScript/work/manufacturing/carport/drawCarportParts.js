@@ -24,7 +24,7 @@ function drawPurlin(par){
 	}
 	
 	//учитываем толщину фланцев
-	if (params.beamModel == "проф. труба") polePar.length -= par.flanThk * 2
+	//if (params.beamModel == "проф. труба") polePar.length -= par.flanThk * 2
 
 	var connectorPar = {
 		dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, -1000),
@@ -34,7 +34,7 @@ function drawPurlin(par){
 	for(var i=0; i<purlinSectAmt; i++){
 		var purlin = drawPole3D_4(polePar).mesh;
 		purlin.position.x = polePar.length * i;
-		if(params.beamModel == "проф. труба") purlin.position.x += par.flanThk
+		//if(params.beamModel == "проф. труба") purlin.position.x += par.flanThk
 		purlin.setLayer('purlins');
 		par.mesh.add(purlin);
 
@@ -148,7 +148,7 @@ function drawPurlin(par){
 	}
 	
 	//фланцы на концах
-	if(params.beamModel == "проф. труба"){
+	if (params.beamModel == "проф. труба" && params.carportType != "фронтальный"){
 		var holeOffset = 10;
 		var flanPar = {
 			height: partPar.purlin.profSize.x + holeOffset * 4,
@@ -200,35 +200,81 @@ function drawCarportColumn(par){
 	if(!par) par = {};
 	initPar(par)
 
+	if (params.columnProf != '20К1') {
+
+		var columnPar = {
+			poleProfileY: partPar.column.profSize.x,
+			poleProfileZ: partPar.column.profSize.y,
+			length: par.len,
+			poleAngle: Math.PI / 2,
+			material: params.materials.metal,
+			type: 'rect',
+		};
+		if (isColumnBase) columnPar.length -= 8; //8 - толщина нижнего фланца
+
+		var pole = drawPole3D_4(columnPar).mesh;
+		pole.position.z = -partPar.column.profSize.x / 2
+		if (isColumnBase) pole.position.y = 8; //8 - толщина нижнего фланца
+		par.mesh.add(pole);
+
+		
+	}
+
+	if (params.columnProf == '20К1') {
+
+		var h = partPar.column.profSize.x;
+		var b = partPar.column.profSize.y;
+		var s = 6.5;
+		var t = 10;
+
+		var p0 = { x: 0, y: 0 }
+		var p1 = newPoint_xy(p0, -b / 2, h / 2);
+		var p2 = newPoint_xy(p1, b, 0);
+		var p3 = newPoint_xy(p2, 0, -t);
+		var p4 = newPoint_xy(p3, -b / 2 + s / 2, 0);
+		var p5 = newPoint_xy(p4, 0, -h + t * 2);
+		var p6 = newPoint_xy(p3, 0, -h + t * 2);
+		var p7 = newPoint_xy(p6, 0, -t);
+		var p8 = newPoint_xy(p7, -b, 0);
+		var p9 = newPoint_xy(p8, 0, t);
+		var p10 = newPoint_xy(p9, b / 2 -s / 2, 0);
+		var p11 = newPoint_xy(p10, 0, h - t * 2);
+		var p12 = newPoint_xy(p1, 0, -t);
+
+		p4.filletRad = p5.filletRad = p10.filletRad = p11.filletRad = 13;
+
+
+		var meshPar = {
+			points: [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12],
+			thk: par.len,
+			material: params.materials.metal,
+			dxfArr: dxfPrimitivesArr,
+			dxfBasePoint: { x: 0, y: -2000 },
+		}
+
+		var pole1 = drawMesh(meshPar).mesh;
+		pole1.rotation.x = -Math.PI / 2
+		pole1.rotation.z = -Math.PI / 2
+		par.mesh.add(pole1);
+	}
+
+
 	var isColumnBase = true;
 	if (params.calcType == "veranda") isColumnBase = false;
-	
-	var columnPar = {
-		poleProfileY: partPar.column.profSize.x,
-		poleProfileZ: partPar.column.profSize.y,
-		length: par.len,
-		poleAngle: Math.PI / 2,
-		material: params.materials.metal,
-		type: 'rect',
-	};
-	if (isColumnBase) columnPar.length -= 8; //8 - толщина нижнего фланца
-	
-	var pole = drawPole3D_4(columnPar).mesh;
-	pole.position.z = -partPar.column.profSize.x / 2
-	if (isColumnBase) pole.position.y = 8; //8 - толщина нижнего фланца
-	par.mesh.add(pole);
+	if (params.columnProf == '20К1') isColumnBase = false;
 
-	if (isColumnBase) {	
+	if (isColumnBase) {
 		var columnBasePar = {
 			dxfArr: par.dxfArr,
 			dxfBasePoint: par.dxfBasePoint,
 		}
 		var base = drawCarportColumnBase(columnBasePar).mesh;
 		base.position.x = -partPar.column.profSize.x / 2
-		if(params.carportType.indexOf("консольный") != -1) base.position.z -= partPar.column.profSize.y / 2;
+		if (params.carportType.indexOf("консольный") != -1) base.position.z -= partPar.column.profSize.y / 2;
 		par.mesh.add(base);
 	}
-	
+
+
 	//сохраняем данные для спецификации
 	var partName = 'carportColumn';
 	if (typeof specObj != 'undefined') {
@@ -635,20 +681,22 @@ function drawColumnFlan(par){
 	})
 
 
-	par.holes.forEach(function(center){
-		var boltPar = {
-			diam: 12,
-			len: 40,
-			headType: "шестигр.",
-			headShim: true,
+	par.holes.forEach(function (center) {
+		if (!center.noBolt) {
+			var boltPar = {
+				diam: 12,
+				len: 40,
+				headType: "шестигр.",
+				headShim: true,
+			}
+
+			var bolt = drawBolt(boltPar).mesh;
+			bolt.position.x = center.x;
+			bolt.position.y = center.y;
+			bolt.position.z = 0;
+			bolt.rotation.x = -Math.PI / 2 * par.turnFactor;
+			par.mesh.add(bolt);
 		}
-		
-		var bolt = drawBolt(boltPar).mesh;
-		bolt.position.x = center.x;
-		bolt.position.y = center.y;
-		bolt.position.z = 0;
-		bolt.rotation.x = -Math.PI / 2 * par.turnFactor;
-		par.mesh.add(bolt);
 	});
 
 
@@ -1020,7 +1068,7 @@ function drawSphereSector(par){
 				name: "Поликарбонат " + par.thk + " " + params.roofPlastColor,
 				metalPaint: false,
 				timberPaint: false,
-				division: "metal",
+				division: "timber",
 				workUnitName: "amt",
 				group: "carcas",
 			}
@@ -1453,10 +1501,14 @@ function drawCarportBeam(par){
 	initPar(par)
 	
 	var beamProfParams = getProfParams(params.beamProf)
+
+	var width = params.width;
+	if (params.carportType == "фронтальный") width = params.sectLen * params.sectAmt + params.sideOffset * 2;
 	
 	//прямая балка
 	if(params.roofType == "Плоская"){
-		par.len = params.width / Math.cos(params.roofAng / 180 * Math.PI);
+		par.len = width / Math.cos(params.roofAng / 180 * Math.PI);
+
 		var polePar = {
 			poleProfileY: beamProfParams.sizeA,
 			poleProfileZ: beamProfParams.sizeB,
@@ -1471,34 +1523,39 @@ function drawCarportBeam(par){
 		};
 		
 		var beam = drawPole3D_4(polePar).mesh;
-		beam.position.x = -params.width / 2 - params.sideOffset
+		beam.position.x = -width / 2 - params.sideOffset
+		if (params.carportType == "фронтальный") beam.position.x = 0//-width / 2
 		par.mesh.add(beam)
 		
 		//термошайбы и саморезы на балках
+		if (params.carportType !== "фронтальный") {
+			var screwsAmt = Math.round(par.len / 450);
+			var step = par.len / screwsAmt;
+			for (var i = 0; i < screwsAmt; i++) {
+				var shim = drawTermoShim();
+				shim.position.x = step / 2 + step * i
+				shim.rotation.x = Math.PI / 2;
+				shim.position.y = polePar.poleProfileY / 2;
+				shim.position.z = polePar.poleProfileZ + params.roofThk;
+				beam.add(shim);
+				//par.mesh.add(shim);
 
-		var screwsAmt = Math.round(par.len / 450);
-		var step = par.len / screwsAmt;
-		for (var i = 0; i < screwsAmt; i++) {
-			var shim = drawTermoShim();
-			shim.position.x = step / 2 + step * i
-			shim.rotation.x = Math.PI / 2;
-			shim.position.y = polePar.poleProfileY / 2;
-			shim.position.z = polePar.poleProfileZ + params.roofThk;
-			par.mesh.add(shim);
+				var screwPar = {
+					id: "roofingScrew_5x32",
+					description: "Крепление поликарбоната к профилям",
+					group: "Кровля"
+				}
 
-			var screwPar = {
-				id: "roofingScrew_5x32",
-				description: "Крепление поликарбоната к профилям",
-				group: "Кровля"
-			}
-				
-			var screw = drawScrew(screwPar).mesh;
-			screw.position.x = step / 2 + step * i
-			screw.rotation.x = -Math.PI / 2;
-			screw.position.y = polePar.poleProfileY / 2;
-			screw.position.z = polePar.poleProfileZ + params.roofThk;
-			par.mesh.add(screw);
-		};
+				var screw = drawScrew(screwPar).mesh;
+				screw.position.x = step / 2 + step * i
+				screw.rotation.x = -Math.PI / 2;
+				screw.position.y = polePar.poleProfileY / 2;
+				screw.position.z = polePar.poleProfileZ + params.roofThk;
+				beam.add(screw);
+				//par.mesh.add(screw);
+			};
+
+		}
 		
 	}
 	
@@ -1637,74 +1694,77 @@ function drawCarportBeam(par){
 	}
 	
 	//фланцы
-	if (params.carportType != "сдвижной"){
-		var flanPar = {
-			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 2000, 2000),
-			dxfArr: dxfPrimitivesArr,
-			isTop: false,
+	if (params.carportType !== "фронтальный") {
+		if (params.carportType != "сдвижной") {
+			var flanPar = {
+				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 2000, 2000),
+				dxfArr: dxfPrimitivesArr,
+				isTop: false,
+			}
+
+			//левая стороная
+			var posX = -width / 2 + params.sideOffset + partPar.column.profSize.y / 2
+			var flan = drawPoleBeamFlan(flanPar).mesh
+			flan.position.x = posX
+			flan.position.z = -8
+			par.mesh.add(flan);
+
+			var flan = drawPoleBeamFlan(flanPar).mesh
+			flan.position.x = posX
+			flan.position.z = partPar.rafter.profSize.x
+			par.mesh.add(flan);
+
+
+			//правая сторона
+			var posX = width / 2 - params.sideOffset - partPar.column.profSize.y / 2
+			var posY = 0;
+			if (params.carportType == "односкатный" && params.roofType == "Арочная") {
+				posY = arcPar.topArc.height
+				flanPar.isTop = true;
+				posX = width / 2 - params.sideOffsetTop - partPar.column.profSize.y / 2
+			}
+
+			var flan = drawPoleBeamFlan(flanPar).mesh
+			if (params.carportType == "двухскатный") flan.rotation.y = Math.PI
+			flan.position.x = posX
+			flan.position.y = posY
+			flan.position.z = 0
+			par.mesh.add(flan);
+
+			var flan = drawPoleBeamFlan(flanPar).mesh
+			if (params.carportType == "двухскатный") flan.rotation.y = Math.PI
+			flan.position.x = posX
+			flan.position.y = posY
+			flan.position.z = partPar.rafter.profSize.x + 8
+			par.mesh.add(flan);
 		}
-		
-		//левая стороная
-		var posX = -params.width / 2 + params.sideOffset + partPar.column.profSize.y / 2
-		var flan = drawPoleBeamFlan(flanPar).mesh
-		flan.position.x = posX
-		flan.position.z = -8
-		par.mesh.add(flan);
-		
-		var flan = drawPoleBeamFlan(flanPar).mesh
-		flan.position.x = posX
-		flan.position.z = partPar.rafter.profSize.x
-		par.mesh.add(flan);
-		
-		
-		//правая сторона
-		var posX = params.width / 2 - params.sideOffset- partPar.column.profSize.y / 2
-		var posY = 0;
-		if (params.carportType == "односкатный" && params.roofType == "Арочная") {
-			posY = arcPar.topArc.height
-			flanPar.isTop = true;
-			posX = params.width / 2 - params.sideOffsetTop - partPar.column.profSize.y / 2
+		if (params.carportType == "сдвижной") {
+			var flanPar = {
+				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 2000, 2000),
+				dxfArr: dxfPrimitivesArr,
+				ang: par.topArc.startAngle - Math.PI,
+				rad: par.topArc.rad,
+			}
+
+			var fixPlate = drawRafterFixUnit(flanPar).mesh;
+			var center = { x: 0, y: par.topArc.center.y }
+			var pos = polar(center, par.topArc.startAngle, par.topArc.rad)
+			fixPlate.position.x = pos.x
+			fixPlate.position.y = pos.y
+			fixPlate.position.z = -flanPar.thk
+			par.mesh.add(fixPlate)
+
+			var fixPlate = drawRafterFixUnit(flanPar).mesh;
+			var pos = polar(center, par.topArc.endAngle, par.topArc.rad)
+			fixPlate.rotation.y = Math.PI
+			fixPlate.position.x = pos.x
+			fixPlate.position.y = pos.y
+			fixPlate.position.z = partPar.rafter.profSize.x + flanPar.thk
+			par.mesh.add(fixPlate)
+
 		}
-		
-		var flan = drawPoleBeamFlan(flanPar).mesh
-		if (params.carportType == "двухскатный") flan.rotation.y = Math.PI
-		flan.position.x = posX
-		flan.position.y = posY		
-		flan.position.z = 0
-		par.mesh.add(flan);
-		
-		var flan = drawPoleBeamFlan(flanPar).mesh	
-		if (params.carportType == "двухскатный") flan.rotation.y = Math.PI
-		flan.position.x = posX
-		flan.position.y = posY
-		flan.position.z = partPar.rafter.profSize.x + 8
-		par.mesh.add(flan);
 	}
-	if (params.carportType == "сдвижной"){
-		var flanPar = {
-			dxfBasePoint: newPoint_xy(par.dxfBasePoint, 2000, 2000),
-			dxfArr: dxfPrimitivesArr,
-			ang: par.topArc.startAngle - Math.PI,
-			rad: par.topArc.rad,
-		}
-		
-		var fixPlate = drawRafterFixUnit(flanPar).mesh;
-		var center = {x: 0, y: par.topArc.center.y}
-		var pos = polar(center, par.topArc.startAngle, par.topArc.rad)
-		fixPlate.position.x = pos.x
-		fixPlate.position.y = pos.y
-		fixPlate.position.z = -flanPar.thk
-		par.mesh.add(fixPlate)
 	
-		var fixPlate = drawRafterFixUnit(flanPar).mesh;
-		var pos = polar(center, par.topArc.endAngle, par.topArc.rad)
-		fixPlate.rotation.y = Math.PI
-		fixPlate.position.x = pos.x
-		fixPlate.position.y = pos.y
-		fixPlate.position.z = partPar.rafter.profSize.x + flanPar.thk
-		par.mesh.add(fixPlate)
-		
-	}
 
 	
 	
@@ -2051,7 +2111,13 @@ function drawRoofCarcas(par){
 		drawFunction: drawFunc,
 		itemPar: rafterPar,
 	}
-	
+
+	if (params.carportType == "фронтальный") {
+		rafterArrPar.arrSize.z = par.width - partPar.column.profSize.y + 4;
+
+		rafterPar.len = params.sectLen * params.sectAmt
+		if (params.beamModel == "проф. труба") rafterPar.len += params.sideOffset * 2;
+	}
 
 	if(params.trussType == "балки") {
 		rafterArrPar.arrSize.z = partPar.main.len - 120; //120 - ширина фланца крепления к балке
@@ -2068,7 +2134,8 @@ function drawRoofCarcas(par){
 	}
 		
 	var rafterArr = drawRectArray(rafterArrPar).mesh;
-	if(params.carportType == "односкатный") rafterArr.position.x = 0; //выравниваем вручную
+	if (params.carportType == "односкатный" || params.carportType == "фронтальный") rafterArr.position.x = 0; //выравниваем вручную
+	if (params.carportType == "фронтальный" && params.beamModel == "проф. труба") rafterArr.position.x = 0//rafterPar.len / 2; //выравниваем вручную
 	//if(params.beamModel == "ферма постоянной ширины")  rafterArr.position.y = -partPar.truss.endHeight;
 		
 	rafterArr.setLayer('carcas');
@@ -2077,7 +2144,10 @@ function drawRoofCarcas(par){
 
 	//прогоны	
 	var amt = 1; //кол-во рядов прогонов
-	if(params.beamModel == "проф. труба") amt = rafterArrPar.amt.z - 1;
+	if (params.beamModel == "проф. труба") {
+		//amt = rafterArrPar.amt.z - 1;
+		amt = 1;
+	}
 	if(params.carportType == "двухскатный" && params.roofType != "Арочная") amt = 2;
 	
 	//параметры одного прогона
@@ -2089,7 +2159,8 @@ function drawRoofCarcas(par){
 	};
 	
 	if(params.beamModel == "проф. труба") {
-		purlinPar.len = rafterArrPar.step.z - partPar.rafter.profSize.x;
+		//purlinPar.len = rafterArrPar.step.z - partPar.rafter.profSize.x;
+		purlinPar.len = par.width;
 		purlinPar.hasFlans = true;
 	}
 
@@ -2182,8 +2253,12 @@ function drawRoofCarcas(par){
 				drawFunction: drawPurlin,
 				itemPar: purlinPar,
 			}
+
+			if (params.carportType == "фронтальный") {
+				purlinArrPar.arrSize.x = params.sectLen * params.sectAmt + params.sideOffset * 2;
+			}
 			
-			if(params.beamModel == "проф. труба") noAlign = true;
+			//if(params.beamModel == "проф. труба") noAlign = true;
 			
 			//левая сторона
 			if(i == 1) {
@@ -2196,11 +2271,19 @@ function drawRoofCarcas(par){
 			}
 			if(params.beamModel == "проф. труба") {
 				purlinArr.position.z = rafterArrPar.step.z * i + purlinPar.len - partPar.main.len / 2 + partPar.rafter.profSize.x;
-				purlinArr.position.y = partPar.rafter.profSize.y - partPar.purlin.profSize.y
+				purlinArr.position.y = partPar.rafter.profSize.y - partPar.purlin.profSize.y + partPar.rafter.profSize.x
+				if (params.carportType == "фронтальный") {
+					//purlinArr.position.z = purlinPar.len / 2//rafterArrPar.step.z + purlinPar.len - partPar.main.len / 2;
+					//purlinArr.position.x += purlinArrPar.arrSize.x / 2 + partPar.purlin.profSize.x;
+					//purlinArr.position.y = partPar.rafter.profSize.y// + partPar.rafter.profSize.y / Math.cos(params.roofAng / 180 * Math.PI)//partPar.purlin.profSize.y
+					//purlinArr.position.y -= params.sideOffset * Math.tan(params.roofAng / 180 * Math.PI)
+					purlinArr.position.y = partPar.rafter.profSize.y + partPar.purlin.profSize.x / 2 * Math.tan(params.roofAng / 180 * Math.PI)// + partPar.purlin.profSize.x / 2 * Math.tan(params.roofAng / 180 * Math.PI)//partPar.purlin.profSize.y
+					purlinArr.position.x = partPar.truss.endPoint.x// - partPar.purlin.profSize.x / 2 * Math.cos(params.roofAng / 180 * Math.PI)
+				}
 			}
 			if(params.beamModel != "проф. труба") {
 				purlinArr.position.y = partPar.truss.endPoint.y
-				if(params.carportType == "односкатный") purlinArr.position.x = partPar.truss.endPoint.x; //выравниваем вручную
+				if (params.carportType == "односкатный" || params.carportType == "фронтальный") purlinArr.position.x = partPar.truss.endPoint.x; //выравниваем вручную
 			}
 			
 			if(params.carportType == "двухскатный"){
@@ -3824,6 +3907,10 @@ function drawColumnFlansBal(par) {
 	flan.rotation.y = -Math.PI / 2;
 	flan.position.z = lenSects / 2 - partPar.column.profSize.y / 2;
 	flan.position.x = -params.width / 2 + params.sideOffset;
+	if (params.carportType == "фронтальный") {
+		flan.position.x = -lenSects / 2;
+		flan.position.z = params.width / 2 - partPar.column.profSize.y / 2;
+	}
 	flanColumn.add(flan);
 
 	//справа
@@ -3837,6 +3924,11 @@ function drawColumnFlansBal(par) {
 		flan.position.y = par.deltaHeight;
 		flan.position.x += params.width - par.columnDelta.x;
 	}
+	if (params.carportType == "фронтальный") {
+		flan.position.y = par.deltaHeight;
+		flan.position.x = lenSects / 2;
+		flan.position.z = params.width / 2 - partPar.column.profSize.y / 2;
+	}
 	flanColumn.add(flan);
 
 	//фланецы с задней стороны
@@ -3846,6 +3938,10 @@ function drawColumnFlansBal(par) {
 	flan.rotation.y = -Math.PI / 2;
 	flan.position.z = -lenSects / 2 + partPar.column.profSize.y / 2;
 	flan.position.x = -params.width / 2 + params.sideOffset;
+	if (params.carportType == "фронтальный") {
+		flan.position.x = -lenSects / 2;
+		flan.position.z = -params.width / 2 + partPar.column.profSize.y / 2;
+	}
 	flanColumn.add(flan);
 
 	//справа
@@ -3858,18 +3954,32 @@ function drawColumnFlansBal(par) {
 		flan.position.y = par.deltaHeight;
 		flan.position.x += params.width - par.columnDelta.x;
 	}
+	if (params.carportType == "фронтальный") {
+		flan.position.y = par.deltaHeight;
+		flan.position.x = lenSects / 2;
+		flan.position.z = -params.width / 2 + partPar.column.profSize.y / 2;
+	}
 	flanColumn.add(flan);
 
 	for (var i = 1; i < params.sectAmt; i++) {
 		//фланецы с передней стороны
 		//слева
+		if (params.backOffset < 200) flanColumnPar.isHalfBack = true;
 		var flan = drawColumnFlanBal(flanColumnPar).mesh;
 		flan.rotation.y = -Math.PI / 2;
 		flan.position.z = lenSects / 2 - partPar.column.profSize.y / 2 - par.columnDelta.z * i;
 		flan.position.x = -params.width / 2 + params.sideOffset;
+		if (params.carportType == "фронтальный") {
+			var angTan = Math.atan((partPar.truss.midHeight - partPar.truss.endHeight) / (par.colDist * params.sectAmt));
+			var deltaHeight = (par.colDist * i + partPar.column.profSize.x) * angTan;
+			flan.position.y = deltaHeight;
+			flan.position.x = -lenSects / 2 + par.colDist * i;
+			flan.position.z = -params.width / 2 + partPar.column.profSize.y / 2;
+		}
 		flanColumn.add(flan);
 
 		//справа
+		if (params.backOffset < 200) flanColumnPar.isHalfFront = true;
 		var flan = drawColumnFlanBal(flanColumnPar).mesh;
 		flan.rotation.y = Math.PI / 2;
 		flan.position.z = lenSects / 2 - partPar.column.profSize.y / 2 - par.columnDelta.z * i;
@@ -3877,6 +3987,11 @@ function drawColumnFlansBal(par) {
 		if (params.carportType == "односкатный") {
 			flan.position.y = par.deltaHeight;
 			flan.position.x += params.width - par.columnDelta.x;
+		}
+		if (params.carportType == "фронтальный") {
+			flan.position.y = deltaHeight;
+			flan.position.x = -lenSects / 2 + par.colDist * i;
+			flan.position.z = params.width / 2 - partPar.column.profSize.y / 2;
 		}
 		flanColumn.add(flan);
 	}
@@ -4349,8 +4464,6 @@ function drawConnectBalTruss(par) {
 	return par;
 
 }
-
-
 
 
 

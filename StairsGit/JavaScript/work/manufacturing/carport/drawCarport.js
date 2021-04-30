@@ -112,6 +112,7 @@ function drawRoof(par){
 	if(!par.dxfBasePoint) par.dxfBasePoint = {x:0,y:0}
 	var roof = new THREE.Object3D();
 	if(!par.progonProfY) par.progonProfY = 0;
+	//if (params.carportType == "фронтальный")  par.len = partPar.main.len + partPar.roofSheet.overhang * 2;
 	if(!par.len) par.len = partPar.main.len + partPar.roofSheet.overhang * 2;
 
 //арочная кровля
@@ -225,6 +226,7 @@ function drawRoof(par){
 	if(params.roofType != "Арочная") {
 		var roofAng = THREE.Math.degToRad(params.roofAng);
 		var sheetLen = (params.width + partPar.roofSheet.overhang * 2) / Math.cos(roofAng);
+		if (params.carportType == "фронтальный") sheetLen = (params.sectLen * params.sectAmt + params.sideOffset * 2 + partPar.roofSheet.overhang * 2) / Math.cos(roofAng);
 		if (params.carportType == "двухскатный") sheetLen *= 0.5;
 		
 		//листы кровли
@@ -384,7 +386,7 @@ function drawRoof(par){
 
 			//профиль наверху односкатного навеса
 			//TODO: сделать тут коньковый профиль для двухскатного или профиль примыкания к стене для односкатного
-			if (params.carportType == "односкатный" || params.carportType.indexOf("консольный") != -1){
+			if (params.carportType == "односкатный" || params.carportType == "фронтальный" || params.carportType.indexOf("консольный") != -1){
 				var pos1 = polar(pos, THREE.Math.degToRad(params.roofAng), sheetLen)
 				prof.position.x = pos1.x
 				prof.position.y = pos1.y
@@ -413,7 +415,10 @@ function drawRoof(par){
 	////if (params.frontOffset !== params.backOffset) isAlignment = false //если свес спереди и сзади не одинаковый, то выравниваем кровлю и прогоны вручную
 
 	//if (isAlignment) roof.position.x -= (box3.max.x + box3.min.x) / 2;
-	if (params.carportType == "односкатный" && params.carportType.indexOf("консольный") !== -1) {
+	if ((params.carportType == "односкатный" || params.carportType == "фронтальный") && params.carportType.indexOf("консольный") !== -1) {
+		roof.position.x -= (box3.max.x + box3.min.x) / 2;
+	}
+	if (params.carportType == "фронтальный") {
 		roof.position.x -= (box3.max.x + box3.min.x) / 2;
 	}
 	roof.position.z -= (box3.max.z + box3.min.z) / 2;
@@ -1045,11 +1050,19 @@ function drawRectCarport(par){
 	if(params.carportType == "консольный") {
 		columnArrPar.amt.x = 1;
 	}
+	if(params.carportType == "фронтальный") {
+		columnArrPar.amt.x = params.sectAmt + 1;
+		columnArrPar.amt.z = 2;
+		columnArrPar.arrSize.x = params.sectLen * params.sectAmt;
+		columnArrPar.arrSize.z = params.width;
+	}
+
 	
 	//задаем разную высоту колонн справа и слева для односкатного навеса
 	var deltaHeight = 0;
-	if(params.carportType == "односкатный"){
-		columnArrPar.arrSize.x = params.width - params.sideOffset - params.sideOffsetTop;
+	if (params.carportType == "односкатный" || params.carportType == "фронтальный"){
+		if (params.carportType == "односкатный") columnArrPar.arrSize.x = params.width - params.sideOffset - params.sideOffsetTop;
+		if (params.carportType == "фронтальный") columnArrPar.arrSize.x = params.sectLen * params.sectAmt;
 		
 		if(params.roofType == "Плоская") {
 			//перепад высоты по осям колонн на верхней линии
@@ -1070,6 +1083,20 @@ function drawRectCarport(par){
 				itemPar.len = params.height + deltaHeight - 0.5;
 				itemPar.isTop = true;
 			}
+			if (params.carportType == "фронтальный" && counter.x > 0) {
+				itemPar.isTop = false;
+				var colDist = (columnArrPar.arrSize.x - partPar.column.profSize.x) / params.sectAmt
+				deltaHeight = colDist * counter.x * Math.tan(params.roofAng / 180 * Math.PI);
+				if (params.beamModel !== "проф. труба") {
+					if (counter.x == params.sectAmt) deltaHeight -= partPar.truss.midHeight - partPar.truss.endHeight;
+					if (counter.x !== params.sectAmt) {
+						var angTan = Math.atan((partPar.truss.midHeight - partPar.truss.endHeight) / (columnArrPar.arrSize.x - partPar.column.profSize.x));
+						deltaHeight -= (colDist * counter.x + partPar.column.profSize.x) * angTan;
+					}
+				}
+				itemPar.len = params.height + deltaHeight - 0.5;
+				if (counter.x == params.sectAmt) itemPar.isTop = true;
+			}
 		}
 
 		partPar.main.deltaHeight = deltaHeight;
@@ -1080,7 +1107,8 @@ function drawRectCarport(par){
 	columnArr.setLayer('racks');
 
 	//учитываем что на односкатном нет свеса сверху
-	if(params.carportType == "односкатный"){
+	//if (params.carportType == "односкатный" || params.carportType == "фронтальный"){
+	if (params.carportType == "односкатный"){
 		columnArr.position.x += (params.sideOffset - params.sideOffsetTop) / 2;
 	}
 	
@@ -1118,7 +1146,12 @@ function drawRectCarport(par){
 		itemPar: trussPar,
 	}
 	
-	
+	if (params.carportType == "фронтальный") {
+		beamArrPar.amt.x = params.sectAmt + 1;
+		beamArrPar.amt.z = 1;
+		beamArrPar.arrSize.x = params.sectLen * params.sectAmt// - params.sideOffset * 2;
+		beamArrPar.arrSize.z = params.width - partPar.column.profSize.y - 8 - 4;
+	}
 	if(params.carportType == "консольный") beamArrPar.amt.x = 1;
 	if(params.trussType == "балки") {
 		var beamPar = {
@@ -1140,16 +1173,62 @@ function drawRectCarport(par){
 			x: columnArrPar.arrSize.x,
 			z: beamPar.length,
 		};
+
+		if (params.carportType == "фронтальный") {
+			beamPar.length = params.width + params.frontOffset + params.backOffset
+		}
 		beamArrPar.drawFunction = drawPole3D_4;
+		beamArrPar.itemPar = beamPar;
+	}
+
+	if (params.trussType == "рамы") {
+		var beamPar = {
+			poleProfileY: 20,
+			poleProfileZ: 40,
+			length: columnArrPar.step.z - partPar.column.profSize.y,
+			poleAngle: 0,
+			material: params.materials.metal,
+			type: 'rect',
+			partName: 'carportBeamLen'
+		};
+
+		beamArrPar.itemSize = {
+			x: partPar.beam.profSize.x,
+			//z: beamPar.length,
+			z: columnArrPar.step.z,
+		};
+		beamArrPar.arrSize = {
+			x: columnArrPar.arrSize.x,
+			z: params.sectLen * params.sectAmt - partPar.column.profSize.y,//beamPar.length,
+		};
+		beamArrPar.drawFunction = drawBeamTruss;
 		beamArrPar.itemPar = beamPar;
 	}
 	
 	//задаем разную высоту колонн справа и слева для односкатного навеса. Также переворачиваем балки из листа
-	if(params.carportType == "односкатный" || params.trussType != "балки"){
-		beamArrPar.modifier = function(counter, itemPar, itemMoove){
+	if (params.carportType == "односкатный" || params.trussType != "балки" || params.carportType == "фронтальный"){
+		beamArrPar.modifier = function(counter, itemPar, itemMoove, par){
 			if(counter.x == 1) {
-				if(params.carportType == "односкатный") itemMoove.y = deltaHeight;
+				if (params.carportType == "односкатный") itemMoove.y = deltaHeight;
 				if(params.trussType != "балки") itemPar.isLeft = true;
+			}
+			if (par.amt.z > 1) {
+				itemPar.noBolt2 = false;
+				itemPar.longBolt1 = false;
+				if (counter.z !== (par.amt.z - 1)) itemPar.longBolt1 = true;
+				if (counter.z !== 0) itemPar.noBolt2 = true;
+			}
+			if (params.carportType == "фронтальный" && counter.x > 0) {
+				var colDist = (columnArrPar.arrSize.x - partPar.column.profSize.x) / params.sectAmt
+				deltaHeight = colDist * counter.x * Math.tan(params.roofAng / 180 * Math.PI);
+				if (params.beamModel !== "проф. труба") {
+					if (counter.x == params.sectAmt) deltaHeight -= partPar.truss.midHeight - partPar.truss.endHeight;
+					if (counter.x !== params.sectAmt) {
+						var angTan = Math.atan((partPar.truss.midHeight - partPar.truss.endHeight) / (columnArrPar.arrSize.x - partPar.column.profSize.x));
+						deltaHeight -= (colDist * counter.x + partPar.column.profSize.x) * angTan;
+					}
+				}
+				itemMoove.y = deltaHeight;
 			}
 		}
 	}
@@ -1159,7 +1238,7 @@ function drawRectCarport(par){
 	var flanHolesPos = partPar.column.profSize.x / 2 + 90; //расстояние от внешнего края колонны до отверстий во фланце, куда крепится балка
 	
 	
-	if(params.carportType == "односкатный") deltaWidth = params.sideOffset - params.sideOffsetTop - flanHolesPos + partPar.truss.thk - 30;
+	if (params.carportType == "односкатный" || params.carportType == "фронтальный") deltaWidth = params.sideOffset - params.sideOffsetTop - flanHolesPos + partPar.truss.thk - 30;
 	if(params.carportType == "двухскатный") deltaWidth = -flanHolesPos * 2 + partPar.truss.thk; 
 
 	
@@ -1167,6 +1246,8 @@ function drawRectCarport(par){
 		//deltaWidth = params.sideOffset
 		deltaWidth = 0
 	}
+
+	deltaWidth = 0
 	
 	beamArrPar.arrSize.x += deltaWidth
 	
@@ -1182,12 +1263,15 @@ function drawRectCarport(par){
 		beamArr.position.y -= trussPar.height 
 	}
 	
-	if(params.carportType == "односкатный"){
+	if (params.carportType == "односкатный"){
 		beamArr.position.x = -params.width / 2 + params.sideOffset
-		if(params.trussType != "балки") beamArr.position.x += flanHolesPos
+		//if(params.trussType != "балки") beamArr.position.x += flanHolesPos
+	}
+	if (params.carportType == "фронтальный") {
+		beamArr.position.x = -params.sectLen * params.sectAmt / 2// + params.sideOffset
 	}
 	if(params.trussType != "балки") {
-		beamArr.position.z += 2;
+		//beamArr.position.z += 2;
 	}
 	
 	if(params.trussType == "балки") {
@@ -1219,7 +1303,17 @@ function drawRectCarport(par){
 		roofCarcas.position.x = -params.width / 2 + partPar.column.profSize.x / 2 + params.sideOffset;
 		//if(params.trussType == "балки") roofCarcas.position.x = 0;
 	}
-	if (params.trussType != "балки") roofCarcas.position.z += 6;
+	if (params.carportType == "фронтальный") {
+		roofCarcas.position.x = -(params.sectLen * params.sectAmt) / 2 + partPar.column.profSize.x / 2// + params.sideOffset;
+		if (params.beamModel == "проф. труба") {
+			roofCarcas.position.x = -(params.sectLen * params.sectAmt) / 2 - params.sideOffset;
+			roofCarcas.position.y -= params.sideOffset * Math.tan(params.roofAng / 180 * Math.PI);
+		}
+		roofCarcas.position.z = 0;
+		//if(params.trussType == "балки") roofCarcas.position.x = 0;
+	}
+	if (params.trussType != "балки" && params.trussType != "рамы") roofCarcas.position.z += 6;
+	if (params.trussType == "рамы") roofCarcas.position.z -= 1;
 	if (params.frontOffset !== params.backOffset) roofCarcas.position.z += (params.frontOffset - params.backOffset) / 2;
 	if (params.carportType == "консольный") roofCarcas.position.z = 0;
 	/*
@@ -1257,6 +1351,8 @@ function drawRectCarport(par){
 		var roof = drawRoof(roofPar)
 		if(params.trussType == "балки") {
 			roof.position.y = params.height + partPar.beam.profSize.y / Math.cos(params.roofAng / 180 * Math.PI)
+			if (params.carportType == "фронтальный" && params.beamModel == "проф. труба")
+				roof.position.y += partPar.purlin.profSize.y / Math.cos(params.roofAng / 180 * Math.PI)
 		}
 		if(params.trussType != "балки") {
 			roof.position.y = params.height
@@ -1274,6 +1370,9 @@ function drawRectCarport(par){
 			dxfBasePoint: par.dxfBasePoint,
 			deltaHeight: deltaHeight,
 			columnDelta: { x: columnArrPar.arrSize.x, z: columnArrPar.step.z }
+		}
+		if (params.carportType == "фронтальный") {
+			flansColumnPar.colDist = (columnArrPar.arrSize.x - partPar.column.profSize.x) / params.sectAmt
 		}
 
 		var flansColumn = drawColumnFlansBal(flansColumnPar).mesh;
@@ -1311,10 +1410,22 @@ function drawRectCarport(par){
 				noAlign: true,
 			}
 
-			if (params.carportType == "односкатный") {
+			if (params.carportType == "фронтальный") {
+				//braceArrPar.amt.x = params.sectAmt + 1;
+				//braceArrPar.amt.z = 1;
+				//braceArrPar.arrSize.x = params.width * params.sectAmt - params.sideOffset * 2;
+				//braceArrPar.arrSize.z = params.sectLen - partPar.column.profSize.y - 8 - 4;
+			}
+
+			if (params.carportType == "односкатный" || params.carportType == "фронтальный") {
 				braceArrPar.modifier = function (counter, itemPar, itemMoove) {
 					if (counter.x == 1) {
 						if (params.carportType == "односкатный") itemMoove.y = deltaHeight;
+					}
+					if (params.carportType == "фронтальный" && counter.x > 0) {
+						deltaHeight = partPar.main.colDist * counter.x * Math.tan(params.roofAng / 180 * Math.PI);
+						if (params.beamModel !== "проф. труба") deltaHeight -= partPar.truss.midHeight - partPar.truss.endHeight;
+						itemMoove.y = deltaHeight;
 					}
 				}
 			}

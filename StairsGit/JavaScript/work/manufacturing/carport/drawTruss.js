@@ -194,6 +194,7 @@ function drawTriangleSheetTruss(par){
 	
 	par.len = params.width / 2;
 	if(params.carportType == "односкатный") par.len = params.width
+	if (params.carportType == "фронтальный") par.len = params.sectLen * params.sectAmt
 	
 	//параметры
 	par.midHeight = partPar.truss.midHeight// высота фермы в середине по вертикали
@@ -224,6 +225,7 @@ function drawTriangleSheetTruss(par){
 	var leftLine = {
 		p1: newPoint_xy(p0, -partPar.column.profSize.y / 2 - params.sideOffset, 0)
 	}
+	//if (params.carportType == "фронтальный") leftLine.p1 = newPoint_xy(p0, -partPar.column.profSize.y / 2 - params.sideOffset, 0)
 	leftLine.p2 = newPoint_xy(leftLine.p1, 0, 1)
 	//крайняя точка фермы
 	topLine.p1 = itercectionLines(topLine, leftLine)
@@ -241,6 +243,7 @@ function drawTriangleSheetTruss(par){
 	var rightLine = {
 		p1: {x: topLine.p1.x + par.len, y: 0,}, //временная точка
 	}
+	if (params.carportType == "фронтальный") rightLine.p1 = { x: par.len - partPar.column.profSize.x + params.sideOffset, y: 0 }
 	if(params.carportType == "двухскатный") rightLine.p1.x -= par.flanThk / 2
 		
 	rightLine.p2 = newPoint_xy(rightLine.p1, 0, 100) //временная точка
@@ -254,10 +257,14 @@ function drawTriangleSheetTruss(par){
 
 	//верхний свес и горизонтальная полка под колонну сверху на односкатном навесе
 	//обозначение точек здесь https://6692035.ru/drawings/carport/trussTop.png
-	if(params.carportType == "односкатный") {
+	if (params.carportType == "односкатный" || params.carportType == "фронтальный") {
 		
 		//корректируем правую точку, т.к. par.midHeight это высота над колонной, а не на краю
 		topLine.p2 = newPoint_x(pt, partPar.main.colDist, par.topAng / 180 * Math.PI) //точка над центром верхней колонны на верхней линии
+		if (params.carportType == "фронтальный") {
+			topLine.p2 = newPoint_x(pt, par.len - partPar.column.profSize.x, par.topAng / 180 * Math.PI)
+		}
+			 //точка над центром верхней колонны на верхней линии
 		botLine.p3 = newPoint_xy(topLine.p2, 0, -par.midHeight) //точка на нижней линии над центром колонны
 		rightLine.p2 = itercection(botLine.p2, botLine.p3, rightLine.p1, rightLine.p2) //нижняя точка правой линии
 		
@@ -268,7 +275,7 @@ function drawTriangleSheetTruss(par){
 		rightLine.p5 = itercection(rightLine.p2, botLine.p2, rightLine.p4, newPoint_xy(rightLine.p4, 0, 1))
 		
 		rightLine.p21 = copyPoint(rightLine.p2)
-		if(params.sideOffsetTop > 10) {
+		if ((params.carportType == "односкатный" && params.sideOffsetTop > 10) || (params.carportType == "фронтальный" && params.sideOffset > 10)) {
 			rightLine.p21 = newPoint_xy(rightLine.p1, 0, -100) //уменьшаем высоту верхнего конца фермы
 			rightLine.p3 = newPoint_xy(rightLine.p3, 10, 0) //увеличиваем опорную площадку
 		};
@@ -282,8 +289,8 @@ function drawTriangleSheetTruss(par){
 	else points.push(rightLine.p2)
 
 	points.push(botLine.p2)
-	if(botLine.p21) points.push(botLine.p21)
-		
+	if (botLine.p21) points.push(botLine.p21)
+
 	//создаем шейп
 	var shapePar = {
 		points: points,
@@ -314,13 +321,15 @@ function drawTriangleSheetTruss(par){
 		var maxHoleDiam = distance(rightLine.p1, rightLine.p2) * Math.cos(partPar.main.roofAng) - partPar.truss.sideWidth * 2;		
 		holeStepX = maxHoleDiam + partPar.truss.bridgeWidth;
 		holeAmt = Math.floor(params.width / holeStepX)
+		if (params.carportType == "фронтальный") holeAmt = Math.floor(params.width * params.sectAmt / holeStepX)
 		holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, maxHoleDiam / 2 +  partPar.truss.bridgeWidth)
 	}
 	
 	//смещаем крайнее отверстие чтобы было место для фланца крепления к колонне
-	if(params.carportType == "односкатный") {
+	if (params.carportType == "односкатный" || params.carportType == "фронтальный") {
 		//var offsetRight = holeStepX - partPar.truss.bridgeWidth / 2;
 		var offsetRight = params.sideOffsetTop + 200; //200 - ширина фланца колонны
+		if (params.carportType == "фронтальный") offsetRight = params.sideOffset + 200; //200 - ширина фланца колонны
 		
 		holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, offsetRight)
 		if(params.trussHolesType == "круги") holeLeftLine = parallel(holeLeftLine.p1, holeLeftLine.p2, maxHoleDiam / 2)
@@ -404,7 +413,7 @@ function drawTriangleSheetTruss(par){
 		})
 
 		//отверстия под верхний фланец односкатного навеса	
-		if (params.carportType == "односкатный") {
+		if (params.carportType == "односкатный" || params.carportType == "фронтальный") {
 			var flanPar = calcColumnFlanPar({ isTop: true })
 			flanPar.holes.forEach(function (center) {
 				var center1 = copyPoint(center);
@@ -467,7 +476,7 @@ function drawTriangleSheetTruss(par){
 		type: 'rect',
 	};
 	
-	if(params.carportType == "односкатный") {
+	if (params.carportType == "односкатный" || params.carportType == "фронтальный") {
 		
 		stripeParBot.length = distance(botLine.p2, rightLine.p3) - 200; //чтобы полоса сверху не пересекалась с фланцем колонны
 	}
@@ -498,7 +507,7 @@ function drawTriangleSheetTruss(par){
 		par.mesh.add(flan);
 
 		//правый фланец	
-		if (params.carportType == "односкатный") flanParams.isTop = true;
+		if (params.carportType == "односкатный" || params.carportType == "фронтальный") flanParams.isTop = true;
 		flanParams.dxfBasePoint = newPoint_xy(par.dxfBasePoint, params.width, -500);
 		var flan = drawColumnFlan(flanParams).mesh;
 		flan.rotation.y = Math.PI
@@ -507,7 +516,7 @@ function drawTriangleSheetTruss(par){
 			flan.position.x += par.flanThk / 2
 			//flan.position.z = -partPar.truss.thk;
 		}
-		if (params.carportType == "односкатный") {
+		if (params.carportType == "односкатный" || params.carportType == "фронтальный") {
 			flan.position.x = rightLine.p3.x - partPar.column.profSize.y / 2
 			flan.position.y = rightLine.p3.y
 		}
@@ -532,7 +541,7 @@ function drawTriangleSheetTruss(par){
 
 		//правое соединение
 		flanPar.dxfBasePoint = newPoint_xy(par.dxfBasePoint, 0, -700);
-		if (params.carportType == "односкатный") {
+		if (params.carportType == "односкатный" || params.carportType == "фронтальный") {
 			flanPar.isTop = true;
 			//flanPar.height = rightLine.p3.y - partPar.main.deltaHeight;
 		}
@@ -542,7 +551,7 @@ function drawTriangleSheetTruss(par){
 		connect.position.z = flanPar.thkTruss;
 		connect.position.x = rightLine.p2.x * 2
 
-		if (params.carportType == "односкатный") {
+		if (params.carportType == "односкатный" || params.carportType == "фронтальный") {
 			connect.position.x = rightLine.p3.x - partPar.column.profSize.y / 2
 			connect.position.y = rightLine.p3.y;
 		}
@@ -3209,4 +3218,225 @@ function drawArcBrace(par) {
 
 	return par;
 
+}
+
+/** функция отрисовывает боковую ферму для конструкции рамы
+	базовая точка: X - середина расстояния между колоннами, Y - верх колонны
+*/
+function drawBeamTruss(par) {
+	if (!par) par = {};
+	if (!par.dxfBasePoint) par.dxfBasePoint = { x: 0, y: 0 };
+	if (!par.dxfArr) par.dxfArr = dxfPrimitivesArr;
+
+	par.mesh = new THREE.Object3D();
+
+	var p0 = { x: 0, y: 0 };
+
+	var thkFlan = 8;
+	var heightFlanTop = 150;
+	var heightFlanBot = 350;
+	var heightFlan = heightFlanTop + heightFlanBot;
+	var lenBridgeMiddle = 100;
+
+	//верхняя балка
+	var p1 = newPoint_xy(p0, -par.length / 2 + thkFlan, heightFlanTop - par.poleProfileY);
+	var p2 = newPoint_xy(p1, 0, par.poleProfileY);
+	var p3 = newPoint_xy(p0, par.length / 2 - thkFlan, heightFlanTop);
+	var p4 = newPoint_xy(p3, 0, -par.poleProfileY);
+
+	var meshPar = {
+		points: [p1, p2, p3, p4],
+		thk: par.poleProfileZ,
+		material: params.materials.metal,
+		dxfArr: dxfPrimitivesArr,
+		dxfBasePoint: { x: 0, y: -2000 },
+	}
+
+	var pole1 = drawMesh(meshPar).mesh;
+	par.mesh.add(pole1);
+
+	//нижняя дуговая балка
+	var hord = par.length - thkFlan * 2;
+	var heightSegm = heightFlan - par.poleProfileY - lenBridgeMiddle - par.poleProfileY;
+	var radIn = (Math.pow(hord / 2, 2) + Math.pow(heightSegm, 2)) / 2 / heightSegm;
+	var radOut = radIn + par.poleProfileY;
+	var pc = newPoint_xy(p0, 0, heightFlanTop - par.poleProfileY - lenBridgeMiddle - par.poleProfileY - radIn);
+
+	var extrudeOptions = {
+		amount: par.poleProfileZ,
+		bevelEnabled: false,
+		curveSegments: 12,
+		steps: 1
+	};
+
+
+	var pb1 = newPoint_xy(p0, -par.length / 2 + thkFlan, heightFlanTop - heightFlan);
+	var pb2 = itercectionLineCircle(pb1, newPoint_xy(pb1, 0, 100), pc, radOut)[0];
+	var pb4 = newPoint_xy(p0, par.length / 2 - thkFlan, heightFlanTop - heightFlan);
+	var pb3 = itercectionLineCircle(pb4, newPoint_xy(pb4, 0, 100), pc, radOut)[0];
+
+	var shape = new THREE.Shape();
+	addLine(shape, par.dxfArr, pb1, pb2, par.dxfBasePoint);
+	addArc2(shape, par.dxfArr, pc, radOut, calcFullAngelX(pc, pb2), calcFullAngelX(pc, pb3), true, par.dxfBasePoint);
+	addLine(shape, par.dxfArr, pb3, pb4, par.dxfBasePoint);
+	addArc2(shape, par.dxfArr, pc, radIn, calcFullAngelX(pc, pb1), calcFullAngelX(pc, pb4), false, par.dxfBasePoint);
+
+	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
+	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
+	var flan = new THREE.Mesh(geom, params.materials.metal);
+	par.mesh.add(flan);
+
+	//перемычки
+
+	//центральная
+	var pt1 = newPoint_xy(p0, -par.poleProfileY / 2, 0);
+	var pt2 = newPoint_xy(p0, par.poleProfileY / 2, 0);
+
+	var pm1 = itercectionLineCircle(pt1, newPoint_xy(pt1, 0, 100), pc, radOut)[0];
+	var pm2 = itercection(pt1, newPoint_xy(pt1, 0, 100), p1, p4);
+	var pm3 = itercection(pt2, newPoint_xy(pt2, 0, 100), p1, p4);
+	var pm4 = itercectionLineCircle(pt2, newPoint_xy(pt2, 0, 100), pc, radOut)[0];
+
+	meshPar.points = [pm1, pm2, pm3, pm4];
+	var pole1 = drawMesh(meshPar).mesh;
+	par.mesh.add(pole1);
+
+	//боковые
+	var offset = p4.x / 2;
+	var pt1 = newPoint_xy(p0, offset - par.poleProfileY / 2, 0);
+	var pt2 = newPoint_xy(p0, offset + par.poleProfileY / 2, 0);
+
+	var pm1 = itercectionLineCircle(pt1, newPoint_xy(pt1, 0, 100), pc, radOut)[0];
+	var pm2 = itercection(pt1, newPoint_xy(pt1, 0, 100), p1, p4);
+	var pm3 = itercection(pt2, newPoint_xy(pt2, 0, 100), p1, p4);
+	var pm4 = itercectionLineCircle(pt2, newPoint_xy(pt2, 0, 100), pc, radOut)[0];
+
+	meshPar.points = [pm1, pm2, pm3, pm4];
+	var pole1 = drawMesh(meshPar).mesh;
+	par.mesh.add(pole1);
+
+	//----
+	var pt1 = newPoint_xy(p0, -offset - par.poleProfileY / 2, 0);
+	var pt2 = newPoint_xy(p0, -offset + par.poleProfileY / 2, 0);
+
+	var pm1 = itercectionLineCircle(pt1, newPoint_xy(pt1, 0, 100), pc, radOut)[0];
+	var pm2 = itercection(pt1, newPoint_xy(pt1, 0, 100), p1, p4);
+	var pm3 = itercection(pt2, newPoint_xy(pt2, 0, 100), p1, p4);
+	var pm4 = itercectionLineCircle(pt2, newPoint_xy(pt2, 0, 100), pc, radOut)[0];
+
+	meshPar.points = [pm1, pm2, pm3, pm4];
+	var pole1 = drawMesh(meshPar).mesh;
+	par.mesh.add(pole1);
+
+	//фланцы
+	var offsetY = par.poleProfileY + 30;
+	var p1 = newPoint_xy(p0, -par.poleProfileZ / 2, 0);
+	var p2 = newPoint_xy(p0, par.poleProfileZ / 2, 0);
+	var p3 = newPoint_xy(p2, 0, -heightFlan);
+	var p4 = newPoint_xy(p1, 0, -heightFlan);
+
+	var pc1 = newPoint_xy(p0, 0, -offsetY);
+	var pc2 = newPoint_xy(p0, 0, -heightFlan + offsetY);
+	pc1.rad = pc2.rad = 7.5;
+
+	meshPar.points = [p1, p2, p3, p4];
+	meshPar.holes = [pc1, pc2];
+	meshPar.thk = thkFlan;
+
+	// фланец с левой стороны
+	var flan = drawMesh(meshPar).mesh;
+	flan.rotation.y = Math.PI / 2;
+	flan.position.x = -par.length / 2;
+	flan.position.y = heightFlanTop;
+	flan.position.z = par.poleProfileZ / 2;
+	par.mesh.add(flan);
+
+	//метизы
+	var thkIn = partPar.column.profSize.y / 2 + 8 / 2 + 4 / 2; // 8 - толщина фланца крепления фермы к колонне, 4 - толщина фермы
+	var boltsPar = {
+		holes: meshPar.holes,
+		thkOut: thkFlan,
+		thkIn: thkIn, 
+		diam: 12,
+		isStud: true,
+		isNutOut: true,
+		isNutIn: true,
+		isShimOut: true,
+		isShimIn: true,
+		material: params.materials.inox,
+		//isRotation: true,
+	}
+	if (par.longBolt1) boltsPar.thkIn = partPar.column.profSize.y + thkFlan;
+	var bolts = drawBoltsHoles(boltsPar).mesh;
+	flan.add(bolts);
+
+	// фланец с правой стороны
+	var flan = drawMesh(meshPar).mesh;
+	flan.rotation.y = -Math.PI / 2;
+	flan.position.x = par.length / 2;
+	flan.position.y = heightFlanTop;
+	flan.position.z = par.poleProfileZ / 2;
+	par.mesh.add(flan);
+
+	//метизы
+	if (!par.noBolt2) {
+		boltsPar.thkIn = thkIn;
+		var bolts = drawBoltsHoles(boltsPar).mesh;
+		flan.add(bolts);
+	}
+
+	//проставки
+	var thk = partPar.column.profSize.y / 2 - 8 / 2 - 4 / 2; //8 - толщина фланца крепления фермы к колонне, 4 - толщина фермы
+	var p1 = newPoint_xy(p0, -par.poleProfileZ / 2, 0);
+	var p2 = newPoint_xy(p0, par.poleProfileZ / 2, 0);
+	var p3 = newPoint_xy(p2, 0, -par.poleProfileZ);
+	var p4 = newPoint_xy(p1, 0, -par.poleProfileZ);
+
+	meshPar.points = [p1, p2, p3, p4];
+	meshPar.holes = false;
+	meshPar.thk = thk;
+
+	var flan = drawMesh(meshPar).mesh;
+	flan.rotation.y = Math.PI / 2;
+	flan.position.x = -par.length / 2 - thk;
+	flan.position.y = heightFlanTop / 2;
+	flan.position.z = par.poleProfileZ / 2;
+	par.mesh.add(flan);
+
+	var flan = drawMesh(meshPar).mesh;
+	flan.rotation.y = Math.PI / 2;
+	flan.position.x = par.length / 2;
+	flan.position.y = heightFlanTop / 2;
+	flan.position.z = par.poleProfileZ / 2;
+	par.mesh.add(flan);
+
+
+	var box3 = new THREE.Box3().setFromObject(par.mesh);
+	var s = ((box3.max.x - box3.min.x) / 1000) * ((box3.max.y - box3.min.y) / 1000);
+	var partName = "trussSide";
+	if (typeof specObj != 'undefined') {
+		name = par.length + "х" + heightFlan + "х" + par.poleProfileZ;
+		if (!specObj[partName]) {
+			specObj[partName] = {
+				types: {},
+				amt: 0,
+				sumLength: 0,
+				area: 0,
+				name: "Ферма боковая",
+				metalPaint: true,
+				timberPaint: false,
+				division: "metal",
+				workUnitName: "amt",
+				group: "carcas",
+			}
+		}
+		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1;
+		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1;
+		specObj[partName]["amt"] += 1;
+		specObj[partName]["sumLength"] += Math.round(par.length / 100) / 10;
+		specObj[partName]["area"] += s;
+		par.mesh.specParams = { specObj: specObj, amt: 1, area: s, partName: partName, name: name }
+	}
+	par.mesh.specId = partName + name;
+	return par;
 }

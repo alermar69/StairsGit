@@ -2463,6 +2463,14 @@ function getProfParams(profName, profMaterial) {
 			type: 'round',
 		}
 	}
+	if (profName == "20К1") {
+		result = {
+			sizeA: 200,
+			sizeB: 195,
+			unitCost: costArr[profName],
+			type: 'rect',
+		}
+	}
 
 	if ((result.sizeA != result.sizeB) && !result.unitCost) {
 		profName = result.sizeB + "х" + result.sizeA;
