@@ -487,6 +487,14 @@ function calcCarportPartPar(){
 	
 	//шаг по горизонтали для плоской кровли
 	par.purlin.holeStepX = (params.width - par.purlin.profSize.x) / (par.purlin.amt - 1);
+
+	if (params.carportType == "фронтальный") {
+		var rafterLen = params.sectLen * params.sectAmt / Math.cos(params.roofAng / 180 * Math.PI)
+		par.purlin.amt = Math.ceil(rafterLen / par.purlin.maxStep) + 1;
+
+		//шаг по горизонтали для плоской кровли
+		par.purlin.holeStepX = (params.sectLen * params.sectAmt - par.purlin.profSize.x) / (par.purlin.amt - 1);
+	}
 	
 	//листы кровли
 	par.roofSheet.overhang = 50;

@@ -3179,7 +3179,7 @@ function drawBoltsHoles(par) {
 			bolt.rotation.x = -Math.PI / 2 * rotate;
 			bolt.position.y = par.holes[i].y;
 			bolt.position.x = par.holes[i].x;
-			bolt.position.z = -metisPar.len / 2 * rotate;
+			bolt.position.z = -(metisPar.len / 2 + offsetOut) * rotate;
 			if (metisPar.headHeight) bolt.position.z += metisPar.headHeight * rotate;
 			bolt.setLayer('metis');
 			if (!testingMode) metis.add(bolt)

@@ -105,12 +105,16 @@ function drawPurlin(par){
 			dxfBasePoint: newPoint_xy(par.dxfBasePoint, params.sectLen + 1000, -500),
 			dxfArr: par.dxfArr,
 		}
-		for(var i=0; i<=params.sectAmt; i++){
+		var sectAmt = params.sectAmt
+		if (params.carportType == "фронтальный") sectAmt = 1
+		for(var i=0; i<=sectAmt; i++){
 			var flan = drawPurlinFlan(flanPar).mesh
 			if(params.roofType == "Плоская") flan.rotation.x = -Math.PI / 2;
-			flan.position.x = params.frontOffset + (partPar.column.profSize.y - 40) / 2 + (params.sectLen - partPar.column.profSize.y / params.sectAmt) * i
+			flan.position.x = params.frontOffset + (partPar.column.profSize.y - 40) / 2 + (params.sectLen - partPar.column.profSize.y / sectAmt) * i
+			if (params.carportType == "фронтальный") flan.position.x = params.frontOffset + (partPar.column.profSize.y - 40) / 2 + (params.width - partPar.column.profSize.y) * i
 			if (params.roofType == "Плоская") flan.position.z = -flanPar.thk
 			flan.setLayer('carcas');
+			par.mesh.add(flan);
 			par.mesh.add(flan);
 			flanPar.dxfBasePoint = false;
 		}
@@ -3970,8 +3974,7 @@ function drawColumnFlansBal(par) {
 		flan.position.z = lenSects / 2 - partPar.column.profSize.y / 2 - par.columnDelta.z * i;
 		flan.position.x = -params.width / 2 + params.sideOffset;
 		if (params.carportType == "фронтальный") {
-			var angTan = Math.atan((partPar.truss.midHeight - partPar.truss.endHeight) / (par.colDist * params.sectAmt));
-			var deltaHeight = (par.colDist * i + partPar.column.profSize.x) * angTan;
+			var deltaHeight = par.colDist * i * Math.tan(params.roofAng / 180 * Math.PI);
 			flan.position.y = deltaHeight;
 			flan.position.x = -lenSects / 2 + par.colDist * i;
 			flan.position.z = -params.width / 2 + partPar.column.profSize.y / 2;
@@ -3989,6 +3992,7 @@ function drawColumnFlansBal(par) {
 			flan.position.x += params.width - par.columnDelta.x;
 		}
 		if (params.carportType == "фронтальный") {
+			flan.rotation.y = -Math.PI / 2;
 			flan.position.y = deltaHeight;
 			flan.position.x = -lenSects / 2 + par.colDist * i;
 			flan.position.z = params.width / 2 - partPar.column.profSize.y / 2;

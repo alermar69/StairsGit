@@ -1646,6 +1646,9 @@ function calcRoofArcParams(par){
 				rad: par.topArc.rad - par.midHeight,			
 				endAngle: Math.PI / 2,			
 			}
+
+			if (par.botArc.rad < Math.abs(par.botArc.center.y)) par.botArc.rad = Math.abs(par.botArc.center.y) + 10
+
 			par.botLine.p4 = itercectionLineCircle(par.botLine.p2, par.botLine.p3, par.botArc.center, par.botArc.rad)[1];
 			
 			if(params.trussBotLedge){
