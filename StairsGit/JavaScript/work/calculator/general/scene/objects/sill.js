@@ -61,7 +61,12 @@ class Sill extends AdditionalObject {
         height: sillPar.height + 10,
         width: sillPar.windowWidth + sillPar.rightNose + sillPar.leftNose,
         depth: sillPar.frontNose,
-        fillingType: sillPar.screenType
+        fillingType: sillPar.screenType,
+        screenType: sillPar.screenType,
+        plinthType: sillPar.plinthType,
+		screenPoleSize: sillPar.screenPoleSize,
+		screenSidePoleSize: sillPar.screenSidePoleSize,
+		screenPoleStep: sillPar.screenPoleStep,
       };
       var mesh = drawScreen(screenPar)
       mesh.position.x = -screenPar.width / 2;
@@ -84,11 +89,43 @@ class Sill extends AdditionalObject {
 				var size = dopSpec[this].size[Object.keys(dopSpec[this].size)[0]];
 				meshPar.len = Math.round(size.len);
 				meshPar.width = Math.round(size.width);
+				meshPar.parts = size.parts
 			}
 		})
 
-		var cost = calcTimberPanelCost(meshPar);
-
+		
+		
+		
+		var cost = 0;
+		//эркер тип 5
+		if(par.meshParams.geom == "эркер" && par.meshParams.orielType == "05"){
+			var itemsCost = []
+			$.each(par.meshParams.oriel_parts, function(){
+				var meshPar_i = Object.assign({}, par.meshParams);
+				meshPar_i.len = this.oriel_len
+				var cost_i = calcTimberPanelCost(meshPar_i);
+				itemsCost.push(cost_i)
+				cost += cost_i 
+			})			
+		}		
+		else{
+			//составной подоконник
+			if(meshPar.parts && meshPar.parts.length > 1){
+				$.each(meshPar.parts, function(){
+					var meshPar_i = Object.assign({}, par.meshParams);
+					meshPar_i.len = this * 1.0
+					var cost_i = calcTimberPanelCost(meshPar_i);
+					cost += cost_i 
+				});
+				//стыковка - работа + материал
+				cost += 500;
+			}
+			else cost = calcTimberPanelCost(meshPar);
+		}
+		
+		//добавляем стоимость экрана
+		if(par.meshParams.screenType != 'нет') cost +=  calcScreenCost(par);
+		
 		//вентиляционные отверстия
 		if(par.meshParams.ventHoles != "нет") cost += 1000;
 
@@ -256,7 +293,13 @@ class Sill extends AdditionalObject {
 				alert('Радиус скругления слева может быть только 3,6,12,25 или больше');
 			}
 		}
-
+		
+		//параметры экранов
+		form.find(".screenPar").hide()
+		if(par.screenType != "нет"){
+			form.find(".screenPar").show();			
+			if (par.screenType == '03') form.find('[data-propid="plinthType"]').closest('tr').hide();
+		}
 		
 		getObjPar()
 	}
@@ -576,22 +619,7 @@ class Sill extends AdditionalObject {
 				  "type": "number",
 					"printable": "true",
 				},
-        {
-					"key": "screenType",
-					"title": "Экран радиатора:",
-					"values": [
-						{
-							"value": "нет",
-							"title": "нет"
-						},
-						{
-							"value": "01",
-							"title": "Тип 1"
-						}
-					],
-					"default": "нет",
-					"type": "select",
-				},
+				
 				{
 					"key": "radSillType",
 					"title": "Передняя кромка:",
@@ -625,22 +653,7 @@ class Sill extends AdditionalObject {
 					"default": "нет",
 					"type": "select"
 				},
-				{
-					"key": "windowSlope",
-					"title": "Откосы:",
-					"values": [
-						{
-							"value": "нет",
-							"title": "нет"
-						},
-						{
-							"value": "есть",
-							"title": "есть"
-						},
-					],
-					"default": "нет",
-					"type": "select"
-				},
+				
 				{
 				  "key": "frontNose",
 				  "title": "Свес спереди:",
@@ -744,6 +757,102 @@ class Sill extends AdditionalObject {
 					"default": 100,
 					"class": "holePar",
 					"type": "number"
+				},
+				
+				{
+					"type": "delimeter",
+					"title": "Дополнительно"
+				},
+				
+				{
+					"key": "screenType",
+					"title": "Экран:",
+					"values": [
+						{
+							"value": "нет",
+							"title": "нет"
+						},
+						{
+							"value": "01",
+							"title": "Тип 1"
+						},
+						{
+							"value": "02",
+							"title": "Тип 2"
+						},
+						{
+							"value": "03",
+							"title": "Тип 3"
+						}
+					],
+					"default": "нет",
+					"type": "select",
+				},
+					{
+					  "key": "plinthType",
+					  "title": "Цоколь",
+					  "values": [
+						{
+						  "value": "нет",
+						  "title": "Нет"
+						},
+						{
+						  "value": "01",
+						  "title": "Тип 1"
+						},
+						{
+						  "value": "02",
+						  "title": "Тип 2"
+						}
+					  ],
+					  "default": "нет",
+					  "type": "select",
+					  "class": 'screenPar',
+					},
+					
+					{
+						"key": "screenPoleSize",
+						"title": "Ширина бруска:",
+						"default": 40,
+						"type": "number",
+						"printable": "true",
+						"class": 'screenPar screenPolePar',
+					},
+					
+					{
+						"key": "screenSidePoleSize",
+						"title": "Ширина крайнего бруска:",
+						"default": 100,
+						"type": "number",
+						"printable": "true",
+						"class": 'screenPar screenPolePar',
+					},
+					
+					
+					{
+						"key": "screenPoleStep",
+						"title": "Шаг брусков:",
+						"default": 80,
+						"type": "number",
+						"printable": "true",
+						"class": 'screenPar screenPolePar',
+					},
+				
+					{
+					"key": "windowSlope",
+					"title": "Откосы:",
+					"values": [
+						{
+							"value": "нет",
+							"title": "нет"
+						},
+						{
+							"value": "есть",
+							"title": "есть"
+						},
+					],
+					"default": "нет",
+					"type": "select"
 				},
 				
 				{

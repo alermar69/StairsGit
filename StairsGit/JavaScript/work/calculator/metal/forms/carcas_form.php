@@ -222,6 +222,26 @@
 							</select>
 						</td>
 					</tr>
+					
+					<tr class="ltProp">
+						<td>Перевернутые уголки:</td>
+						<td>
+							<select id="rotatedAngles" size="1">
+								<option value="да">да</option>
+								<option value="нет">нет</option>								
+							</select>
+						</td>
+					</tr>
+				
+					<tr class="ltProp">
+						<td>Перемычки:</td>
+						<td>
+							<select id="bridges" size="1">
+								<option value="есть">есть</option>
+								<option value="нет">нет</option>								
+							</select>
+						</td>
+					</tr>
 
 				</tbody>
 			</table>

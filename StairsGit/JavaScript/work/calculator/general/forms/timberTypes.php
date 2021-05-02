@@ -11,3 +11,4 @@
 <option value="ясень ц/л">ясень ц/л</option>
 <option value="карагач натур">карагач натур</option>
 <option value="шпон">шпон</option>
+<option value="дуб паркет. кл.Б">дуб паркет. кл.Б</option>

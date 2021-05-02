@@ -1261,13 +1261,17 @@ function drawBotStepLt_wndIn(par) {
 		center1.hasAngle = center2.hasAngle = true;
 		par.pointsHole.push(center1);
 		par.pointsHole.push(center2);
-
+		center1.partName = 'wndTreadFix';
+		center2.partName = 'wndTreadFix';
+			
 		// вторая забежная ступень
 		center1 = newPoint_xy(center1, 0, -par.h);
 		center2 = newPoint_xy(center1, holeDist, 0);
 		center1.hasAngle = center2.hasAngle = true;
 		par.pointsHole.push(center1);
 		par.pointsHole.push(center2);
+		center1.partName = 'wndTreadFix';
+		center2.partName = 'wndTreadFix';
 /*
 		// отверстия под перемычку
 		if (par.stairAmt > 0) {

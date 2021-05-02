@@ -38,6 +38,11 @@ function redrawConcrete(){
 		if(sectParams.sectType == "площадка"){
 			sectParams = drawPlatform(sectParams);
 		}
+		
+		if(sectParams.sectType == "пригласительные"){
+			sectParams = drawStartUnitConcrete(sectParams);
+		}
+		
 		concreteSectParams[i] = sectParams;
 			
 		var mesh = sectParams.mesh;
@@ -838,3 +843,96 @@ function drawPlatform(par){
 	return par;
 }//end of drawPlatform
 
+
+function drawStartUnitConcrete(par){
+	par.mesh = new THREE.Object3D();
+	par.dxfArr = [];
+	console.log(par)
+	
+	var blockGeomPar = [
+		{radiusFactor: 0, asymmetryFactor: 0, widthFactor: 130, stepFactor: 100},
+		{radiusFactor: 0, asymmetryFactor: 0, widthFactor: 120, stepFactor: 100},
+		{radiusFactor: 0, asymmetryFactor: 0, widthFactor: 110, stepFactor: 100},
+
+	];
+	
+	if(par.startTreadsTemplate == "прямые" || par.startTreadsTemplate == "прямоугольные" ){
+		blockGeomPar[0].radiusFactor = 0;
+		blockGeomPar[1].radiusFactor = 0;
+		blockGeomPar[2].radiusFactor = 0;
+	}
+
+	if(par.startTreadsTemplate == "радиусные"){
+		blockGeomPar[0].radiusFactor = 20;
+		blockGeomPar[1].radiusFactor = 20;
+		blockGeomPar[2].radiusFactor = 20;
+		
+		blockGeomPar[0].asymmetryFactor = 0;
+		blockGeomPar[1].asymmetryFactor = 0;
+		blockGeomPar[2].asymmetryFactor = 0;
+	}
+	if(par.startTreadsTemplate == "веер"){
+		blockGeomPar[0].radiusFactor = 30;
+		blockGeomPar[1].radiusFactor = 20;
+		blockGeomPar[2].radiusFactor = 20;
+		
+		blockGeomPar[0].asymmetryFactor = 30;
+		blockGeomPar[1].asymmetryFactor = 20;
+		blockGeomPar[2].asymmetryFactor = 10;
+	}
+	
+	for(var i=0; i<par.stairAmt; i++){
+		var stepWidth = par.b * (par.stairAmt - i);
+		//учитываем к-т проступи
+		var delta = par.b * (par.stairAmt - i - 1) * (par.stepFactor - 100) / 100
+		stepWidth += delta
+		
+		//бетонная ступень
+		var treadPar = {
+			side: par.arcSide,
+			dxfBasePoint: { x: -3000, y: 0 },
+			radiusFactor: blockGeomPar[i].radiusFactor,//params.radiusFactor, //определяет радиус передней кромки
+			asymmetryFactor: blockGeomPar[i].asymmetryFactor,//params.asymmetryFactor, //определяет симметричность ступени
+			widthFactor: blockGeomPar[i].widthFactor, //params.widthFactor, //определяет ширину для прямоугольных
+			fullArcFront: false,
+			stepFactor: blockGeomPar[i].stepFactor,
+			len: par.sectWidth * 1.0,
+			width: stepWidth,
+			rearLedge: { width: 0, len: par.sectWidth },
+			template: par.startTreadsTemplate,
+			thk: par.h,
+			rise: par.h,
+			material: params.materials.concrete,
+		}
+		
+		
+		var treadObj = drawStartTread(treadPar).mesh;
+		treadObj.position.y = par.h * (i + 1)
+		treadObj.position.x = -stepWidth
+		par.mesh.add(treadObj)
+		
+		//деревянная ступень
+		if(params.stairType != "нет"){
+			var timberTreadPar = Object.assign({}, treadPar);
+			timberTreadPar.thk = params.treadThickness;
+			timberTreadPar.material = params.materials.timber;
+			timberTreadPar.width += params.nose * 2;
+			if (params.riserType == "есть") timberTreadPar.width += params.riserThickness
+			
+			var tread = drawStartTread(timberTreadPar).mesh;
+			tread.position.y = treadObj.position.y + par.h * 1.0
+			tread.position.x = -timberTreadPar.width + params.nose
+			par.mesh.add(tread)
+			
+			if (params.riserType == "есть") {
+				var riser = drawStartRiser(timberTreadPar).mesh;
+				riser.position.x = tread.position.x;
+				riser.position.y = tread.position.y - params.treadThickness - par.h;
+				par.mesh.add(riser);
+
+			}
+		}
+		
+	}
+	return par
+}//end of drawStartUnitConcrete

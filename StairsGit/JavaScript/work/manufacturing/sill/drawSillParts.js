@@ -80,10 +80,10 @@ function drawSillEnv(par){
 	shape.holes.push(hole)
 	
 	var extrudeOptions = {
-        amount: par.wallThk,
-        bevelEnabled: false,
-        curveSegments: 12,
-        steps: 1
+				amount: par.wallThk,
+				bevelEnabled: false,
+				curveSegments: 12,
+				steps: 1
 	};
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
@@ -327,10 +327,40 @@ function drawSill(par){
 		var p33 = newPoint_xy(p32, -par.wallSideBevel, par.windowPosZ);
 
 		var points = [p1, p21, p22, p23, p33, p32, p31, p4];
-	}else{
-	var points = [p1, p2, p3, p4];
 	}
-
+	else{
+		var points = [p1, p2, p3, p4];
+	}
+	
+	//делаем вырезы на передней кромке если есть экран тип 3
+	if (par.screenType == '03') {
+		var cutDepth = par.frontNose;
+		var frontPoints = [];
+		var poleAmt = Math.round((par.len - (par.screenSidePoleSize - par.screenPoleSize) - par.screenSidePoleSize) / par.screenPoleStep)
+		var poleStep = (par.len - (par.screenSidePoleSize - par.screenPoleSize) - par.screenSidePoleSize) / (poleAmt)
+		var holeWidth = poleStep - par.screenPoleSize
+		
+		var posX = 0;
+		for (var i = 0; i < poleAmt; i++) {
+			//крайние бруски большей ширины
+			if(i == 0 || i == poleAmt) {
+				poleWidth = par.screenSidePoleSize
+			}
+			else {
+				poleWidth = par.screenPoleSize
+			}
+			
+			var ph1 = newPoint_xy(p1, posX + poleWidth, 0)
+			var ph2 = newPoint_xy(ph1, 0, cutDepth)
+			var ph3 = newPoint_xy(ph2, holeWidth, 0)
+			var ph4 = newPoint_xy(ph1, holeWidth, 0)
+			frontPoints.push(ph1, ph2, ph3, ph4)
+			
+			posX += poleStep;
+			if(i==0) posX += par.screenSidePoleSize - par.screenPoleSize;
+		}
+		points = [...points, ...frontPoints.reverse()];
+	}
 	
 	var len = par.len;
 	var width = par.width;
@@ -357,6 +387,8 @@ function drawSill(par){
 		var shape = drawShapeByPoints2(shapePar).shape;
 	}
 
+//стык на длинных подокониках
+	par.parts = [par.len];
 	if (par.len > 3000) {
 		var sideOffset = par.splitOffset * 1.0 || 1000;
 		var holeSize = 0.5;
@@ -373,30 +405,33 @@ function drawSill(par){
 		
 		var hole = drawShapeByPoints2(shapePar).shape;
 		shape.holes.push(hole);
+		
+		par.parts = [sideOffset, par.len - sideOffset];	
+
 	}
 
 	//Отверстия
-	if(par.ventHoles != "нет"){
 
+	if(par.ventHoles != "нет"){
 		if(par.ventHolesOffsetRight == undefined) par.ventHolesOffsetRight = par.ventHolesSideOffset
 		var holesArr = {
-			len: par.windowWidth - par.ventHolesSideOffset - par.ventHolesOffsetRight,
-			centers: [],
+		  len: par.windowWidth - par.ventHolesSideOffset - par.ventHolesOffsetRight,
+		  centers: [],
 		}
 		holesArr.amt = Math.ceil(holesArr.len / par.ventHolesStep) + 1;
 		holesArr.step = holesArr.len / (holesArr.amt - 1)
 
 		for(var i=0; i<holesArr.amt; i++){
-			var center = newPoint_xy(p0, -par.windowWidth / 2 + par.ventHolesSideOffset + holesArr.step * i, par.ventHolesFrontOffset)
+		  var center = newPoint_xy(p0, -par.windowWidth / 2 + par.ventHolesSideOffset + holesArr.step * i, par.ventHolesFrontOffset)
 
-			if(par.ventHoles == "круглые"){
+		  if(par.ventHoles == "круглые"){
 				addRoundHole(shape, par.dxfArr, center, par.ventHolesSize / 2, par.dxfBasePoint)
-			}
-			if(par.ventHoles != "круглые"){
+		  }
+		  if(par.ventHoles != "круглые"){
 				var drawHoleFunc = addOvalHoleX
 				if(par.ventHoles == "овальные поперек") drawHoleFunc = addOvalHoleY				
 				drawHoleFunc(shape, par.dxfArr, center, par.ventHolesSize / 2, par.ventHolesLen, par.dxfBasePoint, true)
-			}
+		  }
 		}
 	}
 	
@@ -534,10 +569,20 @@ function drawSill(par){
 		
 		var area = len * width / 1000000 * par.objectAmt
 		name = '№' + par.objId + ' ' + par.shapeType + " " + Math.round(len) + "х" + Math.round(width) + "х" + Math.round(par.thk);
+		if (par.len > 3000){
+			var len_name = ""
+			par.parts.forEach(function(p){
+				if(len_name) len_name += "+"
+				len_name += Math.round(p)
+			});			
+			name = '№' + par.objId + ' ' + par.shapeType + " составной " + Math.round(width) + "х" + Math.round(par.thk) + " L=" + len_name;
+		}
 		if(partName == 'slab'){
 			name = '№' + par.objId + ' из слэба ' + par.slabModel + ', ' + par.shapeType + " " + Math.round(len) + "х" + Math.round(width) + "х" + Math.round(par.thk);
 		}
 		
+		 
+			
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1 * par.objectAmt;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1 * par.objectAmt;
 		specObj[partName]["amt"] += 1 * par.objectAmt;
@@ -548,7 +593,8 @@ function drawSill(par){
 		specObj[partName].typeComments[name] = getSillSpecComment(par);
 		specObj[partName].size[name] = {
 			width: width,
-			len: len
+			len: len,
+			parts: par.parts,
 		};
 		
 		par.mesh.specParams = {specObj: specObj, amt: 1 * par.objectAmt, partName: partName, name: name}
@@ -562,25 +608,26 @@ function drawSill(par){
 	par.mesh.specId = partName + name;
 	
 	//добавляем информацию в материалы с учетом обрезков
-	var billetPar = calcBilletSize({
-		len: len,
-		width: width,
-		thk: par.thk,
-		type: "щит"
-	});
-	
-	var panelName_40 = calcTimberParams(params.additionalObjectsTimberMaterial).treadsPanelName;	
-	var panelName_20 = calcTimberParams(params.additionalObjectsTimberMaterial).riserPanelName;
+	par.parts.forEach(function(partLen){
+		var billetPar = calcBilletSize({
+			len: partLen,
+			width: width,
+			thk: par.thk,
+			type: "щит"
+		});
+		
+		var panelName_40 = calcTimberParams(params.additionalObjectsTimberMaterial).treadsPanelName;	
+		var panelName_20 = calcTimberParams(params.additionalObjectsTimberMaterial).riserPanelName;
 
-	if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
-	if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
-	if(par.thk == 60) {
-		addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
-		addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
-	}
-
+		if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+		if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+		if(par.thk == 60) {
+			addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+			addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+		}
+	})
 	par.mesh.isInMaterials = true;
-	
+	console.log(par)
 	return par
 }
 
@@ -859,7 +906,7 @@ function drawRadOriel(par){
 	return par
 }
 
-/** функция отрисовывает радиусный эркер
+/** функция отрисовывает радиусный эркер тип 5
 **/
 
 function drawStepOriel(par){
@@ -904,23 +951,23 @@ function drawStepOriel(par){
 		previousAngle = ang;
 		basePoint = point;
 
-    if (i < parts.length - 1) {
-      var pointsAng = angle(point, rearPoint);
-      var holeP1 = polar(polar(point, pointsAng + Math.PI / 2, holeWidth), pointsAng, -2);
-      var holeP2 = polar(polar(point, pointsAng - Math.PI / 2, holeWidth), pointsAng, -2);
-      var holeP3 = polar(polar(rearPoint, pointsAng - Math.PI / 2, holeWidth), pointsAng, 2);
-      var holeP4 = polar(polar(rearPoint, pointsAng + Math.PI / 2, holeWidth), pointsAng, 2);
-      
-      //создаем шейп
-      var shapePar = {
-        points: [holeP1, holeP2, holeP3, holeP4],
-        dxfArr: dxfPrimitivesArr,
-        dxfBasePoint: par.dxfBasePoint,
-      }
-      
-      var hole = drawShapeByPoints2(shapePar).shape;
-      holes.push(hole);
-    }
+		if (i < parts.length - 1) {
+		  var pointsAng = angle(point, rearPoint);
+		  var holeP1 = polar(polar(point, pointsAng + Math.PI / 2, holeWidth), pointsAng, -2);
+		  var holeP2 = polar(polar(point, pointsAng - Math.PI / 2, holeWidth), pointsAng, -2);
+		  var holeP3 = polar(polar(rearPoint, pointsAng - Math.PI / 2, holeWidth), pointsAng, 2);
+		  var holeP4 = polar(polar(rearPoint, pointsAng + Math.PI / 2, holeWidth), pointsAng, 2);
+		  
+		  //создаем шейп
+		  var shapePar = {
+				points: [holeP1, holeP2, holeP3, holeP4],
+				dxfArr: dxfPrimitivesArr,
+				dxfBasePoint: par.dxfBasePoint,
+		  }
+		  
+		  var hole = drawShapeByPoints2(shapePar).shape;
+		  holes.push(hole);
+		}
 	};
 
 	var orielWrapper = new THREE.Object3D();
@@ -970,12 +1017,12 @@ function drawStepOriel(par){
 			height: par.windowHeight,
 			mat: params.materials.whitePlastic,
 		}
-    var wndObj = new THREE.Object3D();
+		var wndObj = new THREE.Object3D();
 		var wnd = drawWindow(windowPar).mesh;
 
-    wnd.position.x -= dist;
+		wnd.position.x -= dist;
 
-    wndObj.add(wnd);
+		wndObj.add(wnd);
 
 		wndObj.rotation.y = curAng;
 		wndObj.position.y = par.height;
@@ -1023,7 +1070,7 @@ function drawStepOriel(par){
 				sumLength: 0,
 				area: 0,
 				paintedArea: 0,
-				name: 'Подоконник криволинейный',
+				name: 'Подоконник составной',
 				metalPaint: false,
 				timberPaint: true,
 				isModelData: true,
@@ -1043,14 +1090,17 @@ function drawStepOriel(par){
 		// var box3 = new THREE.Box3().setFromObject(sillMesh);
 		// var len = box3.max.x - box3.min.x;
 		// var width = box3.max.z - box3.min.z;
-    var width = sillWidth
-    var len = 0;
-    parts.forEach(function(p){
-      len += p.oriel_len;
-    });
+		var width = sillWidth
+		var len = 0;
+	var len_name = ""
+		parts.forEach(function(p){
+		  len += p.oriel_len;
+	  if(len_name) len_name += "+"
+	  len_name += Math.round(p.oriel_len)
+		});
 		var area = len * width / 1000000 * par.objectAmt
 		
-		name = '№' + par.objId + ' ' + par.shapeType + " " + Math.round(len) + "x" + Math.round(width) + "х" + Math.round(par.thk);
+		name = '№' + par.objId + ' ' + par.shapeType + " " + Math.round(width) + "х" + Math.round(par.thk) + " L=" + len_name;
 		
 		if (specObj[partName]["types"][name]) specObj[partName]["types"][name] += 1 * par.objectAmt;
 		if (!specObj[partName]["types"][name]) specObj[partName]["types"][name] = 1 * par.objectAmt;
@@ -1075,24 +1125,26 @@ function drawStepOriel(par){
 	
 	par.mesh.specId = partName + name;
 
-	//добавляем информацию в материалы с учетом обрезков
-	var billetPar = calcBilletSize({
-		len: len,
-		width: width,
-		thk: par.thk,
-		type: "щит"
-	});
-	
-	var panelName_40 = calcTimberParams(params.additionalObjectsTimberMaterial).treadsPanelName;	
-	var panelName_20 = calcTimberParams(params.additionalObjectsTimberMaterial).riserPanelName;
 
-	if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
-	if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
-	if(par.thk == 60) {
-		addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
-		addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
-	}
-  
+	//добавляем информацию в материалы с учетом обрезков
+	parts.forEach(function(p){
+		var billetPar = calcBilletSize({
+			len: p.oriel_len,
+			width: width,
+			thk: par.thk,
+			type: "щит"
+		});
+
+		var panelName_40 = calcTimberParams(params.additionalObjectsTimberMaterial).treadsPanelName;	
+		var panelName_20 = calcTimberParams(params.additionalObjectsTimberMaterial).riserPanelName;
+
+		if(par.thk == 20) addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+		if(par.thk == 40) addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+		if(par.thk == 60) {
+			addMaterialNeed({id: panelName_20, amt: billetPar.area, itemType:  'sill'});
+			addMaterialNeed({id: panelName_40, amt: billetPar.area, itemType:  'sill'});
+		}
+	 });
 	
 	return par
 }
@@ -1162,10 +1214,10 @@ function drawOriel(par){
 	var shape = drawShapeByPoints2(shapePar).shape;
 	
 	var extrudeOptions = {
-        amount: par.height,
-        bevelEnabled: false,
-        curveSegments: 12,
-        steps: 1
+				amount: par.height,
+				bevelEnabled: false,
+				curveSegments: 12,
+				steps: 1
 		};
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
@@ -1191,10 +1243,10 @@ function drawOriel(par){
 	var shape = drawShapeByPoints2(shapePar).shape;
 	
 	var extrudeOptions = {
-        amount: par.windowHeight,
-        bevelEnabled: false,
-        curveSegments: 12,
-        steps: 1
+				amount: par.windowHeight,
+				bevelEnabled: false,
+				curveSegments: 12,
+				steps: 1
 		};
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
@@ -1221,10 +1273,10 @@ function drawOriel(par){
 	var shape = drawShapeByPoints2(shapePar).shape;
 	
 	var extrudeOptions = {
-        amount: par.windowHeight,
-        bevelEnabled: false,
-        curveSegments: 12,
-        steps: 1
+				amount: par.windowHeight,
+				bevelEnabled: false,
+				curveSegments: 12,
+				steps: 1
 		};
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
@@ -1452,10 +1504,10 @@ function drawOriel(par){
 	
 	
 	var extrudeOptions = {
-        amount: par.thk,
-        bevelEnabled: false,
-        curveSegments: 12,
-        steps: 1
+				amount: par.thk,
+				bevelEnabled: false,
+				curveSegments: 12,
+				steps: 1
 		};
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);

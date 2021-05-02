@@ -1206,7 +1206,12 @@ function drawStringerHoles(par, typeDop){
 					center = Object.assign({}, center);
 					center.y += 18;
 				}
-
+				//перевернутые уголки
+				if(params.rotatedAngles == "да" && (center.partName == "treadFix" || center.partName == 'wndTreadFix' || center.partName == 'otherTreadFix')){
+					center.y += 40 - 3; //3мм - толщина полки уголка
+				}
+				
+				
 				var hole1 = new THREE.Path();
 				addCircle(hole1, dxfPrimitivesArr, center, center.rad, par.dxfBasePoint);
 

@@ -14,13 +14,22 @@
 }
 
 .description-block .description-title{
-	font-size: 40px;
+	font-size: 1.6em;
 	line-height: 1.23;
 	font-family: 'Roboto',Arial,sans-serif;
 	font-weight: 400;
 	color: #000;
 	display: block;
 	padding-bottom: 34px;
+}
+
+.description-subtitle{
+	margin-bottom: 15px;
+    font-size: 1.35em;
+}
+
+#geometryFacts .description-subtitle{
+    font-size: 1.2em;
 }
 
 .description-block .description-main{
@@ -115,8 +124,8 @@
 
 .description-title{
 	text-align: center;
-	padding: 20px;
-	font-size: 36px;
+	padding: 0.7em;
+	font-size: 1.6em;
 }
 
 .preview_generator-menu{
@@ -139,7 +148,8 @@
 
 .newKP .card-img-top{
 	height: 300px;
-	width: auto;
+    width: 300px;
+    margin: 10px auto;
 }
 
 .newKP .card-img__container{
@@ -230,4 +240,8 @@
 	position: absolute;
 	left: 5px;
 	top: 5px;
+}
+
+.descripton-content_image img{
+	width: 100%;
 }

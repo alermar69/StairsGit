@@ -455,6 +455,7 @@ class TextureManager{
 		if (material_name == 'resin') {
 			color_name = params.resinColor;
 			texture_name = 'resin';
+			key = 'эпоксидка';
 			if (params.resinMaterial == 'непрозрачный') texture_name = 'resin_mate';
 		}
 		if (material_name == 'handrail') {
@@ -900,7 +901,7 @@ function toggleTreadLights(algorithm, state){
  */
 function createCamCurve(){
 	var positions = [];
-	if (getCalcTypeMeta().notStairs.indexOf(params.calcType) != -1) {
+	if (getCalcTypeMeta().isStaircaseCalc) {
 		view.sceneCenter = new THREE.Vector3(0,0,0);
 		return
 	}

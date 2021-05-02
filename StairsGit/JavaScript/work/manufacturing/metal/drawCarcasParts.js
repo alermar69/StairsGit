@@ -152,10 +152,17 @@ function drawCarcasAngle(par){
 			angle.position.y = angle.dimensions.holePos.y;
 			if(par.side == "right"){
 				angle.rotation.z = Math.PI;
-				angle.position.x = angle.dimensions.holePos.x + angle.dimensions.holeDist2;
-				
-				}
+				angle.position.x = angle.dimensions.holePos.x + angle.dimensions.holeDist2;				
 			}
+			
+			//перевернутые уголки
+			if(params.rotatedAngles == "да" && !par.noRotate){
+				angle.rotation.y = Math.PI;
+				if(par.side == "right") angle.position.x -= angle.dimensions.width;
+				else angle.position.x += angle.dimensions.width;
+				angle.position.y -= 40// -angle.dimensions.height;
+			}
+		}
 
 	if (par.model == "У4-70х70х100" || 
 		par.model == "У4-60х60х100" || 
@@ -2242,7 +2249,10 @@ function ltko_set_divide(marshId) {
 		//костыли чтобы не было пересечений с фланцем соедениения косоуров
 		if(stairAmt == 13 && bridgePos == 8) bridgePos = 7
 		bridges.push(bridgePos);
-		}
+	}
+	
+	if(params.bridges == "нет") bridges = [];
+		
 	//разделение
 	var divide = Math.ceil(stairAmt / 2);
 	//if (stairAmt < 11) divide = 0;

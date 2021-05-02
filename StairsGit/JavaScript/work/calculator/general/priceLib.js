@@ -495,41 +495,21 @@ function calcRailingPrice(par) {
 		staircaseCost.banister = totalCostPerila;
 	}
 
-	/*глобальные переменные для расчета общей цены*/
+	//распределение цены ограждения по цехам
 
 	if (par.railingName == "лестница") {
-		setPrice('railing', totalPrice_0);
-		setPrice('railingMetalPaint', metalPaintTotalPrice);
-		setPrice('railingTimberPaint', timberPaintTotalPrice);
-
 		//доля в общей цене ограждения (для модуля railing рассчитывается внутри ее функции calcRailingModulePrice)
 		if (params.calcType != "railing") {
-			setPrice('railing_timber', Math.round(railing_timber * margin));
-			setPrice('railing_glass', Math.round(railing_glass * margin));
-			setPrice('railing_metal', totalPrice_0 - priceObj['railing_timber'].discountPrice - priceObj['railing_glass'].discountPrice);
-
-			staircaseCost.railing_timber_part = priceObj['railing_timber'].discountPrice / totalPrice_0;
-			staircaseCost.railing_glass_part = priceObj['railing_glass'].discountPrice / totalPrice_0;
-			if (!staircaseCost.railing_timber_part) staircaseCost.railing_timber_part = 0;
-			if (!staircaseCost.railing_glass_part) staircaseCost.railing_glass_part = 0;
+			staircaseCost.railing_timber_part = railing_timber / totalCostPerila;
+			staircaseCost.railing_glass_part = railing_glass / totalCostPerila;
 		}
 	}
 
 	if (par.railingName == "балюстрада") {
-		setPrice('banister', totalPrice_0);
-		setPrice('banisterMetalPaint', metalPaintTotalPrice);
-		setPrice('banisterTimberPaint', timberPaintTotalPrice);
-
-		setPrice('banister_timber', Math.round(railing_timber * margin));
-		setPrice('banister_glass', Math.round(railing_glass * margin));
-		setPrice('banister_metal', totalPrice_0 - priceObj['banister_timber'].discountPrice - priceObj['banister_glass'].discountPrice);
-
-		//доля в общей цене ограждения
-		staircaseCost.banister_timber_part = priceObj['banister_timber'].discountPrice / totalPrice_0;
-		staircaseCost.banister_glass_part = priceObj['banister_glass'].discountPrice / totalPrice_0;
-		if (!staircaseCost.banister_timber_part) staircaseCost.banister_timber_part = 0;
-		if (!staircaseCost.banister_glass_part) staircaseCost.banister_glass_part = 0;
+		staircaseCost.banister_timber_part = railing_timber / totalCostPerila;
+		staircaseCost.banister_glass_part = railing_glass / totalCostPerila;
 	}
+	
 
 } //end of calcRailingPrice
 
@@ -600,47 +580,54 @@ function printRailingPrice(geomParams) {
 } //end of printRailingPrice
 
 function printRailingCost(railingName, outputDivId) {
-
+	
+	console.log(staircaseCost.timberPart)
+	
 	//Округляем все цифры
+	var printableObj = Object.assign({}, staircaseCost)
+	for (var prop in printableObj) {
+		printableObj[prop] = Math.round(printableObj[prop]);			
+	}
 
 	var text = "";
 	if (railingName == "лестница") {
 		text +=
-			"Поручни: " + staircaseCost.railingHandrails + " руб; <br/>" +
-			"Ригели: " + staircaseCost.railingRigels + " руб; <br/>" +
-			"Деревянные балясины: " + staircaseCost.railingBal + " руб; <br/>" +
-			"Столбы/стойки: " + staircaseCost.railingRacks + " руб; <br/>" +
-			"Стеклодержатели: " + staircaseCost.railingFittings + " руб; <br/>" +
-			"Стекло: " + staircaseCost.railingGlass + " руб; <br/>" +
-			"Экраны лазер: " + staircaseCost.railingLaser + " руб; <br/>" +
-			"Кованые балясины тип 1: " + staircaseCost.railingBal1 + " руб; <br/>" +
-			"Кованые балясины тип 2: " + staircaseCost.railingBal2 + " руб; <br/>" +
-			"Рамки для ковки: " + staircaseCost.railingFrames + " руб; <br/>" +
-			"Кресты ограждений: " + staircaseCost.railingCross + " руб; <br/>" +
-			"Сварка кованых секций: " + staircaseCost.railingWeld + " руб; <br/>" +
-			"<b>Итого ограждения: " + staircaseCost.railing + " руб; </b><br/>" +
-			"Покраска дерева: " + staircaseCost.railingTimberPaint + " руб; <br/>" +
-			"Покраска металла: " + staircaseCost.railingMetalPaint + " руб; <br/>";
+			"Поручни: " + printableObj.railingHandrails + " руб; <br/>" +
+			"Ригели: " + printableObj.railingRigels + " руб; <br/>" +
+			"Деревянные балясины: " + printableObj.railingBal + " руб; <br/>" +
+			"Столбы/стойки: " + printableObj.railingRacks + " руб; <br/>" +
+			"Стеклодержатели: " + printableObj.railingFittings + " руб; <br/>" +
+			"Стекло: " + printableObj.railingGlass + " руб; <br/>" +
+			"Экраны лазер: " + printableObj.railingLaser + " руб; <br/>" +
+			"Кованые балясины тип 1: " + printableObj.railingBal1 + " руб; <br/>" +
+			"Кованые балясины тип 2: " + printableObj.railingBal2 + " руб; <br/>" +
+			"Рамки для ковки: " + printableObj.railingFrames + " руб; <br/>" +
+			"Кресты ограждений: " + printableObj.railingCross + " руб; <br/>" +
+			"Сварка кованых секций: " + printableObj.railingWeld + " руб; <br/>" +
+			"<b>Итого ограждения: " + printableObj.railing + " руб; </b><br/>" +
+			"Покраска дерева: " + printableObj.railingTimberPaint + " руб; <br/>" +
+			"Покраска металла: " + printableObj.railingMetalPaint + " руб; <br/>";
 	}
 	if (railingName == "балюстрада") {
 		text +=
-			"Поручни: " + staircaseCost.banisterHandrails + " руб; <br/>" +
-			"Ригели: " + staircaseCost.banisterRigels + " руб; <br/>" +
-			"Балясины: " + staircaseCost.banisterBal + " руб; <br/>" +
-			"Столбы/стойки: " + staircaseCost.banisterRacks + " руб; <br/>" +
-			"Стеклодержатели: " + staircaseCost.banisterFittings + " руб; <br/>" +
-			"Стекло: " + staircaseCost.banisterGlass + " руб; <br/>" +
-			"Экраны лазер: " + staircaseCost.banisterLaser + " руб; <br/>" +
-			"Кованые балясины тип 1: " + staircaseCost.banisterBal1 + " руб; <br/>" +
-			"Кованые балясины тип 2: " + staircaseCost.banisterBal2 + " руб; <br/>" +
-			"Рамки для ковки: " + staircaseCost.banisterFrames + " руб; <br/>" +
-			"Сварка кованых секций: " + staircaseCost.banisterWeld + " руб; <br/>" +
-			"<b>Итого ограждения: " + staircaseCost.banister + " руб; </b><br/>" +
-			"Покраска дерева: " + staircaseCost.banisterTimberPaint + " руб; <br/>" +
-			"Покраска металла: " + staircaseCost.banisterMetalPaint + " руб; <br/>";
+			"Поручни: " + printableObj.banisterHandrails + " руб; <br/>" +
+			"Ригели: " + printableObj.banisterRigels + " руб; <br/>" +
+			"Балясины: " + printableObj.banisterBal + " руб; <br/>" +
+			"Столбы/стойки: " + printableObj.banisterRacks + " руб; <br/>" +
+			"Стеклодержатели: " + printableObj.banisterFittings + " руб; <br/>" +
+			"Стекло: " + printableObj.banisterGlass + " руб; <br/>" +
+			"Экраны лазер: " + printableObj.banisterLaser + " руб; <br/>" +
+			"Кованые балясины тип 1: " + printableObj.banisterBal1 + " руб; <br/>" +
+			"Кованые балясины тип 2: " + printableObj.banisterBal2 + " руб; <br/>" +
+			"Рамки для ковки: " + printableObj.banisterFrames + " руб; <br/>" +
+			"Сварка кованых секций: " + printableObj.banisterWeld + " руб; <br/>" +
+			"<b>Итого ограждения: " + printableObj.banister + " руб; </b><br/>" +
+			"Покраска дерева: " + printableObj.banisterTimberPaint + " руб; <br/>" +
+			"Покраска металла: " + printableObj.banisterMetalPaint + " руб; <br/>";
 
 	}
 
+console.log(printableObj.timberPart, staircaseCost.timberPart)
 	$("#" + outputDivId).html(text);
 
 } //end of printRailingCost
@@ -1047,15 +1034,16 @@ function calculateTotalPrice2() {
 			priceItem.priceObj = priceObj;
 		}
 	}
-
+	
+	//переносим данные по себестоимости в объект priceObj
 	for (var prop in staircaseCost) {
 		if (!isNaN(staircaseCost[prop]) && prop != "timberPart") {
-			staircaseCost[prop] = Math.round(staircaseCost[prop]);
 			if (priceObj[prop]) {
 				priceObj[prop].cost = Math.round(priceObj[prop].cost)
 			}
 		};
 	}
+
 }
 
 function getPriceCoefficients(priceObj) {
@@ -1417,36 +1405,7 @@ function printCost2() {
   text += tableBody +
   "</tbody></table>";
 
-  var assembling_wage = calcAssemblingWage();
-  var assembling_wage_cost_sum = {};
-  // Распаковка объекта и расчет суммы для каждой части лестницы
-  var partsSum = 0;
-  for(var part in assembling_wage.wages){
-    assembling_wage_cost_sum[part] = {key: part, name: assembling_wage.wages[part].name, cost: 0};
-    assembling_wage.wages[part].items.forEach(function(item){
-      assembling_wage_cost_sum[part].cost += item.total;
-    })
-	}
-
-  // Расчет суммы себестоимости монтажа всех частей лестницы
-  if (priceObj['assembling'].discountPrice != 0) {
-		for (var unit in priceObj) {
-			if (unit != 'total' && unit != 'assembling' && unit != 'delivery' && assembling_wage_cost_sum[unit]) {
-				partsSum += (assembling_wage_cost_sum[unit].cost || 0)
-			}
-		}
-	}
-
-  // Расчет цены с учетом доли каждой позиции в общей себестоимости монтажа
-  var assembling_wage_cost = {};
-  if (priceObj['assembling'].discountPrice != 0) {
-		for (var unit in priceObj) {
-			if (unit != 'total' && unit != 'assembling' && unit != 'delivery' && assembling_wage_cost_sum[unit]) {
-				var kf = assembling_wage_cost_sum[unit].cost / partsSum;
-        assembling_wage_cost[unit] = {name: assembling_wage_cost_sum[unit].name, cost: Math.round(assembling_wage.totalWage * kf)};
-			}
-		}
-	}
+  var assembling_wage_cost = calcAssemblingWageCost();
 
   var tableBody = "";
   var total = {
@@ -1496,7 +1455,7 @@ function printCost2() {
 
 	$("#total_cost").html(text);
 
-	if (params.calcType != "vint" && params.calcType != "carport" && params.calcType != "railing") {
+	if (params.calcType != "vint" && params.calcType != "carport" && params.calcType != "railing" && params.calcType != "objects") {
 		var carcasCostDivId = "cost_carcas";
 		var railingCostDivId = "cost_perila";
 		var banisterCostDivId = "cost_banister";
@@ -1522,21 +1481,6 @@ function printCost2() {
 		outputDivId = railingCostDivId;
 		printRailingCost("лестница", outputDivId);
 
-		/*** БАЛЮСТРАДА ***/
-		outputDivId = banisterCostDivId;
-		printRailingCost("балюстрада", outputDivId);
-
-		/*** ШКАФ ***/
-		printWrCost();
-
-		/*** ДОСТАВКА, СБОРКА ***/
-
-
-		text =
-			"Сборка: " + _priceObj['assembling'].cost + " руб; <br/>" +
-			"Доставка: " + staircaseCost.delivery + " руб; <br/>";
-
-		$("#" + assemblingCostDivId).html(text);
 	};
 
 	if (params.calcType == "vint") {
@@ -1560,17 +1504,6 @@ function printCost2() {
 
 		$("#" + carcasCostDivId).html(text);
 
-		/*** БАЛЮСТРАДА ***/
-		outputDivId = banisterCostDivId;
-		printRailingCost("балюстрада", outputDivId);
-
-		/*** ДОСТАВКА, СБОРКА ***/
-
-		text =
-			"Сборка: " + staircaseCost.assembling + " руб; <br/>" +
-			"Доставка: " + staircaseCost.delivery + " руб; <br/>";
-
-		$("#" + assemblingCostDivId).html(text);
 	};
 
 	if (params.calcType == "carport" || params.calcType == "veranda") {
@@ -1596,15 +1529,20 @@ function printCost2() {
 
 		$("#" + carcasCostDivId).html(text);
 
-		/*** ДОСТАВКА, СБОРКА ***/
-
-		text =
-			"Сборка: " + staircaseCost.assembling + " руб; <br/>" +
-			"Доставка: " + staircaseCost.delivery + " руб; <br/>";
-
-		$("#" + assemblingCostDivId).html(text);
 	};
+	
+	//балюстрада
+	if (params.calcType != "carport" && params.calcType != "railing" && params.calcType != "objects") {
+		outputDivId = banisterCostDivId;
+		printRailingCost("балюстрада", outputDivId);
+	}
+		
+	// доставка, сборка
+	text =
+		"Сборка: " + staircaseCost.assembling + " руб; <br/>" +
+		"Доставка: " + staircaseCost.delivery + " руб; <br/>";
 
+	$("#" + assemblingCostDivId).html(text);
 
 
 	//подсветка
@@ -2216,6 +2154,13 @@ function calcTimberParams(timberType) {
 		treadsPanelName = "panelOak_40";
 		riserPanelName = "panelOak_20";
 	}
+	
+	if (timberType == "дуб паркет. кл.Б") {
+		m3Price = 70000;
+		treadsPanelName = "panelOak_40";
+		riserPanelName = "panelOak_20";
+	}
+	
 	if (timberType == "дуб ц/л") {
 		m3Price = 205000;
 		treadsPanelName = "panelOakPremium_40";
@@ -2988,4 +2933,40 @@ function printSheetAmt(par){
 		КИМ по длине: " + Math.round(result.partsLen / result.len * 100) + "%<br>"
 		
 	return text;
+}
+
+// Расчет себестоимости монтажа по позициям
+function calcAssemblingWageCost(){
+  var assembling_wage = calcAssemblingWage();
+  var assembling_wage_cost_sum = {};
+  // Распаковка объекта и расчет суммы для каждой части лестницы
+  var partsSum = 0;
+  for(var part in assembling_wage.wages){
+    assembling_wage_cost_sum[part] = {key: part, name: assembling_wage.wages[part].name, cost: 0};
+    assembling_wage.wages[part].items.forEach(function(item){
+      assembling_wage_cost_sum[part].cost += item.total;
+    })
+	}
+
+  // Расчет суммы себестоимости монтажа всех частей лестницы
+  if (priceObj['assembling'].discountPrice != 0) {
+		for (var unit in priceObj) {
+			if (unit != 'total' && unit != 'assembling' && unit != 'delivery' && assembling_wage_cost_sum[unit]) {
+				partsSum += (assembling_wage_cost_sum[unit].cost || 0)
+			}
+		}
+	}
+
+  // Расчет цены с учетом доли каждой позиции в общей себестоимости монтажа
+  var assembling_wage_cost = {};
+  if (priceObj['assembling'].discountPrice != 0) {
+		for (var unit in priceObj) {
+			if (unit != 'total' && unit != 'assembling' && unit != 'delivery' && assembling_wage_cost_sum[unit]) {
+				var kf = assembling_wage_cost_sum[unit].cost / partsSum;
+        assembling_wage_cost[unit] = {name: assembling_wage_cost_sum[unit].name, cost: Math.round(assembling_wage.totalWage * kf)};
+			}
+		}
+	}
+
+  return assembling_wage_cost;
 }

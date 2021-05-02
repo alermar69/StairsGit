@@ -37,10 +37,11 @@
 		<div class='container'>
 			<div class="descripton-content row">
 				<div class="descripton-content_image col-lg-3 col-md-3 col-sm-3 col-xs-3">
-					<img style="max-height: 200px;" src="{{:image}}" alt="">
+					<img src="{{:image}}" alt="">
 				</div>
 				<div class="descripton-content_text col-lg-9 col-md-9 col-sm-9 col-xs-9">
 					<h3>{{: name }}</h3>
+					<div class='description-subtitle'>{{:subtitle}}</div>
 					<div class='description-main description-main--fact'>{{: description ? description : name }}</div>
 				</div>
 			</div>
@@ -64,7 +65,7 @@
 							</div>
 						{{else}}
 							<div class='description-images_image'>
-								<img src="/images/calculator/description/{{:type}}.jpg" alt="">
+								<img src="{{:content.img}}" alt="">
 							</div>
 						{{/for}}
 					</div>
@@ -74,6 +75,7 @@
 				</div>
 				<div class="descripton-content_text col-lg-6 col-md-6 col-sm-12 col-xs-12">
 					<div class='description-title'>{{: content.title}}</div>
+					<div class='description-subtitle'>{{: content.subtitle}}</div>
 					<div class='description-main'>{{: content.main}}</div>
 					<div class='description-facts'>
 						<ul>
@@ -105,6 +107,7 @@
 								<img class="card-img-top" src="{{:image}}" alt="Card image cap">
 								<div class="card-body">
 									<h5 class="card-title">{{:title}}</h5>
+									<div class='description-subtitle'>{{:subtitle}}</div>
 									<p class="card-text">{{:description}}</p>
 								</div>
 							</div>
@@ -112,6 +115,7 @@
 					{{else}}
 						<div class='col-12 col-md-6 col-lg-6 col-xl-6'>
 							<div class="h4 mt-2">{{:title}}</div>
+							<div class='description-subtitle'>{{:subtitle}}</div>
 							<div class="mt-3">{{:description}}</div>
 						</div>
 						<div class="col-12 col-md-6 col-lg-6 col-xl-6 card-img__container">
@@ -437,6 +441,7 @@
 							<img class="card-img-top" src="{{:image}}" alt="Card image cap">
 							<div class="card-body">
 								<h5 class="card-title">{{:title}}</h5>
+								<div class='description-subtitle'>{{:subtitle}}</div>
 								<p class="card-text">{{:description}}</p>
 							</div>
 						</div>
@@ -444,6 +449,7 @@
 				{{else}}
 					<div class='col-12 col-md-6 col-lg-6 col-xl-6'>
 						<div class="h4 mt-2">{{:title}}</div>
+						<div class='description-subtitle'>{{:subtitle}}</div>
 						<div class="mt-3">{{:description}}</div>
 					</div>
 					<div class="col-12 col-md-6 col-lg-6 col-xl-6 card-img__container">

@@ -458,6 +458,16 @@ if(params.calcType == "console" && params.stringerModel == "лист"){
 	if(params.stringerMoove_3 < 50) $("#stringerMoove_3").val(50);
 }
 
+	//перемычки, перевернутые уголки
+	$(".ltProp").hide();
+	if(params.model == "лт" && params.stairFrame == "нет"){
+		$(".ltProp").show();	
+	}
+	
+	if(params.model != "лт" || params.stairFrame != "нет") $("#rotatedAngles").val("нет");
+	
+	
+	
 } //конец функции changeFormCarcas()
 
 

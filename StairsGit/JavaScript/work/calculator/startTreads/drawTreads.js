@@ -112,18 +112,23 @@ function drawStartTread(par) {
 	var textHeight = 30;
 	var textBasePoint = newPoint_xy(par.dxfBasePoint, 20, -250);
 	addText(text, textHeight, dxfPrimitivesArr, textBasePoint);
-
+	if(!par.width) par.width = params.b1 * par.stepFactor / 100 + params.nose;
+	if(!par.len) {
+		par.len = params.M;
+		if(par.template == "прямоугольные") par.len = params.M * par.widthFactor / 100;
+	}
+	par.marshWidth = params.M
+	if(!par.marshWidth) par.marshWidth = par.width
 	var shape = new THREE.Shape();
 
-	var thk = params.treadThickness;
-	par.width = params.b1 * par.stepFactor / 100 + params.nose;
-	par.len = params.M;
+	if(!par.thk) par.thk = params.treadThickness;
+	if(!par.material) par.material = params.materials.tread
 	
 	var p0 = { x: 0, y: 0 };
 	
 	if(par.template == "прямоугольные") {
-		par.len = params.M * par.widthFactor / 100;
-		var deltaLen = par.len - params.M;
+		var deltaLen = par.len - par.marshWidth;
+		
 		if (par.side == "two") p0.x -= deltaLen / 2
 		if (par.side == "left") p0.x -= deltaLen;
 	}
@@ -349,7 +354,7 @@ function drawStartTread(par) {
 	}
 
 	var extrudeOptions = {
-		amount: thk,
+		amount: par.thk,
 		bevelEnabled: false,
 		curveSegments: 12,
 		steps: 1
@@ -377,7 +382,7 @@ function drawStartTread(par) {
 
 	var geom = new THREE.ExtrudeGeometry(shape, extrudeOptions);
 	geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
-	var tread = new THREE.Mesh(geom, params.materials.tread);
+	var tread = new THREE.Mesh(geom, par.material);
 	tread.rotation.x = Math.PI / 2;
 	tread.rotation.z = Math.PI / 2;
 	tread.rotation.y = Math.PI;
@@ -631,10 +636,11 @@ function drawStartRiser(par) {
 	*/
 	shape.autoClose = true;
 	//console.log(shape)
-
+	
+	if(!par.rise) par.rise = params.h1 - params.treadThickness
 
 	var extrudeOptions = {
-		amount: params.h1 - params.treadThickness,
+		amount: par.rise,
 		bevelEnabled: false,
 		curveSegments: 12,
 		steps: 1

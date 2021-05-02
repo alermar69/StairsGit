@@ -1371,6 +1371,13 @@ function drawAngleSupport(par, parDop) {
 		screw2.position.y = y;
 		screw2.position.z = z;
 		complexObject1.add(screw2)
+		
+		//перевернутые уголки
+		if(params.rotatedAngles == "да") {
+			screw.rotation.x = screw2.rotation.x = Math.PI / 2
+			screw.position.z += 28;
+			screw2.position.z += 28;
+		}
 	}
 
 	if (typeof anglesHasBolts != "undefined" && anglesHasBolts) { //глобальная переменная
@@ -2930,7 +2937,10 @@ layer
 		var sumLength = arcLength / 1000;
 		var area = (arcLength / 1000) * (par.height / 1000);
 		if (partName == 'polySheet') {
-			area = Math.ceil((arcLength / 1000)) * Math.ceil((par.height / 2100)) * 2.1; //округляем до ширины листа
+			var sheetWidth = 2.1;
+			if (params.roofMat == "монолитный поликарбонат") sheetWidth = 2.05;
+			area = Math.ceil((arcLength / 1000)) * Math.ceil((par.height / 2100)) * sheetWidth; //округляем до ширины листа
+			
 		}
 		
 		if (typeof specObj != 'undefined') {

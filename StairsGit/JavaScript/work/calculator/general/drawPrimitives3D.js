@@ -165,6 +165,7 @@ function drawPlate(par) {
 			if (par.partName == "drawerBotPlate") specObj[par.partName].name = "Дно ящика МДФ ";
 			if (par.partName == "shelf") specObj[par.partName].name = "Полка ";
 			if (par.partName == "rail") specObj[par.partName].name = "Штанга ";
+			if (par.partName == "screenPlate") specObj[par.partName].name = "Деталь экрана ";
 
 
 			if (par.partName == "drawerFrontPlate" ||

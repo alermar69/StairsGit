@@ -313,20 +313,6 @@ totalHandrailPrice *= costMarkup;
 
 var totalStairPrice = totalTreadsPrice + totalPlatformPrice + totalSpacerPrice + stringerPrice + totalRackPrice + totalHandrailPrice;
 
-var margin = 3 / costMarkup
-var marginPaint = 2 / costMarkup
-
-/*данные по цене*/
-setPrice('treads', totalTreadsPrice * margin);
-setPrice('platform', totalPlatformPrice * margin);
-setPrice('spacers', totalSpacerPrice * margin);
-setPrice('stringers', stringerPrice * margin);
-setPrice('racks', totalRackPrice * margin);
-setPrice('handrail', totalHandrailPrice * margin);
-setPrice('staircase', totalStairPrice * margin);
-setPrice('staircaseMetalPaint', metalPaintPrice * marginPaint);
-setPrice('staircaseTimberPaint', timberPaintPrice * marginPaint);
-
 /*данные по себестоимости*/
 
 staircaseCost.treads = totalTreadsPrice;
@@ -341,7 +327,7 @@ staircaseCost.staircaseTimberPaint = timberPaintPrice;
 staircaseCost.treadLigts = calcTreadParams().treadLigtsCost
 
 //доля деревянного цеха в себестоимости
-staircaseCost.timberPart = (timberPrice + timberPaintPrice) / (totalStairPrice + metalPaintPrice + timberPaintPrice);
+staircaseCost.timberPart = (timberPrice + timberPaintPrice) / (totalStairPrice);
 
 } //конец функции calculateCarcasPrice()
 

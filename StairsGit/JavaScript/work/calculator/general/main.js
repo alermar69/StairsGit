@@ -92,7 +92,7 @@ $(function () {
 		$("#assembling table.form_table").show();
 	}
 	//перерисовка стен при измененнии инпутов формы параметров стен
-    $(wallsSelector).delegate('input,select', 'change', function(){
+  $(wallsSelector).delegate('input,select', 'change', function(){
 		getAllInputsValues(params);
 		redrawWalls();
 		if(isStaircaseCalc)	drawTopFloor();
@@ -101,7 +101,7 @@ $(function () {
 	
 	
 	//перерисовка балюстрады при измененнии инпутов формы параметров балюстрады
-    $('#nav-banister').delegate('input,select', 'change', function(){
+  $('#nav-banister').delegate('input,select', 'change', function(){
 		getAllInputsValues(params);
 		if(isStaircaseCalc) drawBanister();
 	});
@@ -151,18 +151,19 @@ $(function () {
 	$('#makeDrawings').click(function(){
 		makeDrawings();
 	});
-		
-	//пересчитываем лестницу
-	if (window.loadedData) {
-
-		if (window.loadedData.is_multi == '1' && window.location.href.indexOf('multiCalcType=') == -1) {
-			window.location.href = window.location.href += '&multiCalcType=' + loadedData.calc_type;
-		}else{
-			setLoadedData(window.loadedData, true);
-		}
-	}else{
-		recalculate();
-	}
+	
+  loadAsyncData(function(){
+    //пересчитываем лестницу
+    if (window.loadedData) {
+      if (window.loadedData.is_multi == '1' && window.location.href.indexOf('multiCalcType=') == -1) {
+        window.location.href = window.location.href += '&multiCalcType=' + loadedData.calc_type;
+      }else{
+        setLoadedData(window.loadedData, true);
+      }
+    }else{
+      recalculate();
+    }
+  })
 });
 function recalculate() {
 	window.customDimensions = [];
@@ -241,11 +242,13 @@ function recalculate() {
 							calculateRailingPrice2(); //функция в файле priceLib.js
 						}
 						if ($("#calcType").val() != "objects") {
-							calculateBanisterPrice(); //функция в файле priceCalcBanister.js
+              calculateBanisterPrice(); //функция в файле priceCalcBanister.js
 							calcWrPrice(); //функция в файле /calculator/wardrobe/priceCalc.js
 						}
 					}
-					calculateTotalPrice2(); //функция в файле priceLib.js
+          console.log(staircaseCost.banister_glass_part);
+          calculateTotalPrice2(); //функция в файле priceLib.js
+          console.log(staircaseCost.banister_glass_part);
 					printPrice2(); //функция в файле priceLib.js
 					printCost2(); //функция в файле priceLib.js
 

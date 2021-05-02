@@ -25,38 +25,7 @@ $(function(){
 
 	//кнопка применить
 	$('#ms_createObjects').click(function(){
-		var className = $("#ms_model").val();
-		
-		window.additional_objects = []
-		
-		redrawAdditionalObjects();
-		console.log('aga');
-		$.each($('#ms_itemsPar tbody tr.objectRow'), function(){
-			var row = $(this);
-			var length = row.find('.itemLen').val();
-			var width = row.find('.itemWidth').val();
-			var thk = row.find('.itemThk').val();
-			var amt = row.find('.itemAmt').val();
-			// Создаем объект болванку
-			var obj = AdditionalObject.getDefaultObject(className);
-			console.log(obj);
-			// Присваиваем параметры
-			obj.meshParams.windowWidth = length;
-			obj.meshParams.len = length;
-
-			obj.meshParams.width = width;
-			obj.meshParams.windowPosZ = width - 100;
-			obj.meshParams.thk = thk;
-
-			obj.meshParams.objectAmt = amt;
-			obj.calc_price = true;
-
-			obj.position.z = 3000 * obj.id;
-			
-			window.additional_objects.push(obj);
-		})
-
-		redrawAdditionalObjects();
+		loadItemsFromTable();
 	});
 
 	//изменение количества
@@ -91,6 +60,96 @@ $(function(){
 	
 	
 });
+
+function loadItemsFromTable(){
+  var className = $("#ms_model").val();
+		
+  window.additional_objects = []
+  
+  redrawAdditionalObjects();
+  $.each($('#ms_itemsPar tbody tr.objectRow'), function(){
+    var row = $(this);
+    var length = row.find('.itemLen').val();
+    var width = row.find('.itemWidth').val();
+    var thk = row.find('.itemThk').val();
+    var amt = row.find('.itemAmt').val();
+    // Создаем объект болванку
+    var obj = AdditionalObject.getDefaultObject(className);
+    console.log(obj);
+    // Присваиваем параметры
+    obj.meshParams.windowWidth = length;
+    obj.meshParams.len = length;
+
+    obj.meshParams.width = width;
+    obj.meshParams.windowPosZ = width - 100;
+    obj.meshParams.thk = thk;
+
+    obj.meshParams.objectAmt = amt;
+    obj.calc_price = true;
+
+    obj.position.z = 3000 * obj.id;
+    
+    window.additional_objects.push(obj);
+  })
+
+  redrawAdditionalObjects();
+}
+
+// Загрузка данных заказа созданного из garmonyc-mebel
+function loadImportData(){
+  var user_data = window.service_data.importData.user_data
+  var price_data = window.service_data.importData.price_data
+  
+  var objects = price_data.objects;
+  
+  $("#ms_itemsPar tbody").html('');
+
+  for (var i = 0; i < objects.length; i++) {
+    var item = objects[i];
+    var row = '<tr class="objectRow">\
+        <td><input class="itemLen" type="number" value="' + item.len + '"></td>\
+        <td><input class="itemWidth" type="number" value="' + item.width + '"></td>\
+        <td><input class="itemThk" type="number" value="' + item.thk + '"></td>\
+        <td><input class="itemAmt" type="number" value="' + item.amt + '"></td>\
+        <td class="itemVol"></td>\
+        <td class="itemArea"></td>\
+        <td class="itemPaintingArea"></td>\
+        <td class="removeRow" style="text-align: center">\
+          <button class="btn btn-outline-danger" style="margin: 2px" data-toggle="tooltip" title="Удалить" data-original-title="Удалить">\
+            <i class="fa fa-trash-o"></i>\
+          </button>\
+        </td>\
+      </tr>';
+      
+    $("#ms_itemsPar tbody").append(row);
+    
+    $("#ms_itemAmt").val($("#ms_itemsPar .objectRow").length)
+  }
+  loadItemsFromTable();
+
+  var par = window.service_data.importData.params;
+  $('#additionalObjectsTimberMaterial').val(par.timberType);
+  $('#timberPaint').val(par.timberPaint);
+  $('#additionalObjectsTimberColor').val(par.timberColor);
+  if (par.assembling == 'есть') $('#isAssembling').val('есть')
+  
+  // Записываем комментарий
+  $('#comments_prod').val(user_data.comment);
+
+  // Фиксируем цену
+  $('#discountMode').val("цена");
+  $("#discountFactor").val(price_data.totalPrice);
+
+  window.additional_objects.forEach(function(obj){
+    obj.meshParams.edgeModel = par.edgeType;
+    obj.meshParams.edgeGeomTop = par.edgeGeomTop;
+    console.log(par.edgeModel, par.edgeGeomTop)
+  });
+
+  recalculate();
+
+  service_data.importData = null;
+}
 
 /** функция добавляет строку в таблицу параметров изделий в модальном окне **/
 function addItemParRow(index){

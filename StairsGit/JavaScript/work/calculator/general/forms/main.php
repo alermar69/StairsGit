@@ -69,9 +69,9 @@
 	}
 
 	//экспресс построение бетонных лестниц
-	if ($template == 'calculator' && $calc_type == "railing" && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
-		include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/railing.php";
-	}
+	// if ($template == 'calculator' && $calc_type == "railing" && !(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
+	// 	include $GLOBALS['ROOT_PATH']."/calculator/general/forms/master/railing.php";
+	// }
 	
 	if($template != 'customers' && $calc_type != 'slabs' && $calc_type != 'custom' && $calc_type != 'fire_2') {
 		if (!(isset($GLOBALS['IS_YII']) && $GLOBALS['IS_YII'])) {
@@ -124,12 +124,20 @@
 				</div>
 				<div id="images"></div>';
 
-			//параметры геометрии
+			//описание геометрии
 			echo
 				'<div class="printBlock" id="geomDescrWrapper">
 					<h2>Геометрия</h2>
 					<div id="geomDescr"></div>
-					<div id="geometryFacts" style="width: 100vw;"></div>
+					<div id="geometryFacts"></div>
+				</div>
+				';
+				
+			//описание конструкции
+			echo
+				'<div class="printBlock" id="unitsDescr-sect">
+					<h2>Особенности конструкции</h2>
+					<div id="unitsDescr"></div>
 				</div>
 				';
 		};
@@ -525,12 +533,12 @@
 	//описание лестницы
 	if($template == 'calculator'){
 		$tabs['descrBlocks'] = [
-			'name' => 'Описание',
+			'name' => 'Картинки',
 			'url' => '/calculator/general/content/descriptionBlocks.php',
 			'group' => 'data',
 		];
 		$tabs['descr'] = [
-			'name' => 'Описание',
+			'name' => 'Материалы',
 			'url' => '/calculator/general/content/description.php',
 			'group' => 'data',
 		];
@@ -772,6 +780,7 @@
 			</div>
 		</span>
 		<a class="nav-item nav-link" id="nav-visualisation" href="#visualisation">Модель</a>
+		<a class="nav-item nav-link" id="nav-unitsDescr" href="#unitsDescr">Описание</a>
 		';
 
 

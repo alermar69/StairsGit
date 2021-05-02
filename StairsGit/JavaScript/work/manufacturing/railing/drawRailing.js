@@ -664,10 +664,10 @@ if(par.railingType == "стекло рут." || par.railingType == "стекло
 		}
 } //конец построения секции с самонесущим стеклом
 
-//ограждения с самонесущим стеклом 
+
 if(par.railingType == "Дерево с ковкой"){
 	var meterHandrailPar = {
-		prof: "40х60 верт.",
+		prof: params.handrailProf,
 		sideSlots: "нет",
 		handrailType: "массив"
 	}
@@ -690,7 +690,7 @@ if(par.railingType == "Дерево с ковкой"){
 		var p2 = {x: -par.b_r / 2 + par.b_r * par.stairAmt_r, y: par.h_r * par.stairAmt_r}
 	}
 
-	var handrailPosY = par.sectHeight || 900;
+	var handrailPosY = par.sectHeight * 1.0 || 900; //высота секции считается по низу поручня на столбе
 	var dxfBasePoint = {x:0,y:0};
 	var rackSize = 95;
 	var posZ = rackSize / 2;
@@ -726,8 +726,8 @@ if(par.railingType == "Дерево с ковкой"){
 		marshId: par.marshId,
 		hasFixings: true
 	}
-	var basePoint = newPoint_xy(p1, 0, handrailPosY);
-	//console.log(basePoint);
+	var basePoint = newPoint_xy(p1, 0, handrailPosY); 
+	if (angle != 0) basePoint.y += 180 //180 - костыль в наследство от самонесущего стекла
 	
 	var handrailLengthMax = 2600;
 	if (angle == 0) handrailLengthMax = handrailLength + 1; // игнорируем деление на секции для прямого ограждения
@@ -785,6 +785,11 @@ if(par.railingType == "Дерево с ковкой"){
 		var handrailCutLen = meterHandrailPar.profY / Math.cos(handrailAngle);
 		var handrailPos = newPoint_xy(basePoint, 0, handrailCutLen);
 		var handrailEndPos = polar(handrailPos, handrailAngle, handrailLength);
+		
+		//коррекция позиции последнего столба
+		if(i == splitStairs.length && par.lastRackMooveY){
+			handrailParams.length += par.lastRackMooveY / Math.cos(angle)
+		}
 
 		//сохраняем позицию верхнего поручня для построения рейки в поручень
 		var marshHandrailPos = copyPoint(basePoint);
@@ -797,7 +802,7 @@ if(par.railingType == "Дерево с ковкой"){
 		}
 
 		var handrail = drawHandrail_4(handrailParams).mesh;
-		//console.log(handrailParams);
+		console.log(handrailBasePoint.y);
 		handrail.position.x = handrailBasePoint.x;
 		handrail.position.y = handrailBasePoint.y;
 		handrail.position.z = posZ - handrailParams.wallOffset;
@@ -843,24 +848,32 @@ if(par.railingType == "Дерево с ковкой"){
 
 		var turnNewell = drawTimberNewell_4(rackPar).mesh;
 		//var turnNewell = drawTurnNewell(rackPar).mesh;
-		turnNewell.position.x = rackPar.x - rackSize + 30;
+		turnNewell.position.x = rackPar.x// - rackSize + 30;
 		turnNewell.position.y = rackPar.y + 0.05;
 		turnNewell.position.z = posZ - (rackSize / 2 + 0.05) * turnFactor;
 
 		par.mesh.add(turnNewell);
 	}
 
+	//последний столб
 	var rackPar = newPoint_xy(p2, rackSize / 2, 0);
-	// var rackPar = copyPoint(p2);
 	rackPar.len = handrailPos.y + 20;
+	
+	//коррекция позиции последнего столба
+	if(par.lastRackMooveY){
+		rackPar.x += par.lastRackMooveY * 1.0;
+		rackPar.len += par.lastRackMooveY * Math.tan(angle)
+	}
+	
 	rackPar.marshId = 1;
-	rackPar.y = par.h_r * (par.stairAmt_r * 1.0 - 1) + params.treadThickness;
+	rackPar.y = par.h_r * (par.stairAmt_r * 1.0 - 1);
 	if (angle == 0) rackPar.y = 0;
 	rackPar.rackSize = rackSize;
 	rackPar.dxfBasePoint = newPoint_xy(dxfBasePoint, rackPar.x - rackSize / 2, rackPar.y);
 	
 	rackPar.type = 'top';//Определяет положение столба, верхний для марша или нижний
-
+	
+	
 	var turnNewell = drawTimberNewell_4(rackPar).mesh;
 	//var turnNewell = drawTurnNewell(rackPar).mesh;
 	turnNewell.position.x = rackPar.x - rackSize / 2;
@@ -880,6 +893,8 @@ if(par.railingType == "Дерево с ковкой"){
 	});
 
 	var startPos = 1;//Рассчитываем номер ступени для начала установки балясин
+	
+	var balLen = handrailPosY - rackSize / 2 * Math.tan(angle)
 
 	var balParams = {
 		stringerType: "косоур",
@@ -889,7 +904,7 @@ if(par.railingType == "Дерево с ковкой"){
 		h: par.h_r * 1.0,
 		stairAmt: par.stairAmt_r * 1.0 - 2,
 		ang: handrailAngle,
-		balLen: handrailPos.y - par.handrailParams.handrailCutLen - 0.01 + 40,
+		balLen: balLen,
 		dxfBasePoint: dxfBasePoint,
 		marshId: 1,
 		side: "in",
@@ -926,7 +941,7 @@ if(par.railingType == "Дерево с ковкой"){
 	
 	//Рассчет размера балясины
 	if (params.timberBalStep == 1.5) balParams.balLen += balPar_kos.deltaLen1 / 2;
-	if (params.timberBalStep == 1) balParams.balLen -= 15 * Math.tan(handrailAngle);
+//	if (params.timberBalStep == 1) balParams.balLen -= 15 * Math.tan(handrailAngle);
 	
 	for (var i = 0; i < marshPoints.length; i++) {
 		if (angle == 0){
@@ -944,7 +959,7 @@ if(par.railingType == "Дерево с ковкой"){
 
 		var pos = { x: 0, y: 0.05 };
 		if (i > 0 && marshPoints[i - 1].stairNumber) {
-			pos.x = par.b_r * marshPoints[i - 1].stairNumber;
+			pos.x = par.b_r * marshPoints[i - 1].stairNumber
 			pos.y = par.h_r * marshPoints[i - 1].stairNumber;
 		}
 		if (angle == 0){
@@ -955,11 +970,13 @@ if(par.railingType == "Дерево с ковкой"){
 		balParams.svgBasePoint = pos;
 		var balArr = drawBanistersArr(balParams);
 		balArr.position.z = posZ;
-		balArr.position.x = pos.x;
+		balArr.position.x = pos.x  - 20; //20 - подогнано
 		balArr.position.y = pos.y;
 		//console.log(balArr)
 		par.mesh.add(balArr);
 	}
+	
+	
 } //конец построения секции с самонесущим стеклом
 
 

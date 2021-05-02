@@ -220,7 +220,7 @@ function drawSphereSegment(par){
 		arcStepAng: arcStepAng,
 		arcAmt: arcAmt,
 	}
-	if(par.isMovable) flanPar.bearingHeight = par.extraRad; //высота подшипника)
+	if(par.isMovable) flanPar.bearingHeight = 200; //высота петли
 	
 	var flan = drawDomeTopFlan(flanPar).mesh;
 	flan.rotation.x = -Math.PI / 2;
@@ -236,7 +236,7 @@ function drawSphereSegment(par){
 		arcStepAng: arcStepAng,
 		arcAmt: arcAmt,
 	}
-	if (par.isMovable) capPar.bearingHeight = par.extraRad; //высота подшипника)
+	if (par.isMovable) capPar.bearingHeight = 200; //высота подшипника)
 
 	var cap = drawDomeTopCap(capPar).mesh;
 	cap.rotation.x = -Math.PI / 2;
@@ -579,7 +579,7 @@ function drawDomeTopFlan(par){
 		geom.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 		var bearing = new THREE.Mesh(geom, params.materials.metal);
 		bearing.rotation.x = Math.PI / 2;
-		bearing.position.z = -par.bearingHeight / 2 + par.thk
+		bearing.position.z = -20 + par.thk
 		
 		par.mesh.add(bearing);
 		bearing.setLayer('flans');

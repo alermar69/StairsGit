@@ -364,83 +364,162 @@ var factBlocks = [
 	},
 ];
 
+function insertFactsToDB(){
+  factBlocks.forEach(function(fact){
+    var data = {};
+
+    data['type'] = 'факт';
+    data['status'] = 'активно';
+    data['author'] = $("#userName").text();
+    data['title'] = fact.name
+    data['image'] = fact.image
+    data['description'] = fact.description
+    data['block'] = fact.block
+    data['group'] = fact.group
+    if (fact.condition == 'eval') {
+      data['conditions'] = fact.value;
+    }else if(fact.condition){
+      if (fact.value) {
+        data['conditions'] = 'checkFact("'+fact.condition+'", "' + fact.value + '")';
+      }else{
+        data['conditions'] = 'checkFact("'+fact.condition+'")';
+      }
+    }
+    if (fact.not_for) data['not_for'] = fact.not_for.join(',')
+    if (fact.only_for) data['only_for'] = fact.only_for.join(',')
+
+    $.ajax({
+      url: "/orders/content-controller/action-create",
+      type: "POST",
+      dataType: 'json',
+      data: {
+        props: data,
+        log: true,
+        user: $("#userName").text()
+      },
+      success: function (data) {
+        console.log(data)
+      },
+      error: function( jqXhr, textStatus, errorThrown ){
+        alert('Ошибка на сервере ' +errorThrown );
+      }
+    });
+  })
+}
+
+function loadFactsFromDB(callback){
+  $.ajax({
+    url: "/orders/content-controller/get-list",
+    type: "POST",
+    dataType: 'json',
+    data: {
+      filterStatus: 'активно',
+    },
+    success: function (data) {
+      console.log(data)
+	  factBlocks = [];
+      data.forEach(function(data){
+        if(data.not_for) data.not_for = data.not_for.split(',');
+        if(data.only_for) data.only_for = data.only_for.split(',');
+        
+        try {
+          var custom_data = JSON.parse(data.custom_data);
+          $.each(custom_data, function(key){
+            data[key] = this + '';
+          })
+        } catch (error) {
+        }
+        factBlocks.push(data);
+      })
+
+      callback();
+    },
+    error: function( jqXhr, textStatus, errorThrown ){
+      alert('Ошибка на сервере ' +errorThrown );
+    }
+  });
+}
+
 function getFacts(group, block){
 	var generatedFacts = [];
 
 	factBlocks.forEach(function(fact){
-		
-		if (!(fact.group == group && (fact.block == block || block == undefined))) return;
+		if (!(fact.group == group && (fact.block == block || block == undefined))) return true;
+		if (fact.type != "факт") return true;
 		if(fact.only_for && fact.only_for.indexOf(params.calcType) == -1 ||  fact.not_for && fact.not_for.indexOf(params.calcType) != -1) return;
 		
-		if (fact.condition) {
+		if (fact.conditions) {
 			var isGoodFact = false;
-			switch (fact.condition) {
-				case 'eval':
-					if(eval(fact.value)) isGoodFact = true;
-					break;
-				case 'stairMaterial':
-					var stairTypeC = params.stairType;
-					if(stairTypeC == "массив") stairTypeC = params.treadsMaterial;
-
-					var stairMaterial = 'дерево';
-					if (['рифленая сталь', 'лотки'].indexOf(stairTypeC) != -1) stairsType = 'метал';
-					if (['дпк','пресснастил','стекло'].indexOf(stairTypeC) != -1)  stairsType = 'рамки';
-
-					if (stairMaterial == fact.value) isGoodFact = true;
-					break;
-				case 'stairType':
-					var stairTypeC = params.stairType;
-					if(stairTypeC == "массив") stairTypeC = params.treadsMaterial;
-
-					if (stairTypeC == fact.value) isGoodFact = true;
-					break;
-				case 'handrailMaterial':
-					var handrailPar = {
-						prof: params.handrailProf,
-						sideSlots: params.handrailSlots,
-						handrailType: params.handrail,
-					}
-						
-					handrailPar = calcHandrailMeterParams(handrailPar);
-					if (handrailPar.mat == fact.value) isGoodFact = true;
-					break;
-				case 'hasRailings':
-					if (params.railingSide_1 !== 'нет' || params.railingSide_2 !== 'нет' || params.railingSide_2 !== 'нет') isGoodFact = true;
-					break;
-				case 'hasWinderTurn':
-					if (params.stairModel == 'П-образная с забегом' || params.stairModel == 'Г-образная с забегом' || params.stairModel == 'П-образная трехмаршевая' && (params.turnType_1 == 'забег' || params.turnType_2 == 'забег')) isGoodFact = true;
-					break;
-				case 'hasPlatformTurn':
-					if (params.stairModel == 'П-образная с площадкой' || params.stairModel == 'Г-образная с площадкой' || params.stairModel == 'П-образная трехмаршевая' && (params.turnType_1 == 'площадка' || params.turnType_2 == 'площадка')) isGoodFact = true;
-					break;
-				case 'hasStartTreads':
-					if (params.startTreadAmt > 0) isGoodFact = true;
-					break;
-				case 'hasTimberParts':
-					if (	['нет', 'рифленая сталь', 'лотки', 'дпк', 'пресснастил', 'стекло'].indexOf(params.stairType) == -1 || 
-							['массив', 'ПВХ', 'сосна', 'береза', 'лиственница', 'дуб паркет.', 'дуб ц/л'].indexOf(params.handrail) != -1 || 
-							params.calcType == 'timber' || params.calcType == 'timber_stock'){
-						isGoodFact = true;
-					} 
-					break;
-				case 'hasMetalParts':
-					if (	['рифленая сталь', 'лотки', 'пресснастил'].indexOf(params.stairType) != -1 || 
-							['массив', 'ПВХ', 'сосна', 'береза', 'лиственница', 'дуб паркет.', 'дуб ц/л', 'нет'].indexOf(params.handrail) == -1 || 
-							params.calcType !== 'timber' || params.calcType !== 'timber_stock' || params.calcType !== 'geometry'){
-						isGoodFact = true;
-					} 
-					break;
-				case 'hasMetalParts':
-					if (params.turnType1 == 'забег' || params.turnType2 == 'забег') isGoodFact = true;
-					break;
-			}
-			if (isGoodFact) generatedFacts.push({name: buildFactText(fact.name), description: buildFactText(fact.description), image: fact.image});
+      if(eval(fact.conditions)) isGoodFact = true;
+			if (isGoodFact) generatedFacts.push({name: buildFactText(fact.title), subtitle: fact.subtitle, description: buildFactText(fact.description), image: fact.image});
 		}else{
-			generatedFacts.push({name: buildFactText(fact.name), description: buildFactText(fact.description), image: fact.image});
+			generatedFacts.push({name: buildFactText(fact.title), subtitle: fact.subtitle, description: buildFactText(fact.description), image: fact.image});
 		}
 	});
-
 	return generatedFacts;
+}
+
+function checkFact(checkType, value){
+  var isGoodFact = false;
+  switch (checkType) {
+    case 'stairMaterial':
+      var stairTypeC = params.stairType;
+      if(stairTypeC == "массив") stairTypeC = params.treadsMaterial;
+
+      var stairMaterial = 'дерево';
+      if (['рифленая сталь', 'лотки'].indexOf(stairTypeC) != -1) stairsType = 'метал';
+      if (['дпк','пресснастил','стекло'].indexOf(stairTypeC) != -1)  stairsType = 'рамки';
+
+      if (stairMaterial == value) isGoodFact = true;
+      break;
+    case 'stairType':
+      var stairTypeC = params.stairType;
+      if(stairTypeC == "массив") stairTypeC = params.treadsMaterial;
+
+      if (stairTypeC == value) isGoodFact = true;
+      break;
+    case 'handrailMaterial':
+      var handrailPar = {
+        prof: params.handrailProf,
+        sideSlots: params.handrailSlots,
+        handrailType: params.handrail,
+      }
+        
+      handrailPar = calcHandrailMeterParams(handrailPar);
+      if (handrailPar.mat == value) isGoodFact = true;
+      break;
+    case 'hasRailings':
+      if (params.railingSide_1 !== 'нет' || params.railingSide_2 !== 'нет' || params.railingSide_2 !== 'нет') isGoodFact = true;
+      break;
+    case 'hasWinderTurn':
+      if (params.stairModel == 'П-образная с забегом' || params.stairModel == 'Г-образная с забегом' || params.stairModel == 'П-образная трехмаршевая' && (params.turnType_1 == 'забег' || params.turnType_2 == 'забег')) isGoodFact = true;
+      break;
+    case 'hasPlatformTurn':
+      if (params.stairModel == 'П-образная с площадкой' || params.stairModel == 'Г-образная с площадкой' || params.stairModel == 'П-образная трехмаршевая' && (params.turnType_1 == 'площадка' || params.turnType_2 == 'площадка')) isGoodFact = true;
+      break;
+    case 'hasStartTreads':
+      if (params.startTreadAmt > 0) isGoodFact = true;
+      break;
+    case 'hasTimberParts':
+      if (	['нет', 'рифленая сталь', 'лотки', 'дпк', 'пресснастил', 'стекло'].indexOf(params.stairType) == -1 || 
+          ['массив', 'ПВХ', 'сосна', 'береза', 'лиственница', 'дуб паркет.', 'дуб ц/л'].indexOf(params.handrail) != -1 || 
+          params.calcType == 'timber' || params.calcType == 'timber_stock'){
+        isGoodFact = true;
+      } 
+      break;
+    case 'hasMetalParts':
+      if (	['рифленая сталь', 'лотки', 'пресснастил'].indexOf(params.stairType) != -1 || 
+          ['массив', 'ПВХ', 'сосна', 'береза', 'лиственница', 'дуб паркет.', 'дуб ц/л', 'нет'].indexOf(params.handrail) == -1 || 
+          params.calcType !== 'timber' || params.calcType !== 'timber_stock' || params.calcType !== 'geometry'){
+        isGoodFact = true;
+      } 
+      break;
+    case 'hasMetalParts':
+      if (params.turnType1 == 'забег' || params.turnType2 == 'забег') isGoodFact = true;
+      break;
+  }
+
+  return isGoodFact;
 }
 
 function getHandrailProfile(){

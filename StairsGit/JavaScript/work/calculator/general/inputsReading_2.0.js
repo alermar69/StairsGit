@@ -793,6 +793,7 @@ function staircaseHasMat() {
 		timber: false,
 		glass8: false,
 		glass12: false,
+		glass: false,
 		bolts: false,
 		metalPaint: false,
 		timberPaint: false,
@@ -826,7 +827,9 @@ function staircaseHasMat() {
 		if(params.railingModel_bal == "Самонесущее стекло") par.glass12 = true;
 		if(params.railingModel_bal == "Стекло на стойках" || params.railingModel_bal == "Стекло") par.glass8 = true;
 	}
-
+	
+	if(par.glass8 || par.glass12) par.glass = true;
+	
 	//покраска металла
 	par.metalPaint = units.carcasMetalPaint || 
 		units.railingMetalPaint || 

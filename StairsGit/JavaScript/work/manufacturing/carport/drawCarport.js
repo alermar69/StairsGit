@@ -125,59 +125,73 @@ function drawRoof(par){
 			
 		var halfAngle = (par.topArc.startAngle - par.topArc.endAngle) / 2;
 		var extraAngle = partPar.roofSheet.overhang / roofRad; //свес сбоку
-
+		
+		//количество листов по длине навеса
 		var sheetWidth = 2100;
 		if (params.roofMat == "монолитный поликарбонат") sheetWidth = 2050;
 		var sheetStep = sheetWidth;
 		var sheetAmt = Math.ceil(par.len / sheetWidth);
-		for (var i = 0; i < sheetAmt; i++) {			
+		
+		//количество листов по ширине навеса
+		var sheetLen = 12000;
+		if (params.roofMat == "монолитный поликарбонат") sheetLen = 3050;
+		var arcLen = (halfAngle * 2 + extraAngle * 2) * roofRad;
+		var sheetAmtArc = Math.ceil(arcLen / sheetLen);
+		var sheetAngLen = (halfAngle * 2 + extraAngle * 2) / sheetAmtArc;
+		
+		//цикл построения по длине навеса
+		for (var i = 0; i < sheetAmt; i++) {
 			//последний лист неполной ширины
 			if ( i == ( sheetAmt - 1 )) sheetWidth = par.len - sheetStep * i;
-
-			var arcPanelPar = {
-				rad: roofRad,
-				height: sheetWidth,
-				thk: params.roofThk,
-				angle: halfAngle * 2 + extraAngle * 2,
-				dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
-				material: params.materials.plastic_roof,
-				partName: 'polySheet',
-				dxfPrimitivesArr: []
-			}
 			
-			var sheet = drawArcPanel(arcPanelPar).mesh;
-			
-			sheet.rotation.z = par.topArc.endAngle - extraAngle;
-			if (params.carportType == "односкатный" || params.carportType.indexOf("консольный") != -1){
-				//sheet.rotation.z = Math.PI / 2;// - extraAngle;
-				sheet.position.x = params.width / 2;
-			}
-			
-			sheet.position.z = sheetStep * i + 10;
-			sheet.position.y = par.topArc.center.y + 10;
-			sheet.setLayer('roof');
-			roof.add(sheet);
-
-			// Соединительный профиль
-			if (i < (sheetAmt - 1)) {
-				var polyProfilePar = {
+			//цикл построения по длине дуги
+			for (var j = 0; j < sheetAmtArc; j++) {
+				
+				var arcPanelPar = {
 					rad: roofRad,
-					thk: params.roofThk + 2,
-					angle: arcPanelPar.angle,
+					height: sheetWidth,
+					thk: params.roofThk,
+					angle: sheetAngLen, //halfAngle * 2 + extraAngle * 2,
 					dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+					material: params.materials.plastic_roof,
+					partName: 'polySheet',
 					dxfPrimitivesArr: []
 				}
-				var polyProfile = drawPolyConnectionProfile(polyProfilePar);
-		
-				polyProfile.rotation.z = sheet.rotation.z;
-
-				polyProfile.position.x = sheet.position.x;
-				polyProfile.position.y = sheet.position.y;
-				polyProfile.position.z = sheetWidth * i + sheetWidth;
 				
-		
-				polyProfile.setLayer('roof');
-				if(!testingMode) roof.add(polyProfile);
+				var sheet = drawArcPanel(arcPanelPar).mesh;
+				
+				sheet.rotation.z = par.topArc.endAngle - extraAngle + sheetAngLen * j;
+				if (params.carportType == "односкатный" || params.carportType.indexOf("консольный") != -1){
+					//sheet.rotation.z = Math.PI / 2;// - extraAngle;
+					sheet.position.x = params.width / 2;
+				}
+				
+				sheet.position.z = sheetStep * i + 10;
+				sheet.position.y = par.topArc.center.y + 10;
+				sheet.setLayer('roof');
+				roof.add(sheet);
+						
+				// Соединительный профиль по дуге
+				if (i < (sheetAmt - 1)) {
+					var polyProfilePar = {
+						rad: roofRad,
+						thk: params.roofThk + 2,
+						angle: arcPanelPar.angle,
+						dxfBasePoint: newPoint_xy(par.dxfBasePoint, 0, 0),
+						dxfPrimitivesArr: []
+					}
+					var polyProfile = drawPolyConnectionProfile(polyProfilePar);
+			
+					polyProfile.rotation.z = sheet.rotation.z;
+
+					polyProfile.position.x = sheet.position.x;
+					polyProfile.position.y = sheet.position.y;
+					polyProfile.position.z = sheetWidth * i + sheetWidth;
+					
+			
+					polyProfile.setLayer('roof');
+					if(!testingMode) roof.add(polyProfile);
+				}
 			}
 		}
 		
@@ -232,6 +246,7 @@ function drawRoof(par){
 		//листы кровли
 		if(params.roofMat.indexOf("поликарбонат") != -1){
 			var sheetWidth = 2100;
+			if (params.roofMat == "монолитный поликарбонат") sheetWidth = 2050;
 			var sheetDrawFunc = drawPole3D_4;
 			var sheetPar = {
 				poleProfileY: params.roofThk,

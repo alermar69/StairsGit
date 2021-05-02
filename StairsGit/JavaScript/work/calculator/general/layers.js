@@ -224,10 +224,11 @@ function getLayersByGroup(group){
 function getCalcTypeMeta(){
 	var par = {};
 	par.calcType = $("#calcType").val();
-	par.notStairs = ['railing', 'wardrobe', 'wardrobe_2', 'carport', 'table', 'slabs', 'sill', 'sideboard', 'coupe', 'objects'];
+	par.notStairs = ['wardrobe', 'wardrobe_2', 'carport', 'table', 'slabs', 'sill', 'sideboard', 'coupe', 'objects'];
 	
 	par.isStaircaseCalc = true;
 	if(par.notStairs.indexOf(par.calcType) != -1) par.isStaircaseCalc = false;
+	if(par.calcType == "railing") par.isStaircaseCalc = false;
 	
 	return par;	
 }
